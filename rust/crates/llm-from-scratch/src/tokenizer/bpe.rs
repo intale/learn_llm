@@ -580,11 +580,11 @@ mod tests {
     use crate::corpus::{Corpus, SplitManifest};
     use crate::tokenizer::bpe_trainer::BpeTrainer;
 
-    const CORPUS_BYTES: &[u8] = include_bytes!("../../../../data/tiny-bilingual-corpus.json");
+    const CORPUS_JSON: &str = include_str!("../../../../data/tiny-bilingual-corpus.json");
     const SPLIT_MANIFEST: &str = include_str!("../../../../data/splits.json");
 
     fn canonical_tokenizer() -> BpeTokenizer {
-        let corpus = Corpus::from_json(CORPUS_BYTES).expect("fixture corpus");
+        let corpus = Corpus::from_json(CORPUS_JSON).expect("fixture corpus");
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("fixture manifest");
         let partitions = manifest.partition(&corpus).expect("valid fixture split");
         let training = BpeTrainer::new(8)

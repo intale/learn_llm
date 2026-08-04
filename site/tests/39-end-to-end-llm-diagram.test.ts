@@ -399,14 +399,14 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract).toMatchObject({
       chapter_id: "39-end-to-end-llm",
       concept_id: "end-to-end-llm",
-      content_revision: 4,
+      content_revision: 5,
       order: 39,
     });
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      "direct, meaning-first refresh of frozen English revision 4",
+      "direct, meaning-first refresh of frozen English revision 5",
     );
 
     const localizedRecords = [
@@ -471,7 +471,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.en).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "en",
-      content_revision: 4,
+      content_revision: 5,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Run the whole tiny LLM",
@@ -481,7 +481,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.ru).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "ru",
-      content_revision: 4,
+      content_revision: 5,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Запустите небольшую LLM целиком",

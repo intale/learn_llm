@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "concept_id": "reversible-byte-bpe-tokenizer",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 4,
   "objective": {
     "en": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
@@ -119,7 +119,7 @@
     "Describe the lack of PAD as this course's fixed-window scope choice, not a claim that production serving never needs padding.",
     "The GPT-2 source supports the 256-byte base and coverage tradeoff, but its category-boundary policy differs from this course's document-barrier-only variant.",
     "Use пары «вход — цель» for Chapter 5 input–target pairs; do not rename the input as «контекст» in this handoff.",
-    "English revision 6 is the canonical semantic source. Russian revision 6 is refreshed directly from it with source SHA-256 d53d3cfa544ac970cdf27ffab4a8d2d75d486082c06d80dd98413ddefd644d19. The prose and tokenizer evidence are unchanged; the visible Rust loader call follows Chapter 2's ordinary JSON corpus fixture."
+    "English revision 7 is the canonical semantic source. Russian revision 7 is refreshed directly from it with source SHA-256 0a501a522cd90635fcb542b0a530322ade7084375a26621b6ba53b317f94698f. The prose and tokenizer evidence are unchanged; the visible Rust loader call now receives Chapter 2's ordinary JSON corpus as &str."
   ],
   "acceptance_examples": [
     {

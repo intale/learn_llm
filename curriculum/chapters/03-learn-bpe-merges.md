@@ -2,7 +2,7 @@
 {
   "chapter_id": "03-learn-bpe-merges",
   "concept_id": "deterministic-bpe-merge-learning",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 3,
   "objective": {
     "en": "Learn an ordered byte-pair merge table from the frozen training documents only, with overlapping candidate counts, an explicit numeric tie rule, and left-to-right non-overlapping replacement.",
@@ -139,7 +139,7 @@
     "Do not call numeric-smallest tie-breaking standard BPE behavior. Both lessons identify it as this course's reproducibility policy.",
     "Do not render an isolated learned byte token as a Unicode character: rank 0 on the real corpus represents bytes 20 d0, which are not a standalone UTF-8 string.",
     "Chapter 3 learns rules only; reserve encode, decode, BOS, EOS, and the final shifted ID layout for Chapter 4.",
-    "English revision 6 is the canonical semantic source. Russian revision 6 is refreshed directly from it with source SHA-256 c8e4391832057c05a349463658196d70d1a4910fc2231409f9678625bca2b36b. The prose is unchanged; the visible Rust loader call and exact raw-file checksum evidence move together with Chapter 2's ordinary JSON corpus fixture."
+    "English revision 7 is the canonical semantic source. Russian revision 7 is refreshed directly from it with source SHA-256 97a779ed23118eed4348c49f28135054bcbd0af2ed6dd84dea80afe809b8ceb3. The prose and checksum evidence are unchanged; the visible Rust loader call now receives the ordinary JSON corpus as &str."
   ],
   "acceptance_examples": [
     {

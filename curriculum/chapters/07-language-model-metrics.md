@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "concept_id": "language-model-metrics",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 7,
   "objective": {
     "en": "Compute average negative log-likelihood and perplexity from the probabilities assigned to observed target tokens.",
@@ -148,7 +148,7 @@
     "Describe product underflow as values falling below the representable f64 range and rounding to zero. Describe the shared-argmax case only as a teaching contrast; do not invent a chronology in which accuracy was universally replaced by perplexity.",
     "Keep NLL, PPL, BOS, EOS, argmax, f64, Vec<f64>, token IDs, Rust identifiers, trace keywords, numeric values, URLs, paths, formulas, and train/validation trace labels as isolated left-to-right technical evidence. Do not import English word order into the surrounding Russian sentence.",
     "Make both handoffs explicit: Chapter 8 begins flat Vec<f64> tensor storage and coordinate-to-offset indexing, Chapters 8–22 build the numerical and optimization machinery, and Chapter 34 owns the first test evaluation.",
-    "English revision 5 is the canonical semantic source. Russian revision 5 is refreshed directly from it with source SHA-256 9b9ea012a9ce9ea3f0b87ee066d390d237283498ebfade035401ae876df50231. The metric prose and values are unchanged; the visible loader call and corpus provenance checksum follow Chapter 2's ordinary JSON fixture while train/validation scoring remains identical."
+    "English revision 6 is the canonical semantic source. Russian revision 6 is refreshed directly from it with source SHA-256 beb369b6723749bc0a06b815cbbfd58a2f8b1c88a25150430a73780fad8f8e45. The metric prose, values, and corpus checksum are unchanged; the visible loader call now receives Chapter 2's ordinary JSON corpus as &str while train/validation scoring remains identical."
   ],
   "acceptance_examples": [
     {

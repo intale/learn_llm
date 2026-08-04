@@ -181,22 +181,22 @@ function blankLabelAt(
 describe('corpus-partitions diagram data', () => {
   it('delegates JSON decoding while keeping document and split invariants explicit', () => {
     const contract = contractMetadata();
-    expect(contract.content_revision).toBe(7);
-    expect(lessonSources.en).toContain('"content_revision": 7');
-    expect(lessonSources.ru).toContain('"content_revision": 7');
+    expect(contract.content_revision).toBe(8);
+    expect(lessonSources.en).toContain('"content_revision": 8');
+    expect(lessonSources.ru).toContain('"content_revision": 8');
     expect(normalizeWhitespace(contractSource)).toContain(
       normalizeWhitespace(
-        '`Corpus::from_json` gives the file bytes to `serde_json`, which deserializes the JSON array into private records with four required fields.',
+        '`Corpus::from_json` accepts the JSON text as `&str`, so Rust guarantees valid UTF-8 before the method begins.',
       ),
     );
     expect(normalizeWhitespace(lessonSources.en)).toContain(
       normalizeWhitespace(
-        '`Corpus::from_json` gives the file bytes to `serde_json`, which parses the JSON and deserializes each item\'s four required fields into a private Rust record.',
+        '`Corpus::from_json` accepts the JSON text as `&str`, so Rust guarantees valid UTF-8 before the method begins.',
       ),
     );
     expect(normalizeWhitespace(lessonSources.en)).toContain(
       normalizeWhitespace(
-        'Because `Corpus::from_json` receives bytes, it also rejects invalid UTF-8 at this boundary; `SplitManifest::from_json` receives a Rust string, which is already valid UTF-8.',
+        '`SplitManifest::from_json` uses a separate private Rust record for the manifest\'s six required fields and the same `&str` boundary.',
       ),
     );
     expect(normalizeWhitespace(lessonSources.en)).toContain(
@@ -209,12 +209,12 @@ describe('corpus-partitions diagram data', () => {
     );
     expect(normalizeWhitespace(lessonSources.ru)).toContain(
       normalizeWhitespace(
-        '`Corpus::from_json` передаёт байты файла библиотеке `serde_json`.',
+        '`Corpus::from_json` принимает текст JSON как `&str`. Тип `&str` уже гарантирует корректность UTF-8.',
       ),
     );
     expect(normalizeWhitespace(lessonSources.ru)).toContain(
       normalizeWhitespace(
-        '`Corpus::from_json` получает байты, поэтому на этой границе также отклоняет недопустимую последовательность байтов UTF-8. `SplitManifest::from_json` получает строку Rust, которая уже содержит корректный UTF-8.',
+        '`SplitManifest::from_json` использует отдельную внутреннюю структуру данных Rust для шести обязательных полей манифеста и также принимает `&str`.',
       ),
     );
     expect(normalizeWhitespace(lessonSources.ru)).toContain(
@@ -226,14 +226,16 @@ describe('corpus-partitions diagram data', () => {
       'Эти проверки формата не определяют, соблюдены ли инварианты распределения документов между обучающей, валидационной и тестовой выборками.',
     );
     expect(contract.translation_notes.join(' ')).toContain(
-      'SHA-256 f702d228eefbb2a91cd1e1d9611843224431c7104ff1e49e01ab2cdb14ec1f90',
+      'SHA-256 dd6e3b6cd70f6299e84c56061a311ba043908cb27e3d82e3c330d32f57e5d9b3',
     );
     expect(rustCorpusSource).toContain('use serde::Deserialize;');
     expect(rustCorpusSource).toContain('struct DocumentJson');
     expect(rustCorpusSource).toContain('struct SplitManifestJson');
     expect(rustCorpusSource).toContain('#[serde(deny_unknown_fields)]');
-    expect(rustCorpusSource).toContain('serde_json::from_slice(bytes)');
+    expect(rustCorpusSource).toContain('pub fn from_json(source: &str)');
     expect(rustCorpusSource).toContain('serde_json::from_str(source)');
+    expect(rustCorpusSource).toContain('fnv1a64(source.as_bytes())');
+    expect(rustCorpusSource).not.toContain('serde_json::from_slice');
     expect(rustCorpusSource).toContain('invalid corpus JSON:');
     expect(rustCorpusSource).toContain('invalid split manifest JSON:');
     expect(rustCorpusSource).not.toContain('Corpus::from_utf8');
@@ -242,11 +244,11 @@ describe('corpus-partitions diagram data', () => {
   });
 
   it('explains the fixture counts and diagram evidence in every locale', () => {
-    expect(lessonSources.en).toContain('"content_revision": 7');
+    expect(lessonSources.en).toContain('"content_revision": 8');
     expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
       '`8 / 2 / 2` (eight documents in training, two in validation, and two in test)',
     );
-    expect(lessonSources.ru).toContain('"content_revision": 7');
+    expect(lessonSources.ru).toContain('"content_revision": 8');
     expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
       '`8 / 2 / 2` (восемь документов в обучающей выборке, два — в валидационной и два — в тестовой)',
     );

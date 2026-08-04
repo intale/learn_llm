@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '07-language-model-metrics';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`\mathcal{L}=-\frac{1}{N}\sum_{t=1}^{N}\log p_t(z_t), \quad \operatorname{PPL}=\exp(\mathcal{L})`;
 const repositoryRoot = resolve(process.cwd(), '..');
 

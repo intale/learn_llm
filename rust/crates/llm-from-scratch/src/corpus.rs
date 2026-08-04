@@ -46,7 +46,7 @@ impl Document {
     }
 }
 
-/// A corpus in stable source order plus a checksum of its original bytes.
+/// A corpus in stable source order plus a checksum of its JSON text's UTF-8 bytes.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Corpus {
     documents: Vec<Document>,
@@ -63,10 +63,10 @@ struct DocumentJson {
 }
 
 impl Corpus {
-    /// Deserializes the repository's JSON document array from UTF-8 bytes.
+    /// Deserializes the repository's JSON document array from UTF-8 text.
     // region:document-loader
-    pub fn from_json(bytes: &[u8]) -> Result<Self, CorpusError> {
-        let decoded: Vec<DocumentJson> = serde_json::from_slice(bytes)
+    pub fn from_json(source: &str) -> Result<Self, CorpusError> {
+        let decoded: Vec<DocumentJson> = serde_json::from_str(source)
             .map_err(|error| CorpusError::new(format!("invalid corpus JSON: {error}")))?;
         if decoded.is_empty() {
             return Err(CorpusError::new("corpus contains no documents"));
@@ -118,7 +118,7 @@ impl Corpus {
 
         Ok(Self {
             documents,
-            checksum: format!("fnv1a64:{:016x}", fnv1a64(bytes)),
+            checksum: format!("fnv1a64:{:016x}", fnv1a64(source.as_bytes())),
         })
     }
     // endregion:document-loader
@@ -133,7 +133,7 @@ impl Corpus {
         self.documents.iter().find(|document| document.id == id)
     }
 
-    /// Returns the deterministic checksum of the original corpus bytes.
+    /// Returns the deterministic checksum of the supplied JSON text's UTF-8 bytes.
     pub fn checksum(&self) -> &str {
         &self.checksum
     }
@@ -430,11 +430,11 @@ mod tests {
     ]"#;
     const ONE_DOCUMENT: &str =
         r#"[{"id":"en-one","language":"en","provenance_group":"pair-one","text":"One."}]"#;
-    const CANONICAL_CORPUS: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
+    const CANONICAL_CORPUS: &str = include_str!("../../../data/tiny-bilingual-corpus.json");
     const CANONICAL_MANIFEST: &str = include_str!("../../../data/splits.json");
 
     fn corpus() -> Corpus {
-        Corpus::from_json(CORPUS.as_bytes()).unwrap()
+        Corpus::from_json(CORPUS).unwrap()
     }
 
     fn manifest_json(corpus: &Corpus) -> String {
@@ -626,26 +626,17 @@ mod tests {
     #[test]
     fn corpus_json_rejects_format_failures_and_accepts_standard_escapes() {
         let invalid_inputs = [
-            vec![0xff],
-            b"[".to_vec(),
-            b"{}".to_vec(),
-            ONE_DOCUMENT
-                .replacen("\"text\":\"One.\"", "\"extra\":true,\"text\":\"One.\"", 1)
-                .into_bytes(),
-            ONE_DOCUMENT
-                .replacen(
-                    "\"id\":\"en-one\"",
-                    "\"id\":\"en-one\",\"id\":\"en-one\"",
-                    1,
-                )
-                .into_bytes(),
-            ONE_DOCUMENT
-                .replacen(",\"text\":\"One.\"", "", 1)
-                .into_bytes(),
-            ONE_DOCUMENT
-                .replacen("\"language\":\"en\"", "\"language\":1", 1)
-                .into_bytes(),
-            format!("{ONE_DOCUMENT} trailing").into_bytes(),
+            "[".to_owned(),
+            "{}".to_owned(),
+            ONE_DOCUMENT.replacen("\"text\":\"One.\"", "\"extra\":true,\"text\":\"One.\"", 1),
+            ONE_DOCUMENT.replacen(
+                "\"id\":\"en-one\"",
+                "\"id\":\"en-one\",\"id\":\"en-one\"",
+                1,
+            ),
+            ONE_DOCUMENT.replacen(",\"text\":\"One.\"", "", 1),
+            ONE_DOCUMENT.replacen("\"language\":\"en\"", "\"language\":1", 1),
+            format!("{ONE_DOCUMENT} trailing"),
         ];
         for invalid in invalid_inputs {
             let error = Corpus::from_json(&invalid).unwrap_err();
@@ -656,24 +647,24 @@ mod tests {
         }
 
         let escaped = ONE_DOCUMENT.replace("en-one", "en\\u002done");
-        let corpus = Corpus::from_json(escaped.as_bytes()).unwrap();
+        let corpus = Corpus::from_json(&escaped).unwrap();
         assert_eq!(corpus.documents()[0].id(), "en-one");
     }
 
     #[test]
     fn rejects_invalid_document_fields_duplicate_ids_and_duplicate_text() {
         assert_eq!(
-            Corpus::from_json(b"[]").unwrap_err().to_string(),
+            Corpus::from_json("[]").unwrap_err().to_string(),
             "corpus contains no documents"
         );
         assert!(
-            Corpus::from_json(ONE_DOCUMENT.replace("en-one", "EN-one").as_bytes())
+            Corpus::from_json(&ONE_DOCUMENT.replace("en-one", "EN-one"))
                 .unwrap_err()
                 .to_string()
                 .contains("document ID")
         );
         assert!(
-            Corpus::from_json(ONE_DOCUMENT.replace("One.", "  ").as_bytes())
+            Corpus::from_json(&ONE_DOCUMENT.replace("One.", "  "))
                 .unwrap_err()
                 .to_string()
                 .contains("text is empty")
@@ -684,7 +675,7 @@ mod tests {
             &ONE_DOCUMENT[1..ONE_DOCUMENT.len() - 1].replace("One.", "Two.")
         );
         assert!(
-            Corpus::from_json(duplicate_id.as_bytes())
+            Corpus::from_json(&duplicate_id)
                 .unwrap_err()
                 .to_string()
                 .contains("duplicate document ID")
@@ -697,7 +688,7 @@ mod tests {
                 .replace("\"en\"", "\"ru\"")
         );
         assert!(
-            Corpus::from_json(duplicate_text.as_bytes())
+            Corpus::from_json(&duplicate_text)
                 .unwrap_err()
                 .to_string()
                 .contains("duplicate document text")

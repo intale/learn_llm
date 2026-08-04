@@ -12975,3 +12975,85 @@ model result, dependency, route, or generation algorithm changes.
 `repair-explicit-wording-findings-20260804`,
 `repair-ch39-explicit-figure-mappings`, and
 `20260804T114448Z-repair-ch39-explicit-figure-mappings-01`.
+
+## 2026-08-04 - Trust Rust strings at the corpus JSON boundary
+
+**Status:** Accepted for `simplify-corpus-json-string-boundary`; this supersedes
+only the byte-taking API choice in “Supersede the manifest-only migration with
+ordinary corpus JSON.” The ordinary JSON format, serde boundary, exact-source
+checksum, and course-owned data invariants remain current.
+
+**Context:** `Corpus::from_json(&[u8])` made the loader own UTF-8 validation even
+though every production caller supplies the checked-in textual JSON fixture. The
+API thereby exposed a lower-level failure mode that is impossible once a caller
+has established a Rust string. This distracts from the chapter's relevant data
+boundary and encourages defensive work below an already guaranteed type contract.
+
+**Decision:** Change the public boundary to `Corpus::from_json(&str)` and use
+`serde_json::from_str`. Every direct caller will supply a clearly named string,
+normally through `include_str!`; the capstone pipeline will expose the same
+textual boundary. The loader assumes its argument is already valid UTF-8 and does
+not normalize it. Remove the invalid-byte test because `&str` cannot represent
+that input.
+
+Continue hashing `source.as_bytes()` so the manifest remains bound to the exact
+UTF-8 source representation supplied to the loader. Rust strings preserve those
+bytes without newline or Unicode normalization, so the checked-in checksum stays
+`fnv1a64:723b071980ae8a22`. Serde still rejects malformed JSON and incompatible
+record shapes because parsing cannot proceed without those checks. Retain the
+document identity, nonempty/unique text, partition coverage and disjointness,
+source order, checksum, and provenance validations: they define the educational
+data contract and prevent real corpus/split authoring errors rather than second-
+guessing a guarantee already supplied by the type system.
+
+The API is visible in Chapters 2, 3, 4, 5, 7, and 39. Advance each contract and
+English/Russian lesson together, author the corrected Chapter 2 explanation in
+English first, refresh Russian directly from the exact English revision, and
+validate all six rendered code projections. Chapter 23 calls the loader only
+outside its rendered excerpt regions, so it receives the compatibility edit but
+not a content revision. No corpus bytes, split assignment, checksum value,
+expected output, trace, diagram datum, dependency, route, formula, or model
+behavior changes.
+
+Treat the requested repository-wide search for analogous complexity as a
+separate read-only audit checkpoint after this correction is committed. Findings
+must be reviewed and scheduled before any broader refactor rather than being
+silently folded into this API change.
+
+**Affected build and steps:**
+`simplify-rust-input-boundaries-20260804`,
+`simplify-corpus-json-string-boundary`, and `audit-rust-overengineering`.
+
+## 2026-08-04 - Permit a locked dependency refresh in canonical Docker verification
+
+**Status:** Accepted for `simplify-corpus-json-string-boundary`; this is an
+execution-resource clarification and does not change the corpus API or product
+dependency set.
+
+**Context:** The exact staged Rust candidate already passed formatting, Clippy,
+workspace tests, dependency policy, and deterministic demo replay with
+`--network none` by reusing the recorded Docker Cargo cache. The repository's
+normal `./course check` target, however, begins from a source layer whose cache
+key changed with the canonical publication. Docker therefore reran the locked
+`npm ci` layer and Cargo downloaded the exact packages named by the committed
+lockfiles. Earlier cost notes had incorrectly assumed that every canonical layer
+would remain cached.
+
+**Decision:** Allow this one canonical Docker verification run to refresh only
+lockfile-pinned npm and Cargo artifacts from their standard registries. Record
+the access in the run fingerprint, commands, and validation results. Do not
+install or write any Rust, Node, or Python artifact into the repository host.
+Keep the already-passed network-disabled staged matrix as the proof that the
+candidate itself builds and tests from the known locked cache.
+
+**Consequences:** The canonical documented workflow is verified from a fresh
+dependency layer, while the product inputs remain the committed manifests and
+lockfiles. No package version, source file, generated evidence, or runtime
+behavior changes. Future estimates must describe registry access as possible
+when a Docker dependency-layer cache key changes instead of promising a fully
+cached canonical run.
+
+**Affected build, step, and run:**
+`simplify-rust-input-boundaries-20260804`,
+`simplify-corpus-json-string-boundary`, and
+`20260804T133445Z-simplify-corpus-json-string-boundary-01`.

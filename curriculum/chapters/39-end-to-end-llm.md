@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 39,
   "objective": {
     "en": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
@@ -174,14 +174,14 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 4 is a direct, meaning-first refresh of frozen English revision 4 with SHA-256 de48fd69bc609132c803cd9b61a749637372c7d379443a6b6fa3faef4fe6b37e; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}. Revision 4 makes every affected figure mapping local and explicit while preserving the Rust trace and computation unchanged.",
+    "Russian revision 5 is a direct, meaning-first refresh of frozen English revision 5 with SHA-256 39c0c3b9ff84784badeb2df3247871d97b9469cbb33fef6241af0fc213f37ee5; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}. Revision 5 preserves every explicit figure mapping while changing the rendered corpus input boundary from raw bytes to JSON text as &str; the Rust trace and computation remain unchanged.",
     "Preserve BPE, LLM, AdamW, BOS, EOS, KV, RNG, token IDs, hashes, tensor shapes, exact losses, source titles, formulas, links, and trace grammar.",
     "Keep the general autoregressive factorization distinct from this retained four-token context C=4 and keep the local selection-isolated test boundary distinct from a global claim that test data has never been read anywhere.",
     "The checkpoint claim covers byte-for-byte re-encoding and exact model, optimizer, tokenizer, step, and RNG state; the separate At probe must not be confused with generation from prompt A.",
     "The generated learner-visible output is Cyrillic т followed by two spaces, rendered as т␠␠ where the spaces must be visible; it demonstrates shared byte-tokenizer decoding, not translation quality.",
     "Keep the history on the path from count n-gram language models through learned distributed representations and masked self-attention to scaled autoregressive LLMs; scope paper claims to their sources and local evidence policies to this implementation.",
     "Prefer natural Russian mathematical and technical prose, including полный цикл работы LLM, состояние, выбранное по валидации, зафиксированная биграммная базовая модель, and продолжение с KV-кэшем; reject literal calques and mixed-language learner prose.",
-    "Any later semantic or presentation change to English revision 4 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Any later semantic or presentation change to English revision 5 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
   ],
   "acceptance_examples": [
     {
@@ -392,7 +392,7 @@ contract changed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 4 is the canonical semantic source; Russian revision 4 is
+English revision 5 is the canonical semantic source; Russian revision 5 is
 published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
 links, and trace grammar. Keep probe `At` distinct from generation prompt `A`.

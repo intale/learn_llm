@@ -23,12 +23,14 @@ The file is one ordinary JSON array. Each item has four required fields:
 }
 ```
 
-`serde_json` handles JSON syntax and UTF-8 decoding. The course code separately
-checks the data invariants used by the split: IDs, language tags, and provenance
-groups begin with a lowercase ASCII letter and otherwise contain only lowercase
-ASCII letters or digits in nonempty hyphen-separated segments; text contains at
-least one non-whitespace character; document IDs and decoded text are unique; and
-array order is the canonical source order.
+`Corpus::from_json` receives the JSON text as `&str`, so Rust guarantees valid
+UTF-8 before the loader runs. `serde_json::from_str` handles JSON syntax and typed
+deserialization. The course code separately checks the data invariants used by
+the split: IDs, language tags, and provenance groups begin with a lowercase ASCII
+letter and otherwise contain only lowercase ASCII letters or digits in nonempty
+hyphen-separated segments; text contains at least one non-whitespace character;
+document IDs and decoded text are unique; and array order is the canonical source
+order.
 
 ## Frozen split manifest
 
@@ -44,10 +46,12 @@ corpus document exactly once. It also keeps both translations in a provenance
 group in the same partition, so a translated counterpart cannot leak across the
 holdout boundary.
 
-The manifest records the FNV-1a 64-bit checksum of the exact JSON file bytes. FNV is
-used only as a small deterministic drift detector; it is not a cryptographic
-integrity guarantee. Any content or line-ending change requires an explicit new
-manifest and content revision rather than silently reusing the old split.
+The manifest records the FNV-1a 64-bit checksum of the canonical JSON text's UTF-8
+bytes. `include_str!` supplies the exact checked-in text, and `source.as_bytes()`
+hashes that representation without normalization. FNV is used only as a small
+deterministic drift detector; it is not a cryptographic integrity guarantee. Any
+content or line-ending change requires an explicit new manifest and content
+revision rather than silently reusing the old split.
 
 Document counts are a fixed property of this teaching fixture, not a recommended
 universal split ratio. The important invariant is the unit of assignment: split

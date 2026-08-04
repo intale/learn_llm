@@ -310,7 +310,7 @@ mod tests {
     use super::*;
     use crate::corpus::{Corpus, Partition, SplitManifest};
 
-    const CORPUS_BYTES: &[u8] = include_bytes!("../../../../data/tiny-bilingual-corpus.json");
+    const CORPUS_JSON: &str = include_str!("../../../../data/tiny-bilingual-corpus.json");
     const SPLIT_MANIFEST: &str = include_str!("../../../../data/splits.json");
 
     #[test]
@@ -349,7 +349,7 @@ mod tests {
 
     #[test]
     fn zero_merges_preserves_initial_training_sequences() {
-        let corpus = Corpus::from_json(CORPUS_BYTES).expect("fixture corpus");
+        let corpus = Corpus::from_json(CORPUS_JSON).expect("fixture corpus");
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("fixture manifest");
         let partitions = manifest.partition(&corpus).expect("valid fixture split");
         let training = BpeTrainer::new(0).train(&partitions).expect("zero rounds");
@@ -364,7 +364,7 @@ mod tests {
 
     #[test]
     fn learns_from_training_partition_only_and_is_reproducible() {
-        let corpus = Corpus::from_json(CORPUS_BYTES).expect("fixture corpus");
+        let corpus = Corpus::from_json(CORPUS_JSON).expect("fixture corpus");
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("fixture manifest");
         let partitions = manifest.partition(&corpus).expect("valid fixture split");
 
@@ -421,7 +421,7 @@ mod tests {
 
     #[test]
     fn rejects_more_merges_than_u32_can_name() {
-        let corpus = Corpus::from_json(CORPUS_BYTES).expect("fixture corpus");
+        let corpus = Corpus::from_json(CORPUS_JSON).expect("fixture corpus");
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("fixture manifest");
         let partitions = manifest.partition(&corpus).expect("valid fixture split");
         let error = BpeTrainer::new(usize::MAX)

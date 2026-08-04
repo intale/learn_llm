@@ -597,7 +597,7 @@ fn encoded_token_count(encoded: &EncodedCorpusPartitions, partition: Partition) 
 }
 
 fn prepare_data(
-    corpus_source: &[u8],
+    corpus_source: &str,
     split_source: &str,
     config: CapstoneConfig,
 ) -> Result<PreparedData, PipelineError> {
@@ -991,7 +991,7 @@ fn generation_evidence(
 /// Runs data partitioning through cached text generation without copying an algorithm.
 // region:end-to-end-capstone
 pub fn run_capstone(
-    corpus_source: &[u8],
+    corpus_source: &str,
     split_source: &str,
     checkpoint_path: impl AsRef<Path>,
     config: CapstoneConfig,
@@ -1221,8 +1221,8 @@ mod tests {
     #[test]
     fn invalid_corpus_fails_before_any_training_or_checkpoint_write() {
         let destination = std::env::temp_dir().join("learn-llm-ch39-invalid.bin");
-        let error = run_capstone(&[0xff], "{}", &destination, CapstoneConfig::tiny())
-            .expect_err("invalid UTF-8 must stop at the first boundary");
+        let error = run_capstone("[", "{}", &destination, CapstoneConfig::tiny())
+            .expect_err("malformed corpus JSON must stop at the first boundary");
         assert_eq!(error.stage(), PipelineStage::Corpus);
         assert!(!destination.exists());
     }

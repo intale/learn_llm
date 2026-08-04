@@ -7,7 +7,7 @@ use llm_from_scratch::generation::sampling::GenerationStop;
 use llm_from_scratch::pipeline::{CapstoneConfig, CapstoneRun, PipelineError, run_capstone};
 
 pub const RUNTIME_LIMIT_MS: u128 = 150_000;
-const CORPUS: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
+const CORPUS_JSON: &str = include_str!("../../../data/tiny-bilingual-corpus.json");
 const SPLITS: &str = include_str!("../../../data/splits.json");
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -98,7 +98,12 @@ pub fn historical_contrast(evidence: &CapstoneRun) -> HistoricalContrast {
 /// Runs the checked corpus-to-generated-text program and checks its final claims.
 pub fn learner_evidence() -> Result<CapstoneRun, FixtureError> {
     let checkpoint = TemporaryCheckpoint::new();
-    let evidence = run_capstone(CORPUS, SPLITS, checkpoint.path(), CapstoneConfig::tiny())?;
+    let evidence = run_capstone(
+        CORPUS_JSON,
+        SPLITS,
+        checkpoint.path(),
+        CapstoneConfig::tiny(),
+    )?;
     require(
         evidence.final_evaluation().decoder_has_lower_loss(),
         "selected decoder no longer beats the frozen bigram",

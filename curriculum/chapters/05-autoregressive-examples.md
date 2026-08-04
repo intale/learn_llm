@@ -2,7 +2,7 @@
 {
   "chapter_id": "05-autoregressive-examples",
   "concept_id": "boundary-safe-causal-windows",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 5,
   "objective": {
     "en": "Turn each encoded document into fixed-length input–target pairs for next-token prediction without joining documents or data partitions.",
@@ -124,7 +124,7 @@
     "Translate visible partition, document, input, target, candidate-start, pair, and suffix labels outside technical trace islands. Do not translate source URLs or paper titles.",
     "Reject literal calques in the Russian projection: use «позиция начала окна», not «позиция, выбранная шагом»; name the concrete corpus-processing call instead of «основной путь»; and describe a pair that crosses a document boundary rather than calling it a «склеенный срез».",
     "The cited papers support next-symbol factorization and the contrast with task-specific labeled supervision. Present document boundaries, fixed partitions, stride, and the complete-pair-only policy as course decisions, not as claims sourced from those papers.",
-    "English revision 6 is the canonical semantic source. Russian revision 6 is refreshed directly from it with source SHA-256 bd8bd23e552c9cd29b79edd6ec373e3d32f5ca21252f165d3f36b54b19909e66. The prose and causal-window evidence are unchanged; the visible Rust fixture path and loader call follow Chapter 2's ordinary JSON corpus fixture."
+    "English revision 7 is the canonical semantic source. Russian revision 7 is refreshed directly from it with source SHA-256 33e8b002759e93dd619862fb97b91740e083c3b58a55c1f923a49a60a7a09878. The prose and causal-window evidence are unchanged; the visible Rust fixture and loader call now receive Chapter 2's ordinary JSON corpus as &str."
   ],
   "acceptance_examples": [
     {

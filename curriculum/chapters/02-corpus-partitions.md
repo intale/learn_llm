@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "concept_id": "document-level-corpus-partitions",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 2,
   "objective": {
     "en": "Load a frozen corpus split manifest in Rust and verify that every whole document belongs to exactly one nonempty training, validation, or test partition before any tokenizer statistic is learned.",
@@ -153,7 +153,7 @@
     "Keep document IDs, pair IDs, Rust identifiers, JSON keys, FNV notation, arrays, and deterministic stdout identical in every locale.",
     "State in both lessons that document-level splitting prevents one leakage class but does not prove representativeness or detect unrelated near-duplicates.",
     "Do not translate the technical suffixes tr, va, and te inside the shared formula; explain them in each localized glossary.",
-    "English revision 7 is the canonical semantic source. Russian revision 7 is translated directly from it with source SHA-256 f702d228eefbb2a91cd1e1d9611843224431c7104ff1e49e01ab2cdb14ec1f90. Keep serde_json, Corpus::from_json, SplitManifest::from_json, partition, and the distinction between format decoding, document invariants, and split invariants explicit in every locale."
+    "English revision 8 is the canonical semantic source. Russian revision 8 is translated directly from it with source SHA-256 dd6e3b6cd70f6299e84c56061a311ba043908cb27e3d82e3c330d32f57e5d9b3. Keep serde_json::from_str, Corpus::from_json, SplitManifest::from_json, partition, the &str UTF-8 guarantee, and the distinction between format decoding, document invariants, and split invariants explicit in every locale."
   ],
   "acceptance_examples": [
     {
@@ -279,22 +279,22 @@ identity, authorship, or licensing. The separate data README records provenance.
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
-`Corpus::from_json` gives the file bytes to `serde_json`, which deserializes the
-JSON array into private records with four required fields. The method then checks
-the document-specific invariants: each identity field begins with a lowercase
-ASCII letter and otherwise contains only lowercase ASCII letters or digits in
-nonempty hyphen-separated segments; text contains a non-whitespace character;
-IDs and decoded text are unique; and array order is preserved. It calculates a
-deterministic FNV-1a checksum over the exact JSON file bytes; FNV is deliberately
-not described as cryptographic.
+`Corpus::from_json` accepts the JSON text as `&str`, so Rust guarantees valid
+UTF-8 before the method begins. It passes that text to `serde_json::from_str`, which
+deserializes the JSON array into private records with four required fields. The
+method then checks the document-specific invariants: each identity field begins
+with a lowercase ASCII letter and otherwise contains only lowercase ASCII letters
+or digits in nonempty hyphen-separated segments; text contains a non-whitespace
+character; IDs and decoded text are unique; and array order is preserved. It
+calculates a deterministic FNV-1a checksum over the UTF-8 bytes of the supplied
+JSON string; FNV is deliberately not described as cryptographic.
 
 `SplitManifest::from_json` uses a separate private record for the six required
-manifest fields. `serde_json` parses JSON syntax for both files. The byte-taking
-corpus loader also rejects invalid UTF-8 at this boundary; the manifest loader
-receives an already-valid Rust string. The derived records require the declared
-fields and value types, reject duplicate fields, and use `deny_unknown_fields` to
-reject extras. Deserialization does not validate whether document assignments
-satisfy the train/validation/test invariants.
+manifest fields and the same `&str` boundary. `serde_json::from_str` parses JSON
+syntax and deserializes the typed fields for both inputs. The derived records
+require the declared fields and value types, reject duplicate fields, and use
+`deny_unknown_fields` to reject extras. Deserialization does not validate whether
+document assignments satisfy the train/validation/test invariants.
 
 `partition` performs those split-specific checks. It validates the supported
 schema version and strategy, exact checksum, known and unique IDs, complete

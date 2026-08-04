@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T12:53:51Z"
+updated_at: "2026-08-04T14:20:23Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: null
+active_build: simplify-rust-input-boundaries-20260804
 
 builds:
   - build_id: bootstrap-course
@@ -30881,3 +30881,202 @@ builds:
               - {command: "Final ./course audit-host and git diff --check", status: passed, notes: "The host is artifact-free apart from the intentional site/dist exception, the inspected generated target/ directory is absent, and the canonical diff has no whitespace errors."}
               - {command: "Final manifest equality, exact nine-path scope, Docker artifact-ID verification, and BUILD_STATE.yaml structural parse", status: passed, notes: "All seven canonical product outputs match the frozen manifest; only those outputs plus BUILD_STATE.yaml and DECISIONS.md changed; every recorded reusable image exists with its exact ID; the completed build has no pending or running step and the ledger parses as valid YAML."}
             notes: "Succeeded. Revision 4 gives each of the ten compressed Chapter 39 values one local semantic label in both locales, while the shared component keeps a single accessible semantic tree and reflows it into a measured six-track 3+2 full-view layout. The active build's stale manifest-only completion criterion is corrected to the already-completed ordinary corpus JSON migration. Rust, trace values, parser decisions, formulas, model behavior, dependencies, and routes remain unchanged."
+
+  - build_id: simplify-rust-input-boundaries-20260804
+    objective: "Use a trusted Rust string at the corpus JSON boundary, then audit the complete Rust implementation for similar non-LLM overengineering without silently expanding the refactor."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "The API correction is medium cached Docker work across one compatibility surface and six rendered chapter projections. The subsequent audit is a large local reasoning pass over checked-in Rust only; neither step uses a paid service or requires network access."
+    completion_criteria:
+      - "Corpus::from_json accepts &str, delegates JSON syntax and typed records to serde_json::from_str, and no longer owns an invalid-UTF-8 byte boundary."
+      - "Every direct caller supplies a Rust string, while the exact checked-in corpus content, checksum, partitions, traces, and deterministic outputs remain unchanged."
+      - "Every chapter whose rendered Rust changes advances as one English-canonical, directly refreshed English/Russian revision with focused source and browser validation."
+      - "A repository audit classifies the complete cumulative Rust implementation and demos for incidental custom plumbing, redundant validation below an established type boundary, unnecessary abstraction, and other complexity that does not teach an LLM concept."
+      - "Audit findings distinguish actionable overengineering from required JSON parsing, course-owned data/LLM invariants, historical teaching implementations, and ordinary correctness checks; the audit step changes no Rust product code."
+      - "The API correction and audit report are persisted as two separate completed-step Git commits."
+    steps:
+      - id: simplify-corpus-json-string-boundary
+        objective: "Make the corpus JSON loader and every caller rely on Rust's valid-UTF-8 string guarantee instead of accepting raw bytes."
+        depends_on: []
+        status: completed
+        inputs:
+          - "User direction to assume sanitized and normalized textual input rather than revalidate an upstream encoding boundary"
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "Commit 2c68bcf4c6b0f38e8b65a1384c09f63433208fc4"
+          - "The complete Corpus::from_json call-site inventory under rust/"
+          - "Chapter 2 contract, English/Russian lessons, and focused source/browser tests"
+          - "Rendered Rust projections for Chapters 3, 4, 5, 7, and 39"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/corpus.rs"
+          - "rust/crates/llm-from-scratch/src/pipeline.rs"
+          - "rust/crates/llm-from-scratch/src/bigram.rs"
+          - "rust/crates/llm-from-scratch/src/data.rs"
+          - "rust/crates/llm-from-scratch/src/metrics.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+          - "rust/demos/ch02-corpus-partitions/src/main.rs"
+          - "rust/demos/ch03-learn-bpe-merges/src/main.rs"
+          - "rust/demos/ch04-apply-bpe-tokenizer/src/main.rs"
+          - "rust/demos/ch05-autoregressive-examples/src/main.rs"
+          - "rust/demos/ch07-language-model-metrics/src/lib.rs"
+          - "rust/demos/ch23-neural-ngram/src/lib.rs"
+          - "rust/demos/ch39-end-to-end-llm/src/lib.rs"
+          - "rust/data/README.md"
+          - "curriculum/README.md"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "curriculum/chapters/39-end-to-end-llm.md"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/en/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/en/39-end-to-end-llm.mdx"
+          - "site/src/content/chapters/ru/39-end-to-end-llm.mdx"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "site/tests/39-end-to-end-llm-diagram.test.ts"
+          - "site/tests/e2e/ch39-end-to-end-llm.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The public loader is Corpus::from_json(&str); it uses serde_json::from_str and hashes source.as_bytes(), and its tests no longer manufacture an invalid UTF-8 value that the type cannot represent."
+          - "Every direct caller uses a clearly named &str corpus source from include_str! or an existing Rust string; pipeline entry points expose the same trusted textual boundary."
+          - "The canonical checksum remains fnv1a64:723b071980ae8a22 and all corpus documents, partitions, tokenizer/model evidence, expected stdout, and diagram traces remain byte-identical."
+          - "Chapter 2 explicitly explains that Rust guarantees UTF-8 before the loader and separates Serde format decoding from course-owned document and split invariants without teaching the retired byte check."
+          - "Chapters 2, 3, 4, 5, 7, and 39 advance together wherever their rendered Rust changed; English is canonical and Russian is refreshed directly from each exact English revision."
+          - "Focused source, content/parity/static/link, full Rust, and Chromium/Firefox checks cover the affected API and all six rendered chapter projections."
+        validate:
+          - "Staged cargo fmt, Clippy -D warnings, workspace/doc tests, dependency policy, and deterministic demo replay"
+          - "Manifest-locked ./course review 20260804T133445Z-simplify-corpus-json-string-boundary-01 --check"
+          - "Focused Chapter 2 and Chapter 39 Vitest"
+          - "Pinned Chromium and Firefox affected-chapter, formula, diagram-style, and full-view matrix"
+          - "Canonical ./course check and focused replay"
+          - "git diff --check, exact manifest/scope equality, YAML parse, and ./course audit-host"
+        cost:
+          class: medium
+          notes: "Mechanical Rust API integration plus a concise Chapter 2 bilingual explanation and same-revision code projections; substantial Docker compilation/static/browser CPU. Staged Rust and browser gates are network-disabled; the canonical Docker check may refresh only lockfile-pinned npm/Cargo artifacts when its dependency layer cache key changes. No paid service or generated model work."
+        runs:
+          - run_id: 20260804T133445Z-simplify-corpus-json-string-boundary-01
+            started_at: 2026-08-04T13:34:45Z
+            finished_at: 2026-08-04T14:20:23Z
+            status: succeeded
+            input_fingerprint:
+              git: "2c68bcf4c6b0f38e8b65a1384c09f63433208fc4; tree 46e1205a2ee51c8bbbde015f896d97847f07632d"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                BUILD_STATE.yaml: "sha256:238ca7f0b54cc70f5b4c23bd0d6236cc76e6d5878e70327ef1e9bd7896425180"
+                DECISIONS.md: "sha256:bdcf0656a682121e354d7236c860f450a673a61ea26bad64c26970cfc8f221f4"
+                corpus.rs: "sha256:77b0f75c01f69942c93605d4f519ad6c37c0f9e6d458ec575d01d824cbe3f82c"
+                pipeline.rs: "sha256:08019b6284c9d313f68bd3cd35b9c38cc5bd6cd6987bf361890fbf4734bed64a"
+                data-README: "sha256:dfde048738c7ed78e5b4da96a267214eaca7852f86c404cac9ec40312fca0636"
+                chapter-02-contract: "sha256:2f4e68e35cb2835f7fb342c997c39b88fa48ad502d4dfc889a7650be1a1e5005"
+                chapter-02-en: "sha256:f702d228eefbb2a91cd1e1d9611843224431c7104ff1e49e01ab2cdb14ec1f90"
+                chapter-02-ru: "sha256:67e97e59e5ba722ff8bd82b58b5b23a2799e8d96295a6206aa6abc80b0aff771"
+                chapter-02-source-test: "sha256:8a415fe8d4abac6eb1149e8ff5aa3b9683eaf9856adb07899879d9a1b27a4581"
+                chapter-02-browser-test: "sha256:be8ef3a52cb98eb559402db96d922d3c646256988444ed7c7cb0eb4db7e6f6cb"
+              tools: {git: "2.53.0", docker: "25.0.2", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "The repository review wrapper contacted Docker registry authentication and metadata for pinned nginx:1.27-alpine. The canonical ./course check also refreshed lockfile-pinned npm and Cargo artifacts from their standard registries after its dependency-layer cache key changed. No package version, product input, paid service, or content-generation service changed; the exact staged Rust/browser matrix remained network-disabled."
+            staging_dir: ".build/runs/20260804T133445Z-simplify-corpus-json-string-boundary-01/"
+            commands:
+              - "Confirm clean HEAD 2c68bcf, no active or running build, exact environment match, and a complete direct-call/rendered-content inventory."
+              - "Read the repository workflow, localization skill, locale policy, Chapter 2 contract/locales, prior corpus-boundary decisions, and latest completed run before claiming outputs."
+              - "./course review 20260804T133445Z-simplify-corpus-json-string-boundary-01 --check"
+              - "docker build --build-context staged=.build/runs/20260804T133445Z-simplify-corpus-json-string-boundary-01/publish --target review-workspace -t learn-llm-corpus-string:staged ."
+              - "docker run --rm --network none learn-llm-corpus-string:staged cargo fmt --all -- --check"
+              - "docker run --rm --network none learn-llm-corpus-string:staged scripts/check-rust-dependencies.sh"
+              - "docker run --rm --network none learn-llm-corpus-string:staged npm --prefix site run test -- --run tests/02-corpus-partitions-diagram.test.ts tests/39-end-to-end-llm-diagram.test.ts"
+              - "docker run --rm --network none -w /workspace/site learn-llm-corpus-string:staged node -e <parse BUILD_STATE.yaml with yaml>"
+              - "docker run --rm --network none learn-llm-workspace:local cargo metadata --locked --offline --no-deps"
+              - "docker build --network none -f .build/runs/20260804T133445Z-simplify-corpus-json-string-boundary-01/validation/rust.Dockerfile -t learn-llm-corpus-string-rust:staged ."
+              - "docker run --rm --network none learn-llm-corpus-string-rust:staged cargo clippy --workspace --all-targets --locked --offline -- -D warnings"
+              - "docker run --rm --network none learn-llm-corpus-string-rust:staged cargo test --workspace --locked --offline"
+              - "docker run --rm --network none learn-llm-corpus-string-rust:staged scripts/check-rust-dependencies.sh"
+              - "docker run --rm --network none learn-llm-corpus-string-rust:staged scripts/check-rust-demos.sh"
+              - "docker build --network none -f .build/runs/20260804T133445Z-simplify-corpus-json-string-boundary-01/validation/browser.Dockerfile -t learn-llm-corpus-string-browser:staged ."
+              - "docker run --rm --network none --ipc=host learn-llm-corpus-string-browser:staged npx playwright test <six affected chapter specs plus formula, diagram-style, and diagram-full-view specs> --browser=chromium"
+              - "docker run --rm --network none --ipc=host learn-llm-corpus-string-browser:staged npx playwright test <six affected chapter specs plus formula, diagram-style, and diagram-full-view specs> --browser=firefox"
+              - "Freeze and verify the exact 42-file publish.sha256 manifest, then promote all 42 files through apply_patch and prove byte equality with staging."
+              - "./course review 20260804T133445Z-simplify-corpus-json-string-boundary-01 --check"
+              - "./course check"
+              - "docker run --rm --network none learn-llm-workspace:local npm --prefix site run test -- --run tests/02-corpus-partitions-diagram.test.ts tests/39-end-to-end-llm-diagram.test.ts"
+              - "docker run --rm --network none --ipc=host learn-llm-corpus-string-browser:canonical npx playwright test <six affected chapter specs> --browser=chromium"
+              - "docker run --rm --network none --ipc=host learn-llm-corpus-string-browser:canonical npx playwright test <six affected chapter specs> --browser=firefox"
+            artifacts:
+              - {path: "docker-image:learn-llm-review:20260804t133445z-simplify-corpus-json-string-boundary-01", sha256: "docker-image-id:22eca47e06d473ea95a3bb27f8d8fa280850743eca2f0f3840031e9754e9c26a", purpose: "Exact staged static-site review image after content, type, build, link, SEO, sitemap, and analytics validation."}
+              - {path: "docker-image:learn-llm-corpus-string:staged", sha256: "docker-image-id:bac64877da90551422ed50ce5aff10a346892095273339545030b52ebb69423e", purpose: "Corrected exact staged source and built static site after the rustfmt and focused-assertion repairs."}
+              - {path: "docker-image:learn-llm-corpus-string-rust:staged", sha256: "docker-image-id:00b13a33eada5c1e8d468231464375d63d7979c5a0d9bdd97b27a93d8d08a597", purpose: "Exact staged source composed with the pre-existing locked Cargo cache for network-disabled Rust validation."}
+              - {path: "docker-image-id:2eb5d47894689376a46d9cd032dc7fb18bfb7fc1846ee31bf90f56d603d4e7d4", sha256: "docker-image-id:2eb5d47894689376a46d9cd032dc7fb18bfb7fc1846ee31bf90f56d603d4e7d4", purpose: "Final exact staged source and static build after both stale localization assertions were refreshed."}
+              - {path: "docker-image-id:5f5bd022f51f6ea251d5cc0e9456042367cd68f9714380d96eacebbff2e4992a", sha256: "docker-image-id:5f5bd022f51f6ea251d5cc0e9456042367cd68f9714380d96eacebbff2e4992a", purpose: "Final pinned Playwright image containing the exact staged site and test source."}
+              - {path: ".build/runs/20260804T133445Z-simplify-corpus-json-string-boundary-01/publish.sha256", sha256: "b5a98ea56e1c4852e8828a1775f341af2ab69a3052599c94220bd602a63f9200", purpose: "Frozen exact 42-file publication manifest; retained as an ignored run artifact rather than committed."}
+              - {path: "docker-image-id:126802cd21cee3439156f6bb70ca291f9dc1b74bd23663927871d21d219b274b", sha256: "docker-image-id:126802cd21cee3439156f6bb70ca291f9dc1b74bd23663927871d21d219b274b", purpose: "Canonical Docker workspace after ./course check completed."}
+              - {path: "docker-image-id:744495354c0631b04f3c02953e3887a82bf70d37979cff86a0a9aca1c9f67f3a", sha256: "docker-image-id:744495354c0631b04f3c02953e3887a82bf70d37979cff86a0a9aca1c9f67f3a", purpose: "Canonical pinned Playwright image for the focused six-chapter replay."}
+            validation:
+              - {command: "Repository, dependency, source, locale, ownership, environment, and cost preflight", status: passed, notes: "The prior wording-repair build is complete and committed; no running work or overlapping owner exists. The 44 declared outputs cover every direct Rust caller, the data-boundary documentation, all six rendered chapter revision sets and browser assertions, focused source tests, and checkpoint records. Cost is medium cached Docker CPU with no network, dependency, paid service, or model generation."}
+              - {command: "./course review 20260804T133445Z-simplify-corpus-json-string-boundary-01 --check", status: passed, notes: "Staged checks found 80 localized sources, 40 publishable chapter sets, 33 catalog keys, and 42 registered diagrams; Astro reported 215 files and zero diagnostics; the static build produced 85 pages; link/asset/SEO/sitemap/analytics validation passed across 2,529 references, 85 SEO pages, 85 sitemap entries, 85 analytics pages, and 164 artifacts. Docker contacted registry metadata/authentication for the already pinned nginx base, but reused cached layers and did not change product or dependency inputs."}
+              - {command: "Independent staged API, English-content, Russian-localization, and integration reviews", status: passed, notes: "All four reviews report no remaining findings. The integration pass confirms exact 42-product-file scope, 23 textual Corpus::from_json call sites across 14 Rust files, synchronized six-chapter revisions and English hashes, and unchanged corpus, split, trace, expected-output, dependency, and numeric evidence files."}
+              - {command: "First exact-image cargo fmt --all -- --check", status: failed, notes: "rustfmt requested only line wrapping in the new invalid-input array in corpus.rs. The staged source was corrected mechanically; this pre-correction image and result are not accepted for publication."}
+              - {command: "Corrected exact-image cargo fmt --all -- --check and BUILD_STATE.yaml parse", status: passed, notes: "The corrected staged Rust source is formatted and the running ledger parses as YAML inside Docker."}
+              - {command: "First focused Chapter 2 and Chapter 39 Vitest", status: failed, notes: "Thirty-three of 34 assertions passed. One Chapter 2 assertion still expected an earlier one-sentence Russian wording, while the independently reviewed final translation uses two clearer sentences; the assertion was refreshed to the exact reviewed wording."}
+              - {command: "First scripts/check-rust-dependencies.sh in the site-only review image", status: failed, notes: "The review-workspace target intentionally has no Cargo registry cache, so Cargo attempted to resolve the locked Serde dependency and was stopped by --network none before the policy script ran. The existing learn-llm-workspace:local image was then confirmed to contain the complete locked offline Cargo cache; an exact-source derived Rust image will reuse only that local cache."}
+              - {command: "Corrected exact staged static workspace gate", status: passed, notes: "After the formatting-only Rust repair and test-assertion refresh, the exact candidate again passed content/parity, zero-diagnostic Astro, the 85-page static build, and all 2,529 link/asset references, 85 SEO/sitemap/analytics routes, and 164 artifacts."}
+              - {command: "Staged cargo clippy --workspace --all-targets --locked --offline -- -D warnings", status: passed, notes: "All 41 workspace packages and targets passed with warnings denied and network disabled."}
+              - {command: "Staged cargo test --workspace --locked --offline", status: passed, notes: "The complete workspace unit, integration, binary, example, and documentation test run exited zero with the locked dependency set and network disabled."}
+              - {command: "Staged dependency policy and deterministic demo replay", status: passed, notes: "The allowlist/LLM-concept denylist passed, and every checked-in chapter demo replayed its expected deterministic output with exit zero."}
+              - {command: "Corrected focused Chapter 2 and Chapter 39 Vitest", status: passed, notes: "Both files passed: 34 assertions cover the textual corpus boundary, checksum byte projection, absence of the retired byte decoder, synchronized revision/provenance data, and the Chapter 39 projection."}
+              - {command: "git diff --check and ./course audit-host after Docker Rust validation", status: passed, notes: "Whitespace is clean. The exact 71 MiB root target cache discovered earlier was removed; the host now contains no Rust, Node, or Python build artifact outside the intentional site/dist release tree."}
+              - {command: "First exact staged Chromium and Firefox affected-chapter/formula/diagram matrix", status: failed, notes: "Each engine ran 199 cases: 198 passed, including every formula, bounded-box containment, fullscreen, mobile, no-JavaScript, forced-colors, and RTL check. The sole failure in both engines was the same Chapter 2 Russian locator still expecting the earlier one-sentence boundary wording; it was refreshed to the exact independently reviewed two-sentence text before retry."}
+              - {command: "Corrected exact staged Chromium and Firefox affected-chapter/formula/diagram matrix", status: passed, notes: "Chromium passed 199/199 and Firefox passed 199/199. The matrix covers Chapters 2, 3, 4, 5, 7, and 39 in both locales at desktop and narrow widths plus course-wide formula rendering, bounded-box containment, fullscreen reuse and focus, mobile/no-JavaScript fallback, forced colors, and direction-sensitive behavior."}
+              - {command: "Frozen manifest, official course review, and canonical publication equality", status: passed, notes: "The manifest contains exactly 42 regular files and all 42 hashes verify before and after the official review. The review repeated content/parity, zero-diagnostic Astro, the 85-page static build, 2,529 references, 85 SEO/sitemap/analytics routes, and 164 artifacts without changing staging. apply_patch publication made all 42 canonical files byte-identical to the frozen bundle; exact changed scope is those files plus BUILD_STATE.yaml and DECISIONS.md."}
+              - {command: "Canonical ./course check", status: passed, notes: "The documented Docker workflow passed Rust formatting, the complete workspace and documentation test suite, zero-diagnostic Astro, content/parity, the 85-page build, and static-link/SEO/sitemap/analytics checks. A changed dependency-layer cache key caused npm ci and Cargo to refresh only versions fixed by the committed lockfiles; the bounded network use is recorded in DECISIONS.md and produced no host toolchain artifact."}
+              - {command: "Canonical focused Vitest plus Chromium and Firefox replay", status: passed, notes: "The two focused source files passed 34/34 assertions. Each browser then passed 23/23 rendered cases across Chapters 2, 3, 4, 5, 7, and 39 in both locales, including desktop/narrow layout, fullscreen, no-JavaScript, forced-colors, RTL, navigation, and locale switching exercised by those chapter specs."}
+              - {command: "Final manifest, scope, YAML, whitespace, and host-boundary gates", status: passed, notes: "All 42 canonical product files remain byte-identical to staging; the manifest verifies; exactly 44 tracked paths changed including the two checkpoint records; git diff --check passes; BUILD_STATE.yaml parses in Docker; and ./course audit-host reports only the intentional site/dist release exception."}
+            notes: "Completed English-first. Rust &str establishes valid UTF-8 before this API; serde_json still owns JSON syntax and typed record decoding, while course-owned document and split invariants remain explicit. The checksum remains fnv1a64:723b071980ae8a22 over source.as_bytes(); corpus, splits, traces, expected outputs, dependencies, formulas, diagrams, and model behavior are unchanged."
+
+      - id: audit-rust-overengineering
+        objective: "Detect non-LLM complexity across the complete checked-in Rust implementation and demos, with evidence and actionable recommendations but no product refactor."
+        depends_on: [simplify-corpus-json-string-boundary]
+        status: pending
+        inputs:
+          - "User request to detect similar overengineered places"
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "The committed Rust tree after simplify-corpus-json-string-boundary"
+          - "Cargo manifests, dependency policy, chapter contracts, and historical-demo intent"
+        outputs:
+          - "audits/2026-08-04-rust-overengineering.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The report covers every tracked Rust source module and demo package through an exact inventory or an explicitly mapped grouped disposition."
+          - "The review tests for custom standard-format parsing or serialization, validation below an established type or trust boundary, needless representation conversion, duplicated infrastructure, premature abstraction, and custom utilities better delegated to a proportionate mature library."
+          - "Each finding cites exact source locations, explains learner cost and runtime/design consequences, distinguishes evidence from inference, assigns severity, and recommends a bounded follow-up without implementing it."
+          - "The report explicitly protects current and historical LLM algorithms, course-owned invariants that students must inspect, deterministic evidence, and proportionate correctness checks from being mislabeled as overengineering."
+          - "Independent disjoint reviews and a final correlation pass find no uncovered Rust source and no unsupported finding; Rust product files remain unchanged."
+        validate:
+          - "Exact tracked-Rust inventory versus report coverage"
+          - "Independent core/data, tensor/autodiff/training, and model/inference/demo reviews"
+          - "Final evidence/severity/scope synthesis review"
+          - "git diff --check, exact three-path scope, YAML parse, and ./course audit-host"
+        cost:
+          class: large
+          notes: "Exhaustive local source review and correlation over the full Rust implementation; substantial reasoning only, no compilation, browser run, network, paid service, or product mutation."
+        runs: []

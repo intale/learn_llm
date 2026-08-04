@@ -296,7 +296,7 @@ mod tests {
     use crate::tokenizer::bpe::{BOS_TOKEN_ID, BpeTokenizer, EOS_TOKEN_ID};
     use crate::tokenizer::bpe_trainer::BpeTrainer;
 
-    const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
+    const CORPUS_JSON: &str = include_str!("../../../data/tiny-bilingual-corpus.json");
     const SPLIT_MANIFEST: &str = include_str!("../../../data/splits.json");
 
     fn config(context_length: usize, stride: usize) -> CausalWindowConfig {
@@ -482,7 +482,7 @@ mod tests {
 
     #[test]
     fn encodes_the_frozen_split_as_separate_wrapped_documents() {
-        let corpus = Corpus::from_json(CORPUS_BYTES).expect("checked-in corpus is valid");
+        let corpus = Corpus::from_json(CORPUS_JSON).expect("checked-in corpus is valid");
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("manifest parses");
         let partitions = manifest
             .partition(&corpus)

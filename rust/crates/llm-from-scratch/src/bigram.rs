@@ -240,7 +240,7 @@ mod tests {
     use crate::tokenizer::bpe_trainer::BpeTrainer;
 
     const DOCUMENTS: [&[u32]; 2] = [&[0, 2, 2, 3, 1], &[0, 2, 3, 1]];
-    const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
+    const CORPUS_JSON: &str = include_str!("../../../data/tiny-bilingual-corpus.json");
     const SPLIT_MANIFEST: &str = include_str!("../../../data/splits.json");
 
     fn model() -> BigramModel {
@@ -341,7 +341,7 @@ mod tests {
 
     #[test]
     fn fits_only_the_frozen_training_partition() {
-        let corpus = Corpus::from_json(CORPUS_BYTES).expect("checked-in corpus is valid");
+        let corpus = Corpus::from_json(CORPUS_JSON).expect("checked-in corpus is valid");
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("manifest parses");
         let partitions = manifest
             .partition(&corpus)
