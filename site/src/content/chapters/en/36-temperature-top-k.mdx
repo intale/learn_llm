@@ -2,7 +2,7 @@
 {
   "chapter_id": "36-temperature-top-k",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 36,
   "concept_id": "temperature-top-k",
   "title": "Shape the choices, then draw once",
@@ -92,7 +92,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/generation/sampling.rs",
       "region": "sampling-policy",
-      "purpose": "Validate explicit greedy or positive-temperature top-k policy, rank ties stably, normalize retained logits, and draw once from ascending token-ID intervals."
+      "purpose": "Prepare one stable filtered distribution, return compact selection evidence for ordinary calls, and materialize complete candidate and rank evidence only when explicitly requested."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/generation/sampling.rs",
@@ -329,17 +329,28 @@ Both reject empty or nonfinite logits. The stochastic policy additionally reject
 nonfinite or nonpositive temperature and any $k$ outside $1\le k\le V$. All
 validation happens before the SplitMix64 state changes.
 
-The distribution keeps candidates in token-ID order for inspection and stores a
-separate survivor list in stable rank order. Ranking compares finite logits
-descending and token IDs ascending. After max-shifted normalization, removed
-IDs remain present with exact zero probability. Categorical sampling visits the
-positive intervals in ascending token-ID order and consumes exactly one unit
-draw.
+All three public operations start with the same calculation: validate the inputs,
+rank finite logits by descending value and ascending token ID, filter to the
+requested candidate count, and turn the retained logits into normalized
+probabilities. `sample_next_token` returns only the selected token ID, optional
+unit draw, and selected half-open interval. It does not build the token-by-token
+candidate records or the rank-ordered survivor list used for inspection.
+`sample_next_token_with_trace` uses the same calculated probabilities and the same
+interval-selection code, but builds that full inspectable distribution before any
+draw. `sampling_distribution` builds the distribution without drawing. The
+ordinary call still needs temporary arrays of ranked token IDs and probabilities
+to perform the algorithm; it avoids only the additional inspection records.
+
+In an inspectable distribution, candidates appear in token-ID order and the
+separate survivor list appears in stable rank order. Removed IDs have exact zero
+probability after max-shifted normalization. Categorical selection visits positive
+intervals in ascending token-ID order. Greedy consumes no draw; every valid
+stochastic call consumes exactly one unit draw, including top-k with $k=1$.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/generation/sampling.rs"
   region="sampling-policy"
-  caption="Validate and expose explicit greedy or positive-temperature stable top-k sampling"
+  caption="Prepare sampling once, then return compact selection evidence or an explicitly requested full trace"
   label="Rust source implementing the Chapter 36 sampling policy"
 />
 
@@ -347,10 +358,11 @@ draw.
 checks that the prefix fits the configured context. It evaluates without an
 autodiff graph, takes the final vocabulary row, samples one token, appends that
 token, and records only compact step evidence: prefix length, selected ID, draw,
-and interval. It does not retain a full vocabulary distribution for every
-generated token. EOS is included before the loop stops. A valid capacity-$2$
-prefix can therefore emit a next token even though the resulting length-$3$
-sequence cannot be submitted for another call.
+and interval. Because it calls the result-only sampler, it neither constructs nor
+retains the complete inspectable candidate distribution for each generated token.
+EOS is included before the loop stops. A valid capacity-$2$ prefix can therefore
+emit a next token even though the resulting length-$3$ sequence cannot be
+submitted for another call.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/generation/sampling.rs"

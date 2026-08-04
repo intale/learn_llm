@@ -33,6 +33,9 @@ const coursePlanSource = read("curriculum/course-plan.md");
 const generationSource = read(
   "rust/crates/llm-from-scratch/src/generation/sampling.rs",
 );
+const cachedGenerationSource = read(
+  "rust/crates/llm-from-scratch/src/generation/kv_cache.rs",
+);
 const demoSource = read("rust/demos/ch36-temperature-top-k/src/lib.rs");
 
 function frontmatter(source: string) {
@@ -98,6 +101,68 @@ const labels: TemperatureTopKDiagramLabels = {
 };
 
 describe("Chapter 36 Rust trace parser", () => {
+  it("keeps ordinary sampling compact while explicit tracing observes one kernel", () => {
+    const leanStart = generationSource.indexOf("pub fn sample_next_token(");
+    const leanEnd = generationSource.indexOf(
+      "/// Selects one token and records the complete distribution used for inspection.",
+      leanStart,
+    );
+    const tracedStart = generationSource.indexOf(
+      "pub fn sample_next_token_with_trace(",
+    );
+    const tracedEnd = generationSource.indexOf(
+      "// endregion:sampling-policy",
+      tracedStart,
+    );
+    const uncachedStart = generationSource.indexOf("fn generate_with<F>(");
+    const uncachedEnd = generationSource.indexOf(
+      "/// Recomputes the complete decoder prefix",
+      uncachedStart,
+    );
+    expect(leanStart).toBeGreaterThan(-1);
+    expect(leanEnd).toBeGreaterThan(leanStart);
+    expect(tracedStart).toBeGreaterThan(-1);
+    expect(tracedEnd).toBeGreaterThan(tracedStart);
+    expect(uncachedStart).toBeGreaterThan(-1);
+    expect(uncachedEnd).toBeGreaterThan(uncachedStart);
+
+    const leanBody = generationSource.slice(leanStart, leanEnd);
+    const tracedBody = generationSource.slice(tracedStart, tracedEnd);
+    const uncachedBody = generationSource.slice(uncachedStart, uncachedEnd);
+    expect(leanBody).toContain("sample_with_observer");
+    expect(leanBody).not.toContain("sample_next_token_with_trace");
+    expect(leanBody).not.toContain("materialize_distribution");
+    expect(leanBody).not.toContain("SamplingDistribution");
+    expect(leanBody).not.toContain("SamplingCandidate");
+    expect(tracedBody).toContain("sample_with_observer");
+    expect(tracedBody).toContain("materialize_distribution");
+    expect(generationSource.match(/fn prepare_sampling\(/g)).toHaveLength(1);
+    expect(generationSource.match(/fn select_prepared\(/g)).toHaveLength(1);
+    expect(generationSource.match(/fn sample_with_observer</g)).toHaveLength(1);
+    expect(
+      generationSource
+        .slice(0, generationSource.indexOf("#[cfg(test)]"))
+        .match(/rng\.next_unit_f64\(\)/g),
+    ).toHaveLength(1);
+    expect(uncachedBody).toContain("sample_next_token(&logits, config.mode, rng)");
+    expect(uncachedBody).not.toContain("sample_next_token_with_trace");
+    expect(cachedGenerationSource).toContain(
+      "sample_next_token(logits.as_slice(), config.mode(), rng)",
+    );
+    expect(cachedGenerationSource).not.toContain("sample_next_token_with_trace");
+    expect(demoSource).toContain("sample_next_token_with_trace");
+
+    for (const source of [contractSource, lessonSource, russianLessonSource]) {
+      expect(frontmatter(source).content_revision).toBe(4);
+    }
+    expect(lessonSource.replace(/\s+/g, " ")).toContain(
+      "The ordinary call still needs temporary arrays of ranked token IDs and probabilities",
+    );
+    expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
+      "Обычному вызову всё равно нужны временные массивы",
+    );
+  });
+
   it("preserves exact temperature, tied-boundary, draw, and generation evidence", () => {
     const trace = parseTemperatureTopKTrace(fixture);
     expect(trace.input).toEqual({
@@ -341,9 +406,9 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
     );
-    expect(contract.content_revision).toBe(3);
-    expect(lesson.content_revision).toBe(3);
-    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lesson.content_revision).toBe(4);
+    expect(russianLesson.content_revision).toBe(4);
     expect(russianLesson.formula).toEqual({
       latex: contract.formula.latex,
       symbols: contract.formula.symbols.map(

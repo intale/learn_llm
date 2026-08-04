@@ -92,30 +92,54 @@ impl SamplingDistribution {
 }
 
 /// One selected token and the half-open categorical interval that selected it.
-#[derive(Clone, Debug, PartialEq)]
-pub struct SamplingDecision {
-    distribution: SamplingDistribution,
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SampledToken {
     token_id: u32,
     unit_draw: Option<f64>,
     interval_start: f64,
     interval_end: f64,
 }
 
-impl SamplingDecision {
-    pub const fn token_id(&self) -> u32 {
+impl SampledToken {
+    pub const fn token_id(self) -> u32 {
         self.token_id
     }
 
-    pub const fn unit_draw(&self) -> Option<f64> {
+    pub const fn unit_draw(self) -> Option<f64> {
         self.unit_draw
     }
 
-    pub const fn interval_start(&self) -> f64 {
+    pub const fn interval_start(self) -> f64 {
         self.interval_start
     }
 
-    pub const fn interval_end(&self) -> f64 {
+    pub const fn interval_end(self) -> f64 {
         self.interval_end
+    }
+}
+
+/// A compact selection paired with the complete distribution used to produce it.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SamplingDecision {
+    sampled: SampledToken,
+    distribution: SamplingDistribution,
+}
+
+impl SamplingDecision {
+    pub const fn token_id(&self) -> u32 {
+        self.sampled.token_id()
+    }
+
+    pub const fn unit_draw(&self) -> Option<f64> {
+        self.sampled.unit_draw()
+    }
+
+    pub const fn interval_start(&self) -> f64 {
+        self.sampled.interval_start()
+    }
+
+    pub const fn interval_end(&self) -> f64 {
+        self.sampled.interval_end()
     }
 
     pub const fn distribution(&self) -> &SamplingDistribution {
@@ -259,11 +283,14 @@ fn scaled_gap(logit: f64, maximum: f64, temperature: f64) -> f64 {
     }
 }
 
-/// Builds a complete, inspectable distribution without consuming randomness.
-pub fn sampling_distribution(
-    logits: &[f64],
+struct PreparedSampling {
     mode: SamplingMode,
-) -> Result<SamplingDistribution, SamplingError> {
+    ranked: Vec<usize>,
+    probabilities: Vec<f64>,
+    keep: usize,
+}
+
+fn prepare_sampling(logits: &[f64], mode: SamplingMode) -> Result<PreparedSampling, SamplingError> {
     let ranked = stable_ranks(logits)?;
     let keep = retained_count(mode, logits.len())?;
     let maximum = logits[ranked[0]];
@@ -308,6 +335,25 @@ pub fn sampling_distribution(
         });
     }
 
+    Ok(PreparedSampling {
+        mode,
+        ranked,
+        probabilities,
+        keep,
+    })
+}
+
+fn materialize_distribution(
+    logits: &[f64],
+    prepared: &PreparedSampling,
+) -> Result<SamplingDistribution, SamplingError> {
+    let PreparedSampling {
+        mode,
+        ranked,
+        probabilities,
+        keep,
+    } = prepared;
+
     let mut rank_by_token = Vec::new();
     rank_by_token
         .try_reserve_exact(logits.len())
@@ -327,7 +373,7 @@ pub fn sampling_distribution(
         })?;
     for (token_id, ((&logit, &probability), &rank)) in logits
         .iter()
-        .zip(&probabilities)
+        .zip(probabilities)
         .zip(&rank_by_token)
         .enumerate()
     {
@@ -335,73 +381,112 @@ pub fn sampling_distribution(
             token_id: u32::try_from(token_id).expect("validated token ID must fit u32"),
             logit,
             rank,
-            retained: rank <= keep,
+            retained: rank <= *keep,
             probability,
         });
     }
 
     let mut survivors = Vec::new();
     survivors
-        .try_reserve_exact(keep)
-        .map_err(|_| SamplingError::AllocationFailed { values: keep })?;
-    for &token_id in &ranked[..keep] {
+        .try_reserve_exact(*keep)
+        .map_err(|_| SamplingError::AllocationFailed { values: *keep })?;
+    for &token_id in &ranked[..*keep] {
         survivors.push(u32::try_from(token_id).expect("validated token ID must fit u32"));
     }
     Ok(SamplingDistribution {
-        mode,
+        mode: *mode,
         candidates,
         survivors,
     })
 }
 
-/// Selects one token. Invalid input is rejected before the RNG can advance.
-pub fn sample_next_token(
-    logits: &[f64],
-    mode: SamplingMode,
-    rng: &mut SplitMix64,
-) -> Result<SamplingDecision, SamplingError> {
-    let distribution = sampling_distribution(logits, mode)?;
-    if mode == SamplingMode::Greedy {
-        return Ok(SamplingDecision {
-            token_id: distribution.survivors[0],
-            distribution,
+fn select_prepared(prepared: &PreparedSampling, rng: &mut SplitMix64) -> SampledToken {
+    if prepared.mode == SamplingMode::Greedy {
+        return SampledToken {
+            token_id: u32::try_from(prepared.ranked[0]).expect("validated token ID must fit u32"),
             unit_draw: None,
             interval_start: 0.0,
             interval_end: 1.0,
-        });
+        };
     }
 
     let draw = rng.next_unit_f64();
-    let final_id = distribution
-        .candidates
+    let final_id = prepared
+        .probabilities
         .iter()
+        .enumerate()
         .rev()
-        .find(|candidate| candidate.retained && candidate.probability > 0.0)
-        .map(|candidate| candidate.token_id)
+        .find(|(_, probability)| **probability > 0.0)
+        .map(|(token_id, _)| token_id)
         .expect("a normalized distribution must have a positive survivor");
     let mut start = 0.0;
-    for candidate in distribution
-        .candidates
+    for (token_id, &probability) in prepared
+        .probabilities
         .iter()
-        .filter(|candidate| candidate.retained && candidate.probability > 0.0)
+        .enumerate()
+        .filter(|(_, probability)| **probability > 0.0)
     {
-        let end = if candidate.token_id == final_id {
+        let end = if token_id == final_id {
             1.0
         } else {
-            (start + candidate.probability).min(1.0)
+            (start + probability).min(1.0)
         };
-        if draw < end || candidate.token_id == final_id {
-            return Ok(SamplingDecision {
-                token_id: candidate.token_id,
-                distribution,
+        if draw < end || token_id == final_id {
+            return SampledToken {
+                token_id: u32::try_from(token_id).expect("validated token ID must fit u32"),
                 unit_draw: Some(draw),
                 interval_start: start,
                 interval_end: end,
-            });
+            };
         }
         start = end;
     }
     unreachable!("the final positive survivor covers every unit draw")
+}
+
+fn sample_with_observer<T>(
+    logits: &[f64],
+    mode: SamplingMode,
+    rng: &mut SplitMix64,
+    observe: impl FnOnce(&PreparedSampling) -> Result<T, SamplingError>,
+) -> Result<(SampledToken, T), SamplingError> {
+    let prepared = prepare_sampling(logits, mode)?;
+    let observation = observe(&prepared)?;
+    let sampled = select_prepared(&prepared, rng);
+    Ok((sampled, observation))
+}
+
+/// Builds a complete, inspectable distribution without consuming randomness.
+pub fn sampling_distribution(
+    logits: &[f64],
+    mode: SamplingMode,
+) -> Result<SamplingDistribution, SamplingError> {
+    let prepared = prepare_sampling(logits, mode)?;
+    materialize_distribution(logits, &prepared)
+}
+
+/// Selects one token without retaining the complete inspectable distribution.
+pub fn sample_next_token(
+    logits: &[f64],
+    mode: SamplingMode,
+    rng: &mut SplitMix64,
+) -> Result<SampledToken, SamplingError> {
+    sample_with_observer(logits, mode, rng, |_| Ok(())).map(|(sampled, ())| sampled)
+}
+
+/// Selects one token and records the complete distribution used for inspection.
+pub fn sample_next_token_with_trace(
+    logits: &[f64],
+    mode: SamplingMode,
+    rng: &mut SplitMix64,
+) -> Result<SamplingDecision, SamplingError> {
+    let (sampled, distribution) = sample_with_observer(logits, mode, rng, |prepared| {
+        materialize_distribution(logits, prepared)
+    })?;
+    Ok(SamplingDecision {
+        sampled,
+        distribution,
+    })
 }
 // endregion:sampling-policy
 
@@ -791,6 +876,41 @@ mod tests {
         );
     }
 
+    fn assert_sample_matches_trace(sampled: SampledToken, traced: &SamplingDecision) {
+        assert_eq!(sampled.token_id(), traced.token_id());
+        assert_eq!(
+            sampled.unit_draw().map(f64::to_bits),
+            traced.unit_draw().map(f64::to_bits)
+        );
+        assert_eq!(
+            sampled.interval_start().to_bits(),
+            traced.interval_start().to_bits()
+        );
+        assert_eq!(
+            sampled.interval_end().to_bits(),
+            traced.interval_end().to_bits()
+        );
+    }
+
+    fn assert_sampling_error_matches(left: SamplingError, right: SamplingError) {
+        match (left, right) {
+            (
+                SamplingError::NonFiniteLogit {
+                    token_id: left_token,
+                    value: left_value,
+                },
+                SamplingError::NonFiniteLogit {
+                    token_id: right_token,
+                    value: right_value,
+                },
+            ) => {
+                assert_eq!(left_token, right_token);
+                assert_eq!(left_value.to_bits(), right_value.to_bits());
+            }
+            (left, right) => assert_eq!(left, right),
+        }
+    }
+
     #[test]
     fn stable_top_k_keeps_exactly_k_and_resolves_boundary_ties_by_token_id() {
         let logits = [0.0, 1.0, 1.0, 2.0];
@@ -847,7 +967,7 @@ mod tests {
         let mut greedy_rng = SplitMix64::from_seed(36);
         let mut sample_rng = greedy_rng.clone();
         let greedy = sample_next_token(&logits, SamplingMode::Greedy, &mut greedy_rng).unwrap();
-        let sampled = sample_next_token(
+        let sampled = sample_next_token_with_trace(
             &logits,
             SamplingMode::TemperatureTopK {
                 temperature: 9.0,
@@ -861,6 +981,121 @@ mod tests {
         assert_eq!(sampled.distribution().candidates()[3].probability(), 1.0);
         assert_eq!(greedy_rng.state(), 36);
         assert_ne!(sample_rng.state(), 36);
+    }
+
+    #[test]
+    fn lean_and_traced_sampling_share_exact_results_and_rng_state() {
+        let cases = [
+            (vec![-0.0, 0.0, -1.0], SamplingMode::Greedy),
+            (
+                vec![0.0, 1.0, 1.0, 2.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 3,
+                },
+            ),
+            (
+                vec![0.0, 1.0, 1.0, 2.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 9.0,
+                    top_k: 1,
+                },
+            ),
+            (
+                vec![2.0, 2.0, 1.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: f64::MIN_POSITIVE,
+                    top_k: 3,
+                },
+            ),
+            (
+                vec![-f64::MAX, 0.0, f64::MAX],
+                SamplingMode::TemperatureTopK {
+                    temperature: f64::MAX,
+                    top_k: 3,
+                },
+            ),
+        ];
+
+        for (logits, mode) in cases {
+            let mut lean_rng = SplitMix64::from_seed(36);
+            let mut traced_rng = lean_rng.clone();
+            let sampled = sample_next_token(&logits, mode, &mut lean_rng).unwrap();
+            let traced = sample_next_token_with_trace(&logits, mode, &mut traced_rng).unwrap();
+            assert_sample_matches_trace(sampled, &traced);
+            assert_eq!(lean_rng.state(), traced_rng.state());
+            assert_eq!(
+                traced.distribution(),
+                &sampling_distribution(&logits, mode).unwrap()
+            );
+        }
+    }
+
+    #[test]
+    fn lean_and_traced_sampling_reject_identical_inputs_without_a_draw() {
+        let cases = [
+            (Vec::new(), SamplingMode::Greedy),
+            (
+                vec![0.0, f64::NAN],
+                SamplingMode::TemperatureTopK {
+                    temperature: 0.0,
+                    top_k: 0,
+                },
+            ),
+            (
+                vec![0.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 0.0,
+                    top_k: 0,
+                },
+            ),
+            (
+                vec![0.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 0,
+                },
+            ),
+            (
+                vec![0.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 2,
+                },
+            ),
+        ];
+
+        for (logits, mode) in cases {
+            let mut lean_rng = SplitMix64::from_seed(99);
+            let mut traced_rng = lean_rng.clone();
+            let initial_state = lean_rng.state();
+            assert_sampling_error_matches(
+                sample_next_token(&logits, mode, &mut lean_rng).unwrap_err(),
+                sample_next_token_with_trace(&logits, mode, &mut traced_rng).unwrap_err(),
+            );
+            assert_eq!(lean_rng.state(), initial_state);
+            assert_eq!(traced_rng.state(), initial_state);
+        }
+    }
+
+    #[test]
+    fn observation_failure_cannot_advance_the_random_stream() {
+        let mut rng = SplitMix64::from_seed(36);
+        let initial_state = rng.state();
+        let result = sample_with_observer(
+            &[0.0, 1.0],
+            SamplingMode::TemperatureTopK {
+                temperature: 1.0,
+                top_k: 2,
+            },
+            &mut rng,
+            |_| Err::<(), _>(SamplingError::AllocationFailed { values: 2 }),
+        );
+        assert_eq!(
+            result.unwrap_err(),
+            SamplingError::AllocationFailed { values: 2 }
+        );
+        assert_eq!(rng.state(), initial_state);
     }
 
     #[test]

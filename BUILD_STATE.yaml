@@ -31125,7 +31125,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 2
+      spent: 3
       notes: "Four medium cached-Docker corrections with focused bilingual chapter revisions and browser checks, plus one small complete-site baseline prerequisite discovered by exact validation. No paid service or generated model work is used; canonical Docker dependency layers may refresh lockfile-pinned artifacts if their cache keys change."
     completion_criteria:
       - "Ordinary BPE encoding, token sampling, tensor backward, and AdamW update paths do not allocate or retain teaching-only trace records."
@@ -31294,7 +31294,7 @@ builds:
       - id: separate-sampling-observation
         objective: "Make ordinary token sampling retain only the chosen token and boundary evidence while explicit tracing observes the same filtering and draw kernel."
         depends_on: [restore-site-validation-baseline]
-        status: pending
+        status: completed
         inputs:
           - "User direction to continue and fix the reviewed audit findings"
           - "AGENTS.md"
@@ -31302,6 +31302,7 @@ builds:
           - ".agents/skills/localize-llm-course/SKILL.md"
           - "audits/2026-08-04-rust-overengineering.md finding F01"
           - "Committed output 4ddbd1b78cdff1af9999eb1343c90fd8401f8899 of separate-bpe-encoding-observation"
+          - "Committed prerequisite a0006aa29da49af891e6559ecaff3f2878c14ff1 of restore-site-validation-baseline"
           - "Sampling implementation, Chapter 36 demo/contract/locales/tests, and read-only cached/uncached Chapter 38/39 projections and frozen evidence"
         outputs:
           - "rust/crates/llm-from-scratch/src/generation/sampling.rs"
@@ -31376,6 +31377,49 @@ builds:
               - {command: "Exact staged Chapter 36 contract, localized content/parity, and focused Vitest", status: passed, notes: "Chapter 36 revision 4 passes contract and EN/RU source/parity checks; all six focused tests pass against the frozen candidate."}
               - {command: "Exact staged complete site matrix", status: failed, notes: "Course plan, all 80 content sources, all 40 locale sets, and Astro's 215-file check passed. Full Vitest stopped on two unrelated byte-identical baseline defects: duplicated course-diagram__caption source token in Chapter 39 CSS and undocumented serde_json::from_str literal data in Chapter 2."}
             notes: "Interrupted without losing work. The exact reviewed seven-file candidate is frozen by manifest and remains in the working tree. Resume with a new run only after restore-site-validation-baseline is committed, then verify the manifest against the new committed input before reuse and rerun every acceptance gate."
+          - run_id: 20260804T163426Z-separate-sampling-observation-02
+            started_at: 2026-08-04T16:34:26Z
+            finished_at: 2026-08-04T16:49:11Z
+            status: succeeded
+            input_fingerprint:
+              git: "a0006aa29da49af891e6559ecaff3f2878c14ff1; tree 4a8f97bf18940dc6af519d629e708cb430aac332"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                reused-candidate-manifest: "sha256:a8eee56a6ea264e7048643c447f7510f3f61ddf2646184b7eae736d8242856db"
+                repaired-chapter-39-component: "sha256:57362b2126f268710247205768bc0a68267efe1f5a2d4a1deefe1d0d5cdb1341"
+                repaired-formula-test: "sha256:199836a38879e565b8b4c6b56e969a98df534c91fe226ab2e6571714993d4b02"
+              tools: {git: "2.53.0", docker: "25.0.2", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "None planned. Reuse is checksum-verified; all repeated product validation remains Docker-only with no paid service or generated model work."
+            staging_dir: ".build/runs/20260804T163426Z-separate-sampling-observation-02/"
+            commands:
+              - "Verify prerequisite commit a0006aa contains exactly its four declared files and leaves only the seven sampling product edits unstaged."
+              - "Verify all seven working-tree sampling files against interrupted run 01's immutable sha256 manifest before reuse."
+              - "Recheck completed dependencies, input/environment continuity, output ownership, medium cached-Docker cost, and exact baseline-repair hashes; claim a new run rather than mutating the interrupted history."
+              - "Create a run-02 official-path publication manifest and an isolated candidate from commit a0006aa plus only the seven frozen sampling products and running checkpoint."
+              - "Repeat exact staged Rust formatting, Clippy, complete locked workspace/doctests, dependency policy, all deterministic reports/traces, Chapter 36/localization/static checks, full Vitest, and the complete two-browser formula/diagram matrix."
+              - "Run the manifest-locked official review, canonical ./course check, and focused canonical sampling/report/trace/source replay before finalizing."
+            artifacts:
+              - {path: ".build/runs/20260804T154930Z-separate-sampling-observation-01/publish.sha256", sha256: "a8eee56a6ea264e7048643c447f7510f3f61ddf2646184b7eae736d8242856db", purpose: "Checksum-verified reusable seven-file candidate manifest from the interrupted run; publication for this run will receive its own official-path manifest."}
+              - {path: ".build/runs/20260804T163426Z-separate-sampling-observation-02/publish.sha256", sha256: "dec7baa1744bac79cb5f0af0592c4cd33ef70051cb2376c060b29a4867cc1f36", purpose: "Official-path frozen manifest for the seven exact product outputs validated and promoted by run 02."}
+              - {path: "rust/crates/llm-from-scratch/src/generation/sampling.rs", sha256: "2c38b084cae6f5098b1d3b6fb14925cb243d8f003b5b9b4f28c20ee7fa5f7904", purpose: "One shared sampling preparation/selection kernel with compact ordinary results, explicit trace evidence, and exact transaction/equivalence tests."}
+              - {path: "rust/demos/ch36-temperature-top-k/src/lib.rs", sha256: "a6d8b5979b8099592b6ce1e25b8dc2a2ce24ce346e37f06720ba3acb1d50d912", purpose: "Chapter 36 learner evidence explicitly requests tracing while historical and invalid probes remain result-only."}
+              - {path: "curriculum/chapters/36-temperature-top-k.md", sha256: "b741110fa3ee0bf700b2a869155b60c58cb27f632af58fb21aca7d17d09b9ba7", purpose: "Chapter 36 revision 4 contract and exact English/Russian semantic provenance."}
+              - {path: "site/src/content/chapters/en/36-temperature-top-k.mdx", sha256: "6dd0d4c23472826d3fcd7b4a326cc7f62c7be8a346645bf91fec171dd6619b69", purpose: "Canonical English explanation of necessary algorithm workspace versus optional distribution evidence."}
+              - {path: "site/src/content/chapters/ru/36-temperature-top-k.mdx", sha256: "282ac522b1ca272a80366cfbac02a71ae13ed116f00d8ab0f00178bd18ac5666", purpose: "Reviewed natural Russian refresh directly from the exact canonical English revision."}
+              - {path: "site/tests/36-temperature-top-k-diagram.test.ts", sha256: "bc4594891f177847e6f49f7d2b858cadf1634e79533b5f858bb017682e484d14", purpose: "Static single-kernel, caller-boundary, revision, trace, and figure-contract assertions."}
+              - {path: "site/tests/e2e/ch36-temperature-top-k.spec.ts", sha256: "fe4c46b82df6b7650a237c66e162298cd532ea5276b99d989f683c9afb4b2c53", purpose: "Rendered bilingual revision and result-only/trace distinction checks."}
+            validation:
+              - {command: "Recovery, dependency, ownership, source, environment, and cost preflight", status: passed, notes: "The baseline prerequisite is completed and committed independently at a0006aa. Its complete site and browser gates pass; no running owner remains. All seven sampling product files match the interrupted manifest exactly, and no other working-tree file is modified. Cost remains medium cached Docker/browser CPU with no paid service or generation."}
+              - {command: "Exact staged Rust formatting, Clippy -D warnings, complete locked workspace/doctests, dependency policy, and deterministic replay", status: passed, notes: "Image sha256:45b53191fb5753b8efe82d29ca631a914b98a4557e97217c26662a668225135f passes every Rust gate, including 369 shared tests, 15 focused sampling tests, every workspace/demo/doc target, all 39 chapter reports, and all 34 diagram traces."}
+              - {command: "Frozen Chapter 36/38/39 downstream evidence", status: passed, notes: "Expected-report hashes remain ddcaea1, 9272a27, and a0b0398; diagram-trace hashes remain a79f9cd, ce89d29, and e10f7f2. Every sampled ID, draw, interval, RNG state, stop, and cached/uncached decision therefore retains its checked-in evidence."}
+              - {command: "Exact staged Chapter 36 contract, EN/RU source/parity, complete Vitest, content, Astro, production-build, and link matrix", status: passed, notes: "Chapter 36 revision 4 and both locales pass focused contracts. All 54 test files and 960 tests, 80 localized sources, 40 locale sets, 42 diagrams, 215 Astro files with zero diagnostics, 85 routes, 2,529 references, and 164 artifacts pass."}
+              - {command: "Exact staged Chromium and Firefox Chapter 36, formula, diagram-style, and full-view matrices", status: passed, notes: "Browser image sha256:a238463c71ee168ad9dcee2d04ac0da5d97135c77886a827d9c8a1e49b13e81d passes 182/182 in each browser, including Chapter 36 bilingual desktop/narrow/fullscreen/forced-colors/RTL/no-JavaScript cases and every course formula and registered diagram containment/full-view case."}
+              - {command: "Manifest-locked ./course review 20260804T163426Z-separate-sampling-observation-02 --check", status: passed, notes: "Official review image sha256:4385c69f706e3205fcb7e858c9ef11effe8ad731719a5e126f8528bf23fb346d validated the official-path seven-file manifest without changing its publish tree."}
+              - {command: "Canonical ./course check and focused canonical replay", status: passed, notes: "Canonical workspace image sha256:180ebeb4f43fdc72f12071269c3d85a1e8d6afcc2876184a8151786682c5353d passes full Rust/site validation. Its focused replay passes 15 sampling tests, 2 Chapter 36 tests, exact report and trace diffs, and 6 focused Vitest assertions."}
+            notes: "Succeeded. Ordinary sampling now returns only compact token/draw/interval evidence and constructs no candidate, rank-map, survivor, or distribution teaching records. Explicit Chapter 36 tracing observes the same preparation and selection kernel, preserves all pre-draw allocation and RNG transaction rules, and keeps every downstream fixture exact. Reviewed English and Russian revision 4 explain the boundary precisely."
 
       - id: separate-tensor-backward-observation
         objective: "Make ordinary tensor backward propagate adjoints without retaining node and edge teaching snapshots while the trace API observes the same reverse traversal."

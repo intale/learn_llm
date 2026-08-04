@@ -2,7 +2,7 @@
 {
   "chapter_id": "36-temperature-top-k",
   "concept_id": "temperature-top-k",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 36,
   "objective": {
     "en": "Shape one next-token distribution with positive-temperature scaling and stable top-k filtering, then reproduce a categorical choice by restoring the same random-generator state in an uncached autoregressive loop.",
@@ -179,9 +179,10 @@
     }
   ],
   "translation_notes": [
-    "Chapter 36 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was reviewed directly against that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: c343bc6416f7624dc0e0db24fb254373e479f51e965952096df346dfbb8abc04",
+    "Chapter 36 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian was reviewed directly against that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 6dd0d4c23472826d3fcd7b4a326cc7f62c7be8a346645bf91fec171dd6619b69",
     "Preserve tau, k, K_k, ell_i, q_i, token IDs, seeds, logits, probabilities, half-open intervals, and exact trace tokens.",
+    "Keep the ordinary compact SampledToken result distinct from the explicitly requested SamplingDecision distribution trace without implying that the algorithm needs no private ranking or probability workspace.",
     "Greedy is a separate valid mode; tau equals zero is only a mathematical limit and is rejected as a stochastic setting.",
     "Top-k is a useful controlled decoder but not a universal quality guarantee, hallucination defense, or endpoint of decoding research.",
     "The history must remain about language-model decoding from constrained search to open-ended sampling, not programming languages."
@@ -316,10 +317,23 @@ requires finite $\tau>0$ and $1\le k\le V$, keeps exactly $k$ stable ranks,
 uses max-shifted exponentials, stores exact zero for removed IDs, and consumes
 one SplitMix64 draw only after validation succeeds.
 
+`sample_next_token`, `sample_next_token_with_trace`, and
+`sampling_distribution` share one calculation that validates the inputs, ranks
+and filters the logits, and turns the retained logits into normalized
+probabilities. The ordinary `sample_next_token` result contains only the selected
+token ID, optional draw, and half-open interval. The traced call additionally
+builds the complete token-ID-ordered candidate records and rank-ordered survivor
+list before the draw, while `sampling_distribution` builds the same records
+without a draw. Both sampling calls use one interval-selection implementation.
+The ordinary path still owns the temporary ranked IDs and probabilities required
+to perform the algorithm; it does not build the additional inspection records.
+
 `generate_uncached` validates prompt and EOS IDs, runs the complete decoder
 prefix under the no-gradient boundary, extracts the last vocabulary row, and
-records each selection. The result includes emitted IDs, per-step prefix lengths,
-the stop reason, and full-prefix call count. EOS remains in the emitted sequence.
+records each compact selection without constructing a complete inspectable
+candidate distribution per generated token. The result includes emitted IDs,
+per-step prefix lengths, the stop reason, and full-prefix call count. EOS remains
+in the emitted sequence.
 
 The demo loads bytes produced by the Chapter 35 checkpoint fixture and restores
 its saved RNG state. Its standard output and separate diagram trace are exact,

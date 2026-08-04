@@ -42,6 +42,8 @@ const copy = {
     detailsFragment: "survives because equal logits use ascending token ID",
     historyFragment:
       "not a universal quality guarantee, a hallucination defense, or the endpoint of decoding research",
+    executionFragment:
+      "The ordinary call still needs temporary arrays of ranked token IDs and probabilities",
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -70,6 +72,8 @@ const copy = {
     detailsFragment: "Остаётся токен 1",
     historyFragment:
       "не универсальная гарантия качества, не защита от галлюцинаций и не конечная точка исследований декодирования",
+    executionFragment:
+      "Обычному вызову всё равно нужны временные массивы",
   },
 } as const;
 
@@ -302,7 +306,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 36,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -347,6 +351,7 @@ async function expectChapterContent(
     " ",
   );
   expect(lessonText).toContain(localized.historyFragment);
+  expect(lessonText).toContain(localized.executionFragment);
   await expect(
     page.locator('.lesson-body a[href="https://arxiv.org/pdf/1805.04833"]'),
   ).toHaveCount(1);

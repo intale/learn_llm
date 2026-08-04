@@ -6,7 +6,7 @@ use llm_from_scratch::checkpoint::{Checkpoint, CheckpointError};
 use llm_from_scratch::generation::sampling::{
     GenerationConfig, GenerationError, GenerationResult, GenerationStop, SamplingDecision,
     SamplingDistribution, SamplingError, SamplingMode, generate_uncached, sample_next_token,
-    sampling_distribution,
+    sample_next_token_with_trace, sampling_distribution,
 };
 use llm_from_scratch::nn::init::SplitMix64;
 
@@ -201,7 +201,7 @@ fn seeded_decisions() -> Result<Vec<SamplingDecision>, FixtureError> {
     let mut rng = SplitMix64::from_seed(SAMPLE_SEED);
     (0..SAMPLE_COUNT)
         .map(|_| {
-            sample_next_token(
+            sample_next_token_with_trace(
                 &LOGITS,
                 SamplingMode::TemperatureTopK {
                     temperature: 1.0,
@@ -265,7 +265,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     )?;
     let mut greedy_rng = SplitMix64::from_seed(SAMPLE_SEED);
     let greedy_state = greedy_rng.state();
-    let greedy = sample_next_token(&LOGITS, SamplingMode::Greedy, &mut greedy_rng)?;
+    let greedy = sample_next_token_with_trace(&LOGITS, SamplingMode::Greedy, &mut greedy_rng)?;
     require(
         greedy_rng.state() == greedy_state,
         "greedy sampling unexpectedly consumed RNG state",
