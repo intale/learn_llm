@@ -95,6 +95,13 @@ function leafPaths(value: Record<string, unknown>, prefix = ''): string[] {
 
 const normalize = (value: string) => value.replace(/[$*_`]/g, '').replace(/\s+/g, ' ').trim();
 
+function markedSection(source: string, marker: string, nextMarker: string) {
+  const start = source.indexOf(marker);
+  const end = source.indexOf(nextMarker, start + marker.length);
+  if (start < 0 || end < 0) throw new Error(`missing ordered section ${marker}`);
+  return source.slice(start + marker.length, end);
+}
+
 const labels: AdamwDiagramLabels = {
   title: 'title',
   description: 'description',
@@ -541,6 +548,96 @@ describe('Chapter 22 contract and lesson projection', () => {
     en: frontmatter(lessonSources.en),
     ru: frontmatter(lessonSources.ru),
   } as const;
+
+  it('names the worked parameter and explains the configurable no-decay policy', () => {
+    expect(contract.content_revision).toBe(3);
+    expect(lessons.en.content_revision).toBe(3);
+    expect(lessons.ru.content_revision).toBe(3);
+
+    const contractWorked = markedSection(
+      contractSource,
+      '<!-- contract-section:worked-inputs -->',
+      '<!-- contract-section:formula -->',
+    );
+    const englishWorked = markedSection(
+      lessonBodies.en,
+      '{/* chapter-section:worked-example */}',
+      '{/* chapter-section:formula */}',
+    );
+    const russianWorked = markedSection(
+      lessonBodies.ru,
+      '{/* chapter-section:worked-example */}',
+      '{/* chapter-section:formula */}',
+    );
+
+    for (const source of [contractWorked, englishWorked]) {
+      expect(normalize(source)).toContain(
+        normalize(
+          'AdamW uses each named gradient as an input to compute a replacement value for the matching parameter.',
+        ),
+      );
+      expect(normalize(source)).toContain(
+        normalize(
+          '$\\theta_0$ is the current value of the decay-group parameter `decoder.output.weight`, and $g_1$ is the accumulated token-mean loss gradient with respect to that same parameter',
+        ),
+      );
+      expect(normalize(source)).toContain(
+        normalize(
+          "AdamW stores this parameter's moment vectors under `decoder.output.weight`. The stable name, not the parameter's position in the parameter list, identifies its moment history.",
+        ),
+      );
+      expect(source).not.toContain('first named leaf');
+    }
+    expect(normalize(russianWorked)).toContain(
+      normalize(
+        'Затем AdamW использует каждый градиент, чтобы вычислить новое значение параметра с соответствующим стабильным именем.',
+      ),
+    );
+    expect(normalize(russianWorked)).toContain(
+      normalize(
+        '$\\theta_0$ — текущее значение параметра `decoder.output.weight` из группы с затуханием, а $g_1$ — накопленный градиент усреднённой по токенам функции потерь по этому же параметру',
+      ),
+    );
+    expect(normalize(russianWorked)).toContain(
+      normalize(
+        'Историю моментов определяет стабильное имя, а не положение параметра в списке.',
+      ),
+    );
+    expect(russianWorked).not.toContain('первому именованному');
+
+    const groupingExample = contract.acceptance_examples.find(
+      ({ input }: { input: string }) =>
+        input === 'Assign decoder.output.weight to decay and decoder.norm.scale to no-decay',
+    );
+    expect(groupingExample?.expected).toContain('configurable course policy');
+    expect(groupingExample?.expected).toContain('effective lambda zero');
+
+    const contractExercises = markedSection(
+      contractSource,
+      '<!-- contract-section:exercises -->',
+      '<!-- contract-section:decoder-connection -->',
+    );
+    const englishExercises = markedSection(
+      lessonBodies.en,
+      '{/* chapter-section:exercises */}',
+      '{/* chapter-section:decoder-connection */}',
+    );
+    const russianExercises = markedSection(
+      lessonBodies.ru,
+      '{/* chapter-section:exercises */}',
+      '{/* chapter-section:decoder-connection */}',
+    );
+    for (const source of [contractExercises, englishExercises]) {
+      expect(normalize(source)).toContain('configurable grouping policy');
+      expect(normalize(source)).toContain('effective \\lambda is 0');
+      expect(normalize(source)).toContain('not a consequence of the AdamW equation');
+    }
+    expect(normalize(russianExercises)).toContain(
+      'настраиваемое правило группировки, принятое в курсе',
+    );
+    expect(normalize(russianExercises)).toContain('эффективный коэффициент \\lambda равен 0');
+    expect(normalize(russianExercises)).toContain('не следствие формулы AdamW');
+  });
 
   it('keeps both locale projections aligned with one invariant formula and evidence set', () => {
     expect(contract.visualization.decision).toBe('useful');

@@ -2,13 +2,13 @@
 {
   "chapter_id": "22-adamw",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 22,
   "concept_id": "adamw",
   "title": "Keep decay out of the gradient moments",
   "description": "Build AdamW from named parameter gradients, bias-corrected moments, and a separate weight-decay path, then commit every checked update together.",
   "objective": "Update a stable set of named decoder parameters with bias-corrected first and second gradient moments while keeping weight decay outside the adaptive gradient path.",
-  "worked_inputs": "Start with $\\theta_0=[1,-2]$, accumulated gradient $g_1=[0.2,-0.4]$, learning rate $\\eta=0.1$, moment rates $\\beta_1=\\beta_2=0.5$, stabilizer $\\varepsilon=0.1$, and decay $\\lambda=0.1$. Predict the adaptive and decay contributions before computing $\\theta_1$.",
+  "worked_inputs": "For the decay-group parameter `decoder.output.weight`, start with current value $\\theta_0=[1,-2]$ and accumulated token-mean loss gradient $g_1=[0.2,-0.4]$ with respect to that same parameter. Use learning rate $\\eta=0.1$, moment rates $\\beta_1=\\beta_2=0.5$, stabilizer $\\varepsilon=0.1$, and decay $\\lambda=0.1$. Predict the adaptive and decay contributions before computing the replacement value $\\theta_1$.",
   "formula": {
     "latex": "\\hat m_t=\\frac{m_t}{1-\\beta_1^t},\\quad \\hat v_t=\\frac{v_t}{1-\\beta_2^t},\\quad \\theta_t=(1-\\eta\\lambda)\\theta_{t-1}-\\eta\\frac{\\hat m_t}{\\sqrt{\\hat v_t}+\\varepsilon}",
     "symbols": [
@@ -260,15 +260,25 @@ export const diagramLabels = {
 
 ## Predict two subtractions
 
-Chapter 21 ends with token-mean gradient coordinates. Before AdamW updates them,
-associate each tensor-shaped gradient with the stable name of the parameter leaf
-it belongs to. Give the first named leaf this tiny state:
+Chapter 21 ends with tensor-shaped gradients of the token-mean loss. Before an
+optimizer step, associate each gradient with the stable name of the parameter
+with respect to which it was computed. AdamW uses each named gradient as an
+input to compute a replacement value for the matching parameter. Only after
+every candidate succeeds does it replace the old parameter leaves.
+
+In this worked update, $\theta_0$ is the current value of the decay-group
+parameter `decoder.output.weight`, and $g_1$ is the accumulated token-mean loss
+gradient with respect to that same parameter:
 
 $$
 \theta_0=[1,-2],
 \qquad
 g_1=[0.2,-0.4].
 $$
+
+AdamW stores this parameter's moment vectors under `decoder.output.weight`.
+The stable name, not the parameter's position in the parameter list, identifies
+its moment history.
 
 Use $\eta=0.1$, $\beta_1=\beta_2=0.5$, $\varepsilon=0.1$, and
 $\lambda=0.1$. Predict the adaptive delta and the decay delta separately.
@@ -330,12 +340,13 @@ In this formula, $\lambda$ is the effective coefficient for the current named
 parameter: it equals the configured decay for a decay-group parameter and $0$
 for a no-decay parameter.
 
-The group map is an explicit partition of the stable parameter-name set: its
-decay and no-decay sets are disjoint, and their union contains every name. This
-worked example decays `decoder.output.weight` but excludes
-`decoder.norm.scale`, so both group behaviors are explicit. Production models
-choose and document their own grouping policy; excluding a normalization scale
-avoids directly shrinking that affine scale parameter.
+The group map is a configurable policy and an explicit partition of the stable
+parameter-name set: its decay and no-decay sets are disjoint, and their union
+contains every name. In this course example, the policy assigns
+`decoder.output.weight` to decay and `decoder.norm.scale` to no-decay; that
+assignment is not implied by the AdamW equation. The normalization scale's
+effective $\lambda$ is therefore $0$, avoiding a separate decay term that would
+directly pull the learned affine scale toward zero.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -574,7 +585,7 @@ at the final subtraction.
   5. Nothing commits: both old leaves and all optimizer state remain unchanged.
   6. The new leaf has an exact zero gradient and a new tape identity.
   7. Plain SGD uses only the current gradient; momentum remembers a decaying direction; coupled $L_2$ feeds parameter-proportional shrinkage into Adam's moments; AdamW keeps that shrinkage outside the moments. Bengio supplies the neural-language-model starting point, and Touvron et al. document AdamW in LLaMA pretraining.
-  8. The worked example puts `decoder.output.weight` in decay and `decoder.norm.scale` in no-decay, making the exclusion explicit.
+  8. This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns `decoder.output.weight` to decay, so AdamW subtracts the parameter-proportional term $\eta\lambda\theta_{t-1}$ from it. It assigns `decoder.norm.scale` to no-decay, so that parameter's effective $\lambda$ is $0$; this avoids a decay term that directly pulls the learned normalization scale toward zero.
   9. SGD reduces the high-curvature coordinate much faster; AdamW scales coordinates through their moment history and also applies a separate decay contribution.
 </details>
 

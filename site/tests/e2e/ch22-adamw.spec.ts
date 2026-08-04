@@ -17,6 +17,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type ChapterLocale,
   type CourseChapterLink,
@@ -143,6 +144,27 @@ function loadCopy(locale: ChapterLocale): LocalizedCopy {
 const copy = Object.fromEntries(
   chapterLocales.map((locale) => [locale, loadCopy(locale)]),
 ) as Record<ChapterLocale, LocalizedCopy>;
+
+const explicitCopy = {
+  en: {
+    workedClaims: [
+      'Chapter 21 ends with tensor-shaped gradients of the token-mean loss. Before an optimizer step, associate each gradient with the stable name of the parameter with respect to which it was computed. AdamW uses each named gradient as an input to compute a replacement value for the matching parameter. Only after every candidate succeeds does it replace the old parameter leaves.',
+      'In this worked update, \\theta_0 is the current value of the decay-group parameter decoder.output.weight, and g_1 is the accumulated token-mean loss gradient with respect to that same parameter:',
+      "AdamW stores this parameter's moment vectors under decoder.output.weight. The stable name, not the parameter's position in the parameter list, identifies its moment history.",
+    ],
+    answerEight:
+      "This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns decoder.output.weight to decay, so AdamW subtracts the parameter-proportional term \\eta\\lambda\\theta_{t-1} from it. It assigns decoder.norm.scale to no-decay, so that parameter's effective \\lambda is 0; this avoids a decay term that directly pulls the learned normalization scale toward zero.",
+  },
+  ru: {
+    workedClaims: [
+      'В конце главы 21 получены тензорные градиенты функции потерь, усреднённой по токенам. Перед шагом оптимизатора сопоставьте каждый градиент со стабильным именем параметра, по которому он вычислен. Затем AdamW использует каждый градиент, чтобы вычислить новое значение параметра с соответствующим стабильным именем. Прежние листовые узлы-параметры заменяются только после успешного вычисления всех обновлений.',
+      'В рассматриваемом обновлении \\theta_0 — текущее значение параметра decoder.output.weight из группы с затуханием, а g_1 — накопленный градиент усреднённой по токенам функции потерь по этому же параметру:',
+      'AdamW хранит векторы моментов этого параметра под именем decoder.output.weight. Историю моментов определяет стабильное имя, а не положение параметра в списке.',
+    ],
+    answerEight:
+      'Это настраиваемое правило группировки, принятое в курсе, а не следствие формулы AdamW. По этому правилу decoder.output.weight относится к группе с затуханием, поэтому AdamW вычитает из него пропорциональную параметру поправку \\eta\\lambda\\theta_{t-1}. Параметр decoder.norm.scale относится к группе без затухания, и его эффективный коэффициент \\lambda равен 0: так затухание не создаёт отдельную поправку, напрямую стягивающую обучаемый масштаб нормализации к нулю.',
+  },
+} as const satisfies Record<ChapterLocale, { workedClaims: readonly string[]; answerEight: string }>;
 
 const expectedRustRegions = copy.en.rustRegions;
 
@@ -612,6 +634,15 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
+  expect(localized.revision).toBe(3);
+
+  const workedExample = page
+    .getByRole('heading', { level: 2, name: localized.headings[0], exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.headings[0]}"]]`,
+    );
+  const workedText = await readMathAwareText(workedExample);
+  for (const claim of explicitCopy[locale].workedClaims) expect(workedText).toContain(claim);
 
   const history = page
     .getByRole('heading', {
@@ -946,6 +977,9 @@ async function expectChapterContent(
   await details.locator('summary').click();
   await expect(details).toHaveAttribute('open', '');
   await expect(details.locator('ol > li')).toHaveCount(9);
+  expect(await readMathAwareText(details.locator('ol > li').nth(7))).toBe(
+    explicitCopy[locale].answerEight,
+  );
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
 }
