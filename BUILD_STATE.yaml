@@ -30527,7 +30527,7 @@ builds:
       - id: repair-ch25-explicit-rmsnorm-stage
         objective: "Name the pre-gain RMS-rescaled vector explicitly throughout Chapter 25's scale-invariance comparison."
         depends_on: [repair-ch22-explicit-adamw-identities]
-        status: pending
+        status: completed
         inputs: ["Audit finding F03", "curriculum/chapters/25-rmsnorm.md", "site/src/content/chapters/en/25-rmsnorm.mdx", "site/src/content/chapters/ru/25-rmsnorm.mdx", "site/tests/25-rmsnorm-diagram.test.ts", "site/tests/e2e/ch25-rmsnorm.spec.ts", "rust/crates/llm-from-scratch/src/nn/rmsnorm.rs"]
         outputs: ["curriculum/chapters/25-rmsnorm.md", "site/src/content/chapters/en/25-rmsnorm.mdx", "site/src/content/chapters/ru/25-rmsnorm.mdx", "site/tests/25-rmsnorm-diagram.test.ts", "site/tests/e2e/ch25-rmsnorm.spec.ts", "BUILD_STATE.yaml"]
         acceptance:
@@ -30537,7 +30537,41 @@ builds:
           - "Focused source and two-engine rendered checks cover all three corrected points of use."
         validate: ["Staged Chapter 25 review/content/parity/static/link gate", "Focused Chapter 25 Vitest", "Focused Chromium and Firefox Chapter 25, diagram, full-view, and formula matrix", "./course check", "Canonical focused replay", "git diff --check", "./course audit-host"]
         cost: {class: medium, notes: "Small bilingual stage-identity/revision/test correction with cached staged and canonical two-engine validation; no external service, dependency, Rust, or diagram change."}
-        runs: []
+        runs:
+          - run_id: 20260804T093502Z-repair-ch25-explicit-wording-01
+            started_at: 2026-08-04T09:35:02Z
+            finished_at: 2026-08-04T10:01:26Z
+            status: succeeded
+            input_fingerprint:
+              git: 3a827341cf2059b99707bc8e61ce9b083ec647d0
+              files: {AGENTS.md: "sha256:e4a4f7ffe028f35484a777a65c257fa0e6717839de52c1fdadb5c3f742efd12f", SKILLS.md: "sha256:e6431f4c5501289c21ae2517fd369a57864d8d9b077557b2d3f2f816b12f27c5", localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5", BUILD_STATE.yaml: "sha256:dbf08d1ea3c5f1476aceb33a9f2d022962f2f13984a1b63850a90c60d9dedbb2", DECISIONS.md: "sha256:953bb67293cbf9296bd8689ce912b89b934fe7703643366652bd3f56ba7acb2d", audit: "sha256:298f6d28f2e59550ee3401f162859e53667956b41987b18c766f693be12dc770", contract: "sha256:24c5ee36a863c9cc3c0f515c9ea785e9c5dc7ac2a9c1008c1bd93315613dc97b", english-lesson: "sha256:2605a3f5290985f470243be2e4186b17565f20173943fa963affba3eb12e0be0", russian-lesson: "sha256:67cd6cd43852184069cf13a1e8db7b2b684e15e1b2712aefc45a32c75b9a254a", source-test: "sha256:37225c5c2b48f460a60404c56abd26c7fe375d0db3a3e8e682fe79e0ddf0db8e", browser-test: "sha256:82700601dc07910e1f1b9bd80d443e3a5fbc41dd1192bde4dc3d279894bd4893", rust-evidence: "sha256:118a487cf6b29a79e489bf1e8a0a9de8fa7fd1277e17d32e65f7556e37ea3faa"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 remain Docker-only."
+              external: "None. Frozen audit F03 and the checked-in RMSNorm stage split are authoritative."
+            staging_dir: .build/runs/20260804T093502Z-repair-ch25-explicit-wording-01/
+            commands:
+              - "Confirm commit 3a82734 independently completed Chapter 22, verify a clean tree and completed dependency, inspect F03 plus pre-gain normalized versus gain-scaled Rust evidence, and claim only the Chapter 25 outputs before product edits."
+              - "Author canonical English revision 4 in the run publish tree, refresh Russian directly from that exact revision with the localization skill, add focused source and rendered assertions, and freeze the exact five-file manifest."
+              - "Correct unpublished source-test, Russian-fluency, and browser-locator defects; pass independent bilingual review plus staged static, focused, and complete two-engine validation; publish byte-identical files with apply_patch; and replay the full canonical workspace and browser matrix."
+            artifacts:
+              - {path: ".build/runs/20260804T093502Z-repair-ch25-explicit-wording-01/publish.sha256", sha256: "de1d05d1561ccc466f47a4805aba482d20f46ce46f6558ba260d902a84b98204", notes: "Final five-file staged publication manifest; every canonical file was byte-compared with this tree after publication."}
+              - {path: ".build/runs/20260804T093502Z-repair-ch25-explicit-wording-01/localization-review.md", sha256: "2e9989945a8e0637da2820dfdea2880650bf56d0f447918b1e2310f607a78b7d", notes: "Meaning-lock, semantic, terminology, anti-calque, monolingual, accessibility, independent, and rendered-surface review for direct English-to-Russian revision 4."}
+              - {path: "docker-image:learn-llm-explicit-ch25:20260804-staged", sha256: "73c512a4a6553ba9ee09987626dfadb9948f64bb649f69bc2890d019debf23ae", notes: "Exact final staged source and static workspace used by the focused regression and browser runtime."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "26b9056301d8680e240c03abb832440227f02c89916981d0362d49e9af229757", notes: "Fully validated canonical Rust, content, parity, Astro, static, link, sitemap, SEO, and analytics workspace."}
+              - {path: "docker-image:learn-llm-explicit-ch25-browser:20260804-canonical", sha256: "e8f26519367d13580b0068e2d80a5cc2840e7783222db599cb4b0fdbc8f69e7d", notes: "Pinned Playwright 1.61.1 canonical replay image for Chromium and Firefox."}
+            validation:
+              - {command: "Repository, dependency, audit, locale, source, Rust-evidence, ownership, and cost preflight", status: passed, notes: "Chapter 22 is committed; Chapter 25 is the first eligible pending step; no output overlap exists; contract, trace, diagram, and RmsNormForward distinguish normalized pre-gain state from final gain-scaled output; cached medium validation fits the unlimited budget without external or paid services."}
+              - {command: "Initial staged Chapter 25 focused source test", status: failed, notes: "Two test-only assertions encoded math-token parity and a contract substring too rigidly. The unpublished tests were corrected without changing the approved lesson meaning."}
+              - {command: "Independent Chapter 25 content and localization review", status: failed, notes: "The first Russian candidate retained English-shaped phrasing around the comparison and cancellation. The unpublished translation was refreshed for natural technical Russian while preserving the exact pre-gain boundary."}
+              - {command: "Independent Chapter 25 content and localization review after correction", status: passed, notes: "The final candidate names pre-gain hat x at the frontmatter, worked explanation, exercise, and answer; excludes gain-scaled output; preserves RMSNorm and epsilon semantics; and uses natural same-revision Russian with aligned math tokens."}
+              - {command: "First staged pinned Chromium and Firefox selected matrix", status: failed, notes: "Each engine passed 180 of 181 tests; one new locator selected answer 3 instead of exercise 3. The unpublished E2E locator was narrowed to the first sibling exercise list and independently reviewed."}
+              - {command: "./course review 20260804T093502Z-repair-ch25-explicit-wording-01 --check", status: passed, notes: "The final manifest verified; 80 localized sources and 40 locale sets passed content/parity; Astro reported 0 diagnostics; 85 pages and 2,447 local references passed static, SEO, sitemap, and analytics checks."}
+              - {command: "Staged and canonical npm --prefix site run test -- tests/25-rmsnorm-diagram.test.ts --run", status: passed, notes: "Both exact staged and fully validated canonical images pass all 18 focused tests, including every corrected point of use, revision/checksum projection, formula parity, trace parsing, and figure contracts."}
+              - {command: "Final staged pinned Chromium and Firefox selected Chapter 25, diagram-style, full-view, and formula matrices", status: passed, notes: "Each engine passed 181 tests over both locales at desktop and narrow widths, full view, forced colors, no JavaScript, formula containment, diagram-box containment, and localized controls."}
+              - {command: "Localization review artifact", status: passed, notes: "Russian revision 4 was refreshed directly from English revision 4 and passed meaning, terminology, anti-calque, monolingual, accessibility, independent content, and complete rendered-surface review."}
+              - {command: "./course check", status: passed, notes: "The complete canonical Docker workspace passed Rust formatting, every workspace and documentation test including 364 core tests, content/parity, 215 Astro files with zero diagnostics, the 85-page static build, and 2,447 link/SEO/sitemap/analytics references."}
+              - {command: "Canonical pinned Chromium and Firefox replay of the selected staged matrix", status: passed, notes: "The final canonical Playwright image passed the same 181 tests in Chromium and 181 in Firefox."}
+              - {command: "git diff --check, exact staged/canonical scope audit, and ./course audit-host", status: passed, notes: "Whitespace is clean; only the five declared Chapter 25 outputs plus BUILD_STATE.yaml changed; all five canonical files match the frozen staging tree; Rust, trace, diagram, dependencies, routes, release output, and the frozen audit remain unchanged; the Docker-only host-artifact audit passes."}
+            notes: "Succeeded. Finding F03 is closed at every point of use: revision 4 names hat x as the RMS-rescaled vector before learned gain g in the worked input, body, exercise 3, and answer 3; explicitly excludes the final gain-scaled output from the invariance comparison; and publishes one natural same-revision English/Russian locale pair without changing RMSNorm behavior or evidence."
 
       - id: repair-ch39-explicit-figure-mappings
         objective: "Make every compressed Chapter 39 figure array order and unit understandable inside the figure itself."

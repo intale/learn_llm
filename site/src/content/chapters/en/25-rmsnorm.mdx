@@ -2,13 +2,13 @@
 {
   "chapter_id": "25-rmsnorm",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 25,
   "concept_id": "rmsnorm",
   "title": "Normalize scale without subtracting the mean",
   "description": "Implement last-axis RMSNorm, trace its input and gain gradients, and separate ideal scale invariance from epsilon-dominated behavior near zero.",
   "objective": "Implement differentiable last-axis RMSNorm and distinguish ideal positive-scale invariance from epsilon-dominated behavior near zero.",
-  "worked_inputs": "Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and $\\varepsilon=10^{-5}$. Predict the mean square, normalized vector, and scaled output; then predict what happens when both an ordinary vector and a near-zero vector are multiplied by ten.",
+  "worked_inputs": "Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and $\\varepsilon=10^{-5}$. Predict the mean square, the pre-gain RMS-rescaled vector $\\hat{x}$, and the gain-scaled output; then compare $\\hat{x}$ before and after multiplying ordinary and near-zero inputs by ten, without applying $g$.",
   "formula": {
     "latex": "\\operatorname{RMSNorm}(x)=g\\odot\\frac{x}{\\sqrt{\\frac{1}{d}\\sum_i x_i^2+\\varepsilon}}",
     "symbols": [
@@ -186,9 +186,12 @@ The reciprocal RMS is about $0.282843$. Predict the unscaled normalized vector,
 then multiply coordinatewise by $g$. The fixture should produce approximately
 $[0.848528,1.131370]$ before the gain and $[1.272792,0.565685]$ after it.
 
-Now multiply the input by positive factor $10$. Predict the result first with
-$\varepsilon=0$, then with $\varepsilon=10^{-5}$. Repeat that comparison for
-$x=[0.0003,0.0004]$, whose mean square is smaller than the stabilizer.
+Now multiply the input by positive factor $10$. To test scale invariance, use
+the RMS-rescaled vector $\hat{x}$ before learned gain $g$ is applied. The final
+output after applying $g$ is not part of this comparison. Predict $\hat{x}$ first with
+$\varepsilon=0$, then with $\varepsilon=10^{-5}$. Repeat that pre-gain
+comparison for $x=[0.0003,0.0004]$, whose mean square is smaller than the
+stabilizer.
 
 {/* chapter-section:formula */}
 
@@ -371,7 +374,7 @@ vector far out of the epsilon-dominated regime.
 
 1. Compute the mean square and reciprocal RMS for $x=[3,4]$.
 2. Apply $g=[1.5,0.5]$ to the normalized vector.
-3. Predict the epsilon-zero result after multiplying a nonzero vector by $10$.
+3. For a nonzero vector and $\varepsilon=0$, predict the pre-gain RMS-rescaled vector $\hat{x}$ after multiplying the input by $10$; do not apply learned gain $g$.
 4. Explain why production epsilon changes a near-zero vector much more.
 5. Predict the output for an all-zero row with positive epsilon and zero epsilon.
 6. Decide whether RMSNorm subtracts the feature mean or mixes batch examples.
@@ -384,7 +387,7 @@ vector far out of the epsilon-dominated regime.
 
   1. The mean square is $12.5$ and reciprocal RMS is about $0.282843$.
   2. The output is approximately $[1.272792,0.565685]$.
-  3. Positive scaling cancels algebraically when $\varepsilon=0$.
+  3. When $\varepsilon=0$, positive input scaling cancels in $\hat{x}$, so the pre-gain RMS-rescaled vector is unchanged before learned gain $g$ is applied.
   4. Finite epsilon does not scale with the signal, so it dominates the tiny vector's denominator.
   5. Positive epsilon returns $[0,0]$; zero epsilon rejects the zero-energy row before the logarithm.
   6. Neither: it uses only one example's final feature axis and does not subtract its mean.

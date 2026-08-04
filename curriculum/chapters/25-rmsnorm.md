@@ -2,15 +2,15 @@
 {
   "chapter_id": "25-rmsnorm",
   "concept_id": "rmsnorm",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 25,
   "objective": {
     "en": "Implement differentiable last-axis RMSNorm and distinguish ideal positive-scale invariance from epsilon-dominated behavior near zero.",
     "ru": "Реализовать дифференцируемую RMSNorm по последней оси и отличать идеальную инвариантность к положительному масштабированию от поведения вблизи нуля, где результат определяет эпсилон."
   },
   "worked_inputs": {
-    "en": "Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and $\\varepsilon=10^{-5}$. Predict the mean square, normalized vector, and scaled output; then predict what happens when both an ordinary vector and a near-zero vector are multiplied by ten.",
-    "ru": "Возьмите $x=[3,4]$, обучаемый коэффициент масштаба $g=[1.5,0.5]$ и $\\varepsilon=10^{-5}$. Предскажите среднее квадратов, нормализованный вектор и выход после масштабирования, а затем — что произойдёт, если обычный и близкий к нулю векторы умножить на десять."
+    "en": "Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and $\\varepsilon=10^{-5}$. Predict the mean square, the pre-gain RMS-rescaled vector $\\hat{x}$, and the gain-scaled output; then compare $\\hat{x}$ before and after multiplying ordinary and near-zero inputs by ten, without applying $g$.",
+    "ru": "Возьмите $x=[3,4]$, обучаемый коэффициент масштаба $g=[1.5,0.5]$ и $\\varepsilon=10^{-5}$. Предскажите среднее квадратов, вектор $\\hat{x}$ после масштабирования по RMS, но до применения $g$, и итоговый выход после применения $g$; затем сравните $\\hat{x}$ до и после умножения обычного и близкого к нулю входных векторов на десять, не применяя $g$."
   },
   "formula": {
     "latex": "\\operatorname{RMSNorm}(x)=g\\odot\\frac{x}{\\sqrt{\\frac{1}{d}\\sum_i x_i^2+\\varepsilon}}",
@@ -184,7 +184,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 25 has the exact active locale set {en, ru}. Russian revision 3 is translated directly from English revision 3 with source SHA-256 2605a3f5290985f470243be2e4186b17565f20173943fa963affba3eb12e0be0.",
+    "Chapter 25 has the exact active locale set {en, ru}. Russian revision 4 is translated directly from English revision 4 with source SHA-256 23811a3bd8095b1fc1a2ab8018da974273015b9a9d51c6c0e7cf99f309a0c8fc.",
     "Keep x, g, d, i, x_i, epsilon, the Hadamard product, vectors, shapes, parameter names, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
     "RMSNorm rescales the final feature axis and does not subtract the feature mean. Do not describe it as centering, standardization, batch normalization, clipping, or a guarantee that every coordinate has unit magnitude.",
     "The RMSNorm paper supports its epsilon-free rescaling property. Epsilon 1e-5, its near-zero behavior, the exact gain name, no-decay assignment, typed errors, trace, and accessible presentation are course-local policies.",
@@ -268,8 +268,10 @@ The reciprocal RMS is approximately $0.282843$, so the unscaled normalized
 vector is approximately $[0.848528,1.131370]$. Applying $g$ produces
 $[1.272792,0.565685]$.
 
-Now multiply $x$ by ten. With $\varepsilon=0$, predict whether the normalized
-vector changes. Then compare the same operation for $[0.0003,0.0004]$ with
+Now multiply $x$ by ten. The scale-comparison evidence concerns the pre-gain
+RMS-rescaled vector $\hat{x}$, not the final output $g\odot\hat{x}$. With
+$\varepsilon=0$, predict whether $\hat{x}$ changes before the learned gain is
+applied. Then compare the same pre-gain vector for $[0.0003,0.0004]$ with
 $\varepsilon=10^{-5}$, where the stabilizer is larger than the mean square.
 
 <!-- contract-section:formula -->
@@ -392,7 +394,7 @@ uses no SVG, client script, fixed card height, or hydration.
 
 1. Compute the mean square and reciprocal RMS for $x=[3,4]$.
 2. Apply $g=[1.5,0.5]$ to the normalized vector.
-3. Predict the epsilon-zero result after multiplying a nonzero vector by ten.
+3. For a nonzero vector and epsilon zero, predict the pre-gain RMS-rescaled vector $\hat{x}$ after multiplying the input by ten; do not apply learned gain $g$.
 4. Explain why production epsilon changes a near-zero vector much more.
 5. Predict the output for an all-zero row with positive epsilon and with zero epsilon.
 6. Decide whether RMSNorm subtracts the feature mean or mixes batch examples.
@@ -401,8 +403,9 @@ uses no SVG, client script, fixed card height, or hydration.
 9. Place RMSNorm relative to the identity and learned paths in a pre-normalized residual block.
 
 Checks: the mean square is $12.5$ and reciprocal RMS is about $0.282843$;
-the output is about $[1.272792,0.565685]$; positive scaling cancels in the
-epsilon-zero ideal; finite epsilon does not scale with the signal and dominates
+the output is about $[1.272792,0.565685]$; in the epsilon-zero ideal, positive
+input scaling leaves the pre-gain vector $\hat{x}$ unchanged before $g$ is
+applied; finite epsilon does not scale with the signal and dominates
 near zero; positive epsilon returns zeros while epsilon zero rejects a zero-RMS
 row; RMSNorm uses only the final feature axis and does not center; the output is
 $[B,T,d]$ and gain gradient is $[d]$; decay grouping is external training policy;
@@ -420,7 +423,7 @@ the three bias-free query, key, and value projections required by attention.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 3 is the canonical semantic source, and Russian revision 3 is
+English revision 4 is the canonical semantic source, and Russian revision 4 is
 its direct meaning-first translation. Both locales publish the complete lesson,
 diagram labels, accessible descriptions, exercises, answers, SEO description,
 and reciprocal alternate route together.

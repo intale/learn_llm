@@ -8,6 +8,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type CourseChapterLink,
 } from './chapter-helpers';
@@ -41,6 +42,12 @@ const copy = {
     diagramDescription:
       'Read exact Rust-authored values from input through RMS rescaling and learned gain, then compare scale, history, gradient, and rejected-boundary evidence.',
     zeroEnergy: 'Zero epsilon cannot normalize a row whose mean square is zero.',
+    workedScaleClaim:
+      'To test scale invariance, use the RMS-rescaled vector \\hat{x} before learned gain g is applied. The final output after applying g is not part of this comparison.',
+    exerciseThree:
+      'For a nonzero vector and \\varepsilon=0, predict the pre-gain RMS-rescaled vector \\hat{x} after multiplying the input by 10; do not apply learned gain g.',
+    answerThree:
+      'When \\varepsilon=0, positive input scaling cancels in \\hat{x}, so the pre-gain RMS-rescaled vector is unchanged before learned gain g is applied.',
   },
   ru: {
     revisionLabel: 'Версия материала',
@@ -68,6 +75,12 @@ const copy = {
       'Проследите точные значения из примера на Rust: от входа через масштабирование по RMS и обучаемый коэффициент до результатов сравнения масштабов, исторических методов, градиентов и отклонённых граничных случаев.',
     zeroEnergy:
       'При нулевом эпсилоне нельзя нормализовать строку с нулевым средним квадратов.',
+    workedScaleClaim:
+      'Чтобы проверить инвариантность к масштабу, рассматривайте \\hat{x} — вектор после масштабирования по RMS, но до применения обучаемого коэффициента g. Итоговый выход после применения g в это сравнение не входит.',
+    exerciseThree:
+      'Для ненулевого вектора и \\varepsilon=0 предскажите вектор \\hat{x} после умножения входа на 10 и масштабирования по RMS; рассматривайте его до применения обучаемого коэффициента g.',
+    answerThree:
+      'При \\varepsilon=0 положительный множитель, на который умножен вход, сокращается при вычислении \\hat{x}. Поэтому до применения обучаемого коэффициента g этот вектор не меняется.',
     rankZero: 'У входа должна быть хотя бы одна ось.',
     widthMismatch:
       'Ширина последней оси признаков должна совпадать с шириной коэффициента масштаба.',
@@ -289,7 +302,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 25,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: locales,
@@ -298,6 +311,20 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
+
+  const workedExample = page
+    .getByRole('heading', { level: 2, name: localized.headings[0], exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.headings[0]}"]]`,
+    );
+  expect(await readMathAwareText(workedExample)).toContain(localized.workedScaleClaim);
+
+  const exerciseThree = page
+    .getByRole('heading', { level: 2, name: localized.headings[6], exact: true })
+    .locator('xpath=following-sibling::ol[1]/li[3]');
+  expect(await readMathAwareText(exerciseThree)).toBe(
+    localized.exerciseThree,
+  );
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -399,6 +426,7 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator('summary').click();
   await expect(details.locator('ol > li')).toHaveCount(9);
+  expect(await readMathAwareText(details.locator('ol > li').nth(2))).toBe(localized.answerThree);
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
 }

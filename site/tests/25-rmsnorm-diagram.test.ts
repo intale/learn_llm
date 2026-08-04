@@ -37,6 +37,13 @@ function frontmatter(source: string) {
 
 const normalize = (value: string) => value.replace(/[$*_`]/g, '').replace(/\s+/g, ' ').trim();
 
+function markedSection(source: string, marker: string, nextMarker: string) {
+  const start = source.indexOf(marker);
+  const end = source.indexOf(nextMarker, start + marker.length);
+  if (start < 0 || end < 0) throw new Error(`missing ordered section ${marker}`);
+  return source.slice(start + marker.length, end);
+}
+
 function markdownMathTokens(source: string): string[] {
   const tokens: string[] = [];
   const pattern = /\$\$([\s\S]*?)\$\$|(?<!\\)\$(?!\$)([^$\r\n]+?)(?<!\\)\$/g;
@@ -278,8 +285,8 @@ describe('Chapter 25 static diagram boundary', () => {
     expect(lessonSource).toContain('https://arxiv.org/pdf/2302.13971');
     expect(lessonSource).toContain('whose squares underflow');
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.content_revision).toBe(3);
-    expect(lesson.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lesson.content_revision).toBe(4);
     expect(russianLesson).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: 'ru',
@@ -343,7 +350,7 @@ describe('Chapter 25 static diagram boundary', () => {
     const russianMath = markdownMathTokens(russianLessonBody);
     expect(russianMath).toEqual(englishMath);
     expect(contract.translation_notes.join(' ')).toContain(
-      'SHA-256 2605a3f5290985f470243be2e4186b17565f20173943fa963affba3eb12e0be0',
+      'SHA-256 23811a3bd8095b1fc1a2ab8018da974273015b9a9d51c6c0e7cf99f309a0c8fc',
     );
     expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
     expect(russianLessonBody).toContain('среднеквадратичн');
@@ -368,5 +375,77 @@ describe('Chapter 25 static diagram boundary', () => {
       expect(rustDemoSource).toContain(`region:${region}`);
     }
     expect(rustTraceSource).toContain('region:rmsnorm-trace');
+  });
+
+  it('names the pre-gain RMS-rescaled vector at every scale-comparison prompt', () => {
+    const contract = frontmatter(contractSource);
+    const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
+
+    expect(contract.worked_inputs.en).toContain('pre-gain RMS-rescaled vector $\\hat{x}$');
+    expect(contract.worked_inputs.en).toContain('without applying $g$');
+    expect(lesson.worked_inputs).toBe(contract.worked_inputs.en);
+    expect(contract.worked_inputs.ru).toContain(
+      'вектор $\\hat{x}$ после масштабирования по RMS, но до применения $g$',
+    );
+    expect(contract.worked_inputs.ru).toContain('не применяя $g$');
+    expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
+
+    const contractWorked = markedSection(
+      contractSource,
+      '<!-- contract-section:worked-inputs -->',
+      '<!-- contract-section:formula -->',
+    );
+    const englishWorked = markedSection(
+      lessonBody,
+      '{/* chapter-section:worked-example */}',
+      '{/* chapter-section:formula */}',
+    );
+    const russianWorked = markedSection(
+      russianLessonBody,
+      '{/* chapter-section:worked-example */}',
+      '{/* chapter-section:formula */}',
+    );
+    expect(normalize(contractWorked)).toContain(
+      normalize(
+        'The scale-comparison evidence concerns the pre-gain RMS-rescaled vector $\\hat{x}$, not the final output $g\\odot\\hat{x}$.',
+      ),
+    );
+    expect(normalize(englishWorked)).toContain(
+      normalize(
+        'To test scale invariance, use the RMS-rescaled vector $\\hat{x}$ before learned gain $g$ is applied. The final output after applying $g$ is not part of this comparison.',
+      ),
+    );
+    expect(normalize(russianWorked)).toContain(
+      normalize(
+        'Чтобы проверить инвариантность к масштабу, рассматривайте $\\hat{x}$ — вектор после масштабирования по RMS, но до применения обучаемого коэффициента $g$. Итоговый выход после применения $g$ в это сравнение не входит.',
+      ),
+    );
+
+    const contractExercises = markedSection(
+      contractSource,
+      '<!-- contract-section:exercises -->',
+      '<!-- contract-section:decoder-connection -->',
+    );
+    const englishExercises = markedSection(
+      lessonBody,
+      '{/* chapter-section:exercises */}',
+      '{/* chapter-section:decoder-connection */}',
+    );
+    const russianExercises = markedSection(
+      russianLessonBody,
+      '{/* chapter-section:exercises */}',
+      '{/* chapter-section:decoder-connection */}',
+    );
+    expect(normalize(contractExercises)).toContain('pre-gain RMS-rescaled vector \\hat{x}');
+    expect(normalize(contractExercises)).toContain('before g is applied');
+    expect(normalize(englishExercises)).toContain('pre-gain RMS-rescaled vector \\hat{x}');
+    expect(normalize(englishExercises)).toContain('before learned gain g is applied');
+    expect(normalize(russianExercises)).toContain(
+      'вектор \\hat{x} после умножения входа на 10 и масштабирования по RMS',
+    );
+    expect(normalize(russianExercises)).toContain(
+      'положительный множитель, на который умножен вход, сокращается при вычислении \\hat{x}',
+    );
   });
 });
