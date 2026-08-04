@@ -2,11 +2,11 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 33,
   "objective": {
-    "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the earliest validation minimum without consulting test data.",
-    "ru": "Выполнить все шаги плана обучения декодера с заранее заданным числом обновлений, измерить потери на валидационной выборке без записи графа в фиксированных контрольных точках и восстановить самую раннюю точку с минимальными потерями, не обращаясь к тестовым данным."
+    "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data.",
+    "ru": "Выполнить все шаги плана обучения декодера с заранее заданным числом обновлений, измерить потери на валидационной выборке без записи графа в фиксированных контрольных точках и восстановить состояние модели, сохранённое в самой ранней точке с минимальными потерями, не обращаясь при этом к тестовым данным."
   },
   "worked_inputs": {
     "en": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8.",
@@ -58,7 +58,7 @@
       {
         "symbol": "\\operatorname{AdamW}",
         "en": "the Chapter 22 optimizer update that advances parameters and both moment states",
-        "ru": "изученное в главе 22 обновление оптимизатора, которое продвигает параметры и оба состояния моментов"
+        "ru": "изученное в главе 22 обновление оптимизатора, которое обновляет параметры и оба состояния моментов"
       },
       {
         "symbol": "\\mathcal{C}",
@@ -213,10 +213,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 33 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 2665b7e507ea778be4e1a0178169ea02cd20e901f53849a64961849c8d28ec9e",
+    "Chapter 33 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 3432074500d8047c815774ce2b14cc31f3a5b7a8f4ab04cb58c8e4638b012b5b",
     "Translate mini-batch as «мини-пакет», global-norm gradient clipping as «ограничение общей нормы градиента», and graph-free evaluation as «оценка без записи графа вычислений»; describe raw and clipped gradients as gradients before and after norm clipping rather than using a literal calque.",
     "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test.",
+    "Preserve the distinction between the ordinary AdamW method returning the new optimizer step number and Chapter 22's one explicitly requested step trace containing per-parameter records; never imply that AdamW returns parameter leaves.",
     "Preserve theta_s, s, s^*, L_tr, L_va, eta_s, g_s, the norm notation, exact trace tokens, stable parameter names, and step numbers.",
     "Programming language names may identify source provenance only where relevant; the history section must remain about the road to modern LLM training."
   ],
@@ -365,10 +366,11 @@ and periodically written checkpoints. Their reported checkpoint averaging is
 not the minimum-validation rule implemented here, so the two must not be
 silently equated.
 
-[Raffel et al.](https://www.jmlr.org/papers/volume21/20-074/20-074.pdf) state the
-selection boundary directly for T5 fine-tuning: save candidates at a fixed
-cadence, choose the best validation performance, and avoid model selection on
-the test set. That supports the information flow taught here, although T5 is an
+[Raffel et al.](https://www.jmlr.org/papers/volume21/20-074/20-074.pdf) describe
+validation-based checkpoint selection directly for T5 fine-tuning: save
+candidates at a fixed cadence, choose the best validation performance, and
+avoid model selection on the test set. That supports the information flow
+taught here, although T5 is an
 encoder-decoder model and its exact recipe is not universal decoder pretraining.
 
 [Brown et al.](https://arxiv.org/pdf/2005.14165) carry Adam, learning-rate
@@ -403,11 +405,16 @@ loss is untracked and that parameter-gradient bits are unchanged.
 Each training step computes a tracked scalar loss, releases its graph during
 backward, scans every named gradient for finite values, and computes one global
 $\ell_2$ norm. A deep candidate parameter list receives the clipped gradient.
-`AdamW::step_with_learning_rate` uses $\eta_s$ for that update while preserving
-the same moment state and base configuration. It prepares all replacements
-transactionally. The trainer inspects the replacement leaves before explicitly
-clearing them, so the evidence distinguishes fresh zero gradients from the
-clear operation itself.
+The trainer calls `AdamW::step_with_learning_rate` with $\eta_s$, not
+`AdamW::step_with_learning_rate_and_trace`, because it needs only the committed
+step number. Before changing live state, the optimizer validates the scheduled
+rate and prepares the next moment values, step counter, and complete parameter
+replacement set while leaving its configured base rate unchanged. After every
+candidate succeeds, it commits the complete set and returns the new optimizer
+step number. The trainer compares that number directly with the planned update
+index. It then inspects the fresh replacement leaves before explicitly clearing
+their gradients, so the evidence distinguishes gradients that were already
+zero on fresh leaves from the later clear operation.
 
 The Chapter 32 model cannot merely mutate a copied parameter registry: its
 embedding, block, and final-normalization components would otherwise keep stale

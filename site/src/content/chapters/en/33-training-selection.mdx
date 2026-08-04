@@ -2,12 +2,12 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
   "description": "Learn how a decoder training loop orders backpropagation, gradient clipping, scheduled AdamW updates, graph-free validation, and checkpoint selection without using test data.",
-  "objective": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the earliest validation minimum without consulting test data.",
+  "objective": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data.",
   "worked_inputs": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8.",
   "formula":
     {
@@ -130,12 +130,12 @@
       {
         "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
         "region": "complete-training-loop",
-        "purpose": "Execute every scheduled update, measure declared checkpoints, and restore the earliest validation minimum."
+        "purpose": "Execute every scheduled update, compare each returned optimizer step number with the planned update index, measure validation loss at every declared checkpoint, and restore the model state saved at the earliest checkpoint with minimum validation loss."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
-        "region": "transactional-adamw-step",
-        "purpose": "Apply each scheduled rate transactionally while preserving Adam moments and returning fresh parameter leaves."
+        "region": "adamw-execution-and-trace-api",
+        "purpose": "Run an atomic AdamW update at a scheduled learning rate; the ordinary method returns only the new optimizer step number, while the explicit trace method returns detailed update evidence."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
@@ -241,9 +241,10 @@ export const diagramLabels = {
 ## Plan every update before you train
 
 Run every step of a bounded decoder training plan, measure graph-free validation
-loss at fixed checkpoints, and restore the earliest validation minimum without
-consulting test data. The worked fixture trains the one-block decoder from the
-previous chapter: vocabulary size $V=5$, residual width
+loss at fixed checkpoints, and restore the model state saved at the earliest
+checkpoint with minimum validation loss, all without consulting test data. The
+worked fixture trains the one-block decoder from the previous chapter:
+vocabulary size $V=5$, residual width
 $d_{\mathrm{model}}=4$, two attention heads, feed-forward width
 $d_{\mathrm{ff}}=4$, context length $T=2$, and $144$ trainable scalars.
 
@@ -291,10 +292,9 @@ s^*&=\min\left\{s\in\mathcal{C}:\mathcal{L}_{va}(\theta_s)=\min_{k\in\mathcal{C}
 $$
 
 The two losses have different jobs. The gradient comes from
-$\mathcal{L}_{tr}$ and changes the parameters. The value
-$\mathcal{L}_{va}$ is measured after selected update counts and may replace
-the saved candidate, but it is never differentiated and never updates the
-decoder.
+$\mathcal{L}_{tr}$ and changes the parameters. The value $\mathcal{L}_{va}$ is
+measured only at the declared checkpoint steps and may replace the saved
+candidate, but it is never differentiated and never updates the decoder.
 
 For a raw gradient $g_s$ and ceiling $c=0.35$, the trainer applies one global
 scale across every parameter tensor:
@@ -305,9 +305,10 @@ $$
 $$
 
 Because $c>0$, the denominator never vanishes. A zero or already-small norm
-therefore uses $\alpha_s=1$, while a larger norm is reduced to $c$. The rate
-$\eta_s$ changes at declared boundaries while the moment states continue
-across those boundaries.
+therefore uses $\alpha_s=1$, while a larger norm is reduced to $c$. At every
+declared schedule boundary, AdamW continues the existing moments and step counter
+while using the new rate $\eta_s$; changing the rate does not restart the
+optimizer.
 
 Validation averages by predicted-token count, not by number of batches. If
 validation batch $j$ contains $n_j$ target tokens and has mean loss
@@ -348,11 +349,12 @@ the program. In the explanation, their roles are conceptual: training fits,
 validation selects, and test evaluates once after selection. A lower training
 loss cannot substitute for held-out validation evidence.
 
-Fresh optimizer outputs create an ownership issue as well. AdamW returns new
-parameter leaves. The decoder's embedding, block, normalization, and tied
-projection handles must all be rebuilt from those same leaves before the next
-forward pass. Merely replacing a separate registry would leave the component
-handles pointing at stale parameters.
+Replacing parameter leaves creates an ownership issue as well. AdamW replaces
+the entries in the candidate parameter list with fresh leaves. The decoder's
+embedding, block, normalization, and tied projection handles must all be rebuilt
+from those same leaves before the next forward pass. Merely replacing a
+separate registry would leave the component handles pointing at stale
+parameters.
 
 {/* chapter-section:history */}
 
@@ -364,10 +366,11 @@ test partition stays unopened. These training practices form part of the road
 to modern LLMs.
 
 [A Neural Probabilistic Language Model](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
-provides an early neural-language-model boundary. Bengio and colleagues
-separate training, validation, and test text, explicitly associate validation
-with model selection and early stopping, and describe stochastic per-example
-parameter updates for a feed-forward neural language model. Full-corpus or
+provides an early example of this separation in a neural language model. Bengio
+and colleagues separate training, validation, and test text, explicitly
+associate validation with model selection and early stopping, and describe
+stochastic per-example parameter updates for a feed-forward neural language
+model. Full-corpus or
 per-example updates and training-set-only reporting do not by themselves define
 a scalable update cadence or an independent rule for choosing among candidate
 language-model states.
@@ -385,14 +388,16 @@ and periodically written checkpoints. Their reported checkpoint averaging is
 not the validation-minimum selection rule implemented here.
 
 [Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer](https://www.jmlr.org/papers/volume21/20-074/20-074.pdf)
-makes the selection boundary explicit. Raffel and colleagues save fine-tuning
-checkpoints at a fixed cadence, choose the one with the best validation
-performance, and explicitly avoid using the test set for model selection.
+explicitly describes validation-based checkpoint selection. Raffel and
+colleagues save fine-tuning checkpoints at a fixed cadence, choose the one with
+the best validation performance, and explicitly avoid using the test set for
+model selection.
 
-[Language Models are Few-Shot Learners](https://arxiv.org/pdf/2005.14165)
-connects the controls to decoder-only scale. Brown and colleagues carry Adam,
-scheduled learning rates, token-based batch scaling, and global-gradient-norm
-clipping into decoder-only language-model training at GPT-3 scale.
+[Language Models are Few-Shot Learners](https://arxiv.org/pdf/2005.14165) shows
+how these controls are used in large-scale decoder-only training. Brown and
+colleagues carry Adam, scheduled learning rates, token-based batch scaling, and
+global-gradient-norm clipping into decoder-only language-model training at GPT-3
+scale.
 
 Neural language-model work separated train, validation, and test
 responsibilities; sequence and Transformer systems added mini-batches, explicit
@@ -418,7 +423,7 @@ entry, while a held-out validation trace can choose an earlier one.
 
 {/* chapter-section:rust-implementation */}
 
-## Make the cumulative training boundary explicit in Rust
+## Represent the complete training plan explicitly in Rust
 
 `LearningRateSchedule` stores exactly one finite positive rate per update.
 `TrainerConfig` requires validation at $s=0$, strictly increasing checkpoint
@@ -456,16 +461,25 @@ the call if any bit changes.
   label="Rust source implementing Chapter 33 graph-free epoch evaluation"
 />
 
-The scheduled AdamW boundary validates the temporary rate before mutation,
-continues the existing moments and step counter, and commits only after the
-candidate update succeeds. The trainer inspects the new leaf gradients before
-explicitly clearing them, keeping those two facts separate in the evidence.
+The trainer calls the ordinary `AdamW::step_with_learning_rate` method, not
+`AdamW::step_with_learning_rate_and_trace`, because the loop needs only the
+returned optimizer step number. Before changing live state, the method validates the
+learning rate for the current update and prepares the next moment values, step
+counter, and complete parameter replacement set. It commits all of them only
+after every candidate succeeds. The method then returns the new optimizer step
+number, which the trainer compares directly with the planned update index.
+Chapter 22 explicitly requests one trace containing each parameter's AdamW
+terms because it inspects every term of the calculation; this training loop
+does not need that detailed evidence. The trainer then inspects the fresh
+replacement leaves before explicitly clearing their gradients, keeping the
+initially zero gradients and the later clear operation separate in the
+evidence.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
-  region="transactional-adamw-step"
-  caption="Apply one predetermined learning rate while preserving optimizer state transactionally"
-  label="Rust source applying Chapter 33 scheduled AdamW updates"
+  region="adamw-execution-and-trace-api"
+  caption="Return the new optimizer step number from an ordinary scheduled AdamW update"
+  label="Rust source distinguishing ordinary and traced AdamW updates in Chapter 33"
 />
 
 Because AdamW replaces leaves, `DecoderModel::from_parameters` reconstructs
@@ -489,7 +503,7 @@ optimizer remain unchanged even on failure.
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/trainer.rs"
   region="complete-training-loop"
-  caption="Execute every update and restore the earliest validation minimum without consulting test data"
+  caption="Compare each returned optimizer step number with its planned update index, execute every update, and restore the model state saved at the earliest validation minimum without consulting test data"
   label="Rust source implementing the complete Chapter 33 training loop"
 />
 

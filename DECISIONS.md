@@ -13352,3 +13352,90 @@ results, dependencies, routes, styles, and deployment behavior remain fixed.
 `remediate-rust-runtime-observation-20260804`,
 `separate-tensor-backward-observation`, and
 `20260804T165741Z-separate-tensor-backward-observation-01`.
+
+## 2026-08-04 - Make AdamW trace capture opt in without changing its transaction
+
+**Status:** Accepted during preflight for `separate-adamw-observation` before
+product files were edited.
+
+**Context:** Every `AdamW::step` and scheduled-rate step currently returns an
+`AdamWStep` whose parameter records own the old value, gradient, first and
+second moments, corrected moments, adaptive direction, adaptive and decay
+deltas, and replacement value. Chapter 22 intentionally renders those vectors.
+The trainer retains only the step number, while historical trajectories,
+checkpoint continuation, and other training callers discard the complete
+record. The accepted Chapter 22 design separately requires whole-set
+preparation, fresh trainable replacement leaves, and commit only after every
+named candidate succeeds; audit finding F02 may reconsider that ownership model
+later but F01 does not authorize changing it.
+
+**Decision:** Keep `step` and `step_with_learning_rate` as lean methods that
+return only the committed `u64` step number. Add explicit `step_with_trace` and
+`step_with_learning_rate_and_trace` methods returning the existing `AdamWStep`.
+All four methods use one private observer-parameterized prepare/commit kernel
+and one scalar AdamW calculation. The no-trace observer is zero-sized and owns
+no `AdamWStep`, `AdamWParameterUpdate`, or per-parameter evidence vector; the
+trace observer alone copies the values that Chapter 22 renders. Prospective
+name-keyed moment state, replacement leaves, beta powers, and the full-set commit
+boundary remain required optimizer and transaction state.
+
+Only Chapter 22's worked evidence and fresh-zero-moment evidence use the trace
+methods. The trainer compares the lean returned step number directly. Chapter
+22's historical and trajectory probes, Chapter 23 training, Chapter 35 resumed
+update, and every other result-only caller remain lean. Advance Chapter 22 to
+content revision 4, author English first, and refresh Russian directly from that
+exact English revision. Preserve exact Chapter 22 trace bytes and every
+downstream training, checkpoint, sampling, cache, and capstone result.
+
+Classify this as large local work because complete Rust, deterministic replay,
+static-site, and two-browser validation are required. Proceed within the
+unlimited recorded agent-session budget using cached Docker CPU only; use no
+paid service or model generation, and do not pause for cost approval.
+
+**Consequences:** Ordinary training stops retaining parameter-scale teaching
+snapshots while Chapter 22 keeps identical evidence from the same arithmetic and
+transaction. Public result types become intentionally compact, and evidence
+callers state their purpose in the method name. This decision does not change
+formulas, update ordering, error precedence, stable-name identity, parameter
+groups, whole-set rollback, fresh-leaf replacement, dependencies, routes, or
+deployment.
+
+**Affected build, step, and run:**
+`remediate-rust-runtime-observation-20260804`,
+`separate-adamw-observation`, and
+`20260804T175743Z-separate-adamw-observation-01`.
+
+## 2026-08-04 - Include Chapter 33's rendered training loop in the AdamW correction
+
+**Status:** Accepted during execution of `separate-adamw-observation` when the
+complete caller and rendered-source inventory exposed an additional output.
+
+**Context:** Chapter 33 embeds both the trainer's complete-loop region and the
+AdamW transactional-step region. The lean AdamW return value changes the trainer
+listing, and the shared observer kernel changes the optimizer listing even though
+the chapter's numerical evidence and selection lesson remain identical. Leaving
+the chapter at revision 3 would publish Rust that no longer matches the canonical
+source.
+
+**Decision:** Add the Chapter 33 contract, English and Russian lessons, focused
+source test, and browser test to this step's declared outputs. Advance Chapter 33
+to content revision 4. Revise canonical English first to state that the trainer
+uses the lean scheduled update and receives only the committed step number; then
+refresh Russian directly from that exact English revision with the repository's
+localization review. Do not change its formulas, evidence, diagram, exercise,
+selection policy, or observable demo output.
+
+No other chapter revision is required. Chapters 23 and 35 call the lean API
+outside the Rust regions they render, while Chapters 34 and 36-39 neither render
+the altered API handling nor change any learner-facing claim. Their frozen
+evidence remains part of validation.
+
+**Consequences:** Chapters 22 and 33 will both remain faithful to the compiled
+Rust after the correction. The added locale and browser checks enlarge the
+validation surface but do not broaden the runtime design or invalidate any
+accepted pedagogical result.
+
+**Affected build, step, and run:**
+`remediate-rust-runtime-observation-20260804`,
+`separate-adamw-observation`, and
+`20260804T175743Z-separate-adamw-observation-01`.

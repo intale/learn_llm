@@ -994,10 +994,10 @@ pub fn train_decoder(
         let optimizer_step = candidate_optimizer
             .step_with_learning_rate(&mut candidate_parameters, learning_rate)?;
         let expected_optimizer_step = u64::try_from(step).unwrap_or(u64::MAX);
-        if optimizer_step.step() != expected_optimizer_step {
+        if optimizer_step != expected_optimizer_step {
             return Err(TrainerError::OptimizerStepMismatch {
                 expected: expected_optimizer_step,
-                actual: optimizer_step.step(),
+                actual: optimizer_step,
             });
         }
         let candidate_model = DecoderModel::from_parameters(model_config, candidate_parameters)?;

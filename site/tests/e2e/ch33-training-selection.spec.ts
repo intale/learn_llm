@@ -26,7 +26,7 @@ const copy = {
       "Update on train, choose on validation",
       "Keep steps, gradients, and partitions distinct",
       "From training-only reports to validation-selected LLM checkpoints",
-      "Make the cumulative training boundary explicit in Rust",
+      "Represent the complete training plan explicitly in Rust",
       "Read measured checkpoints without inventing a curve",
       "Test the information boundary and state ownership",
       "Freeze the selected decoder for one test pass",
@@ -46,6 +46,8 @@ const copy = {
       "These training practices form part of the road to modern LLMs",
       "local teaching choices, not universal properties of LLM training",
     ],
+    executionFragment:
+      "The method then returns the new optimizer step number, which the trainer compares directly with the planned update index.",
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -57,7 +59,7 @@ const copy = {
       "Обновляйте по обучающей выборке, выбирайте по валидационной",
       "Не смешивайте шаги, градиенты и роли выборок",
       "От отчёта по обучению к контрольной точке LLM, выбранной по валидации",
-      "Сделайте общую границу обучения явной в Rust",
+      "Явно задайте полный план обучения в Rust",
       "Читайте только измеренные точки и не дорисовывайте кривую",
       "Проверьте информационную границу и владение состоянием",
       "Зафиксируйте выбранный декодер для одной тестовой оценки",
@@ -77,6 +79,8 @@ const copy = {
       "Эти приёмы — часть пути к современным LLM",
       "локальные учебные решения, а не общепринятая практика",
     ],
+    executionFragment:
+      "Затем он возвращает новый номер шага оптимизатора, и цикл напрямую сравнивает его с номером обновления в плане.",
   },
 } as const;
 
@@ -309,7 +313,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -353,6 +357,7 @@ async function expectChapterContent(
   for (const fragment of localized.historyFragments) {
     expect(lessonText).toContain(fragment);
   }
+  expect(lessonText).toContain(localized.executionFragment);
   await expect(
     page.locator('.lesson-body a[href^="https://www.jmlr.org/"]'),
   ).toHaveCount(2);

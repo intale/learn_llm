@@ -154,6 +154,8 @@ const explicitCopy = {
     ],
     answerEight:
       "This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns decoder.output.weight to decay, so AdamW subtracts the parameter-proportional term \\eta\\lambda\\theta_{t-1} from it. It assigns decoder.norm.scale to no-decay, so that parameter's effective \\lambda is 0; this avoids a decay term that directly pulls the learned normalization scale toward zero.",
+    executionClaim:
+      'All four methods use the same internal preparation-and-commit operation and the same elementwise AdamW calculation. Tracing records values produced by that calculation; it does not calculate the update a second time.',
   },
   ru: {
     workedClaims: [
@@ -163,8 +165,13 @@ const explicitCopy = {
     ],
     answerEight:
       'Это настраиваемое правило группировки, принятое в курсе, а не следствие формулы AdamW. По этому правилу decoder.output.weight относится к группе с затуханием, поэтому AdamW вычитает из него пропорциональную параметру поправку \\eta\\lambda\\theta_{t-1}. Параметр decoder.norm.scale относится к группе без затухания, и его эффективный коэффициент \\lambda равен 0: так затухание не создаёт отдельную поправку, напрямую стягивающую обучаемый масштаб нормализации к нулю.',
+    executionClaim:
+      'Все четыре метода используют одну и ту же внутреннюю операцию подготовки и атомарной фиксации, а также один и тот же покоординатный расчёт AdamW. Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
   },
-} as const satisfies Record<ChapterLocale, { workedClaims: readonly string[]; answerEight: string }>;
+} as const satisfies Record<
+  ChapterLocale,
+  { workedClaims: readonly string[]; answerEight: string; executionClaim: string }
+>;
 
 const expectedRustRegions = copy.en.rustRegions;
 
@@ -634,7 +641,10 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
-  expect(localized.revision).toBe(3);
+  expect(localized.revision).toBe(4);
+  expect(normalizeProse(await page.locator('.lesson-body').innerText())).toContain(
+    normalizeProse(explicitCopy[locale].executionClaim),
+  );
 
   const workedExample = page
     .getByRole('heading', { level: 2, name: localized.headings[0], exact: true })

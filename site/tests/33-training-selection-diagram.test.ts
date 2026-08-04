@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from "node:crypto";
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
@@ -453,8 +455,12 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(3);
-    expect(lesson.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lesson.content_revision).toBe(4);
+    expect(russianLesson.content_revision).toBe(4);
+    expect(contract.translation_notes).toContain(
+      `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
+    );
     expect(coursePlanSource).not.toContain("s^\\*");
     expect(contractSource).not.toContain("s^\\*");
     expect(lessonSource).not.toContain("s^\\*");
@@ -493,7 +499,24 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(trainerSource).toContain("region:complete-training-loop");
     expect(trainerSource).toContain("Partition::Validation");
     expect(trainerSource).toContain("Partition::Test");
-    expect(adamwSource).toContain("region:transactional-adamw-step");
+    expect(adamwSource).toContain("region:adamw-execution-and-trace-api");
+    expect(adamwSource).toMatch(
+      /pub fn step_with_learning_rate\([\s\S]*?\) -> Result<u64, AdamWError>/,
+    );
+    expect(adamwSource).toMatch(
+      /pub fn step_with_learning_rate_and_trace\([\s\S]*?\) -> Result<AdamWStep, AdamWError>/,
+    );
+    expect(trainerSource).toContain(
+      ".step_with_learning_rate(&mut candidate_parameters, learning_rate)?",
+    );
+    expect(trainerSource).toContain("if optimizer_step != expected_optimizer_step");
+    expect(trainerSource).not.toContain("optimizer_step.step()");
+    expect(normalizedLesson).toContain(
+      "The method then returns the new optimizer step number, which the trainer compares directly with the planned update index.",
+    );
+    expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
+      "Затем он возвращает новый номер шага оптимизатора, и цикл напрямую сравнивает его с номером обновления в плане.",
+    );
     expect(tapeSource).toContain("region:no-grad-scope");
     expect(decoderSource).toContain("region:decoder-parameter-rebuild");
     expect(demoSource).toContain("region:historical-selection-contrast");

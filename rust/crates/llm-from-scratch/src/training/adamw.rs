@@ -758,7 +758,7 @@ impl AdamWParameterUpdate {
     }
 }
 
-/// The committed evidence for one complete multi-parameter update.
+/// The optional trace for one committed multi-parameter update.
 #[derive(Clone, Debug, PartialEq)]
 pub struct AdamWStep {
     step: u64,
@@ -790,6 +790,154 @@ impl AdamWStep {
     }
 }
 // endregion:adamw-state-and-evidence
+
+struct AdamWParameterContext<'a> {
+    name: &'a str,
+    shape: &'a [usize],
+    before: &'a [f64],
+    gradient: &'a [f64],
+    decay_applied: bool,
+    effective_weight_decay: f64,
+}
+
+#[derive(Clone, Copy)]
+struct AdamWScalarResult {
+    first_moment: f64,
+    second_moment: f64,
+    corrected_first_moment: f64,
+    corrected_second_moment: f64,
+    adaptive_direction: f64,
+    adaptive_delta: f64,
+    decay_delta: f64,
+    after: f64,
+}
+
+trait AdamWStepObserver: Sized {
+    type Parameter;
+    type Output;
+
+    fn begin_parameter(
+        &mut self,
+        context: AdamWParameterContext<'_>,
+        elements: usize,
+    ) -> Self::Parameter;
+
+    fn observe_scalar(&mut self, parameter: &mut Self::Parameter, result: AdamWScalarResult);
+
+    fn finish_parameter(&mut self, parameter: Self::Parameter);
+
+    fn finish(
+        self,
+        step: u64,
+        learning_rate: f64,
+        first_correction: f64,
+        second_correction: f64,
+    ) -> Self::Output;
+}
+
+#[derive(Clone, Copy, Default)]
+struct NoAdamWTrace;
+
+impl AdamWStepObserver for NoAdamWTrace {
+    type Parameter = ();
+    type Output = u64;
+
+    fn begin_parameter(
+        &mut self,
+        _context: AdamWParameterContext<'_>,
+        _elements: usize,
+    ) -> Self::Parameter {
+    }
+
+    fn observe_scalar(&mut self, _parameter: &mut Self::Parameter, _result: AdamWScalarResult) {}
+
+    fn finish_parameter(&mut self, _parameter: Self::Parameter) {}
+
+    fn finish(
+        self,
+        step: u64,
+        _learning_rate: f64,
+        _first_correction: f64,
+        _second_correction: f64,
+    ) -> Self::Output {
+        step
+    }
+}
+
+struct RecordAdamWTrace {
+    updates: Vec<AdamWParameterUpdate>,
+}
+
+impl RecordAdamWTrace {
+    fn with_capacity(parameters: usize) -> Self {
+        Self {
+            updates: Vec::with_capacity(parameters),
+        }
+    }
+}
+
+impl AdamWStepObserver for RecordAdamWTrace {
+    type Parameter = AdamWParameterUpdate;
+    type Output = AdamWStep;
+
+    fn begin_parameter(
+        &mut self,
+        context: AdamWParameterContext<'_>,
+        elements: usize,
+    ) -> Self::Parameter {
+        AdamWParameterUpdate {
+            name: context.name.to_owned(),
+            shape: context.shape.to_vec(),
+            before: context.before.to_vec(),
+            gradient: context.gradient.to_vec(),
+            decay_applied: context.decay_applied,
+            effective_weight_decay: context.effective_weight_decay,
+            first_moment: Vec::with_capacity(elements),
+            second_moment: Vec::with_capacity(elements),
+            corrected_first_moment: Vec::with_capacity(elements),
+            corrected_second_moment: Vec::with_capacity(elements),
+            adaptive_direction: Vec::with_capacity(elements),
+            adaptive_delta: Vec::with_capacity(elements),
+            decay_delta: Vec::with_capacity(elements),
+            after: Vec::with_capacity(elements),
+        }
+    }
+
+    fn observe_scalar(&mut self, parameter: &mut Self::Parameter, result: AdamWScalarResult) {
+        parameter.first_moment.push(result.first_moment);
+        parameter.second_moment.push(result.second_moment);
+        parameter
+            .corrected_first_moment
+            .push(result.corrected_first_moment);
+        parameter
+            .corrected_second_moment
+            .push(result.corrected_second_moment);
+        parameter.adaptive_direction.push(result.adaptive_direction);
+        parameter.adaptive_delta.push(result.adaptive_delta);
+        parameter.decay_delta.push(result.decay_delta);
+        parameter.after.push(result.after);
+    }
+
+    fn finish_parameter(&mut self, parameter: Self::Parameter) {
+        self.updates.push(parameter);
+    }
+
+    fn finish(
+        self,
+        step: u64,
+        learning_rate: f64,
+        first_correction: f64,
+        second_correction: f64,
+    ) -> Self::Output {
+        AdamWStep {
+            step,
+            learning_rate,
+            first_correction,
+            second_correction,
+            updates: self.updates,
+        }
+    }
+}
 
 /// A deterministic AdamW optimizer whose state follows stable parameter names.
 #[derive(Clone, Debug, PartialEq)]
@@ -866,14 +1014,26 @@ impl AdamW {
         }
     }
 
+    // region:adamw-execution-and-trace-api
     /// Consumes the accumulated gradients and atomically replaces every leaf.
     ///
     /// All arithmetic, tensor construction, and optimizer-state changes are
     /// prepared first. An error leaves both the supplied parameters and this
     /// optimizer bit-identical. A successful replacement creates fresh
     /// trainable leaves, so the consumed gradients restart at exact zero.
-    pub fn step(&mut self, parameters: &mut [NamedParameter]) -> Result<AdamWStep, AdamWError> {
-        self.step_with_config(parameters, self.config)
+    /// The result is only the committed step number; use `step_with_trace` when
+    /// the elementwise update vectors are needed for inspection.
+    pub fn step(&mut self, parameters: &mut [NamedParameter]) -> Result<u64, AdamWError> {
+        self.step_with_config(parameters, self.config, NoAdamWTrace)
+    }
+
+    /// Applies the same transaction while recording every elementwise update.
+    pub fn step_with_trace(
+        &mut self,
+        parameters: &mut [NamedParameter],
+    ) -> Result<AdamWStep, AdamWError> {
+        let observer = RecordAdamWTrace::with_capacity(parameters.len());
+        self.step_with_config(parameters, self.config, observer)
     }
 
     /// Applies one validated scheduled learning rate without resetting moments.
@@ -885,17 +1045,30 @@ impl AdamW {
         &mut self,
         parameters: &mut [NamedParameter],
         learning_rate: f64,
-    ) -> Result<AdamWStep, AdamWError> {
+    ) -> Result<u64, AdamWError> {
         let step_config = self.config.with_learning_rate(learning_rate)?;
-        self.step_with_config(parameters, step_config)
+        self.step_with_config(parameters, step_config, NoAdamWTrace)
     }
 
+    /// Applies a scheduled learning rate and records the complete update trace.
+    pub fn step_with_learning_rate_and_trace(
+        &mut self,
+        parameters: &mut [NamedParameter],
+        learning_rate: f64,
+    ) -> Result<AdamWStep, AdamWError> {
+        let step_config = self.config.with_learning_rate(learning_rate)?;
+        let observer = RecordAdamWTrace::with_capacity(parameters.len());
+        self.step_with_config(parameters, step_config, observer)
+    }
+    // endregion:adamw-execution-and-trace-api
+
     // region:transactional-adamw-step
-    fn step_with_config(
+    fn step_with_config<O: AdamWStepObserver>(
         &mut self,
         parameters: &mut [NamedParameter],
         step_config: AdamWConfig,
-    ) -> Result<AdamWStep, AdamWError> {
+        mut observer: O,
+    ) -> Result<O::Output, AdamWError> {
         let actual_names = validate_parameter_names(parameters)?;
         if let Some(groups) = &self.groups {
             let expected_names = groups.parameter_names();
@@ -934,7 +1107,6 @@ impl AdamW {
         };
 
         let mut replacements = Vec::with_capacity(parameters.len());
-        let mut updates = Vec::with_capacity(parameters.len());
         for parameter in parameters.iter() {
             let name = parameter.name();
             let before = parameter.tensor().value();
@@ -964,7 +1136,7 @@ impl AdamW {
                 });
             }
 
-            let update = prepare_parameter_update(
+            let after = prepare_parameter_update(
                 AdamWPreparation {
                     config: step_config,
                     decay_applied: self
@@ -978,10 +1150,10 @@ impl AdamW {
                 &before,
                 &gradient,
                 state,
+                &mut observer,
             )?;
-            let tensor = Tensor::from_vec(update.shape.clone(), update.after.clone())?;
+            let tensor = Tensor::from_vec(before.shape().to_vec(), after)?;
             replacements.push(NamedParameter::from_tensor(name.to_owned(), tensor)?);
-            updates.push(update);
         }
 
         for (parameter, replacement) in parameters.iter_mut().zip(replacements) {
@@ -992,13 +1164,12 @@ impl AdamW {
         self.beta2_power = next_beta2_power;
         self.states = candidate_states;
 
-        Ok(AdamWStep {
-            step: next_step,
-            learning_rate: step_config.learning_rate,
+        Ok(observer.finish(
+            next_step,
+            step_config.learning_rate,
             first_correction,
             second_correction,
-            updates,
-        })
+        ))
     }
     // endregion:transactional-adamw-step
 }
@@ -1043,12 +1214,13 @@ struct AdamWPreparation<'a> {
     name: &'a str,
 }
 
-fn prepare_parameter_update(
+fn prepare_parameter_update<O: AdamWStepObserver>(
     preparation: AdamWPreparation<'_>,
     before: &Tensor,
     gradient: &Tensor,
     state: &mut AdamWMomentState,
-) -> Result<AdamWParameterUpdate, AdamWError> {
+    observer: &mut O,
+) -> Result<Vec<f64>, AdamWError> {
     let AdamWPreparation {
         config,
         decay_applied,
@@ -1061,11 +1233,17 @@ fn prepare_parameter_update(
     } else {
         0.0
     };
-    let mut corrected_first_moment = Vec::with_capacity(before.len());
-    let mut corrected_second_moment = Vec::with_capacity(before.len());
-    let mut adaptive_direction = Vec::with_capacity(before.len());
-    let mut adaptive_delta = Vec::with_capacity(before.len());
-    let mut decay_delta = Vec::with_capacity(before.len());
+    let mut parameter_observation = observer.begin_parameter(
+        AdamWParameterContext {
+            name,
+            shape: before.shape(),
+            before: before.as_slice(),
+            gradient: gradient.as_slice(),
+            decay_applied,
+            effective_weight_decay,
+        },
+        before.len(),
+    );
     let mut after = Vec::with_capacity(before.len());
 
     for (index, ((value, gradient), (first, second))) in before
@@ -1132,30 +1310,24 @@ fn prepare_parameter_update(
 
         *first = next_first;
         *second = next_second;
-        corrected_first_moment.push(corrected_first);
-        corrected_second_moment.push(corrected_second);
-        adaptive_direction.push(direction);
-        adaptive_delta.push(adaptive);
-        decay_delta.push(decay);
         after.push(next_value);
+        observer.observe_scalar(
+            &mut parameter_observation,
+            AdamWScalarResult {
+                first_moment: next_first,
+                second_moment: next_second,
+                corrected_first_moment: corrected_first,
+                corrected_second_moment: corrected_second,
+                adaptive_direction: direction,
+                adaptive_delta: adaptive,
+                decay_delta: decay,
+                after: next_value,
+            },
+        );
     }
 
-    Ok(AdamWParameterUpdate {
-        name: name.to_owned(),
-        shape: before.shape().to_vec(),
-        before: before.as_slice().to_vec(),
-        gradient: gradient.as_slice().to_vec(),
-        decay_applied,
-        effective_weight_decay,
-        first_moment: state.first.clone(),
-        second_moment: state.second.clone(),
-        corrected_first_moment,
-        corrected_second_moment,
-        adaptive_direction,
-        adaptive_delta,
-        decay_delta,
-        after,
-    })
+    observer.finish_parameter(parameter_observation);
+    Ok(after)
 }
 
 #[cfg(test)]
@@ -1185,6 +1357,71 @@ mod tests {
             assert!(
                 (actual - expected).abs() <= 1e-12,
                 "expected {expected:.15}, got {actual:.15}"
+            );
+        }
+    }
+
+    fn value_bits(values: &[f64]) -> Vec<u64> {
+        values.iter().map(|value| value.to_bits()).collect()
+    }
+
+    fn assert_same_optimizer_bits(left: &AdamW, right: &AdamW) {
+        assert_eq!(
+            left.config.learning_rate.to_bits(),
+            right.config.learning_rate.to_bits()
+        );
+        assert_eq!(left.config.beta1.to_bits(), right.config.beta1.to_bits());
+        assert_eq!(left.config.beta2.to_bits(), right.config.beta2.to_bits());
+        assert_eq!(
+            left.config.epsilon.to_bits(),
+            right.config.epsilon.to_bits()
+        );
+        assert_eq!(
+            left.config.weight_decay.to_bits(),
+            right.config.weight_decay.to_bits()
+        );
+        assert_eq!(left.groups, right.groups);
+        assert_eq!(left.step, right.step);
+        assert_eq!(left.beta1_power.to_bits(), right.beta1_power.to_bits());
+        assert_eq!(left.beta2_power.to_bits(), right.beta2_power.to_bits());
+        assert_eq!(
+            left.states.keys().collect::<Vec<_>>(),
+            right.states.keys().collect::<Vec<_>>()
+        );
+        for (name, left_state) in &left.states {
+            let right_state = &right.states[name];
+            assert_eq!(left_state.shape, right_state.shape);
+            assert_eq!(
+                value_bits(&left_state.first),
+                value_bits(&right_state.first)
+            );
+            assert_eq!(
+                value_bits(&left_state.second),
+                value_bits(&right_state.second)
+            );
+        }
+    }
+
+    fn assert_same_parameter_bits(left: &[NamedParameter], right: &[NamedParameter]) {
+        assert_eq!(left.len(), right.len());
+        for (left, right) in left.iter().zip(right) {
+            assert_eq!(left.name(), right.name());
+            assert_eq!(
+                left.tensor().value().shape(),
+                right.tensor().value().shape()
+            );
+            assert_eq!(
+                value_bits(left.tensor().value().as_slice()),
+                value_bits(right.tensor().value().as_slice())
+            );
+            assert_eq!(
+                left.tensor()
+                    .gradient()
+                    .map(|gradient| value_bits(gradient.as_slice())),
+                right
+                    .tensor()
+                    .gradient()
+                    .map(|gradient| value_bits(gradient.as_slice()))
             );
         }
     }
@@ -1248,13 +1485,166 @@ mod tests {
     }
 
     #[test]
+    fn lean_and_traced_steps_share_exact_state_across_scheduled_reordered_updates() {
+        let groups = AdamWParameterGroups::new(["decoder.weight"], ["decoder.norm.scale"]).unwrap();
+        let mut lean_parameters = vec![
+            parameter("decoder.weight", &[2], &[1.0, -2.0]),
+            parameter("decoder.norm.scale", &[1], &[-0.0]),
+        ];
+        let mut traced_parameters = vec![
+            parameter("decoder.weight", &[2], &[1.0, -2.0]),
+            parameter("decoder.norm.scale", &[1], &[-0.0]),
+        ];
+        for parameters in [&lean_parameters, &traced_parameters] {
+            seed_gradient(&parameters[0], &[0.2, -0.4]);
+            seed_gradient(&parameters[1], &[-0.0]);
+        }
+        let lean_old_leaves = lean_parameters
+            .iter()
+            .map(|parameter| parameter.tensor().clone())
+            .collect::<Vec<_>>();
+        let traced_old_leaves = traced_parameters
+            .iter()
+            .map(|parameter| parameter.tensor().clone())
+            .collect::<Vec<_>>();
+        let mut lean_optimizer = AdamW::with_parameter_groups(fixture_config(), groups.clone());
+        let mut traced_optimizer = AdamW::with_parameter_groups(fixture_config(), groups);
+
+        let lean_step = lean_optimizer
+            .step_with_learning_rate(&mut lean_parameters, 0.2)
+            .unwrap();
+        let trace = traced_optimizer
+            .step_with_learning_rate_and_trace(&mut traced_parameters, 0.2)
+            .unwrap();
+
+        assert_eq!(lean_step, trace.step());
+        assert_eq!(trace.learning_rate().to_bits(), 0.2_f64.to_bits());
+        assert_eq!(trace.updates().len(), 2);
+        assert_same_optimizer_bits(&lean_optimizer, &traced_optimizer);
+        assert_same_parameter_bits(&lean_parameters, &traced_parameters);
+        assert!(
+            lean_parameters
+                .iter()
+                .zip(lean_old_leaves)
+                .all(|(parameter, old)| !parameter.tensor().is_same_node(&old))
+        );
+        assert!(
+            traced_parameters
+                .iter()
+                .zip(traced_old_leaves)
+                .all(|(parameter, old)| !parameter.tensor().is_same_node(&old))
+        );
+
+        lean_parameters.reverse();
+        traced_parameters.reverse();
+        for parameters in [&lean_parameters, &traced_parameters] {
+            seed_gradient(&parameters[0], &[0.0]);
+            seed_gradient(&parameters[1], &[-0.3, 0.0]);
+        }
+        let lean_step = lean_optimizer
+            .step_with_learning_rate(&mut lean_parameters, 0.05)
+            .unwrap();
+        let trace = traced_optimizer
+            .step_with_learning_rate_and_trace(&mut traced_parameters, 0.05)
+            .unwrap();
+
+        assert_eq!(lean_step, trace.step());
+        assert_eq!(trace.step(), 2);
+        assert_eq!(trace.updates()[0].name(), "decoder.norm.scale");
+        assert_eq!(trace.updates()[1].name(), "decoder.weight");
+        assert_same_optimizer_bits(&lean_optimizer, &traced_optimizer);
+        assert_same_parameter_bits(&lean_parameters, &traced_parameters);
+    }
+
+    #[test]
+    fn lean_and_traced_failures_share_precedence_and_whole_set_rollback() {
+        let mut lean_parameters = vec![parameter("scheduled.weight", &[1], &[1.0])];
+        let mut traced_parameters = vec![parameter("scheduled.weight", &[1], &[1.0])];
+        let mut lean_optimizer = AdamW::new(fixture_config());
+        let mut traced_optimizer = AdamW::new(fixture_config());
+        let invalid_bits = f64::NAN.to_bits();
+        let lean_error = lean_optimizer
+            .step_with_learning_rate(&mut lean_parameters, f64::from_bits(invalid_bits))
+            .unwrap_err();
+        let traced_error = traced_optimizer
+            .step_with_learning_rate_and_trace(&mut traced_parameters, f64::from_bits(invalid_bits))
+            .unwrap_err();
+        match (lean_error, traced_error) {
+            (
+                AdamWError::InvalidLearningRate { value: lean },
+                AdamWError::InvalidLearningRate { value: traced },
+            ) => assert_eq!(lean.to_bits(), traced.to_bits()),
+            (lean, traced) => panic!("unexpected parity errors: lean={lean:?} traced={traced:?}"),
+        }
+        assert_same_optimizer_bits(&lean_optimizer, &traced_optimizer);
+        assert_same_parameter_bits(&lean_parameters, &traced_parameters);
+
+        let config = AdamWConfig::new(f64::MAX, 0.5, 0.5, 0.1, 1.0).unwrap();
+        let mut lean_parameters = vec![
+            parameter("a.weight", &[1], &[0.0]),
+            parameter("b.weight", &[1], &[f64::MAX]),
+        ];
+        let mut traced_parameters = vec![
+            parameter("a.weight", &[1], &[0.0]),
+            parameter("b.weight", &[1], &[f64::MAX]),
+        ];
+        let lean_leaves = lean_parameters
+            .iter()
+            .map(|parameter| parameter.tensor().clone())
+            .collect::<Vec<_>>();
+        let traced_leaves = traced_parameters
+            .iter()
+            .map(|parameter| parameter.tensor().clone())
+            .collect::<Vec<_>>();
+        let mut lean_optimizer = AdamW::new(config);
+        let mut traced_optimizer = AdamW::new(config);
+        let lean_before = lean_optimizer.clone();
+        let traced_before = traced_optimizer.clone();
+
+        let lean_error = lean_optimizer.step(&mut lean_parameters).unwrap_err();
+        let traced_error = traced_optimizer
+            .step_with_trace(&mut traced_parameters)
+            .unwrap_err();
+
+        assert_eq!(lean_error, traced_error);
+        assert!(matches!(
+            lean_error,
+            AdamWError::NonFiniteArithmetic {
+                name,
+                stage: AdamWArithmetic::DecayDelta,
+                ..
+            } if name == "b.weight"
+        ));
+        assert_same_optimizer_bits(&lean_optimizer, &lean_before);
+        assert_same_optimizer_bits(&traced_optimizer, &traced_before);
+        assert_same_parameter_bits(&lean_parameters, &traced_parameters);
+        assert!(
+            lean_parameters
+                .iter()
+                .zip(lean_leaves)
+                .all(|(parameter, old)| parameter.tensor().is_same_node(&old))
+        );
+        assert!(
+            traced_parameters
+                .iter()
+                .zip(traced_leaves)
+                .all(|(parameter, old)| parameter.tensor().is_same_node(&old))
+        );
+    }
+
+    #[test]
+    fn ordinary_step_observer_is_zero_sized() {
+        assert_eq!(std::mem::size_of::<NoAdamWTrace>(), 0);
+    }
+
+    #[test]
     fn first_step_matches_bias_correction_and_two_separate_deltas() {
         let mut parameters = vec![parameter("decoder.weight", &[2], &[1.0, -2.0])];
         seed_gradient(&parameters[0], &[0.2, -0.4]);
         let old_leaf = parameters[0].tensor().clone();
         let mut optimizer = AdamW::new(fixture_config());
 
-        let step = optimizer.step(&mut parameters).unwrap();
+        let step = optimizer.step_with_trace(&mut parameters).unwrap();
         let update = &step.updates()[0];
 
         assert_eq!(step.step(), 1);
@@ -1284,7 +1674,7 @@ mod tests {
         let mut optimizer = AdamW::new(fixture_config());
 
         let first = optimizer
-            .step_with_learning_rate(&mut parameters, 0.2)
+            .step_with_learning_rate_and_trace(&mut parameters, 0.2)
             .unwrap();
         assert_eq!(first.learning_rate(), 0.2);
         assert_eq!(optimizer.config().learning_rate(), 0.1);
@@ -1296,7 +1686,7 @@ mod tests {
 
         seed_gradient(&parameters[0], &[-0.5]);
         let second = optimizer
-            .step_with_learning_rate(&mut parameters, 0.05)
+            .step_with_learning_rate_and_trace(&mut parameters, 0.05)
             .unwrap();
         assert_eq!(second.learning_rate(), 0.05);
         assert_eq!(optimizer.config().learning_rate(), 0.1);
@@ -1330,7 +1720,7 @@ mod tests {
         seed_gradient(&parameters[0], &[0.2]);
         seed_gradient(&parameters[1], &[0.0]);
 
-        let step = optimizer.step(&mut parameters).unwrap();
+        let step = optimizer.step_with_trace(&mut parameters).unwrap();
 
         assert_eq!(step.step(), 2);
         assert_eq!(step.updates()[0].name(), "b.weight");
@@ -1346,7 +1736,7 @@ mod tests {
         let mut parameters = vec![parameter("decoder.weight", &[2], &[3.0, -4.0])];
         let mut optimizer = AdamW::new(fixture_config());
 
-        let step = optimizer.step(&mut parameters).unwrap();
+        let step = optimizer.step_with_trace(&mut parameters).unwrap();
         let update = &step.updates()[0];
 
         assert_close(update.gradient(), &[0.0, 0.0]);
@@ -1362,7 +1752,7 @@ mod tests {
         let mut optimizer = AdamW::new(fixture_config());
         optimizer.step(&mut parameters).unwrap();
 
-        let step = optimizer.step(&mut parameters).unwrap();
+        let step = optimizer.step_with_trace(&mut parameters).unwrap();
         let update = &step.updates()[0];
 
         assert_close(update.gradient(), &[0.0]);
@@ -1381,7 +1771,7 @@ mod tests {
         ];
         let mut optimizer = AdamW::with_parameter_groups(fixture_config(), groups);
 
-        let step = optimizer.step(&mut parameters).unwrap();
+        let step = optimizer.step_with_trace(&mut parameters).unwrap();
 
         assert!(step.updates()[0].decay_applied());
         assert_close(&[step.updates()[0].effective_weight_decay()], &[0.1]);
@@ -1401,7 +1791,7 @@ mod tests {
         seed_gradient(&parameters[0], &[0.2]);
         let mut optimizer = AdamW::with_parameter_groups(fixture_config(), groups);
 
-        let step = optimizer.step(&mut parameters).unwrap();
+        let step = optimizer.step_with_trace(&mut parameters).unwrap();
         let update = &step.updates()[0];
 
         assert!(!update.decay_applied());
@@ -1548,7 +1938,7 @@ mod tests {
         seed_gradient(&parameters[0], &[0.15]);
         let mut optimizer = AdamW::new(fixture_config());
 
-        let step = optimizer.step(&mut parameters).unwrap();
+        let step = optimizer.step_with_trace(&mut parameters).unwrap();
 
         assert_close(step.updates()[0].gradient(), &[0.2]);
         assert_close(

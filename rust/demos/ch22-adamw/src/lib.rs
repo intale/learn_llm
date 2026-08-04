@@ -69,7 +69,7 @@ pub fn learner_evidence() -> LearnerEvidence {
         .collect::<Vec<_>>();
     let mut optimizer = AdamW::with_parameter_groups(config, fixture_groups());
     let step = optimizer
-        .step(&mut parameters)
+        .step_with_trace(&mut parameters)
         .expect("the complete named set updates atomically");
 
     let gradients_reset = parameters.iter().all(|parameter| {
@@ -103,7 +103,7 @@ fn fresh_zero_moment_probe(config: AdamWConfig) -> AdamWParameterUpdate {
     let groups = AdamWParameterGroups::new(["probe.weight"], std::iter::empty::<&str>())
         .expect("the probe weight belongs to the decay group");
     AdamW::with_parameter_groups(config, groups)
-        .step(&mut parameters)
+        .step_with_trace(&mut parameters)
         .expect("zero is the fresh leaf's exact gradient")
         .updates()[0]
         .clone()

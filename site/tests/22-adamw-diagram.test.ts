@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from 'node:crypto';
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from 'node:path';
@@ -38,6 +40,11 @@ const lessonBodies = Object.fromEntries(
   ]),
 ) as Record<keyof typeof lessonSources, string>;
 const rustTraceSource = read('rust/demos/ch22-adamw/src/diagram_trace.rs');
+const adamwSource = read('rust/crates/llm-from-scratch/src/training/adamw.rs');
+const trainerSource = read('rust/crates/llm-from-scratch/src/training/trainer.rs');
+const demoSource = read('rust/demos/ch22-adamw/src/lib.rs');
+const chapter23Source = read('rust/demos/ch23-neural-ngram/src/lib.rs');
+const chapter35Source = read('rust/demos/ch35-checkpoints/src/lib.rs');
 
 function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -100,6 +107,17 @@ function markedSection(source: string, marker: string, nextMarker: string) {
   const end = source.indexOf(nextMarker, start + marker.length);
   if (start < 0 || end < 0) throw new Error(`missing ordered section ${marker}`);
   return source.slice(start + marker.length, end);
+}
+
+function rustRegion(source: string, region: string) {
+  return markedSection(source, `// region:${region}`, `// endregion:${region}`);
+}
+
+function publicRustMethod(source: string, name: string) {
+  const start = source.indexOf(`pub fn ${name}(`);
+  if (start < 0) throw new Error(`missing Rust method ${name}`);
+  const next = source.indexOf('\n    pub fn ', start + 1);
+  return source.slice(start, next < 0 ? source.length : next);
 }
 
 const labels: AdamwDiagramLabels = {
@@ -550,9 +568,12 @@ describe('Chapter 22 contract and lesson projection', () => {
   } as const;
 
   it('names the worked parameter and explains the configurable no-decay policy', () => {
-    expect(contract.content_revision).toBe(3);
-    expect(lessons.en.content_revision).toBe(3);
-    expect(lessons.ru.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lessons.en.content_revision).toBe(4);
+    expect(lessons.ru.content_revision).toBe(4);
+    expect(contract.translation_notes).toContain(
+      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
+    );
 
     const contractWorked = markedSection(
       contractSource,
@@ -731,10 +752,13 @@ describe('Chapter 22 contract and lesson projection', () => {
       'historical_two_step=sgd:0.990000 momentum:0.980000 adam_l2:0.890241 adamw:0.914100',
     );
     for (const locale of ['en', 'ru'] as const) {
-      expect(lessons[locale].rust_sources).toHaveLength(10);
-      expect(lessonBodies[locale].match(/<RustSource\b/g)).toHaveLength(10);
+      expect(lessons[locale].rust_sources).toHaveLength(11);
+      expect(lessonBodies[locale].match(/<RustSource\b/g)).toHaveLength(11);
       expect(lessons[locale].rust_sources).toContainEqual(
         expect.objectContaining({ region: 'adamw-moment-state' }),
+      );
+      expect(lessons[locale].rust_sources).toContainEqual(
+        expect.objectContaining({ region: 'adamw-execution-and-trace-api' }),
       );
       expect(lessonBodies[locale]).toContain(
         "import AdamwDiagram from '../../../components/chapters/AdamwDiagram.astro';",
@@ -754,6 +778,46 @@ describe('Chapter 22 contract and lesson projection', () => {
         lessonBodies[locale].match(/<Adamw(?:Evidence)?Diagram\b/g) ?? [],
       ).toHaveLength(2);
     }
+  });
+
+  it('keeps ordinary optimizer calls lean and makes Chapter 22 evidence explicit', () => {
+    const api = rustRegion(adamwSource, 'adamw-execution-and-trace-api');
+    for (const name of ['step', 'step_with_learning_rate']) {
+      const method = publicRustMethod(api, name);
+      expect(method).toContain('Result<u64, AdamWError>');
+      expect(method).toContain('NoAdamWTrace');
+      expect(method).not.toContain('RecordAdamWTrace');
+    }
+    for (const name of ['step_with_trace', 'step_with_learning_rate_and_trace']) {
+      const method = publicRustMethod(api, name);
+      expect(method).toContain('Result<AdamWStep, AdamWError>');
+      expect(method).toContain('RecordAdamWTrace');
+      expect(method).not.toContain('NoAdamWTrace');
+    }
+    expect(adamwSource.match(/fn step_with_config<O: AdamWStepObserver>/g)).toHaveLength(1);
+    expect(
+      adamwSource.match(/fn prepare_parameter_update<O: AdamWStepObserver>/g),
+    ).toHaveLength(1);
+
+    const noTraceObserver = adamwSource.slice(
+      adamwSource.indexOf('impl AdamWStepObserver for NoAdamWTrace'),
+      adamwSource.indexOf('struct RecordAdamWTrace'),
+    );
+    expect(noTraceObserver).not.toMatch(
+      /\bVec\b|to_vec|to_owned|AdamWStep\b|AdamWParameterUpdate\b/,
+    );
+    expect(demoSource.match(/\.step_with_trace\(/g)).toHaveLength(2);
+    expect(demoSource.match(/optimizer\s*\.\s*step\(/g)).toHaveLength(3);
+    for (const source of [trainerSource, chapter23Source, chapter35Source]) {
+      expect(source).not.toContain('step_with_trace');
+      expect(source).not.toContain('step_with_learning_rate_and_trace');
+    }
+    expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
+      'Tracing records values produced by that calculation; it does not calculate the update a second time.',
+    );
+    expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
+      'Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
+    );
   });
 
   it('orders bilingual pedagogy, renders each localized history claim, and keeps notation out of code spans', () => {

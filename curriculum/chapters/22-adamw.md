@@ -2,7 +2,7 @@
 {
   "chapter_id": "22-adamw",
   "concept_id": "adamw",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 22,
   "objective": {
     "en": "Update a stable set of named decoder parameters with bias-corrected first and second gradient moments while keeping weight decay outside the adaptive gradient path.",
@@ -221,12 +221,13 @@
     }
   ],
   "translation_notes": [
-    "Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 3 and becomes stale whenever that English source changes.",
+    "Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 6e7d2b1b174b616e9de41d4a61321d93987ba76b8bf59cbad327027e2c07a0eb and becomes stale whenever that English source changes.",
     "Keep theta, g, m, v, beta, eta, lambda, epsilon, hats, step indices, vectors, parameter names, trace keywords, source roles, and source URLs unchanged across locales.",
     "Translate bias correction as correction of the zero-initialized moving estimates, not correction of the model's social or statistical output bias.",
     "Decoupled means the parameter-proportional decay does not enter the gradient moments. It does not mean the final parameter update is independent of the adaptive term.",
     "Bengio supports the direct neural-language-model update, Kingma and Ba the moment and correction equations, Loshchilov and Hutter the separation of decay, and Touvron et al. the modern LLM training example. None defines this implementation's names, rollback, new leaves, fixed example constants, errors, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and program data. Optimizer equations and the historical progression are language-independent.",
+    "Translate an ordinary method or call as «обычный метод» or «вызов без трассировки» and an explicitly requested trace as «явно запрошенная трассировка»; never translate lean literally.",
     "Keep the canonical formula byte-equivalent across English and Russian. Render every learner-facing expression through inline or display math delimiters, and reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
     "Use Russian «первый момент градиента», «второй нецентрированный момент градиента», «поправка на смещение», «затухание весов, отделённое от градиентного обновления», «адаптивная поправка», «поправка затухания», «состояние оптимизатора» and «листовой узел-параметр» consistently. Avoid literal calques such as «сырой момент», «свежий лист», «байпас» and «коммитить».",
     "Validate Russian prose, diagram labels, captions, scroller names, and accessibility labels in Chromium and Firefox at desktop and narrow widths and in full view. Text and formula ink must remain inside their bounded boxes without page-level overflow; fix fit through natural wording, wrapping, or reflow, never clipping, truncation, or reduced text size."
@@ -469,13 +470,22 @@ must exactly match the supplied names. The lower-level ungrouped `AdamW::new`
 constructor applies decay to every parameter. Moment tensors are keyed by stable
 external names rather than slice positions.
 
-For a first call, it prepares zero moment state with each parameter's shape.
-Later calls require the same name set and shapes, although presentation order
-may change. The implementation reads each leaf's accumulated gradient,
-calculates every intermediate with a finite check, constructs every replacement
-leaf, and only then commits parameters, moments, powers, and the step counter.
-A successful fresh leaf has an exact zero gradient; a failure preserves all old
-leaf identities and optimizer bytes.
+Ordinary methods `step` and `step_with_learning_rate` execute the complete
+atomic update and return only the committed step number. They do not construct
+an `AdamWStep` or copy old values, gradients, moments, deltas, and replacement values
+into a separate trace. The explicit `step_with_trace` and
+`step_with_learning_rate_and_trace` methods retain those per-parameter values
+for inspection. All four methods use the same private preparation-and-commit
+operation and the same elementwise calculation; tracing records values produced
+by that calculation rather than repeating the calculation.
+
+On the first update, the shared operation prepares zero moment state with each
+parameter's shape. Later updates require the same name set and shapes, although
+presentation order may change. The implementation reads each leaf's accumulated
+gradient, calculates every intermediate with a finite check, constructs every
+replacement leaf, and only then commits parameters, moments, powers, and the
+step counter. A successful fresh leaf has an exact zero gradient; a failure
+preserves all old leaf identities and optimizer bytes.
 
 The cumulative module and executable example are dependency-free. Tests cover
 the first-step numbers, a second step after reordering, fresh-state
@@ -558,7 +568,7 @@ then checks that training improves held-out loss.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The exact active locale set is {en, ru}. English content revision 3 is the
+The exact active locale set is {en, ru}. English content revision 4 is the
 canonical source; Russian is translated directly from that revision, and its
 semantic, terminology, anti-calque, accessibility, and rendered-surface review
 becomes stale whenever the English meaning or presentation changes. Keep

@@ -2,7 +2,7 @@
 {
   "chapter_id": "22-adamw",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 22,
   "concept_id": "adamw",
   "title": "Keep decay out of the gradient moments",
@@ -126,8 +126,13 @@
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
+      "region": "adamw-execution-and-trace-api",
+      "purpose": "Return only the committed step number during ordinary updates and retain elementwise evidence only when a caller explicitly requests a trace."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "adamw-state-and-evidence",
-      "purpose": "Expose the exact prepared moment, correction, delta, and replacement vectors."
+      "purpose": "Define the optional trace that retains exact prepared moment, correction, delta, and replacement vectors."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -470,17 +475,39 @@ Moment state is shaped like each parameter and keyed by its stable name:
   label="Rust source defining Chapter 22 optimizer moment state"
 />
 
-The step evidence retains exact input, moment, delta, and replacement vectors:
+Ordinary methods `step` and `step_with_learning_rate` execute the complete
+atomic update and return only the number of the step that was committed. They
+do not construct an `AdamWStep` or copy the old parameter values, gradients,
+moments, deltas, and replacement values into a separate trace record. When those
+exact per-parameter values are needed for inspection, `step_with_trace` and
+`step_with_learning_rate_and_trace` return an `AdamWStep`.
+
+All four methods use the same internal preparation-and-commit operation and the
+same elementwise AdamW calculation. Tracing records values produced by that
+calculation; it does not calculate the update a second time.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/adamw.rs"
+  region="adamw-execution-and-trace-api"
+  caption="Separate ordinary AdamW execution from explicitly requested trace evidence"
+  label="Rust source defining Chapter 22 ordinary and traced AdamW entry points"
+/>
+
+Only an explicitly requested trace retains the exact input, moment, delta, and
+replacement vectors used as evidence in this chapter:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
   region="adamw-state-and-evidence"
-  caption="Expose the exact vectors prepared for one complete AdamW step"
-  label="Rust source defining Chapter 22 prepared update evidence"
+  caption="Define the evidence retained only for a traced AdamW step"
+  label="Rust source defining Chapter 22 optional update evidence"
 />
 
-The main boundary clones prospective state, prepares every fresh leaf, and
-commits only after all candidates succeed:
+Trace capture is optional, but the atomic update is not. Both paths prepare
+prospective name-keyed moments, the powers $\beta_1^t$ and $\beta_2^t$, every
+fresh replacement leaf, and the complete replacement set before changing live
+state. If any candidate fails, neither the supplied leaves nor any optimizer
+field changes:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -500,9 +527,11 @@ and delegated tensor construction:
   label="Rust source defining Chapter 22 AdamW errors"
 />
 
-The fixed worked example updates two decoder-style names, proves fresh
-zero-gradient leaves, checks fresh-state pure decay, and attempts a changed-set
-rollback:
+The fixed worked example explicitly requests a trace for the named update and
+another trace for the probe with initially zero moments because this chapter
+inspects the exact vectors of both updates. The changed-set rollback probe
+needs only its error; the historical comparison and trajectory need only
+resulting parameter values. These calls therefore use the ordinary methods:
 
 <RustSource
   path="rust/demos/ch22-adamw/src/lib.rs"

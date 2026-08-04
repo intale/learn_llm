@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T17:53:27Z"
+updated_at: "2026-08-04T19:07:33Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: remediate-rust-runtime-observation-20260804
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -31121,7 +31121,7 @@ builds:
 
   - build_id: remediate-rust-runtime-observation-20260804
     objective: "Remove teaching-only evidence construction from ordinary BPE, sampling, autodiff, and AdamW execution while preserving one mathematical implementation and every explicit chapter trace."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -31550,21 +31550,122 @@ builds:
       - id: separate-adamw-observation
         objective: "Make ordinary AdamW updates retain only committed parameters, moments, and step state while explicit tracing observes the same update kernel."
         depends_on: [separate-tensor-backward-observation]
-        status: pending
+        status: completed
         inputs:
+          - "User direction to continue and fix the reviewed audit findings"
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
           - "audits/2026-08-04-rust-overengineering.md finding F01"
-          - "Committed output of separate-tensor-backward-observation"
-          - "AdamW implementation, trainer callers, Chapter 22 evidence, and all rendered projections"
+          - "Committed output 0776084dc51a5b33007daceed28ab90ec020caf8 of separate-tensor-backward-observation"
+          - "AdamW implementation and tests; trainer step-number caller; Chapter 22 trace consumer; compatible result-discarding callers in Chapters 23 and 35"
+          - "Chapter 22 and Chapter 33 contracts, English/Russian lessons, focused source/browser tests, and frozen Chapter 22-39 optimizer/training/checkpoint evidence"
         outputs:
           - "rust/crates/llm-from-scratch/src/training/adamw.rs"
-          - "Affected trainer callers, chapter contracts/locales, source/browser tests, BUILD_STATE.yaml, and DECISIONS.md resolved during preflight"
+          - "rust/crates/llm-from-scratch/src/training/trainer.rs"
+          - "rust/demos/ch22-adamw/src/lib.rs"
+          - "curriculum/chapters/22-adamw.md"
+          - "site/src/content/chapters/en/22-adamw.mdx"
+          - "site/src/content/chapters/ru/22-adamw.mdx"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "curriculum/chapters/33-training-selection.md"
+          - "site/src/content/chapters/en/33-training-selection.mdx"
+          - "site/src/content/chapters/ru/33-training-selection.mdx"
+          - "site/tests/33-training-selection-diagram.test.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
         acceptance:
-          - "Ordinary AdamW update does not retain parameter, gradient, moment, corrected-moment, direction, or delta teaching snapshots."
-          - "Ordinary and traced updates share one prepare/commit calculation and produce bit-identical parameters, moments, step numbers, and rollback behavior."
-          - "Chapter 22 exact evidence and all downstream training/checkpoint results remain unchanged."
+          - "Ordinary step methods return only the committed step number and construct no AdamWStep, AdamWParameterUpdate, or owned parameter, gradient, moment, corrected-moment, direction, and delta trace snapshots; required prospective moments, replacement leaves, and whole-set transaction state remain explicit."
+          - "Ordinary and explicit trace entry points use one observer-parameterized prepare/commit kernel and produce bit-identical parameters, moments, beta powers, step numbers, errors, and whole-set rollback behavior."
+          - "Only Chapter 22 calls the explicit trace API; the trainer and every caller that needs only committed state use the lean methods."
+          - "Chapter 22 revision 4 explains the execution/evidence boundary explicitly, and Chapter 33 revision 4 accurately renders the trainer's lean step-number handling; English is canonical and Russian is refreshed naturally from each exact English revision."
+          - "Chapter 22 exact report/diagram trace and all downstream training, selection, evaluation, checkpoint, sampling, caching, and capstone results remain unchanged."
         validate:
           - "Docker Rust formatting, Clippy, complete workspace/doc tests, dependency policy, and deterministic demo replay"
           - "Focused source and Chromium/Firefox validation for every revised optimizer/training chapter"
           - "Canonical ./course check, exact scope/YAML/whitespace checks, and ./course audit-host"
         cost: {class: large, notes: "Optimizer/trainer execution refactor plus broad deterministic and localized chapter validation; cached Docker/browser CPU, no paid service or model generation."}
-        runs: []
+        runs:
+          - run_id: 20260804T175743Z-separate-adamw-observation-01
+            started_at: 2026-08-04T17:57:43Z
+            finished_at: 2026-08-04T19:07:33Z
+            status: succeeded
+            input_fingerprint:
+              git: "0776084dc51a5b33007daceed28ab90ec020caf8; tree b606acceb382410193843f5d2db5271c5cd4c071"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                adamw: "sha256:4141d47433de6a7ff624453eb880756ee2a9feaaf73abfbb786950af7c1d664b"
+                trainer: "sha256:ded8fc44313864e5ec7fed789e42a5566e5f967dc572793cfd1fac86071481e2"
+                chapter-22-demo: "sha256:f5d086764fbf053d796889293ced8417533639ead81042f3a7b876a5ca9c9c89"
+                chapter-22-contract: "sha256:af1d8360a1c9409b2ab6761b0e3782d7d9deab10b833d604eae753d2f33985d9"
+                chapter-22-en: "sha256:0cb5c366cc119745caa8ef9c4987ec6f331346b860beb938514268e8a39926ac"
+                chapter-22-ru: "sha256:502b090d55ebf8c366e05d4d983cce3da09a4a04f7d0077ce2a457049e4973b0"
+                chapter-22-source-test: "sha256:9d3ad82b8d5e6cc4d9488d26cd28fb1bc86232c4de18e345b26738bd2423a885"
+                chapter-22-browser-test: "sha256:4b7195cec94450284c6a1150dac047b390197f3f0c2ae3c13b95b58605100081"
+                chapter-33-contract: "sha256:e85b4ee1116374f5a6fb356b83448805679808c89174a10e9a774540eef88f14"
+                chapter-33-en: "sha256:2665b7e507ea778be4e1a0178169ea02cd20e901f53849a64961849c8d28ec9e"
+                chapter-33-ru: "sha256:848801fcbe1894e7c86233a860c3e0da72dcd79497bf130c700085facc5f96de"
+                chapter-33-source-test: "sha256:e9dac0076a3c7b2375d226d45729756a4ab2b798b7fde55f6169fe5138a9c8f3"
+                chapter-33-browser-test: "sha256:ad4066ec3e6a0bdb67a674e794f9b71116c58660530d43acf23deefa7e2e9149"
+                chapter-22-expected: "sha256:819e51a6f66b2006aed45656fc1f0e45e426a8e2f52a1bcaeb586817e48395f9"
+                chapter-22-diagram-trace: "sha256:21d97ae498b1632c557dcc4c80d1ec72949ffb5f8f70f9874bd7848bf578f598"
+                chapter-23-expected: "sha256:a3352c9ddccee9541c38a9d5f750807d8a4d5ebd66a1da0c006a05a588bea236"
+                chapter-33-expected: "sha256:61ec5a7892deb9d3bd63f2750cb63104ef522bf6665e90a8ee2651abac3a1e79"
+                chapter-34-expected: "sha256:7c5922e74e0ecef14056182e5251d8795e9559b8a4e01ef07f408a1d8c51f14e"
+                chapter-35-expected: "sha256:aa641c3ae72687fcf4bf3f80c96ddc1c7a67bc38921575c067209576b229fccc"
+                chapter-36-expected: "sha256:ddcaea1b726e364133e95ba5119437f375f8124d6712844f0938a920a622627d"
+                chapter-37-expected: "sha256:a82b1cc0e2bedc009f1d8fa231e9f44666ce205644022baff146e188bbbe5ac0"
+                chapter-38-expected: "sha256:9272a274d71a0c5ade3dfd75d9db36371b6b774244711fac73519518466e2d7f"
+                chapter-39-expected: "sha256:a0b0398a587f6f3d1cbc40d3cf6854f022f01b71b76d7eaf5192489b32f2cef4"
+              tools: {git: "2.53.0", docker: "25.0.2", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "None planned. Product work and validation are Docker-only; no paid service or generated model work."
+            staging_dir: ".build/runs/20260804T175743Z-separate-adamw-observation-01/"
+            commands:
+              - "Verify clean commit 0776084, completed tensor dependency, exact environment continuity, accepted Chapter 22 transaction decisions, input hashes, frozen downstream evidence, and no overlapping output owner."
+              - "Classify the correction as large cached-Docker/browser work within the unlimited budget and record the protected lean/trace boundary before product edits."
+              - "Inventory every AdamW caller and rendered Rust projection; extend the declared scope to Chapter 33 because its training-loop listing contains the changed trainer and AdamW regions."
+              - "Implement one observer-parameterized AdamW preparation/commit kernel, migrate only evidence consumers to explicit tracing, and add bitwise parity, scheduled/reordered state, late-failure rollback, and zero-sized-observer tests."
+              - "Advance canonical English Chapters 22 and 33 to revision 4, then refresh Russian directly with explicit ordinary-versus-traced execution wording and recorded English SHA-256 provenance."
+              - "Obtain independent Rust, English-content, and Russian-localization reviews; correct every reported precision, grounding, and naturalness issue without widening the optimizer finding."
+              - "Freeze the thirteen product outputs under the run publish tree and validate the exact candidate with complete Rust, deterministic evidence, site, Chromium, and Firefox gates."
+              - "Correct one Chapter 33 cheat-sheet grounding omission, refresh its locale provenance and manifest, and repeat the complete exact-staged site and browser validation."
+              - "Run manifest-locked official review, canonical ./course check, host-artifact audit, canonical/staged byte comparison, YAML parsing, exact Git scope, and whitespace checks before committing."
+            artifacts:
+              - {path: ".build/runs/20260804T175743Z-separate-adamw-observation-01/publish.sha256", sha256: "c9cf849388d552e10b64818e647a3c3a6377a979bb7522a78f4460e109bb42fd", purpose: "Frozen manifest for the thirteen exact product outputs promoted by this run."}
+              - {path: "rust/crates/llm-from-scratch/src/training/adamw.rs", sha256: "69cc1494dd74c517b8162e80fcac854f9b59f76bb2397b5641b19bd63d9ae056", purpose: "One lean/traced AdamW prepare-and-commit kernel, zero-sized ordinary observer, explicit trace observer, and exact equivalence regressions."}
+              - {path: "rust/crates/llm-from-scratch/src/training/trainer.rs", sha256: "10c795710108e89554fca65ad48920f551b3709f775e3e51511cbff97b75c43c", purpose: "Trainer consumes the lean committed step number directly without retaining optimizer teaching snapshots."}
+              - {path: "rust/demos/ch22-adamw/src/lib.rs", sha256: "d14b36caf833ba212422ade5b350a4636d3f970ad213f49948126a03ed0389d0", purpose: "Chapter 22 requests tracing only for the update evidence it renders; result-only probes stay lean."}
+              - {path: "curriculum/chapters/22-adamw.md", sha256: "d27d6d824a5cbed3e477cee40cddbcfac49b722dda24e494146e907bc7f65042", purpose: "Chapter 22 revision 4 contract and exact English/Russian semantic provenance."}
+              - {path: "site/src/content/chapters/en/22-adamw.mdx", sha256: "6e7d2b1b174b616e9de41d4a61321d93987ba76b8bf59cbad327027e2c07a0eb", purpose: "Canonical English explanation of ordinary AdamW state, opt-in evidence, and whole-set transaction behavior."}
+              - {path: "site/src/content/chapters/ru/22-adamw.mdx", sha256: "38ba49693572494896dcd08f6c1ddebe962b7eddc5f50297965910791d2d0fc9", purpose: "Independently reviewed natural Russian refresh from the exact Chapter 22 English revision."}
+              - {path: "site/tests/22-adamw-diagram.test.ts", sha256: "05c3339dbcee493be4306a2028573b96d7dee278c8cecb56d57401e5b1da63e2", purpose: "Chapter 22 API split, caller-boundary, revision, provenance, and rendered-region assertions."}
+              - {path: "site/tests/e2e/ch22-adamw.spec.ts", sha256: "c404571b91dbd1320a9944bf7f71ab8041e6b38c996536c419084e903100002c", purpose: "Rendered bilingual Chapter 22 ordinary-versus-traced execution checks."}
+              - {path: "curriculum/chapters/33-training-selection.md", sha256: "cc1cc7b4007056fbf62c38081b647eade72b48e7c208dea01d16a1342365f826", purpose: "Chapter 33 revision 4 contract and exact English/Russian semantic provenance."}
+              - {path: "site/src/content/chapters/en/33-training-selection.mdx", sha256: "3432074500d8047c815774ce2b14cc31f3a5b7a8f4ab04cb58c8e4638b012b5b", purpose: "Canonical English training loop that handles the committed step number and names saved model state explicitly."}
+              - {path: "site/src/content/chapters/ru/33-training-selection.mdx", sha256: "f84f7392fc481826d8b5f65d516bd9dc83a636547d079e81d23ee6e60a7035e4", purpose: "Independently reviewed natural Russian refresh from the exact Chapter 33 English revision."}
+              - {path: "site/tests/33-training-selection-diagram.test.ts", sha256: "771b990b8fdd2d14abca5b89bcaa19c720bc716a9600ec6c42ae3486b27c0252", purpose: "Chapter 33 trainer projection, saved-state semantics, schedule-state grounding, revision, and provenance assertions."}
+              - {path: "site/tests/e2e/ch33-training-selection.spec.ts", sha256: "673e642179a69dd48ddc8884c157afff280bfe5de607e0c2f72abdf2401fae57", purpose: "Rendered bilingual Chapter 33 lean-step and saved-model-state checks."}
+            validation:
+              - {command: "Repository, dependency, ownership, source, locale, environment, cost, and frozen-evidence preflight", status: passed, notes: "The tensor step is completed and committed at 0776084; the worktree is clean, all declared inputs exist, no output has another running owner, and cost is large cached Docker/browser CPU within an unlimited budget with no paid service or generation."}
+              - {command: "Ad-hoc bare Node container scheduler parse", status: failed, notes: "The exact pinned Node base image was absent and Docker pulled it, but the bare image has no YAML package. No repository or promoted artifact changed; subsequent state parsing uses the repository workspace dependencies."}
+              - {command: "Docker Rust formatting and focused AdamW unit tests", status: passed, notes: "Rustfmt is clean and all 21 AdamW tests pass, including exact lean/trace state parity across scheduled and reordered updates, invalid-rate precedence, late-parameter rollback, and the zero-sized ordinary observer."}
+              - {command: "Focused Chapter 22 and 33 Vitest", status: passed, notes: "Both static source/content suites pass: 2 files and 33 tests. They validate revision/provenance parity, explicit bilingual execution wording, source-region projection, lean caller boundaries, and direct trainer step-number handling."}
+              - {command: "Independent final Rust, English-content, and Russian-localization reviews", status: passed, notes: "The Rust reviewer found no correctness or transaction regression. English and Russian reviewers exposed implicit saved-state, checkpoint, schedule-state, history, and translation wording; every finding was corrected and the final independent semantic and naturalness reviews returned no remaining finding."}
+              - {command: "Exact staged Rust formatting, Clippy -D warnings, complete locked workspace/doctests, dependency policy, and deterministic replay", status: passed, notes: "Image sha256:1bfbac7e701949a2ca3d47e7b44d21fadec1132e25fa56cdd9c208742c276c4d passes every Rust target, all demos, 374 shared library tests, both compile-fail doctests, dependency policy, all 39 chapter reports, and all 34 diagram traces."}
+              - {command: "Frozen Chapter 22/23/33-39 optimizer and downstream learner evidence", status: passed, notes: "Every preflight report and Chapter 22 diagram-trace hash remains exact. AdamW arithmetic, step numbering, training/selection/evaluation, checkpoint continuation, sampling, cached generation, and capstone results are unchanged."}
+              - {command: "First complete exact-staged Vitest", status: failed, notes: "53/54 files and 962/963 tests passed. One Chapter 33 cheat-sheet grounding assertion correctly exposed that the lesson did not state explicitly that a learning-rate change preserves AdamW moment state and the step counter. The English explanation was made explicit, Russian was refreshed directly, provenance and the frozen manifest were updated, and the complete suite was repeated."}
+              - {command: "Final exact-staged Vitest, content, parity, contract, Astro, production build, and links", status: passed, notes: "All 54 files and 963 tests pass, as do 80 localized sources, 40 locale sets, 33 catalogs, 42 diagrams, 40 integrated chapter contracts, 215 Astro files with zero diagnostics, 85 pages, 2,529 local references, 85 SEO/sitemap/analytics routes, and 164 artifacts."}
+              - {command: "Initial Playwright project selection", status: failed, notes: "The repository config has no named Chromium project, so --project=chromium stopped before running a browser case. The documented --browser selector was used for the complete repeat; no product file or published artifact changed."}
+              - {command: "Final exact-staged Chromium complete browser matrix", status: passed, notes: "Image sha256:357965a84ac72dbe0c16ffe2ffe011321cd76262f00edf18764acd6d2749a3b1 passes 665/665, including bilingual Chapter 22/33 desktop and narrow pages, no-JavaScript, formulas, every diagram and full view, forced colors, and direction-sensitive cases."}
+              - {command: "Final exact-staged Firefox complete browser matrix", status: passed, notes: "The same exact staged browser image passes 665/665 with the complete Chromium-equivalent content, formula, diagram containment/full-view, accessibility, responsive, and locale matrix."}
+              - {command: "Manifest-locked ./course review 20260804T175743Z-separate-adamw-observation-01 --check", status: passed, notes: "Official review image sha256:07f01ccf25d2a02b677cdead5d930b3a04f4439ca3b87d7681f6fdfec6ae7b91 validates the final thirteen-file manifest and renders all four revised Chapter 22/33 locale routes without changing the publish tree."}
+              - {command: "Canonical ./course check", status: passed, notes: "Canonical workspace image sha256:888932a83a44e0ac451b8a844514e35be8f316acfd503c79bf3fa7e15ce24f48 passes formatting, every workspace/demo/core/doc test, content/parity, 215-file Astro diagnostics, the 85-page production build, and the 2,529-reference static link check."}
+              - {command: "First final manifest checksum invocation", status: failed, notes: "The repo-relative paths recorded in publish.sha256 were mistakenly evaluated from inside the run directory, so sha256sum could not open them. Repeating the unchanged manifest from the repository root passed all thirteen entries."}
+              - {command: "Final manifest, publication, and host-boundary audit", status: passed, notes: "All thirteen canonical product files are byte-identical to their staged counterparts and match manifest sha256:c9cf849388d552e10b64818e647a3c3a6377a979bb7522a78f4460e109bb42fd. ./course audit-host passes with only the intentional site/dist release exception."}
+              - {command: "Final pinned-Docker ledger parse, exact scope, and whitespace check", status: passed, notes: "The completed YAML parses, closes the F01 build with no active or running owner, and retains F02-F13 for separate builds. Exactly the thirteen declared products plus BUILD_STATE.yaml and DECISIONS.md change; git diff --check passes."}
+            notes: "Succeeded. Ordinary AdamW updates return only the committed step number and construct no parameter-scale teaching record; explicit trace methods observe the same private prepare-and-commit kernel. Exact parity tests preserve arithmetic, error precedence, fresh-leaf replacement, name-keyed moment state, beta powers, and whole-set rollback. Chapters 22 and 33 now explain the API and saved optimizer/model state explicitly in reviewed English and natural Russian, while all downstream evidence remains exact. F02 trainer ownership, F03/F07 trace transport, and F08 allocation policy remain separate audit work."
