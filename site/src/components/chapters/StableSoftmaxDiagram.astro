@@ -270,14 +270,18 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
 
   @media (min-width: 64rem) and (min-height: 36rem) {
     .softmax-diagram:fullscreen {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      grid-template-columns: repeat(12, minmax(0, 1fr));
       align-content: start;
     }
 
+    figure.softmax-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+      row-gap: 0.1rem;
+    }
+
     .softmax-diagram:fullscreen > figcaption {
-      grid-column: 1;
+      grid-column: 1 / -1;
       grid-row: 1;
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      grid-template-columns: minmax(25rem, 0.62fr) minmax(0, 1.38fr);
       align-items: start;
       column-gap: 1rem;
     }
@@ -285,16 +289,23 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     .softmax-diagram:fullscreen > figcaption > :is(h3, p) { max-inline-size: none; }
 
     .softmax-diagram:fullscreen > .summary-grid {
-      grid-column: 2;
-      grid-row: 1;
+      grid-column: 1 / 10;
+      grid-row: 2;
       grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.7fr) minmax(0, 1.6fr);
+    }
+
+    .softmax-diagram:fullscreen > :global(.diagram-full-view-actions) {
+      grid-column: 10 / -1;
+      grid-row: 2;
+      align-self: start;
+      justify-self: end;
     }
 
     .softmax-diagram:fullscreen > section:first-of-type {
       grid-column: 1 / -1;
       grid-row: 3;
       display: grid;
-      grid-template-columns: minmax(13rem, 1fr) minmax(0, 4fr);
+      grid-template-columns: 18rem minmax(0, 1fr);
       align-items: start;
       column-gap: 1rem;
     }
@@ -330,12 +341,12 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     .softmax-diagram:fullscreen .shift-table { min-inline-size: 0; }
 
     .softmax-diagram:fullscreen > section:nth-of-type(2) {
-      grid-column: 1;
+      grid-column: 1 / 8;
       grid-row: 4;
     }
 
     .softmax-diagram:fullscreen > section:nth-of-type(3) {
-      grid-column: 2;
+      grid-column: 8 / -1;
       grid-row: 4;
     }
 

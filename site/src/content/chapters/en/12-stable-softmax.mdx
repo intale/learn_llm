@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 12,
   "concept_id": "stable-softmax",
   "title": "Turn extreme logits into stable probabilities",
@@ -81,8 +81,13 @@
     },
     {
       "path": "rust/crates/llm-from-scratch/src/nn/probability.rs",
+      "region": "checked-probability-groups",
+      "purpose": "Plan one checked row-major cursor over group-base storage offsets, retain the input class stride, and reuse those offsets across the maximum, exponential-tail, output, and indexed-target reads."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/probability.rs",
       "region": "stable-probability-operations",
-      "purpose": "Compute max-shifted log-sum-exp, probabilities, log-probabilities, and indexed mean NLL with an ordinary full-loss accumulator and a fallback whose contributions are divided by the target count before addition."
+      "purpose": "Compute max-shifted log-sum-exp, probabilities, log-probabilities, and indexed mean NLL from the checked group plan while preserving the ordinary full-loss accumulator and scaled overflow fallback."
     },
     {
       "path": "rust/demos/ch12-stable-softmax/src/lib.rs",
@@ -320,10 +325,44 @@ class-minor order.
   label="Rust source defining Chapter 12 stable probability and indexed negative-log-likelihood errors"
 />
 
-Each nonempty group first finds its maximum through `TensorView::get`. A second
-pass skips one maximum term, sums the remaining shifted exponentials as a tail,
-and uses `ln_1p(tail)`. That detail preserves a representable subnormal log-domain
-correction that ordinary $\ln(1+\mathrm{tail})$ could round away before the logarithm.
+Before reading a logit, `AxisPlan` removes the selected class axis from the input
+shape and input strides. The remaining shape and strides define a checked cursor.
+Each value emitted by that cursor is the zero-based offset of class zero in one
+normalization group, measured in `f64` elements from the start of the tensor
+owner's flat storage. This chapter calls that value the **group-base offset**.
+The stride on the removed axis becomes the **class stride**. Starting from one
+group base, adding the class stride once selects class $1$, adding it twice
+selects class $2$, and so on.
+
+For the contiguous worked tensor, shape `[3,2]` has source strides `[2,1]` and
+class axis `1`. Removing that axis leaves group shape `[3]` and group stride
+`[2]`, so the group-base cursor emits offsets `[0,2,4]`. The class stride is `1`.
+The three groups therefore read source offsets `[0,1]`, `[2,3]`, and `[4,5]`.
+Those offsets correspond to rows zero, one, and two in the same order as flat
+targets `[1,0,1]`.
+
+For each nonempty group, the maximum pass starts at its group base and visits
+classes in ascending order. The exponential-tail pass resets to the same base,
+visits the same class offsets in the same order, skips the first maximum term,
+sums the other shifted exponentials, and uses `ln_1p(tail)`. That last operation
+preserves a representable subnormal log-domain correction that ordinary
+$\ln(1+\mathrm{tail})$ could round away before the logarithm.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/probability.rs"
+  region="checked-probability-groups"
+  caption="Plan group-base offsets and reuse one class stride across every numerical pass"
+  label="Rust source implementing the checked Chapter 12 group-base cursor, class-stride traversal, and two-pass row statistics"
+/>
+
+A slice or transposed view supplies its own group strides, class stride, and base
+offset, so the same traversal reads its logical groups without copying them.
+Softmax and log-softmax create a separate checked group-base cursor for their
+contiguous output. The input and output cursors visit groups in the same row-major
+order; within a group, separate input and output class strides place every result
+at its logical row-major output position. No numerical pass constructs a class
+coordinate vector or calls `TensorView::get` once per scalar. Scalar reads and
+writes still use ordinary safe bounds-checked indexing.
 
 Softmax divides shifted exponentials by $1+\mathrm{tail}$. Log-softmax computes the
 shifted logit minus `ln_1p(tail)`. For $T$ targets, fused indexed mean NLL keeps
@@ -338,15 +377,15 @@ $(m-\ell_{t_r})/T$, where $t_r$ is the target class for row $r$, and the
 log-normalizer $\ln(1+\mathrm{tail})/T$. If $m-\ell_{t_r}$ itself overflows,
 the fallback computes $m/T-\ell_{t_r}/T$ instead. The function returns
 `scaled_mean` only when a complete row loss or the running value of `total`
-overflows; otherwise it divides `total` by $T$ and returns that quotient.
-Coordinate generation inserts each class index into the row-major group
-coordinate, so any logical axis works and output values return to normal
-row-major positions.
+overflows; otherwise it divides `total` by $T$ and returns that quotient. After
+all target bounds pass, the selected target logit is read at the group's base
+plus the target index times the input class stride. That keeps target validation
+ahead of every logit read and retains group-major error order.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/nn/probability.rs"
   region="stable-probability-operations"
-  caption="Normalize finite strided logits and score flat indexed targets without avoidable overflow"
+  caption="Normalize checked groups and score indexed targets without avoidable numerical overflow"
   label="Rust source implementing arbitrary-axis log-sum-exp, softmax, log-softmax, and fused indexed mean negative log-likelihood"
 />
 
@@ -424,7 +463,8 @@ rejected states separate without relying on color.
 5. Select the loss for target class `0` in row `[1000,1001]`.
 6. Predict log-sum-exp output shapes for input `[2,3,4]`, axis `1`, with and without `keep_dim`.
 7. Decide which empty-class operation has a defined identity.
-8. Misconception check: does maximum shifting itself turn logits into probabilities?
+8. For shape `[3,2]`, source strides `[2,1]`, and class axis `1`, list the three group-base offsets and the two source offsets read in each group.
+9. Misconception check: does maximum shifting itself turn logits into probabilities?
 
 <details>
   <summary>Check the predictions</summary>
@@ -436,7 +476,8 @@ rejected states separate without relying on color.
 5. Class zero has log-probability `-1.313261687518`, so its NLL is `1.313261687518`.
 6. Removing axis one gives `[2,4]`; retaining it gives `[2,1,4]`.
 7. Log-sum-exp returns the log-additive identity negative infinity. A softmax distribution, log-softmax distribution, and indexed target loss need at least one class.
-8. No. The shift only stabilizes relative logits. Exponentiation and division by the complete shifted sum produce probabilities.
+8. Removing class axis `1` leaves group stride `[2]`, so the group bases are `[0,2,4]`. Class stride `1` gives source offsets `[0,1]`, `[2,3]`, and `[4,5]`.
+9. No. The shift only stabilizes relative logits. Exponentiation and division by the complete shifted sum produce probabilities.
 
 </details>
 
@@ -451,6 +492,11 @@ Run the example after predicting:
 ## Prepare an independent gradient oracle
 
 The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently.
+
+Inside those operations, one checked cursor identifies each normalization group
+and one class stride selects the group's logits. That traversal changes only how
+already validated tensor metadata reaches the same formulas; it does not change
+the probabilities or the loss that Chapter 13 treats as its numerical oracle.
 
 Forward values alone cannot prove a future backward implementation. Chapter 13
 therefore builds a slow finite-difference oracle, varies one scalar input at a

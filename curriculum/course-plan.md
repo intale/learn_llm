@@ -1158,7 +1158,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `12-stable-softmax`
 - **Implementation step:** `implement-ch12-stable-softmax`
-- **Revision status:** Content revision 4 adds the complete Russian projection, correct exact-arithmetic shift scope, explicit log-domain equations, learner-facing evidence wording, and a shared-system diagram during `activate-ch12-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
+- **Revision status:** Content revision 6 explains checked group-base cursors, source and output class strides, target offsets, and preserved three-pass order, then refreshes Russian directly from frozen English during `iterate-probability-groups-by-offset`; revision 5 and its exact indexed-mean fallback explanation remain recorded by `clarify-ch12-indexed-nll-accumulators`.
 - **Depends on:** `11-matrix-multiplication`.
 - **Outcome:** Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.
 - **Scope boundary:** Teach logits, max shifting, log-sum-exp, softmax, log-softmax, indexed mean NLL, and edge behavior; defer gradient propagation.

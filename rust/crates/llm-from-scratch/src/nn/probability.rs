@@ -4,15 +4,15 @@ use std::error::Error;
 use std::fmt;
 
 use crate::tensor::storage::{Tensor, TensorError, checked_row_major_layout};
-use crate::tensor::view::{TensorView, TensorViewError};
+use crate::tensor::view::{StridedOffsets, TensorView, TensorViewError};
 
 // region:probability-errors
-/// A rejected probability operation, target, output, or strided read.
+/// A rejected probability operation, target, output, or converted view operation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ProbabilityError {
     /// An owned output layout violates the tensor storage invariant.
     Tensor(TensorError),
-    /// A checked logical read from an input view failed.
+    /// A tensor-view error was converted into the probability error type.
     View(TensorViewError),
     /// The requested class axis does not exist.
     AxisOutOfBounds { axis: usize, rank: usize },
@@ -107,12 +107,15 @@ impl From<TensorViewError> for ProbabilityError {
 }
 // endregion:probability-errors
 
+// region:checked-probability-groups
 #[derive(Debug)]
 struct AxisPlan {
     axis: usize,
     classes: usize,
     group_shape: Vec<usize>,
+    group_strides: Vec<usize>,
     groups: usize,
+    class_stride: usize,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -142,50 +145,46 @@ impl AxisPlan {
 
         let mut group_shape = input.shape().to_vec();
         group_shape.remove(axis);
+        let mut group_strides = input.strides().to_vec();
+        let class_stride = group_strides.remove(axis);
         let (_, groups) = checked_row_major_layout(&group_shape)?;
         Ok(Self {
             axis,
             classes,
             group_shape,
+            group_strides,
             groups,
+            class_stride,
         })
     }
 
-    fn input_coordinate(&self, group: usize, class: usize) -> Vec<usize> {
-        let mut remainder = group;
-        let mut group_coordinate = vec![0; self.group_shape.len()];
-        for group_axis in (0..self.group_shape.len()).rev() {
-            let dimension = self.group_shape[group_axis];
-            debug_assert!(dimension > 0, "empty group shapes are never enumerated");
-            group_coordinate[group_axis] = remainder % dimension;
-            remainder /= dimension;
-        }
-
-        let mut coordinate = Vec::with_capacity(self.group_shape.len() + 1);
-        let mut group_axis = 0;
-        for input_axis in 0..self.group_shape.len() + 1 {
-            if input_axis == self.axis {
-                coordinate.push(class);
-            } else {
-                coordinate.push(group_coordinate[group_axis]);
-                group_axis += 1;
-            }
-        }
-        coordinate
+    fn group_offsets(&self, input: &TensorView<'_>) -> StridedOffsets {
+        input
+            .projected_offsets(&self.group_shape, &self.group_strides, self.groups)
+            .expect("a checked probability plan retains valid group-base offsets")
     }
-}
 
-fn output_buffer(elements: usize) -> Result<Vec<f64>, ProbabilityError> {
-    let mut values = Vec::new();
-    values
-        .try_reserve_exact(elements)
-        .map_err(|_| ProbabilityError::OutputAllocationFailed { elements })?;
-    values.resize(elements, 0.0);
-    Ok(values)
-}
+    fn output_group_offsets(&self, output_strides: &[usize], output_len: usize) -> StridedOffsets {
+        let mut group_strides = output_strides.to_vec();
+        group_strides.remove(self.axis);
+        StridedOffsets::checked(
+            &self.group_shape,
+            &group_strides,
+            0,
+            self.groups,
+            output_len,
+        )
+        .expect("a checked probability output retains valid group-base offsets")
+    }
 
-fn positive_zero(value: f64) -> f64 {
-    if value == 0.0 { 0.0 } else { value }
+    fn target_offset(&self, group_base: usize, target: usize) -> usize {
+        let class_offset = target
+            .checked_mul(self.class_stride)
+            .expect("a checked probability plan cannot overflow a class offset");
+        group_base
+            .checked_add(class_offset)
+            .expect("a checked probability plan cannot overflow a target offset")
+    }
 }
 
 fn checked_finite_logit(value: f64, group: usize, class: usize) -> Result<f64, ProbabilityError> {
@@ -204,25 +203,37 @@ fn row_stats(
     input: &TensorView<'_>,
     plan: &AxisPlan,
     group: usize,
+    group_base: usize,
 ) -> Result<RowStats, ProbabilityError> {
     debug_assert!(plan.classes > 0);
     let mut maximum = f64::NEG_INFINITY;
+    let mut input_offset = group_base;
     for class in 0..plan.classes {
-        let coordinate = plan.input_coordinate(group, class);
-        let value = checked_finite_logit(*input.get(&coordinate)?, group, class)?;
+        let value =
+            checked_finite_logit(input.value_at_storage_offset(input_offset), group, class)?;
         maximum = maximum.max(value);
+        if class + 1 < plan.classes {
+            input_offset = input_offset
+                .checked_add(plan.class_stride)
+                .expect("a checked probability plan cannot overflow along the class axis");
+        }
     }
 
     let mut exponential_tail = 0.0;
     let mut skipped_one_maximum = false;
+    input_offset = group_base;
     for class in 0..plan.classes {
-        let coordinate = plan.input_coordinate(group, class);
-        let value = *input.get(&coordinate)?;
+        let value = input.value_at_storage_offset(input_offset);
         let shifted = value - maximum;
         if shifted == 0.0 && !skipped_one_maximum {
             skipped_one_maximum = true;
         } else {
             exponential_tail += shifted.exp();
+        }
+        if class + 1 < plan.classes {
+            input_offset = input_offset
+                .checked_add(plan.class_stride)
+                .expect("a checked probability plan cannot overflow along the class axis");
         }
     }
     debug_assert!(skipped_one_maximum);
@@ -233,13 +244,19 @@ fn row_stats(
         log_shifted_exponential_sum: exponential_tail.ln_1p(),
     })
 }
+// endregion:checked-probability-groups
 
-fn row_major_offset(coordinate: &[usize], strides: &[usize]) -> usize {
-    coordinate
-        .iter()
-        .zip(strides)
-        .map(|(&index, &stride)| index * stride)
-        .sum()
+fn output_buffer(elements: usize) -> Result<Vec<f64>, ProbabilityError> {
+    let mut values = Vec::new();
+    values
+        .try_reserve_exact(elements)
+        .map_err(|_| ProbabilityError::OutputAllocationFailed { elements })?;
+    values.resize(elements, 0.0);
+    Ok(values)
+}
+
+fn positive_zero(value: f64) -> f64 {
+    if value == 0.0 { 0.0 } else { value }
 }
 
 // region:stable-probability-operations
@@ -268,8 +285,10 @@ pub fn log_sum_exp(
     if plan.classes == 0 {
         values.fill(f64::NEG_INFINITY);
     } else {
-        for (group, output) in values.iter_mut().enumerate() {
-            let stats = row_stats(input, &plan, group)?;
+        for ((group, output), group_base) in
+            values.iter_mut().enumerate().zip(plan.group_offsets(input))
+        {
+            let stats = row_stats(input, &plan, group, group_base)?;
             *output = stats.maximum + stats.log_shifted_exponential_sum;
         }
     }
@@ -295,19 +314,34 @@ fn normalized(
     let plan = AxisPlan::new(input, axis, false)?;
     let (output_strides, output_len) = checked_row_major_layout(input.shape())?;
     let mut values = output_buffer(output_len)?;
+    let output_class_stride = output_strides[axis];
 
-    for group in 0..plan.groups {
-        let stats = row_stats(input, &plan, group)?;
+    let input_group_offsets = plan.group_offsets(input);
+    let output_group_offsets = plan.output_group_offsets(&output_strides, output_len);
+    for (group, (input_group_base, output_group_base)) in
+        input_group_offsets.zip(output_group_offsets).enumerate()
+    {
+        let stats = row_stats(input, &plan, group, input_group_base)?;
         let log_denominator = stats.log_shifted_exponential_sum;
+        let mut input_offset = input_group_base;
+        let mut output_offset = output_group_base;
         for class in 0..plan.classes {
-            let coordinate = plan.input_coordinate(group, class);
-            let shifted = *input.get(&coordinate)? - stats.maximum;
+            let shifted = input.value_at_storage_offset(input_offset) - stats.maximum;
             let value = if logarithmic {
                 shifted - log_denominator
             } else {
                 shifted.exp() / stats.shifted_exponential_sum
             };
-            values[row_major_offset(&coordinate, &output_strides)] = positive_zero(value);
+            values[output_offset] = positive_zero(value);
+
+            if class + 1 < plan.classes {
+                input_offset = input_offset
+                    .checked_add(plan.class_stride)
+                    .expect("a checked probability plan cannot overflow along the class axis");
+                output_offset = output_offset
+                    .checked_add(output_class_stride)
+                    .expect("a checked probability output cannot overflow along the class axis");
+            }
         }
     }
 
@@ -347,10 +381,10 @@ pub fn indexed_mean_nll(
     let mut scaled_mean = 0.0;
     let mut needs_scaled_fallback = false;
     let target_count = targets.len() as f64;
-    for (group, &target) in targets.iter().enumerate() {
-        let stats = row_stats(logits, &plan, group)?;
-        let target_coordinate = plan.input_coordinate(group, target);
-        let target_logit = *logits.get(&target_coordinate)?;
+    for ((group, &target), group_base) in targets.iter().enumerate().zip(plan.group_offsets(logits))
+    {
+        let stats = row_stats(logits, &plan, group, group_base)?;
+        let target_logit = logits.value_at_storage_offset(plan.target_offset(group_base, target));
         let gap = stats.maximum - target_logit;
         let scaled_gap = if gap.is_finite() {
             gap / target_count
@@ -556,6 +590,60 @@ mod tests {
         assert_close(probabilities.as_slice()[3], 0.880_797_077_977_882_3);
         assert_eq!(probabilities.as_slice()[4].to_bits(), 1.0_f64.to_bits());
         assert_eq!(probabilities.as_slice()[6].to_bits(), 0.0_f64.to_bits());
+    }
+
+    #[test]
+    fn nonzero_gapped_group_bases_reuse_one_class_stride() {
+        let padded = tensor(
+            &[2, 3, 3],
+            &[
+                99.0, 0.0, 10.0, 99.0, 1.0, 11.0, 99.0, 2.0, 12.0, 99.0, 1000.0, -1001.0, 99.0,
+                1001.0, -1000.0, 99.0, 1002.0, -999.0,
+            ],
+        );
+        let logits = padded.view().slice(2, 1..3).unwrap();
+        assert_eq!(logits.shape(), [2, 3, 2]);
+        assert_eq!(logits.strides(), [9, 3, 1]);
+        assert_eq!(logits.base_offset(), 1);
+        assert!(!logits.is_contiguous());
+
+        let plan = AxisPlan::new(&logits, 1, false).unwrap();
+        assert_eq!(plan.group_shape, [2, 2]);
+        assert_eq!(plan.group_strides, [9, 1]);
+        assert_eq!(plan.class_stride, 3);
+        assert_eq!(
+            plan.group_offsets(&logits).collect::<Vec<_>>(),
+            [1, 2, 10, 11]
+        );
+
+        let (output_strides, output_len) = checked_row_major_layout(logits.shape()).unwrap();
+        assert_eq!(output_strides, [6, 2, 1]);
+        assert_eq!(
+            plan.output_group_offsets(&output_strides, output_len)
+                .collect::<Vec<_>>(),
+            [0, 1, 6, 7]
+        );
+
+        let probabilities = softmax(&logits, 1).unwrap();
+        let denominator = (-2.0_f64).exp() + (-1.0_f64).exp() + 1.0;
+        let expected = [
+            (-2.0_f64).exp() / denominator,
+            (-1.0_f64).exp() / denominator,
+            1.0 / denominator,
+        ];
+        for batch in 0..2 {
+            for class in 0..3 {
+                for column in 0..2 {
+                    let output_offset = batch * 6 + class * 2 + column;
+                    assert_close(probabilities.as_slice()[output_offset], expected[class]);
+                }
+            }
+        }
+
+        let loss = indexed_mean_nll(&logits, 1, &[2, 1, 0, 2]).unwrap();
+        let expected_loss =
+            (-expected[2].ln() - expected[1].ln() - expected[0].ln() - expected[2].ln()) / 4.0;
+        assert_close(loss, expected_loss);
     }
 
     #[test]

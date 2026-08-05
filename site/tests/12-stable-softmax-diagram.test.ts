@@ -27,6 +27,10 @@ const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/StableSoftmaxDiagram.astro'),
   'utf8',
 );
+const probabilitySource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/nn/probability.rs'),
+  'utf8',
+);
 const contract = readFileSync(
   resolve(repositoryRoot, 'curriculum/chapters/12-stable-softmax.md'),
   'utf8',
@@ -39,6 +43,13 @@ const russianLesson = readFileSync(
   resolve(repositoryRoot, 'site/src/content/chapters/ru/12-stable-softmax.mdx'),
   'utf8',
 );
+
+function readRustRegion(source: string, region: string): string {
+  const start = source.indexOf(`// region:${region}`);
+  const end = source.indexOf(`// endregion:${region}`);
+  if (start === -1 || end <= start) throw new Error(`Missing ordered Rust region ${region}`);
+  return source.slice(start, end);
+}
 
 const labels: StableSoftmaxDiagramLabels = {
   title: 'title',
@@ -88,7 +99,7 @@ const labels: StableSoftmaxDiagramLabels = {
 describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
   it('names both accumulators, their scaling, and the fallback condition', () => {
     for (const source of [contract, englishLesson, russianLesson]) {
-      expect(source).toContain('"content_revision": 5');
+      expect(source).toContain('"content_revision": 6');
       expect(source).toContain('`total`');
       expect(source).toContain('`scaled_mean`');
       expect(source).toContain('$(m-\\ell_{t_r})/T$');
@@ -106,6 +117,32 @@ describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
     expect(englishLesson).not.toContain('target-count-scaled nonnegative contributions');
     expect(englishLesson).not.toContain('`total / T`');
     expect(russianLesson).not.toContain('`total / T`');
+  });
+});
+
+describe('Chapter 12 checked group traversal', () => {
+  it('reuses checked group bases and class strides without per-class coordinates', () => {
+    const groupPlan = readRustRegion(probabilitySource, 'checked-probability-groups');
+    const operations = readRustRegion(probabilitySource, 'stable-probability-operations');
+
+    expect(groupPlan).toContain('let mut group_strides = input.strides().to_vec()');
+    expect(groupPlan).toContain('let class_stride = group_strides.remove(axis)');
+    expect(groupPlan).toContain('.projected_offsets(&self.group_shape, &self.group_strides, self.groups)');
+    expect(groupPlan).toContain('input.value_at_storage_offset(input_offset)');
+    expect(groupPlan).toContain('for class in 0..plan.classes');
+    expect(groupPlan).toContain('skipped_one_maximum');
+    expect(groupPlan).toContain('exponential_tail.ln_1p()');
+    expect(groupPlan).not.toContain('input_coordinate');
+    expect(groupPlan).not.toContain('TensorView::get');
+    expect(groupPlan).not.toMatch(/\.(?:get|storage_offset)\(/);
+
+    expect(operations).toContain('plan.group_offsets(input)');
+    expect(operations).toContain('plan.output_group_offsets(&output_strides, output_len)');
+    expect(operations).toContain('values[output_offset] = positive_zero(value)');
+    expect(operations).toContain('plan.target_offset(group_base, target)');
+    expect(operations).not.toContain('input_coordinate');
+    expect(operations).not.toContain('TensorView::get');
+    expect(operations).not.toMatch(/\.(?:get|storage_offset)\(/);
   });
 });
 

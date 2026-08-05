@@ -14648,3 +14648,206 @@ Learner stdout and the diagram trace remain byte-identical.
 `remediate-rust-tensor-iteration-20260805`,
 `iterate-matmul-by-prevalidated-strides`, and
 `20260805T160614Z-iterate-matmul-by-prevalidated-strides-01`.
+
+## 2026-08-05 - Run the Chapter 12 probability traversal migration in Docker
+
+**Status:** Accepted before product edits for
+`iterate-probability-groups-by-offset`.
+
+**Context:** F03 identifies a fresh group-coordinate vector and full input
+coordinate for every class read in Chapter 12. Row statistics repeat that work
+across the maximum and exponential-tail passes, and normalization performs a
+third pass. Chapters 9 through 11 now establish a safe checked-offset boundary,
+but Chapter 12's exact non-finite error order, maximum/tail traversal, first
+skipped maximum, target precedence, fallback mean arithmetic, subnormal rounding,
+and contiguous output layout must remain unchanged. The bilingual content and
+two-engine rendered gate make the checkpoint cost class large.
+
+**Decision:** Proceed without a cost approval pause using Docker-only Rust,
+Node.js, npm, and browser execution. Use cached pinned images and the existing
+lockfile-pinned registry-refresh policy if a canonical Docker layer misses its
+cache. Add no dependency, paid service, model generation, or external data, and
+keep host Rust, Node.js, npm, Python, browser, and test artifacts absent.
+
+**Consequences:** The step may change only its declared Chapter 12 Rust,
+contract, active lessons, focused tests, necessary course-plan line, and
+ledger/decision records. It must freeze and review English revision 6 before a
+direct Russian refresh through the localization skill, preserve learner stdout
+and the diagram trace byte for byte, retain Chapter 13 controls, and pass the
+complete Docker plus Chromium/Firefox gates before its independent commit.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-probability-groups-by-offset`, and
+`20260805T164137Z-iterate-probability-groups-by-offset-01`.
+
+## 2026-08-05 - Keep the Chapter 12 course-plan revision synchronized
+
+**Status:** Accepted during pre-edit review of
+`iterate-probability-groups-by-offset`.
+
+**Context:** The scheduled checkpoint advances the Chapter 12 contract and both
+active lessons from content revision 5 to 6. The authoritative Chapter 12 entry
+in `curriculum/course-plan.md` still describes revision 4 and the file was
+omitted from the initial output list. Leaving that line unchanged would make the
+plan disagree with the checked contract and published English/Russian pair.
+
+**Decision:** Add `curriculum/course-plan.md` to this running step's outputs
+before any product edit. Change only Chapter 12's revision-status line to record
+the checked group-base cursor and class-stride explanation in revision 6 while
+preserving the chapter outcome, numerical scope, formula, historical evidence,
+visualization, practice, integration evidence, and Chapter 13 handoff.
+
+**Consequences:** The declared scope grows by one necessary integration line
+without adding a learning concept, formula, source, diagram, runtime dependency,
+or evidence fixture. The plan, contract, and active lessons will identify one
+current revision after publication.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-probability-groups-by-offset`, and
+`20260805T164137Z-iterate-probability-groups-by-offset-01`.
+
+## 2026-08-05 - Traverse Chapter 12 from checked group bases and class strides
+
+**Status:** Accepted during implementation of
+`iterate-probability-groups-by-offset`.
+
+**Context:** Chapter 12 had already fixed its arbitrary-axis API, maximum shift,
+maximum and exponential-tail order, first skipped maximum, finite-input and
+target error precedence, fallback mean arithmetic, subnormal handling, positive
+zero, and owned contiguous outputs. Its numerical passes nevertheless rebuilt a
+group coordinate and a full input coordinate for every class read, then entered
+the public checked `TensorView::get` path repeatedly. That traversal is plumbing,
+not the stable-probability concept taught by the chapter.
+
+**Decision:** `AxisPlan` removes the selected class axis once and retains the
+remaining group shape and source strides, the checked group count, and the
+removed input class stride. One crate-private checked projected cursor emits the
+source-storage offset of class zero for each group in logical row-major order.
+The maximum pass, exponential-tail pass, normalization pass, and indexed-target
+read reset to that group base and advance with checked additions of the class
+stride; scalar reads and writes use ordinary safe bounds-checked indexing. A
+separate checked cursor and output class stride place normalized values into the
+new contiguous tensor. All target bounds still pass before any target logit is
+read. Keep `ProbabilityError::View` and its conversion for public compatibility,
+and add no dependency or `unsafe` code.
+
+**Consequences:** Probability operations allocate no coordinate vector and do
+not repeat public coordinate validation per scalar. A nonzero-base gapped
+`[2,3,2]` slice locks source group bases `[1,2,10,11]`, input class stride `3`,
+contiguous output bases `[0,1,6,7]`, and output class stride `2`; the complete
+existing numerical and error suite remains exact. Chapter 12 revision 6 teaches
+the boundary with group shape `[3]`, group stride `[2]`, group-base offsets
+`[0,2,4]`, class stride `1`, and source reads `[0,1]`, `[2,3]`, and `[4,5]`.
+English is frozen at sha256
+`7749d1ea5db65f7b443b3b7c39f8bc500498fccbc3cf7a27e1c4eb20524d29eb`;
+Russian was translated directly with the localization skill, corrected after an
+independent wording audit, and frozen at sha256
+`b0809dd4826b64698c973401ec7e2e4f52cc7fb7d5e52a07b33a2b15a16799b2`.
+The final integrated contract is sha256
+`25a9fab9b1229c5efc667f140ec36aa351c2e2e94bb93956446fe1e7f17caad5`.
+Learner stdout and the diagram trace remain byte-identical.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-probability-groups-by-offset`, and
+`20260805T164137Z-iterate-probability-groups-by-offset-01`.
+
+## 2026-08-05 - Reflow Chapter 12 full view for localized explanatory copy
+
+**Status:** Accepted during browser validation of
+`iterate-probability-groups-by-offset`.
+
+**Context:** The final self-contained Chromium and Firefox matrices showed that
+the English Chapter 12 full view stayed within its established vertical-travel
+budget, while the directly translated and independently reviewed Russian figure
+exceeded that budget. Measured geometry identified the concept-owned cause: the
+full-view shift section allotted only 234 px to its heading, explanation, and
+invariance evidence, making the Russian explanation 240 px tall even though the
+adjacent table remained contained. `StableSoftmaxDiagram.astro` was not in the
+initial output list, so its necessary locale-safe geometry must be claimed before
+the component changes.
+
+**Decision:** Add `site/src/components/chapters/StableSoftmaxDiagram.astro` to
+this running step's outputs. In the component's existing desktop-fullscreen
+layout only, widen the explanatory column to a useful minimum and give the
+remaining width to the trace table. Preserve the semantic figure and evidence,
+all text and font sizes, the single named inline scroller, the two-column error
+grid with cards wider than 200 px, and the unchanged inline, narrow, no-JavaScript,
+and non-Fullscreen-API fallbacks. Do not shorten or otherwise mutate either
+reviewed lesson to solve a presentation constraint.
+
+**Consequences:** Localized prose can wrap naturally without forcing substantial
+full-view travel, while table cells, target cards, rejection cards, and every
+marked bounded box remain readable and contained. The final browser image must
+repeat both locale matrices in Chromium and Firefox and retain the Chapter 13
+control before this expanded scope can complete.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-probability-groups-by-offset`, and
+`20260805T164137Z-iterate-probability-groups-by-offset-01`.
+
+## 2026-08-05 - Use Chapter 12 full-view width before adding vertical travel
+
+**Status:** Accepted after the first Chapter 12 reflow replay in Firefox.
+
+**Context:** Widening the shift explanation fixed Chromium, but the complete
+parallel Firefox matrix exposes a shorter 766 px fullscreen canvas than the
+focused Chromium canvas. Exact measured rows show that all remaining Russian
+travel is useful content wrapping: 30 px in the caption, 19 px in the trace
+section, and 24 px in the target/error row. Every box is contained, but simply
+raising the travel budget would leave the localized diagram harder to compare.
+
+**Decision:** Reorganize the existing desktop-fullscreen grid into twelve
+concept-owned columns. Give the caption the full first row; place the three-item
+summary and shared full-view action beside one another in the second row; keep
+the trace section full width with a fixed useful explanation width and the rest
+for its table; and give target evidence seven columns and rejection evidence five.
+The rejection half must retain two card columns and a measured minimum card width
+above 200 px. Keep all semantic nodes, reading order, labels, font sizes, shared
+spacing, inline scroller, and non-fullscreen fallbacks unchanged.
+
+**Consequences:** The same information uses otherwise idle horizontal space in
+full view instead of adding locale-dependent rows. The 1280-by-900 Chromium and
+Firefox matrices remain authoritative: both locale figures must fit within the
+20-percent block-travel budget with no inline debt, card overflow, clipping, or
+Chapter 13 regression.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-probability-groups-by-offset`, and
+`20260805T164137Z-iterate-probability-groups-by-offset-01`.
+
+## 2026-08-05 - Compact only Chapter 12's desktop-fullscreen row geometry
+
+**Status:** Accepted after measured Firefox layout probes for
+`iterate-probability-groups-by-offset`.
+
+**Context:** The twelve-column reflow left the Russian figure 29 px above the
+existing travel budget on Firefox's 766 px fullscreen canvas. A run-local style
+probe showed that no content edit, font reduction, clipping, card narrowing, or
+budget relaxation is necessary. Allocating at least 25 rem to the caption title
+keeps both locale titles on two lines while giving the description enough width
+for two lines. The same probe showed that the four fullscreen grid rows remain
+visually distinct through their own bordered surfaces when their row gap uses
+the compact 0.1 rem precedent already used by other concept-owned diagrams.
+
+**Decision:** In `StableSoftmaxDiagram.astro` only, retain the twelve-column
+desktop-fullscreen layout, use caption columns `minmax(25rem, 0.62fr)` and
+`minmax(0, 1.38fr)`, and set its fullscreen row gap to 0.1 rem. Keep the shared
+module's typography, panel and card spacing, borders, surfaces, focus, scroll,
+and fullscreen chrome unchanged. Remove all run-local geometry logging and style
+injection before canonical validation.
+
+**Consequences:** In the exact parallel Firefox probe, English uses 112 px and
+Russian 146 px of block travel against a 154 px budget. Both have zero inline
+debt and zero bounded-box debt; the trace table, target cards, and two-column
+rejection cards retain their prior dimensions. Canonical Chromium and Firefox
+must reproduce those qualitative invariants before publication.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-probability-groups-by-offset`, and
+`20260805T164137Z-iterate-probability-groups-by-offset-01`.
