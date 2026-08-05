@@ -24,7 +24,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '09-tensor-views';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`\prod_k n_k=\prod_j n'_j, \qquad n'_k=n_{\pi(k)}, \quad s'_k=s_{\pi(k)}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -75,6 +75,7 @@ const copy = {
     countReason: 'The requested shape has a different element count.',
     contiguityReason: 'The transpose is not row-major contiguous; materialize before reshaping.',
     boundsReason: 'The half-open slice end exceeds the selected axis size.',
+    traversalBoundary: 'Public coordinate lookup and internal traversal serve different inputs.',
     exerciseSummary: 'Check the seven shape, stride, order, and ownership predictions',
   },
   ru: {
@@ -119,6 +120,8 @@ const copy = {
     contiguityReason:
       'Транспонированное представление не непрерывно при построчном обходе. Перед изменением формы нужна материализация.',
     boundsReason: 'Конец полуоткрытого среза выходит за размер выбранной оси.',
+    traversalBoundary:
+      'Общедоступные методы и внутренний обход получают данные с разными гарантиями корректности.',
     exerciseSummary: 'Проверить семь ответов о форме, шагах, порядке и владении',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
@@ -135,6 +138,7 @@ const expectedRustRegions = [
   ['rust/demos/ch09-tensor-views/src/lib.rs', 'eager-copying-transpose'],
   ['rust/crates/llm-from-scratch/src/tensor/view.rs', 'borrowed-tensor-view'],
   ['rust/crates/llm-from-scratch/src/tensor/view.rs', 'view-axis-transforms'],
+  ['rust/crates/llm-from-scratch/src/tensor/view.rs', 'validated-strided-offset-iteration'],
   ['rust/crates/llm-from-scratch/src/tensor/view.rs', 'view-slice-materialize'],
   ['rust/demos/ch09-tensor-views/src/main.rs', 'learner-view-output'],
 ] as const;
@@ -207,11 +211,11 @@ async function expectChapterContent(
   await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
-  await expect(rustSources).toHaveCount(5);
+  await expect(rustSources).toHaveCount(6);
   const highlighted = rustSources.locator(
     'pre.rust-source-code.astro-code.github-dark-high-contrast[data-language="rust"]',
   );
-  await expect(highlighted).toHaveCount(5);
+  await expect(highlighted).toHaveCount(6);
   expect(
     await highlighted.locator('code').evaluateAll((blocks) => blocks.map((block) => block.textContent)),
   ).toEqual(expectedRustSources);
@@ -237,6 +241,13 @@ async function expectChapterContent(
     expect(evidence.direction).toBe('ltr');
     expect(evidence.colors).toBeGreaterThan(1);
   }
+
+  const implementationNodes = page
+    .getByRole('heading', { level: 2, name: localized.headings[4], exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.headings[4]}"]]`,
+    );
+  expect(await readMathAwareText(implementationNodes)).toContain(localized.traversalBoundary);
 
   await expectVisualizationDecision(page, { decision: 'useful', id: 'tensor-views' });
   const diagram = page.locator('figure[data-visualization-id="tensor-views"]');

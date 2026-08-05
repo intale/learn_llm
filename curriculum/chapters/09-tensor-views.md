@@ -2,7 +2,7 @@
 {
   "chapter_id": "09-tensor-views",
   "concept_id": "tensor-views",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 9,
   "objective": {
     "en": "Transform tensor layouts with reshape, transpose, permutation, and slicing while preserving logical values and making every materialized copy explicit.",
@@ -138,8 +138,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative tensor core can now expose safe borrowed interpretations of owned values, carry explicit axes through transforms, and make every required copy visible. Chapter 10 will use those axes to define broadcasting alignment and reduction dimensions.",
-      "ru": "Теперь тензорное ядро может безопасно создавать заимствованные представления принадлежащих тензору значений, сохранять явный смысл осей при преобразованиях и показывать каждое необходимое копирование. В главе 10 эти оси будут использованы для правил выравнивания при расширении и для указания измерений, по которым выполняются редукции."
+    "en": "The cumulative tensor core can now expose safe borrowed interpretations of owned values, carry explicit axes through transforms, traverse already validated layouts without rebuilding a coordinate for every scalar, and make every required copy visible. Chapter 10 will use those axes to define broadcasting alignment and reduction dimensions.",
+    "ru": "Теперь тензорное ядро умеет безопасно создавать заимствованные представления TensorView для значений, которыми владеет Tensor, сохранять явно заданные оси при преобразованиях, обходить уже проверенную схему расположения без построения новой координаты для каждого скаляра и явно показывать каждое необходимое копирование. В главе 10 эти оси будут использоваться при выравнивании форм для расширения и при указании осей редукции."
   },
   "terminology": [
     {
@@ -209,7 +209,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 9 has the exact active locale set {en,ru}. English is the frozen semantic source; the Russian lesson and every localized contract field are translated directly from content revision 5.",
+    "Chapter 9 has the exact active locale set {en,ru}. English is the frozen semantic source; the Russian lesson and every localized contract field are translated directly from content revision 6.",
     "Keep Tensor, TensorView, Q, K, V, QK^T, GPT-2, Range, Rust identifiers, mathematical symbols, arrays, numeric values, source URLs, and trace keywords exact. Translate ordinary terms such as batch, sequence, head, feature, shape, stride, axis, permutation, base offset, and row-major into natural Russian.",
     "Use view only for the borrowed metadata interpretation, not as a vague synonym for a rendered picture. Distinguish shared storage from equal copied values and row-major contiguous from merely occupying addresses in one allocation.",
     "The Russian page requires a separate rendered review in Chromium and Firefox at desktop and narrow widths, including every diagram box, both local scroll regions, and full view; English geometry is not evidence that Russian text fits."
@@ -218,6 +218,10 @@
     {
       "input": "borrow Tensor::from_vec([2,3], [10,11,12,20,21,22]) with view()",
       "expected": "The view has shape [2,3], strides [3,1], base offset 0, length 6, and get([1,2]) points to the same 22.0 value as the owner."
+    },
+    {
+      "input": "traverse the validated base, transposed, sliced, scalar, empty, singleton-axis, and rank-N view layouts with the crate-private logical-offset cursor",
+      "expected": "One O(rank) axis-state allocation yields the same logical row-major offsets as public checked coordinate lookup, including [0,3,1,4,2,5] for the transpose, [1,2,4,5] for the nonzero-base slice, one base offset for a scalar, no offsets or reads for an empty view, and repeated offsets when a later validated plan supplies a zero effective stride. Iterator::next allocates no coordinate vector, uses no unsafe code, and public storage_offset/get errors remain unchanged."
     },
     {
       "input": "reshape the base view to [3,2], then request [4,2]",
@@ -270,9 +274,9 @@ The view supports five observable operations. `reshape` recomputes row-major
 strides only when the element count is unchanged and the current logical order is
 row-major contiguous. `transpose` swaps two axes. `permute` maps every output
 axis to one unique source axis. A half-open, unit-step `slice` changes one extent
-and the base offset while retaining strides. `materialize` walks logical
-row-major coordinates and explicitly copies their exact `f64` bit patterns into
-a new contiguous `Tensor`.
+and the base offset while retaining strides. `materialize` traverses source
+offsets in logical row-major order with one private cursor and explicitly copies
+their exact `f64` bit patterns into a new contiguous `Tensor`.
 
 The chapter deliberately excludes mutable views, negative or stepped strides,
 arithmetic, broadcasting, reductions, matrix multiplication, dtype or device
@@ -390,6 +394,28 @@ metadata accessors expose rank, shape, strides, base offset, length, emptiness,
 and row-major contiguity. `storage_offset` and `get` reuse Chapter 8's checked
 rank, axis-order, multiplication, and addition rules.
 
+Public coordinate lookup and internal traversal serve different inputs.
+`storage_offset` and `get` accept one coordinate supplied by their caller, so
+each call checks the coordinate rank and every axis bound before computing its
+storage offset. `materialize` instead visits every logical position of a
+`TensorView` that a safe constructor or checked transform has already produced.
+Its crate-private cursor checks the internal shape, strides, and logical length
+once. For a nonempty traversal it also proves that the greatest reachable
+offset lies inside the backing storage. An empty traversal has no reachable
+offset, so it performs no storage-range check and yields nothing. The cursor
+then owns one state record per axis. External callers cannot use it to bypass
+the public checks.
+
+The cursor starts at the view's base offset and advances the last logical axis
+first. When an axis reaches its extent, the cursor rewinds that axis and carries
+to the preceding axis. It therefore yields `[1,2,4,5]` for the frozen slice, one
+base offset for a scalar, and no offsets for an empty view. A zero effective
+stride deliberately repeats offsets for later broadcasting; a singleton axis
+never advances, even if its stored stride is large. The cursor uses safe Rust,
+keeps no tensor borrow, and allocates its axis state once rather than allocating
+and validating a new coordinate vector for every copied value. Source reads
+still use Rust's ordinary slice bounds check.
+
 `reshape` first derives the requested checked row-major layout, then checks the
 element count, then checks source contiguity. `permute` checks length before it
 scans entries left to right; each entry is range-checked before duplicate
@@ -414,9 +440,11 @@ this implementation's copy behavior.
 Scalars retain shape and strides `[]`, one logical value, and coordinate `[]`.
 Any zero extent makes a view empty; empty views are contiguous by convention and
 may be reshaped to another checked zero-element shape. Singleton axes do not
-break contiguity because they never advance. Materialization enumerates logical
-row-major coordinates and copies values without normalizing NaNs, signed zero,
-or any other `f64` bit pattern.
+break contiguity because they never advance. An empty transformed view may carry
+a base offset that would be unusable for a nonempty read; the cursor yields no
+offset and never indexes storage in that case. Materialization still allocates a
+new output buffer, visits every logical value, and copies values without
+normalizing NaNs, signed zero, or any other `f64` bit pattern.
 
 The `ch09-tensor-views` demo contains the eager-versus-borrowed K-transpose
 implementation contrast, the remaining view behavior, exact learner stdout, and
@@ -472,7 +500,9 @@ Ask the student to answer before running the demo:
    `slice(1, 1..3)` on the frozen owner.
 5. Decide whether that slice can reshape directly to `[4]`, and state the exact
    correction when it cannot.
-6. Predict the storage and strides after materializing the slice.
+6. Predict the storage and strides after materializing the slice. Explain why
+   this operation can reuse one private offset cursor while public `get` must
+   validate each coordinate supplied by its caller.
 7. Explain why Rust rejects owner mutation while a borrowed view is later used.
 
 Checked answers must distinguish logical value order from physical storage
@@ -486,7 +516,10 @@ or equal shapes do not prove shared storage or equal logical order.
 The cumulative tensor core now has a checked owned `Tensor` and an immutable
 borrowed `TensorView`. Later matrix multiplication, attention, and training code
 can carry axis meaning without silently duplicating values, then materialize only
-when a contiguous owned result is required.
+when a contiguous owned result is required. Once an operation has validated its
+complete layout, the same private offset cursor can traverse that layout without
+rebuilding a coordinate vector for every scalar. Public coordinate lookup stays
+checked because its caller can supply a new invalid coordinate on every call.
 
 Chapter 10 will align these explicit axes for broadcasting and will name the
 axes collapsed by reductions. It must not infer alignment from storage offsets
@@ -495,7 +528,7 @@ alone.
 <!-- contract-section:localization -->
 ## Localization notes
 
-Chapter 9's checked active locale set is English and Russian. English revision 5
+Chapter 9's checked active locale set is English and Russian. English revision 6
 is the canonical semantic source; the complete Russian contract fields, lesson,
 metadata, diagram text, exercises, answers, and accessibility labels are translated
 directly from that frozen English revision.
@@ -512,9 +545,10 @@ including both local table scrollers and the full-view arrangement.
 ## Acceptance examples
 
 Validation must prove all metadata, pointer-identity, exact-bit, scalar, empty,
-singleton-axis, overflow, error-precedence, and explicit-copy commitments in the
-frontmatter. The learner output and unique trace example must match their fixtures
-byte for byte. The contract, English/Russian active-locale projection, content, Astro,
+singleton-axis, rank-N, zero-effective-stride, cursor-exhaustion, internal-plan,
+overflow, error-precedence, no-per-scalar-allocation, and explicit-copy
+commitments in the frontmatter. The learner output and unique trace example must
+match their fixtures byte for byte. The contract, English/Russian active-locale projection, content, Astro,
 unit, production-build, static-link and SEO, focused browser, and full browser
 gates must pass in staging and again after atomic publication.
 

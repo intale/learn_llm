@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T13:29:08Z"
+updated_at: "2026-08-05T14:20:37Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -32232,7 +32232,7 @@ builds:
       unit: agent-session
       limit: null
       spent: 0
-      notes: "Five ordered chapter-owned corrections. Validation uses cached Docker and browser CPU only; no paid service, model generation, dependency change, or required network input is planned."
+      notes: "Five ordered chapter-owned corrections. Validation uses Docker and browser CPU only; no paid service, model generation, or dependency change is planned. A changed canonical dependency-layer key may use only the lockfile registry-refresh policy recorded on 2026-08-04."
     completion_criteria:
       - "TensorView owns one crate-private safe logical-offset traversal primitive with O(rank) cursor storage and no allocation or fully checked coordinate lookup per scalar."
       - "Elementwise maps, broadcasting, reductions, matrix multiplication, probability groups, and structural VJPs traverse already validated layouts by offsets while their course-owned algorithms remain explicit."
@@ -32242,7 +32242,7 @@ builds:
       - id: add-validated-strided-offset-iteration
         objective: "Give TensorView one crate-private safe logical row-major storage-offset cursor and use it to materialize validated views without allocating coordinates per element."
         depends_on: [repair-ch22-effective-gradient-formula-expectation]
-        status: pending
+        status: completed
         inputs:
           - "Commit produced by repair-ch22-effective-gradient-formula-expectation"
           - "audits/2026-08-04-rust-overengineering.md finding F03"
@@ -32269,8 +32269,65 @@ builds:
           - "./course check"
           - "Focused site/tests/e2e/ch09-tensor-views.spec.ts in Chromium and Firefox"
           - "./course audit-host"
-        cost: {class: large, notes: "Shared safe traversal primitive, Chapter 9 bilingual revision, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
-        runs: []
+        cost: {class: large, notes: "Shared safe traversal primitive, Chapter 9 bilingual revision, complete Docker gate, and two-browser rendered validation; local CPU plus only a lockfile-pinned registry refresh if a canonical Docker dependency layer misses cache."}
+        runs:
+          - run_id: 20260805T133023Z-add-validated-strided-offset-iteration-01
+            started_at: 2026-08-05T13:30:23Z
+            finished_at: 2026-08-05T14:20:37Z
+            status: succeeded
+            input_fingerprint:
+              git: "227ef8864cd45fd9d65a852eba97bfab8f1746e3; tree 556b92de0287b1ae883d6834e44f48d8c4ab4869"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                tensor-storage: "sha256:db6b56b7cf28c3ff25d7d84bc102308686b220e904d728ee6cd2e0d5635ae679"
+                tensor-view: "sha256:7995062eb86d2ebeb9bb5043f7d13b639055b7b1dea5c00667c42764b77c42ab"
+                chapter-contract: "sha256:7a014c166c978cea8e01ffc883f1f449a341fedab326f4308dfd1211dda7df5b"
+                english-lesson: "sha256:54ce2760228cd8b67d13ac8522dfc41dcdd131f8ed878de11e3dbb9bcabafd73"
+                russian-lesson: "sha256:05ae2cda0bb3fa7bb2f3be7c4386e191b895912119c8545bb04b86411b334c1a"
+                static-chapter-test: "sha256:6b928980400a0006aec6e884726b1fc47847b8513354ea426baeb4e830f7410b"
+                browser-chapter-test: "sha256:707e383f1e24eb49295387cd2119204c058185c0c6d21f6028a2455f32de91ee"
+                prior-publish-manifest: "sha256:6a757b3cc58085205330c15f5a20eeec7bdc25b6e0c5885d285f4a4b64286813"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No paid service, model generation, external data, or dependency change. Rust, site, and browser validation remain Docker-only; the large cost is local CPU within the unlimited build budget. The first canonical source-image rebuild reran locked npm installation under the accepted 2026-08-04 registry-refresh policy after its dependency layer missed cache; package manifests and versions remain unchanged."
+            staging_dir: ".build/runs/20260805T133023Z-add-validated-strided-offset-iteration-01/"
+            commands:
+              - "Run the startup protocol at clean commit 227ef88, verify the Chapter 22 corrective dependency and immutable one-file manifest, select the first pending F03 step, and confirm Git/Docker/Compose match the recorded environment."
+              - "Read F03, the Chapter 9 contract and active locale pair, Tensor storage/view implementation, focused source and browser tests, localization workflow, and the accepted five-step iteration boundary."
+              - "Classify the step as large cached Docker/browser CPU within the unlimited budget, record the no-network/no-paid/no-generation resource decision, and claim only the Chapter 9 outputs before product edits."
+              - "Design an owned offset-only cursor with one O(rank) axis-state allocation, one checked internal plan boundary, no tensor borrow or unsafe code, exact logical row-major carry, zero-stride support, and no allocation inside Iterator::next."
+              - "Run isolated Docker formatting and focused TensorView tests; preserve the existing empty-view rule after the first checked constructor incorrectly rejected a zero-element view whose unused base lies beyond empty storage."
+              - "Freeze English revision 6 at sha256:00a1f964...b864f2d, obtain an independent content pass, translate the approved delta directly into Russian with the localization skill, correct five independent language-review findings, and obtain a clean re-review."
+              - "Run the focused Rust and 78-case static contracts offline, then run the complete canonical Docker gate; route native traversal through projected_offsets to remove its one temporary dead-code warning and repeat the exact gate warning-free."
+              - "Build self-contained browser image learn-llm-ch09-offset-browser:20260805 and run all six Chapter 9 scenarios in Chromium and Firefox, including both locales at desktop/narrow widths, forced colors, locale routes, and full view."
+              - "Remove the generated ignored host target/ directory exposed by the first host audit, freeze the six exact product outputs, verify canonical byte equality, and run the manifest-locked static review."
+            artifacts:
+              - {path: ".build/runs/20260805T133023Z-add-validated-strided-offset-iteration-01/publish.sha256", sha256: "5913bd961fe90885116e619b41165782cf9a4b2092615169f547c74a0e6e1d80", purpose: "Frozen manifest for the six exact Chapter 9 product, implementation, and validation outputs."}
+              - {path: ".build/runs/20260805T133023Z-add-validated-strided-offset-iteration-01/validation/Dockerfile.browser", sha256: "78dbaa654eb534228d3e3cdefa724749d1b13d9b46b131ae09d556ebdb25218d", purpose: "Run-scoped pinned offline Chromium and Firefox validator built from the exact final workspace image."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "e95529a3fb1612c3f83ce2172021d0a100060404735a02c471d8d1fc6490e1bf", purpose: "Final warning-free canonical Docker workspace validation image."}
+              - {path: "docker-image:learn-llm-ch09-offset-browser:20260805", sha256: "cdcc2d900f01b2a9c673e21a98f62ca9ee24e4610b517eb028981541f6fe6724", purpose: "Self-contained final Chapter 9 Chromium and Firefox validation image."}
+              - {path: "docker-image:learn-llm-review:20260805t133023z-add-validated-strided-offset-iteration-01", sha256: "4f6771f9ed0e79ea5623d8193ce853b931c521de9f091b430eebb7660689a70c", purpose: "Manifest-locked static review image for the frozen six-file publication set."}
+            validation:
+              - {command: "Repository, dependency, input, output-ownership, locale, environment, cost, and prior-artifact preflight", status: passed, notes: "HEAD 227ef88 and the worktree are clean; repair-ch22-effective-gradient-formula-expectation is completed and its one-file manifest remains sha256:6a757b3c...6813. This is the first eligible F03 step and no output has another running owner. Git 2.53.0, Docker 25.0.2, Compose 2.17.3, Rust 1.93.1, Node 22.12.0, npm 10.9.0, and Playwright 1.61.1 match the ledger. Chapter 9 has active en/ru revision-5 projections. Cost is large cached local CPU within an unlimited budget, with no network, dependency, paid, or generation input and no host Rust/Node/Python execution."}
+              - {command: "First canonical ./course run cargo fmt --all -- --check probe", status: failed, notes: "The changed Rust source invalidated the canonical source-image key, and Docker reran the lockfile-pinned npm ci layer under the already accepted registry-refresh policy. Rustfmt then reported layout-only differences in view.rs before compilation. No package manifest, lockfile, dependency version, promoted artifact, or host toolchain changed."}
+              - {command: "First focused TensorView cursor matrix", status: failed, notes: "22 of 23 tests passed. The checked cursor rejected an existing valid empty view whose zero-element slice has an unused base offset beyond its zero-length backing storage. The cursor must return no offsets before any containment check for an empty traversal; no public transform or empty-view behavior may change."}
+              - {command: "Corrected focused TensorView cursor matrix", status: passed, notes: "All 23 view tests pass in the pinned Docker workspace. They cover public-lookup equivalence across rank-N transforms, nonmonotonic and nonzero-base offsets, exact-bit gapped materialization, scalar and empty exhaustion, rank-64 and singleton axes, zero effective strides, internal-plan rejection, exact size, and stable O(rank) cursor storage."}
+              - {command: "Offline source-only Docker rebuild probe", status: failed, notes: "Building the source target with --network none invalidated the toolchain layer, so apt could not resolve its repository. No source, promoted artifact, dependency, or host environment changed; all subsequent focused work reused the already built pinned image offline."}
+              - {command: "Frozen English revision 6 independent content review", status: passed, notes: "The reviewer passed exact English lesson sha256:00a1f964fdfe5573369ec3f2bfc576ff25c1f3989058aadfbe439acd3b864f2d. The public-input versus validated-internal-layout boundary, carry order, scalar/empty/singleton/zero-stride behavior, allocation boundary, exercise answer, six Rust regions, and Chapter 10 handoff are explicit and technically aligned without overclaiming."}
+              - {command: "First Chapter 9 revision-6 static source contract", status: failed, notes: "One of 78 cases used a whitespace-sensitive English assertion. The rendered meaning and source were correct; the assertion was normalized and repeated without changing learner content."}
+              - {command: "Final offline focused Rust, static, and bilingual content checks", status: passed, notes: "Rustfmt passes; all 23 TensorView tests and all 78 Chapter 9 static cases pass; English and Russian chapter-source checks pass. The exact final Rust source is sha256:ebe75932...d131d, the contract is e7b2e264...510cf, English is 00a1f964...b864f2d, and Russian is 375d4642...ac0dc."}
+              - {command: "Direct-English Russian semantic, terminology, anti-calque, monolingual, accessibility, and naturalness review", status: passed, notes: "The first review found five wording issues but no semantic drift. After correcting ownership, validation-boundary, carry, borrowing/indexing, and Chapter 10 wording, an independent re-review passed the exact current lesson and contract."}
+              - {command: "Final warning-free ./course check", status: passed, notes: "Workspace image sha256:e95529a3fb1612c3f83ce2172021d0a100060404735a02c471d8d1fc6490e1bf passes formatting, every demo and doctest, all 401 shared-library tests, content and locale parity for 80 sources/40 locale sets, zero-diagnostic analysis of 216 Astro files, the 85-page static build, and all 2,529 local references plus SEO, sitemap, and Analytics checks. No Rust warning remains."}
+              - {command: "Self-contained Chapter 9 Chromium and Firefox matrices", status: passed, notes: "Browser image sha256:cdcc2d900f01b2a9c673e21a98f62ca9ee24e4610b517eb028981541f6fe6724 passes all 6 Chapter 9 cases in each engine: exact revision-6 content and syntax-highlighted regions, both locales at desktop and 390px narrow widths, full-view containment, forced colors, direct locale routes, formula presence, diagram box containment, and page overflow checks."}
+              - {command: "Frozen six-file manifest, checksum verification, and canonical equality", status: passed, notes: "All six staged outputs verify and equal their canonical files byte for byte; publish.sha256 is sha256:5913bd961fe90885116e619b41165782cf9a4b2092615169f547c74a0e6e1d80. BUILD_STATE.yaml and DECISIONS.md remain intentionally outside the immutable product snapshot."}
+              - {command: "Manifest-locked ./course review 20260805T133023Z-add-validated-strided-offset-iteration-01 --check", status: passed, notes: "Review image sha256:4f6771f9ed0e79ea5623d8193ce853b931c521de9f091b430eebb7660689a70c verifies the manifest, content/parity, 216-file zero-diagnostic Astro analysis, 85-page build, and all 2,529 references without changing publish/."}
+              - {command: "First final host-artifact audit", status: failed, notes: "The audit found one ignored root target/ directory produced during earlier Docker command experimentation. Inspection showed only rebuildable Rust outputs; the exact target/ directory was removed, with no tracked or user-authored file affected."}
+              - {command: "Final host-artifact and exact-scope audit", status: passed, notes: "./course audit-host passes; no host Rust, Node.js, npm, or Python artifact remains outside the intentional site/dist release. The worktree contains exactly the six frozen product outputs plus BUILD_STATE.yaml and DECISIONS.md, and git diff --check passes."}
+              - {command: "Pinned-Docker completed-ledger, scheduler, and content-contract validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts; all 33 content-contract assertions pass from /workspace/site against the exact canonical product plus final bind-mounted ledger and decisions. No step remains running, and iterate-elementwise-and-reductions-by-offset is the next eligible checkpoint."}
+              - {command: "Pinned-Docker cargo clippy --locked -p llm-from-scratch --all-targets -- -D warnings", status: passed, notes: "The exact final crate and all of its targets pass Clippy with every warning denied; no lint suppression or source change is required."}
+            notes: "Succeeded. TensorView now owns one crate-private, safe, owned offset cursor that validates a complete internal plan once and performs allocation-free last-axis-first iteration without retaining a tensor borrow. Materialization uses it while preserving checked public lookup, exact bits, empty/scalar semantics, stdout, and diagram evidence. Chapter 9 revision 6 teaches this boundary in independently reviewed English and natural direct-English Russian. Chapters 10-12 and 15 remain pending independent checkpoints."
 
       - id: iterate-elementwise-and-reductions-by-offset
         objective: "Move unary, binary-broadcast, and reduction kernels onto validated offset traversal without changing their algorithms or observable order."

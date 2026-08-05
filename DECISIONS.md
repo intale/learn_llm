@@ -14183,3 +14183,112 @@ with the complete Docker course gate before publication.
 `iterate-matmul-by-prevalidated-strides`,
 `iterate-probability-groups-by-offset`, and
 `iterate-structural-vjps-by-offset`.
+
+## 2026-08-05 - Run the Chapter 9 traversal checkpoint with cached local validation
+
+**Status:** Accepted during preflight for
+`add-validated-strided-offset-iteration`.
+
+**Context:** The Chapter 9 checkpoint is cost class `large` because a shared
+low-level traversal primitive requires complete Rust, site, localization, and
+two-browser regression validation even though its product scope is narrow. The
+active build has no agent-session limit, all dependency and browser layers are
+already cached locally, and the step requires neither model generation nor a
+paid or external data source.
+
+**Decision:** Proceed with cached Docker and browser CPU without a separate cost
+pause. Keep the network disabled for validation, add no dependency, run no Rust,
+Node.js, npm, or Python tool on the host, and retain all disposable products in
+the named run staging directory or Docker images. If a dependency or required
+network input appears, update the resource decision before using it.
+
+**Consequences:** Cost does not broaden scope or relax validation. The step may
+edit only the declared Chapter 9 Rust/content/test outputs plus the ledger and
+decision record, and it must finish in its own commit before Chapter 10 starts.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`add-validated-strided-offset-iteration`, and
+`20260805T133023Z-add-validated-strided-offset-iteration-01`.
+
+## 2026-08-05 - Apply the existing locked registry-refresh policy to Chapter 9
+
+**Status:** Accepted during the first Docker formatter probe for
+`add-validated-strided-offset-iteration`; this supersedes only that run's
+preflight assumption that every dependency layer would remain cached.
+
+**Context:** Changing the Rust source invalidated the canonical Docker source
+image key. Although package manifests and lockfiles were unchanged, the Docker
+build did not reuse its npm-install layer and reran `npm ci` before rustfmt
+reported source-layout differences. The 2026-08-04 decision already requires
+future estimates to allow a registry refresh when a Docker dependency-layer key
+misses cache; the new run record had described its inputs too narrowly.
+
+**Decision:** Treat that installation as the previously accepted refresh of
+lockfile-pinned packages, not as a new dependency or product input. Record it in
+the run fingerprint and failed probe. Keep all subsequent focused validation on
+the already built pinned image with `--network none`; permit another canonical
+refresh only if the final `./course check` again misses the dependency layer.
+Continue to prohibit host Rust, Node.js, npm, and Python artifacts.
+
+**Consequences:** No manifest, lockfile, package version, source behavior, or
+runtime dependency changes. The step remains cost class `large`, uses no paid
+service, model generation, or external data, and does not gain broader output
+scope. Future F03 cost notes now cite the existing refresh policy instead of
+promising that Docker layers are always cached.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`add-validated-strided-offset-iteration`, and
+`20260805T133023Z-add-validated-strided-offset-iteration-01`.
+
+## 2026-08-05 - Put an owned offset-only cursor behind TensorView's checked boundary
+
+**Status:** Accepted and validated in
+`add-validated-strided-offset-iteration`.
+
+**Context:** Chapter 9 materialization rebuilt a coordinate vector for every
+logical scalar and then passed that internally generated coordinate back through
+the fully checked public lookup path. Chapters 10-12 and 15 need the same
+row-major traversal plumbing for broadcast plans, reductions, contractions,
+probability groups, and mutable destination gradients. A cursor that borrowed
+shape, stride, tensor, or slice metadata would complicate those paired source and
+destination traversals and could retain an immutable borrow while a later kernel
+needs mutable output access.
+
+Valid empty views also expose an important boundary: a transformed zero-element
+view can retain an unused base offset at or beyond empty backing storage. Because
+no logical position exists, rejecting or reading that base would change existing
+empty-view behavior rather than make traversal safer.
+
+**Decision:** Add one crate-private `StridedOffsets` iterator that owns one
+`O(rank)` vector of axis state and no tensor or slice reference. Its checked
+constructor validates shape/stride rank, the logical shape product, checked
+stride arithmetic, and the greatest reachable offset for a nonempty plan. An
+empty plan yields no offset and performs no containment check or read of its
+unused base. Iteration starts at the base, advances the last logical axis first,
+rewinds and carries left, deliberately repeats offsets for zero effective
+strides, and implements exact-size and fused exhaustion without allocation in
+`next` or `unsafe` access.
+
+`TensorView::logical_offsets` routes native metadata through the same
+`projected_offsets` boundary that later validated numerical plans will reuse.
+Materialization reads yielded offsets with ordinary bounds-checked Rust slice
+indexing. Public `storage_offset` and `get` remain unchanged and continue to
+validate each caller-supplied coordinate. Invalid cursor plans remain an
+internal `Option`/invariant failure instead of introducing or reordering public
+errors. Allocation-failure policy remains the separate F08 finding.
+
+**Consequences:** The shared primitive avoids per-scalar coordinate allocation
+without hiding any learner-facing broadcasting, reduction, matrix
+multiplication, probability, or VJP algorithm. It can be paired for future
+source and destination traversal without self-referential state or borrow
+conflicts. Exact-bit materialization, scalar-once behavior, empty-never behavior,
+nonzero bases, permutations, slices, singleton axes, arbitrary rank, and public
+error precedence are locked by focused tests and Chapter 9 revision 6 explains
+the public-input versus validated-internal-layout boundary.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`add-validated-strided-offset-iteration`, and
+`20260805T133023Z-add-validated-strided-offset-iteration-01`.

@@ -23,6 +23,14 @@ const contract = readFileSync(
   resolve(repositoryRoot, 'curriculum/chapters/09-tensor-views.md'),
   'utf8',
 );
+const englishLesson = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/09-tensor-views.mdx'),
+  'utf8',
+);
+const tensorViewSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/tensor/view.rs'),
+  'utf8',
+);
 const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/TensorViewsDiagram.astro'),
   'utf8',
@@ -88,6 +96,17 @@ function mutate(search: string, replacement: string): string {
     throw new Error(`Mutation anchor must occur exactly once: ${search}`);
   }
   return fixture.replace(search, replacement);
+}
+
+function rustRegion(source: string, name: string): string {
+  const startMarker = `// region:${name}`;
+  const endMarker = `// endregion:${name}`;
+  const start = source.indexOf(startMarker);
+  const end = source.indexOf(endMarker);
+  if (start === -1 || end <= start || source.indexOf(startMarker, start + 1) !== -1) {
+    throw new Error(`Expected one ordered Rust region ${name}`);
+  }
+  return source.slice(start + startMarker.length, end);
 }
 
 function stringLeafPaths(value: object, prefix: readonly string[] = []): string[][] {
@@ -224,6 +243,42 @@ describe('Chapter 9 tensor-views Rust trace', () => {
     ['source-offset drift', mutate('source-offsets=1,2,4,5', 'source-offsets=1,2,3,5')],
   ])('rejects %s', (_label, invalid) => {
     expect(() => parseTensorViewsTrace(invalid)).toThrow();
+  });
+});
+
+describe('Chapter 9 validated traversal source and explanation', () => {
+  it('keeps public caller coordinates checked and reuses one safe internal cursor', () => {
+    expect(contract).toContain('"content_revision": 6');
+    expect(englishLesson).toContain('"content_revision": 6');
+    expect(contract).toContain('Public coordinate lookup and internal traversal serve different inputs.');
+    expect(englishLesson).toContain('Public coordinate lookup and internal traversal serve different inputs.');
+    const normalizedEnglish = englishLesson.replace(/\s+/g, ' ');
+    expect(normalizedEnglish).toContain(
+      'Public `get` accepts a fresh caller-supplied coordinate on every call and must check its rank and axis bounds each time.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Reusing the cursor does not remove this copy: `materialize` still allocates new storage and reads every logical value.',
+    );
+
+    const cursor = rustRegion(tensorViewSource, 'validated-strided-offset-iteration');
+    expect(cursor).toContain('pub(crate) struct StridedOffsets');
+    expect(cursor).toContain('pub(crate) fn checked(');
+    expect(cursor).toContain('pub(crate) fn logical_offsets(&self) -> StridedOffsets');
+    expect(cursor).toContain('pub(crate) fn projected_offsets(');
+    expect(cursor).toContain('pub(crate) fn value_at_storage_offset(');
+    expect(cursor).not.toMatch(/\bunsafe\b/);
+
+    const next = cursor.slice(cursor.indexOf('fn next('), cursor.indexOf('fn size_hint('));
+    expect(next).not.toMatch(/\b(?:Vec|Box|collect|reserve|to_vec)\b|vec!|storage_offset|\.get\s*\(/);
+
+    const materialize = tensorViewSource.slice(
+      tensorViewSource.indexOf('pub fn materialize('),
+      tensorViewSource.indexOf('// endregion:view-slice-materialize'),
+    );
+    expect(materialize).toContain('self.logical_offsets()');
+    expect(materialize).toContain('self.value_at_storage_offset(storage_offset)');
+    expect(materialize).not.toContain('coordinate_from_logical_offset');
+    expect(materialize).not.toContain('self.get(');
   });
 });
 
