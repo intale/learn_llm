@@ -1526,7 +1526,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `35-checkpoints`
 - **Implementation step:** `implement-ch35-checkpoints`
-- **Revision status:** Content revision 2 replaces the hard-coded history booleans with a model-derived parameter-byte comparison, makes the byte-layout audit contiguous and accessible, corrects loader and evidence wording, and publishes the direct meaning-first Russian localization through `activate-ch35-russian-localization`.
+- **Revision status:** Content revision 3 makes checkpoint state ownership explicit: borrowed selected state is copied into an independent snapshot, decoded model state is validated before optimizer state, and consuming a loaded checkpoint moves its model buffers; revision 2's model-derived parameter-byte comparison, contiguous byte-layout audit, corrected loader/evidence wording, and direct meaning-first Russian localization remain in force.
 - **Depends on:** `34-final-evaluation`.
 - **Outcome:** Save and load a versioned checkpoint that reproduces tokenizer/configuration, parameters, optimizer/RNG state, logits, and one resumed update.
 - **Scope boundary:** Teach schema/version headers, stable parameter order, shapes/dtypes, tokenizer/config data, endian-safe byte encoding, byte-width-aware offsets, checksums, atomic writes, and corruption errors; defer cache state.

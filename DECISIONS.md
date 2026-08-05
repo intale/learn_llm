@@ -14975,3 +14975,61 @@ Russian label only if it updates and reviews every affected chapter together.
 `remediate-rust-tensor-iteration-20260805`,
 `iterate-structural-vjps-by-offset`, and
 `20260805T180426Z-iterate-structural-vjps-by-offset-01`.
+
+## 2026-08-05 - Close tensor iteration and seal checkpoint tokenizer state before streaming
+
+**Status:** Accepted before product edits for
+`seal-checkpoint-tokenizer-state`.
+
+**Context:** All five F03 tensor-iteration steps and their runs are completed and
+independently committed through `aaac1da`, but the containing build remained
+marked active. Its final immutable run note also says another tensor-iteration
+checkpoint is pending even though no such step exists. Audit finding F05 remains
+open: `CheckpointTokenizer` publicly exposes its literal and byte-BPE variants,
+so callers can bypass the validated constructors and make the nominally
+infallible vocabulary-size accessor reconstruct invalid BPE state and panic.
+F02 has meanwhile removed two decoder reconstructions named by the original F04
+evidence, so the later checkpoint-copy repair must be rebased on the remaining
+validation-only decoder and owned per-record payload buffers.
+
+**Decision:** Close `remediate-rust-tensor-iteration-20260805` at the build level
+without rewriting its immutable run history. Start
+`remediate-checkpoint-validation-and-streaming-20260805` as two ordered,
+independently committed steps: seal tokenizer state for F05, then stream borrowed
+validated payloads for the rebased F04.
+
+For F05, replace the public enum with a public opaque struct containing a private
+representation and a vocabulary size derived only by validated constructors.
+The literal constructor keeps its nonempty, nonempty-piece, and uniqueness
+checks. The public byte-BPE constructor trusts an already validated
+`BpeTokenizer`; a private raw-pair constructor validates decoded pairs exactly
+once through the course-owned BPE constructor. `vocabulary_size` reads the cached
+field and cannot reconstruct or panic. Preserve every existing public method,
+wire byte, error boundary, and deterministic result; direct external construction
+or pattern matching of the former variants intentionally stops compiling.
+
+Keep F05 implementation-only because all eight rendered Chapter 35 Rust regions,
+the current English/Russian revision-3 claims, demo evidence, and checkpoint bytes
+remain exact. Correct the unrelated stale Chapter 35 course-plan line from
+revision 2 to its already published revision 3 in this checkpoint. Defer one
+coherent English-first revision 4 and direct Russian refresh until F04 can teach
+the complete sealed-validation and borrowed-streaming boundary together.
+
+Proceed without a cost approval pause. F05 uses medium cached Docker CPU and F04
+will use large cached Docker/browser CPU within the unlimited budget. Add no
+dependency, paid service, model generation, or external data; use only the
+existing lockfile-pinned registry-refresh contingency if a canonical Docker
+layer misses cache.
+
+**Consequences:** F05 makes invalid tokenizer state unrepresentable without
+churning learner content or localization for an invisible representation change.
+F04 receives a trustworthy tokenizer boundary and a current implementation audit
+instead of repeating already completed F02 work. The old inaccurate run note
+remains visible as history and is superseded by this decision rather than edited.
+
+**Affected builds, steps, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`remediate-checkpoint-validation-and-streaming-20260805`,
+`seal-checkpoint-tokenizer-state`,
+`stream-checkpoint-payloads-from-validated-state`, and
+`20260805T193855Z-seal-checkpoint-tokenizer-state-01`.

@@ -32227,7 +32227,7 @@ builds:
 
   - build_id: remediate-rust-tensor-iteration-20260805
     objective: "Remove audit finding F03's per-scalar coordinate allocations and repeated checked lookups by introducing one safe validated strided-offset traversal boundary, then migrating each learner-facing tensor algorithm independently."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -32828,3 +32828,149 @@ builds:
               - {command: "Pinned-Docker final running-ledger, scheduler, and cross-contract validation", status: passed, notes: "The exact updated YAML validates 40 chapters, 111 scheduled steps, and all 40 implemented contracts through Chapter 39 while this run is still the sole active checkpoint; no dependency, ownership, status, or terminology inconsistency remains before completion."}
               - {command: "Pinned-Docker completed-ledger, scheduler, and cross-contract validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and all 40 implemented contracts through Chapter 39. No step or run remains running, and the next tensor-iteration checkpoint is left pending for a future independently committed step."}
             notes: "Succeeded. Chapter 15 structural broadcast and reduction VJPs plus Chapter 16 indexed-loss reversal now traverse checked projected storage offsets without per-scalar coordinate vectors or Tensor::offset, while preserving exact accumulation order, errors, empty behavior, stdout, and trace evidence. Revision 8 teaches the boundary in independently reviewed English and direct-English Russian. The complete Docker gate, strict production Clippy, two-engine rendered matrices, immutable eight-file review, host boundary, and running-ledger validation pass."
+
+  - build_id: remediate-checkpoint-validation-and-streaming-20260805
+    objective: "Make Chapter 35 checkpoint tokenizer state trustworthy by construction, then encode already validated state without validation-only decoder reconstruction or parameter-scale temporary payload copies."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "Two ordered independently committed corrections: F05 before the F02-rebased F04. Docker and browser CPU only; no paid service, model generation, new dependency, or external data is planned."
+    completion_criteria:
+      - "CheckpointTokenizer has one opaque public representation whose constructors establish literal-token or byte-BPE invariants and cache vocabulary size; no constructible tokenizer can make an infallible accessor panic."
+      - "Checkpoint construction and loading validate immutable tokenizer, model-layout, optimizer, and cross-component facts once; later encoding trusts that sealed state."
+      - "Encoding plans descriptors over borrowed tokenizer, model, and optimizer payloads and writes little-endian values directly into one final checkpoint buffer without one owned byte vector per tensor or a second parameter-scale payload copy."
+      - "The Chapter 35 wire format, descriptor order, offsets, checksum, canonical re-encoding check, corruption and error precedence, atomic publication, stdout, logits, RNG continuation, and resumed update remain byte-exact."
+      - "F05 preserves the coherent Chapter 35 revision-3 learner surface; F04 advances it English-first to revision 4 and refreshes Russian directly once the complete checkpoint boundary is ready to teach."
+    steps:
+      - id: seal-checkpoint-tokenizer-state
+        objective: "Make CheckpointTokenizer opaque and cache its constructor-validated vocabulary size so checkpoint construction and encoding can trust the type without rebuilding BPE or panicking."
+        depends_on: [iterate-structural-vjps-by-offset]
+        status: completed
+        inputs:
+          - "Commit aaac1dabccbcf1f9f80d3fdea9292cfb3ec4868a completing iterate-structural-vjps-by-offset"
+          - "audits/2026-08-04-rust-overengineering.md finding F05"
+          - "DECISIONS.md ordered F05-before-F04 remediation decision"
+          - "rust/crates/llm-from-scratch/src/checkpoint.rs and tokenizer/bpe.rs"
+          - "rust/demos/ch35-checkpoints/expected.txt plus Chapter 36/38/39 checkpoint consumers as unchanged controls"
+          - "Chapter 35 contract and active English/Russian revision-3 lessons as unchanged learner controls"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/checkpoint.rs"
+          - "curriculum/course-plan.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "CheckpointTokenizer is a public opaque struct with a private representation; public callers cannot construct or pattern-match literal and BPE variants directly, while Clone, Debug, PartialEq, Eq, and every existing constructor and accessor remain available."
+          - "literal_tokens rejects an empty vocabulary, empty pieces, and duplicate pieces; byte_bpe accepts an already validated BpeTokenizer; both derive and store the exact validated vocabulary size once."
+          - "vocabulary_size is a direct infallible cached-field read with no BPE reconstruction or expect; kind_name, literal_pieces, and restore_bpe preserve their observable results."
+          - "The writer reads only the private validated representation; untrusted decode still validates literal pieces, BPE pairs, header vocabulary, and tokenizer-decoder agreement before exposing a Checkpoint."
+          - "The former public variants fail to compile from an external caller, malformed raw BPE pairs return typed errors without panic, and no new public raw-pair accessor weakens the boundary."
+          - "Checkpoint bytes, descriptors, offsets, checksum, typed-error precedence, public method signatures, demo stdout, downstream generation results, dependencies, all eight Chapter 35 rendered Rust regions, and the revision-3 English/Russian learner pair remain unchanged."
+          - "The stale Chapter 35 course-plan revision line is synchronized from revision 2 to its already published revision 3 without changing learner content."
+        validate:
+          - "./course run cargo fmt --all -- --check"
+          - "./course run cargo test --locked -p llm-from-scratch checkpoint::tests"
+          - "./course run cargo test --locked -p llm-from-scratch --doc"
+          - "./course run cargo test --locked -p ch35-checkpoints"
+          - "./course run sh -lc 'cargo run --quiet --locked -p ch35-checkpoints > /tmp/ch35.out && cmp /tmp/ch35.out rust/demos/ch35-checkpoints/expected.txt'"
+          - "./course run npm --prefix site test -- --run tests/35-checkpoints.test.ts"
+          - "./course check"
+          - "./course audit-host"
+        cost: {class: medium, notes: "One sealed Rust API boundary, focused compile-fail and byte-equivalence coverage, and a complete cached Docker gate; no learner-visible or browser change, dependency, network input, paid service, or generation."}
+        runs:
+          - run_id: 20260805T193855Z-seal-checkpoint-tokenizer-state-01
+            started_at: 2026-08-05T19:38:55Z
+            finished_at: 2026-08-05T20:01:44Z
+            status: succeeded
+            input_fingerprint:
+              git: "aaac1dabccbcf1f9f80d3fdea9292cfb3ec4868a; tree dc47cf5d07c99574ddfc704be6536edaa7a4be2f"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                checkpoint: "sha256:bac0b16207202f9ce84d7235ab7e2da7e0965e3f2df89b45d65195c83c8a5516"
+                bpe: "sha256:c6e59406a2b59a038a3d04eb5347d04d9a29847be87f99bbf9c066bb5581083d"
+                chapter-35-demo: "sha256:ec4f62c61e483dd31ff68f968b848bc3719d6c44e68590f8c4c12588b67cb7f0"
+                chapter-35-output: "sha256:aa641c3ae72687fcf4bf3f80c96ddc1c7a67bc38921575c067209576b229fccc"
+                chapter-35-contract: "sha256:6bc2c2750fc4fc52988ff78330cf507b58c6307053335af5f6d8924442409459"
+                course-plan: "sha256:209219d4ebfcb694b20572dd9fba70729eccc8e195eefa8d64441b0690d8011a"
+                chapter-35-en: "sha256:128d67269dbe7f4437fa4a471b5bb24c2793271b98a5b271bc15122f99a28d44"
+                chapter-35-ru: "sha256:9e8776e801ad4757f1dc230f9258efa0a76f0810968e5225c15d1ddc008619e5"
+                chapter-35-static-test: "sha256:358bade7aba47fd7c4d87c31de251ac36f54245e7050a5c8a0490ab83ded4378"
+                chapter-35-browser-test: "sha256:ff9ed991540a4c5ada505be7797a2fb2eb44b270907b6b8b8e52095d46ac0101"
+                cargo-toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                cargo-lock: "sha256:b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+                pre-run-ledger: "sha256:b46a8ed0b25a7cc36769506fadf37a07e80f74c50f02310ba781192e783f2ef1"
+                pre-run-decisions: "sha256:206916ce2faf44ed4c6bbc16185075368dce970ccd1e910c83a17dcd583cef1e"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0"}
+              external: "No new dependency, paid service, model generation, external data, or learner-content input. Rust and site validation remain Docker-only; the accepted lockfile-pinned registry-refresh contingency applies only if a canonical layer misses cache."
+            staging_dir: ".build/runs/20260805T193855Z-seal-checkpoint-tokenizer-state-01/"
+            commands:
+              - "Run the startup protocol at clean commit aaac1da, verify the final F03 manifest and host boundary, inspect its completed steps, and close the missed build-level status transition."
+              - "Read audit F05, the complete CheckpointTokenizer implementation and call sites, Chapter 35 contract/locales/tests, the active locale projection, course workflow, and localization skill."
+              - "Obtain independent read-only API, content-impact, and scheduler reviews; rebase F04 after F02 and keep F05 implementation-only because all rendered regions and current learner claims remain exact."
+              - "Classify F05 as medium cached Docker work within the unlimited budget, create the run staging tree, and claim only the sealed tokenizer, stale course-plan line, and ledger/decision records before product edits."
+              - "Replace the constructible public tokenizer enum with an opaque struct, validate each representation at its constructor boundary, cache the derived vocabulary size, route raw decoded BPE pairs through one private validated constructor, and preserve all public accessors and wire behavior."
+              - "Add external compile-fail proofs for both former variants plus exact literal and malformed-BPE constructor tests; correct the Chapter 35 course-plan revision line without changing either learner locale or any rendered source region."
+              - "Run the complete Docker gate, focused production Clippy, exact Chapter 35 stdout and static contract checks, independent final API review, source/control equality checks, scheduler validation, immutable two-file staging verification, and the host-artifact audit."
+            artifacts:
+              - {path: "docker-image://learn-llm-workspace:local", sha256: "72c67338bf6aa8438c0aeed24c5919b00f8d5eb3f5e1b33237398d31589bf579", kind: "Exact final workspace image passing Rust, doctest, content, static-site, and link validation for the sealed tokenizer boundary."}
+              - {path: ".build/runs/20260805T193855Z-seal-checkpoint-tokenizer-state-01/publish.sha256", sha256: "4a0af4bc2076a1d19d1a5ed432c963fa25c6deb5d9ab02bfe1eeb5989cadc071", kind: "Immutable manifest for the two declared canonical product outputs: the sealed checkpoint implementation and synchronized Chapter 35 course-plan line."}
+            validation:
+              - {command: "Repository, dependency, input, output-ownership, locale, environment, cost, and prior-artifact preflight", status: passed, notes: "HEAD aaac1da and the worktree are clean; the final F03 eight-file manifest verifies and ./course audit-host passes. All five F03 steps and runs are completed, so its build is closed. F05 is next in the durable order and no output has another owner. Git 2.53.0, Docker 25.0.2, and Compose 2.17.3 match the ledger; Chapter 35's active en/ru revision-3 pair remains a byte-frozen control. Cost is medium cached Docker CPU within an unlimited budget, with no dependency, paid, generation, or external-data input."}
+              - {command: "First ./course check implementation probe", status: failed, notes: "The first complete Docker build stopped only at rustfmt layout in three newly edited locations. The source was formatted to the pinned toolchain's exact layout; no artifact was published from the failed probe."}
+              - {command: "Corrected pre-review ./course check", status: passed, notes: "Workspace image sha256:6fc8a70f3ea21f22d87271e060879c787f702f3728f60bfa9173c1db7c3fe8e6 passes Rust formatting, all workspace tests including 417 shared-library tests, three compile-fail doctests, 216-file zero-diagnostic Astro analysis, 80-source content and parity checks, the 85-page build, and 2,529 static references. Locked npm and Cargo caches refreshed inside Docker only; manifests and lockfiles did not change."}
+              - {command: "Independent post-implementation API, scope, content-impact, and ledger review", status: passed, notes: "The reviewer found no Rust blocker: state is opaque, sizes derive only from constructors, raw decoded BPE validates once, error precedence and public methods remain compatible, bytes and writer behavior are unchanged, and no F04 work leaked in. The review caught and corrected the durable decision's non-EOF placement and recommended exact two-variant compile-fail and BPE-error coverage."}
+              - {command: "First post-review ./course check", status: failed, notes: "The tightened test initially used assert_eq! on Result even though CheckpointError deliberately has no PartialEq implementation. Replacing equality with exact structural matches preserved the intended error assertions; no product artifact was published from the failed probe."}
+              - {command: "Final ./course check", status: passed, notes: "Exact workspace image sha256:72c67338bf6aa8438c0aeed24c5919b00f8d5eb3f5e1b33237398d31589bf579 passes Rust formatting, all workspace and demo tests, all 417 shared-library tests, four compile-fail doctests including both former tokenizer variants, zero Astro diagnostics, both locale sets, the 85-page build, and all 2,529 link/SEO/sitemap/Analytics references."}
+              - {command: "cargo clippy --locked -p llm-from-scratch --lib -- -D warnings", status: passed, notes: "The exact production library in the final network-disabled workspace image passes strict Clippy with warnings denied."}
+              - {command: "Byte-exact Chapter 35 stdout and focused static contract validation", status: passed, notes: "A network-disabled cargo run matches rust/demos/ch35-checkpoints/expected.txt byte for byte, and all four site/tests/35-checkpoints.test.ts cases pass in the exact final image."}
+              - {command: "Rendered-region, learner-control, dependency-manifest, API-scope, and course-plan audit", status: passed, notes: "All four Chapter 35 checkpoint.rs regions, hence all eight en/ru rendered instances, are byte-identical to commit aaac1da. The contract, both lessons, static/browser tests, Cargo/npm manifests and lockfiles remain unchanged. Only the opaque implementation and already-needed course-plan revision-3 correction changed; the running ledger validates 40 chapters, 111 scheduled steps, and 40 implemented contracts."}
+              - {command: "Immutable publication, host artifact, tracked-scope, and whitespace audit", status: passed, notes: "Manifest sha256:4a0af4bc2076a1d19d1a5ed432c963fa25c6deb5d9ab02bfe1eeb5989cadc071 verifies exactly two staged product files, each byte-identical to canonical output. ./course audit-host passes with site/dist as the intentional release exception; git diff --check passes and the worktree contains exactly the four declared tracked outputs."}
+              - {command: "Pinned-Docker completed-ledger, scheduler, and cross-contract validation", status: passed, notes: "The exact completed YAML validates 40 chapters, 111 scheduled steps, and all 40 implemented contracts through Chapter 39. No run remains running; F04 is the first pending step and depends on this completed F05 checkpoint."}
+            notes: "Succeeded. CheckpointTokenizer is now opaque, every constructible representation establishes its invariants once, and vocabulary_size is a direct cached read that cannot reconstruct invalid BPE state or panic. Wire bytes, error order, public methods, demo output, downstream learner evidence, active en/ru revision-3 lessons, and dependency manifests remain exact; the stale Chapter 35 plan line now agrees with the published revision."
+
+      - id: stream-checkpoint-payloads-from-validated-state
+        objective: "Plan checkpoint descriptors from borrowed validated state and stream every tokenizer, model, and optimizer value directly into the final canonical byte buffer."
+        depends_on: [seal-checkpoint-tokenizer-state]
+        status: pending
+        inputs:
+          - "Committed seal-checkpoint-tokenizer-state result"
+          - "audits/2026-08-04-rust-overengineering.md finding F04 rebased after F02"
+          - "rust/crates/llm-from-scratch/src/checkpoint.rs, models/decoder.rs, and training/trainer.rs"
+          - "Chapter 35 contract revision 3 and active English/Russian projections"
+          - "rust/demos/ch35-checkpoints/expected.txt and Chapter 36/38/39 checkpoint consumers as exact controls"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/checkpoint.rs"
+          - "rust/crates/llm-from-scratch/src/models/decoder.rs"
+          - "rust/crates/llm-from-scratch/src/training/trainer.rs"
+          - "curriculum/chapters/35-checkpoints.md"
+          - "curriculum/course-plan.md"
+          - "site/src/content/chapters/en/35-checkpoints.mdx"
+          - "site/src/content/chapters/ru/35-checkpoints.mdx"
+          - "site/tests/35-checkpoints.test.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "One shared crate-private borrowed decoder-layout validator enforces the same names, order, shapes, finite values, and tied-component requirements used by DecoderModel::from_parameters, so decoded DecoderModelState is validated without copying every tensor into a temporary decoder and without a second validation implementation."
+          - "Checkpoint validates tokenizer-model-optimizer relationships only when sealed construction or untrusted load occurs; encode performs no repeated validate_parts traversal."
+          - "The record plan owns descriptor metadata only and borrows literal bytes, BPE pairs, model f64 slices, and AdamW moment slices; it allocates no per-record payload Vec<u8>, token clone, BPE payload buffer, or f64_bytes buffer."
+          - "After header sizing and checked offset assignment, payloads are encoded in canonical order directly into one exactly reserved final Vec<u8>; memory growth remains checked and no unsafe or native-memory cast is introduced."
+          - "Loading retains canonical re-encoding, public corruption checks, error categories and precedence, and all untrusted size checks; from_snapshot retains its intentional durable state copy."
+          - "The exact 6330-byte Chapter 35 fixture, 38 descriptors, offsets, checksum fnv1a64:2b8b6097eaed6a91, stdout, logits, RNG and resume results, atomic replacement, and downstream Chapters 36/38/39 evidence remain unchanged."
+          - "Chapter 35 advances from revision 3 to 4, teaches sealed tokenizer state, one-time validation, and borrowed payload planning without delivery-language leakage, and receives a direct natural Russian refresh."
+        validate:
+          - "./course run cargo fmt --all -- --check"
+          - "./course run cargo test --locked -p llm-from-scratch --lib"
+          - "./course run cargo test --locked -p ch35-checkpoints"
+          - "./course run sh -lc 'cargo run --quiet --locked -p ch35-checkpoints > /tmp/ch35.out && cmp /tmp/ch35.out rust/demos/ch35-checkpoints/expected.txt'"
+          - "./course run npm --prefix site test -- --run tests/35-checkpoints.test.ts"
+          - "./course check"
+          - "Run-scoped self-contained Chapter 35 plus Chapter 36/38/39 checkpoint controls in Chromium and Firefox with --network none and no host-published port"
+          - "./course audit-host"
+        cost: {class: large, notes: "Shared borrowed model-layout validation, payload streaming, Chapter 35 bilingual revision, exact downstream controls, complete Docker gate, and two-browser validation; cached local CPU only."}
+        runs: []

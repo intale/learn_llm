@@ -184,8 +184,31 @@ impl EncodedCheckpoint {
 }
 
 /// The tokenizer information needed to interpret every token ID in the model.
+///
+/// The representation is private so callers must establish its invariants through
+/// [`CheckpointTokenizer::literal_tokens`] or
+/// [`CheckpointTokenizer::byte_bpe`].
+///
+/// ```compile_fail
+/// use llm_from_scratch::checkpoint::CheckpointTokenizer;
+///
+/// let _ = CheckpointTokenizer::LiteralTokens(vec![b"token".to_vec()]);
+/// ```
+///
+/// ```compile_fail
+/// use llm_from_scratch::checkpoint::CheckpointTokenizer;
+/// use llm_from_scratch::tokenizer::bpe_trainer::TokenPair;
+///
+/// let _ = CheckpointTokenizer::ByteBpe(vec![TokenPair::new(97, 98)]);
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum CheckpointTokenizer {
+pub struct CheckpointTokenizer {
+    representation: CheckpointTokenizerRepresentation,
+    vocabulary_size: usize,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum CheckpointTokenizerRepresentation {
     LiteralTokens(Vec<Vec<u8>>),
     ByteBpe(Vec<TokenPair>),
 }
@@ -210,49 +233,59 @@ impl CheckpointTokenizer {
                 )));
             }
         }
-        Ok(Self::LiteralTokens(tokens))
+        Ok(Self {
+            vocabulary_size: tokens.len(),
+            representation: CheckpointTokenizerRepresentation::LiteralTokens(tokens),
+        })
     }
 
     pub fn byte_bpe(tokenizer: &BpeTokenizer) -> Self {
-        Self::ByteBpe(
-            tokenizer
-                .merge_rules()
-                .iter()
-                .map(|rule| rule.training_pair())
-                .collect(),
-        )
-    }
-
-    pub fn vocabulary_size(&self) -> usize {
-        match self {
-            Self::LiteralTokens(tokens) => tokens.len(),
-            Self::ByteBpe(pairs) => BpeTokenizer::from_merge_pairs(pairs)
-                .expect("stored BPE pairs were validated at construction")
-                .layout()
-                .vocabulary_size(),
+        Self {
+            vocabulary_size: tokenizer.layout().vocabulary_size(),
+            representation: CheckpointTokenizerRepresentation::ByteBpe(
+                tokenizer
+                    .merge_rules()
+                    .iter()
+                    .map(|rule| rule.training_pair())
+                    .collect(),
+            ),
         }
     }
 
+    fn from_byte_bpe_pairs(pairs: Vec<TokenPair>) -> Result<Self, CheckpointError> {
+        let tokenizer = BpeTokenizer::from_merge_pairs(&pairs)?;
+        Ok(Self {
+            vocabulary_size: tokenizer.layout().vocabulary_size(),
+            representation: CheckpointTokenizerRepresentation::ByteBpe(pairs),
+        })
+    }
+
+    pub const fn vocabulary_size(&self) -> usize {
+        self.vocabulary_size
+    }
+
     pub const fn kind_name(&self) -> &'static str {
-        match self {
-            Self::LiteralTokens(_) => "literal-u32",
-            Self::ByteBpe(_) => "byte-bpe",
+        match &self.representation {
+            CheckpointTokenizerRepresentation::LiteralTokens(_) => "literal-u32",
+            CheckpointTokenizerRepresentation::ByteBpe(_) => "byte-bpe",
         }
     }
 
     pub fn literal_pieces(&self) -> Option<&[Vec<u8>]> {
-        match self {
-            Self::LiteralTokens(tokens) => Some(tokens),
-            Self::ByteBpe(_) => None,
+        match &self.representation {
+            CheckpointTokenizerRepresentation::LiteralTokens(tokens) => Some(tokens),
+            CheckpointTokenizerRepresentation::ByteBpe(_) => None,
         }
     }
 
     pub fn restore_bpe(&self) -> Result<Option<BpeTokenizer>, CheckpointError> {
-        match self {
-            Self::LiteralTokens(_) => Ok(None),
-            Self::ByteBpe(pairs) => BpeTokenizer::from_merge_pairs(pairs)
-                .map(Some)
-                .map_err(Into::into),
+        match &self.representation {
+            CheckpointTokenizerRepresentation::LiteralTokens(_) => Ok(None),
+            CheckpointTokenizerRepresentation::ByteBpe(pairs) => {
+                BpeTokenizer::from_merge_pairs(pairs)
+                    .map(Some)
+                    .map_err(Into::into)
+            }
         }
     }
 }
@@ -772,9 +805,9 @@ impl Checkpoint {
     // endregion:versioned-checkpoint-encoding
 
     fn tensor_records(&self) -> Result<Vec<TensorRecord>, CheckpointError> {
-        let estimated = match &self.tokenizer {
-            CheckpointTokenizer::LiteralTokens(tokens) => tokens.len(),
-            CheckpointTokenizer::ByteBpe(_) => 1,
+        let estimated = match &self.tokenizer.representation {
+            CheckpointTokenizerRepresentation::LiteralTokens(tokens) => tokens.len(),
+            CheckpointTokenizerRepresentation::ByteBpe(_) => 1,
         }
         .checked_add(self.model_state.parameter_names().len())
         .and_then(|count| {
@@ -794,8 +827,8 @@ impl Checkpoint {
                 context: "tensor descriptor table",
             })?;
 
-        match &self.tokenizer {
-            CheckpointTokenizer::LiteralTokens(tokens) => {
+        match &self.tokenizer.representation {
+            CheckpointTokenizerRepresentation::LiteralTokens(tokens) => {
                 for (token_id, token) in tokens.iter().enumerate() {
                     records.push(TensorRecord::new(
                         CheckpointTensorRole::LiteralToken,
@@ -806,7 +839,7 @@ impl Checkpoint {
                     )?);
                 }
             }
-            CheckpointTokenizer::ByteBpe(pairs) => {
+            CheckpointTokenizerRepresentation::ByteBpe(pairs) => {
                 let mut bytes = Vec::new();
                 let byte_len = pairs
                     .len()
@@ -889,9 +922,9 @@ fn write_metadata(
     put_u16(bytes, RNG_ALGORITHM_VERSION);
     put_u64(bytes, checkpoint.selected_step);
     put_u64(bytes, checkpoint.rng_state);
-    match &checkpoint.tokenizer {
-        CheckpointTokenizer::LiteralTokens(_) => put_u8(bytes, 1),
-        CheckpointTokenizer::ByteBpe(_) => put_u8(bytes, 2),
+    match &checkpoint.tokenizer.representation {
+        CheckpointTokenizerRepresentation::LiteralTokens(_) => put_u8(bytes, 1),
+        CheckpointTokenizerRepresentation::ByteBpe(_) => put_u8(bytes, 2),
     }
     put_u64(
         bytes,
@@ -1413,14 +1446,7 @@ fn decode_tokenizer(
             for pair in values.chunks_exact(2) {
                 pairs.push(TokenPair::new(pair[0], pair[1]));
             }
-            let tokenizer = BpeTokenizer::from_merge_pairs(&pairs)?;
-            if tokenizer.layout().vocabulary_size() != vocabulary_size {
-                return Err(CheckpointError::VocabularyMismatch {
-                    tokenizer: tokenizer.layout().vocabulary_size(),
-                    decoder: vocabulary_size,
-                });
-            }
-            CheckpointTokenizer::ByteBpe(pairs)
+            CheckpointTokenizer::from_byte_bpe_pairs(pairs)?
         }
         tag => return Err(CheckpointError::UnknownTokenizerKind { tag }),
     };
@@ -1822,6 +1848,66 @@ mod tests {
             rng_state,
         )
         .unwrap()
+    }
+
+    #[test]
+    fn literal_tokenizer_constructor_seals_ordered_byte_pieces() {
+        for tokens in [
+            Vec::new(),
+            vec![Vec::new()],
+            vec![b"same".to_vec(), b"same".to_vec()],
+        ] {
+            assert!(matches!(
+                CheckpointTokenizer::literal_tokens(tokens),
+                Err(CheckpointError::Tokenizer(_))
+            ));
+        }
+
+        let pieces = vec![vec![0xff], b"a".to_vec(), vec![0x00, 0xfe]];
+        let tokenizer = CheckpointTokenizer::literal_tokens(pieces.clone()).unwrap();
+        assert_eq!(tokenizer.vocabulary_size(), 3);
+        assert_eq!(tokenizer.kind_name(), "literal-u32");
+        assert_eq!(tokenizer.literal_pieces(), Some(pieces.as_slice()));
+        assert_eq!(tokenizer.restore_bpe().unwrap(), None);
+    }
+
+    #[test]
+    fn private_bpe_constructor_validates_once_and_caches_vocabulary_size() {
+        assert!(matches!(
+            CheckpointTokenizer::from_byte_bpe_pairs(vec![TokenPair::new(256, 97)]),
+            Err(CheckpointError::Bpe(
+                BpeTokenizerError::UnknownMergeOperand {
+                    rank: 0,
+                    token_id: 256,
+                }
+            ))
+        ));
+        assert!(matches!(
+            CheckpointTokenizer::from_byte_bpe_pairs(vec![
+                TokenPair::new(97, 98),
+                TokenPair::new(97, 98),
+            ]),
+            Err(CheckpointError::Bpe(
+                BpeTokenizerError::DuplicateMergePair {
+                    rank: 1,
+                    left: 97,
+                    right: 98,
+                }
+            ))
+        ));
+
+        let tokenizer = CheckpointTokenizer::from_byte_bpe_pairs(Vec::new()).unwrap();
+        assert_eq!(tokenizer.vocabulary_size(), 258);
+        assert_eq!(tokenizer.kind_name(), "byte-bpe");
+        assert_eq!(tokenizer.literal_pieces(), None);
+        assert!(
+            tokenizer
+                .restore_bpe()
+                .unwrap()
+                .unwrap()
+                .merge_rules()
+                .is_empty()
+        );
     }
 
     #[test]
