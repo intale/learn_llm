@@ -33,7 +33,7 @@ const copy = {
     ],
     diagramTitle: "Separate updates from validation-based selection",
     diagramDescription:
-      "Follow six ordered operations through eight measured updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
+      "Repeat the same six-operation order for each of eight updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
     selectedCell: "Selected",
     cues: [
       "● Circle: measured training loss",
@@ -42,12 +42,20 @@ const copy = {
       "↔ Gaps contain no measured values or interpolated line",
     ],
     detailsFragment: "The first loss equal to the minimum wins",
+    optimizationProofs: {
+      parameterNodes: "Original parameter nodes preserved",
+      gradients: "Raw gradients explicitly cleared",
+    },
     historyFragments: [
       "These training practices form part of the road to modern LLMs",
       "local teaching choices, not universal properties of LLM training",
     ],
-    executionFragment:
-      "The trainer compares the returned optimizer step number directly with the planned update index, then rebuilds a complete candidate decoder from the fresh replacement leaves.",
+    executionFragments: [
+      "The working decoder and optimizer then persist through all eight updates.",
+      "The registry and every decoder component already hold aliases of those nodes, so the next forward pass observes the new values without rebuilding the decoder.",
+      "The trainer compares the returned optimizer step number with the planned update index, calls zero_grad() on every live parameter, and verifies that every gradient coordinate is zero before the next forward pass.",
+      "The trainer does not call it after each ordinary AdamW step.",
+    ],
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -66,7 +74,7 @@ const copy = {
     ],
     diagramTitle: "Разделите обновление параметров и выбор модели по валидации",
     diagramDescription:
-      "Проследите шесть последовательных операций в восьми измеренных обновлениях, затем сравните десять отдельных измерений на обучающей и валидационной выборках в пяти контрольных точках, не проводя между ними выдуманную кривую.",
+      "Повторите одну и ту же последовательность из шести операций для каждого из восьми обновлений, затем сравните десять отдельных измерений на обучающей и валидационной выборках в пяти контрольных точках, не проводя между ними выдуманную кривую.",
     selectedCell: "Выбрано",
     cues: [
       "● Круг: измерение на обучающей выборке",
@@ -75,12 +83,20 @@ const copy = {
       "↔ В промежутках нет измеренных значений или интерполированной линии",
     ],
     detailsFragment: "Побеждает первое значение, равное минимуму",
+    optimizationProofs: {
+      parameterNodes: "Исходные узлы параметров сохранены",
+      gradients: "Исходные градиенты явно обнулены",
+    },
     historyFragments: [
       "Эти приёмы — часть пути к современным LLM",
       "локальные учебные решения, а не общепринятая практика",
     ],
-    executionFragment:
-      "Цикл сравнивает возвращённый номер шага с номером обновления в плане, а затем заново собирает полный декодер-кандидат из новых листовых узлов.",
+    executionFragments: [
+      "Затем этот декодер и этот оптимизатор используются во всех восьми обновлениях.",
+      "В реестре и компонентах декодера хранятся дескрипторы этих же узлов, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
+      "Цикл обучения сравнивает возвращённый номер шага с номером обновления в плане, вызывает zero_grad() для каждого рабочего параметра и проверяет, что все координаты градиента равны нулю, прежде чем начинать следующий прямой проход.",
+      "Его не вызывают после каждого такого шага.",
+    ],
   },
 } as const;
 
@@ -313,7 +329,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 6,
+    revision: 7,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -357,7 +373,9 @@ async function expectChapterContent(
   for (const fragment of localized.historyFragments) {
     expect(lessonText).toContain(fragment);
   }
-  expect(lessonText).toContain(localized.executionFragment);
+  for (const fragment of localized.executionFragments) {
+    expect(lessonText).toContain(fragment);
+  }
   await expect(
     page.locator('.lesson-body a[href^="https://www.jmlr.org/"]'),
   ).toHaveCount(2);
@@ -410,6 +428,24 @@ async function expectChapterContent(
   ).toHaveText(["s=8", "1.322897", "1.595297"]);
   await expect(diagram.locator(".selected-row")).toContainText(
     localized.selectedCell,
+  );
+  const parameterNodeProof = diagram.locator(
+    '[data-optimization-proof="parameter-nodes"]',
+  );
+  await expect(parameterNodeProof).toContainText(
+    localized.optimizationProofs.parameterNodes,
+  );
+  await expect(parameterNodeProof.locator("code")).toHaveText(
+    "parameter_nodes_preserved=true",
+  );
+  const gradientProof = diagram.locator(
+    '[data-optimization-proof="gradients-cleared"]',
+  );
+  await expect(gradientProof).toContainText(
+    localized.optimizationProofs.gradients,
+  );
+  await expect(gradientProof.locator("code")).toHaveText(
+    "cleared_gradients=true",
   );
   await expectDiagramContainment(page);
 

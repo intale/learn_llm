@@ -414,7 +414,8 @@ struct SingleRunEvidence {
     probe: ProbeEvidence,
     gradient_l1: Vec<f64>,
     generation: GenerationEvidence,
-    leaves_replaced: bool,
+    parameter_nodes_preserved: bool,
+    gradients_cleared: bool,
     final_parameter_bits: Vec<u64>,
     test_text_encoded_or_scored: bool,
 }
@@ -425,7 +426,8 @@ pub struct LearnerEvidence {
     pub probe: ProbeEvidence,
     pub gradient_l1: Vec<f64>,
     pub generation: GenerationEvidence,
-    pub leaves_replaced: bool,
+    pub parameter_nodes_preserved: bool,
+    pub gradients_cleared: bool,
     pub replay_bitwise: bool,
     pub test_text_encoded_or_scored: bool,
 }
@@ -556,7 +558,7 @@ fn run_once() -> Result<SingleRunEvidence, FixtureError> {
     let config = model_config()?;
     require(config.parameter_count() == 3_384, "parameter count changed")?;
     let mut rng = SplitMix64::from_seed(INIT_SEED);
-    let mut model = NeuralNgram::new(config, &mut rng)?;
+    let model = NeuralNgram::new(config, &mut rng)?;
     let probe = initial_probe(&model, &prepared.tokenizer)?;
     let mut checkpoints = vec![LossCheckpoint {
         step: 0,
@@ -596,7 +598,10 @@ fn run_once() -> Result<SingleRunEvidence, FixtureError> {
             );
         }
         drop(loss);
-        optimizer.step(model.parameters_mut())?;
+        optimizer.step(model.parameters())?;
+        for parameter in model.parameters() {
+            parameter.tensor().zero_grad()?;
+        }
         step += 1;
         if CHECKPOINT_STEPS.contains(&step) {
             checkpoints.push(LossCheckpoint {
@@ -607,11 +612,17 @@ fn run_once() -> Result<SingleRunEvidence, FixtureError> {
         }
     }
     require(step == MAX_STEPS, "optimizer step count changed")?;
-    let leaves_replaced = model
+    let parameter_nodes_preserved = model
         .parameters()
         .iter()
         .zip(initial_leaves)
-        .all(|(parameter, initial)| !parameter.tensor().is_same_node(&initial));
+        .all(|(parameter, initial)| parameter.tensor().is_same_node(&initial));
+    let gradients_cleared = model.parameters().iter().all(|parameter| {
+        parameter
+            .tensor()
+            .gradient()
+            .is_some_and(|gradient| gradient.as_slice().iter().all(|value| *value == 0.0))
+    });
     let gradient_l1 = gradient_l1.ok_or(FixtureError::Invariant("first gradients are missing"))?;
     require(
         gradient_l1
@@ -630,7 +641,8 @@ fn run_once() -> Result<SingleRunEvidence, FixtureError> {
         probe,
         gradient_l1,
         generation,
-        leaves_replaced,
+        parameter_nodes_preserved,
+        gradients_cleared,
         final_parameter_bits,
         test_text_encoded_or_scored: prepared.test_text_encoded_or_scored,
     })
@@ -664,7 +676,8 @@ fn replay_equal(left: &SingleRunEvidence, right: &SingleRunEvidence) -> bool {
         && left.probe.argmax_logit.to_bits() == right.probe.argmax_logit.to_bits()
         && f64_bits_equal(&left.gradient_l1, &right.gradient_l1)
         && left.generation == right.generation
-        && left.leaves_replaced == right.leaves_replaced
+        && left.parameter_nodes_preserved == right.parameter_nodes_preserved
+        && left.gradients_cleared == right.gradients_cleared
         && left.test_text_encoded_or_scored == right.test_text_encoded_or_scored
         && left.final_parameter_bits == right.final_parameter_bits
 }
@@ -680,8 +693,12 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         "same-seed training did not replay bit for bit",
     )?;
     require(
-        first.leaves_replaced,
-        "AdamW did not replace every model leaf",
+        first.parameter_nodes_preserved,
+        "AdamW did not preserve every model parameter node",
+    )?;
+    require(
+        first.gradients_cleared,
+        "training did not clear every post-update parameter gradient",
     )?;
     let initial = first
         .checkpoints
@@ -704,7 +721,8 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         probe: first.probe,
         gradient_l1: first.gradient_l1,
         generation: first.generation,
-        leaves_replaced: first.leaves_replaced,
+        parameter_nodes_preserved: first.parameter_nodes_preserved,
+        gradients_cleared: first.gradients_cleared,
         replay_bitwise,
         test_text_encoded_or_scored: first.test_text_encoded_or_scored,
     })
@@ -809,7 +827,14 @@ pub fn learner_report() -> Result<String, FixtureError> {
                 .iter()
                 .all(|value| value.is_finite() && *value > 0.0)
         ),
-        format!("all_named_leaves_replaced={}", evidence.leaves_replaced),
+        format!(
+            "all_parameter_nodes_preserved={}",
+            evidence.parameter_nodes_preserved
+        ),
+        format!(
+            "all_post_update_gradients_cleared={}",
+            evidence.gradients_cleared
+        ),
         format!("same_seed_replays_bitwise={}", evidence.replay_bitwise),
         format!(
             "test_text_encoded_or_scored={}",
@@ -882,7 +907,8 @@ mod tests {
                 .iter()
                 .all(|value| value.is_finite() && *value > 0.0)
         );
-        assert!(evidence.leaves_replaced);
+        assert!(evidence.parameter_nodes_preserved);
+        assert!(evidence.gradients_cleared);
         assert!(evidence.replay_bitwise);
         assert!(!evidence.test_text_encoded_or_scored);
         assert_eq!(evidence.probe.context_ids, PROMPT_IDS);

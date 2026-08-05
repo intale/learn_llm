@@ -2,7 +2,7 @@
 {
   "chapter_id": "23-neural-ngram",
   "concept_id": "neural-ngram",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 23,
   "objective": {
     "en": "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.",
@@ -118,7 +118,7 @@
       "rust/demos/ch23-neural-ngram/src/main.rs",
       "rust/demos/ch23-neural-ngram/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=23-neural-ngram\nprediction=[1, 2] -> [1, 2, 4] -> [1, 8] -> [1, 8] -> [1, 266]\nconfig=vocabulary:266 context:2 embedding:4 hidden:8 parameters:3384 batch:64 evaluation_batch:512 steps:15\nsplit=train_documents:8 validation_documents:2 train_contexts:1836 validation_contexts:467 test_text_used:false\nprobe_context=[67, 118]\nprobe_embeddings=shape:[1, 2, 4] values:[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]\nprobe_hidden=shape:[1, 8] values:[-0.002448, -0.000051, 0.003220, 0.003477, 0.002033, 0.004016, 0.003727, 0.003874]\nprobe_logits=shape:[1, 266] preview:[0.000075, -0.000037, 0.000496, -0.001047, -0.000055, -0.001032] argmax:44 value:0.002350\nfirst_gradient_l1=[0.020983, 0.002079, 0.002420, 0.002044, 0.019548]\ncheckpoint[0]=train:5.583505 validation:5.583482\ncheckpoint[8]=train:5.580106 validation:5.580365\ncheckpoint[15]=train:5.555850 validation:5.557362\nvalidation_improvement=0.026120\ngeneration=prompt:At prompt_ids:[67, 118] ids:[259, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211] stop:limit bytes_hex:d0b0d1d1d1d1d1d1d1d1d1d1d1\nhistorical=bigram_followers:2 fixed_context_followers:[1, 1] neural_context_width:8\nall_parameter_gradient_l1_positive_finite=true\nall_named_leaves_replaced=true\nsame_seed_replays_bitwise=true\ntest_text_encoded_or_scored=false\nnext=replace fixed concatenation with causal sequence mixing\n"
+    "expected_output": "chapter=23-neural-ngram\nprediction=[1, 2] -> [1, 2, 4] -> [1, 8] -> [1, 8] -> [1, 266]\nconfig=vocabulary:266 context:2 embedding:4 hidden:8 parameters:3384 batch:64 evaluation_batch:512 steps:15\nsplit=train_documents:8 validation_documents:2 train_contexts:1836 validation_contexts:467 test_text_used:false\nprobe_context=[67, 118]\nprobe_embeddings=shape:[1, 2, 4] values:[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]\nprobe_hidden=shape:[1, 8] values:[-0.002448, -0.000051, 0.003220, 0.003477, 0.002033, 0.004016, 0.003727, 0.003874]\nprobe_logits=shape:[1, 266] preview:[0.000075, -0.000037, 0.000496, -0.001047, -0.000055, -0.001032] argmax:44 value:0.002350\nfirst_gradient_l1=[0.020983, 0.002079, 0.002420, 0.002044, 0.019548]\ncheckpoint[0]=train:5.583505 validation:5.583482\ncheckpoint[8]=train:5.580106 validation:5.580365\ncheckpoint[15]=train:5.555850 validation:5.557362\nvalidation_improvement=0.026120\ngeneration=prompt:At prompt_ids:[67, 118] ids:[259, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211] stop:limit bytes_hex:d0b0d1d1d1d1d1d1d1d1d1d1d1\nhistorical=bigram_followers:2 fixed_context_followers:[1, 1] neural_context_width:8\nall_parameter_gradient_l1_positive_finite=true\nall_parameter_nodes_preserved=true\nall_post_update_gradients_cleared=true\nsame_seed_replays_bitwise=true\ntest_text_encoded_or_scored=false\nnext=replace fixed concatenation with causal sequence mixing\n"
   },
   "visualization": {
     "decision": "useful",
@@ -165,11 +165,13 @@
     }
   ],
   "translation_notes": [
-    "Chapter 23 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 3 with SHA-256 a7862010010e46b8cca63916803579fae9705f1c0c9eaa28bf229d61b29bddf9 and becomes stale whenever that source changes.",
+    "Chapter 23 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 3246b7a18c8e4077d9968f155692405a3dafd0f5a91102b9700ff22fcaf6d798 and becomes stale whenever that source changes.",
     "Keep V, C, D, H, E, h, W_o, ell, z with its indices, shapes, token IDs, parameter names, trace keywords, source roles, and source URLs unchanged across both locales.",
     "Translate neural n-gram as «нейронная n-граммная языковая модель»: a fixed-context feed-forward language model, not a count table and not a Transformer.",
     "Translate held-out validation loss as «функция потерь на отложенной валидационной выборке» when the distinction matters; do not use a calque that implies data are physically outside the model.",
     "The gradient proof concerns one positive finite matrix-level L1 norm for each of five parameter matrices; it does not claim that every gradient element is nonzero.",
+    "The parameter-node proof means that the ordered registry and the persistent embedding, SwiGLU, and output-projection handles share the same five nodes before and after AdamW writes new values; never translate it as leaf replacement or layer reconstruction.",
+    "The gradients-cleared proof belongs to the training fixture after its explicit zero_grad call. AdamW itself leaves each accumulated raw gradient unchanged on the live node.",
     "The test boundary proves that test text is not encoded or scored. Reading test document IDs from the frozen split manifest is not the same as using test text.",
     "Bengio et al. support the distributed fixed-context language-model architecture, and Vaswani et al. support the later attention-only and masked-decoder claims. Neither paper defines this course's BPE, SwiGLU, dimensions, AdamW constants, seeds, target extraction, stopping rule, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and literal program data. The language-model architecture and history remain language-independent.",
@@ -191,7 +193,7 @@
     },
     {
       "input": "Commit one successful AdamW update",
-      "expected": "Every one of the five owner leaves is replaced, and the next forward reconstructs layer views from those current leaves."
+      "expected": "The five parameter nodes keep their identities, every persistent layer handle observes the updated values, and AdamW leaves each raw gradient on its node. The fixture explicitly clears those post-update gradients before the next forward pass."
     },
     {
       "input": "Compare step 0 with fixed final step 15",
@@ -237,8 +239,10 @@
 This chapter assembles the cumulative tokenizer, complete-context mini-batches,
 embedding table, tensor tape, SwiGLU block, vocabulary projection, indexed mean
 negative log-likelihood, and AdamW into the first trained neural language model.
-One owned vector holds all five trainable matrices, and each forward reconstructs
-checked layer views from the current leaves.
+One ordered parameter registry and the persistent embedding, SwiGLU, and output
+projection handles refer to the same five trainable leaf nodes. AdamW updates
+the values in those nodes, so every later forward observes the update through
+the existing layer handles.
 
 The model deliberately keeps a fixed context of $C=2$ token IDs. Attention,
 residual connections, normalization, positional treatment, schedules,
@@ -298,9 +302,10 @@ whole context. Scoring all shifted targets would train a different objective.
 
 Classical count n-grams estimate each short context separately, so rare or
 unseen combinations receive little usable evidence as the number of possible
-sequences grows. The executable contrast also shows what a wider context adds:
-a bigram keyed only by final token $11$ mixes two followers, while the contexts
-$[10,11]$ and $[20,11]$ each retain one distinct follower.
+sequences grows. The `historical_context_evidence` calculation also shows what
+a wider context adds: a bigram keyed only by final token $11$ mixes two
+followers, while the contexts $[10,11]$ and $[20,11]$ each retain one distinct
+follower.
 
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 provide the neural step. Bengio et al. map a fixed context through learned
@@ -322,9 +327,9 @@ embeddings share information across token identities, a learned nonlinear map
 combines the complete context, and next-token loss trains every matrix together.
 Attention later removes this fixed-context concatenation bottleneck. The papers
 do not specify this course's byte-pair vocabulary, SwiGLU activation, dimensions,
-AdamW constants, seeds, final-target policy, trace grammar, or stopping rule. The
-executable contrast isolates the model transition from exact count tables to
-shared learned features and then to masked sequence mixing.
+AdamW constants, seeds, final-target policy, trace grammar, or stopping rule.
+`historical_context_evidence` isolates the model transition from exact count
+tables to shared learned features and then to masked sequence mixing.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -333,15 +338,20 @@ shared learned features and then to masked sequence mixing.
 derived width and parameter count. `NeuralNgram` owns exactly these stable
 parameters in pipeline order: `ngram.embedding.weight`, the gate, up, and down
 matrices beneath `ngram.ffn`, and `ngram.output.weight`. Their shapes are
-$[V,D]$, $[CD,H]$, $[CD,H]$, $[H,H]$, and $[H,V]$. Every forward validates
-the batch width and token count before reconstructing embedding, SwiGLU, and
-bias-free output-projection views from current leaf-sharing clones.
+$[V,D]$, $[CD,H]$, $[CD,H]$, $[H,H]$, and $[H,V]$. The ordered registry and
+the persistent embedding, SwiGLU, and bias-free output-projection objects share
+those exact five nodes. Every forward validates the batch width and token count,
+then runs the already-owned layer objects.
 
 `NeuralNgram::loss` rejects a mini-batch whose context length differs from the
 model, extracts only the final shifted target per row, and applies indexed mean
 NLL along vocabulary axis $1$. Reverse mode releases the per-batch graph after
-committing finite gradients. AdamW then atomically replaces all five leaves;
-the next forward cannot accidentally reuse stale layer objects.
+committing finite gradients. AdamW atomically writes the checked parameter
+values into the same five leaf nodes. The registry and layer handles therefore
+observe one shared update without rebuilding the model. AdamW deliberately
+leaves the accumulated gradients in place; after every successful step, the
+fixture explicitly calls `zero_grad()` on all five live parameters before it
+starts the next forward pass.
 
 The frozen data path trains eight BPE ranks only on the eight training documents,
 encodes training and validation documents separately, and never requests test
@@ -389,8 +399,9 @@ needed.
 4. Decide how the final mini-batch contributes to a complete-partition mean.
 5. Predict whether step-$15$ validation loss must be below every intermediate
    value or only below initialization.
-6. Decide whether cloning the model's named parameters creates an independent
-   replay.
+6. Decide what a persistent layer handle and a cloned `NamedParameter` handle
+   observe after AdamW updates their shared node, and whether AdamW itself clears
+   the accumulated gradient.
 7. Predict what happens when BOS has the greatest generation logit.
 8. Identify which test-partition operation would invalidate the held-out proof.
 
@@ -398,8 +409,10 @@ Checks: the shape chain ends at $[64,266]$; only index $C-1$ of each target row
 is scored; all five matrices have positive finite first-step gradient $L_1$
 norms; evaluation
 weights by the actual number of rows; only final improvement from initialization
-is required; parameter clones share tape leaves and are not an independent
-replay; BOS is masked before $\operatorname{argmax}$; and reading, encoding, fitting, selecting,
+is required; cloning a `NamedParameter` copies the handle, which still points to
+the same updated `TensorValue` node as the persistent layer handle, while AdamW
+retains the raw gradient and the caller explicitly clears it; BOS is masked
+before $\operatorname{argmax}$; and reading, encoding, fitting, selecting,
 or scoring test text would violate the fixture boundary.
 
 <!-- contract-section:decoder-connection -->
@@ -414,7 +427,7 @@ attention-based causal information mixing between sequence positions.
 ## Localization notes
 
 English and Russian are the exact active Chapter 23 locales. English content
-revision 3 is the sole semantic source; the Russian lesson translates that exact
+revision 4 is the sole semantic source; the Russian lesson translates that exact
 revision directly and becomes stale whenever the English meaning or presentation
 changes. The contract, route, alternate links, lesson, diagram labels, accessible
 descriptions, exercises, answers, SEO, and terminology publish together.

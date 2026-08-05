@@ -39,7 +39,8 @@ export interface NeuralNgramDiagramLabels {
     testText: string;
     target: string;
     gradientL1: string;
-    leaves: string;
+    parameterNodes: string;
+    gradients: string;
     generationPolicy: string;
   };
   cues: {
@@ -144,7 +145,8 @@ export interface NeuralNgramTrace {
     testText: 'not_encoded_or_scored';
     target: 'final_shifted';
     gradientL1: 'five_positive_finite';
-    leaves: 'replaced';
+    parameterNodes: 'preserved';
+    gradients: 'cleared';
     generation: 'deterministic';
   };
 }
@@ -395,7 +397,8 @@ export function parseNeuralNgramTrace(source: string): NeuralNgramTrace {
     'test_text',
     'target',
     'gradient_l1',
-    'leaves',
+    'parameter_nodes',
+    'gradients',
     'generation',
   ]);
 
@@ -524,7 +527,12 @@ export function parseNeuralNgramTrace(source: string): NeuralNgramTrace {
         'five_positive_finite',
         'PROOF.gradient_l1',
       ) as 'five_positive_finite',
-      leaves: exact(proof.leaves, 'replaced', 'PROOF.leaves') as 'replaced',
+      parameterNodes: exact(
+        proof.parameter_nodes,
+        'preserved',
+        'PROOF.parameter_nodes',
+      ) as 'preserved',
+      gradients: exact(proof.gradients, 'cleared', 'PROOF.gradients') as 'cleared',
       generation: exact(
         proof.generation,
         'deterministic',
@@ -583,7 +591,8 @@ export function assertNeuralNgramDiagramLabels(
       'testText',
       'target',
       'gradientL1',
-      'leaves',
+      'parameterNodes',
+      'gradients',
       'generationPolicy',
     ],
     cues: ['input', 'learned', 'output', 'checkpoint', 'final'],

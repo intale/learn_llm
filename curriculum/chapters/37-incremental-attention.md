@@ -2,15 +2,15 @@
 {
   "chapter_id": "37-incremental-attention",
   "concept_id": "incremental-attention",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 37,
   "objective": {
     "en": "Append one position's rotated keys and unrotated values to one attention-layer cache and reproduce the full-prefix attention result at that newest position.",
-    "ru": "Добавьте повёрнутые ключи и значения без поворота для одной позиции в кэш одного слоя внимания и воспроизведите результат внимания по полному префиксу в этой последней позиции."
+    "ru": "Добавьте в кэш одного слоя внимания повёрнутый ключ и значение без поворота для новой позиции и получите в этой позиции тот же результат, что и при расчёте внимания по полному префиксу."
   },
   "worked_inputs": {
     "en": "Feed three model-width-four rows into a two-head attention layer one row at a time, use cache lengths 0, 1, and 2 as the absolute RoPE positions, and compare each cached output with the corresponding full-prefix last row within 1e-12.",
-    "ru": "Поочерёдно подайте три строки ширины модели 4 в слой внимания с двумя головами, используйте длины кэша 0, 1 и 2 как абсолютные позиции RoPE и на каждом шаге сравните выход с кэшем с последней строкой соответствующего полного префикса в пределах 1e-12."
+    "ru": "Поочерёдно подайте три строки ширины модели 4 в слой внимания с двумя головами, используйте длины кэша 0, 1 и 2 как абсолютные позиции RoPE и после каждого шага убедитесь с допуском 1e-12, что выход с кэшем совпадает с последней строкой результата для соответствующего полного префикса."
   },
   "formula": {
     "latex": "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
@@ -32,8 +32,8 @@
       },
       {
         "symbol": "t",
-        "en": "the newest absolute zero-based position plus one in the one-based mathematical prefix notation",
-        "ru": "абсолютная позиция с нумерацией от нуля плюс один в математической записи префикса с нумерацией от единицы"
+        "en": "the newest one-based position in this formula; the implementation uses zero-based RoPE position t-1",
+        "ru": "номер последней позиции с единицы в этой формуле; соответствующая позиция RoPE с нумерацией от нуля равна t-1"
       },
       {
         "symbol": "1:t",
@@ -90,7 +90,7 @@
           "source_url": "https://arxiv.org/pdf/1706.03762",
           "claim": {
             "en": "Vaswani and colleagues define scaled dot-product attention, describe an autoregressive decoder that emits one element at a time, and mask decoder self-attention so a position can use only the known prefix; the paper does not specify KV caching or RoPE.",
-            "ru": "Васвани и соавторы задают внимание на основе масштабированного скалярного произведения, описывают авторегрессионный декодер, который выдаёт по одному элементу, и маскируют самовнимание декодера так, чтобы позиция могла использовать только известный префикс; в статье не описаны ни использование KV-кэша, ни RoPE."
+            "ru": "Васвани и соавторы задают внимание на основе масштабированного скалярного произведения, описывают авторегрессионный декодер, который выдаёт по одному элементу, и маскируют самовнимание декодера так, чтобы позиция могла использовать только известный префикс; статья не описывает ни KV-кэширование, ни RoPE."
           }
         },
         {
@@ -120,8 +120,8 @@
       "ru": "Переход от повторного вычисления каждого полного префикса к добавлению на каждом шаге одной локальной для слоя пары ключа и значения."
     },
     "summary": {
-      "en": "The historical thread runs from causal masked attention, through explicit incremental KV reuse, to serving systems designed around a dynamically growing cache. Fixed capacity, exact layout, reset behavior, the RoPE offset rule, layer binding, and typed errors are this lesson's local correctness policies.",
-      "ru": "Исторический путь идёт от каузального внимания с маской через явное инкрементальное повторное использование KV к системам обслуживания, рассчитанным на динамически растущий кэш. Фиксированная ёмкость, точное расположение данных, поведение при сбросе, правило смещения RoPE, привязка к слою и типизированные ошибки — локальные правила корректности этой главы."
+      "en": "The historical thread runs from causal masked attention, through explicit incremental KV reuse, to serving systems designed around a dynamically growing cache. Fixed capacity, exact layout, the RoPE offset rule, parameter-node and value-revision binding, reset behavior, and typed errors are this lesson's local correctness policies.",
+      "ru": "Исторический путь идёт от каузального внимания с маской через явное инкрементальное повторное использование тензоров K/V к системам обслуживания, рассчитанным на динамически растущий кэш. Фиксированная ёмкость, точное расположение данных, правило смещения RoPE, привязка к идентичностям узлов параметров и версиям их значений, поведение при сбросе и типизированные ошибки — локальные правила корректности этой главы."
     },
     "rust_contrast": "Measure newest-query key spans [1,2,3] and projected rows for those same calls: complete-prefix references visit six rows per query, key, or value projection, while incremental calls visit three and reuse three earlier rows in each key and value projection."
   },
@@ -143,8 +143,8 @@
     }
   },
   "decoder_connection": {
-    "en": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps, reject incompatible layer identities or configurations, reset without reallocating, and reproduce its full-prefix newest-position output; Chapter 38 will compose one such cache per decoder block.",
-    "ru": "Теперь один слой внимания может сохранять между шагами декодирования повёрнутые ключи и значения без поворота вне графа вычислений, отклонять вызовы при несовпадении слоя или конфигурации, сбрасываться без нового выделения памяти и воспроизводить выход последней позиции при расчёте по полному префиксу; в главе 38 такой кэш появится в каждом блоке декодера."
+    "en": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps and reproduce its full-prefix newest-position output. It rejects a different parameter-node identity, a changed parameter-value revision, or an incompatible configuration; reset clears logical state without reallocating or rebinding. Chapter 38 will compose one such cache per decoder block.",
+    "ru": "Теперь один слой внимания может сохранять между шагами декодирования повёрнутые ключи и значения без поворота вне графа вычислений и воспроизводить для новой позиции результат расчёта по полному префиксу. Слой отклоняет вызов, если изменилась идентичность узла параметра, версия его значения или конфигурация; сброс очищает логическое состояние без нового выделения памяти и без изменения привязки. В главе 38 такой кэш появится в каждом блоке декодера."
   },
   "terminology": [
     {
@@ -176,13 +176,24 @@
       "concept_id": "layer-cache-binding",
       "en": "layer-bound cache",
       "ru": "кэш, привязанный к слою"
+    },
+    {
+      "concept_id": "parameter-value-revision",
+      "en": "parameter-value revision",
+      "ru": "версия значения параметра"
+    },
+    {
+      "concept_id": "stale-kv-cache",
+      "en": "stale KV cache",
+      "ru": "устаревший KV-кэш"
     }
   ],
   "translation_notes": [
-    "Russian was translated directly from frozen canonical English content revision 3 with SHA-256 4c27aa5d416c60245578663f287df442949ee9bb3cef98eff49092d8b118fbb0; Chapter 37's exact active locale set is {en, ru}.",
+    "Chapter 37 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 633f51e0083d1e3d82e7cd6489e55965876802b8c569ca7e1cb1ad708aa22721 and becomes stale whenever that source changes.",
     "Preserve the exact formula, K, V, k, v, ell, t, B, H, C, d_h, RoPE, KV, tensor shapes, tolerances, code identifiers, trace tokens and values, source names, URLs, and source-specific evidence across both locales.",
     "The cache stores rotated keys and unrotated values; it does not retain queries.",
-    "A rebuilt or updated model has new parameter nodes and therefore needs new caches.",
+    "Cache compatibility captures both parameter-node identity and the current parameter-value revision. Rebuilt parameters fail the identity check; an in-place AdamW update preserves node identity but advances the value revision, so both cases require a new cache.",
+    "Reset clears logical length but neither changes the captured identity and revision bindings nor makes a stale cache compatible.",
     "Caching avoids repeated earlier projections but does not make attention over a growing prefix constant-time.",
     "The history must remain about causal Transformer and LLM inference state, not programming languages or implementation tooling.",
     "Any English change affecting meaning or presentation makes the Russian review stale until it is refreshed directly from the new English revision and reviewed again."
@@ -202,11 +213,15 @@
     },
     {
       "input": "Reset the populated cache and replay the same rows",
-      "expected": "Logical length becomes zero without changing storage or allocation, and the replay evidence is identical."
+      "expected": "Logical length becomes zero without changing storage, allocation, or the captured parameter bindings, and replay with the same unchanged layer is identical."
     },
     {
       "input": "Use two rows at once, a full cache, another model width or head count, rebuilt same-shaped weights, a changed RoPE base, the same base with a different position capacity, or finite input whose projection becomes nonfinite",
       "expected": "A typed error is returned and every cache retains the same values and logical length."
+    },
+    {
+      "input": "Update the bound layer in place with AdamW, reset the old cache, and try to use that cache again",
+      "expected": "CacheLayerRevisionMismatch is returned before any append because reset did not refresh the captured revision; constructing a new cache from the updated layer restores compatibility."
     },
     {
       "input": "cargo run --quiet --locked -p ch37-incremental-attention",
@@ -226,9 +241,14 @@ layer-local cache retains rotated keys and unrotated values, accepts exactly one
 new model-width row, uses the current cache length as its absolute RoPE position,
 and appends only after every calculation succeeds.
 
-The cache belongs to one exact set of attention parameter nodes and one exact
-RoPE configuration. A rebuilt or updated model has new nodes and therefore needs
-new caches. It does not cache queries, train through retained state, own
+At construction, the cache captures both the identity and the current value
+revision of every attention parameter node, together with the exact RoPE
+configuration. Rebuilding a layer creates different nodes, so the identity check
+fails. A successful in-place AdamW step keeps those nodes but advances their
+value revisions, so the old cache is stale even though its parameter identities
+still match. In either case, construct a new cache from the current layer.
+`reset` clears logical rows but does not rebind the cache or refresh its captured
+revisions. The cache does not cache queries, train through retained state, own
 prompt prefill, manage paged memory, or coordinate multiple decoder blocks.
 Chapter 38 composes one independent cache per block and uses them during
 generation.
@@ -295,18 +315,25 @@ same logical history becomes at deployment scale.
 Across prefixes of lengths $1$, $2$, and $3$, the executable contrast records
 newest-query key-row counts $[1,2,3]$. Full-prefix reference calls therefore visit
 $1+2+3=6$ input rows in each query, key, or value projection. Incremental calls
-visit only $3$ new rows and reuse $3$ earlier rows in each key and value branch. The newest
-query still reads every retained key and value, so caching avoids repeated
+visit only $3$ new rows and reuse $3$ earlier rows in each key and value branch.
+The newest query still reads the resulting $t$-position key/value prefix: $t-1$
+retained rows plus the current candidate row. Caching therefore avoids repeated
 projection rather than making a growing attention span constant-time.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
 `LayerKvCache::new` binds fixed $[B,H,C,d_h]$ key and value buffers to one
-attention layer's parameter nodes and exact RoPE configuration. A rebuilt or
-updated layer has new parameter nodes and requires a new cache. `reset` changes
-only logical length. Logical snapshots expose $[B,H,t,d_h]$ prefixes without
-changing physical capacity.
+attention layer. For each of its four parameter nodes, the cache captures the
+node identity and current value revision; it also records the exact RoPE
+configuration. A rebuilt layer fails with `CacheLayerMismatch` because its node
+identities differ. An in-place AdamW update keeps the nodes but advances their
+revisions, so the old cache fails with `CacheLayerRevisionMismatch`. Cached rows
+were projected with the earlier parameter values and must not be mixed with rows
+from the updated layer. Construct a new cache after any weight update. `reset`
+changes only logical length: it neither reallocates storage nor changes the
+captured parameter binding. Logical snapshots expose $[B,H,t,d_h]$ prefixes
+without changing physical capacity.
 
 `forward_incremental` requires one input shaped $[B,1,D]$. Under an internal
 no-gradient scope it projects only that row, splits heads, rotates the query and key at the
@@ -315,12 +342,16 @@ all retained and candidate values, merges heads, and applies the existing output
 projection. Only then does it copy the rotated $K$ and unrotated $V$ into the next
 slot and advance length.
 
-Rank, token count, batch, width, capacity, head layout, layer identity, RoPE,
-finite values, allocation, and downstream tensor operations all fail before the
-commit. Raw key/value append is private to this bound operation, so callers cannot
-bypass those checks. The demo compares every output, cache row, reset replay, and
-rejected operation with deterministic evidence, including changed RoPE base and
-changed maximum-position capacity as separate cases.
+Rank, token count, batch, width, capacity, head layout, parameter-node identity,
+parameter-value revision, RoPE, finite values, allocation, and downstream tensor
+operations all fail before the commit. Raw key/value append is private to this
+bound operation, so callers cannot bypass those checks. The deterministic demo
+proves unchanged state for two-token input, a full cache, incompatible model
+width, head count, parameter-node identity, and RoPE configuration, and finite
+input whose projection becomes nonfinite. Separately, `forward_incremental`
+checks captured value revisions before projection or append; after `reset`, an
+in-place update therefore returns `CacheLayerRevisionMismatch` without changing
+the cache.
 
 <!-- contract-section:visualization -->
 ## Visualization
@@ -345,20 +376,27 @@ keyboard region.
 4. Across prefix lengths one, two, and three, how many rows does each full-prefix
    key projection visit?
 5. How many rows does the incremental key projection visit over the same calls?
-6. Does reset erase or reallocate physical storage?
+6. What does reset change, and does it refresh the cache's parameter binding?
 7. May a same-shaped cache from rebuilt weights be reused?
-8. Does a full-cache error leave the previous rows intact?
+8. May the old cache be reused after AdamW updates the same parameter nodes in
+   place?
+9. Does a full-cache error leave the previous rows intact?
 
 Checks: the offset is $2$; queries are not cached; the new query reads $3$ key
 rows; the reference key projection visits $6$ rows; the incremental projection
-visits $3$; reset changes only logical length; rebuilt weights require a new
-cache; and a rejected append changes neither stored values nor logical length.
+visits $3$; reset changes only logical length and does not refresh or rebind the
+captured parameters; rebuilt weights require a new cache because their node
+identities differ; an in-place AdamW update also requires a new cache because it
+advances the existing nodes' value revisions; and a rejected append changes
+neither stored values nor logical length.
 
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-One attention layer now carries compatible, graph-free key/value state between decode
-steps and reproduces its full-prefix newest-position result. The remaining model
+One attention layer now carries compatible, graph-free key/value state between
+decode steps and reproduces its full-prefix newest-position result. Compatibility
+means the same parameter nodes at the same captured value revisions plus the same
+RoPE configuration; reset does not change that binding. The remaining model
 still runs uncached. Chapter 38 will give every decoder block its own cache,
 thread those caches through prefill and one-token decode, and compare complete
 cached generation with the existing reference loop.
@@ -366,18 +404,21 @@ cached generation with the existing reference loop.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the sole active locale. Keep tensor-axis letters, shapes, source
-names, trace values, and formula symbols language-neutral. Translate cache as
-retained inference state, not as a claim about a particular hardware cache.
-Preserve the distinction between logical length and physical capacity, rotated
-keys and unrotated values, and reuse of projections versus the still-growing
-attention read. Preserve that a rebuilt or updated model has new parameter nodes
-and requires new caches.
+English revision 4 is the canonical source, and English and Russian are the exact
+active locale set. Keep tensor-axis letters, shapes, source names, trace values,
+and formula symbols language-neutral. Translate cache as retained inference
+state, not as a claim about a particular hardware cache. Preserve the distinction
+between logical length and physical capacity, rotated keys and unrotated values,
+and reuse of projections versus the still-growing attention read. Preserve the
+separate identity and value-revision checks: rebuilding changes parameter nodes,
+an in-place AdamW update preserves nodes but advances revisions, and reset does
+not rebind either case.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
 
 The acceptance examples in frontmatter freeze all three outputs, cache shapes,
 absolute offsets, the $10^{-12}$ comparison tolerance, row counts, reset replay,
-layer/RoPE binding, and transactional failures. The declared Rust, content,
-static-build, link, Chromium, and Firefox commands must pass before publication.
+parameter identity, captured value revision, layer/RoPE binding, and transactional
+failures. The declared Rust, content, static-build, link, Chromium, and Firefox
+commands must pass before publication.

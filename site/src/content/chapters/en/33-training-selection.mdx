@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
@@ -32,7 +32,7 @@
           },
           {
             "symbol": "\\widetilde g_s",
-            "meaning": "the globally clipped gradient consumed by AdamW"
+            "meaning": "the globally clipped gradient AdamW uses to update both moments"
           },
           {
             "symbol": "\\alpha_s",
@@ -134,7 +134,7 @@
       {
         "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
         "region": "complete-training-loop",
-        "purpose": "Compute one global clipping factor, pass shallow parameter handles plus that factor to each scheduled AdamW update, compare the returned step number with the plan, measure every declared validation checkpoint, and restore the earliest minimum."
+        "purpose": "Keep one working decoder and optimizer across every scheduled update, compute one global clipping factor, commit AdamW into the existing parameter nodes, clear their gradients explicitly, measure every declared validation checkpoint, and restore the earliest minimum."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -149,7 +149,7 @@
       {
         "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
         "region": "decoder-parameter-rebuild",
-        "purpose": "Rebind every decoder component to the optimizer's fresh stable-name leaves after an update."
+        "purpose": "Reconstruct an isolated decoder when restoring an owned state snapshot; ordinary optimizer steps preserve the live component aliases."
       },
       {
         "path": "rust/demos/ch33-training-selection/src/lib.rs",
@@ -187,7 +187,7 @@ import TrainingSelectionDiagram from "../../../components/chapters/TrainingSelec
 export const diagramLabels = {
   title: "Separate updates from validation-based selection",
   description:
-    "Follow six ordered operations through eight measured updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
+    "Repeat the same six-operation order for each of eight updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
   sections: {
     order: "One successful update has six ordered operations",
     checkpoints: "Measure candidates only at declared checkpoints",
@@ -199,7 +199,7 @@ export const diagramLabels = {
     finiteCheck: "Finite-gradient check",
     clip: "Global-norm clip",
     adamwStep: "Scheduled AdamW step",
-    zeroGrad: "Verify and clear fresh gradients",
+    zeroGrad: "Explicitly clear raw gradients",
   },
   fields: {
     step: "Step",
@@ -220,6 +220,8 @@ export const diagramLabels = {
     notSelected: "Not selected",
     testRejected: "Rejected before any update",
     verified: "Verified by the recorded run",
+    parameterNodesPreserved: "Original parameter nodes preserved",
+    gradientsCleared: "Raw gradients explicitly cleared",
   },
   proofs: {
     selection: "Earliest validation minimum",
@@ -229,7 +231,7 @@ export const diagramLabels = {
   },
   captions: {
     order:
-      "The trainer releases the backward graph, checks every gradient, clips once across the complete decoder, applies the predetermined rate, verifies the replacement leaves, and clears their gradients explicitly.",
+      "The trainer releases the backward graph, checks every gradient, clips once across the complete decoder, commits the predetermined-rate update into the existing parameter nodes, and clears their raw gradients explicitly.",
     checkpoints:
       "The table and markers preserve the exact six-decimal values. Only observations at steps 0, 2, 4, 6, and 8 exist; their visual spacing is presentation, not new arithmetic.",
     proof:
@@ -331,8 +333,9 @@ For every parameter $p$ and coordinate $i$, the first-moment recurrence uses
 $\widetilde g_{s,p,i}=\alpha_sg_{s,p,i}$, while the second-moment recurrence
 uses $\widetilde g_{s,p,i}^2=\alpha_s^2g_{s,p,i}^2$. Thus the effective
 gradient has global norm $0.35$, and the scale is applied before squaring. The
-raw gradient tensors remain unchanged on the old parameter leaves, and
-$\alpha_s$ does not scale AdamW's separate weight-decay term.
+raw gradient tensors remain unchanged on the existing parameter leaves until
+the trainer clears them after the update. The factor $\alpha_s$ does not scale
+AdamW's separate weight-decay term.
 
 Validation averages by predicted-token count, not by number of batches. If
 validation batch $j$ contains $n_j$ target tokens and has mean loss
@@ -361,7 +364,7 @@ $$
 - $\mathcal{L}_{tr}^{(s)}$ is next-token loss for training mini-batch $s$.
 - $g_s=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})$ conceptually concatenates every finite named-parameter gradient coordinate before clipping.
 - $\alpha_s$ is the single global clipping factor passed to AdamW; it is $1$ when no clipping is needed.
-- $\widetilde g_s$ is the globally clipped gradient consumed by AdamW.
+- $\widetilde g_s$ is the globally clipped gradient AdamW uses to update both moments.
 - $c$ is the positive global-norm ceiling.
 - $\eta_s$ is the predetermined learning rate for update $s$.
 - $m_s$ and $v_s$ are Adam's continuing first- and second-moment states.
@@ -374,12 +377,13 @@ the program. In the explanation, their roles are conceptual: training fits,
 validation selects, and test evaluates once after selection. A lower training
 loss cannot substitute for held-out validation evidence.
 
-Replacing parameter leaves creates an ownership issue as well. AdamW replaces
-the entries in the candidate parameter list with fresh leaves. The decoder's
-embedding, block, normalization, and tied projection handles must all be rebuilt
-from those same leaves before the next forward pass. Merely replacing a
-separate registry would leave the component handles pointing at stale
-parameters.
+Parameter identity connects the registry to the computation. Each registry
+entry and its embedding, block, or normalization handle refer to the same
+`TensorValue` node. AdamW commits a new tensor value into that existing node, so
+all of those aliases observe the update without being rebuilt. The embedding
+lookup and output projection also continue to share one tied node. Replacing a
+registry entry with a different node would break this guarantee because the
+component handles would still refer to the old node.
 
 {/* chapter-section:history */}
 
@@ -486,35 +490,45 @@ the call if any bit changes.
   label="Rust source implementing Chapter 33 graph-free epoch evaluation"
 />
 
+Before the first update, `train_decoder` reconstructs one isolated working
+decoder from the caller's state and clones the caller's optimizer once. The
+working decoder and optimizer then persist through all eight updates. This
+single initial isolation keeps the caller's inputs unchanged; it is not a model
+or optimizer copy performed for every mini-batch. In particular, the trainer
+does not clone a replacement `Vec<NamedParameter>`, candidate decoder, or
+candidate optimizer for each update.
+
 After checking every raw gradient and computing one norm over all named
-coordinates, the trainer derives one $\alpha_s$. It calls
-`model.parameters().to_vec()` and clones the current optimizer. The call creates a shallow vector of
-`NamedParameter` handles: the handles still refer to the model's existing
-parameter leaves. It does not copy parameter values, overwrite their raw
-gradients, or allocate tensors containing clipped gradients.
+coordinates, the trainer derives one $\alpha_s$. It passes the working model's
+existing parameter handles, $\eta_s$, and $\alpha_s$ to the same working
+optimizer's `step_with_learning_rate_and_gradient_scale` method. The method
+returns only the committed optimizer step number; Chapter 22's more detailed
+trace is unnecessary inside this loop.
 
-The trainer calls the candidate optimizer's ordinary
-`step_with_learning_rate_and_gradient_scale` method with $\eta_s$ and
-$\alpha_s$ because the loop needs only the returned optimizer step number. The
-candidate optimizer validates both scalars before inspecting the parameters.
-Inside its whole-set preparation, the first moment uses
-$\widetilde g_{s,p,i}$ and the second moment uses
+AdamW first validates the complete prospective update. Its first moments use
+$\widetilde g_{s,p,i}$ and its second moments use
 $\widetilde g_{s,p,i}^2$, so clipping is applied before the square. Decoupled
-weight decay still uses the old parameter directly and is not multiplied by
-$\alpha_s$. Only after every candidate update succeeds does AdamW replace the
-candidate-vector entries and commit the next moments and step counter to the
-candidate optimizer. The live loop model and optimizer have not changed yet.
+weight decay still uses the old parameter value and is not multiplied by
+$\alpha_s$. AdamW prepares every next parameter tensor, both moment states, and
+the step number before acquiring write access to all parameter values. A failure
+during preparation or write acquisition leaves every parameter and optimizer
+field unchanged. AdamW does hold each fully checked prospective tensor value
+until the transaction can commit. Those prepared values are required optimizer
+transaction state, not a replacement parameter vector owned by the trainer.
 
-The trainer compares the returned optimizer step number directly with the
-planned update index, then rebuilds a complete candidate decoder from the fresh
-replacement leaves. `gradient()` lends a read guard over one candidate leaf's
-gradient tensor. After verifying that every value is zero, the trainer ends the
-guard before `zero_grad()` mutably clears the same tensor. Only after every
-candidate leaf passes does the trainer assign the candidate decoder and
-candidate optimizer to the live loop variables. The previous model is then
-discarded with the old leaves that held the raw gradients, so those gradients
-cannot accumulate into the next step. Chapter 22 requests detailed trace
-evidence; this training loop does not retain it.
+After all checks succeed, AdamW writes each prepared tensor into its existing
+`TensorValue` node and commits the prepared optimizer state. Names, parameter
+order, node identity, and the embedding/output tie do not change. The registry
+and every decoder component already hold aliases of those nodes, so the next
+forward pass observes the new values without rebuilding the decoder.
+
+AdamW deliberately leaves each raw gradient tensor unchanged on its parameter
+node. The trainer compares the returned optimizer step number with the planned
+update index, calls `zero_grad()` on every live parameter, and verifies that
+every gradient coordinate is zero before the next forward pass. This explicit
+trainer operation prevents accumulation across mini-batches. No candidate
+decoder, candidate optimizer, or replacement `Vec<NamedParameter>` is
+constructed by the trainer for each update.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -523,16 +537,19 @@ evidence; this training loop does not retain it.
   label="Rust source defining the ordinary scaled AdamW update used in Chapter 33"
 />
 
-Because AdamW replaces leaves, `DecoderModel::from_parameters` reconstructs
-every component from one exact stable-order parameter vector. It rejects count,
-name, and component-shape drift, and it preserves one genuinely tied embedding
-leaf for both lookup and output projection.
+`DecoderModel::from_parameters` remains a reconstruction boundary for state
+restoration, not for an ordinary AdamW step. It builds an isolated decoder from
+one exact stable-order parameter vector, rejects count, name, and
+component-shape drift, and re-establishes one tied embedding node for both
+lookup and output projection. The trainer does not call it after each ordinary
+AdamW step. It uses this boundary before the loop and when restoring the
+selected deep snapshot after the loop.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/models/decoder.rs"
   region="decoder-parameter-rebuild"
-  caption="Rebuild every decoder handle from the optimizer's fresh stable-name leaves"
-  label="Rust source reconnecting the Chapter 33 decoder after each optimizer step"
+  caption="Reconstruct an isolated decoder when restoring an owned stable-name state snapshot"
+  label="Rust source defining the Chapter 33 decoder state-restoration boundary"
 />
 
 `train_decoder` first rejects the wrong partitions and incompatible epochs. It
@@ -544,7 +561,7 @@ optimizer remain unchanged even on failure.
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/trainer.rs"
   region="complete-training-loop"
-  caption="Pass shallow parameter handles and one clipping factor to AdamW, execute every update, and restore the earliest validation minimum without consulting test data"
+  caption="Update one persistent working decoder and optimizer, clear gradients explicitly, and restore the earliest validation minimum without consulting test data"
   label="Rust source implementing the complete Chapter 33 training loop"
 />
 
@@ -571,19 +588,20 @@ after the read ends.
 />
 
 Run `cargo run --quiet --locked -p ch33-training-selection`. The report lists
-all five measured checkpoints, the selected validation state, clipping and
-gradient-clear evidence, the rejected test-partition probe, ownership checks,
-and bitwise replay.
+all five measured checkpoints, the selected validation state, clipping,
+preserved-node and explicit gradient-clear evidence, the rejected
+test-partition probe, ownership checks, and bitwise replay.
 
 {/* chapter-section:visualization */}
 
 ## Read measured checkpoints without inventing a curve
 
-The recorded run contains the fixed configuration, six-operation order, four
-schedule segments, all eight update records, an axis derived from the measured
-losses, five checkpoint pairs, one selection record, and the verified
-boundaries. Together they show the relationship between optimization and model
-selection without filling in unmeasured steps.
+The recorded run contains the fixed configuration, the six-operation order
+repeated for each of eight updates, four schedule segments, all eight update
+records, an axis derived from the measured losses, five checkpoint pairs, one
+selection record, and the verified boundaries. Together they show the
+relationship between optimization and model selection without filling in
+unmeasured steps.
 
 <RustSource
   path="rust/demos/ch33-training-selection/src/diagram_trace.rs"
@@ -609,6 +627,12 @@ therefore reaches AdamW with norm $0.35$. That observation is fixture evidence,
 not a requirement that all real LLM updates clip. The generic trainer also
 accepts finite gradients already below the ceiling.
 
+Each update record also says `nodes_preserved=true` and `cleared=true`. The
+summary proof repeats the whole-run invariant as
+`parameter_nodes_preserved=true` and `cleared_gradients=true`. The first field
+means AdamW committed through the original parameter nodes; the second means the
+trainer explicitly cleared their raw gradients afterward.
+
 {/* chapter-section:exercises */}
 
 ## Test the information boundary and state ownership
@@ -621,8 +645,9 @@ accepts finite gradients already below the ceiling.
    comparison retains and relate it to the definition of $s^*$.
 4. Average two batch means without token weights when their token counts differ.
    Compare that result with the token-weighted formula above.
-5. Replace only the parameter registry after AdamW and leave component handles
-   untouched. Identify which state the next decoder forward would use.
+5. Let AdamW commit new values into the existing parameter nodes. Explain why
+   the registry, decoder components, and tied output projection all observe the
+   update without a decoder rebuild.
 6. Draw a line between the five validation markers. List the unmeasured claims
    that line introduces, then remove it and recover the discrete evidence.
 
@@ -636,8 +661,9 @@ accepts finite gradients already below the ceiling.
   3. The first loss equal to the minimum wins because replacement uses strict
      less-than comparison.
   4. Batch means need weights proportional to their predicted-token counts.
-  5. Stale component handles would execute the old leaves even if a separate
-     registry held new values.
+  5. Those handles alias the same `TensorValue` nodes. Updating each node's value
+     preserves the aliases, including the shared embedding/output node, so the
+     next forward pass reads the committed values.
   6. Only the ten measured markers and exact table are justified; values
      between checkpoints remain unknown.
 </details>

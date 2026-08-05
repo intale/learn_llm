@@ -1,6 +1,6 @@
 //! A dependency-free reverse-mode tape for owned tensors.
 
-use std::cell::{Cell, Ref, RefCell, RefMut};
+use std::cell::{BorrowMutError, Cell, Ref, RefCell, RefMut};
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt;
@@ -213,6 +213,13 @@ pub enum TensorAutodiffError {
         index: usize,
         value: f64,
     },
+    StaleOperandValue {
+        child: usize,
+        parent: usize,
+        operand: usize,
+        recorded_revision: u64,
+        current_revision: u64,
+    },
     NonFiniteVjp {
         child: usize,
         parent: usize,
@@ -292,6 +299,16 @@ impl fmt::Display for TensorAutodiffError {
             Self::NonFiniteSeed { index, value } => write!(
                 formatter,
                 "backward seed at flat index {index} must be finite, got {value:?}"
+            ),
+            Self::StaleOperandValue {
+                child,
+                parent,
+                operand,
+                recorded_revision,
+                current_revision,
+            } => write!(
+                formatter,
+                "cannot backpropagate through operand {operand} from topology node {child} to {parent}: the forward pass recorded parent value revision {recorded_revision}, but its current revision is {current_revision}; run a new forward pass"
             ),
             Self::NonFiniteVjp {
                 child,
@@ -389,7 +406,18 @@ impl From<ModelOpError> for TensorAutodiffError {
 #[derive(Clone)]
 struct ParentEdge {
     parent: TensorValue,
+    parent_value_revision: u64,
     saved: TensorSavedContext,
+}
+
+impl ParentEdge {
+    fn capture(parent: &TensorValue, saved: TensorSavedContext) -> Self {
+        Self {
+            parent: parent.clone(),
+            parent_value_revision: parent.value_revision(),
+            saved,
+        }
+    }
 }
 
 struct NodeState {
@@ -400,6 +428,7 @@ struct NodeState {
 
 struct Node {
     value: RefCell<Tensor>,
+    value_revision: Cell<u64>,
     operation: TensorOperation,
     tracked: bool,
     state: RefCell<NodeState>,
@@ -496,6 +525,7 @@ impl TensorValue {
         Self {
             node: Rc::new(Node {
                 value: RefCell::new(value),
+                value_revision: Cell::new(0),
                 operation,
                 tracked,
                 state: RefCell::new(NodeState {
@@ -535,9 +565,8 @@ impl TensorValue {
         let parents = operands
             .into_iter()
             .zip(contexts)
-            .map(|(parent, context)| ParentEdge {
-                parent: parent.clone(),
-                saved: TensorSavedContext::Model(context),
+            .map(|(parent, context)| {
+                ParentEdge::capture(parent, TensorSavedContext::Model(context))
             })
             .collect();
         Self::operation_node(value, operation, parents)
@@ -604,6 +633,79 @@ impl TensorValue {
     }
 }
 // endregion:tensor-tape-values
+
+/// Exclusive access to one live node primal prepared for an infallible commit.
+pub(crate) struct TensorValueWriteGuard<'a> {
+    value: RefMut<'a, Tensor>,
+    revision: &'a Cell<u64>,
+}
+
+/// One cache's immutable binding to a parameter node and its current primal.
+#[derive(Clone, Debug)]
+pub(crate) struct TensorValueBinding {
+    value: TensorValue,
+    revision: u64,
+}
+
+impl TensorValueBinding {
+    pub(crate) fn capture(value: &TensorValue) -> Self {
+        Self {
+            value: value.clone(),
+            revision: value.value_revision(),
+        }
+    }
+
+    pub(crate) fn node_matches(&self, value: &TensorValue) -> bool {
+        self.value.is_same_node(value)
+    }
+
+    pub(crate) fn revision_matches(&self, value: &TensorValue) -> bool {
+        self.revision == value.value_revision()
+    }
+
+    pub(crate) fn revision(&self) -> u64 {
+        self.revision
+    }
+
+    pub(crate) fn same_binding(&self, other: &Self) -> bool {
+        self.value.is_same_node(&other.value) && self.revision == other.revision
+    }
+}
+
+impl TensorValueWriteGuard<'_> {
+    /// Writes one already-validated same-shape primal and advances its revision.
+    pub(crate) fn commit(mut self, value: Tensor, next_revision: u64) {
+        debug_assert_eq!(self.value.shape(), value.shape());
+        debug_assert_eq!(self.revision.get().checked_add(1), Some(next_revision));
+        *self.value = value;
+        self.revision.set(next_revision);
+    }
+}
+
+impl TensorValue {
+    /// Returns the internal version of this node's primal value.
+    pub(crate) fn value_revision(&self) -> u64 {
+        self.node.value_revision.get()
+    }
+
+    /// Returns the revision that one successful primal commit would install.
+    pub(crate) fn next_value_revision(&self) -> Option<u64> {
+        self.value_revision().checked_add(1)
+    }
+
+    /// Requests exclusive primal access without panicking on an active reader.
+    pub(crate) fn try_value_write(&self) -> Result<TensorValueWriteGuard<'_>, BorrowMutError> {
+        Ok(TensorValueWriteGuard {
+            value: self.node.value.try_borrow_mut()?,
+            revision: &self.node.value_revision,
+        })
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_value_revision_for_test(&self, revision: u64) {
+        self.node.value_revision.set(revision);
+    }
+}
 
 trait TensorBackwardObserver {
     type Output;
@@ -736,14 +838,8 @@ impl TensorValue {
         let value = map_binary(&left.view(), &right.view(), |a, b| a + b)?;
         let output_shape = value.shape().to_vec();
         let parents = vec![
-            ParentEdge {
-                parent: self.clone(),
-                saved: broadcast_context(left.shape(), &output_shape),
-            },
-            ParentEdge {
-                parent: other.clone(),
-                saved: broadcast_context(right.shape(), &output_shape),
-            },
+            ParentEdge::capture(self, broadcast_context(left.shape(), &output_shape)),
+            ParentEdge::capture(other, broadcast_context(right.shape(), &output_shape)),
         ];
         Self::operation_node(value, TensorOperation::Add, parents)
     }
@@ -756,14 +852,14 @@ impl TensorValue {
         let value = map_binary(&left.view(), &right.view(), |a, b| a * b)?;
         let output_shape = value.shape().to_vec();
         let parents = vec![
-            ParentEdge {
-                parent: self.clone(),
-                saved: multiply_context(left.shape(), &output_shape, Tensor::clone(&right)),
-            },
-            ParentEdge {
-                parent: other.clone(),
-                saved: multiply_context(right.shape(), &output_shape, Tensor::clone(&left)),
-            },
+            ParentEdge::capture(
+                self,
+                multiply_context(left.shape(), &output_shape, Tensor::clone(&right)),
+            ),
+            ParentEdge::capture(
+                other,
+                multiply_context(right.shape(), &output_shape, Tensor::clone(&left)),
+            ),
         ];
         Self::operation_node(value, TensorOperation::Multiply, parents)
     }
@@ -780,10 +876,7 @@ impl TensorValue {
         Self::operation_node(
             value,
             TensorOperation::Reshape,
-            vec![ParentEdge {
-                parent: self.clone(),
-                saved,
-            }],
+            vec![ParentEdge::capture(self, saved)],
         )
     }
 
@@ -808,10 +901,7 @@ impl TensorValue {
         Self::operation_node(
             value,
             TensorOperation::Transpose,
-            vec![ParentEdge {
-                parent: self.clone(),
-                saved,
-            }],
+            vec![ParentEdge::capture(self, saved)],
         )
     }
 
@@ -832,10 +922,10 @@ impl TensorValue {
         Self::operation_node(
             value,
             TensorOperation::Broadcast,
-            vec![ParentEdge {
-                parent: self.clone(),
-                saved: broadcast_context(input.shape(), shape),
-            }],
+            vec![ParentEdge::capture(
+                self,
+                broadcast_context(input.shape(), shape),
+            )],
         )
     }
 
@@ -875,14 +965,7 @@ impl TensorValue {
             input_shape: input.shape().to_vec(),
             output_shape: value.shape().to_vec(),
         };
-        Self::operation_node(
-            value,
-            operation,
-            vec![ParentEdge {
-                parent: self.clone(),
-                saved,
-            }],
-        )
+        Self::operation_node(value, operation, vec![ParentEdge::capture(self, saved)])
     }
 }
 // endregion:tensor-forward-operations
@@ -1010,6 +1093,21 @@ impl TensorValue {
             .enumerate()
             .map(|(index, value)| (value.key(), index))
             .collect::<HashMap<_, _>>();
+        for (child, value) in topology.iter().enumerate().rev() {
+            let state = value.node.state.borrow();
+            for (operand, edge) in state.parents.iter().enumerate() {
+                let current_revision = edge.parent.value_revision();
+                if edge.parent_value_revision != current_revision {
+                    return Err(TensorAutodiffError::StaleOperandValue {
+                        child,
+                        parent: indices[&edge.parent.key()],
+                        operand,
+                        recorded_revision: edge.parent_value_revision,
+                        current_revision,
+                    });
+                }
+            }
+        }
         let mut pass_adjoints = vec![None; topology.len()];
         pass_adjoints[topology.len() - 1] = Some(seed);
 
@@ -1443,6 +1541,37 @@ mod tests {
                 TensorAutodiffError::GraphReleased { operation: lean },
                 TensorAutodiffError::GraphReleased { operation: traced },
             ) => assert_eq!(lean, traced),
+            (
+                TensorAutodiffError::StaleOperandValue {
+                    child: lean_child,
+                    parent: lean_parent,
+                    operand: lean_operand,
+                    recorded_revision: lean_recorded,
+                    current_revision: lean_current,
+                },
+                TensorAutodiffError::StaleOperandValue {
+                    child: traced_child,
+                    parent: traced_parent,
+                    operand: traced_operand,
+                    recorded_revision: traced_recorded,
+                    current_revision: traced_current,
+                },
+            ) => assert_eq!(
+                (
+                    lean_child,
+                    lean_parent,
+                    lean_operand,
+                    lean_recorded,
+                    lean_current,
+                ),
+                (
+                    traced_child,
+                    traced_parent,
+                    traced_operand,
+                    traced_recorded,
+                    traced_current,
+                )
+            ),
             (
                 TensorAutodiffError::NonFinitePassAdjoint {
                     node: lean_node,
@@ -1989,6 +2118,50 @@ mod tests {
                 operation: TensorOperation::Add,
             })
         );
+    }
+
+    #[test]
+    fn retained_graph_rejects_a_changed_parent_value_without_mutation_or_release() {
+        let x = TensorValue::parameter(scalar(2.0)).unwrap();
+        let square = x.mul(&x).unwrap();
+        let loss = square.add(&square).unwrap();
+        let next_revision = x.next_value_revision().unwrap();
+        x.try_value_write()
+            .unwrap()
+            .commit(scalar(3.0), next_revision);
+        let updated_value = tensor_bits(&x.value());
+        let updated_revision = x.value_revision();
+
+        assert_eq!(
+            loss.backward_with_seed(&tensor(&[1], &[1.0]).view(), GraphRetention::Release),
+            Err(TensorAutodiffError::SeedShapeMismatch {
+                expected: Vec::new(),
+                actual: vec![1],
+            })
+        );
+        assert_eq!(
+            loss.backward_with_seed(&scalar(f64::INFINITY).view(), GraphRetention::Release),
+            Err(TensorAutodiffError::NonFiniteSeed {
+                index: 0,
+                value: f64::INFINITY,
+            })
+        );
+        assert_same_backward_error(
+            loss.backward_with_seed(&scalar(1.0).view(), GraphRetention::Release),
+            loss.backward_with_seed_and_trace(&scalar(1.0).view(), GraphRetention::Release),
+        );
+        assert_eq!(tensor_bits(&x.value()), updated_value);
+        assert_eq!(x.value_revision(), updated_revision);
+        assert_eq!(x.gradient().unwrap().as_slice(), [0.0]);
+        assert!(!square.is_released());
+        assert!(!loss.is_released());
+
+        let fresh_square = x.mul(&x).unwrap();
+        let fresh_loss = fresh_square.add(&fresh_square).unwrap();
+        fresh_loss
+            .backward_with_seed(&scalar(1.0).view(), GraphRetention::Release)
+            .unwrap();
+        assert_eq!(x.gradient().unwrap().as_slice(), [12.0]);
     }
 
     #[test]

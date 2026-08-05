@@ -10,4 +10,4 @@ LOSS|step=8|train=5.580106|validation=5.580365
 LOSS|step=15|train=5.555850|validation=5.557362
 RESULT|step=15|initial_validation=5.583482|final_validation=5.557362|improvement=0.026120
 GENERATE|prompt=At|prompt_ids=[67, 118]|ids=[259, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211]|stop=limit
-PROOF|replay=bitwise|test_text=not_encoded_or_scored|target=final_shifted|gradient_l1=five_positive_finite|leaves=replaced|generation=deterministic
+PROOF|replay=bitwise|test_text=not_encoded_or_scored|target=final_shifted|gradient_l1=five_positive_finite|parameter_nodes=preserved|gradients=cleared|generation=deterministic

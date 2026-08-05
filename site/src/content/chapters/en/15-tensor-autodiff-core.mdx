@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 15,
   "concept_id": "tensor-autodiff-core",
   "title": "Reverse tensor operations with edge-local VJPs",
@@ -49,7 +49,7 @@
   "history": {
     "llm_evolution": {
       "predecessor_kind": "training-practice",
-      "limitation": "Bengio et al.'s neural language model has millions of parameters and an explicit forward phase followed by network-specific backward/update equations. Those equations make next-word gradient flow inspectable, but carrying one scalar graph node per value or a separately handwritten backward calculation for every whole tensor expression becomes unwieldy across deep, repeated blocks with shape changes.",
+      "limitation": "Bengio et al.'s neural language model has millions of parameters and an explicit forward phase followed by network-specific backward/update equations. Those equations make gradient flow from a next-word loss back to the model parameters inspectable. But a separate graph node for every scalar value—or a separately handwritten backward calculation for every tensor expression—becomes unwieldy in deep models with many repeated blocks that change tensor shapes.",
       "later_advance": "Abadi et al. represent computation as operation vertices joined by tensor-valued edges and describe automatic differentiation that finds every backward path from a loss to parameters and sums the paths' partial gradients. Vaswani et al. then train repeated Transformer attention and feed-forward tensor blocks, while Radford et al. scale autoregressive Transformer language models to deeper and wider stacks.",
       "modern_llm_role": "This chapter records one local vector-Jacobian product for each operand use, restores every contribution to its parent's exact shape through reshape, transpose, broadcast, sum, and mean rules, and checks those rules numerically before model-specific derivatives are added. Ordinary inference does not run the reverse tape; training uses it to carry loss sensitivity back through repeated tensor blocks.",
       "sources": [
@@ -106,7 +106,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
       "region": "tensor-forward-operations",
-      "purpose": "Record checked elementwise and structural outputs with ordered operand edges and operation-specific context, including the other multiply operand's primal."
+      "purpose": "Record checked elementwise and structural outputs with ordered operand edges, the parent primal revision used by forward, and operation-specific context, including the other multiply operand's primal."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
@@ -116,7 +116,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
       "region": "tensor-reverse-pass",
-      "purpose": "Propagate fresh finite adjoints, commit parameter-only accumulation transactionally, retain or release the graph, and zero saved parameter handles."
+      "purpose": "Reject stale operand revisions before reverse work, propagate fresh finite adjoints, commit parameter-only accumulation transactionally, retain or release the graph, and explicitly zero stored parameter gradients."
     },
     {
       "path": "rust/demos/ch15-tensor-autodiff-core/src/lib.rs",
@@ -206,7 +206,7 @@ export const diagramLabels = {
     firstPass: 'first retained pass committed',
     secondPass: 'second retained pass accumulated',
     zeroed: 'parameter gradients zeroed',
-    restored: 'releasing pass restored',
+    restored: 'releasing pass restored first-pass gradient values',
     released: 'operation graph released',
     detached: 'detached branch gradient path cut',
     checked: 'sampled gradient checks passed',
@@ -362,7 +362,7 @@ swap those saved axes again.
 
 ## From explicit next-word updates to reusable tensor pullbacks
 
-Bengio et al.'s neural language model has millions of parameters and an explicit forward phase followed by network-specific backward/update equations. Those equations make next-word gradient flow inspectable, but carrying one scalar graph node per value or a separately handwritten backward calculation for every whole tensor expression becomes unwieldy across deep, repeated blocks with shape changes.
+Bengio et al.'s neural language model has millions of parameters and an explicit forward phase followed by network-specific backward/update equations. Those equations make gradient flow from a next-word loss back to the model parameters inspectable. But a separate graph node for every scalar value—or a separately handwritten backward calculation for every tensor expression—becomes unwieldy in deep models with many repeated blocks that change tensor shapes.
 
 The earlier neural-language-model checkpoint is
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
@@ -418,6 +418,17 @@ it snapshots the primal, then creates a new untracked `TensorValue` leaf with no
 operand edge. Later changes to either node's storage cannot change the other
 leaf's independently owned primal.
 
+Each node also carries an internal revision for its primal tensor. A later
+training step can write an updated parameter value into the same node, preserving
+node identity while advancing that primal revision. Node identity alone therefore
+does not prove that an old retained graph still describes the current parameter
+values.
+
+Primal revisions are runtime tape-validity metadata: backward uses them only to
+decide whether saved graph context still belongs to the current parameter
+values. They are not optimizer step numbers and are not serialized in model
+checkpoints.
+
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
   region="tensor-tape-values"
@@ -431,6 +442,12 @@ operand's primal because its local derivative needs that value. Reshape saves
 its input shape, transpose saves its two axes, broadcast saves its source shape,
 and reductions save their axis, retained-dimension choice, and input extent.
 These are owned operation values, not borrowed zero-copy views.
+
+When a forward operation creates an operand-use edge, that edge captures the
+parent's current primal revision. The revision binds the edge and its saved VJP
+context to the exact parent value used in this forward calculation. If an
+in-place parameter update later advances the revision, the old edge still reaches
+the same node, but the retained context belongs to the earlier value.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
@@ -475,6 +492,20 @@ node once but processes every ordered edge, including both multiply edges. No
 stored gradient changes unless all VJPs, pass accumulators, and prospective
 parameter sums validate.
 
+Backward first verifies that the selected output still has graph context and is
+tracked. It then builds the reachable topology, rejecting any reachable operation
+whose graph context was released. Next it checks that the seed has exactly the
+output shape and contains only finite values. Only then does it compare the
+recorded and current parent revisions on every reachable operand edge. It checks
+edges in deterministic reverse-topological order and, within each operation, in
+operand order. This revision scan finishes before backward applies any VJP, asks
+the optional trace observer to record an edge, acquires a gradient write guard,
+or releases graph context. A mismatch returns
+`StaleOperandValue`, identifying the child, parent, operand slot, recorded
+revision, and current revision. The rejected call changes no stored gradient and
+does not release any operation context. The caller must run a new forward pass
+to build edges and saved context from the updated parameter values.
+
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
   region="tensor-reverse-pass"
@@ -484,10 +515,13 @@ parameter sums validate.
 
 The worked example explicitly requests a trace for its first pass because it
 inspects the edge-by-edge evidence shown below. Its second pass needs only the
-committed gradients and therefore uses the ordinary call. A retained second pass recomputes fresh intermediates and doubles the two stored parameter
-gradients.
+committed gradients and therefore uses the ordinary call. The parameter primals
+do not change between these calls, so every captured revision still matches. The
+retained second pass can recompute fresh intermediates and double the two stored
+parameter gradients. Retention keeps saved context available, but it does not
+make that context valid across an in-place parameter update.
 `zero_grad` writes positive zero through saved parameter handles. A successful
-releasing pass restores the first-pass values, then drops the reachable
+releasing pass restores the first-pass gradient values, then drops the reachable
 operation nodes' parent edges and saved context. Primal values, committed
 parameter gradients, and an explicit trace returned earlier remain readable,
 but another backward call or differentiable reuse of a released operation fails
@@ -508,8 +542,9 @@ differences:
 
 Typed errors distinguish unsafe leaves and results, invalid operations, seed
 shape or value failures, non-finite reverse values, untracked outputs, released
-graphs, and a stored gradient that is still read-borrowed. A failed pass leaves
-stored gradient bits and lifecycle state unchanged.
+graphs, a changed parent primal reached through an old retained graph, and a
+stored gradient that is still read-borrowed. A failed pass leaves stored gradient
+bits and lifecycle state unchanged.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
@@ -579,7 +614,7 @@ shape, VJP, accumulated gradient, numerical comparison, and rejection.
 2. Count unique nodes and operand edges. Why are both totals eight even though add is reused?
 3. Reverse mean from seed `[3,6]`, then calculate both multiply-edge contributions.
 4. Sum the broadcast rows into `bias`, swap transpose axes, and restore `x`'s shape.
-5. Predict both parameter gradients after two retained passes, zeroing, and one releasing pass.
+5. Predict both parameter gradients after two retained passes, zeroing, and one releasing pass. Why is the second retained pass valid here, and what would an in-place parameter update between the two passes require?
 6. For a sum over axis `0` with non-scalar seed `[10,20,30]`, explain which values return to each input row.
 7. Distinguish the `value()` and `gradient()` read guards, the `value_snapshot()` and `gradient_snapshot()` copies, `detach`, `zero_grad`, `Retain`, and `Release` by the data or state each one exposes or changes.
 8. Misconception check: does a broadcast create independent parameter copies whose gradients can keep the output shape or select one occurrence?
@@ -591,7 +626,7 @@ shape, VJP, accumulated gradient, numerical comparison, and rejection.
 2. The nodes are `x`, reshape, transpose, `bias`, broadcast, add, multiply, and mean. The edges are one into reshape, one into transpose, one into broadcast, two into add, two into multiply, and one into mean. Node deduplication never removes the repeated multiply edge.
 3. Mean produces `[1,1,1,2,2,2]` at multiply. Each multiply edge contributes upstream times add: `[2,2,5,6,6,12]`. Adding the two edges gives `[4,4,10,12,12,24]`.
 4. Summing the two broadcast rows gives $\bar{\mathrm{bias}}=[16,16,34]$. Swapping axes gives shape `[3,2]` and values `[4,12,4,12,10,24]`; reshape restores shape `[2,3]` with the same flat order.
-5. First-pass gradients are $\bar{x}=[4,12,4,12,10,24]$ and $\bar{\mathrm{bias}}=[16,16,34]$. The second retained pass doubles them. Zeroing writes positive zero. One releasing pass restores the first-pass values and then removes operation context.
+5. First-pass gradients are $\bar{x}=[4,12,4,12,10,24]$ and $\bar{\mathrm{bias}}=[16,16,34]$. The parameter primals and their revisions are unchanged, so the second retained pass is valid and doubles both gradients. Zeroing writes positive zero. One releasing pass restores the first-pass gradient values and then removes operation context. An in-place parameter update would advance the node's current revision while the old edge retained its recorded revision: backward on the old graph would reject before any VJP, gradient write, or release, and a new forward pass would be required.
 6. Sum's VJP reinserts axis `0` as size one and broadcasts the seed over every original row, so every row receives `[10,20,30]`.
 7. `value()` and `gradient()` temporarily borrow node-owned data without copying it; the gradient guard exists only when a parameter has a stored gradient. `value_snapshot()` and `gradient_snapshot()` clone independent tensor data but create no tape node. A read guard must end before the corresponding storage can be mutated; an overlapping stored-gradient mutation returns `GradientBorrowed` without a partial commit. `detach` uses a primal snapshot to create a new untracked leaf. `zero_grad` clears one parameter's stored gradient; `Retain` keeps operation context after a successful commit; `Release` discards that context after a successful commit but preserves primals and stored parameter gradients.
 8. No. Broadcast reuses source coordinates. Its VJP sums every reused output coordinate back to the original parameter shape. Keeping `[2,3]` or selecting one row would both be wrong for `bias[3]`.

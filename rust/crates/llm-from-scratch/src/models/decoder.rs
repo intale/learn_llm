@@ -605,9 +605,9 @@ impl DecoderModel {
     // region:decoder-parameter-rebuild
     /// Rebuilds every component handle from one exact stable-order parameter set.
     ///
-    /// Optimizers replace trainable leaves. Reconstructing the model through
-    /// this boundary guarantees that the next forward pass, the public registry,
-    /// and the tied embedding all refer to those new leaves.
+    /// State restoration uses this construction boundary to create an isolated
+    /// decoder. Ordinary optimizer steps instead update the existing leaves, so
+    /// the registry, components, and tied embedding keep their live aliases.
     pub fn from_parameters(
         config: DecoderModelConfig,
         parameters: Vec<NamedParameter>,
@@ -987,6 +987,7 @@ mod tests {
     use crate::autograd::gradcheck::sampled_tensor_gradient_check;
     use crate::autograd::tensor_core::GraphRetention;
     use crate::tensor::storage::Tensor;
+    use crate::training::adamw::{AdamW, AdamWConfig};
 
     const STEP: f64 = 1e-6;
     const TOLERANCE: f64 = 2e-5;
@@ -1164,6 +1165,50 @@ mod tests {
                 source: DecoderBlockError::Attention(_),
             })
         ));
+    }
+
+    #[test]
+    fn adamw_updates_live_registry_component_and_tied_handles_together() {
+        let model = model(1, 33);
+        let nodes = model
+            .parameters()
+            .iter()
+            .map(|parameter| parameter.tensor().clone())
+            .collect::<Vec<_>>();
+        let embedding_before = model.tied_embedding().tensor().value_snapshot();
+        let embedding = model.tied_embedding();
+        let seed = Tensor::from_vec(
+            embedding.tensor().shape(),
+            vec![0.25; embedding.tensor().value().len()],
+        )
+        .unwrap();
+        embedding
+            .tensor()
+            .backward_with_seed(&seed.view(), GraphRetention::Retain)
+            .unwrap();
+
+        let mut optimizer = AdamW::new(AdamWConfig::new(0.01, 0.9, 0.999, 1e-8, 0.0).unwrap());
+        optimizer.step(model.parameters()).unwrap();
+
+        assert!(
+            model
+                .parameters()
+                .iter()
+                .zip(&nodes)
+                .all(|(parameter, node)| parameter.tensor().is_same_node(node))
+        );
+        assert!(
+            model
+                .embedding()
+                .table()
+                .tensor()
+                .is_same_node(model.tied_embedding().tensor())
+        );
+        assert_ne!(&*model.tied_embedding().tensor().value(), &embedding_before);
+        assert_eq!(
+            &*model.embedding().table().tensor().value(),
+            &*model.parameters()[0].tensor().value()
+        );
     }
 
     #[test]

@@ -31,6 +31,9 @@ const lessonSource = read(
 const russianLessonSource = read(
   "site/src/content/chapters/ru/38-cached-generation.mdx",
 );
+const decoderCacheSource = read(
+  "rust/crates/llm-from-scratch/src/generation/kv_cache.rs",
+);
 const chapterLocaleConfiguration = JSON.parse(
   read("site/src/i18n/chapter-locales.json"),
 );
@@ -407,7 +410,7 @@ describe("Chapter 38 diagram label contract", () => {
 });
 
 describe("Chapter 38 lesson localization contract", () => {
-  it("keeps both active lessons semantically aligned with revision 3", () => {
+  it("keeps both active lessons semantically aligned with revision 4", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(lessonSource),
@@ -427,13 +430,18 @@ describe("Chapter 38 lesson localization contract", () => {
       order: 38,
       activeLocales: ["en", "ru"],
     });
-    expect(contract.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(contract.translation_notes.join(" ")).toContain(
-      "exact active locale set is {en, ru}",
+      "exact active locale set {en, ru}",
+    );
+    const canonicalEnglishHash =
+      "3d1127d01c57cb14b342b38350031268bd6d30fa841acb9c59ae0e1df1fc26b2";
+    expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
+      canonicalEnglishHash,
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      `SHA-256 ${createHash("sha256").update(lessonSource).digest("hex")}`,
+      `SHA-256 ${canonicalEnglishHash}`,
     );
 
     const localizedRecords = [
@@ -469,7 +477,7 @@ describe("Chapter 38 lesson localization contract", () => {
       expect(lesson).toMatchObject({
         chapter_id: contract.chapter_id,
         locale,
-        content_revision: 3,
+        content_revision: 4,
         order: contract.order,
         concept_id: contract.concept_id,
         objective: localized(contract.objective),
@@ -548,10 +556,25 @@ describe("Chapter 38 lesson localization contract", () => {
       ),
     ).toBe(true);
     expect(russianLessonSource).not.toMatch(
-      /кэшированн\w* генерац|промпт-фаз|репле(?:й|я)|однотокенн\w* декод|паритет генерац|рандомн\w* вытяж|останавливающ\w* поведен|интерфейсы с явными прежними|согласованн\w* фиксаци\w* изменений|зафиксируйте весь стек|предполагаемый новый выход|путь всей модели может удерживать|измеренн\w* тензор\w* оценок внимания|два итоговых числа|Проверить девять предположений|не фиксируют изменений состояния/i,
+      /кэшированн\w* генерац|промпт-фаз|репле(?:й|я)|однотокенн\w* декод|паритет генерац|рандомн\w* вытяж|останавливающ\w* поведен|интерфейсы с явными прежними|согласованн\w* фиксаци\w* изменений|зафиксируйте весь стек|предполагаемый новый выход|путь всей модели может удерживать|измеренн\w* тензор\w* оценок внимания|два итоговых числа|Проверить девять предположений|не фиксируют изменений состояния|исполняем\w* пример|свидетельств|внутренняя граница подготовки/i,
     );
     expect(russianLessonSource).not.toMatch(
       /инструкц\w* по сборк|авторск\w* контракт|требовани\w* тест|ограничени\w* фреймворк|механик\w* презентац/i,
     );
+    expect(lessonSource).toContain("ModelParameterRevisionMismatch");
+    expect(lessonSource.replace(/\s+/g, " ")).toContain(
+      "A successful in-place AdamW step writes new values into the same nodes, so their identities still match but their revisions advance",
+    );
+    expect(lessonSource.replace(/\s+/g, " ")).toContain(
+      "Reset does not refresh the captured parameter revisions and does not bind the cache to a different model",
+    );
+    expect(russianLessonSource).toContain(
+      "Старый кэш в этом случае возвращает `ModelParameterRevisionMismatch`",
+    );
+    expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
+      "Сброс не обновляет зафиксированные версии параметров",
+    );
+    expect(decoderCacheSource).toContain("ModelParameterRevisionMismatch");
+    expect(decoderCacheSource).toContain("revision_matches");
   });
 });

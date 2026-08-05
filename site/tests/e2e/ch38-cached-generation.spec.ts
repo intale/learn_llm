@@ -20,8 +20,8 @@ const copy = {
     revisionLabel: "Content revision",
     title: "Prefill once, then advance one token",
     description:
-      "Learn how one KV cache per decoder block turns prompt processing into coherent one-token decoding, with measured newest-logit and generation checks against complete-prefix references.",
-    diagramTitle: "Prefill every layer once; decode every layer together",
+      "Learn how one KV cache per decoder block supports one prompt prefill followed by coherent one-token decoding, then compare newest-position logits and generation decisions with complete-prefix references.",
+    diagramTitle: "Prefill every layer for the prompt; decode every layer together",
     diagramDescription:
       "The exact Rust trace follows a two-token prompt and one later token through two distinct decoder-block caches, checks newest-position logits within tolerance, and compares measured attention-score work plus stopping and reset behavior.",
     headings: [
@@ -29,9 +29,9 @@ const copy = {
       "Count attention-score cells, not total runtime",
       "Keep retained length and final length separate",
       "From causal stacks to prompt and decode phases",
-      "Prepare every block, then commit the stack",
+      "Prepare every block, then commit every cache together",
       "Follow prefill into one-token decode",
-      "Predict before checking the evidence",
+      "Predict before checking the results",
       "Connect inference to the whole pipeline",
     ],
     cues: [
@@ -40,7 +40,11 @@ const copy = {
       "= newest logits match within tolerance",
     ],
     detailsFragment:
-      "Equal values and shapes do not preserve parameter-node identity or the exact decoder configuration recorded by the cache",
+      "Even when values, shapes, and decoder configuration agree, rebuilding creates different parameter nodes, so the identity check fails",
+    revisionMismatchFragment:
+      "An in-place AdamW update preserves the parameter nodes but advances their value revisions",
+    resetBindingFragment:
+      "It does not rebind the cache",
     constantTimeFragment: "Cached attention is not constant-time",
     historyPolicyFragment:
       "local correctness choices rather than policies defined by the cited papers",
@@ -54,9 +58,9 @@ const copy = {
     revisionLabel: "Версия материала",
     title: "Один раз заполните кэши, затем декодируйте по одному токену",
     description:
-      "Разберитесь, как отдельный KV-кэш (кэш ключей и значений) каждого блока декодера позволяет один раз обработать промпт, затем согласованно декодировать по одному токену и отдельно сверять с расчётом по полному префиксу логиты последней позиции и решения при генерации.",
+      "Разберитесь, как отдельный KV-кэш (кэш ключей и значений) для каждого блока декодера позволяет один раз обработать промпт, затем согласованно декодировать по одному токену и сравнивать логиты последней позиции и решения при генерации с эталонным расчётом по полному префиксу.",
     diagramTitle:
-      "Один раз заполните кэш каждого слоя; затем декодируйте все слои согласованно",
+      "Заполните кэш каждого слоя по промпту; затем декодируйте все слои согласованно",
     diagramDescription:
       "Точная трассировка программы на Rust проводит промпт из двух токенов и один следующий токен через два отдельных кэша блоков декодера, проверяет логиты последней позиции в пределах допуска и сравнивает измеренное число оценок внимания, причины остановки и поведение при сбросе.",
     headings: [
@@ -64,9 +68,9 @@ const copy = {
       "Считайте значения оценок внимания, а не полное время работы",
       "Не смешивайте сохранённую и конечную длины",
       "От стека каузальных слоёв к обработке промпта и последовательному декодированию",
-      "Подготовьте каждый блок, затем согласованно примените изменения ко всему стеку",
+      "Подготовьте каждый блок, затем одновременно обновите все кэши",
       "Проследите путь от промпта до декодирования одного токена",
-      "Сначала предскажите, затем проверьте свидетельства",
+      "Сначала предскажите, затем сверьтесь с результатами",
       "Соедините вывод со всем процессом",
     ],
     cues: [
@@ -75,7 +79,11 @@ const copy = {
       "= логиты последней позиции совпадают в пределах допуска",
     ],
     detailsFragment:
-      "Одинаковые значения и формы не сохраняют идентичность узлов параметров и точную конфигурацию декодера, записанную в кэше",
+      "Даже при тех же значениях, формах и конфигурации заново построенная модель содержит другие узлы параметров, поэтому проверка идентичности завершается ошибкой",
+    revisionMismatchFragment:
+      "Обновление AdamW на месте сохраняет узлы параметров, но увеличивает версии их значений",
+    resetBindingFragment:
+      "Он не меняет привязку кэша",
     constantTimeFragment: "Внимание с KV-кэшем не работает за постоянное время",
     historyPolicyFragment:
       "локальные правила корректности, а не требования цитируемых статей",
@@ -284,7 +292,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 38,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -457,8 +465,10 @@ async function expectChapterContent(
   const details = page.locator(".lesson-body details");
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
-  await expect(details.locator("ol > li")).toHaveCount(9);
+  await expect(details.locator("ol > li")).toHaveCount(10);
   await expect(details).toContainText(localized.detailsFragment);
+  await expect(details).toContainText(localized.revisionMismatchFragment);
+  await expect(details).toContainText(localized.resetBindingFragment);
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(

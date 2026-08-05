@@ -13405,6 +13405,213 @@ deployment.
 `separate-adamw-observation`, and
 `20260804T175743Z-separate-adamw-observation-01`.
 
+## 2026-08-05 - Commit AdamW values into live leaves and version cache bindings
+
+**Status:** Accepted during preflight for
+`preserve-live-parameter-leaves-on-commit`; supersedes only the earlier policy
+that a successful AdamW step replaces every parameter leaf, rebuilds the model,
+and relies on the replacement leaf for a zero gradient. It also supersedes the
+Chapter 37/38 claim that parameter-node identity alone proves cache
+compatibility after every possible model change.
+
+**Context:** Audit finding F02 shows that the current transaction prepares fresh
+`TensorValue` leaves, clones the optimizer in the trainer, reconstructs a
+complete decoder, and swaps both candidates on every update. The preceding F02
+checkpoints already made ordinary tensor reads borrowed and passed one clipping
+scale into AdamW, so the remaining per-update copies are no longer needed to
+carry values or gradients. The existing `DecoderModel` and `NeuralNgram`
+components already use cloned `NamedParameter` handles to share one
+`TensorValue` node; preserving that node lets every component observe an update
+without rebuilding its handle graph.
+
+The ownership change exposes one correctness dependency. Layer and model-wide
+KV caches currently bind only the parameter nodes. Fresh-leaf replacement made
+an optimizer update change those identities automatically. An in-place value
+commit would preserve identity, so an old cache could otherwise pass its model
+check even though its stored keys and values were projected with earlier
+weights. Resetting logical cache length does not update that provenance.
+
+**Decision:** AdamW's public step methods accept a read-only slice of
+`NamedParameter` handles because the optimizer no longer replaces, reorders, or
+renames slice entries. Keep the existing scalar arithmetic and observer kernel.
+First validate the scheduled rate, clipping scale, names and groups, next step,
+moment shapes, gradients, every prospective moment and parameter scalar, and
+the complete prospective tensor and optimizer state. Then request mutable
+primal guards for the complete parameter set with non-panicking `try_borrow_mut`.
+A conflict at any stable name drops every earlier guard and candidate and returns
+a typed error before changing a primal, gradient, optimizer moment, power, or
+step. Once all guards exist, moving the checked same-shape tensors into the live
+nodes and assigning the prepared optimizer state is infallible.
+
+Each `TensorValue` node carries a monotonically increasing primal revision. The
+same whole-set preparation checks that every revision can advance; the commit
+changes the tensor and its revision together. A layer or decoder KV cache records
+both node identity and revision for every bound parameter. Compatibility requires
+both to match. A same-node optimizer update therefore makes the old cache stale,
+and `reset` deliberately does not rebind it; callers construct a new cache for
+the updated model. Rebuilt equal-valued models remain incompatible because their
+node identities differ. This revision is internal provenance, not an optimizer
+step or a serialized checkpoint field.
+
+AdamW reads but does not clear accumulated gradients. Chapter 23 and the
+Chapter 33 trainer explicitly call `zero_grad` after each successful update on
+the same leaves. The trainer owns one isolated working decoder and optimizer for
+the run, updates them directly, checks the returned step, clears gradients, and
+does not create a per-batch parameter vector, optimizer candidate, decoder
+candidate, or live-variable swap. Chapter 23 keeps persistent embedding,
+SwiGLU, and output-layer handles alongside its ordered registry so its forward
+path no longer reconstructs layer views. Chapter 35's resumed update consumes
+and mutates the already-owned restored decoder directly; a shallow parameter
+copy must not mutate an allegedly independent source model.
+
+Keep `DecoderModelState` capture/restore, selected-model isolation, checkpoint
+bytes, and other durable snapshots unchanged in this checkpoint. Moving owned
+state and narrowing those deep-copy boundaries belongs to the next scheduled
+F02 step. Preserve all numerical operation order, optimizer traces, losses,
+selection, checkpoint bytes, generation decisions, and downstream fixtures.
+Only the Chapter 22/23/33 ownership proof fields intentionally change from
+fresh/replaced to retained/preserved/explicitly-cleared evidence. Advance
+Chapters 22, 23, 33, 37, and 38 to revisions 7, 4, 7, 4, and 4 respectively;
+author canonical English first and refresh Russian directly under the
+localization workflow.
+
+**Consequences:** A successful optimizer update preserves parameter-node,
+component-alias, and tied-weight identity while removing per-step leaf and
+decoder reconstruction. Preparation failures and active primal readers retain
+whole-set rollback. Repeated training remains numerically identical because
+callers clear the retained raw gradients at the explicit zero-grad event.
+Existing caches cannot silently cross a weight update even though the node is
+still live. The step grows to cover Chapters 37/38 and Chapter 35 continuation
+because omitting either would publish a correctness or ownership regression;
+no dependency, wire format, route, build tool, hosting behavior, or external
+service changes.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`preserve-live-parameter-leaves-on-commit`, and
+`20260805T083849Z-preserve-live-parameter-leaves-on-commit-01`.
+
+## 2026-08-05 - Render the live-node proof and name remaining AdamW preparation
+
+**Status:** Accepted during content review of
+`preserve-live-parameter-leaves-on-commit`.
+
+**Context:** Chapter 33's revised trace already records that every update
+preserves parameter nodes and that the trainer explicitly clears their retained
+gradients, but the shared figure parses those fields without displaying them.
+The prose also says too broadly that no per-step parameter vector exists even
+though AdamW must still retain its fully checked candidate tensor values until
+the all-or-nothing commit. Chapter 23's phrase "consumed gradients" can likewise
+imply that AdamW removes data which it actually leaves on the live nodes.
+
+**Decision:** Add the shared Chapter 33 diagram component to this step and show
+both ownership proof fields inside its existing localized optimization card.
+Describe the removed allocation precisely: the trainer no longer clones a
+replacement `Vec<NamedParameter>`, decoder, or optimizer on each update, while
+AdamW still owns the prepared tensor values required for its transaction.
+Describe gradients as raw gradients used and retained by AdamW, then explicitly
+cleared by the caller; rename Chapter 23's learner evidence token accordingly.
+Keep numerical values, operation order, and diagram structure unchanged.
+
+**Consequences:** The rendered figure now exposes the evidence introduced by
+this semantic revision, and the prose no longer confuses eliminated trainer
+copies with required optimizer candidate state or algorithmic use with implicit
+gradient clearing. No new figure, route, dependency, style, or runtime behavior
+is introduced.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`preserve-live-parameter-leaves-on-commit`, and
+`20260805T083849Z-preserve-live-parameter-leaves-on-commit-01`.
+
+## 2026-08-05 - Keep live-node validation semantic and preserve old outcomes
+
+**Status:** Accepted during final validation of
+`preserve-live-parameter-leaves-on-commit` after the complete static and browser
+matrices exposed shared assertion drift.
+
+**Context:** The revised lessons add concrete trainer ownership proof fields,
+more explicit cache and graph-lifecycle wording, and newly rendered Rust regions.
+The complete Vitest matrix still classified `nodes_preserved=true` as
+undocumented math-like code and grounded three cheat-sheet terms in obsolete
+literal fragments. A Chapter 15 course-plan outcome had also been rewritten from
+the wording preserved by its invalidated historical implementation checkpoint.
+The first complete Chromium matrix then compared rendered smart punctuation as
+raw ASCII and treated a syntax highlighter's removal of a final blank line as a
+Rust-source mismatch. None of these failures identified a learner-content or
+runtime defect.
+
+**Decision:** Add `site/tests/formula-rendering.test.ts` to this step and classify
+only the four named trainer ownership and gradient-lifecycle booleans as literal
+trace data. Ground the cheat-sheet checks in current explicit sentences that
+retain the query-cache negation and the complete-decoder commit condition. Keep
+the old Chapter 15 course-plan outcome and matching historical ledger text
+unchanged; the revision note, contract, and lessons carry the new stale-graph
+semantics without rewriting completed history.
+
+Browser prose assertions normalize Unicode quotation marks, nonbreaking spaces,
+and whitespace before semantic comparison. Rust-region DOM assertions ignore
+only final blank lines that the highlighter does not render; they still compare
+every code character inside the region. Do not weaken numerical, formula,
+source-region, localization, geometry, focus, forced-color, no-JavaScript, or
+RTL assertions.
+
+**Consequences:** All 966 static assertions and both 55-scenario browser engines
+now validate the current semantics without encoding presentation-only byte
+differences. Historical checkpoints remain immutable, while the shared tests
+explicitly enforce the new live-node proof and transactional wording. No lesson,
+cheat-sheet definition, runtime behavior, dependency, route, or build output is
+changed by these validation corrections.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`preserve-live-parameter-leaves-on-commit`, and
+`20260805T083849Z-preserve-live-parameter-leaves-on-commit-01`.
+
+## 2026-08-05 - Reject retained graphs after live primal updates
+
+**Status:** Accepted during execution of
+`preserve-live-parameter-leaves-on-commit` after adversarial Rust review exposed
+one additional consequence of preserving parameter-node identity.
+
+**Context:** A retained reverse-mode graph keeps operand edges to the parameter
+nodes used during its forward pass. Fresh-leaf replacement used to isolate that
+old graph from the model's new leaves. After an in-place AdamW commit, the same
+old edges still reach the live nodes even though their primal values have
+changed. The saved VJP context belongs to the earlier forward calculation, so
+allowing a later backward pass would add a stale gradient to the updated
+parameters. Cache revision checks do not protect the autograd tape.
+
+**Decision:** Record the parent's primal revision on every operand-use edge at
+the moment the forward operation is created. Before any reverse arithmetic,
+trace observation, parameter-gradient write guard, or graph release, validate
+every reachable edge against the parent's current revision in deterministic
+topology and operand order. A mismatch returns a typed error that identifies
+the child, parent, operand, recorded revision, and current revision. The failed
+pass changes neither stored gradients nor graph lifecycle state; after a live
+parameter update the caller must run a new forward pass.
+
+Advance Chapter 15 to revision 7 because its rendered tape-value and reverse-pass
+regions own this graph-lifecycle invariant. Author the canonical English
+explanation first, then refresh Russian directly through the localization
+workflow. Chapter 22 must connect the successful in-place optimizer commit to
+the same rule, while Chapter 33 keeps releasing each batch graph before AdamW
+and therefore never crosses an update with retained saved context. Preserve all
+existing numerical fixtures and traces.
+
+**Consequences:** Live-node updates no longer permit gradients computed from
+pre-update saved context to enter post-update parameters. Repeated backward on
+an unchanged retained graph still works, graph release semantics remain
+transactional, and no serialized checkpoint or public model format gains a
+revision field. This expands the step to Chapter 15 and its focused source and
+browser projections; it changes no dependency, route, build tool, or runtime
+deployment behavior.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`preserve-live-parameter-leaves-on-commit`, and
+`20260805T083849Z-preserve-live-parameter-leaves-on-commit-01`.
+
 ## 2026-08-05 - Borrow ordinary TensorValue reads and name independent snapshots
 
 **Status:** Accepted during preflight for `make-tensorvalue-reads-borrowed`

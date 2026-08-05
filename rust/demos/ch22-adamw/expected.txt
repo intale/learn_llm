@@ -1,5 +1,5 @@
 chapter=22-adamw
-prediction=prepare both named updates before replacing either leaf
+prediction=prepare both named updates before writing either live leaf
 config=learning_rate:0.100000 beta1:0.500000 beta2:0.500000 epsilon:0.100000 weight_decay:0.100000
 step=1
 bias_corrections=first:0.500000 second:0.500000
@@ -15,8 +15,8 @@ trajectory[2]=sgd:[0.810000, 0.360000] adamw:[0.799889, 0.786278]
 trajectory[3]=sgd:[0.729000, 0.216000] adamw:[0.702629, 0.681677]
 trajectory[4]=sgd:[0.656100, 0.129600] adamw:[0.607580, 0.578823]
 state_names=[decoder.norm.scale, decoder.output.weight]
-fresh_leaf_gradients_zero=true
-all_named_leaves_replaced=true
+raw_gradients_retained=true
+all_parameter_nodes_preserved=true
 zero_gradient_probe=before:[3.000000] adaptive:[0.000000] decay:[0.030000] after:[2.970000]
 changed_set_error=parameter-name set changed from ["decoder.norm.scale", "decoder.output.weight"] to ["decoder.norm.scale", "decoder.output.weight", "unexpected.weight"]
 changed_set_rollback=true

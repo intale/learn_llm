@@ -11,4 +11,4 @@ POINT|step=1|sgd=[0.900000, 0.600000]|adamw=[0.899091, 0.892439]
 POINT|step=2|sgd=[0.810000, 0.360000]|adamw=[0.799889, 0.786278]
 POINT|step=3|sgd=[0.729000, 0.216000]|adamw=[0.702629, 0.681677]
 POINT|step=4|sgd=[0.656100, 0.129600]|adamw=[0.607580, 0.578823]
-PROOF|state_names=decoder.norm.scale,decoder.output.weight|gradient_reset=zero|leaves_replaced=yes|zero_gradient_decay=0.030000|rollback=unchanged|commit=atomic
+PROOF|state_names=decoder.norm.scale,decoder.output.weight|raw_gradients=retained|parameter_nodes=preserved|zero_gradient_decay=0.030000|rollback=unchanged|commit=atomic

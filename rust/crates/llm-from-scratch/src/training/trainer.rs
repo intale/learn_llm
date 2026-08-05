@@ -533,7 +533,7 @@ pub struct TrainingStep {
     gradient_scale: f64,
     clipped: bool,
     finite_gradients: bool,
-    fresh_zero_gradients: bool,
+    parameter_nodes_preserved: bool,
     cleared_gradients: bool,
     events: [&'static str; 6],
 }
@@ -575,8 +575,8 @@ impl TrainingStep {
         self.finite_gradients
     }
 
-    pub const fn fresh_zero_gradients(&self) -> bool {
-        self.fresh_zero_gradients
+    pub const fn parameter_nodes_preserved(&self) -> bool {
+        self.parameter_nodes_preserved
     }
 
     pub const fn cleared_gradients(&self) -> bool {
@@ -836,25 +836,8 @@ fn gradient_norm(model: &DecoderModel, maximum: f64) -> Result<GradientNorm, Tra
 
 // endregion:global-norm-clipping
 
-fn verify_and_clear_gradients(model: &DecoderModel) -> Result<(), TrainerError> {
+fn clear_and_verify_gradients(model: &DecoderModel) -> Result<(), TrainerError> {
     for parameter in model.parameters() {
-        let gradient = parameter
-            .tensor()
-            .gradient()
-            .expect("a named parameter always owns a gradient tensor");
-        if let Some((index, &value)) = gradient
-            .as_slice()
-            .iter()
-            .enumerate()
-            .find(|(_, value)| **value != 0.0)
-        {
-            return Err(TrainerError::ParameterGradientNotZero {
-                name: parameter.name().to_owned(),
-                index,
-                value,
-            });
-        }
-        drop(gradient);
         parameter.tensor().zero_grad()?;
         let cleared = parameter
             .tensor()
@@ -932,7 +915,7 @@ pub fn train_decoder(
         validation,
     )?;
 
-    let mut model = DecoderModelState::capture(initial_model).restore()?;
+    let model = DecoderModelState::capture(initial_model).restore()?;
     let mut optimizer = initial_optimizer.clone();
     let mut checkpoints = vec![checkpoint(0, &model, train_evaluation, validation)?];
     let mut selected_step = 0_usize;
@@ -956,14 +939,12 @@ pub fn train_decoder(
         drop(loss);
 
         let norm = gradient_norm(&model, config.max_gradient_norm)?;
-        let mut candidate_parameters = model.parameters().to_vec();
-        let mut candidate_optimizer = optimizer.clone();
         let learning_rate = config
             .schedule
             .learning_rate(step)
             .expect("the loop stays inside the validated schedule");
-        let optimizer_step = candidate_optimizer.step_with_learning_rate_and_gradient_scale(
-            &mut candidate_parameters,
+        let optimizer_step = optimizer.step_with_learning_rate_and_gradient_scale(
+            model.parameters(),
             learning_rate,
             norm.scale,
         )?;
@@ -974,10 +955,7 @@ pub fn train_decoder(
                 actual: optimizer_step,
             });
         }
-        let candidate_model = DecoderModel::from_parameters(model_config, candidate_parameters)?;
-        verify_and_clear_gradients(&candidate_model)?;
-        model = candidate_model;
-        optimizer = candidate_optimizer;
+        clear_and_verify_gradients(&model)?;
 
         let batch_windows = batch
             .provenance()
@@ -994,7 +972,7 @@ pub fn train_decoder(
             gradient_scale: norm.scale,
             clipped: norm.scale < 1.0,
             finite_gradients: true,
-            fresh_zero_gradients: true,
+            parameter_nodes_preserved: true,
             cleared_gradients: true,
             events: UPDATE_EVENT_ORDER,
         });
@@ -1137,7 +1115,7 @@ mod tests {
     }
 
     #[test]
-    fn trainer_executes_schedule_clips_rebuilds_and_keeps_inputs_immutable() {
+    fn trainer_executes_schedule_on_live_nodes_and_keeps_inputs_immutable() {
         let model = model();
         let optimizer = optimizer();
         let updates = epoch(Partition::Train, "train", &TRAIN_IDS);
@@ -1161,7 +1139,7 @@ mod tests {
         assert!(result.steps().iter().any(|step| step.clipped()));
         assert!(result.steps().iter().all(|step| {
             step.gradient_norm_after() <= 0.1
-                && step.fresh_zero_gradients()
+                && step.parameter_nodes_preserved()
                 && step.cleared_gradients()
         }));
         assert_eq!(result.final_optimizer().step_count(), 2);
@@ -1250,46 +1228,42 @@ mod tests {
         assert_eq!(norm.before, f64::MAX);
         assert_eq!(norm.after, 1.0);
         assert!(norm.scale.is_finite() && norm.scale > 0.0 && norm.scale < 1.0);
-        let original_leaves = model
+        let candidate_nodes = model
             .parameters()
             .iter()
             .map(|parameter| parameter.tensor().clone())
             .collect::<Vec<_>>();
-        let mut candidates = model.parameters().to_vec();
+        let raw_gradient_bits = gradient_bits(&model).unwrap();
         assert!(
-            candidates
+            model
+                .parameters()
                 .iter()
-                .zip(&original_leaves)
+                .zip(&candidate_nodes)
                 .all(|(candidate, original)| candidate.tensor().is_same_node(original))
         );
-        let mut candidate_optimizer = optimizer();
-        candidate_optimizer
-            .step_with_learning_rate_and_gradient_scale(&mut candidates, 0.02, norm.scale)
+        let mut live_optimizer = optimizer();
+        live_optimizer
+            .step_with_learning_rate_and_gradient_scale(model.parameters(), 0.02, norm.scale)
             .unwrap();
 
         assert!(
-            candidates
+            model
+                .parameters()
                 .iter()
-                .zip(&original_leaves)
-                .all(|(candidate, original)| !candidate.tensor().is_same_node(original))
+                .zip(&candidate_nodes)
+                .all(|(candidate, original)| candidate.tensor().is_same_node(original))
         );
-        assert!(candidates.iter().all(|candidate| {
+        assert!(model.parameters().iter().all(|candidate| {
             candidate
                 .tensor()
                 .value()
                 .as_slice()
                 .iter()
                 .all(|value| value.is_finite())
-                && candidate
-                    .tensor()
-                    .gradient()
-                    .unwrap()
-                    .as_slice()
-                    .iter()
-                    .all(|value| value.to_bits() == 0.0_f64.to_bits())
         }));
-        assert!(candidate_optimizer.parameter_names().all(|name| {
-            let state = candidate_optimizer
+        assert_eq!(gradient_bits(&model).unwrap(), raw_gradient_bits);
+        assert!(live_optimizer.parameter_names().all(|name| {
+            let state = live_optimizer
                 .state(name)
                 .expect("every candidate parameter has moment state");
             state
@@ -1299,8 +1273,15 @@ mod tests {
                 .all(|value| value.is_finite())
         }));
         assert_eq!(
-            gradient_bits(&model).unwrap()[..2],
+            raw_gradient_bits[..2],
             [f64::MAX.to_bits(), f64::MAX.to_bits()]
+        );
+        clear_and_verify_gradients(&model).unwrap();
+        assert!(
+            gradient_bits(&model)
+                .unwrap()
+                .iter()
+                .all(|bits| *bits == 0.0_f64.to_bits())
         );
     }
 

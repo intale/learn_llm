@@ -2,13 +2,13 @@
 {
   "chapter_id": "22-adamw",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 22,
   "concept_id": "adamw",
   "title": "Keep decay out of the gradient moments",
   "description": "Build AdamW from named parameter gradients, bias-corrected moments, and a separate weight-decay path, then commit every checked update together.",
   "objective": "Update a stable set of named decoder parameters with bias-corrected first and second gradient moments while keeping weight decay outside the adaptive gradient path.",
-  "worked_inputs": "For the decay-group parameter `decoder.output.weight`, start with current value $\\theta_0=[1,-2]$ and accumulated token-mean loss gradient $g_1=[0.2,-0.4]$ with respect to that same parameter. Use learning rate $\\eta=0.1$, moment rates $\\beta_1=\\beta_2=0.5$, stabilizer $\\varepsilon=0.1$, and decay $\\lambda=0.1$. Predict the adaptive and decay contributions before computing the replacement value $\\theta_1$.",
+  "worked_inputs": "For the decay-group parameter `decoder.output.weight`, start with current value $\\theta_0=[1,-2]$ and accumulated token-mean loss gradient $g_1=[0.2,-0.4]$ with respect to that same parameter. Use learning rate $\\eta=0.1$, moment rates $\\beta_1=\\beta_2=0.5$, stabilizer $\\varepsilon=0.1$, and decay $\\lambda=0.1$. Predict the adaptive and decay contributions before computing the updated value $\\theta_1$.",
   "formula": {
     "latex": "\\hat m_t=\\frac{m_t}{1-\\beta_1^t},\\quad \\hat v_t=\\frac{v_t}{1-\\beta_2^t},\\quad \\theta_t=(1-\\eta\\lambda)\\theta_{t-1}-\\eta\\frac{\\hat m_t}{\\sqrt{\\hat v_t}+\\varepsilon}",
     "symbols": [
@@ -18,7 +18,7 @@
       },
       {
         "symbol": "\\theta_t",
-        "meaning": "the replacement parameter value committed after every named update succeeds"
+        "meaning": "the updated parameter value committed after every named update succeeds"
       },
       {
         "symbol": "t",
@@ -26,7 +26,7 @@
       },
       {
         "symbol": "g_t",
-        "meaning": "the accumulated token-mean loss gradient stored on the old named-parameter leaf read before optimizer step t"
+        "meaning": "the accumulated token-mean loss gradient stored on the live named-parameter leaf before optimizer step t"
       },
       {
         "symbol": "\\alpha_t",
@@ -79,7 +79,7 @@
       "predecessor_kind": "training-practice",
       "limitation": "Bengio et al.'s neural language model performs a direct stochastic parameter update after presenting one training word and its context. At each update, one scalar learning rate scales the current example's gradient; there is no per-coordinate memory of earlier gradients.",
       "later_advance": "Relative to this direct SGD rule, momentum adds a decaying memory of past directions. Adam later keeps exponential first and second raw gradient moments and corrects their early zero-initialization bias; if an $L_2$ term is coupled into its gradient, that parameter-proportional term enters both moving estimates. AdamW instead moves the shrinkage term outside the gradient entering those adaptive moments.",
-      "modern_llm_role": "LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B parameters. The course's optimizer converts token-mean autograd gradients into fresh named parameter leaves; Chapter 33 supplies a scheduled learning rate and one validated global clipping factor, while mixed precision and distributed optimizer state remain outside this bounded implementation.",
+      "modern_llm_role": "LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B parameters. The course's optimizer writes each checked update into the existing named parameter leaf; Chapter 33 supplies a scheduled learning rate, one validated global clipping factor, and explicit gradient clearing, while mixed precision and distributed optimizer state remain outside this bounded implementation.",
       "sources": [
         {
           "role": "earlier",
@@ -112,7 +112,7 @@
       ]
     },
     "approach": "From direct per-example neural-language-model SGD, through momentum and Adam with a coupled penalty, to bias-corrected adaptive moments with decoupled decay in modern decoder pretraining",
-    "summary": "AdamW is on the road to modern LLMs because it turns noisy next-token gradients into coordinate-wise adaptive updates while keeping weight shrinkage out of the moment estimates. The papers establish the optimization progression; stable names, whole-set rollback, fresh leaves, constants, and trace are course choices.",
+    "summary": "AdamW is on the road to modern LLMs because it turns noisy next-token gradients into coordinate-wise adaptive updates while keeping weight shrinkage out of the moment estimates. The papers establish the optimization progression; stable names, whole-set rollback, in-place live-leaf commit, constants, and trace are course choices.",
     "rust_source": "rust/demos/ch22-adamw/src/lib.rs"
   },
   "rust_sources": [
@@ -144,22 +144,22 @@
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "adamw-state-and-evidence",
-      "purpose": "Define the optional trace that retains the exact effective gradient, prepared moments, corrections, deltas, and replacement vectors."
+      "purpose": "Define the optional trace that retains the exact effective gradient, prepared moments, corrections, deltas, and updated vectors."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "transactional-adamw-step",
-      "purpose": "Validate the shared gradient scale, prepare each effective gradient, corrected moment, separate delta, and fresh leaf, then commit the complete set."
+      "purpose": "Prepare every checked value and optimizer-state candidate, acquire write access to the complete live parameter set, then commit into the same leaves and advance their parameter-value revisions."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "adamw-errors",
-      "purpose": "Return typed configuration, gradient-scale, identity, shape, counter, arithmetic, tensor, and initialization failures."
+      "purpose": "Return typed configuration, gradient-scale, identity, shape, counter, revision, borrow, arithmetic, and tensor failures."
     },
     {
       "path": "rust/demos/ch22-adamw/src/lib.rs",
       "region": "chapter-adamw-fixture",
-      "purpose": "Run the fixed named update, zero-gradient probe, fresh-leaf proof, and changed-set rollback."
+      "purpose": "Run the fixed named update, zero-gradient probe, live-node and retained-gradient proof, and changed-set rollback."
     },
     {
       "path": "rust/demos/ch22-adamw/src/main.rs",
@@ -169,7 +169,7 @@
     {
       "path": "rust/demos/ch22-adamw/src/diagram_trace.rs",
       "region": "adamw-trace",
-      "purpose": "Emit exact moment, delta, replacement, and transaction evidence for the static diagram."
+      "purpose": "Emit exact moment, delta, updated-value, and transaction evidence for the static diagram."
     }
   ],
   "visualization": {
@@ -181,11 +181,11 @@
       {
         "id": "adamw-evidence",
         "component": "AdamwEvidenceDiagram",
-        "rationale": "A compact no-decay record makes the group boundary explicit; separate trajectory and whole-set evidence compare fixed optimizer paths and transactional replacement without crowding the update flow."
+        "rationale": "A compact no-decay record makes the group boundary explicit; separate trajectory and whole-set evidence compare fixed optimizer paths and the atomic live-node commit without crowding the update flow."
       }
     ]
   },
-  "decoder_connection": "The cumulative training path can now associate each accumulated token-mean gradient with its parameter's stable name, preserve first and second moments under that name across steps, and commit a fresh zero-gradient leaf. Chapter 23 uses this optimizer to train a fixed-context neural language model and verify that validation loss improves."
+  "decoder_connection": "The cumulative training path can now associate each accumulated token-mean gradient with its parameter's stable name, preserve first and second moments under that name across steps, and atomically update the existing parameter leaves. AdamW retains each raw gradient after using it; Chapter 23 explicitly clears those post-update gradients and uses this optimizer to train a fixed-context neural language model whose validation loss improves."
 }
 ---
 
@@ -196,10 +196,10 @@ import AdamwEvidenceDiagram from '../../../components/chapters/AdamwEvidenceDiag
 export const diagramLabels = {
   title: "Follow AdamW's separate adaptive and decay paths",
   description:
-    'Follow one named decay-group parameter through gradient moments, bias correction, separate adaptive and parameter-proportional deltas, and replacement.',
+    'Follow one named decay-group parameter through gradient moments, bias correction, separate adaptive and parameter-proportional deltas, and an in-place value commit.',
   evidenceTitle: 'Compare the no-decay group, optimizer paths, and atomic commit',
   evidenceDescription:
-    'Use the zero-gradient normalization scale to expose group-specific decay, then compare exact SGD and AdamW points and verify whole-set replacement invariants.',
+    'Use the zero-gradient normalization scale to expose group-specific decay, then compare exact SGD and AdamW points and verify whole-set commit invariants.',
   summary: {
     step: 'Committed step',
     learningRate: 'Learning rate',
@@ -212,8 +212,8 @@ export const diagramLabels = {
     moments: 'Update and correct gradient moments',
     deltas: 'Keep adaptive and decay deltas separate',
     trajectory: 'Compare trajectories across unequal curvature',
-    replacement: 'Replace every checked leaf together',
-    proof: 'Check identity, gradient reset, and rollback',
+    replacement: 'Commit every checked value into its live leaf',
+    proof: 'Check identity, retained gradients, and rollback',
   },
   fields: {
     parameter: 'Named parameter',
@@ -227,13 +227,13 @@ export const diagramLabels = {
     correctedSecond: 'Corrected second raw moment',
     adaptiveDelta: 'Adaptive delta',
     decayDelta: 'Decay delta',
-    after: 'Replacement value',
+    after: 'Updated value',
     curvature: 'Quadratic curvature',
     trajectoryPoint: 'Optimizer step',
     stateNames: 'State keys',
-    freshGradient: 'Fresh-leaf gradient',
-    leafIdentity: 'Leaf identity',
-    zeroGradientDecay: 'Fresh-state zero-gradient decay probe',
+    rawGradient: 'Accumulated gradient after AdamW',
+    leafIdentity: 'Parameter-node identity',
+    zeroGradientDecay: 'Zero-moment, zero-gradient decay probe',
     failedTransaction: 'Changed-set attempt',
     commit: 'Successful commit',
   },
@@ -245,9 +245,9 @@ export const diagramLabels = {
     trajectory:
       'The same fixed quadratic supplies both paths. Every point is exact Rust evidence; no point is inferred from drawing geometry.',
     replacement:
-      'Rust prepares both named replacements first. A success installs fresh leaves only after all arithmetic and construction checks pass.',
+      'Rust prepares both named values first, acquires write access to the complete live set, and then commits both values into the existing leaves.',
     proof:
-      'Moment state follows stable names rather than display order. A changed name set leaves every old leaf and optimizer state unchanged.',
+      'Moment state follows stable names rather than display order. A changed name set leaves every parameter value, gradient, node identity, and optimizer field unchanged.',
   },
   symbols: {
     adaptive: 'Adaptive path',
@@ -258,7 +258,7 @@ export const diagramLabels = {
     adamw: 'AdamW trajectory',
     subtract: 'Subtract both deltas',
     zero: 'Exact zero',
-    replaced: 'Replaced',
+    preserved: 'Preserved',
     unchanged: 'Unchanged',
     atomic: 'Atomic',
   },
@@ -279,9 +279,10 @@ export const diagramLabels = {
 
 Chapter 21 ends with tensor-shaped gradients of the token-mean loss. Before an
 optimizer step, associate each gradient with the stable name of the parameter
-with respect to which it was computed. AdamW uses each named gradient as an
-input to compute a replacement value for the matching parameter. Only after
-every candidate succeeds does it replace the old parameter leaves.
+with respect to which it was computed. AdamW uses each named gradient to
+compute an updated value for the matching parameter. It prepares the complete
+named update before writing any value, then commits every updated value into
+the same live parameter leaf.
 
 In this worked update, $\theta_0$ is the current value of the decay-group
 parameter `decoder.output.weight`, and $g_1$ is the accumulated token-mean loss
@@ -331,10 +332,12 @@ $$
 
 The scalar is shared by every coordinate of the complete parameter set. It is
 not a second learning rate: it changes only the gradient supplied to the moment
-recurrences. The optimizer reads $g_t$ without modifying the old leaf. After a
-successful transaction, the supplied candidate entry holds a fresh leaf whose
-gradient is zero; any other handle that still retains the old leaf observes its
-unchanged raw gradient. A scale of $1$ preserves every gradient bit used by the
+recurrences. The optimizer reads $g_t$ without changing the stored gradient.
+After a successful transaction, the parameter has the new value but keeps the
+same leaf identity and the same accumulated gradient. AdamW uses the gradient
+in its calculation and retains it; the Chapter 23 training loop calls
+`zero_grad()` explicitly after the update and before the next backward pass. A
+scale of $1$ preserves every gradient bit used by the
 calculation, as in this chapter's worked step; Chapter 33 derives a scale below
 $1$ when the complete gradient norm exceeds its ceiling.
 
@@ -345,8 +348,8 @@ $$
 \widetilde g_t=0.25[0.8,-0.4]=[0.2,-0.1].
 $$
 
-The first moment consumes $[0.2,-0.1]$, and the second moment consumes its
-coordinate squares $[0.04,0.01]$. The separate decay term remains
+The first-moment calculation uses $[0.2,-0.1]$, and the second-moment
+calculation uses its coordinate squares $[0.04,0.01]$. The separate decay term remains
 $\eta\lambda\theta_{t-1}$.
 
 Update the elementwise first and second raw moments with that effective
@@ -383,7 +386,7 @@ Equivalently, subtract the adaptive delta and
 $\eta\lambda\theta_{t-1}$ as two explicit terms. Decoupling means the second
 term bypasses $g_t$, $\widetilde g_t$, $m_t$, and $v_t$. Changing
 $\alpha_t$ therefore does not scale decay. Decoupling does not mean the final
-replacement ignores the adaptive branch.
+updated value ignores the adaptive branch.
 
 In this formula, $\lambda$ is the effective coefficient for the current named
 parameter: it equals the configured decay for a decay-group parameter and $0$
@@ -402,15 +405,15 @@ directly pull the learned affine scale toward zero.
 ## Keep step state and parameter state distinct
 
 - $\theta_{t-1}$ is one named parameter tensor before step $t$.
-- $g_t$ is its accumulated token-mean loss gradient, which remains stored on the old leaf.
+- $g_t$ is its accumulated token-mean loss gradient, which remains stored on the live leaf until the caller clears it.
 - $\alpha_t$ is the validated scale shared by every gradient coordinate; $0\leq\alpha_t\leq1$.
-- $\widetilde g_t=\alpha_tg_t$ is the effective gradient consumed by both moment recurrences.
+- $\widetilde g_t=\alpha_tg_t$ is the effective gradient used by both moment recurrences.
 - $m_t$ and $v_t$ are name-keyed moving estimates with the same shape.
 - $\beta_1$ and $\beta_2$ retain past first and second raw moments, respectively.
 - $\hat m_t$ and $\hat v_t$ correct their early-step zero bias.
 - $\eta>0$ is the learning rate; $\lambda\geq0$ is decay.
 - $\varepsilon>0$ stabilizes the adaptive denominator after its square root.
-- $\theta_t$ is a fresh trainable leaf installed only after the whole set succeeds.
+- $\theta_t$ is the updated value written into that same trainable leaf only after the whole set succeeds.
 
 On the fresh probe, $m_0=v_0=0$ and $g_1=0$, so both new moments and the
 adaptive delta are zero. A decay-group parameter still shrinks through
@@ -463,10 +466,11 @@ moves parameter-proportional decay outside the gradient entering those
 adaptive moments.
 
 LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B
-parameters. The course's optimizer converts token-mean autograd gradients into
-fresh named parameter leaves; Chapter 33 supplies a scheduled learning rate and
-one validated global clipping factor, while mixed precision and distributed
-optimizer state remain outside this bounded implementation.
+parameters. The course's optimizer writes each checked update into the existing
+named parameter leaf; Chapter 33 supplies a scheduled learning rate, one
+validated global clipping factor, and explicit gradient clearing, while mixed
+precision and distributed optimizer state remain outside this bounded
+implementation.
 
 That progression—from direct next-word gradients to adaptive, decoupled
 updates used in decoder pretraining—is why AdamW belongs on the road to modern
@@ -484,10 +488,13 @@ fixed unequal-curvature trajectory. Rust is only the executable medium for this
 language-independent comparison:
 
 Inside the trajectory loop, one block calls `value()` to borrow the current
-AdamW parameter primal without copying it and computes both coordinates of the
-quadratic gradient. Leaving that block ends the read guard before `step()`
-mutably accesses the parameter. This scope changes the lifetime of the read,
-not the optimizer mathematics or the recorded trajectory.
+AdamW parameter value without copying it and computes both coordinates of the
+quadratic gradient. Leaving that block ends the read guard. If the read guard
+remained active, `step()` could not obtain mutable access to the same stored
+value. After the step, the loop explicitly
+calls `zero_grad()` so the next backward seed does not accumulate onto the
+gradient just used. These scopes change ownership timing, not the optimizer
+mathematics or the recorded trajectory.
 
 <RustSource
   path="rust/demos/ch22-adamw/src/lib.rs"
@@ -498,7 +505,7 @@ not the optimizer mathematics or the recorded trajectory.
 
 {/* chapter-section:rust-implementation */}
 
-## Prepare every named replacement before commit
+## Prepare every named value before the live commit
 
 Configuration rejects invalid scalar domains before any optimizer state exists:
 
@@ -541,7 +548,7 @@ $\alpha_t=1$. They do not construct an `AdamWStep` unless the caller uses
 Every entry point uses the same internal preparation-and-commit operation and
 the same elementwise AdamW calculation. Tracing records values produced by that
 calculation; it does not calculate the update a second time. In a trace,
-`gradient()` is the effective $\widetilde g_t$ actually consumed by both
+`gradient()` is the effective $\widetilde g_t$ actually used by both
 moments, not a value recomputed by the observer.
 
 <RustSource
@@ -552,7 +559,7 @@ moments, not a value recomputed by the observer.
 />
 
 Only an explicitly requested trace retains the exact input, moment, delta, and
-replacement vectors used as evidence in this chapter:
+updated vectors used as evidence in this chapter:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -567,26 +574,55 @@ configuration. It then enters the shared path, which validates
 $0\leq\alpha_t\leq1$ before inspecting any parameter. The shared path reads
 each raw gradient coordinate, forms the effective coordinate once, and prepares
 prospective name-keyed moments, the powers $\beta_1^t$ and $\beta_2^t$, every
-fresh replacement leaf, and the complete replacement set before changing live
-state. Weight decay still reads the old parameter directly and is never
-multiplied by $\alpha_t$. If any candidate fails, neither the supplied leaves
-nor any optimizer field changes:
+updated parameter tensor, and each next value revision before changing live
+state. Weight decay still reads the value from before the step and is never
+multiplied by $\alpha_t$.
+
+After all calculations and tensor construction succeed, the implementation
+requests exclusive access to every live parameter value. It does not write the
+first parameter before checking the rest. If a caller still holds an active read
+borrow for any parameter value, mutable access to that node fails. AdamW then
+drops every write guard it already acquired, and neither parameters nor optimizer
+state changes. Once all guards exist, each prepared
+same-shape tensor is installed in its existing node and its value revision is
+advanced; those final assignments cannot return an error. The optimizer then
+installs the prepared moments, powers, and step count. Gradients are stored
+separately from parameter values, so the raw accumulated gradients remain
+available until the caller clears them.
+
+Each parameter node owns a monotonically increasing parameter-value revision.
+One successful AdamW commit advances that node's revision once; a failed commit
+does not advance it. The revision records in-place changes to the value stored in
+that node. It is neither the optimizer step number nor checkpoint data. Chapters
+37 and 38 bind each KV cache to both parameter-node identity and the captured
+value revision, because cached keys and values projected before an update are
+stale even though AdamW preserves the node identity.
+
+Forward operations also record the current revision of every operand edge. A
+retained graph built before a successful AdamW update therefore cannot run
+backward against the updated parameter values: the revision mismatch is rejected
+before any gradient or graph state changes. The caller must run a new forward
+pass to build saved context for the updated values.
+
+The complete preparation, mutable-access preflight, and commit into the existing
+leaf nodes are visible in the source:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
   region="transactional-adamw-step"
-  caption="Calculate and construct the complete named update transactionally"
+  caption="Prepare the complete named update, then commit into the live leaves"
   label="Rust source implementing the Chapter 22 AdamW step"
 />
 
 Typed errors cover configuration and gradient-scale domains, empty and
 duplicate sets, changed names and shapes, missing or mismatched gradients,
-counter overflow, non-finite stages, and delegated tensor construction:
+counter or parameter-revision overflow, an active value borrow, non-finite
+stages, and delegated tensor construction:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
   region="adamw-errors"
-  caption="Reject invalid updates without partial parameter replacement"
+  caption="Reject invalid updates without a partial live-value commit"
   label="Rust source defining Chapter 22 AdamW errors"
 />
 
@@ -613,11 +649,12 @@ The learner executable prints every exact vector and invariant:
 />
 
 Run `cargo run --quiet --locked -p ch22-adamw` to inspect the exact first step,
-name-keyed state, fresh-leaf replacement, and changed-set rollback. The same
-implementation supports reordered parameter presentation, accumulated
-gradients, pure decay from fresh zero moments, and retained-moment motion after
-a later zero gradient. Invalid domains, identities, shapes, arithmetic, or
-parameter sets return without replacing a leaf or optimizer state. Repeating
+name-keyed state, preserved parameter nodes, retained raw gradients, and
+changed-set rollback. The same implementation supports reordered parameter
+presentation, accumulated gradients, pure decay from zero-initialized moments,
+and retained-moment motion after a later zero gradient. Invalid domains,
+identities, shapes, arithmetic, or parameter sets return without changing a
+live value or optimizer state. Repeating
 the deterministic 200-step anisotropic-quadratic run is bit-identical and ends
 below objective $10^{-12}$.
 
@@ -636,7 +673,7 @@ authors every displayed number:
 <RustSource
   path="rust/demos/ch22-adamw/src/diagram_trace.rs"
   region="adamw-trace"
-  caption="Emit exact moment, delta, replacement, and rollback evidence"
+  caption="Emit exact moment, delta, live-commit, and rollback evidence"
   label="Rust source producing the Chapter 22 AdamW diagram trace"
 />
 
@@ -663,8 +700,10 @@ at the final subtraction.
    the new value. Then explain why a later zero gradient can still have an
    adaptive contribution after nonzero history.
 4. Explain why reversing two parameter records must not reverse their moments.
-5. Predict what changes if the second candidate overflows after the first candidate succeeds locally.
-6. After a successful replacement, predict the replacement leaf's stored gradient and whether its tape identity matches the old leaf.
+5. Predict what changes if the second candidate overflows after the first candidate has been calculated successfully.
+6. After a successful commit, predict the live leaf's stored gradient, node
+   identity, parameter-value revision, and whether a retained pre-update graph
+   can still run backward.
 7. Order plain SGD, momentum, Adam with coupled $L_2$, and AdamW, and state which terms enter optimizer memory.
 8. Explain why the output weight receives decay while the normalization scale does not.
 9. Compare the fixed SGD and AdamW paths on the unequal-curvature quadratic.
@@ -676,8 +715,8 @@ at the final subtraction.
   2. The adaptive delta is approximately $[0.066667,-0.08]$, decay is $[0.01,-0.02]$, and $\theta_1\approx[0.923333,-1.9]$.
   3. With fresh zero moments, the adaptive delta stays zero, decay is $0.03$, and the value becomes $2.97$. After nonzero history, stored moments can keep the adaptive delta nonzero even when the current gradient is zero.
   4. The state map uses stable names; slice order is presentation only.
-  5. Nothing commits: both old leaves and all optimizer state remain unchanged.
-  6. The replacement leaf has an exact zero gradient and a tape identity distinct from the old leaf.
+  5. Nothing commits: both parameter values, both gradients, both node identities, and all optimizer state remain unchanged.
+  6. The leaf still stores the accumulated gradient that AdamW used for the update, and its tape identity is unchanged. Its monotonically increasing parameter-value revision advances once. A retained graph whose operand edge recorded the preceding revision rejects backward, so the caller clears the gradient and runs a new forward pass before the next backward pass.
   7. Plain SGD uses only the current gradient; momentum remembers a decaying direction; coupled $L_2$ feeds parameter-proportional shrinkage into Adam's moments; AdamW keeps that shrinkage outside the moments. Bengio supplies the neural-language-model starting point, and Touvron et al. document AdamW in LLaMA pretraining.
   8. This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns `decoder.output.weight` to decay, so AdamW subtracts the parameter-proportional term $\eta\lambda\theta_{t-1}$ from it. It assigns `decoder.norm.scale` to no-decay, so that parameter's effective $\lambda$ is $0$; this avoids a decay term that directly pulls the learned normalization scale toward zero.
   9. SGD reduces the high-curvature coordinate much faster; AdamW scales coordinates through their moment history and also applies a separate decay contribution.
@@ -689,10 +728,11 @@ at the final subtraction.
 
 The cumulative training path can now associate each accumulated token-mean
 gradient with its parameter's stable name, preserve first and second moments
-under that name across steps, and commit a fresh zero-gradient leaf. Chapter 23
-uses this optimizer to train a fixed-context neural language model and verify
-that validation loss improves.
+under that name across steps, and atomically update the existing parameter
+leaves. AdamW retains every raw gradient after using it for the update. Chapter
+23 explicitly clears those post-update gradients and uses this optimizer to
+train a fixed-context neural language model whose validation loss improves.
 
 AdamW changes parameters; it does not yet define the model whose gradients it
-consumes. The next chapter closes that loop while keeping data partitions,
+uses. The next chapter closes that loop while keeping data partitions,
 autograd, batching, parameter names, and optimizer state explicit.

@@ -199,7 +199,7 @@ if (selectedCheckpoint === undefined) {
     <h4 id="training-selection-proof-title">{labels.sections.proof}</h4>
     <p>{labels.captions.proof}</p>
     <div class="proof-grid course-diagram__grid">
-        <article data-diagram-card data-diagram-box data-status="pass" class="proof-card optimization-proof course-diagram__card-stack">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card course-diagram__card-stack">
         <h5>{labels.proofs.selection}</h5>
         <p><InlineMath latex={`s^*=${selectedCheckpoint.step}`} /></p>
         <p><InlineMath latex={String.raw`\mathcal{L}_{va}=${selectedCheckpoint.validationLoss}`} /></p>
@@ -216,13 +216,21 @@ if (selectedCheckpoint === undefined) {
         <p><code>Validation</code> → {labels.proofs.selection}</p>
         <p><code>Test</code> → {labels.cues.testRejected}</p>
       </article>
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card course-diagram__card-stack">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card optimization-proof course-diagram__card-stack">
         <h5>{labels.proofs.optimization}</h5>
         <p class="clipping-proof">
           <InlineMath latex={String.raw`\lVert \widetilde g_s\rVert_2\leq0.35`} />
           {labels.cues.clipped}
         </p>
         <p><InlineMath latex={String.raw`\eta_s\in\{0.040,0.025,0.015,0.008\}`} /></p>
+        <p class="ownership-proof" data-optimization-proof="parameter-nodes">
+          <span>{labels.cues.parameterNodesPreserved}</span>
+          <code><bdi dir="ltr">parameter_nodes_preserved={trace.proof.parameter_nodes_preserved}</bdi></code>
+        </p>
+        <p class="ownership-proof" data-optimization-proof="gradients-cleared">
+          <span>{labels.cues.gradientsCleared}</span>
+          <code><bdi dir="ltr">cleared_gradients={trace.proof.cleared_gradients}</bdi></code>
+        </p>
         <code><bdi dir="ltr">schedule_exact=true, replay_bitwise=true</bdi></code>
       </article>
     </div>
@@ -349,6 +357,12 @@ if (selectedCheckpoint === undefined) {
   }
 
   .clipping-proof {
+    display: grid;
+    min-inline-size: 0;
+    gap: 0.25rem;
+  }
+
+  .ownership-proof {
     display: grid;
     min-inline-size: 0;
     gap: 0.25rem;

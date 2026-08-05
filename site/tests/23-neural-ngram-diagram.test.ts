@@ -84,7 +84,8 @@ const labels: NeuralNgramDiagramLabels = {
     testText: 'test text',
     target: 'target',
     gradientL1: 'gradient L1',
-    leaves: 'leaves',
+    parameterNodes: 'parameter nodes',
+    gradients: 'gradients',
     generationPolicy: 'generation policy',
   },
   cues: {
@@ -184,7 +185,8 @@ describe('Chapter 23 Rust trace parser', () => {
       testText: 'not_encoded_or_scored',
       target: 'final_shifted',
       gradientL1: 'five_positive_finite',
-      leaves: 'replaced',
+      parameterNodes: 'preserved',
+      gradients: 'cleared',
       generation: 'deterministic',
     });
   });
@@ -233,7 +235,11 @@ describe('Chapter 23 Rust trace parser', () => {
       'missing gradient proof',
       fixture.replace('gradient_l1=five_positive_finite', 'gradient_l1=invalid'),
     ],
-    ['retained leaves', fixture.replace('leaves=replaced', 'leaves=retained')],
+    [
+      'replaced parameter nodes',
+      fixture.replace('parameter_nodes=preserved', 'parameter_nodes=replaced'),
+    ],
+    ['uncleared gradients', fixture.replace('gradients=cleared', 'gradients=retained')],
     ['nondeterministic generation', fixture.replace('generation=deterministic', 'generation=random')],
   ])('rejects %s', (_name, source) => {
     expect(() => parseNeuralNgramTrace(source)).toThrow(/invalid neural n-gram trace/);
@@ -319,9 +325,9 @@ describe('Chapter 23 contract and lesson projection', () => {
   const russianLesson = frontmatter(russianLessonSource);
 
   it('keeps metadata, formula, LLM history, visualization, handoff, sources, and output aligned', () => {
-    expect(contract.content_revision).toBe(3);
-    expect(lesson.content_revision).toBe(3);
-    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lesson.content_revision).toBe(4);
+    expect(russianLesson.content_revision).toBe(4);
     expect(contract.translation_notes.join(' ')).toContain(
       `SHA-256 ${createHash('sha256').update(lessonSource).digest('hex')}`,
     );

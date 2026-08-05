@@ -240,8 +240,8 @@ fn bits_fingerprint(bits: &[u64]) -> String {
 }
 
 fn apply_resumed_update(
-    model: &DecoderModel,
-    optimizer: &AdamW,
+    model: DecoderModel,
+    mut optimizer: AdamW,
 ) -> Result<(DecoderModel, AdamW), FixtureError> {
     let loss = model.loss(&LOGIT_INPUTS, &[1, 2], &LOGIT_TARGETS)?;
     loss.backward_with_seed(
@@ -249,13 +249,11 @@ fn apply_resumed_update(
         GraphRetention::Release,
     )?;
     drop(loss);
-    let mut parameters = model.parameters().to_vec();
-    let mut optimizer = optimizer.clone();
-    optimizer.step_with_learning_rate(&mut parameters, NEXT_LEARNING_RATE)?;
-    Ok((
-        DecoderModel::from_parameters(model.config(), parameters)?,
-        optimizer,
-    ))
+    optimizer.step_with_learning_rate(model.parameters(), NEXT_LEARNING_RATE)?;
+    for parameter in model.parameters() {
+        parameter.tensor().zero_grad()?;
+    }
+    Ok((model, optimizer))
 }
 
 fn corruption_evidence(
@@ -379,9 +377,9 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let original_logits = logits_bits(&original_model)?;
     let loaded_logits = logits_bits(&loaded_model)?;
     let (updated_original, updated_original_optimizer) =
-        apply_resumed_update(&original_model, &checkpoint.restore_optimizer())?;
+        apply_resumed_update(original_model, checkpoint.restore_optimizer())?;
     let (updated_loaded, updated_loaded_optimizer) =
-        apply_resumed_update(&loaded_model, &loaded.restore_optimizer())?;
+        apply_resumed_update(loaded_model, loaded.restore_optimizer())?;
     let updated_original_bits = DecoderModelState::capture(&updated_original).bit_pattern();
     let updated_loaded_bits = DecoderModelState::capture(&updated_loaded).bit_pattern();
     let updated_original_logits = logits_bits(&updated_original)?;

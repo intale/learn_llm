@@ -802,7 +802,7 @@ fn training_step_bitwise(left: &TrainingStep, right: &TrainingStep) -> bool {
         && left.gradient_scale().to_bits() == right.gradient_scale().to_bits()
         && left.clipped() == right.clipped()
         && left.finite_gradients() == right.finite_gradients()
-        && left.fresh_zero_gradients() == right.fresh_zero_gradients()
+        && left.parameter_nodes_preserved() == right.parameter_nodes_preserved()
         && left.cleared_gradients() == right.cleared_gradients()
         && left.events() == right.events()
 }

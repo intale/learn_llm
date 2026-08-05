@@ -68,7 +68,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             evidence.generation.stop.label(),
         ),
         format!(
-            "PROOF|replay={}|test_text={}|target=final_shifted|gradient_l1={}|leaves={}|generation=deterministic",
+            "PROOF|replay={}|test_text={}|target=final_shifted|gradient_l1={}|parameter_nodes={}|gradients={}|generation=deterministic",
             if evidence.replay_bitwise { "bitwise" } else { "changed" },
             if evidence.test_text_encoded_or_scored {
                 "encoded_or_scored"
@@ -84,7 +84,16 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             } else {
                 "invalid"
             },
-            if evidence.leaves_replaced { "replaced" } else { "retained" },
+            if evidence.parameter_nodes_preserved {
+                "preserved"
+            } else {
+                "replaced"
+            },
+            if evidence.gradients_cleared {
+                "cleared"
+            } else {
+                "retained"
+            },
         ),
     ]);
     Ok(lines.join("\n") + "\n")

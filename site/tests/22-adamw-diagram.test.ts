@@ -156,7 +156,7 @@ const labels: AdamwDiagramLabels = {
     curvature: 'curvature',
     trajectoryPoint: 'trajectory point',
     stateNames: 'state names',
-    freshGradient: 'fresh gradient',
+    rawGradient: 'raw gradient',
     leafIdentity: 'leaf identity',
     zeroGradientDecay: 'zero gradient decay',
     failedTransaction: 'failed transaction',
@@ -178,7 +178,7 @@ const labels: AdamwDiagramLabels = {
     adamw: 'adamw',
     subtract: 'subtract',
     zero: 'zero',
-    replaced: 'replaced',
+    preserved: 'preserved',
     unchanged: 'unchanged',
     atomic: 'atomic',
   },
@@ -275,8 +275,8 @@ describe('Chapter 22 Rust trace parser', () => {
     });
     expect(trace.proof).toEqual({
       stateNames: ['decoder.norm.scale', 'decoder.output.weight'],
-      gradientReset: 'zero',
-      leavesReplaced: 'yes',
+      rawGradients: 'retained',
+      parameterNodes: 'preserved',
       zeroGradientDecay: '0.030000',
       rollback: 'unchanged',
       commit: 'atomic',
@@ -297,7 +297,8 @@ describe('Chapter 22 Rust trace parser', () => {
     ['wrong curvature', fixture.replace('curvature=[1.000000, 4.000000]', 'curvature=[1.000000, 3.000000]')],
     ['wrong trajectory step', fixture.replace('POINT|step=3', 'POINT|step=2')],
     ['short trajectory vector', fixture.replace('sgd=[0.900000, 0.600000]', 'sgd=[0.900000]')],
-    ['nonzero fresh gradient', fixture.replace('gradient_reset=zero', 'gradient_reset=nonzero')],
+    ['cleared raw gradients', fixture.replace('raw_gradients=retained', 'raw_gradients=cleared')],
+    ['replaced parameter nodes', fixture.replace('parameter_nodes=preserved', 'parameter_nodes=replaced')],
     ['partial rollback', fixture.replace('rollback=unchanged', 'rollback=changed')],
   ])('rejects %s', (_name, source) => {
     expect(() => parseAdamwTrace(source)).toThrow(/invalid adamw trace/);
@@ -446,8 +447,8 @@ describe('Chapter 22 static diagram boundary', () => {
     }
     for (const proof of [
       'state-names',
-      'gradient-reset',
-      'leaf-identity',
+      'raw-gradients',
+      'parameter-nodes',
       'zero-gradient-decay',
       'rollback',
       'commit',
@@ -455,6 +456,8 @@ describe('Chapter 22 static diagram boundary', () => {
       expect(evidenceComponentSource).toContain(`data-proof="${proof}"`);
     }
     expect(evidenceComponentSource).toContain('trace.proof.stateNames.map');
+    expect(evidenceComponentSource).toContain('trace.proof.rawGradients');
+    expect(evidenceComponentSource).toContain('trace.proof.parameterNodes');
     expect(evidenceComponentSource).toContain(
       'String.raw`\\eta\\lambda\\theta=${trace.proof.zeroGradientDecay}`',
     );
@@ -568,11 +571,11 @@ describe('Chapter 22 contract and lesson projection', () => {
   } as const;
 
   it('names the worked parameter and explains the configurable no-decay policy', () => {
-    expect(contract.content_revision).toBe(6);
-    expect(lessons.en.content_revision).toBe(6);
-    expect(lessons.ru.content_revision).toBe(6);
+    expect(contract.content_revision).toBe(7);
+    expect(lessons.en.content_revision).toBe(7);
+    expect(lessons.ru.content_revision).toBe(7);
     expect(contract.translation_notes).toContain(
-      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 6 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
+      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 7 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
     );
 
     const contractWorked = markedSection(
@@ -591,12 +594,17 @@ describe('Chapter 22 contract and lesson projection', () => {
       '{/* chapter-section:formula */}',
     );
 
+    expect(normalize(contractWorked)).toContain(
+      normalize(
+        'AdamW uses each named gradient as an input to compute an updated value for the matching parameter.',
+      ),
+    );
+    expect(normalize(englishWorked)).toContain(
+      normalize(
+        'AdamW uses each named gradient to compute an updated value for the matching parameter.',
+      ),
+    );
     for (const source of [contractWorked, englishWorked]) {
-      expect(normalize(source)).toContain(
-        normalize(
-          'AdamW uses each named gradient as an input to compute a replacement value for the matching parameter.',
-        ),
-      );
       expect(normalize(source)).toContain(
         normalize(
           '$\\theta_0$ is the current value of the decay-group parameter `decoder.output.weight`, and $g_1$ is the accumulated token-mean loss gradient with respect to that same parameter',
@@ -611,7 +619,7 @@ describe('Chapter 22 contract and lesson projection', () => {
     }
     expect(normalize(russianWorked)).toContain(
       normalize(
-        'Затем AdamW использует каждый градиент, чтобы вычислить новое значение параметра с соответствующим стабильным именем.',
+        'AdamW использует каждый именованный градиент, чтобы вычислить обновлённое значение соответствующего параметра.',
       ),
     );
     expect(normalize(russianWorked)).toContain(
@@ -751,6 +759,8 @@ describe('Chapter 22 contract and lesson projection', () => {
     expect(expectedOutput).toContain(
       'historical_two_step=sgd:0.990000 momentum:0.980000 adam_l2:0.890241 adamw:0.914100',
     );
+    expect(expectedOutput).toContain('raw_gradients_retained=true');
+    expect(expectedOutput).toContain('all_parameter_nodes_preserved=true');
     for (const locale of ['en', 'ru'] as const) {
       expect(lessons[locale].rust_sources).toHaveLength(11);
       expect(lessonBodies[locale].match(/<RustSource\b/g)).toHaveLength(11);
@@ -784,7 +794,7 @@ describe('Chapter 22 contract and lesson projection', () => {
     const historical = rustRegion(demoSource, 'historical-optimizer-road');
     const gradientBlock = historical.indexOf('let adamw_gradient = {');
     const primalRead = historical.indexOf('let value = adamw_parameter.tensor().value();');
-    const mutableStep = historical.indexOf('.step(std::slice::from_mut(&mut adamw_parameter))');
+    const mutableStep = historical.indexOf('.step(std::slice::from_ref(&adamw_parameter))');
     expect(gradientBlock).toBeGreaterThan(-1);
     expect(primalRead).toBeGreaterThan(gradientBlock);
     expect(mutableStep).toBeGreaterThan(primalRead);
@@ -826,8 +836,9 @@ describe('Chapter 22 contract and lesson projection', () => {
     expect(demoSource.match(/optimizer\s*\.\s*step\(/g)).toHaveLength(3);
     expect(adamwSource).toContain('InvalidGradientScale');
     expect(trainerSource).toMatch(
-      /candidate_optimizer\.step_with_learning_rate_and_gradient_scale\([\s\S]*?&mut candidate_parameters,[\s\S]*?learning_rate,[\s\S]*?norm\.scale,[\s\S]*?\)\?/,
+      /optimizer\.step_with_learning_rate_and_gradient_scale\(\s*model\.parameters\(\),\s*learning_rate,\s*norm\.scale,\s*\)\?/,
     );
+    expect(trainerSource).toContain('clear_and_verify_gradients(&model)?;');
     expect(trainerSource).not.toContain('clipped_parameter_copy');
     for (const source of [trainerSource, chapter23Source, chapter35Source]) {
       expect(source).not.toContain('step_with_trace');
@@ -837,13 +848,28 @@ describe('Chapter 22 contract and lesson projection', () => {
       'Tracing records values produced by that calculation; it does not calculate the update a second time.',
     );
     expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
-      'Leaving that block ends the read guard before `step()` mutably accesses the parameter.',
+      'If the read guard remained active, `step()` could not obtain mutable access to the same stored value.',
     );
     expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
       'Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
     );
     expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
-      'The first moment consumes $[0.2,-0.1]$, and the second moment consumes its coordinate squares $[0.04,0.01]$. The separate decay term remains $\\eta\\lambda\\theta_{t-1}$.',
+      "Each parameter node owns a monotonically increasing parameter-value revision. One successful AdamW commit advances that node's revision once; a failed commit does not advance it.",
+    );
+    expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
+      'A retained graph built before a successful AdamW update therefore cannot run backward against the updated parameter values',
+    );
+    expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
+      'Chapters 37 and 38 bind each KV cache to both parameter-node identity and the captured value revision',
+    );
+    expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
+      'У каждого узла параметра есть монотонно возрастающая версия значения параметра.',
+    );
+    expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
+      'Для новых значений параметров нужно выполнить новый прямой проход и построить новый граф.',
+    );
+    expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
+      'The first-moment calculation uses $[0.2,-0.1]$, and the second-moment calculation uses its coordinate squares $[0.04,0.01]$. The separate decay term remains $\\eta\\lambda\\theta_{t-1}$.',
     );
     expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
       'В первый момент поступает $[0.2,-0.1]$, а во второй — квадраты координат $[0.04,0.01]$. Отдельная поправка затухания остаётся равной $\\eta\\lambda\\theta_{t-1}$.',

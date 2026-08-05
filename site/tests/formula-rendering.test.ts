@@ -774,6 +774,11 @@ const documentedChapter14To39Code = [
     pattern:
       /^(?:criterion=validation-only|snapshot=true|test_partition_rejected=true|test_reads=[01]|test_accesses=1|fnv1a64:[0-9a-f]{16})$/,
   },
+  {
+    name: "literal trainer ownership and gradient-lifecycle trace fields",
+    pattern:
+      /^(?:nodes_preserved|cleared|parameter_nodes_preserved|cleared_gradients)=(?:true|false)$/,
+  },
 ] as const;
 
 describe("KaTeX renderer and stylesheet compatibility", () => {

@@ -60,10 +60,18 @@ pub fn diagram_trace() -> String {
     }));
 
     lines.push(format!(
-        "PROOF|state_names={}|gradient_reset={}|leaves_replaced={}|zero_gradient_decay={:.6}|rollback={}|commit=atomic",
+        "PROOF|state_names={}|raw_gradients={}|parameter_nodes={}|zero_gradient_decay={:.6}|rollback={}|commit=atomic",
         evidence.state_names.join(","),
-        if evidence.gradients_reset { "zero" } else { "nonzero" },
-        if evidence.leaves_replaced { "yes" } else { "no" },
+        if evidence.raw_gradients_retained {
+            "retained"
+        } else {
+            "changed"
+        },
+        if evidence.parameter_nodes_preserved {
+            "preserved"
+        } else {
+            "replaced"
+        },
         evidence.zero_gradient_update.decay_delta()[0],
         if evidence.rejection_rolled_back {
             "unchanged"

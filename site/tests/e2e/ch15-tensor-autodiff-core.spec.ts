@@ -23,9 +23,17 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '15-tensor-autodiff-core';
-const contentRevision = 6;
+const contentRevision = 7;
 const formulaLatex = String.raw`\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)},\qquad e\in E`;
 const repositoryRoot = resolve(process.cwd(), '..');
+const normalizeProse = (value: string) =>
+  value
+    .normalize('NFC')
+    .replace(/\u00a0/g, ' ')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
 const historySources = [
   'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
   'https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf',
@@ -40,6 +48,7 @@ interface LocalizedCopy {
   headings: readonly string[];
   historyHeading: string;
   historyFragments: readonly string[];
+  revisionInvariantFragments: readonly string[];
   diagramTitle: string;
   diagramDescription: string;
   diagramSections: readonly string[];
@@ -64,10 +73,21 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     ],
     historyHeading: 'From explicit next-word updates to reusable tensor pullbacks',
     historyFragments: [
-      'carrying one scalar graph node per value',
+      'gradient flow from a next-word loss back to the model parameters',
+      'deep models with many repeated blocks that change tensor shapes',
       'finds every backward path from a loss to parameters',
       'one local vector-Jacobian product for each operand use',
       "their symbolic graph does not prescribe this implementation's owned eager tape",
+    ],
+    revisionInvariantFragments: [
+      'Primal revisions are runtime tape-validity metadata',
+      'are not serialized in model checkpoints',
+      "that edge captures the parent's current primal revision",
+      'the old edge still reaches the same node, but the retained context belongs to the earlier value',
+      'Backward first verifies that the selected output still has graph context',
+      'the seed has exactly the output shape and contains only finite values',
+      'This revision scan finishes before backward applies any VJP',
+      'The caller must run a new forward pass',
     ],
     diagramTitle: 'Reverse every tensor edge to its original shape',
     diagramDescription:
@@ -86,6 +106,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Other operand',
       'Sampled flat coordinates',
       'detached branch gradient path cut',
+      'releasing pass restored first-pass gradient values',
     ],
   },
   ru: {
@@ -98,18 +119,30 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Предскажите граф тензоров с изменениями формы',
       'Применяйте локальный VJP ребра вместо построения якобиана',
       'Назовите тензоры, отображение и сопряжённые величины',
-      'От явных обновлений следующего слова к переиспользуемым тензорным VJP',
+      'От явного распространения градиента функции потерь для следующего слова к переиспользуемым тензорным VJP',
       'Храните значения тензоров из прямого прохода и сохраняйте локальный контекст',
       'Проследите восстановление формы по каждому ребру',
       'Сначала предскажите, затем запускайте Rust',
       'Подготовьте градиенты ключевых операций модели',
     ],
-    historyHeading: 'От явных обновлений следующего слова к переиспользуемым тензорным VJP',
+    historyHeading:
+      'От явного распространения градиента функции потерь для следующего слова к переиспользуемым тензорным VJP',
     historyFragments: [
-      'отдельный скалярный узел для каждого значения',
+      'распространение градиента от функции потерь для следующего слова назад к параметрам модели',
+      'множества повторяющихся блоков, внутри которых меняется форма тензоров',
       'находит все обратные пути от функции потерь к параметрам',
       'каждому вхождению операнда сопоставляется локальное произведение вектора на якобиан',
       'ленту с немедленным выполнением операций и собственными значениями',
+    ],
+    revisionInvariantFragments: [
+      'Номера версий — служебные данные времени выполнения',
+      'не записываются в контрольные точки модели',
+      'лента записывает текущий номер версии тензора прямого прохода родителя',
+      'Старое ребро по-прежнему будет вести к этому узлу',
+      'Сначала обратный проход проверяет, что контекст выбранного выхода ещё существует',
+      'форма начальной сопряжённой величины точно совпадает с формой выхода',
+      'Вся проверка версий завершается до вычисления любого VJP',
+      'необходимо выполнить новый прямой проход',
     ],
     diagramTitle: 'Верните вклад каждого тензорного ребра к исходной форме',
     diagramDescription:
@@ -128,6 +161,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Другой операнд',
       'Выбранные плоские координаты',
       'путь градиента отсоединённой ветви прерван',
+      'освобождающий проход снова записывает градиенты, полученные после первого прохода',
     ],
   },
 };
@@ -210,6 +244,11 @@ async function expectChapterContent(
   expect(
     await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
   ).toContain(formulaLatex);
+
+  const lessonText = normalizeProse(await page.locator('.lesson-body').innerText());
+  for (const expected of localized.revisionInvariantFragments) {
+    expect(lessonText).toContain(expected);
+  }
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);

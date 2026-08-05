@@ -25,7 +25,7 @@ const copy = {
     diagramDescription:
       "The exact Rust trace follows three absolute positions, shows both head caches and attention weights, matches each newest output to a full-prefix reference, and records that reset plus rejected calls preserve storage.",
     headings: [
-      "Predict the third call before running it",
+      "Predict the third result before running the example",
       "Append along the position axis",
       "Keep layer, logical length, and capacity separate",
       "From causal attention to managed LLM inference state",
@@ -40,7 +40,11 @@ const copy = {
       "= newest outputs match within tolerance",
     ],
     detailsFragment:
-      "Parameter identity is part of compatibility even when shapes agree",
+      "A rebuilt layer fails the parameter-node identity check even when shapes and numeric values agree",
+    revisionMismatchFragment:
+      "An in-place AdamW update preserves the parameter nodes but advances their value revisions",
+    resetBindingFragment:
+      "It does not refresh the captured parameter identities or value revisions, and it does not rebind the cache",
     historyFragment: "local correctness policies",
     noSpeedupFragment:
       "does not claim constant-time attention or a measured speedup",
@@ -51,13 +55,13 @@ const copy = {
     revisionLabel: "Версия материала",
     title: "Сохраняйте префикс, проецируйте только новую строку",
     description:
-      "Разберитесь, как привязанный к слою KV-кэш (кэш ключей и значений) добавляет повёрнутые ключи и значения без поворота и воспроизводит внимание по полному префиксу в последней позиции.",
+      "Разберитесь, как привязанный к слою KV-кэш (кэш ключей и значений) добавляет повёрнутые ключи и значения без поворота, сохраняя для новой позиции результат расчёта внимания по полному префиксу.",
     diagramTitle:
       "Сохранять предыдущие строки ключей и значений; добавлять ровно одну новую пару",
     diagramDescription:
       "Точная трассировка программы на Rust охватывает три абсолютные позиции, показывает кэши обеих голов внимания и веса, сопоставляет выход последней позиции на каждом шаге с эталонным расчётом по полному префиксу и подтверждает сохранность хранилища после сброса и отклонённых вызовов.",
     headings: [
-      "Предскажите третий вызов до запуска",
+      "Предскажите результат третьего вызова до запуска примера",
       "Добавляйте строки вдоль оси позиций",
       "Различайте слой, логическую длину и ёмкость",
       "От каузального внимания к управлению состоянием LLM при генерации",
@@ -72,7 +76,11 @@ const copy = {
       "= последние выходы совпадают в пределах допуска",
     ],
     detailsFragment:
-      "Идентичность параметров входит в условия совместимости, даже если формы совпадают",
+      "В заново созданном слое не совпадут идентичности узлов параметров, даже если формы и числовые значения весов те же",
+    revisionMismatchFragment:
+      "Обновление AdamW на месте сохраняет узлы параметров, но увеличивает версии их значений",
+    resetBindingFragment:
+      "Он не обновляет зафиксированные идентичности узлов и версии значений параметров и не меняет привязку кэша",
     historyFragment: "локальные правила корректности этой главы",
     noSpeedupFragment:
       "не доказывают ни постоянного времени внимания, ни измеренного ускорения",
@@ -255,7 +263,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 37,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -373,8 +381,10 @@ async function expectChapterContent(
   const details = page.locator(".lesson-body details");
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
-  await expect(details.locator("ol > li")).toHaveCount(8);
+  await expect(details.locator("ol > li")).toHaveCount(9);
   await expect(details).toContainText(localized.detailsFragment);
+  await expect(details).toContainText(localized.revisionMismatchFragment);
+  await expect(details).toContainText(localized.resetBindingFragment);
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(

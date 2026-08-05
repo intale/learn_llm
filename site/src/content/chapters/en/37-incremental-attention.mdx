@@ -2,7 +2,7 @@
 {
   "chapter_id": "37-incremental-attention",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 37,
   "concept_id": "incremental-attention",
   "title": "Keep the prefix, project only the new row",
@@ -26,7 +26,7 @@
       },
       {
         "symbol": "t",
-        "meaning": "the newest absolute zero-based position plus one in the one-based mathematical prefix notation"
+        "meaning": "the newest one-based position in this formula; the implementation uses zero-based RoPE position t-1"
       },
       {
         "symbol": "1:t",
@@ -85,14 +85,14 @@
       ]
     },
     "approach": "The transition is from recomputing every complete prefix to appending one layer-local key/value pair per step.",
-    "summary": "The historical thread runs from causal masked attention, through explicit incremental KV reuse, to serving systems designed around a dynamically growing cache. Fixed capacity, exact layout, reset behavior, the RoPE offset rule, layer binding, and typed errors are this lesson's local correctness policies.",
+    "summary": "The historical thread runs from causal masked attention, through explicit incremental KV reuse, to serving systems designed around a dynamically growing cache. Fixed capacity, exact layout, the RoPE offset rule, parameter-node and value-revision binding, reset behavior, and typed errors are this lesson's local correctness policies.",
     "rust_source": "rust/demos/ch37-incremental-attention/src/lib.rs"
   },
   "rust_sources": [
     {
       "path": "rust/crates/llm-from-scratch/src/attention/incremental.rs",
       "region": "layer-kv-cache",
-      "purpose": "Own fixed layer-bound key and value storage, append one checked row transactionally, expose logical prefixes, and reset without reallocating."
+      "purpose": "Own fixed key and value storage bound to one layer's parameter-node identities and captured value revisions, append one checked row transactionally, expose logical prefixes, and reset without reallocating or rebinding."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/attention/incremental.rs",
@@ -124,7 +124,7 @@
     "id": "incremental-attention",
     "rationale": "A three-step cache timeline makes the retained rows, one appended row, absolute RoPE position, growing attention span, full-prefix match, and avoided repeated projections visible together."
   },
-  "decoder_connection": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps, reject incompatible layer identities or configurations, reset without reallocating, and reproduce its full-prefix newest-position output; Chapter 38 will compose one such cache per decoder block."
+  "decoder_connection": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps and reproduce its full-prefix newest-position output. It rejects a different parameter-node identity, a changed parameter-value revision, or an incompatible configuration; reset clears logical state without reallocating or rebinding. Chapter 38 will compose one such cache per decoder block."
 }
 ---
 
@@ -176,7 +176,7 @@ export const diagramLabels = {
 
 {/* chapter-section:worked-example */}
 
-## Predict the third call before running it
+## Predict the third result before running the example
 
 The fixture has one batch, model width $D=4$, $H=2$ heads, head width $d_h=2$,
 and cache capacity $C=4$. Before the first call the cache is empty. Each call
@@ -209,8 +209,8 @@ $$
 The semicolon means concatenate along the sequence-position axis. The new key
 $k^{(\ell)}_t$ has already received RoPE for its absolute position. The new
 value $v^{(\ell)}_t$ has been projected and split into heads but is not rotated.
-Queries are needed only for the current calculation, so there is no query cache
-in this boundary.
+Queries are needed only for the current calculation, so this implementation does
+not store them in the cache.
 
 The implementation uses a zero-based offset equal to the old cache length. The
 formula uses conventional one-based prefix notation, so mathematical position
@@ -232,7 +232,8 @@ $t$ is one greater than that offset.
 The physical buffers have shape $[B,H,C,d_h]$, where $B$ is batch size, $H$
 is head count, $C$ is fixed capacity, and $d_h$ is head width. A logical
 snapshot has shape $[B,H,t,d_h]$. Reset changes $t$ to $0$ without changing
-$C$ or allocating replacement buffers.
+$C$ or allocating replacement buffers. It also leaves the parameter-node
+identities and value revisions captured at cache construction unchanged.
 
 {/* chapter-section:history */}
 
@@ -240,8 +241,8 @@ $C$ or allocating replacement buffers.
 
 Causal Transformer attention lets each newest decoder position read the known prefix. Without retained projections, however, a generation loop can recompute unchanged earlier key and value rows at every step.
 
-[Attention Is All You Need](https://arxiv.org/pdf/1706.03762) supplies the
-causal reference. Vaswani and colleagues define scaled dot-product attention, describe an autoregressive decoder that emits one element at a time, and mask decoder self-attention so a position can use only the known prefix; the paper does not specify KV caching or RoPE.
+[Attention Is All You Need](https://arxiv.org/pdf/1706.03762) describes the
+full-prefix causal computation used as the reference here. Vaswani and colleagues define scaled dot-product attention, describe an autoregressive decoder that emits one element at a time, and mask decoder self-attention so a position can use only the known prefix; the paper does not specify KV caching or RoPE.
 
 [Fast Transformer Decoding: One Write-Head is All You Need](https://arxiv.org/pdf/1911.02150)
 makes the reuse boundary explicit. Shazeer's incremental multi-head self-attention takes previous key and value tensors, appends the current projected pair, and returns the enlarged tensors; its analysis identifies repeatedly loading those tensors as a memory-bandwidth bottleneck before proposing multi-query attention.
@@ -255,8 +256,9 @@ Modern cached generation keeps one compatible cache per decoder block: each new 
 
 The historical thread runs from causal masked attention, through explicit
 incremental KV reuse, to serving systems designed around a dynamically growing
-cache. Fixed capacity, exact layout, reset behavior, the RoPE offset rule, layer
-binding, and typed errors are this lesson's local correctness policies.
+cache. Fixed capacity, exact layout, the RoPE offset rule, parameter-node and
+value-revision binding, reset behavior, and typed errors are this lesson's local
+correctness policies.
 
 <RustSource
   path="rust/demos/ch37-incremental-attention/src/lib.rs"
@@ -269,11 +271,21 @@ binding, and typed errors are this lesson's local correctness policies.
 
 ## Bind the state, calculate completely, then commit
 
-`LayerKvCache::new` takes the actual attention layer. It records batch, model,
-head, capacity, and head-width configuration; owns fixed key/value buffers; and
-privately retains the exact parameter-node and RoPE identity. Equal dimensions
-are therefore not enough to reuse state from rebuilt or updated weights or a
-different positional configuration; the new model needs new caches.
+`LayerKvCache::new` takes the actual attention layer. It records the batch size,
+model width, head count, cache capacity, and head width; owns fixed key/value
+buffers; and, for each of the layer's four parameters, captures both the node
+identity and its current value revision. It also records the exact RoPE
+configuration.
+
+A rebuilt layer contains different parameter nodes, so the cache returns
+`CacheLayerMismatch`. A successful AdamW step updates the existing nodes in
+place: their identities stay the same, but their value revisions advance. The
+old cache is then stale and returns `CacheLayerRevisionMismatch`. This second
+check matters because retained K/V rows were projected with the earlier weight
+values; mixing those rows with projections from updated weights would describe
+no single model. Construct a new cache after any weight update. Calling `reset`
+on the old cache does not make it compatible: reset clears logical length but
+does not refresh the captured revisions or bind the cache to another layer.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/incremental.rs"
@@ -291,7 +303,7 @@ Only a fully assembled result permits the key/value copy and length increment.
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/incremental.rs"
   region="incremental-attention"
-  caption="Evaluate one newest query across retained key/value rows before committing the append"
+  caption="Evaluate one newest query across the retained rows plus the candidate key/value row before committing the append"
   label="Rust source implementing Chapter 37 incremental multi-head attention"
 />
 
@@ -299,14 +311,19 @@ Across prefix lengths $1$, $2$, and $3$, the executable history contrast records
 that the newest queries read $[1,2,3]$ key rows. A full-prefix call visits
 $1+2+3=6$ input rows in each $Q$, $K$, or $V$ projection. The incremental path
 visits $1+1+1=3$ rows per projection. It therefore reuses $3$ earlier key rows
-and $3$ earlier value rows. The newest query still reads all $t$ retained positions, so
-this count does not claim constant-time attention or a measured speedup.
+and $3$ earlier value rows. The newest query still reads the resulting prefix of
+$t$ positions: $t-1$ retained positions plus the current candidate position.
+This count therefore does not claim constant-time attention or a measured speedup.
 
-Errors are transactional. Two-token input, a full cache, model or head mismatch,
-same-shaped rebuilt weights, a changed RoPE base, the same base with a different
-position capacity, and nonfinite input all return before cached values or logical
-length change. Raw key/value append is private to the bound attention operation,
-so public callers cannot bypass those compatibility checks.
+Errors are transactional. The deterministic demo exercises two-token input, a
+full cache, model or head mismatch, same-shaped rebuilt weights, a changed RoPE
+base, the same base with a different position capacity, and finite input whose
+projection becomes nonfinite. Every one of those calls returns before cached
+values or logical length change. Separately, the revision comparison at the
+start of `forward_incremental` rejects a layer updated in place before projection
+or append. That mismatch remains an error after `reset`, because reset does not
+rebind the cache. Raw key/value append is private to the bound attention
+operation, so public callers cannot bypass those compatibility checks.
 
 <RustSource
   path="rust/demos/ch37-incremental-attention/src/lib.rs"
@@ -316,8 +333,10 @@ so public callers cannot bypass those compatibility checks.
 />
 
 The fixture performs all three cached calls and all three independent reference
-calls. It checks full logical key/value prefixes as well as outputs, resets to length
-$0$ without replacing storage, and replays the same evidence exactly.
+calls. It checks full logical key/value prefixes as well as outputs, resets to
+length $0$ without replacing storage, and replays the same evidence exactly with
+the unchanged layer. That replay proves allocation reuse; it does not turn reset
+into a compatibility refresh after training.
 
 <RustSource
   path="rust/demos/ch37-incremental-attention/src/lib.rs"
@@ -370,21 +389,29 @@ border marks a retained row; a double border marks the newly appended pair.
 4. How many rows does one full-prefix key projection visit across lengths $1$, $2$,
    and $3$?
 5. How many rows does the incremental key projection visit?
-6. What does reset change?
+6. What does reset change, and does it refresh the parameter binding?
 7. Can a same-shaped cache from rebuilt weights be reused?
-8. What happens to cache state when the capacity is already full?
+8. Can the old cache be reused after AdamW updates the same parameter nodes in
+   place?
+9. What happens to cache state when the capacity is already full?
 
 <details>
-<summary>Check the eight predictions</summary>
+<summary>Check the nine predictions</summary>
 
 1. The offset is $2$, exactly the old logical length.
 2. No. Only rotated $K$ and unrotated $V$ rows persist.
 3. Each query reads $3$ keys and mixes $3$ values.
 4. The reference visits $1+2+3=6$ key-projection rows.
 5. The incremental path visits $1+1+1=3$ key-projection rows.
-6. Reset changes logical length to $0$ and keeps the allocation and stored values.
-7. No. Parameter identity is part of compatibility even when shapes agree.
-8. The call returns a typed error before stored values or logical length change.
+6. Reset changes logical length to $0$ and keeps the allocation and stored
+   values. It does not refresh the captured parameter identities or value
+   revisions, and it does not rebind the cache.
+7. No. A rebuilt layer fails the parameter-node identity check even when shapes
+   and numeric values agree.
+8. No. An in-place AdamW update preserves the parameter nodes but advances their
+   value revisions. The old cache returns `CacheLayerRevisionMismatch`; create a
+   new cache from the updated layer.
+9. The call returns a typed error before stored values or logical length change.
 
 </details>
 
@@ -392,7 +419,12 @@ border marks a retained row; a double border marks the newly appended pair.
 
 ## Give every decoder block its own state next
 
-One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps, reject incompatible layer identities or configurations, reset without reallocating, and reproduce its full-prefix newest-position output; Chapter 38 will compose one such cache per decoder block.
+One attention layer can now preserve graph-free rotated keys and unrotated values
+across decode steps and reproduce its full-prefix newest-position output. It
+rejects a different parameter-node identity, a changed parameter-value revision,
+or an incompatible configuration. Reset clears logical state without
+reallocating or rebinding. Chapter 38 will compose one such cache per decoder
+block.
 
 The current cumulative decoder still evaluates full prefixes. Chapter 38 will
 create one cache from each block's actual attention layer, thread those caches

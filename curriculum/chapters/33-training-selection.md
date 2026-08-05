@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 33,
   "objective": {
     "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data.",
@@ -37,8 +37,8 @@
       },
       {
         "symbol": "\\widetilde g_s",
-        "en": "the globally clipped gradient consumed by AdamW",
-        "ru": "градиент после ограничения общей нормы, который получает AdamW"
+        "en": "the globally clipped gradient AdamW uses to update both moments",
+        "ru": "градиент после ограничения общей нормы, по которому AdamW обновляет оба момента"
       },
       {
         "symbol": "\\alpha_s",
@@ -171,7 +171,7 @@
       "rust/demos/ch33-training-selection/src/main.rs",
       "rust/demos/ch33-training-selection/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=33-training-selection\nconfig=vocabulary:5 model_width:4 layers:1 heads:2 context:2 parameters:144 updates:8 batch:2 clip_norm:0.350000\norder=forward>backward>finite-check>clip>adamw-step>zero-grad\nschedule=[0.040000,0.040000,0.025000,0.025000,0.015000,0.015000,0.008000,0.008000]\ncheckpoint=step:0 train_loss:2.095016 validation_loss:1.918167 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:2 train_loss:1.562026 validation_loss:1.696310 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:4 train_loss:1.453259 validation_loss:1.687788 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:6 train_loss:1.369832 validation_loss:1.642599 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:8 train_loss:1.322897 validation_loss:1.595297 selected:true train_graphs:0 validation_graphs:0\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true snapshot:true\nclipping=observed:true max_norm:0.350000 finite:true fresh_zero:true cleared:true\nownership=input_model_unchanged:true input_optimizer_unchanged:true selected_restored:true\nselection_contrast=training_only_step:2 validation_step:1\nreplay=bitwise:true\nnext=evaluate the frozen selected state once on test data\n"
+    "expected_output": "chapter=33-training-selection\nconfig=vocabulary:5 model_width:4 layers:1 heads:2 context:2 parameters:144 updates:8 batch:2 clip_norm:0.350000\norder=forward>backward>finite-check>clip>adamw-step>zero-grad\nschedule=[0.040000,0.040000,0.025000,0.025000,0.015000,0.015000,0.008000,0.008000]\ncheckpoint=step:0 train_loss:2.095016 validation_loss:1.918167 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:2 train_loss:1.562026 validation_loss:1.696310 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:4 train_loss:1.453259 validation_loss:1.687788 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:6 train_loss:1.369832 validation_loss:1.642599 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:8 train_loss:1.322897 validation_loss:1.595297 selected:true train_graphs:0 validation_graphs:0\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true snapshot:true\nclipping=observed:true max_norm:0.350000 finite:true nodes_preserved:true cleared:true\nownership=input_model_unchanged:true input_optimizer_unchanged:true selected_restored:true\nselection_contrast=training_only_step:2 validation_step:1\nreplay=bitwise:true\nnext=evaluate the frozen selected state once on test data\n"
   },
   "visualization": {
     "decision": "useful",
@@ -218,21 +218,22 @@
     }
   ],
   "translation_notes": [
-    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 6 is translated directly from canonical English revision 6 and has passed semantic, terminology, anti-calque, monolingual, accessibility, and source-order review.",
-    "canonical English SHA-256: 9b2a7ccd4ec5f19c6c304a7229b20c03f3c683e4f37b1bd47810287fb206fc1f",
+    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 7 is translated directly from canonical English revision 7; semantic, terminology, anti-calque, monolingual, accessibility, source-order, and rendered reviews must be complete before publication.",
+    "canonical English SHA-256: cea3663722bcc70d8fee2ecfd34351ecf047f78c9f4966f1597522ae8cdc9e98",
     "Translate mini-batch as «мини-пакет», global-norm gradient clipping as «ограничение общей нормы градиента», and graph-free evaluation as «оценка без записи графа вычислений»; describe raw and clipped gradients as gradients before and after norm clipping rather than using a literal calque.",
     "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test.",
     "Preserve the distinction between the ordinary AdamW method accepting a scheduled rate plus one clipping factor and returning the new optimizer step number, and Chapter 22's explicitly requested trace containing per-parameter records; never imply that AdamW returns parameter leaves.",
-    "Translate g_s as the conceptual all-parameter raw gradient, alpha_s as «единый множитель ограничения общей нормы», and g tilde as «градиент после ограничения общей нормы». Preserve that scaling happens before the second-moment square and never scales decoupled decay.",
-    "Preserve the candidate transaction order: shallow parameter elements and a cloned optimizer, candidate-only AdamW replacement, step-number check, candidate decoder rebuild, zero-gradient verification and clearing, then live model and optimizer assignment followed by disposal of old raw-gradient leaves.",
-    "Preserve the Rust borrow order in the Chapter 33 explanation: gradient() lends a read guard over one tensor, verification ends that guard, and only then zero_grad() mutably clears the same tensor; do not describe the guard as an owned gradient copy.",
+    "Translate g_s as the conceptual all-parameter raw gradient, alpha_s as «единый множитель ограничения общей нормы», and g tilde as «градиент после ограничения общей нормы, по которому AdamW обновляет оба момента». Preserve that scaling happens before the second-moment square and never scales decoupled decay.",
+    "Preserve the live transaction order: AdamW validates every prospective parameter value and moment, acquires every parameter-value write guard, commits into the existing nodes together with optimizer state, returns the new step number, and only then the trainer explicitly clears the raw gradients on those same nodes.",
+    "Preserve the distinction between the one persistent working decoder and optimizer used across all eight updates and the isolated decoder reconstructed when a deep state snapshot is restored; never describe a per-update replacement Vec<NamedParameter>, decoder candidate, or optimizer candidate. AdamW still owns prepared tensor values until its transaction commits.",
+    "Describe registry entries, component handles, and the tied embedding/output projection as handles that refer to the same parameter nodes: an in-place value commit is visible through every handle without changing node identity.",
     "Preserve theta_s, s, s^*, L_tr, L_va, eta_s, g_s, the norm notation, exact trace tokens, stable parameter names, and step numbers.",
     "Programming language names may identify source provenance only where relevant; the history section must remain about the road to modern LLM training."
   ],
   "acceptance_examples": [
     {
       "input": "Order one successful update",
-      "expected": "forward, backward with graph release, finite-gradient check, one global-norm clip, scheduled-rate AdamW step, then explicit confirmation of zero gradients on fresh leaves."
+      "expected": "forward, backward with graph release, finite-gradient check, one global-norm clip, a scheduled-rate AdamW commit into the existing parameter nodes, then explicit gradient clearing and zero verification on those same nodes."
     },
     {
       "input": "Apply the eight-rate schedule",
@@ -240,7 +241,7 @@
     },
     {
       "input": "Clip a raw global gradient with norm 1.4 at ceiling 0.35",
-      "expected": "The trainer computes one factor 0.25 and passes it with the scheduled rate to AdamW. AdamW consumes an effective gradient with norm 0.35, while the raw gradient tensors remain on the original parameter leaves and no clipped tensor copies are created."
+      "expected": "The trainer computes one factor 0.25 and passes it with the scheduled rate to AdamW. AdamW uses the effective gradient with norm 0.35 to update both moments, while the raw gradient tensors remain unchanged on the existing parameter leaves until the trainer explicitly clears them; no clipped tensor copies are created."
     },
     {
       "input": "Measure train and validation loss at steps 0, 2, 4, 6, and 8",
@@ -251,8 +252,8 @@
       "expected": "The trainer rejects the partition before a forward pass and the caller's model and optimizer remain unchanged."
     },
     {
-      "input": "Rebuild the decoder after AdamW replaces parameter leaves",
-      "expected": "Every component aliases its corresponding new registry leaf, the tied table remains one node, all new gradients are zero, and the next forward uses the updated values."
+      "input": "Commit an AdamW update without rebuilding the decoder",
+      "expected": "Every registry entry and component handle keeps the same parameter-node identity and observes the committed values, the tied embedding/output table remains one node, the trainer explicitly clears the raw gradients, and the next forward uses the updated values."
     },
     {
       "input": "Give two checkpoints exactly equal validation loss",
@@ -299,7 +300,8 @@ $14$ windows and are never used for an update.
 Before running, predict the invariants:
 
 1. the eight rates must be consumed in source order;
-2. every update must finish with zero gradients on new parameter leaves;
+2. every AdamW update must preserve parameter-node identity, after which the
+   trainer must explicitly clear the raw gradients on those same nodes;
 3. every validation measurement must record no reverse-mode graph;
 4. every scheduled step must run even if an earlier validation value is best;
 5. test data must be impossible to pass as selection evidence; and
@@ -369,9 +371,10 @@ $\alpha_s=0.25$. For every parameter $p$ and coordinate $i$, AdamW supplies
 $\widetilde g_{s,p,i}=\alpha_sg_{s,p,i}$ to the first-moment recurrence and
 $\widetilde g_{s,p,i}^2=\alpha_s^2g_{s,p,i}^2$ to the second-moment
 recurrence. Thus the effective global norm is $0.35$, but AdamW applies the
-scale before squaring. The raw gradient tensors remain unchanged on the old
-parameter leaves, and the factor does not scale AdamW's separate weight-decay
-term. Selection is restricted to the measured checkpoint set
+scale before squaring. The raw gradient tensors remain unchanged on the
+existing parameter leaves until the trainer clears them after the successful
+update, and the factor does not scale AdamW's separate weight-decay term.
+Selection is restricted to the measured checkpoint set
 $\mathcal{C}=\{0,2,4,6,8\}$:
 
 $$
@@ -441,55 +444,69 @@ loss is untracked and that parameter-gradient bits are unchanged.
 
 Each training step computes a tracked scalar loss, releases its graph during
 backward, scans every named gradient for finite values, and computes one norm
-over all named coordinates plus one shared factor $\alpha_s$. The trainer first
-calls `model.parameters().to_vec()` and clones the current optimizer. The vector
-contains shallow `NamedParameter` handles: those handles still refer
-to the model's existing parameter leaves, so no parameter values or clipped
-gradient tensors are copied.
+over all named coordinates plus one shared factor $\alpha_s$. Before the first
+step, the trainer reconstructs one isolated working decoder from the caller's
+state and clones the caller's optimizer once. Those two working objects persist
+through all eight updates, so the caller's decoder and optimizer remain
+unchanged without introducing a per-step copy. In particular, the trainer does
+not clone a replacement `Vec<NamedParameter>`, candidate decoder, or candidate
+optimizer for each update.
 
-The trainer passes $\eta_s$ and $\alpha_s$ to the candidate optimizer's
-`step_with_learning_rate_and_gradient_scale` method because it needs only the
-committed step number, not a detailed trace. Inside that candidate transaction,
-AdamW supplies $\widetilde g_{s,p,i}$ to the first moment and
-$\widetilde g_{s,p,i}^2$ to the second moment. It neither overwrites
-$g_{s,p,i}$ nor multiplies decoupled weight decay by $\alpha_s$. The candidate
-optimizer validates both scalars and prepares every next moment, replacement
-leaf, and the next step counter before committing only its own cloned state and
-the candidate-vector entries. The live loop model and optimizer have not changed
-yet.
+For each update, the trainer passes the working decoder's existing parameter
+handles, $\eta_s$, and $\alpha_s$ to the same working optimizer's
+`step_with_learning_rate_and_gradient_scale` method. AdamW supplies
+$\widetilde g_{s,p,i}$ to the first moment and
+$\widetilde g_{s,p,i}^2$ to the second moment. It neither overwrites the raw
+gradient $g_{s,p,i}$ nor multiplies decoupled weight decay by $\alpha_s$.
+AdamW validates every prospective parameter tensor, both moment states, and the
+next step number before it acquires write access to every parameter value. If
+any preparation or borrow fails, neither the parameter set nor the optimizer
+state changes. AdamW holds those fully checked prospective tensor values until
+the transaction can commit; they are required transaction state, not a
+replacement parameter vector owned by the trainer. Once all writes are
+available, it commits the prepared tensors into the existing
+`TensorValue` nodes and advances the optimizer state as one whole-set
+transaction.
+
+That commit preserves parameter names, order, node identity, and every alias.
+The registry, embedding, decoder block, and final normalization therefore see
+the new values through their existing handles. The embedding lookup and output
+projection also remain tied to one shared node. No decoder is rebuilt after an
+ordinary optimizer step, and no optimizer is cloned inside the update loop.
 
 The trainer compares the returned optimizer step number directly with the
-planned update index. It next rebuilds a complete candidate decoder from those fresh leaves,
-verifies that their gradients start at zero, ends each read guard, and explicitly
-clears them. Only after all of those operations succeed does it assign the
-candidate decoder and candidate optimizer to the live loop variables. The old
-model is then discarded along with the old leaves that held the raw gradients,
-so those gradients cannot accumulate into the next training step.
+planned update index. AdamW deliberately leaves the raw gradients on the same
+nodes, so the trainer then calls `zero_grad` on every live parameter and verifies
+that every coordinate is zero before another forward pass. This explicit
+clearing, rather than leaf replacement, prevents gradients from accumulating
+across mini-batches.
 
-The Chapter 32 model cannot merely mutate a copied parameter registry: its
-embedding, block, and final-normalization components would otherwise keep stale
-leaves. `DecoderModel::from_parameters` validates the exact $2+9N$ names and
-shapes, rebuilds every component, and re-establishes the one tied embedding
-node. `DecoderModelState` stores owned tensor values rather than shared tape
-handles. A restored state therefore has exact bits, fresh leaves, and zero
-gradients.
+`DecoderModel::from_parameters` still validates the exact $2+9N$ names and
+shapes, rebuilds every component, and re-establishes the tied embedding node,
+but it serves state restoration rather than ordinary optimization. The trainer
+does not call it after each AdamW step.
+`DecoderModelState` stores owned tensor values instead of shared tape handles.
+The trainer uses that separate boundary to create its initial isolated working
+decoder and to restore the selected deep snapshot after all updates.
 
 The loop executes all eight updates. At each requested checkpoint it measures
 train and validation without a graph. Validation loss alone replaces the best
 deep snapshot under strict less-than comparison. The returned model is rebuilt
 from that snapshot. Tests cover configuration boundaries, test-partition
 rejection, no-grad restoration, token weighting, huge finite norms, clipping,
-rate changes without moment reset, zero and below-ceiling norms, leaf rebinding,
-snapshot immutability, earliest ties, exact event order, deterministic replay,
-and a ten-second CPU ceiling.
+rate changes without moment reset, zero and below-ceiling norms, preserved live
+node aliases, tied-weight identity, explicit gradient clearing, snapshot
+immutability, earliest ties, exact event order, deterministic replay, and a
+ten-second CPU ceiling.
 
 <!-- contract-section:visualization -->
 ## Visualization decision
 
 A visualization is useful because update order and model selection are two
-different sequences. One semantic figure first shows the six ordered operations.
-It then plots only the ten measured train/validation markers at steps $0$, $2$,
-$4$, $6$, and $8$. There is no line, curve, or interpolated point between them.
+different sequences. One semantic figure first shows the six-operation order
+that repeats for each of the eight updates. It then plots only the ten measured
+train/validation markers at steps $0$, $2$, $4$, $6$, and $8$. There is no
+line, curve, or interpolated point between them.
 A table repeats every exact value and marks the sole selected validation state.
 
 Train, validation, and selected states use different marker shapes plus text and
@@ -515,7 +532,9 @@ scroll behavior, or chapter-specific full-view control.
 6. Spot the leak: a developer opens test loss after every checkpoint and keeps
    the best one, while still calling the run “validation selected.”
 7. Why does copying `NamedParameter` handles not make a durable snapshot?
-8. Why must the decoder rebuild component handles after AdamW replaces leaves?
+8. Why does an AdamW commit into the existing parameter nodes become visible
+   through the registry, decoder components, and tied output projection without
+   rebuilding the decoder?
 
 The central misconception is that the last or lowest-training-loss state is
 automatically the selected model. Training loss fits parameters; validation
@@ -541,8 +560,9 @@ tokens and parameter names, numerical fixtures, earliest-tie rule, accessible
 marker meanings, and the distinction between validation selection and once-only
 test evaluation have been refreshed from English and reviewed again. The review
 must also preserve the all-parameter norm, one shared clipping factor, scaling
-before the second-moment square, candidate-only AdamW transaction, decoder
-rebuild, and final live assignment order. Historical
+before the second-moment square, AdamW's whole-set commit into the existing
+parameter nodes, the persistent working decoder and optimizer, explicit
+post-step gradient clearing, and the separate snapshot-restoration boundary. Historical
 prose must stay on the road to modern language-model training, not
 programming-language history.
 

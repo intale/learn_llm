@@ -43,7 +43,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     ];
     for step in result.steps() {
         lines.push(format!(
-            "UPDATE|step={}|batch={}|learning_rate={:.6}|train_loss={:.6}|grad_norm_before={:.6}|grad_norm_after={:.6}|clipped={}|finite={}|fresh_zero={}|cleared={}",
+            "UPDATE|step={}|batch={}|learning_rate={:.6}|train_loss={:.6}|grad_norm_before={:.6}|grad_norm_after={:.6}|clipped={}|finite={}|nodes_preserved={}|cleared={}",
             step.step(),
             step.batch_windows().join(","),
             step.learning_rate(),
@@ -52,7 +52,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             step.gradient_norm_after(),
             step.clipped(),
             step.finite_gradients(),
-            step.fresh_zero_gradients(),
+            step.parameter_nodes_preserved(),
             step.cleared_gradients()
         ));
     }
@@ -85,7 +85,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             evidence.test_partition_rejected
         ),
         format!(
-            "PROOF|fixed_seed_batches=true|schedule_exact=true|finite_gradients=true|fresh_zero_gradients=true|cleared_gradients=true|clipping_observed={}|train_loss_decreased=true|validation_no_grad=true|selection_matches_argmin=true|test_partition_rejected={}|replay_bitwise={}|input_unchanged={}",
+            "PROOF|fixed_seed_batches=true|schedule_exact=true|finite_gradients=true|parameter_nodes_preserved=true|cleared_gradients=true|clipping_observed={}|train_loss_decreased=true|validation_no_grad=true|selection_matches_argmin=true|test_partition_rejected={}|replay_bitwise={}|input_unchanged={}",
             result.steps().iter().any(|step| step.clipped()),
             evidence.test_partition_rejected,
             evidence.replay_bitwise,

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T07:26:39Z"
+updated_at: "2026-08-05T11:00:17Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -31919,28 +31919,130 @@ builds:
       - id: preserve-live-parameter-leaves-on-commit
         objective: "Commit a fully validated AdamW update into the live model without cloning and replacing every parameter leaf and decoder."
         depends_on: [thread-gradient-scale-into-adamw]
-        status: pending
+        status: completed
         inputs:
           - "Completed gradient-scale step"
           - "Audit finding F02 fresh-leaf and whole-model replacement clusters"
+          - "Adversarial review finding that a retained pre-update graph still reaches same-node parameters after an in-place commit"
           - "Accepted Chapter 22 transaction, Chapter 23 training, and Chapter 33 saved-state semantics"
         outputs:
-          - "Rust TensorValue, AdamW, trainer, and model ownership implementation and tests"
-          - "Chapter 22, 23, and 33 contracts, English/Russian projections, evidence adapters, and focused source/browser tests"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/crates/llm-from-scratch/src/training/trainer.rs"
+          - "rust/crates/llm-from-scratch/src/models/neural_ngram.rs"
+          - "rust/crates/llm-from-scratch/src/models/decoder.rs"
+          - "rust/crates/llm-from-scratch/src/pipeline.rs"
+          - "rust/crates/llm-from-scratch/src/attention/incremental.rs"
+          - "rust/crates/llm-from-scratch/src/generation/kv_cache.rs"
+          - "rust/demos/ch22-adamw/{src/lib.rs,src/diagram_trace.rs,expected.txt,diagram-trace.txt}"
+          - "rust/demos/ch23-neural-ngram/{src/lib.rs,src/diagram_trace.rs,expected.txt,diagram-trace.txt}"
+          - "rust/demos/ch33-training-selection/{src/lib.rs,src/diagram_trace.rs,expected.txt,diagram-trace.txt}"
+          - "rust/demos/ch35-checkpoints/src/lib.rs"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/15-tensor-autodiff-core.md"
+          - "curriculum/chapters/{22-adamw,23-neural-ngram,33-training-selection,37-incremental-attention,38-cached-generation}.md"
+          - "site/src/content/chapters/{en,ru}/15-tensor-autodiff-core.mdx"
+          - "site/src/content/chapters/{en,ru}/{22-adamw,23-neural-ngram,33-training-selection,37-incremental-attention,38-cached-generation}.mdx"
+          - "site/src/content/cheat-sheets/{en,ru}/33-training-selection.json"
+          - "site/src/lib/{adamw-diagram,neural-ngram-diagram,training-selection-diagram}.ts"
+          - "site/src/components/chapters/{AdamwDiagram,AdamwEvidenceDiagram,NeuralNgramDiagram}.astro"
+          - "site/src/components/chapters/TrainingSelectionDiagram.astro"
+          - "site/tests/{22-adamw-diagram,23-neural-ngram-diagram,33-training-selection-diagram}.test.ts"
+          - "site/tests/cheat-sheets.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch{22-adamw,23-neural-ngram,33-training-selection}.spec.ts"
+          - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+          - "site/tests/{37-incremental-attention,38-cached-generation}-diagram.test.ts"
+          - "site/tests/e2e/ch{37-incremental-attention,38-cached-generation}.spec.ts"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
           - "AdamW validates every named candidate and all prospective optimizer state before one infallible commit mutates existing parameter leaves; any preparation failure changes neither model nor optimizer."
           - "Successful updates preserve parameter TensorValue node identity, tied-weight identity, stable names, ordering, and exact arithmetic."
           - "The trainer owns one live decoder and optimizer, performs explicit post-step gradient clearing, and does not reconstruct and swap a full candidate decoder each batch."
+          - "Every recorded operand edge binds the parent primal revision used by its forward operation; backward rejects a retained graph after any reachable parameter value changes and preserves all gradients and graph state on rejection."
           - "Chapter evidence is revised wherever fresh-leaf replacement was previously presented as required behavior."
         validate:
           - "./course check"
           - "Focused identity, tied-weight, rollback, trajectory, checkpoint, and deterministic replay tests"
-          - "Focused Chromium and Firefox Chapter 22/23/33 validation"
+          - "Focused retained-graph revision mismatch and whole-pass rollback tests"
+          - "Focused Chromium and Firefox Chapter 15/22/23/33/37/38 validation"
           - "./course audit-host"
         cost: {class: large, notes: "Semantically significant transaction and learner-evidence correction with complete Rust/site/browser validation; cached Docker/browser CPU only."}
-        runs: []
+        runs:
+          - run_id: 20260805T083849Z-preserve-live-parameter-leaves-on-commit-01
+            started_at: 2026-08-05T08:38:49Z
+            finished_at: 2026-08-05T11:00:17Z
+            status: succeeded
+            input_fingerprint:
+              git: "060b2c8b1fbb3caa80a1474f36226f37afed980b; tree 7dd62fed3c97bf28139d5ed3e81aae836d1d08ef"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                tensor-core: "sha256:7d373ccdaf2c4dc4be24066fed3c9c10a4ae690a363c1445bb567f406d72900c"
+                adamw: "sha256:190f2586dad69a980c642d8bc543c7d1b6825db06b1ca4dc5f72273b6d750714"
+                trainer: "sha256:61118e7a00d7e4d28b85883566757a51450b10c1901caeb3917f2517bf7904ac"
+                decoder: "sha256:395f8a5650b25823961232e54cb54f85148df351659a81a97c1b59667afc8073"
+                neural-ngram: "sha256:0cfa7f71d961f5863c3458f93442f18beb2b8624468188576cdddd1880d15013"
+                chapter-contracts: "sha256:8c2332c9b52115339beb7733161a13c113b8376091032f5936561b38ac529dc7"
+                localized-evidence-surfaces: "sha256:20c9749694c231b50a15e077450cc9d3fe6778050d79b8641e22eaf074c42fa8"
+                focused-tests-and-shared-pipeline: "sha256:f2f4db44caa521530ce1a8379b3f86d3ac9f96c986bab3a9e60b116e76431c6d"
+                cache-revision-and-continuation-surfaces: "sha256:7e089f0a58ddb92b43f777b666135c455112fa8dc5080db699fae7d9977cf6ab"
+                completed-gradient-scale-manifest: "sha256:e41b0b972eb8facea380b0adb494e3cd790e26a69e4da55f4b2dfd979ac56e9a"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No network input, paid service, or model generation. Product and browser validation use only pinned Docker images and cached CPU."
+            staging_dir: ".build/runs/20260805T083849Z-preserve-live-parameter-leaves-on-commit-01/"
+            commands:
+              - "Run the complete startup protocol; verify clean committed dependency 060b2c8, matching Docker/Git pins, intact prior manifest, no running owner, and no overlapping product change."
+              - "Read AGENTS.md, SKILLS.md, the localization skill, active F02 decisions, audit evidence, locale registry/policy, current Rust ownership paths, three chapter contracts, projections, evidence adapters, and focused tests."
+              - "Perform independent read-only Rust transaction, content projection, and validation/evidence preflights."
+              - "Classify the step as large cached-Docker/browser work inside the unlimited budget and record the live-leaf prepare/preflight/commit decision before product edits."
+              - "Expand scope before product edits after validation review proves identity-only layer and decoder KV-cache bindings would accept stale projected K/V after an in-place parameter update."
+              - "Expand scope before the retained-graph correction after adversarial Rust review proves that same-node mutation would otherwise let a pre-update graph accumulate stale gradients into post-update parameters."
+              - "Add the shared Chapter 33 diagram component before editing after content review proves its parsed live-node and explicit-clear proof fields are not visible in the rendered optimization evidence."
+              - "Add both Chapter 33 locale-aware cheat-sheet records before editing after the wording inventory finds the same obsolete consumed-gradient definition on that separate content surface."
+              - "Run ./course run npm --prefix site test -- --run tests/23-neural-ngram-diagram.test.ts; its prerequisite workspace-image validation completes all Rust tests and Astro diagnostics before the requested focused Vitest command."
+              - "Implement whole-set live-primal preparation and commit, value revisions, stale-graph rejection, persistent model and optimizer ownership, persistent neural-ngram layer handles, revision-bound KV caches, and direct owned Chapter 35 continuation."
+              - "Revise canonical English Chapters 15, 22, 23, 33, 37, and 38, then refresh Russian directly with the localization workflow; synchronize contracts, plan revision notes, evidence, diagrams, cheat sheets, and semantic tests."
+              - "Run focused Rust, content, parity, Astro, and static-test iterations; preserve failed invocation, dependency-cache, signature-drift, formatting, lint, grounding, governance, and rendered-projection attempts before their corrected retries."
+              - "Run final canonical ./course check, exact Rust all-target/Clippy/doctest/demo gates, all 966 Vitest assertions, and independent Rust/content/localization reviews."
+              - "Build the pinned two-engine browser image and run the six affected chapter specs plus the shared full-view and every-active-locale diagram-style suites in Chromium and Firefox."
+              - "Freeze 62 exact product/test outputs under publish/, verify canonical equality and the immutable manifest, run the manifest-locked review build, and audit host artifacts and exact Git scope."
+            artifacts:
+              - {path: ".build/runs/20260805T083849Z-preserve-live-parameter-leaves-on-commit-01/publish.sha256", sha256: "65ebd1a71a81a15b378a42132671c8a5bd44fdf38af989ce2286b68324a3c3b6", purpose: "Frozen 62-file canonical publication manifest."}
+              - {path: ".build/runs/20260805T083849Z-preserve-live-parameter-leaves-on-commit-01/validation/Dockerfile.browser", sha256: "78dbaa654eb534228d3e3cdefa724749d1b13d9b46b131ae09d556ebdb25218d", purpose: "Run-scoped offline Chromium and Firefox validator derived from exact workspace and pinned Playwright images."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "2c0a5d6a70f6584c04d39cc826baedcc2246268e7eb04051e6deb3991581ea57", purpose: "Final canonical Docker workspace validation image."}
+              - {path: "docker-image:learn-llm-live-node-browser:20260805", sha256: "50ad9cf5bd5f272951c3269eda05c66d8d4b95030b72c1f3c58bb2168bc87f1d", purpose: "Exact product and validator image that passed both 55-scenario browser matrices."}
+              - {path: "docker-image:learn-llm-review:20260805t083849z-preserve-live-parameter-leaves-on-commit-01", sha256: "a277f43651a876f8c9a7d2d05a3444dafa4f612561925fd2d20d4348d9cb896f", purpose: "Manifest-locked staged static review image for all twelve revised routes."}
+              - {path: "rust/demos/**/expected.txt aggregate", sha256: "726c67070236fee1791ffd65184d726f713d26ee34e18bdbeefab4d29868323f", purpose: "Aggregate deterministic learner-report evidence across all chapter demos."}
+              - {path: "rust/demos/**/diagram-trace.txt aggregate", sha256: "51e24f3aa0796ed6cf04a3c3c9e696f2ed0156aff2c664aaee9be80b862aae5e", purpose: "Aggregate deterministic diagram-trace evidence across all chapter demos."}
+            validation:
+              - {command: "Repository, dependency, input, environment, cost, locale, and prior-artifact preflight", status: passed, notes: "HEAD 060b2c8 is clean; the completed scale-threading manifest retains sha256:e41b0b972eb8facea380b0adb494e3cd790e26a69e4da55f4b2dfd979ac56e9a; Docker 25.0.2, Compose 2.17.3, and Git 2.53.0 match the ledger; en is canonical and en/ru are active for Chapters 22, 23, and 33; no other run owns an output. Cost is cached Docker/browser CPU within an unlimited budget, with no network, paid service, or generation. Rust/Node/Python remain unused on the host."}
+              - {command: "First Docker workspace and focused Chapter 23 validation", status: failed, notes: "All demos, 383 shared Rust tests, doctests, and zero-diagnostic Astro analysis pass. The workspace build stops before the requested focused Vitest command because the revised Chapter 22 history paragraph does not yet reproduce its updated modern_llm_role field verbatim enough for the content projection gate. Align that visible canonical sentence, then repeat after the concurrent chapter projections finish."}
+              - {command: "Early direct-container and source-only Rust probes", status: failed, notes: "The first direct Docker invocation inherited the Node image entrypoint and treated cargo as JavaScript; the corrected source-only offline probe then lacked cached serde packages. Neither attempt reached an implementation assertion or changed repository files. Use the validated workspace image and its complete locked cache."}
+              - {command: "Focused live-node, stale-graph, trainer, alias, cache, checkpoint, content, parity, and Astro iterations", status: passed, notes: "All focused regressions pass after synchronizing the six chapter projections and deterministic evidence. Coverage proves whole-set rollback, same-node and tied-weight identity, persistent trainer state, explicit gradient clearing, stale retained-graph rejection, cache identity-plus-revision binding, reset without rebinding, and direct restored-state continuation."}
+              - {command: "First exact all-target Rust gate", status: failed, notes: "The implementation compiled, but 38 test call sites still passed obsolete mutable parameter slices after AdamW changed to a read-only handle slice. Remove only those stale call-site borrows and repeat."}
+              - {command: "First formatting and warnings-denied cleanup retries", status: failed, notes: "The first retry exposed one rustfmt-only one-line layout difference; after formatting, Clippy exposed 24 now-unnecessary mutable test bindings. No runtime or learner evidence failed. Remove those bindings and repeat the exact gates."}
+              - {command: "Corrected exact Rust format, all-target Clippy -D warnings, all-target tests, doctests, and deterministic demo replay", status: passed, notes: "Formatting and all-target lint are clean; every workspace target passes, including 386 shared-library tests and the bounded Chapter 39 pipeline; both compile-fail doctests pass; all 39 chapter demos and 34 diagram traces replay exactly. Aggregate report sha256 is 726c67070236fee1791ffd65184d726f713d26ee34e18bdbeefab4d29868323f and trace sha256 is 51e24f3aa0796ed6cf04a3c3c9e696f2ed0156aff2c664aaee9be80b862aae5e."}
+              - {command: "Independent Rust ownership and transaction review", status: passed, notes: "The reviewer found no concrete correctness defect: whole-set AdamW rollback, retained-graph revision checks, trainer lifecycle, aliases, tied weights, caches, and Chapter 35 continuation all match the intended boundary. Duplicate-name alias diagnostics and an extra trainer identity assertion remain optional hardening only."}
+              - {command: "Independent integrated content and localization review", status: passed, notes: "English-first review corrected the Chapter 37 retained-plus-candidate row explanation, Chapter 38 token-ID-to-literal-text mapping, and explicit Chapter 22/23 executable referents. Russian was refreshed directly with natural technical wording under the localization skill; source/parity checks and both-engine active-locale geometry validation pass."}
+              - {command: "Pre-final canonical ./course check", status: passed, notes: "All Rust tests and doctests, 215-file zero-diagnostic Astro analysis, 80 localized sources, 40 locale sets, 33 catalog keys, 42 diagram components, 85 static pages, 2,529 local references, and 85 SEO/sitemap/analytics routes passed. Later shared assertion synchronization made this image non-final without changing product behavior."}
+              - {command: "First complete Vitest matrix", status: failed, notes: "960 of 966 assertions passed. Three cheat-sheet grounding anchors were stale, two course-plan checks exposed an attempted rewrite of Chapter 15's historical outcome, and the formula audit lacked a category for the new concrete trainer trace booleans. Keep the lesson and sheet meanings, restore immutable history, add the narrow trace category, and repeat."}
+              - {command: "First focused shared-contract correction", status: failed, notes: "131 of 132 assertions passed; Chapter 38's reset grounding still used its old compressed sentence. Point the assertion at the current explicit work-counter sentence, then strengthen the Chapter 37 query negation and Chapter 38 complete-decoder commit anchors before repeating."}
+              - {command: "Corrected complete Vitest matrix", status: passed, notes: "All 966 assertions in 54 files pass. The shared contracts now preserve the historical Chapter 15 outcome, require the explicit no-query-cache and all-block commit conditions, and classify only the four named trainer lifecycle booleans as literal program trace data."}
+              - {command: "First complete Chromium chapter/full-view/diagram-style matrix", status: failed, notes: "52 of 55 scenarios passed, including course-wide active-locale containment. One Chapter 15 assertion compared rendered smart punctuation as raw ASCII, and both Chapter 22 locale cases expected a final blank Rust-region line omitted by the highlighter. Normalize prose typography and ignore only trailing blank region lines."}
+              - {command: "First focused Chromium projection retry", status: failed, notes: "All Chapter 22 cases passed, but the Chapter 15 test referenced the new normalization helper before defining it. Add the local helper and repeat; no product page or layout failed."}
+              - {command: "Final exact Chromium and Firefox affected-chapter plus shared diagram matrices", status: passed, notes: "Browser image sha256:50ad9cf5bd5f272951c3269eda05c66d8d4b95030b72c1f3c58bb2168bc87f1d passes 55 of 55 scenarios in each engine. Chapters 15/22/23/33/37/38, both locales, desktop, narrow, full view, no JavaScript, forced colors, RTL, focus restoration, every active-locale figure, every bounded box, formulas, and sanctioned scrollers validate."}
+              - {command: "Final canonical ./course check", status: passed, notes: "Workspace image sha256:2c0a5d6a70f6584c04d39cc826baedcc2246268e7eb04051e6deb3991581ea57 passes formatting, all demos and 386 shared tests, doctests, content/parity, zero-diagnostic Astro analysis, the 85-page build, and link/SEO/sitemap/analytics validation with the final embedded browser contracts."}
+              - {command: "Frozen 62-file manifest, checksum verification, and canonical equality", status: passed, notes: "Every staged file verifies and equals its canonical counterpart byte for byte; publish.sha256 is sha256:65ebd1a71a81a15b378a42132671c8a5bd44fdf38af989ce2286b68324a3c3b6. BUILD_STATE.yaml and DECISIONS.md remain intentionally outside the immutable product snapshot."}
+              - {command: "Manifest-locked ./course review 20260805T083849Z-preserve-live-parameter-leaves-on-commit-01 --check", status: passed, notes: "Review image sha256:a277f43651a876f8c9a7d2d05a3444dafa4f612561925fd2d20d4348d9cb896f validates the manifest, content/parity, 215-file Astro analysis, 85-page static build, 2,529 references, and all twelve revised English/Russian routes without changing publish/."}
+              - {command: "First final ./course audit-host", status: failed, notes: "The audit found one empty 4 KiB target/ directory owned by the container user. Inspection proved it contained no files or reusable artifact; rmdir removed only that empty generated directory."}
+              - {command: "Final host, exact-scope, manifest, canonical-equality, and whitespace audit", status: passed, notes: "The host contains no Rust, Node.js, or Python artifact outside the intentional site/dist release. Exactly 62 declared product/test files plus BUILD_STATE.yaml and DECISIONS.md change, no untracked or unrelated file exists, the immutable snapshot still verifies, and git diff --check passes."}
+              - {command: "Pinned-Docker completed-ledger and scheduler validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts; all 33 content-ledger assertions pass. No step remains running, and make-decoder-state-transfers-explicit-and-movable is the next eligible checkpoint."}
+            notes: "Succeeded. AdamW now prepares every candidate and acquires the complete live-primal write set before an infallible same-node commit; the trainer retains one decoder and optimizer and clears raw gradients explicitly. Parameter revisions invalidate stale retained graphs and layer/model KV caches without entering checkpoints. Neural-ngram and decoder aliases, tied weights, exact arithmetic, selection, checkpoint bytes, and generation evidence remain coherent. Chapters 15, 22, 23, 33, 37, and 38 were revised English-first and refreshed directly into natural Russian with visible live-node, clear, graph, and cache evidence. Deep selected/checkpoint snapshots remain for the next independent state-transfer step."
 
       - id: make-decoder-state-transfers-explicit-and-movable
         objective: "Keep deep decoder copies only at named isolation boundaries and move owned state through internal restore and selection paths when possible."

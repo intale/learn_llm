@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runtime.
+import { createHash } from 'node:crypto';
+// @ts-ignore Node APIs are available in the Vitest runtime.
 import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Vitest runtime.
 import { resolve } from 'node:path';
@@ -271,8 +273,12 @@ describe('Chapter 15 Rust trace parser', () => {
     }
 
     for (const source of [chapter15Contract, chapter15English, chapter15Russian]) {
-      expect(source).toContain('"content_revision": 6');
+      expect(source).toContain('"content_revision": 7');
     }
+    const canonicalEnglishHash = createHash('sha256').update(chapter15English).digest('hex');
+    expect(chapter15Contract).toContain(
+      `Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 7 with SHA-256 ${canonicalEnglishHash} and becomes stale whenever that source changes.`,
+    );
     expect(chapter15English.replace(/\s+/g, ' ')).toContain(
       'Both calls build the node order, hold fresh adjoints for the duration of the pass, and read the saved context required by each local VJP.',
     );
@@ -285,6 +291,87 @@ describe('Chapter 15 Rust trace parser', () => {
     expect(chapter15Russian.replace(/\s+/g, ' ')).toContain(
       'Оба метода строят порядок узлов, хранят сопряжённые величины только на время текущего прохода',
     );
+    for (const source of [chapter15Contract, chapter15English]) {
+      const normalized = source.replace(/\s+/g, ' ');
+      expect(normalized).toContain('parent primal revision');
+      expect(normalized).toContain('before any VJP');
+      expect(normalized).toContain('new forward pass');
+    }
+    const normalizedEnglish = chapter15English.replace(/\s+/g, ' ');
+    expect(normalizedEnglish).toContain(
+      "When a forward operation creates an operand-use edge, that edge captures the parent's current primal revision.",
+    );
+    expect(normalizedEnglish).toContain(
+      'Primal revisions are runtime tape-validity metadata: backward uses them only to decide whether saved graph context still belongs to the current parameter values.',
+    );
+    expect(normalizedEnglish).toContain(
+      'They are not optimizer step numbers and are not serialized in model checkpoints.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Backward first verifies that the selected output still has graph context and is tracked.',
+    );
+    expect(normalizedEnglish).toContain(
+      'This revision scan finishes before backward applies any VJP, asks the optional trace observer to record an edge, acquires a gradient write guard, or releases graph context.',
+    );
+    expect(normalizedEnglish).toContain(
+      'The rejected call changes no stored gradient and does not release any operation context.',
+    );
+    const normalizedRussian = chapter15Russian.replace(/\s+/g, ' ');
+    expect(normalizedRussian).toContain(
+      'При создании каждого ребра вхождения операнда лента записывает текущий номер версии тензора прямого прохода родителя.',
+    );
+    expect(normalizedRussian).toContain(
+      'Номера версий — служебные данные времени выполнения, нужные только для проверки актуальности ленты',
+    );
+    expect(normalizedRussian).toContain(
+      'Они не являются номерами шага оптимизатора и не записываются в контрольные точки модели.',
+    );
+    expect(normalizedRussian).toContain(
+      'этот `Ref` должен выйти из области видимости: только тогда заимствование завершится.',
+    );
+    expect(normalizedRussian).toContain(
+      'Запрос отклоняется атомарно: ни накопленные градиенты, ни состояние графа не меняются.',
+    );
+    expect(normalizedRussian).toContain(
+      'Сначала обратный проход проверяет, что контекст выбранного выхода ещё существует и что для этого выхода отслеживаются градиенты.',
+    );
+    expect(normalizedRussian).toContain(
+      'Вся проверка версий завершается до вычисления любого VJP, передачи сведений необязательному наблюдателю трассировки, получения доступа для записи градиента или освобождения контекста графа.',
+    );
+    expect(normalizedRussian).toContain(
+      'Отклонённый вызов не меняет накопленные градиенты и не освобождает контекст ни одной операции.',
+    );
+
+    expect(tapeValuesBody).toContain('parent_value_revision: parent.value_revision()');
+    const graphAvailabilityStart = kernelBody.indexOf('if self.is_released()');
+    const topologyStart = kernelBody.indexOf('let topology = self.topology()?');
+    const seedShapeStart = kernelBody.indexOf('if seed.shape() != expected');
+    const seedFinitenessStart = kernelBody.indexOf(
+      'if let Some((index, value)) = first_nonfinite(&seed)',
+    );
+    const revisionValidationStart = kernelBody.indexOf('let indices = topology');
+    const reverseArithmeticStart = kernelBody.indexOf('let mut pass_adjoints');
+    const firstVjpStart = kernelBody.indexOf('apply_vjp(');
+    const firstObserverRecordStart = kernelBody.indexOf('observer.observe_edge(');
+    const observationStart = kernelBody.indexOf('observer.finish(');
+    const gradientCommitStart = kernelBody.indexOf(
+      "let mut commits: Vec<(RefMut<'_, NodeState>, Tensor)>",
+    );
+    const releaseStart = kernelBody.indexOf('if retention == GraphRetention::Release');
+    expect(graphAvailabilityStart).toBeGreaterThan(-1);
+    expect(topologyStart).toBeGreaterThan(graphAvailabilityStart);
+    expect(seedShapeStart).toBeGreaterThan(topologyStart);
+    expect(seedFinitenessStart).toBeGreaterThan(seedShapeStart);
+    expect(revisionValidationStart).toBeGreaterThan(seedFinitenessStart);
+    expect(reverseArithmeticStart).toBeGreaterThan(revisionValidationStart);
+    expect(kernelBody.slice(revisionValidationStart, reverseArithmeticStart)).toContain(
+      'TensorAutodiffError::StaleOperandValue',
+    );
+    expect(firstVjpStart).toBeGreaterThan(revisionValidationStart);
+    expect(firstObserverRecordStart).toBeGreaterThan(revisionValidationStart);
+    expect(observationStart).toBeGreaterThan(reverseArithmeticStart);
+    expect(gradientCommitStart).toBeGreaterThan(observationStart);
+    expect(releaseStart).toBeGreaterThan(gradientCommitStart);
   });
 
   it('projects the exact tensor DAG, VJP ledger, lifecycle, checks, and errors', () => {

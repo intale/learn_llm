@@ -2,11 +2,11 @@
 {
   "chapter_id": "38-cached-generation",
   "concept_id": "cached-generation",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 38,
   "objective": {
-    "en": "Give every decoder block its own KV cache, prefill the prompt once, and match complete-prefix newest-position and generation evidence for the exact fixtures while advancing model-wide state coherently.",
-    "ru": "Выделить каждому блоку декодера собственный KV-кэш, один раз обработать промпт и в заданных примерах согласованно обновлять состояние всей модели, сверяя с эталонным расчётом по полному префиксу логиты последней позиции и проверяемые решения при генерации."
+    "en": "Give every decoder block its own KV cache and prefill the prompt once. For the exact fixtures, advance all block caches coherently and verify that newest-position logits and generation decisions match complete-prefix references.",
+    "ru": "Выделите каждому блоку декодера собственный KV-кэш и один раз заполните кэши по промпту. В заданных примерах согласованно обновляйте кэши всех блоков и проверяйте, что логиты последней позиции и выбранные при генерации токены совпадают с результатами эталонного расчёта по полному префиксу."
   },
   "worked_inputs": {
     "en": "Prefill token IDs 0 and 1 through a two-layer, two-head decoder, decode token ID 2, compare both newest-position logits with complete-prefix references within 2e-12, and then match seeded cached generation against the Chapter 36 uncached loop.",
@@ -60,7 +60,7 @@
       },
       "modern_llm_role": {
         "en": "Model-wide cached generation prefills one independent cache per decoder block and advances every block only when later logits are needed. In the exact fixtures, newest-position logits agree with complete-prefix references within tolerance, and restored cached generation matches selected tokens, sampling draws, final RNG state, and stopping reason.",
-        "ru": "При генерации с KV-кэшем вся модель один раз заполняет отдельный кэш каждого блока декодера, а затем продвигает все блоки лишь тогда, когда нужны следующие логиты. В заданных примерах логиты последней позиции совпадают с эталонными расчётами по полному префиксу в пределах допуска, а после восстановления контрольной точки совпадают выбранные токены, случайные числа для сэмплирования, конечное состояние генератора псевдослучайных чисел и причина остановки."
+        "ru": "При генерации с KV-кэшем модель один раз заполняет отдельный кэш каждого блока декодера, а затем обновляет состояние всех блоков лишь тогда, когда нужны следующие логиты. В заданных примерах логиты последней позиции совпадают с эталонными расчётами по полному префиксу в пределах допуска, а после восстановления контрольной точки совпадают выбранные токены, псевдослучайные значения для сэмплирования, конечное состояние генератора псевдослучайных чисел и причина остановки."
       },
       "sources": [
         {
@@ -100,8 +100,8 @@
       "ru": "Перейти от повторного расчёта всего каузального префикса декодера перед каждым выбором к однократному заполнению кэшей по промпту и последующему декодированию по одному токену с сохранением состояния."
     },
     "summary": {
-      "en": "The original Transformer establishes the stacked causal decoder, explicit previous-K/V interfaces expose reusable inference state, and modern LLM serving separates prompt processing from sequential decode. This course's exact model binding, coherent commit, reset, counter, error, and serial-prefill rules are local correctness choices rather than policies defined by those papers.",
-      "ru": "Исходная архитектура Transformer задаёт стек каузальных слоёв декодера. Интерфейсы, которым явно передаются сохранённые K/V, позволяют повторно использовать состояние при выводе, а современные системы обслуживания LLM отделяют обработку промпта от последовательного декодирования. Точная привязка к модели, согласованное обновление всех кэшей, сброс, счётчики, обработка ошибок и последовательная обработка промпта в этом курсе — локальные правила корректности, а не требования этих статей."
+      "en": "The original Transformer establishes the stacked causal decoder, explicit previous-K/V interfaces expose reusable inference state, and modern LLM serving separates prompt processing from sequential decode. This course's binding to model configuration, parameter-node identities, and captured value revisions, plus its coherent commit, reset, counter, error, and serial-prefill rules, are local correctness choices rather than policies defined by those papers.",
+      "ru": "Исходная архитектура Transformer задаёт стек каузальных слоёв декодера. Интерфейсы, которым явно передаются сохранённые K/V, позволяют повторно использовать состояние при выводе, а современные системы обслуживания LLM отделяют обработку промпта от последовательного декодирования. Привязка к конфигурации модели, идентичностям узлов параметров и зафиксированным версиям их значений, а также согласованное обновление всех кэшей, сброс, счётчики, обработка ошибок и последовательная обработка промпта в этом курсе — локальные правила корректности, а не требования этих статей."
     },
     "rust_contrast": "Measure the exact fixture's attention tensors: serial cached rows at retained lengths [1,2,3] contain 24 score values, while the two complete-prefix reference calls at lengths [2,3] contain 52; record the 28 avoided values without treating these call schedules as identical substitutions into the asymptotic sums or as total-runtime measurements."
   },
@@ -124,8 +124,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The complete decoder can now retain compatible graph-free K/V state across all blocks, prefill a prompt, decode selected tokens only when later logits are needed, reset for reuse, and match the exact fixture's complete-prefix generation decisions; Chapter 39 will connect that inference path to the full train, evaluate, save, load, and generate pipeline.",
-    "ru": "Теперь полный декодер может сохранять совместимое состояние K/V без графа вычислений во всех блоках, заполнять кэши по промпту, декодировать выбранные токены лишь тогда, когда нужны следующие логиты, сбрасываться для повторного использования и воспроизводить решения эталонной генерации по полному префиксу в заданном примере; глава 39 соединит этот путь вывода с полным процессом обучения, оценки, сохранения, загрузки и генерации."
+    "en": "The complete decoder can now retain compatible graph-free K/V state across all blocks, prefill a prompt, and decode selected tokens only when later logits are needed. It can reset logical state for reuse with the same unchanged model, reject different parameter nodes or changed value revisions, and match the exact fixture's complete-prefix generation decisions. After any weight update it must construct a new cache. Chapter 39 will connect this inference path to the full train, evaluate, save, load, and generate pipeline.",
+    "ru": "Теперь полный декодер может сохранять совместимое состояние K/V без графа вычислений во всех блоках, заполнять кэши по промпту и декодировать выбранные токены лишь тогда, когда нужны следующие логиты. Он может сбрасывать логическое состояние для повторной работы с той же неизменившейся моделью, отклонять вызовы при изменении узлов параметров или версий их значений и в заданном примере выбирать те же токены, что и эталонный расчёт по полному префиксу. После любого обновления весов необходимо создать новый кэш. Глава 39 соединит этот путь вывода с полным процессом обучения, оценки, сохранения, загрузки и генерации."
   },
   "terminology": [
     {
@@ -177,16 +177,27 @@
       "concept_id": "pseudorandom-generator-state",
       "en": "pseudorandom-number-generator state",
       "ru": "состояние генератора псевдослучайных чисел"
+    },
+    {
+      "concept_id": "parameter-value-revision",
+      "en": "parameter-value revision",
+      "ru": "версия значения параметра"
+    },
+    {
+      "concept_id": "stale-model-wide-cache",
+      "en": "stale model-wide KV cache",
+      "ru": "устаревшее состояние KV-кэшей всей модели"
     }
   ],
   "translation_notes": [
-    "Russian was translated directly from frozen canonical English content revision 3 with SHA-256 be26bf4a0a7c4b6b742f4c31132f6083511488189973bf6ec76fee3bae4f08c1; Chapter 38's exact active locale set is {en, ru}, and the two lessons are semantic equivalents.",
-    "The Russian lesson is a direct translation of the current English revision 3; no pivot locale or external translation service was used.",
+    "Chapter 38 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 3d1127d01c57cb14b342b38350031268bd6d30fa841acb9c59ae0e1df1fc26b2 and becomes stale whenever that source changes.",
+    "The Russian lesson is a direct translation of the current English revision 4; no pivot locale or external translation service was used.",
     "Preserve KV, K, V, T, t, Theta, Q/K/V, RNG, EOS, tensor shapes, tolerance, source names, URLs, exact trace tokens and values, code identifiers, and the Chapter 39 handoff across both locales.",
     "Formula parity requires the exact shared LaTeX and symbol meanings, the distinct cached retained lengths [1,2,3] versus complete-prefix call lengths [2,3], and the measured 24 versus 52 score values with 28 avoided values; none of these counts is total runtime or speedup.",
     "History parity requires the causal Transformer stack, the explicit previous-K/V incremental interface, the later prompt and sequential-generation stages of LLM serving, every source qualification, and the distinction between cited advances and this course's local correctness policies.",
     "Stop-boundary parity requires EOS, then token limit, then context limit precedence: cached prefill reaches length 1, the first selected 4 is decoded to length 2, and the second 4 is returned before context-limit stops without decoding it; with EOS token 4, [4] is returned and no later decode-token forward runs.",
-    "Each decoder block owns distinct K/V storage bound to the exact model configuration and parameter-node identities; every candidate row is prepared before any layer commits, and reset or rejected operations preserve the documented state invariants.",
+    "Each decoder block owns distinct K/V storage. The containing DecoderKvCache binds the model-wide state to the exact decoder configuration and to every parameter-node identity and captured value revision; each nested LayerKvCache separately binds its block's four attention parameters. Rebuilt parameters fail identity; in-place AdamW updates preserve identity but advance revisions.",
+    "Reset clears the logical K/V prefix length, prefill phase, and work but does not refresh or rebind captured parameter identities and revisions. After any weight update, construct a new DecoderKvCache before prefill or decode.",
     "Preferred Russian terms are генерация с KV-кэшем, KV-кэш (кэш ключей и значений), заполнение KV-кэшей по промпту, декодирование по одному токену, состояние KV-кэшей всей модели, повторный расчёт по полному префиксу, согласованное обновление всех кэшей, число значений оценок внимания, логическая длина, ёмкость кэша, and состояние генератора псевдослучайных чисел.",
     "Avoid кэшированная генерация, промпт-фаза, реплей полного префикса, однотокенный декод, паритет генерации, рандомные вытяжки, and останавливающее поведение; finite fixture evidence checks or records a result and does not prove a universal property.",
     "Any English change affecting meaning or presentation makes the Russian review stale until it is refreshed directly from the new English revision and reviewed again."
@@ -206,7 +217,7 @@
     },
     {
       "input": "Generate from the restored 6330-byte checkpoint and RNG state 0x9e3779b97f4a7c38",
-      "expected": "Both paths generate [4,4], decode text 44, and finish with equal RNG state. Cached prefill reaches length 1, the first 4 is decoded to length 2, and the second 4 is returned before context-limit stops without decoding it; the paths record 6 versus 10 attention-score values."
+      "expected": "Both paths generate [4,4]; converting those generated token IDs back to text produces the literal string 44; and both finish with equal RNG state. Cached prefill reaches length 1, the first 4 is decoded to length 2, and the second 4 is returned before context-limit stops without decoding it; the paths record 6 versus 10 attention-score values."
     },
     {
       "input": "Treat selected token 4 as EOS",
@@ -214,11 +225,15 @@
     },
     {
       "input": "Reset a cache of length 3 and replay the fixture",
-      "expected": "Logical length and work return to zero while the backing allocation and stored K/V values remain unchanged, and replayed logits are identical."
+      "expected": "Logical length and work return to zero while the backing allocation, stored K/V values, and captured parameter bindings remain unchanged; replay with the same unchanged model is identical."
     },
     {
       "input": "Decode before prefill, prefill nonempty state, exceed context, reuse a rebuilt model, or change decoder configuration",
       "expected": "A typed error is returned and the complete model-wide cache state remains unchanged."
+    },
+    {
+      "input": "Update the decoder parameters in place with AdamW, reset the old model-wide cache, and try to prefill it",
+      "expected": "ModelParameterRevisionMismatch is returned before any token is committed because reset did not refresh the captured revisions; a new DecoderKvCache constructed from the updated model is compatible."
     },
     {
       "input": "cargo run --quiet --locked -p ch38-cached-generation",
@@ -235,9 +250,14 @@
 
 This chapter extends one-layer incremental attention into a model-wide inference
 state. `DecoderKvCache` owns one independent K/V cache for every decoder block,
-binds the complete decoder configuration and parameter identities, and advances
-all layer lengths together. Prompt prefill initializes that state; each later
-decode call accepts one selected token and returns logits for the next choice.
+binds the complete decoder configuration, every parameter-node identity, and the
+current value revision of every parameter, and advances all layer lengths
+together. Rebuilding the model creates different nodes and fails the identity
+check. An in-place AdamW step preserves those nodes but advances their value
+revisions, so a cache constructed before the update is stale. Prompt prefill
+initializes compatible state; each later decode call accepts one selected token
+and returns logits for the next choice. After any weight update, construct a new
+`DecoderKvCache` from the updated model.
 
 At the two fixture boundaries, the chapter compares newest-position logits with
 complete-prefix references within tolerance. A restored checkpoint separately
@@ -330,21 +350,31 @@ lengths $[2,3]$ contain $52$, so this exact call schedule avoids $28$ score
 values. These counts cover attention tensors, not paging or total runtime.
 
 The model-wide ownership and transaction rules here are local correctness
-choices. Every layer cache is bound to the exact decoder because a later block's
-stored rows depend on embeddings and all earlier block computations, not only on
-that block's attention matrices. All candidate layer rows are prepared before
-any is committed, so ordinary failures advance every block or none.
+choices. The containing `DecoderKvCache` owns one binding to every decoder
+parameter, while each nested `LayerKvCache` separately binds its block's four
+attention parameters. The model-wide binding is checked before any row is
+prepared. It deliberately uses one exact-model rule instead of tracking a
+different dependency subset for each layer; in particular, a later block's
+retained rows depend on embeddings and every earlier block. Identity detects a
+rebuilt model, while revision detects an in-place update to the same nodes. All
+candidate layer rows are prepared before any is committed, so ordinary failures
+advance every block or none.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
 `DecoderKvCache::new` allocates one fixed-capacity `LayerKvCache` per decoder
-block and records the complete model configuration and every parameter-node
-identity. `prefill` accepts one validated nonempty prompt only when state is
-empty. It advances prompt rows serially through the same one-row decoder path,
-retaining graph-free K/V state and returning the final prompt position's logits.
-This serial prefill is a transparent correctness reference, not a claim about an
-optimized parallel prefill kernel.
+block and records the complete model configuration. For every model parameter it
+captures both the node identity and current value revision. A rebuilt model fails
+with `ModelParameterMismatch`; an in-place AdamW update keeps the node identities
+but advances their revisions, so the old cache fails with
+`ModelParameterRevisionMismatch`. Retained K/V rows were computed by the earlier
+weights and cannot be combined with rows from the updated model. `prefill`
+accepts one validated nonempty prompt only when state is empty. It advances prompt
+rows serially through the same one-row decoder path, retaining graph-free K/V
+state and returning the final prompt position's logits. This serial prefill is a
+transparent correctness reference, not a claim about an optimized parallel
+prefill kernel.
 
 For each row, the decoder runs embedding, every block's pre-norm attention and
 feed-forward residual path, final RMSNorm, and the tied vocabulary projection.
@@ -359,13 +389,18 @@ none applies does it decode the selected token to obtain later logits. The
 selected token that reaches the loaded fixture's context boundary is therefore
 returned while the full cache remains at length $2$. Reset clears logical
 length, phase, and work while retaining the backing allocation and stored K/V
-values outside the new empty logical prefix.
+values outside the new empty logical prefix. It does not update the captured
+parameter identities or revisions and therefore does not rebind a stale cache.
+A reset cache can be reused only with the same unchanged model; construct a new
+cache after any successful weight update.
 
 The demo checks per-layer storage isolation, prefill/decode newest-position
 logits within tolerance, the restored fixture's selected tokens, draws, final RNG
 state and stops, seeded EOS behavior, reset replay, and exact typed rejection of
 invalid phases, overflow, rebuilt weights, and changed decoder configuration.
-Rejected operations preserve all committed logical state.
+The implementation also rejects an in-place parameter update with the typed
+revision-mismatch error, even after reset. Rejected operations preserve all
+committed logical state.
 
 <!-- contract-section:visualization -->
 ## Visualization
@@ -390,19 +425,24 @@ without private horizontal scrolling.
 2. After prefill with two tokens, what is each layer cache's logical length?
 3. Which absolute position does the first decode token use?
 4. Why can a cache from rebuilt equal-valued weights not be reused?
-5. For the fixture, how many cache appends occur across two prefill rows and one
+5. Why is parameter-node identity alone insufficient after an in-place AdamW
+   update?
+6. For the fixture, how many cache appends occur across two prefill rows and one
    decode row?
-6. Why are there $24$ cached attention-score values?
-7. Does caching make the newest attention query constant-time?
-8. If the first selected token is EOS, must that token be decoded?
-9. What does reset change, and what does it retain?
+7. Why are there $24$ cached attention-score values?
+8. Does caching make the newest attention query constant-time?
+9. If the first selected token is EOS, must that token be decoded?
+10. What does reset change, what does it retain, and does it rebind the cache?
 
 Checks: there are $2$ caches; each reaches length $2$; decode begins at position
-$2$; stored states are bound to exact model parameter identities and
-configuration; $2$ layers times $3$ rows gives $6$ appends; batch $1$, $2$
-layers, and $2$ heads multiply $1+2+3$ scores to $24$; the newest query still
+$2$; even when values, shapes, and decoder configuration agree, rebuilt weights
+have different parameter-node identities; an in-place AdamW
+update preserves identity but advances each updated node's value revision, so the
+old cache is still stale; $2$ layers times $3$ rows gives $6$ appends; batch $1$,
+$2$ layers, and $2$ heads multiply $1+2+3$ scores to $24$; the newest query still
 reads every retained key; an EOS token needs no later decode; and reset clears
-logical state and counters while retaining allocations and backing storage.
+logical state and counters while retaining allocations, backing storage, and the
+original parameter bindings, so it does not make a stale cache compatible.
 
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
@@ -418,7 +458,7 @@ save/load, and decoded text in one end-to-end program.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 3 is the canonical source, and English and Russian are the exact
+English revision 4 is the canonical source, and English and Russian are the exact
 active locale set. The Russian lesson was translated directly from the frozen
 English source recorded in `translation_notes`; any later English change in
 meaning or presentation makes that review stale. Keep source names, tensor-axis
@@ -428,7 +468,9 @@ initializes all layer caches, and keep it distinct from repeated one-token decod
 Preserve "complete-prefix replay" when explaining the complexity comparison:
 generic "uncached decoding" is too broad. Do not imply constant-time decode, a
 measured speedup, or that the cited papers define this course's ownership and
-transaction policies.
+transaction policies. Preserve the two separate compatibility failures: rebuilt
+weights change parameter-node identities, an in-place AdamW update changes value
+revisions without changing identities, and reset refreshes neither binding.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -436,5 +478,7 @@ transaction policies.
 The frontmatter acceptance examples freeze prefill and decode logits, cache
 shapes, the $2\times10^{-12}$ tolerance, $24$ versus $52$ fixture score values,
 loaded token/RNG parity, EOS precedence, reset reuse, exact model binding, and
-transactional failures. The declared Rust, content, static-build, link, Chromium,
-and Firefox commands must pass before publication.
+transactional failures. Exact model binding includes both parameter-node identity
+and the value revision captured at cache construction. The declared Rust,
+content, static-build, link, Chromium, and Firefox commands must pass before
+publication.

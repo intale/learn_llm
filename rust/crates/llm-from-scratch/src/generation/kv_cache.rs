@@ -4,7 +4,7 @@ use std::error::Error;
 use std::fmt;
 
 use crate::attention::incremental::{IncrementalAttentionError, LayerKvCache, LayerKvCacheError};
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue, no_grad};
+use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue, TensorValueBinding, no_grad};
 use crate::models::decoder::{DecoderModel, DecoderModelConfig};
 use crate::nn::embedding::EmbeddingError;
 use crate::nn::init::SplitMix64;
@@ -79,6 +79,11 @@ pub enum DecoderKvCacheError {
     },
     ModelParameterMismatch {
         index: usize,
+    },
+    ModelParameterRevisionMismatch {
+        index: usize,
+        cache: u64,
+        model: u64,
     },
     EmptyPrompt,
     PromptTooLong {
@@ -166,6 +171,14 @@ impl fmt::Display for DecoderKvCacheError {
             Self::ModelParameterMismatch { index } => write!(
                 formatter,
                 "decoder cache parameter identity differs at stable index {index}"
+            ),
+            Self::ModelParameterRevisionMismatch {
+                index,
+                cache,
+                model,
+            } => write!(
+                formatter,
+                "decoder cache parameter revision {cache} at stable index {index} differs from model revision {model}"
             ),
             Self::EmptyPrompt => formatter.write_str("cached prefill needs a nonempty prompt"),
             Self::PromptTooLong { tokens, capacity } => write!(
@@ -339,7 +352,7 @@ enum CachedPhase {
 #[derive(Clone, Debug)]
 pub struct DecoderKvCache {
     config: DecoderModelConfig,
-    parameter_nodes: Vec<TensorValue>,
+    parameter_bindings: Vec<TensorValueBinding>,
     layers: Vec<LayerKvCache>,
     len: usize,
     prefill_complete: bool,
@@ -353,12 +366,12 @@ impl PartialEq for DecoderKvCache {
             && self.len == other.len
             && self.prefill_complete == other.prefill_complete
             && self.work == other.work
-            && self.parameter_nodes.len() == other.parameter_nodes.len()
+            && self.parameter_bindings.len() == other.parameter_bindings.len()
             && self
-                .parameter_nodes
+                .parameter_bindings
                 .iter()
-                .zip(&other.parameter_nodes)
-                .all(|(left, right)| left.is_same_node(right))
+                .zip(&other.parameter_bindings)
+                .all(|(left, right)| left.same_binding(right))
     }
 }
 
@@ -366,17 +379,17 @@ impl DecoderKvCache {
     /// Allocates one fixed-capacity layer cache and binds every model parameter.
     pub fn new(model: &DecoderModel) -> Result<Self, DecoderKvCacheError> {
         let config = model.config();
-        let mut parameter_nodes = Vec::new();
-        parameter_nodes
+        let mut parameter_bindings = Vec::new();
+        parameter_bindings
             .try_reserve_exact(model.parameters().len())
             .map_err(|_| DecoderKvCacheError::ParameterAllocationFailed {
                 parameters: model.parameters().len(),
             })?;
-        parameter_nodes.extend(
+        parameter_bindings.extend(
             model
                 .parameters()
                 .iter()
-                .map(|parameter| parameter.tensor().clone()),
+                .map(|parameter| TensorValueBinding::capture(parameter.tensor())),
         );
 
         let mut layers = Vec::new();
@@ -393,7 +406,7 @@ impl DecoderKvCache {
         }
         Ok(Self {
             config,
-            parameter_nodes,
+            parameter_bindings,
             layers,
             len: 0,
             prefill_complete: false,
@@ -618,19 +631,32 @@ impl DecoderKvCache {
         if !same_config(self.config, model.config()) {
             return Err(DecoderKvCacheError::ModelConfigMismatch);
         }
-        if self.parameter_nodes.len() != model.parameters().len() {
+        if self.parameter_bindings.len() != model.parameters().len() {
             return Err(DecoderKvCacheError::ModelParameterCountMismatch {
-                cache: self.parameter_nodes.len(),
+                cache: self.parameter_bindings.len(),
                 model: model.parameters().len(),
             });
         }
         if let Some(index) = self
-            .parameter_nodes
+            .parameter_bindings
             .iter()
             .zip(model.parameters())
-            .position(|(cached, parameter)| !cached.is_same_node(parameter.tensor()))
+            .position(|(cached, parameter)| !cached.node_matches(parameter.tensor()))
         {
             return Err(DecoderKvCacheError::ModelParameterMismatch { index });
+        }
+        if let Some((index, (cached, parameter))) = self
+            .parameter_bindings
+            .iter()
+            .zip(model.parameters())
+            .enumerate()
+            .find(|(_, (cached, parameter))| !cached.revision_matches(parameter.tensor()))
+        {
+            return Err(DecoderKvCacheError::ModelParameterRevisionMismatch {
+                index,
+                cache: cached.revision(),
+                model: parameter.tensor().value_revision(),
+            });
         }
         self.validate_layer_lengths()
     }
@@ -1131,6 +1157,7 @@ mod tests {
     use crate::models::decoder::DecoderModel;
     use crate::nn::init::NamedParameter;
     use crate::tensor::storage::Tensor;
+    use crate::training::adamw::{AdamW, AdamWConfig};
 
     const TOLERANCE: f64 = 2e-12;
 
@@ -1246,6 +1273,32 @@ mod tests {
             replay.logits().value().as_slice(),
             &final_logits(&model, &[0, 1]),
         );
+    }
+
+    #[test]
+    fn reset_does_not_rebind_a_cache_after_an_in_place_model_update() {
+        let model = model(2, 4, 239);
+        let mut cache = DecoderKvCache::new(&model).unwrap();
+        cache.prefill(&model, &[0, 1]).unwrap();
+        cache.reset();
+        let before = cache.clone();
+        let mut optimizer = AdamW::new(AdamWConfig::new(0.01, 0.9, 0.999, 1e-8, 0.1).unwrap());
+
+        optimizer.step(model.parameters()).unwrap();
+
+        assert_eq!(
+            cache.prefill(&model, &[0, 1]).unwrap_err(),
+            DecoderKvCacheError::ModelParameterRevisionMismatch {
+                index: 0,
+                cache: 0,
+                model: 1,
+            }
+        );
+        assert_eq!(cache, before);
+
+        let mut fresh_cache = DecoderKvCache::new(&model).unwrap();
+        fresh_cache.prefill(&model, &[0, 1]).unwrap();
+        assert_eq!(fresh_cache.len(), 2);
     }
 
     #[test]

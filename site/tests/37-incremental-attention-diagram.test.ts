@@ -306,11 +306,19 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
     );
-    expect(contract.content_revision).toBe(3);
-    expect(lesson.content_revision).toBe(3);
-    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lesson.content_revision).toBe(4);
+    expect(russianLesson.content_revision).toBe(4);
     expect(contract.translation_notes.join(" ")).toContain(
-      `SHA-256 ${createHash("sha256").update(lessonSource).digest("hex")}`,
+      "exact active locale set {en, ru}",
+    );
+    const canonicalEnglishHash =
+      "633f51e0083d1e3d82e7cd6489e55965876802b8c569ca7e1cb1ad708aa22721";
+    expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
+      canonicalEnglishHash,
+    );
+    expect(contract.translation_notes.join(" ")).toContain(
+      `SHA-256 ${canonicalEnglishHash}`,
     );
     expect(russianLesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -364,6 +372,13 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(normalizedLesson).toContain(
       "does not claim constant-time attention or a measured speedup",
     );
+    expect(normalizedLesson).toContain(
+      "A successful AdamW step updates the existing nodes in place: their identities stay the same, but their value revisions advance",
+    );
+    expect(normalizedLesson).toContain(
+      "reset clears logical length but does not refresh the captured revisions or bind the cache to another layer",
+    );
+    expect(lessonSource).toContain("CacheLayerRevisionMismatch");
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
     expect(lessonSource).not.toMatch(/refer(?:s|ring) to (?:the )?build instructions/i);
     expect(lessonSource).not.toMatch(/Ã|â|�/);
@@ -382,14 +397,22 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(russianLessonSource).toContain(
       "<IncrementalAttentionDiagram labels={diagramLabels} />",
     );
+    expect(normalizedRussianLesson).toContain(
+      "Старый кэш после этого становится устаревшим и возвращает `CacheLayerRevisionMismatch`",
+    );
+    expect(russianLessonSource).toContain(
+      "сброс очищает логическую длину, но не обновляет",
+    );
     expect(russianLessonSource).not.toMatch(
-      /полно-префикс|инференс-состояни|безграфов|транзакционн|фикстур|репле|поинт|кей[- ]?велью/i,
+      /полно-префикс|инференс-состояни|безграфов|транзакционн|фикстур|репле|поинт|кей[- ]?велью|исполняем\w* пример|свидетельств/i,
     );
 
     expect(incrementalSource).toContain("region:layer-kv-cache");
     expect(incrementalSource).toContain("region:incremental-attention");
     expect(incrementalSource).toContain("LayerKvCache::new");
     expect(incrementalSource).toContain("forward_incremental");
+    expect(incrementalSource).toContain("CacheLayerRevisionMismatch");
+    expect(incrementalSource).toContain("revision_matches");
     expect(incrementalSource).not.toContain("pub fn append");
     expect(demoSource).toContain("region:historical-kv-contrast");
     expect(demoSource).toContain("region:cache-errors");

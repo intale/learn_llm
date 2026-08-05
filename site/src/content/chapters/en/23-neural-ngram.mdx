@@ -2,7 +2,7 @@
 {
   "chapter_id": "23-neural-ngram",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 23,
   "concept_id": "neural-ngram",
   "title": "Train a fixed-context neural language model",
@@ -91,7 +91,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/models/neural_ngram.rs",
       "region": "neural-ngram-parameter-owner",
-      "purpose": "Own one ordered five-matrix set and reconstruct checked layer views from current leaves."
+      "purpose": "Own persistent embedding, SwiGLU, and output-projection handles whose five leaf nodes are shared with one ordered parameter registry."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/models/neural_ngram.rs",
@@ -101,7 +101,7 @@
     {
       "path": "rust/demos/ch23-neural-ngram/src/lib.rs",
       "region": "chapter-neural-ngram-fixture",
-      "purpose": "Train two independent frozen runs and verify objective improvement, gradients, replacement, generation, and bitwise replay."
+      "purpose": "Train two independent frozen runs and verify objective improvement, gradients, preserved parameter nodes, explicit gradient clearing, generation, and bitwise replay."
     },
     {
       "path": "rust/demos/ch23-neural-ngram/src/main.rs",
@@ -168,7 +168,8 @@ export const diagramLabels = {
     testText: 'Test-text boundary',
     target: 'Target policy',
     gradientL1: 'First-step matrix-gradient check',
-    leaves: 'AdamW leaves',
+    parameterNodes: 'Parameter-node identity',
+    gradients: 'Gradients after explicit clearing',
     generationPolicy: 'Generation policy',
   },
   cues: {
@@ -271,9 +272,9 @@ and its denominator.
 
 Classical count n-grams estimate each short context separately, so rare or
 unseen combinations receive little usable evidence as the number of possible
-sequences grows. In the tiny executable contrast, a bigram keyed only by final
-token $11$ mixes two followers, while the wider contexts $[10,11]$ and
-$[20,11]$ each retain one distinct follower.
+sequences grows. In the `historical_context_evidence` calculation shown below,
+a bigram keyed only by final token $11$ mixes two followers, while the wider
+contexts $[10,11]$ and $[20,11]$ each retain one distinct follower.
 
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 provide the neural step. Bengio et al. map a fixed context through learned
@@ -297,9 +298,9 @@ Attention later removes this fixed-context concatenation bottleneck.
 
 The papers do not define this course's byte-pair vocabulary, SwiGLU, dimensions,
 optimizer constants, seeds, final-target policy, or generation limit. The
-executable contrast isolates the language-model transition: exact count tables
-give way to shared learned features, and masked attention later removes the
-fixed concatenation window.
+`historical_context_evidence` calculation isolates the language-model
+transition: exact count tables give way to shared learned features, and masked
+attention later removes the fixed concatenation window.
 
 <RustSource
   path="rust/demos/ch23-neural-ngram/src/lib.rs"
@@ -323,15 +324,16 @@ scores observable before they can be mistaken for training evidence:
   label="Rust source defining the Chapter 23 neural n-gram configuration and errors"
 />
 
-The model owns exactly five matrices. AdamW replaces those owner leaves after a
-successful step, so every later forward must reconstruct embedding, SwiGLU, and
-output-projection views from current leaf-sharing clones. Caching a layer object
-would keep the old leaves alive and train the wrong model:
+The model owns exactly five matrix nodes. Its ordered parameter registry and its
+persistent embedding, SwiGLU, and output-projection handles all refer to those
+same nodes. AdamW writes checked new values into the existing nodes, so the next
+forward observes the update through the already-owned layers. No layer needs to
+be rebuilt after an optimizer step:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/models/neural_ngram.rs"
   region="neural-ngram-parameter-owner"
-  caption="Own and reconstruct the exact five-matrix parameter set"
+  caption="Share one five-node parameter set between the registry and persistent layers"
   label="Rust source defining the Chapter 23 parameter owner"
 />
 
@@ -347,10 +349,13 @@ generation a stable lower-ID tie break:
 />
 
 The fixture learns eight BPE ranks only from training documents, never requests
-test text, materializes one batch order with seed `23`, and consumes its first
-$15$ batches. Complete train and validation objectives are evaluated at steps
-$0$, $8$, and $15$ with actual row-count weighting. Two independently
-initialized runs must match every checked value bit for bit:
+test text, materializes one batch order with seed `23`, and uses its first
+$15$ batches. AdamW uses each raw gradient to compute the update and retains that
+gradient on the same live parameter node. After the update, the fixture
+explicitly calls `zero_grad()` on all five nodes before the next forward pass.
+Complete train and validation objectives are
+evaluated at steps $0$, $8$, and $15$ with actual row-count weighting. Two
+independently initialized runs must match every checked value bit for bit:
 
 <RustSource
   path="rust/demos/ch23-neural-ngram/src/lib.rs"
@@ -413,7 +418,9 @@ model rather than presenting invented readable text.
    gradient $L_1$ norm.
 4. Explain how a $300$-row final evaluation batch enters the complete train mean.
 5. Decide whether validation loss must fall at every checkpoint.
-6. Decide whether cloning the named parameters creates an independent replay.
+6. Decide what a persistent layer handle and a cloned `NamedParameter` handle
+   observe after AdamW updates their shared node, and whether AdamW clears that
+   node's gradient.
 7. Predict what greedy generation does if BOS has the greatest logit.
 8. Identify which operation would leak the test partition.
 
@@ -425,7 +432,7 @@ model rather than presenting invented readable text.
   3. The embedding, gate, up, down, and output matrices all have positive finite gradient $L_1$ norms.
   4. Multiply its batch mean by $300$, add the other weighted sums, then divide by all $1836$ contexts.
   5. No. This fixture requires the fixed final validation loss to beat initialization by more than $0.01$ nat; it does not impose monotonicity.
-  6. No. `NamedParameter::clone` shares a tape leaf. Independent replay constructs a fresh seeded model.
+  6. Cloning a `NamedParameter` copies its handle, not its tensor data or node. The copied handle and the persistent layer handle still point to the same `TensorValue` node, so both observe the new value. AdamW leaves the accumulated gradient on that node, and the training loop explicitly calls `zero_grad()` after the update. Independent replay constructs a separate seeded model.
   7. BOS is masked, so $\operatorname{argmax}$ selects the greatest remaining finite logit with the lower ID winning an exact tie.
   8. Reading test document text for fitting, encoding, selection, early stopping, scoring, or display would invalidate the boundary.
 </details>

@@ -2,12 +2,12 @@
 {
   "chapter_id": "38-cached-generation",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 38,
   "concept_id": "cached-generation",
   "title": "Prefill once, then advance one token",
-  "description": "Learn how one KV cache per decoder block turns prompt processing into coherent one-token decoding, with measured newest-logit and generation checks against complete-prefix references.",
-  "objective": "Give every decoder block its own KV cache, prefill the prompt once, and match complete-prefix newest-position and generation evidence for the exact fixtures while advancing model-wide state coherently.",
+  "description": "Learn how one KV cache per decoder block supports one prompt prefill followed by coherent one-token decoding, then compare newest-position logits and generation decisions with complete-prefix references.",
+  "objective": "Give every decoder block its own KV cache and prefill the prompt once. For the exact fixtures, advance all block caches coherently and verify that newest-position logits and generation decisions match complete-prefix references.",
   "worked_inputs": "Prefill token IDs 0 and 1 through a two-layer, two-head decoder, decode token ID 2, compare both newest-position logits with complete-prefix references within 2e-12, and then match seeded cached generation against the Chapter 36 uncached loop.",
   "formula": {
     "latex": "\\sum_{t=1}^{T}t^2\\in\\Theta(T^3),\\quad \\sum_{t=1}^{T}t\\in\\Theta(T^2)\\,.",
@@ -69,7 +69,7 @@
       ]
     },
     "approach": "Move from replaying the complete causal decoder prefix for each selection to one prompt prefill followed by stateful one-token decoder calls.",
-    "summary": "The original Transformer establishes the stacked causal decoder, explicit previous-K/V interfaces expose reusable inference state, and modern LLM serving separates prompt processing from sequential decode. This course's exact model binding, coherent commit, reset, counter, error, and serial-prefill rules are local correctness choices rather than policies defined by those papers.",
+    "summary": "The original Transformer establishes the stacked causal decoder, explicit previous-K/V interfaces expose reusable inference state, and modern LLM serving separates prompt processing from sequential decode. This course's binding to model configuration, parameter-node identities, and captured value revisions, plus its coherent commit, reset, counter, error, and serial-prefill rules, are local correctness choices rather than policies defined by those papers.",
     "rust_source": "rust/demos/ch38-cached-generation/src/lib.rs"
   },
   "rust_sources": [
@@ -81,7 +81,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs",
       "region": "decoder-kv-cache",
-      "purpose": "Bind one independent layer cache per decoder block to the exact model, prefill and decode coherently, count work, and reset logical state."
+      "purpose": "Own one independent layer cache per decoder block, bind the containing model-wide state to the exact decoder configuration and every parameter's node identity and captured value revision, prefill and decode coherently, count work, and reset logical state without rebinding."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs",
@@ -108,7 +108,7 @@
     "id": "cached-generation",
     "rationale": "A prompt-to-decode timeline across two distinct layer caches makes model-wide ownership, coherent length changes, newest-position matches, and the attention-score comparison visible together."
   },
-  "decoder_connection": "The complete decoder can now retain compatible graph-free K/V state across all blocks, prefill a prompt, decode selected tokens only when later logits are needed, reset for reuse, and match the exact fixture's complete-prefix generation decisions; Chapter 39 will connect that inference path to the full train, evaluate, save, load, and generate pipeline."
+  "decoder_connection": "The complete decoder can now retain compatible graph-free K/V state across all blocks, prefill a prompt, and decode selected tokens only when later logits are needed. It can reset logical state for reuse with the same unchanged model, reject different parameter nodes or changed value revisions, and match the exact fixture's complete-prefix generation decisions. After any weight update it must construct a new cache. Chapter 39 will connect this inference path to the full train, evaluate, save, load, and generate pipeline."
 }
 ---
 
@@ -116,7 +116,7 @@ import RustSource from "../../../components/RustSource.astro";
 import CachedGenerationDiagram from "../../../components/chapters/CachedGenerationDiagram.astro";
 
 export const diagramLabels = {
-  title: "Prefill every layer once; decode every layer together",
+  title: "Prefill every layer for the prompt; decode every layer together",
   description: "The exact Rust trace follows a two-token prompt and one later token through two distinct decoder-block caches, checks newest-position logits within tolerance, and compares measured attention-score work plus stopping and reset behavior.",
   sections: {
     timeline: "Move from prompt prefill to one-token decode",
@@ -181,14 +181,15 @@ Before revealing the trace, predict four facts:
 The final prompt logits are
 $[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]$. After token
 $2$, the next logits are
-$[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]$. At both
-boundaries, the cached and complete-prefix results have an unrounded maximum
-absolute difference no greater than $2\times10^{-12}$; the displayed difference
-is $0.000000000000$.
+$[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]$. After prompt
+prefill and after decoding token $2$, the cached and complete-prefix results have
+an unrounded maximum absolute difference no greater than $2\times10^{-12}$; the
+displayed difference is $0.000000000000$.
 
 The restored checkpoint has context capacity $2$. It uses prompt $[0]$ and RNG
-state `0x9e3779b97f4a7c38`. Both generation paths select $[4,4]$, decode literal
-text `44`, consume matching sampling draws, finish with the same RNG state, and
+state `0x9e3779b97f4a7c38`. Both generation paths select $[4,4]$. Converting
+those generated token IDs back to text produces the literal string `44`. The
+paths consume matching sampling draws, finish with the same RNG state, and
 stop at the context limit. Cached prefill reaches length $1$; the first $4$ is
 decoded and advances the cache to length $2$; the second $4$ is selected from
 those logits and returned, then context-limit stops before decoding it. With
@@ -244,7 +245,12 @@ counts for the actual calls, not both asymptotic sums evaluated at $T=3$.
 
 The cache itself still stores one logical K/V prefix per block with shape
 $[B,H,t,d_h]$. Equal shapes do not make two caches interchangeable: their rows
-were produced at different depths of the decoder stack.
+were produced at different depths of the decoder stack. The containing
+`DecoderKvCache` also belongs to one exact decoder configuration and one captured
+binding for every model parameter. Each nested layer cache separately binds its
+block's four attention parameters. Shape and node identity alone cannot prove
+compatibility after a weight update because an in-place update changes value
+revisions without replacing the nodes.
 
 {/* chapter-section:history */}
 
@@ -288,8 +294,9 @@ $24$ attention-score values. The two complete-prefix calls at lengths $[2,3]$
 contain $52$, so this exact schedule avoids $28$ score values. These are tensor
 element counts, not a paging or runtime measurement.
 
-Exact model binding, all-block commit, reset, counters, errors, and serial prompt
-processing are this course's local correctness choices rather than policies
+Binding to model configuration, parameter-node identities, and captured value
+revisions, plus all-block commit, reset, counters, errors, and serial prompt
+processing, are this course's local correctness choices rather than policies
 defined by the cited papers.
 
 Paging, sharing, eviction, and production memory management remain outside this
@@ -305,25 +312,34 @@ before those serving concerns can be studied.
 
 {/* chapter-section:rust-implementation */}
 
-## Prepare every block, then commit the stack
+## Prepare every block, then commit every cache together
 
-Chapter 37's layer primitive now has an internal prepare boundary. It calculates
-the candidate newest output and K/V row without changing logical state. Its
-ordinary public call still prepares and immediately commits one layer, while the
-model-wide path can hold one prepared result per block.
+Chapter 37's layer operation now has two stages. First it calculates the candidate
+newest output and K/V row without changing logical state. Its ordinary public
+call commits that prepared row immediately. The model-wide path instead retains
+one prepared result per block and commits them only after every block and the
+final vocabulary projection succeed.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/incremental.rs"
   region="incremental-attention"
-  caption="Prepare one candidate layer append and commit it only at the chosen boundary"
+  caption="Prepare one candidate layer append and commit it only after the complete decoder row succeeds"
   label="Rust source for prepared Chapter 38 incremental attention"
 />
 
 `DecoderKvCache::new` takes the actual decoder. It allocates one fixed-capacity
-`LayerKvCache` per block and records the exact decoder configuration plus every
-parameter-node identity. The state therefore rejects rebuilt equal-valued weights
-and changed positional or decoder configuration, even when all visible dimensions
-match.
+`LayerKvCache` per block and records the exact decoder configuration. For every
+model parameter, it captures both the node identity and current value revision.
+A rebuilt model has different parameter nodes and returns
+`ModelParameterMismatch`. A successful in-place AdamW step writes new values into
+the same nodes, so their identities still match but their revisions advance. The
+old cache then returns `ModelParameterRevisionMismatch`.
+
+Both checks protect the meaning of the retained rows. Retained K/V values were
+computed while the model still matched the parameter identities and revisions
+captured when the cache was constructed. Appending rows from updated weights
+would mix two model revisions in one prefix. Construct a new `DecoderKvCache`
+after any weight update, even if the old cache has already been reset.
 
 `prefill` accepts a validated nonempty prompt only while state is empty. This
 teaching implementation sends prompt rows serially through the same one-row path,
@@ -331,11 +347,12 @@ which keeps the state transition transparent; it is not an optimized parallel
 prefill kernel. `decode` accepts exactly one in-vocabulary token only after
 prefill and before capacity is full.
 
-For each row, the decoder runs embedding, every block's pre-norm attention and
-feed-forward residual path, final RMSNorm, and tied vocabulary projection. Every
-block prepares its candidate append first. Only after all later calculations
-succeed do the layer caches, common length, phase counts, and score-cell counts
-advance together.
+For each row, the decoder computes the embedding, then applies each block's
+pre-norm attention and feed-forward residual paths in order, followed by final
+RMSNorm and the tied vocabulary projection. Every block prepares its candidate
+append without changing the cache. Only after the remaining blocks, final
+normalization, and vocabulary projection succeed do the layer caches, common
+length, phase counts, and score-cell counts advance together.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/generation/kv_cache.rs"
@@ -357,11 +374,15 @@ full cache remains at length $2$.
   label="Rust source implementing Chapter 38 cached generation"
 />
 
-Reset clears logical length, phase, and work counters while retaining the backing
-allocation and stored K/V values outside the new empty logical prefix. Decode
-before prefill, prefill into nonempty state, overflow, a rebuilt model, or changed
-configuration returns the expected typed error without changing the committed
-model-wide state.
+Reset empties the logical K/V prefix by returning length and the prefill phase to
+their initial state, and it zeroes the work counters. It retains the backing
+allocation and stored K/V values outside the new empty logical prefix. Reset does
+not refresh the captured parameter revisions and does not bind the cache to a
+different model. Decode before prefill, prefill into nonempty state, overflow, a
+rebuilt model, a model updated in place, or changed configuration returns the
+corresponding typed error without changing the committed model-wide state. In
+particular, resetting after AdamW does not prevent
+`ModelParameterRevisionMismatch`.
 
 The executable checks prefill and decode newest-position logits within tolerance,
 records that the two layer buffers are distinct, measures cached and reference
@@ -420,35 +441,48 @@ and also stops before another decoder forward.
 
 {/* chapter-section:exercises */}
 
-## Predict before checking the evidence
+## Predict before checking the results
 
 1. How many layer caches does a two-block decoder own?
 2. After prefill with two tokens, what is each layer cache's logical length?
 3. Which absolute position does the first decode token use?
 4. Why can a cache from rebuilt equal-valued weights not be reused?
-5. How many cache appends occur across two prompt rows and one decode row?
-6. Why does the fixture form $24$ cached attention-score values?
-7. Does caching make the newest attention query constant-time?
-8. If the first selected token is EOS, must that token be decoded?
-9. What does reset change, and what does it retain?
+5. Why is parameter-node identity alone insufficient after an in-place AdamW
+   update?
+6. How many cache appends occur across two prompt rows and one decode row?
+7. Why does the fixture form $24$ cached attention-score values?
+8. Does caching make the newest attention query constant-time?
+9. If the first selected token is EOS, must that token be decoded?
+10. What does reset change, what does it retain, and does it rebind the cache?
 
 Misconception: caches with equal shapes can be shared by different blocks. In
 fact, each retained row depends on the hidden state entering its block, so block
-$1$ cannot reuse block $0$'s K/V rows. The model-wide state also binds every cache
-to the exact decoder parameters and configuration that produced it.
+$1$ cannot reuse block $0$'s K/V rows. The containing `DecoderKvCache` binds the
+complete model-wide state to the exact decoder configuration and to every
+parameter node and captured value revision. Each nested layer cache also binds
+its own block's attention parameters.
 
 <details>
-<summary>Check the nine predictions</summary>
+<summary>Check the ten predictions</summary>
 
 1. The decoder owns $2$ layer caches, one for each block.
 2. Both caches reach logical length $2$ and shape $[1,2,2,2]$.
 3. The first later token uses absolute position $2$, equal to the old cache length.
-4. Equal values and shapes do not preserve parameter-node identity or the exact decoder configuration recorded by the cache.
-5. $2$ blocks times $3$ token rows gives $6$ coherent cache appends.
-6. There are $1\times2\times2=4$ batch-layer-head lanes, and each forms $1+2+3=6$ score values, giving $4\times6=24$.
-7. No. The newest query still reads $t$ retained keys at prefix length $t$.
-8. No. EOS is returned as the selected token, and no later logits are needed.
-9. Reset sets logical length, phase, and counters to zero while retaining the backing allocation and the old K/V bits until they are overwritten. Because logical length is zero, none of those old rows is valid for a later query.
+4. Even when values, shapes, and decoder configuration agree, rebuilding creates
+   different parameter nodes, so the identity check fails.
+5. An in-place AdamW update preserves the parameter nodes but advances their
+   value revisions. The old cache therefore returns
+   `ModelParameterRevisionMismatch` instead of accepting updated weights.
+6. $2$ blocks times $3$ token rows gives $6$ coherent cache appends.
+7. There are $1\times2\times2=4$ batch-layer-head lanes, and each forms
+   $1+2+3=6$ score values, giving $4\times6=24$.
+8. No. The newest query still reads $t$ retained keys at prefix length $t$.
+9. No. EOS is returned as the selected token, and no later logits are needed.
+10. Reset sets logical length, phase, and counters to zero while retaining the
+    backing allocation, the old K/V bits, and the captured parameter identities
+    and value revisions. It does not rebind the cache. With the same unchanged
+    model, old K/V rows are outside the empty logical prefix and will be
+    overwritten; after a weight update, construct a new cache.
 
 </details>
 
@@ -457,10 +491,12 @@ to the exact decoder parameters and configuration that produced it.
 ## Connect inference to the whole pipeline
 
 The complete decoder can now retain compatible graph-free K/V state across all
-blocks, prefill a prompt, decode selected tokens only when later logits are
-needed, reset for reuse, and match the exact fixture's complete-prefix generation
-decisions; Chapter 39 will connect that inference path to the full train,
-evaluate, save, load, and generate pipeline.
+blocks, prefill a prompt, and decode selected tokens only when later logits are
+needed. It can reset logical state for reuse with the same unchanged model,
+reject different parameter nodes or changed value revisions, and match the exact
+fixture's complete-prefix generation decisions. After any weight update it must
+construct a new cache. Chapter 39 will connect this inference path to the full
+train, evaluate, save, load, and generate pipeline.
 
 That final chapter will exercise the whole road in one program: partition data,
 learn and apply BPE, train and select the decoder, evaluate untouched data, save

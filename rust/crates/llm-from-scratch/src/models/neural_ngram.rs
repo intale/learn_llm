@@ -315,10 +315,13 @@ impl NeuralNgramForward {
 }
 
 // region:neural-ngram-parameter-owner
-/// One fixed-context language model with a single replaceable parameter owner.
+/// One fixed-context language model whose layers share one live parameter registry.
 #[derive(Debug)]
 pub struct NeuralNgram {
     config: NeuralNgramConfig,
+    embedding: Embedding,
+    feed_forward: SwiGlu,
+    output: Linear,
     parameters: Vec<NamedParameter>,
 }
 
@@ -349,25 +352,34 @@ impl NeuralNgram {
             &mut trial,
         )
         .map_err(NeuralNgramError::Linear)?;
-        let parameters = embedding
-            .parameters()
-            .iter()
-            .chain(feed_forward.parameters())
-            .chain(output.parameters())
-            .cloned()
-            .collect();
-        let model = Self::from_parameters(config, parameters)?;
+        let model = Self::from_parts(config, embedding, feed_forward, output)?;
         *rng = trial;
         Ok(model)
     }
 
-    /// Validates and takes sole ownership of the current ordered parameter leaves.
+    /// Validates one ordered parameter set and builds persistent aliased layer handles.
     pub fn from_parameters(
         config: NeuralNgramConfig,
         parameters: Vec<NamedParameter>,
     ) -> Result<Self, NeuralNgramError> {
         validate_parameter_set(config, &parameters)?;
-        Ok(Self { config, parameters })
+        let embedding = Embedding::from_parameter(parameters[0].clone())
+            .map_err(NeuralNgramError::Embedding)?;
+        let feed_forward = SwiGlu::from_parameters(
+            parameters[1].clone(),
+            parameters[2].clone(),
+            parameters[3].clone(),
+        )
+        .map_err(NeuralNgramError::SwiGlu)?;
+        let output = Linear::from_parameters(parameters[4].clone(), None)
+            .map_err(NeuralNgramError::Linear)?;
+        Ok(Self {
+            config,
+            embedding,
+            feed_forward,
+            output,
+            parameters,
+        })
     }
 
     pub const fn config(&self) -> NeuralNgramConfig {
@@ -378,23 +390,27 @@ impl NeuralNgram {
         &self.parameters
     }
 
-    pub fn parameters_mut(&mut self) -> &mut [NamedParameter] {
-        &mut self.parameters
-    }
-
-    fn layers(&self) -> Result<(Embedding, SwiGlu, Linear), NeuralNgramError> {
-        validate_parameter_set(self.config, &self.parameters)?;
-        let embedding = Embedding::from_parameter(self.parameters[0].clone())
-            .map_err(NeuralNgramError::Embedding)?;
-        let feed_forward = SwiGlu::from_parameters(
-            self.parameters[1].clone(),
-            self.parameters[2].clone(),
-            self.parameters[3].clone(),
-        )
-        .map_err(NeuralNgramError::SwiGlu)?;
-        let output = Linear::from_parameters(self.parameters[4].clone(), None)
-            .map_err(NeuralNgramError::Linear)?;
-        Ok((embedding, feed_forward, output))
+    fn from_parts(
+        config: NeuralNgramConfig,
+        embedding: Embedding,
+        feed_forward: SwiGlu,
+        output: Linear,
+    ) -> Result<Self, NeuralNgramError> {
+        let parameters = embedding
+            .parameters()
+            .iter()
+            .chain(feed_forward.parameters())
+            .chain(output.parameters())
+            .cloned()
+            .collect::<Vec<_>>();
+        validate_parameter_set(config, &parameters)?;
+        Ok(Self {
+            config,
+            embedding,
+            feed_forward,
+            output,
+            parameters,
+        })
     }
 }
 
@@ -464,17 +480,21 @@ impl NeuralNgram {
                 actual: context_ids.len(),
             });
         }
-        let (embedding, feed_forward, output) = self.layers()?;
-        let embeddings = embedding
+        let embeddings = self
+            .embedding
             .forward(context_ids, &[batch_size, self.config.context_length])
             .map_err(NeuralNgramError::Embedding)?;
         let concatenated = embeddings
             .reshape(&[batch_size, self.config.context_feature_width])
             .map_err(NeuralNgramError::Autodiff)?;
-        let hidden = feed_forward
+        let hidden = self
+            .feed_forward
             .forward(&concatenated)
             .map_err(NeuralNgramError::SwiGlu)?;
-        let logits = output.forward(&hidden).map_err(NeuralNgramError::Linear)?;
+        let logits = self
+            .output
+            .forward(&hidden)
+            .map_err(NeuralNgramError::Linear)?;
         Ok(NeuralNgramForward {
             embeddings,
             concatenated,
@@ -733,7 +753,7 @@ mod tests {
 
     #[test]
     fn validation_rejects_parameter_batch_context_and_target_mismatches() {
-        let mut model = known_model();
+        let model = known_model();
         assert_eq!(
             model.forward(&[], 0).unwrap_err(),
             NeuralNgramError::EmptyBatch
@@ -775,14 +795,23 @@ mod tests {
             }
         );
 
-        model.parameters_mut().swap(1, 2);
-        assert_eq!(
-            model.forward(&[1, 2], 1).unwrap_err(),
-            NeuralNgramError::ParameterNameMismatch {
-                index: 1,
-                expected: NEURAL_NGRAM_PARAMETER_NAMES[1],
-                actual: NEURAL_NGRAM_PARAMETER_NAMES[2].to_owned(),
-            }
+        assert!(
+            model.embedding.parameters()[0]
+                .tensor()
+                .is_same_node(model.parameters()[0].tensor())
+        );
+        assert!(
+            model
+                .feed_forward
+                .parameters()
+                .iter()
+                .zip(&model.parameters()[1..4])
+                .all(|(layer, registry)| layer.tensor().is_same_node(registry.tensor()))
+        );
+        assert!(
+            model.output.parameters()[0]
+                .tensor()
+                .is_same_node(model.parameters()[4].tensor())
         );
     }
 

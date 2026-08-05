@@ -148,7 +148,7 @@ const copy = Object.fromEntries(
 const explicitCopy = {
   en: {
     workedClaims: [
-      'Chapter 21 ends with tensor-shaped gradients of the token-mean loss. Before an optimizer step, associate each gradient with the stable name of the parameter with respect to which it was computed. AdamW uses each named gradient as an input to compute a replacement value for the matching parameter. Only after every candidate succeeds does it replace the old parameter leaves.',
+      'Chapter 21 ends with tensor-shaped gradients of the token-mean loss. Before an optimizer step, associate each gradient with the stable name of the parameter with respect to which it was computed. AdamW uses each named gradient to compute an updated value for the matching parameter. It prepares the complete named update before writing any value, then commits every updated value into the same live parameter leaf.',
       'In this worked update, \\theta_0 is the current value of the decay-group parameter decoder.output.weight, and g_1 is the accumulated token-mean loss gradient with respect to that same parameter:',
       "AdamW stores this parameter's moment vectors under decoder.output.weight. The stable name, not the parameter's position in the parameter list, identifies its moment history.",
     ],
@@ -156,10 +156,12 @@ const explicitCopy = {
       "This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns decoder.output.weight to decay, so AdamW subtracts the parameter-proportional term \\eta\\lambda\\theta_{t-1} from it. It assigns decoder.norm.scale to no-decay, so that parameter's effective \\lambda is 0; this avoids a decay term that directly pulls the learned normalization scale toward zero.",
     executionClaim:
       'Every entry point uses the same internal preparation-and-commit operation and the same elementwise AdamW calculation. Tracing records values produced by that calculation; it does not calculate the update a second time.',
+    revisionClaim:
+      "Each parameter node owns a monotonically increasing parameter-value revision. One successful AdamW commit advances that node's revision once; a failed commit does not advance it.",
   },
   ru: {
     workedClaims: [
-      'В конце главы 21 получены тензорные градиенты функции потерь, усреднённой по токенам. Перед шагом оптимизатора сопоставьте каждый градиент со стабильным именем параметра, по которому он вычислен. Затем AdamW использует каждый градиент, чтобы вычислить новое значение параметра с соответствующим стабильным именем. Прежние листовые узлы-параметры заменяются только после успешного вычисления всех обновлений.',
+      'В конце главы 21 получены тензорные градиенты функции потерь, усреднённой по токенам. Перед шагом оптимизатора сопоставьте каждый градиент со стабильным именем параметра, по которому он вычислен. AdamW использует каждый именованный градиент, чтобы вычислить обновлённое значение соответствующего параметра. Оптимизатор сначала подготавливает полное именованное обновление, не записывая ни одного значения, а затем записывает все обновлённые значения в те же существующие листовые узлы параметров.',
       'В рассматриваемом обновлении \\theta_0 — текущее значение параметра decoder.output.weight из группы с затуханием, а g_1 — накопленный градиент усреднённой по токенам функции потерь по этому же параметру:',
       'AdamW хранит векторы моментов этого параметра под именем decoder.output.weight. Историю моментов определяет стабильное имя, а не положение параметра в списке.',
     ],
@@ -167,10 +169,17 @@ const explicitCopy = {
       'Это настраиваемое правило группировки, принятое в курсе, а не следствие формулы AdamW. По этому правилу decoder.output.weight относится к группе с затуханием, поэтому AdamW вычитает из него пропорциональную параметру поправку \\eta\\lambda\\theta_{t-1}. Параметр decoder.norm.scale относится к группе без затухания, и его эффективный коэффициент \\lambda равен 0: так затухание не создаёт отдельную поправку, напрямую стягивающую обучаемый масштаб нормализации к нулю.',
     executionClaim:
       'Все точки входа используют одну и ту же внутреннюю операцию подготовки и атомарной фиксации, а также один и тот же покоординатный расчёт AdamW. Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
+    revisionClaim:
+      'У каждого узла параметра есть монотонно возрастающая версия значения параметра. После успешного шага AdamW версия этого узла увеличивается на единицу, а после неудачного шага остаётся прежней.',
   },
 } as const satisfies Record<
   ChapterLocale,
-  { workedClaims: readonly string[]; answerEight: string; executionClaim: string }
+  {
+    workedClaims: readonly string[];
+    answerEight: string;
+    executionClaim: string;
+    revisionClaim: string;
+  }
 >;
 
 const expectedRustRegions = copy.en.rustRegions;
@@ -182,7 +191,7 @@ function readRustRegion(path: string, region: string): string {
   if (start === -1 || end <= start) {
     throw new Error(`Missing ordered Rust region ${region} in ${path}`);
   }
-  return lines.slice(start + 1, end).join('\n');
+  return lines.slice(start + 1, end).join('\n').replace(/\n+$/, '');
 }
 
 const expectedRustSources = expectedRustRegions.map(([path, region]) =>
@@ -641,9 +650,12 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
-  expect(localized.revision).toBe(6);
+  expect(localized.revision).toBe(7);
   expect(normalizeProse(await page.locator('.lesson-body').innerText())).toContain(
     normalizeProse(explicitCopy[locale].executionClaim),
+  );
+  expect(normalizeProse(await page.locator('.lesson-body').innerText())).toContain(
+    normalizeProse(explicitCopy[locale].revisionClaim),
   );
 
   const workedExample = page
@@ -913,15 +925,15 @@ async function expectChapterContent(
   const proof = evidence.locator('.proof-stage');
   await expect(proof.locator('dt')).toHaveText([
     labels.fields.stateNames,
-    labels.fields.freshGradient,
+    labels.fields.rawGradient,
     labels.fields.leafIdentity,
     labels.fields.zeroGradientDecay,
     labels.fields.failedTransaction,
     labels.fields.commit,
   ]);
   await expect(proof.locator('code')).toHaveText(['decoder.norm.scale', 'decoder.output.weight']);
-  await expect(proof.locator('dd').nth(1)).toHaveText(labels.symbols.zero);
-  await expect(proof.locator('dd').nth(2)).toHaveText(labels.symbols.replaced);
+  await expect(proof.locator('dd').nth(1)).toHaveText(labels.symbols.unchanged);
+  await expect(proof.locator('dd').nth(2)).toHaveText(labels.symbols.preserved);
   await expect(proof.locator('dd').nth(4)).toHaveText(labels.symbols.unchanged);
   await expect(proof.locator('dd').nth(5)).toHaveText(labels.symbols.atomic);
   await expect(

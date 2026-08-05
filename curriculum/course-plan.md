@@ -1206,7 +1206,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `15-tensor-autodiff-core`
 - **Implementation step:** `implement-ch15-tensor-autodiff-core`
-- **Revision status:** Content revision 4 clarifies distinct operand-use edges, operation-specific saved context, owned tensor access, and learner-facing boundaries before Russian activation; revision 3 remains recorded by `repair-formula-rendering-ch14-ch19`.
+- **Revision status:** Content revision 7 records the parent primal revision on every operand-use edge and rejects a retained graph after any reachable parameter value changes, before reverse arithmetic or mutation; the Russian lesson is refreshed directly from this English revision.
 - **Depends on:** `14-scalar-autodiff`.
 - **Outcome:** Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly.
 - **Scope boundary:** Teach operation tapes, saved context, leaf parameters, graph release, gradient accumulation, and VJPs for add, multiply, reshape, transpose, broadcast, sum, and mean; defer model-specific matmul, gather, nonlinear, and loss VJPs.
@@ -1215,7 +1215,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Rust contribution:** Add the owned tensor tape and the structural/elementwise VJP set, reusing the cumulative tensor primitives and numerical checker.
 - **Visualization:** Useful — show a tensor-operation DAG labeled with forward shapes and the axes reduced while gradients reverse a broadcast.
 - **Practice:** Predict gradient shapes through transpose, mean, and a broadcast bias before computing their values.
-- **Integration evidence:** All supported VJPs pass sampled gradchecks; branches, repeated use, non-scalar seeds, zeroing, detach, release, and shape errors pass.
+- **Integration evidence:** All supported VJPs pass sampled gradchecks; branches, repeated use, non-scalar seeds, zeroing, detach, release, shape errors, stale-graph rejection, error precedence, and whole-pass rollback pass.
 - **Handoff:** Chapter 16 adds the exact VJPs required to train embeddings, projections, nonlinearities, and token loss.
 
 ## 16. Tensor reverse mode: model-critical VJPs
@@ -1318,7 +1318,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `22-adamw`
 - **Implementation step:** `implement-ch22-adamw`
-- **Revision status:** Content revision 2 corrects the anonymous-gradient handoff, adaptive-scale explanation, group-specific decay coefficient, parameter-group API scope, and learner-facing evidence; narrows the rendered Rust excerpts to this chapter's fixed-rate optimizer boundary; migrates the figure to the shared presentation system; and publishes the direct meaning-first Russian translation through `activate-ch22-russian-localization`.
+- **Revision status:** Content revision 7 commits checked AdamW values into the existing parameter nodes, preserves aliases and raw accumulated gradients, preflights write access for the whole parameter set, and versions value changes so retained graphs and KV caches cannot cross an in-place update; the Russian lesson is refreshed directly from this English revision.
 - **Depends on:** `21-mini-batches`.
 - **Outcome:** Update named parameters with bias-corrected Adam moments and decoupled weight decay.
 - **Scope boundary:** Teach SGD, momentum intuition, first/second moments, bias correction, epsilon, parameter groups, zero-grad, and decay exclusions; defer schedules.
@@ -1327,14 +1327,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Rust contribution:** Add a deterministic optimizer state keyed by stable parameter names and the full bias-corrected AdamW update.
 - **Visualization:** Useful — compare SGD and AdamW trajectories on an anisotropic quadratic, including the separate decay arrow.
 - **Practice:** Compute the first update by hand and predict which normalization/bias parameters should skip decay.
-- **Integration evidence:** Raw moments, bias correction, decoupled decay, hand-calculated steps, zero gradients, exclusions, state shape/name errors, determinism, and convergence fixtures pass.
+- **Integration evidence:** Raw moments, bias correction, decoupled decay, hand-calculated steps, retained gradients, preserved node identities, monotonically increasing parameter-value revisions, stale retained-graph rejection, explicit caller-side gradient clearing, exclusions, state shape/name/borrow errors, rollback, determinism, and convergence fixtures pass.
 - **Handoff:** Chapter 23 validates the complete numerical and optimization stack on a small neural language model.
 
 ## 23. Train a neural n-gram language model
 
 - **Chapter ID:** `23-neural-ngram`
 - **Implementation step:** `implement-ch23-neural-ngram`
-- **Revision status:** Content revision 2 removes learner-facing delivery machinery, narrows the test-text and matrix-gradient evidence to what the executable proves, migrates the figure to the shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch23-russian-localization`.
+- **Revision status:** Content revision 4 gives the model persistent layer handles that share five live nodes with the ordered parameter registry, updates those nodes in place, and makes post-step gradient clearing explicit; the Russian lesson is refreshed directly from this English revision.
 - **Depends on:** `22-adamw`.
 - **Outcome:** Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.
 - **Scope boundary:** Integrate tokenizer, windows, tensors, model-critical VJPs, layers, indexed NLL, batches, and AdamW in a deterministic checkpoint model; defer attention.
@@ -1343,7 +1343,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Rust contribution:** Add a small neural n-gram model and bounded training demo; this is the go/no-go integration test for the from-scratch engine.
 - **Visualization:** Useful — follow context IDs through embeddings, concatenation, hidden layer, logits, and a short train/validation loss trace.
 - **Practice:** Predict which examples a two-token context can separate that the bigram cannot.
-- **Integration evidence:** Fixed-seed logits, positive finite matrix-level gradient $L_1$ norms, decreasing train loss, improved validation loss over initialization, test text excluded from encoding and scoring, deterministic generation, and bitwise replay pass.
+- **Integration evidence:** Fixed-seed logits, positive finite matrix-level gradient $L_1$ norms, preserved parameter-node identities, raw gradients retained by AdamW and explicitly cleared after each update, decreasing train loss, improved validation loss over initialization, test text excluded from encoding and scoring, deterministic generation, and bitwise replay pass.
 - **Handoff:** Chapters 24–32 replace fixed-context mixing with a complete modern causal decoder.
 
 ## 24. Residual connections
@@ -1494,7 +1494,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `33-training-selection`
 - **Implementation step:** `implement-ch33-training-selection`
-- **Revision status:** Content revision 3 fixes update-state indexing and zero-safe clipping, restricts earliest-minimum selection to measured checkpoints, derives test-boundary evidence, separates fresh-zero verification from explicit gradient clearing, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch33-russian-localization`.
+- **Revision status:** Content revision 7 trains one persistent working decoder and optimizer, commits AdamW updates into the decoder's existing parameter nodes, preserves aliases and tied weights, and explicitly clears the gradients on those nodes; the Russian lesson is refreshed directly from this English revision.
 - **Depends on:** `32-decoder-model`.
 - **Outcome:** Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data.
 - **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic no-grad validation, and best-state selection; defer final test comparison and generation.
@@ -1568,7 +1568,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Practice:** Predict cache shapes and RoPE position after three appends, then count which projections are avoided.
 - **Integration evidence:** Per-step last-position outputs match full-prefix attention within tolerance; append, reset, overflow, model/head mismatch, RoPE offsets, and operation counts pass.
 - **Handoff:** Chapter 38 gives every decoder block its own cache and separates prompt prefill from one-token decode.
-- **Revision status:** Content revision 2 closes the raw cache-population bypass, derives the history contrast from measured attention spans and projection work, distinguishes RoPE-base and position-capacity mismatches, moves tensor shapes through the math pipeline, and publishes the direct meaning-first Russian localization through `activate-ch37-russian-localization`.
+- **Revision status:** Content revision 4 binds a layer cache to both parameter-node identity and the captured parameter-value revision, so an in-place weight update makes existing cache state stale and `reset()` does not silently rebind it; the Russian lesson is refreshed directly from this English revision.
 
 ## 38. Model-wide prefill and cached generation
 
@@ -1584,7 +1584,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Practice:** Assign cache ownership for a three-block model and compare uncached versus cached attention-score counts.
 - **Integration evidence:** Fixture newest-position logits match complete-prefix references within tolerance; restored cached and complete-prefix paths match selected tokens, sampling draws, final RNG state, and stops; measured score tensors, multi-layer isolation, prefill, append, reset, overflow, and exact model errors pass.
 - **Handoff:** Chapter 39 proves the complete course as one train/evaluate/save/load/cached-generate program.
-- **Revision status:** Content revision 2 derives the historical work contrast from measured attention-score tensors, scopes equivalence claims to the exact fixtures, makes stop precedence and the loaded context boundary explicit, uses the shared diagram presentation roles, and publishes the direct meaning-first Russian localization through `activate-ch38-russian-localization`.
+- **Revision status:** Content revision 4 binds the model-wide decoder cache to parameter-node identities and captured value revisions, requires a new cache after an in-place model update, and explains that `reset()` clears sequence state without rebinding parameters; the Russian lesson is refreshed directly from this English revision.
 
 ## 39. Capstone: an end-to-end tiny LLM
 

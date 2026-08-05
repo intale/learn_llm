@@ -227,13 +227,13 @@ const parameterEvidence = [
             ))}
           </dd>
         </div>
-        <div data-diagram-card data-diagram-box data-proof="gradient-reset" data-proof-value={trace.proof.gradientReset}>
-          <dt>{labels.fields.freshGradient}</dt>
-          <dd>{labels.symbols.zero}</dd>
+        <div data-diagram-card data-diagram-box data-proof="raw-gradients" data-proof-value={trace.proof.rawGradients}>
+          <dt>{labels.fields.rawGradient}</dt>
+          <dd>{labels.symbols.unchanged}</dd>
         </div>
-        <div data-diagram-card data-diagram-box data-proof="leaf-identity" data-proof-value={trace.proof.leavesReplaced}>
+        <div data-diagram-card data-diagram-box data-proof="parameter-nodes" data-proof-value={trace.proof.parameterNodes}>
           <dt>{labels.fields.leafIdentity}</dt>
-          <dd>{labels.symbols.replaced}</dd>
+          <dd>{labels.symbols.preserved}</dd>
         </div>
         <div data-diagram-card data-diagram-box data-proof="zero-gradient-decay" data-proof-value={trace.proof.zeroGradientDecay}>
           <dt>{labels.fields.zeroGradientDecay}</dt>

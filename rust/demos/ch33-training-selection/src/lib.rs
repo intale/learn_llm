@@ -466,10 +466,14 @@ pub fn learner_report() -> Result<String, FixtureError> {
             evidence.test_partition_rejected
         ),
         format!(
-            "clipping=observed:{} max_norm:{MAX_GRADIENT_NORM:.6} finite:{} fresh_zero:{} cleared:{}",
+            "clipping=observed:{} max_norm:{MAX_GRADIENT_NORM:.6} finite:{} nodes_preserved:{} cleared:{}",
             evidence.result.steps().iter().any(|step| step.clipped()),
             evidence.result.steps().iter().all(|step| step.finite_gradients()),
-            evidence.result.steps().iter().all(|step| step.fresh_zero_gradients()),
+            evidence
+                .result
+                .steps()
+                .iter()
+                .all(|step| step.parameter_nodes_preserved()),
             evidence.result.steps().iter().all(|step| step.cleared_gradients())
         ),
         format!(
@@ -511,7 +515,7 @@ mod tests {
         );
         assert!(evidence.result.steps().iter().any(|step| step.clipped()));
         assert!(evidence.result.steps().iter().all(|step| {
-            step.finite_gradients() && step.fresh_zero_gradients() && step.cleared_gradients()
+            step.finite_gradients() && step.parameter_nodes_preserved() && step.cleared_gradients()
         }));
         assert_eq!(
             evidence

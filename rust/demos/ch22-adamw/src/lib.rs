@@ -48,8 +48,8 @@ pub struct LearnerEvidence {
     pub config: AdamWConfig,
     pub step: AdamWStep,
     pub state_names: Vec<String>,
-    pub gradients_reset: bool,
-    pub leaves_replaced: bool,
+    pub raw_gradients_retained: bool,
+    pub parameter_nodes_preserved: bool,
     pub zero_gradient_update: AdamWParameterUpdate,
     pub rejected_error: AdamWError,
     pub rejection_rolled_back: bool,
@@ -58,7 +58,7 @@ pub struct LearnerEvidence {
 // region:chapter-adamw-fixture
 pub fn learner_evidence() -> LearnerEvidence {
     let config = fixture_config();
-    let mut parameters = vec![
+    let parameters = vec![
         parameter("decoder.output.weight", &[2], &[1.0, -2.0]),
         parameter("decoder.norm.scale", &[1], &[0.5]),
     ];
@@ -69,42 +69,49 @@ pub fn learner_evidence() -> LearnerEvidence {
         .collect::<Vec<_>>();
     let mut optimizer = AdamW::with_parameter_groups(config, fixture_groups());
     let step = optimizer
-        .step_with_trace(&mut parameters)
+        .step_with_trace(&parameters)
         .expect("the complete named set updates atomically");
 
-    let gradients_reset = parameters.iter().all(|parameter| {
-        parameter
-            .tensor()
-            .gradient()
-            .is_some_and(|gradient| gradient.as_slice().iter().all(|value| *value == 0.0))
-    });
-    let leaves_replaced = parameters
+    let raw_gradients_retained =
+        parameters
+            .iter()
+            .zip(step.updates())
+            .all(|(parameter, update)| {
+                parameter.tensor().gradient().is_some_and(|gradient| {
+                    gradient
+                        .as_slice()
+                        .iter()
+                        .zip(update.gradient())
+                        .all(|(actual, expected)| actual.to_bits() == expected.to_bits())
+                })
+            });
+    let parameter_nodes_preserved = parameters
         .iter()
         .zip(&original_leaves)
-        .all(|(parameter, original)| !parameter.tensor().is_same_node(original));
+        .all(|(parameter, original)| parameter.tensor().is_same_node(original));
     let state_names = optimizer.parameter_names().map(str::to_owned).collect();
 
-    let zero_gradient_update = fresh_zero_moment_probe(config);
+    let zero_gradient_update = zero_gradient_moment_probe(config);
     let (rejected_error, rejection_rolled_back) = rejected_set_probe(&optimizer, &parameters);
     LearnerEvidence {
         config,
         step,
         state_names,
-        gradients_reset,
-        leaves_replaced,
+        raw_gradients_retained,
+        parameter_nodes_preserved,
         zero_gradient_update,
         rejected_error,
         rejection_rolled_back,
     }
 }
 
-fn fresh_zero_moment_probe(config: AdamWConfig) -> AdamWParameterUpdate {
-    let mut parameters = vec![parameter("probe.weight", &[1], &[3.0])];
+fn zero_gradient_moment_probe(config: AdamWConfig) -> AdamWParameterUpdate {
+    let parameters = vec![parameter("probe.weight", &[1], &[3.0])];
     let groups = AdamWParameterGroups::new(["probe.weight"], std::iter::empty::<&str>())
         .expect("the probe weight belongs to the decay group");
     AdamW::with_parameter_groups(config, groups)
-        .step_with_trace(&mut parameters)
-        .expect("zero is the fresh leaf's exact gradient")
+        .step_with_trace(&parameters)
+        .expect("the live leaf starts with an exact zero gradient")
         .updates()[0]
         .clone()
 }
@@ -117,17 +124,35 @@ fn rejected_set_probe(
     let optimizer_before = optimizer.clone();
     let mut parameters = committed_parameters.to_vec();
     parameters.push(parameter("unexpected.weight", &[1], &[1.0]));
-    let leaves_before = parameters
+    let parameters_before = parameters
         .iter()
-        .map(|parameter| parameter.tensor().clone())
+        .map(|parameter| {
+            (
+                parameter.tensor().clone(),
+                parameter.tensor().value().as_slice().to_vec(),
+                parameter
+                    .tensor()
+                    .gradient()
+                    .map(|gradient| gradient.as_slice().to_vec()),
+            )
+        })
         .collect::<Vec<_>>();
     let error = optimizer
-        .step(&mut parameters)
+        .step(&parameters)
         .expect_err("a changed named set must be rejected");
-    let parameters_unchanged = parameters
-        .iter()
-        .zip(leaves_before)
-        .all(|(parameter, leaf)| parameter.tensor().is_same_node(&leaf));
+    let parameters_unchanged =
+        parameters
+            .iter()
+            .zip(parameters_before)
+            .all(|(parameter, (leaf, values, gradient))| {
+                parameter.tensor().is_same_node(&leaf)
+                    && parameter.tensor().value().as_slice() == values
+                    && parameter
+                        .tensor()
+                        .gradient()
+                        .map(|actual| actual.as_slice().to_vec())
+                        == gradient
+            });
     (error, parameters_unchanged && optimizer == optimizer_before)
 }
 // endregion:chapter-adamw-fixture
@@ -177,7 +202,7 @@ fn two_step_adaptive_update(
     };
     let config = AdamWConfig::new(LEARNING_RATE, BETA1, BETA2, EPSILON, decoupled_decay)
         .expect("historical fixture configuration is valid");
-    let mut parameters = vec![parameter("history.weight", &[1], &[parameter_value])];
+    let parameters = vec![parameter("history.weight", &[1], &[parameter_value])];
     let mut optimizer = AdamW::new(config);
     for gradient in gradients {
         let current = parameters[0].tensor().value().as_slice()[0];
@@ -188,8 +213,12 @@ fn two_step_adaptive_update(
         };
         seed_gradient(&parameters[0], &[optimizer_gradient]);
         optimizer
-            .step(&mut parameters)
+            .step(&parameters)
             .expect("historical fixture update is finite");
+        parameters[0]
+            .tensor()
+            .zero_grad()
+            .expect("the historical fixture clears each used gradient");
     }
     parameters[0].tensor().value().as_slice()[0]
 }
@@ -208,7 +237,7 @@ pub fn anisotropic_trajectory() -> Vec<TrajectoryPoint> {
     const STEPS: usize = 4;
 
     let mut sgd = [1.0, 1.0];
-    let mut adamw_parameter = parameter("trajectory.weight", &[2], &[1.0, 1.0]);
+    let adamw_parameter = parameter("trajectory.weight", &[2], &[1.0, 1.0]);
     let mut optimizer = AdamW::new(fixture_config());
     let mut points = vec![TrajectoryPoint {
         step: 0,
@@ -231,8 +260,12 @@ pub fn anisotropic_trajectory() -> Vec<TrajectoryPoint> {
         };
         seed_gradient(&adamw_parameter, &adamw_gradient);
         optimizer
-            .step(std::slice::from_mut(&mut adamw_parameter))
+            .step(std::slice::from_ref(&adamw_parameter))
             .expect("bounded trajectory stays finite");
+        adamw_parameter
+            .tensor()
+            .zero_grad()
+            .expect("the trajectory clears each used gradient");
         let next = adamw_parameter.tensor().value();
         points.push(TrajectoryPoint {
             step,
@@ -265,7 +298,7 @@ pub fn learner_report() -> String {
     let trajectory = anisotropic_trajectory();
     let mut lines = vec![
         "chapter=22-adamw".to_owned(),
-        "prediction=prepare both named updates before replacing either leaf".to_owned(),
+        "prediction=prepare both named updates before writing either live leaf".to_owned(),
         format!(
             "config=learning_rate:{:.6} beta1:{:.6} beta2:{:.6} epsilon:{:.6} weight_decay:{:.6}",
             evidence.config.learning_rate(),
@@ -318,8 +351,11 @@ pub fn learner_report() -> String {
     }));
     lines.extend([
         format!("state_names={}", format_names(&evidence.state_names)),
-        format!("fresh_leaf_gradients_zero={}", evidence.gradients_reset),
-        format!("all_named_leaves_replaced={}", evidence.leaves_replaced),
+        format!("raw_gradients_retained={}", evidence.raw_gradients_retained),
+        format!(
+            "all_parameter_nodes_preserved={}",
+            evidence.parameter_nodes_preserved
+        ),
         format!(
             "zero_gradient_probe=before:{} adaptive:{} decay:{} after:{}",
             format_vector(evidence.zero_gradient_update.before()),
@@ -362,14 +398,14 @@ mod tests {
     }
 
     #[test]
-    fn learner_evidence_proves_fresh_leaves_zero_gradient_and_rollback() {
+    fn learner_evidence_proves_live_nodes_retain_gradients_and_rollback() {
         let evidence = learner_evidence();
         assert_eq!(
             evidence.state_names,
             ["decoder.norm.scale", "decoder.output.weight"]
         );
-        assert!(evidence.gradients_reset);
-        assert!(evidence.leaves_replaced);
+        assert!(evidence.raw_gradients_retained);
+        assert!(evidence.parameter_nodes_preserved);
         assert!(evidence.rejection_rolled_back);
         assert!(matches!(
             evidence.rejected_error,
@@ -382,7 +418,7 @@ mod tests {
     }
 
     #[test]
-    fn fresh_zero_moment_probe_is_pure_decoupled_decay() {
+    fn zero_gradient_moment_probe_is_pure_decoupled_decay() {
         let update = learner_evidence().zero_gradient_update;
         assert_close(update.gradient(), &[0.0]);
         assert_close(update.adaptive_delta(), &[0.0]);

@@ -34,7 +34,7 @@ export interface AdamwDiagramLabels {
     curvature: string;
     trajectoryPoint: string;
     stateNames: string;
-    freshGradient: string;
+    rawGradient: string;
     leafIdentity: string;
     zeroGradientDecay: string;
     failedTransaction: string;
@@ -56,7 +56,7 @@ export interface AdamwDiagramLabels {
     adamw: string;
     subtract: string;
     zero: string;
-    replaced: string;
+    preserved: string;
     unchanged: string;
     atomic: string;
   };
@@ -133,8 +133,8 @@ export interface AdamwTrace {
   };
   proof: {
     stateNames: readonly string[];
-    gradientReset: 'zero';
-    leavesReplaced: 'yes';
+    rawGradients: 'retained';
+    parameterNodes: 'preserved';
     zeroGradientDecay: string;
     rollback: 'unchanged';
     commit: 'atomic';
@@ -368,8 +368,8 @@ export function parseAdamwTrace(source: string): AdamwTrace {
   );
   const proof = parseFields(lines[13], 'PROOF', [
     'state_names',
-    'gradient_reset',
-    'leaves_replaced',
+    'raw_gradients',
+    'parameter_nodes',
     'zero_gradient_decay',
     'rollback',
     'commit',
@@ -419,8 +419,16 @@ export function parseAdamwTrace(source: string): AdamwTrace {
     }),
     proof: Object.freeze({
       stateNames: Object.freeze(stateNames),
-      gradientReset: exact(proof.gradient_reset, 'zero', 'PROOF.gradient_reset') as 'zero',
-      leavesReplaced: exact(proof.leaves_replaced, 'yes', 'PROOF.leaves_replaced') as 'yes',
+      rawGradients: exact(
+        proof.raw_gradients,
+        'retained',
+        'PROOF.raw_gradients',
+      ) as 'retained',
+      parameterNodes: exact(
+        proof.parameter_nodes,
+        'preserved',
+        'PROOF.parameter_nodes',
+      ) as 'preserved',
       zeroGradientDecay: exact(
         proof.zero_gradient_decay,
         '0.030000',
@@ -477,7 +485,7 @@ export function assertAdamwDiagramLabels(
       'curvature',
       'trajectoryPoint',
       'stateNames',
-      'freshGradient',
+      'rawGradient',
       'leafIdentity',
       'zeroGradientDecay',
       'failedTransaction',
@@ -493,7 +501,7 @@ export function assertAdamwDiagramLabels(
       'adamw',
       'subtract',
       'zero',
-      'replaced',
+      'preserved',
       'unchanged',
       'atomic',
     ],

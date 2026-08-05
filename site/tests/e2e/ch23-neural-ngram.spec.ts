@@ -205,7 +205,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 23,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: locales,
@@ -347,7 +347,8 @@ async function expectChapterContent(
     'not_encoded_or_scored',
     'final_shifted',
     'five_positive_finite',
-    'replaced',
+    'preserved',
+    'cleared',
     'deterministic',
   ]) {
     await expect(proof).toContainText(token);

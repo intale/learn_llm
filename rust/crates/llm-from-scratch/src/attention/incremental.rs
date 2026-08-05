@@ -8,7 +8,7 @@ use super::multi_head::{
 };
 use super::qkv::QkvError;
 use super::rope::RopeError;
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue, no_grad};
+use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue, TensorValueBinding, no_grad};
 use crate::nn::linear::LinearError;
 use crate::nn::probability::{ProbabilityError, softmax};
 use crate::tensor::storage::{Tensor, TensorError};
@@ -133,7 +133,7 @@ pub struct LayerKvCache {
     len: usize,
     keys: Vec<f64>,
     values: Vec<f64>,
-    parameter_nodes: [TensorValue; 4],
+    parameter_bindings: [TensorValueBinding; 4],
     rope_feature_width: usize,
     rope_max_positions: usize,
     rope_base_bits: u64,
@@ -153,10 +153,10 @@ impl PartialEq for LayerKvCache {
             && self.rope_max_positions == other.rope_max_positions
             && self.rope_base_bits == other.rope_base_bits
             && self
-                .parameter_nodes
+                .parameter_bindings
                 .iter()
-                .zip(&other.parameter_nodes)
-                .all(|(left, right)| left.is_same_node(right))
+                .zip(&other.parameter_bindings)
+                .all(|(left, right)| left.same_binding(right))
     }
 }
 
@@ -204,11 +204,11 @@ impl LayerKvCache {
             len: 0,
             keys,
             values,
-            parameter_nodes: [
-                parameters[0].tensor().clone(),
-                parameters[1].tensor().clone(),
-                parameters[2].tensor().clone(),
-                parameters[3].tensor().clone(),
+            parameter_bindings: [
+                TensorValueBinding::capture(parameters[0].tensor()),
+                TensorValueBinding::capture(parameters[1].tensor()),
+                TensorValueBinding::capture(parameters[2].tensor()),
+                TensorValueBinding::capture(parameters[3].tensor()),
             ],
             rope_feature_width: layer.rope().feature_width(),
             rope_max_positions: layer.rope().max_positions(),
@@ -417,6 +417,11 @@ pub enum IncrementalAttentionError {
         cache: usize,
     },
     CacheLayerMismatch,
+    CacheLayerRevisionMismatch {
+        parameter: usize,
+        cache: u64,
+        layer: u64,
+    },
     CacheRopeMismatch {
         cache_feature_width: usize,
         layer_feature_width: usize,
@@ -492,6 +497,14 @@ impl fmt::Display for IncrementalAttentionError {
             ),
             Self::CacheLayerMismatch => formatter
                 .write_str("KV cache parameter identity does not match this attention layer"),
+            Self::CacheLayerRevisionMismatch {
+                parameter,
+                cache,
+                layer,
+            } => write!(
+                formatter,
+                "KV cache parameter revision {cache} at stable index {parameter} does not match layer revision {layer}"
+            ),
             Self::CacheRopeMismatch {
                 cache_feature_width,
                 layer_feature_width,
@@ -758,10 +771,23 @@ impl MultiHeadAttention {
         if !self
             .parameters()
             .iter()
-            .zip(&cache.parameter_nodes)
-            .all(|(parameter, cached)| parameter.tensor().is_same_node(cached))
+            .zip(&cache.parameter_bindings)
+            .all(|(parameter, cached)| cached.node_matches(parameter.tensor()))
         {
             return Err(IncrementalAttentionError::CacheLayerMismatch);
+        }
+        if let Some((parameter, (cached, layer))) = cache
+            .parameter_bindings
+            .iter()
+            .zip(self.parameters())
+            .enumerate()
+            .find(|(_, (cached, parameter))| !cached.revision_matches(parameter.tensor()))
+        {
+            return Err(IncrementalAttentionError::CacheLayerRevisionMismatch {
+                parameter,
+                cache: cached.revision(),
+                layer: layer.tensor().value_revision(),
+            });
         }
         if cache.rope_feature_width != self.rope().feature_width()
             || cache.rope_max_positions != self.rope().max_positions()
@@ -988,6 +1014,7 @@ mod tests {
     use super::*;
     use crate::autograd::tensor_core::GraphRetention;
     use crate::nn::init::{NamedParameter, SplitMix64};
+    use crate::training::adamw::{AdamW, AdamWConfig};
 
     const MODEL_WIDTH: usize = 4;
     const HEADS: usize = 2;
@@ -1404,6 +1431,33 @@ mod tests {
             IncrementalAttentionError::Cache(LayerKvCacheError::Full { capacity: 1 })
         );
         assert_eq!(full, before);
+    }
+
+    #[test]
+    fn reset_does_not_rebind_a_cache_after_an_in_place_parameter_update() {
+        let layer = fixture_layer(3);
+        let input = constant(&[1, 1, MODEL_WIDTH], &[1.0, 0.0, 1.0, 0.0]);
+        let mut cache = LayerKvCache::new(&layer, 1, 3).unwrap();
+        layer.forward_incremental(&input, &mut cache).unwrap();
+        cache.reset();
+        let before = cache.clone();
+        let mut optimizer = AdamW::new(AdamWConfig::new(0.01, 0.9, 0.999, 1e-8, 0.1).unwrap());
+
+        optimizer.step(layer.parameters()).unwrap();
+
+        assert_eq!(
+            layer.forward_incremental(&input, &mut cache).unwrap_err(),
+            IncrementalAttentionError::CacheLayerRevisionMismatch {
+                parameter: 0,
+                cache: 0,
+                layer: 1,
+            }
+        );
+        assert_eq!(cache, before);
+
+        let mut fresh_cache = LayerKvCache::new(&layer, 1, 3).unwrap();
+        layer.forward_incremental(&input, &mut fresh_cache).unwrap();
+        assert_eq!(fresh_cache.len(), 1);
     }
 
     #[test]
