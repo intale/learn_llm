@@ -14542,3 +14542,109 @@ content, localization, dependency, or validation result changes.
 `iterate-elementwise-and-reductions-by-offset`,
 `20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01`, and
 `20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02`.
+
+## 2026-08-05 - Run the Chapter 11 stride migration in Docker
+
+**Status:** Accepted before product edits for
+`iterate-matmul-by-prevalidated-strides`.
+
+**Context:** F03 identifies coordinate-vector allocation and repeated checked
+`TensorView::get` calls inside every matrix-product contraction. Chapter 9 now
+provides a safe crate-private checked offset cursor, and Chapter 10 establishes
+the public-coordinate versus validated-internal-plan boundary. Chapter 11 needs
+Rust, bilingual content, complete static validation, and two-browser rendered
+validation, so its recorded cost is large. The active build has no agent-session
+limit and this step needs no new dependency, paid service, model generation, or
+external data.
+
+**Decision:** Proceed without a cost approval pause using Docker-only Rust,
+Node.js, npm, and browser execution. Reuse pinned cached images and keep host
+Rust, Node.js, npm, Python, and browser artifacts absent. Preserve the exact
+matrix algorithm, arithmetic order, public checked APIs, errors, stdout, and
+trace while replacing only redundant internal coordinate traversal.
+
+**Consequences:** The checkpoint may change only its declared Chapter 11
+implementation, contract, active lessons, focused tests, necessary course-plan
+line, and ledger/decision records. It must freeze English revision 5 before a
+direct Russian refresh and must pass the complete Docker and Chromium/Firefox
+gates before its independent commit.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-matmul-by-prevalidated-strides`, and
+`20260805T160614Z-iterate-matmul-by-prevalidated-strides-01`.
+
+## 2026-08-05 - Keep the Chapter 11 course-plan revision synchronized
+
+**Status:** Accepted during pre-edit review of
+`iterate-matmul-by-prevalidated-strides`.
+
+**Context:** The scheduled checkpoint requires the Chapter 11 contract and both
+active lessons to advance from content revision 4 to 5. The authoritative
+Chapter 11 entry in `curriculum/course-plan.md` still records revision 4, but
+that shared integration file was omitted from the initial output list. Leaving
+it unchanged would make the course plan disagree with the validated contract
+and published locale pair.
+
+**Decision:** Add `curriculum/course-plan.md` to this running step's declared
+outputs before any product edit. Change only Chapter 11's revision-status line
+to record the validated stride-plan explanation in revision 5; preserve the
+chapter outcome, scope, formula, history, visualization, practice, integration
+evidence, and handoff.
+
+**Consequences:** The scope grows by one necessary integration line without a
+new learning concept, formula, source, diagram, runtime dependency, or evidence
+fixture. The plan, contract, and active lessons will identify the same revision
+when the checkpoint is published.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-matmul-by-prevalidated-strides`, and
+`20260805T160614Z-iterate-matmul-by-prevalidated-strides-01`.
+
+## 2026-08-05 - Traverse Chapter 11 from checked cell bases and inner strides
+
+**Status:** Accepted during implementation of
+`iterate-matmul-by-prevalidated-strides`.
+
+**Context:** Chapter 11 already fixed rank, transpose, inner-dimension, batch,
+full-output-layout, allocation, zero-size, traversal-order, and arithmetic
+behavior. Its scalar loop nevertheless decoded every output coordinate,
+allocated two input-coordinate vectors, and called the public checked
+`TensorView::get` twice for each product. Those repeated operations do not teach
+matrix multiplication and duplicate validation already established by the
+views and operation plan.
+
+**Decision:** `MatmulPlan` records the complete output shape and length, the
+contracted extent, one effective source stride per output batch/row/column axis
+for each operand, and each operand's contracted-axis stride. Missing or
+size-one batch axes use effective stride zero; the left output-column and right
+output-row strides are also zero. Logical transpose swaps the last two
+effective extents and strides without materialization. After fallible output
+reservation, one checked projected cursor per operand emits cell-base offsets
+in batch-major, row-major, column-major order. Each nonempty contraction reads
+the left value, reads the right value, multiplies, and adds while advancing both
+offsets in ascending contracted-index order with checked arithmetic and ordinary
+safe bounds-checked indexing. When the contracted extent is zero, fill the
+already reserved output with positive zero without constructing a cursor or
+reading either input. Keep the public coordinate APIs, `MatmulError::View`
+compatibility, output ownership, and every existing error unchanged; add no
+dependency or `unsafe` code.
+
+**Consequences:** The contraction allocates no coordinate vector and performs
+no repeated public coordinate lookup. Complementary singleton batches,
+nonzero-base padded views, transpose combinations, empty outputs, zero-inner
+outputs, allocation precedence, left-before-right reads, and exact ascending
+accumulation are locked by focused Rust and static source tests. Chapter 11
+revision 5 teaches the boundary with concrete contiguous plans `[3,0]` and
+`[0,1]`, source-offset pairs `(3,0)`, `(4,2)`, `(5,4)`, and batched plans
+`[6,3,0]` and `[0,0,1]`. English is frozen at sha256
+`374060a543e68a288c129192fa9a232c542b3bcd3e9b88f305e5a64455cabffe`;
+Russian was refreshed directly with the localization skill and reviewed at
+sha256 `5211ffa5e1d2537146780e5d1ce2f5b6e08ebcaa4c1643e3304a82040d5e09d4`.
+Learner stdout and the diagram trace remain byte-identical.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-matmul-by-prevalidated-strides`, and
+`20260805T160614Z-iterate-matmul-by-prevalidated-strides-01`.

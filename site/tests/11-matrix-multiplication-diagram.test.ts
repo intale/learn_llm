@@ -23,6 +23,17 @@ const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/MatrixMultiplicationDiagram.astro'),
   'utf8',
 );
+const matmulSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/tensor/matmul.rs'),
+  'utf8',
+);
+
+function readRustRegion(source: string, region: string): string {
+  const start = source.indexOf(`// region:${region}`);
+  const end = source.indexOf(`// endregion:${region}`);
+  if (start === -1 || end <= start) throw new Error(`Missing ordered Rust region ${region}`);
+  return source.slice(start, end);
+}
 
 const labels: MatrixMultiplicationDiagramLabels = {
   title: 'title',
@@ -72,6 +83,32 @@ const labels: MatrixMultiplicationDiagramLabels = {
 };
 
 describe('Chapter 11 Rust trace parser', () => {
+  it('keeps coordinate reconstruction and public lookup outside the checked contraction', () => {
+    const checkedMatmul = readRustRegion(matmulSource, 'checked-matmul');
+    const contraction = checkedMatmul.slice(
+      checkedMatmul.indexOf('pub fn matmul_with_transpose'),
+      checkedMatmul.indexOf('impl MatmulPlan'),
+    );
+
+    expect(contraction).toContain('left_cell_offsets.zip(right_cell_offsets)');
+    expect(contraction).toContain('.projected_offsets(');
+    expect(contraction).toContain('left.value_at_storage_offset(left_offset)');
+    expect(contraction).toContain('right.value_at_storage_offset(right_offset)');
+    expect(contraction).toContain('for inner_index in 0..plan.inner');
+    expect(contraction).toContain('if plan.inner == 0');
+    expect(contraction).toContain('values.resize(plan.output_len, 0.0)');
+    expect(contraction.indexOf('let left_value =')).toBeLessThan(
+      contraction.indexOf('let right_value ='),
+    );
+    expect(contraction.indexOf('let right_value =')).toBeLessThan(
+      contraction.indexOf('sum += left_value * right_value'),
+    );
+    expect(contraction).not.toContain('coordinate_from_logical_offset');
+    expect(contraction).not.toContain('batch_coordinate');
+    expect(contraction).not.toContain('TensorView::get');
+    expect(contraction).not.toMatch(/\.(?:get|storage_offset)\(/);
+  });
+
   it('projects the complete frozen contraction, transpose, batches, and errors', () => {
     const trace = parseMatrixMultiplicationTrace(fixture);
 

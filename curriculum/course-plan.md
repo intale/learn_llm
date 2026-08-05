@@ -1142,7 +1142,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `11-matrix-multiplication`
 - **Implementation step:** `implement-ch11-matrix-multiplication`
-- **Revision status:** Content revision 4 adds the complete Russian projection, repairs the LLM-focused historical account and formula explanations, and migrates the visualization to the shared diagram system during `activate-ch11-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
+- **Revision status:** Content revision 5 explains checked cell-base cursors, effective batch/row/column strides, contracted-axis strides, and the zero-inner no-read path, then refreshes Russian directly from frozen English during `iterate-matmul-by-prevalidated-strides`; revision 4 and its repaired LLM-focused historical account, formula explanations, and shared-system visualization remain recorded by `activate-ch11-russian-localization`.
 - **Depends on:** `10-broadcasting-reductions`.
 - **Outcome:** Compute checked 2-D and batched matrix products from scalar loops and tensor strides.
 - **Scope boundary:** Teach inner-dimension contraction, output shapes, batched broadcasting, and transpose flags; defer hardware optimization.

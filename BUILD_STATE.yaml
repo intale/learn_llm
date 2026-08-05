@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T15:57:21Z"
+updated_at: "2026-08-05T16:37:12Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -32493,7 +32493,7 @@ builds:
       - id: iterate-matmul-by-prevalidated-strides
         objective: "Move batched optionally transposed matrix multiplication onto prevalidated batch and matrix strides without allocating coordinates inside the contraction."
         depends_on: [iterate-elementwise-and-reductions-by-offset]
-        status: pending
+        status: completed
         inputs:
           - "Completed elementwise and reduction offset step"
           - "audits/2026-08-04-rust-overengineering.md finding F03"
@@ -32503,6 +32503,7 @@ builds:
         outputs:
           - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
           - "curriculum/chapters/11-matrix-multiplication.md"
+          - "curriculum/course-plan.md"
           - "site/src/content/chapters/en/11-matrix-multiplication.mdx"
           - "site/src/content/chapters/ru/11-matrix-multiplication.mdx"
           - "site/tests/11-matrix-multiplication-diagram.test.ts"
@@ -32521,7 +32522,69 @@ builds:
           - "Focused site/tests/e2e/ch11-matrix-multiplication.spec.ts in Chromium and Firefox"
           - "./course audit-host"
         cost: {class: large, notes: "Matmul stride-plan migration, Chapter 11 bilingual revision, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
-        runs: []
+        runs:
+          - run_id: 20260805T160614Z-iterate-matmul-by-prevalidated-strides-01
+            started_at: 2026-08-05T16:06:14Z
+            finished_at: 2026-08-05T16:36:12Z
+            status: succeeded
+            input_fingerprint:
+              git: "5454216563e0b5044ee23576070ea09ba0939064; tree 76f76a84a32bddb18f33f1dc5363a862d99dc326"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                tensor-matmul: "sha256:f2669418e6fc0d28d36ce4fe0dfd7132b5f1f919ad82e42bc5fcb7bcaf9d43d6"
+                chapter-contract: "sha256:253b8a15d763554f1da1db75fdaecac42ff7ee1a18a63a69d77a4ffcd726da57"
+                course-plan: "sha256:dfcacfcf39f438485ce4a2749eec4c0c850573db3aae77c434e3ee12e328e884"
+                english-lesson: "sha256:4f7345f45afdd2ecf1d72d473aabd93b3d45445b4089279e402f1b0f34fe76dc"
+                russian-lesson: "sha256:b612cce6a9dd119014d999425136ce7c95e982f9e8d0b67c5adf77860b023aab"
+                static-chapter-test: "sha256:7c9f4f0a201546b77e0596a15a9de937446d21757ee9aeb13713e7af6ea9016e"
+                browser-chapter-test: "sha256:73b8a984a0b79082080b97876669536a257b0a83034091363938f0784b8f9b62"
+                prior-publish-manifest: "sha256:cc43aaddbbbbce97c710e2a5d074fa5fa3c2ea2649fe36538bdf6131390b7ccd"
+                pre-run-ledger: "sha256:34f7b171e73cb5bf61aa6f8965cce162a2c217e96e3946dcc7ac80e400c5f944"
+                pre-run-decisions: "sha256:db6f82b11a78acc6f82fc56c87560f414db83b2df53e7b22c3ac21e967c74d5f"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No new dependency, paid service, model generation, or external data. Rust, site, and browser work stays inside pinned Docker images; the large estimate is cached local CPU within the build's unlimited agent-session budget."
+            staging_dir: ".build/runs/20260805T160614Z-iterate-matmul-by-prevalidated-strides-01/"
+            commands:
+              - "Run the startup protocol at clean commit 5454216, verify the completed Chapter 10 dependency and manifest, and select Chapter 11 as the first eligible checkpoint."
+              - "Read F03, the validated TensorView cursor, Chapter 10 migration pattern, Chapter 11 contract and active locale pair, Rust implementation and evidence, focused tests, course plan, and localization workflow."
+              - "Classify the checkpoint as large cached Docker/browser CPU within the unlimited budget, add the necessary Chapter 11 course-plan revision line to declared outputs, and claim the run before product edits."
+              - "Replace output-coordinate decoding with two checked cell-base cursors plus left and right contracted-axis strides; preserve a dedicated zero-inner positive-zero path and add complementary-batch plus nonzero-base gapped-view tests."
+              - "Freeze English revision 5 at sha256:374060a5...bffe after an explicit content review, then translate its exact semantic delta directly into Russian with the localization skill and review sha256:5211ffa5...09d4 for parity, terminology, anti-calque, monolingual, and natural wording."
+              - "Run offline focused formatting, library and demo tests, source contracts, content/parity checks, and byte-exact learner-output plus diagram-trace comparisons before the canonical Docker build."
+              - "Run the complete pinned Docker gate and publish the validated static workspace image learn-llm-workspace:local at sha256:8c0d2fede8e7b425680cb19120efe688f508cedbb10eb548999ac3cb77094702."
+              - "Build the run-scoped pinned browser image from the exact workspace image with networking disabled, then run all seven Chapter 11 cases in Chromium and Firefox without source bind mounts or a host-published preview port."
+              - "Copy the seven exact Chapter 11 product outputs into the immutable publish tree, write the sorted checksum manifest, verify all checksums, and compare every staged file byte-for-byte with canonical state."
+              - "Run ./course review 20260805T160614Z-iterate-matmul-by-prevalidated-strides-01 --check against the checksum-locked publish tree, then reverify the unchanged manifest."
+              - "Run ./course audit-host, verify the immutable manifest again, and inspect the exact nine-file tracked scope plus whitespace integrity before the completion transition."
+              - "Validate the running ledger and all 33 content-contract assertions in the pinned workspace, then make the atomic succeeded/completed transition."
+              - "After completion, rerun all 33 content-contract assertions and the scheduler check against the final bound ledger; confirm no running record and Chapter 12 as first eligible."
+            artifacts:
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "8c0d2fede8e7b425680cb19120efe688f508cedbb10eb548999ac3cb77094702", kind: "Self-contained canonical check image containing the validated Rust workspace and 85-page static site."}
+              - {path: ".build/runs/20260805T160614Z-iterate-matmul-by-prevalidated-strides-01/validation/Dockerfile.browser", sha256: "78dbaa654eb534228d3e3cdefa724749d1b13d9b46b131ae09d556ebdb25218d", kind: "Run-scoped digest-pinned offline Chromium and Firefox validator built from the exact Chapter 11 workspace image."}
+              - {path: "docker-image:learn-llm-ch11-matmul-browser:20260805", sha256: "811f8af9d7e721a789fccb11236e4df71ac8787ce2c717ec5e42e80f9a2f26b0", kind: "Self-contained Chapter 11 Chromium and Firefox validation image."}
+              - {path: ".build/runs/20260805T160614Z-iterate-matmul-by-prevalidated-strides-01/publish.sha256", sha256: "d8ffe97944bbc07245f73f082ef41f6859026da56c1d9ef3dc203eda0ac6ed14", kind: "Frozen manifest for the seven exact Chapter 11 implementation, contract, plan, locale, and validation outputs."}
+              - {path: "docker-image:learn-llm-review:20260805t160614z-iterate-matmul-by-prevalidated-strides-01", sha256: "bd21ecd2b6618bd70ad3cb400d7e772732458dabf7ed22441c961e07e6d90f3b", kind: "Manifest-locked static review image for the frozen seven-file Chapter 11 publication set."}
+            validation:
+              - {command: "Repository, dependency, input, output-ownership, locale, environment, cost, and prior-artifact preflight", status: passed, notes: "HEAD 5454216 and the worktree are clean; iterate-elementwise-and-reductions-by-offset is completed and independently committed, and its run-02 manifest remains sha256:cc43aadd...7ccd. Chapter 11 is first eligible, has active en/ru revision-4 projections, and no output has another running owner. Git 2.53.0, Docker 25.0.2, Compose 2.17.3, Rust 1.93.1, Node 22.12.0, npm 10.9.0, and Playwright 1.61.1 match the ledger. Cost is large cached local CPU within an unlimited budget, with no dependency, paid, generation, or external-data input and no host Rust/Node/Python execution."}
+              - {command: "Initial sandboxed Docker formatting and focused-test launch", status: failed, notes: "Both containers were denied access to the host Docker socket by the execution sandbox before they started. No product, image, container, cache, or host artifact changed; the same repository-required commands were immediately repeated through the authorized host Docker boundary."}
+              - {command: "First focused matrix-multiplication stride test", status: failed, notes: "11 of 12 tests passed. The new cell-base cursor correctly rejected storage offsets for a K=0 input with no backing values, but the established behavior requires existing output cells to become positive zero without any input address. The implementation restored a dedicated post-reservation K=0 path before constructing either cursor."}
+              - {command: "Final offline Rust formatting and focused matmul tests", status: passed, notes: "Rustfmt passes and all 12 tensor::matmul tests pass. Effective batch, row, column, and contracted strides cover complementary singleton axes, all transpose flags, missing batches, nonzero bases, padded gaps, logical transposition, zero extents, huge empty layouts, allocation errors, exact left-before-right multiplication, and ascending-k cancellation order."}
+              - {command: "Focused Chapter 11 static source and diagram contract", status: passed, notes: "All 20 assertions pass. The checked contraction contains two projected cell-base cursors, left-before-right safe offset reads, ascending inner traversal, and the dedicated zero-inner fill; it contains no coordinate decoder, batch-coordinate constructor, TensorView::get, or public storage-offset lookup. The frozen trace parser and shared diagram contract remain exact."}
+              - {command: "Frozen English revision 5 content review", status: passed, notes: "Exact English lesson sha256:374060a543e68a288c129192fa9a232c542b3bcd3e9b88f305e5a64455cabffe explicitly defines a cell-base offset, derives [3,0] and [0,1] cell plans plus (3,0), (4,2), (5,4) reads, distinguishes public coordinate validation from internal traversal, explains singleton zero strides, transpose behavior, safe indexing, and the zero-inner no-read path, and preserves formula, history, evidence, scope, and Chapter 12 handoff."}
+              - {command: "Direct-English Russian semantic, terminology, anti-calque, monolingual, accessibility, and naturalness review", status: passed, notes: "Exact Russian lesson sha256:5211ffa5e1d2537146780e5d1ce2f5b6e08ebcaa4c1643e3304a82040d5e09d4 matches frozen English revision 5 directly. It preserves every value, stride, offset pair, operation order, formula, identifier, exercise, answer, and zero-size condition; uses natural «базовое смещение ячейки», «эффективный шаг», «смещение в исходном хранилище», and «шаг по общей внутренней оси» consistently with Chapters 9 and 10; and contains no detected English leakage, calqued stride/offset terms, or «свёртка». Rendered layout validation remains pending."}
+              - {command: "Offline Chapter 11 content and active-locale parity checks", status: passed, notes: "Both checks validate 80 localized sources, 40 publishable locale sets, 33 catalog keys, and 42 shared-full-view diagram components. Contract revision 5 and both active lessons agree; course-plan revision status and the frozen English hash are exact."}
+              - {command: "Offline Chapter 11 demo tests, learner stdout, and diagram trace", status: passed, notes: "All three demo tests pass. cargo run stdout remains byte-identical to expected.txt and the locale-neutral TRACE matrix-multiplication-v1 output remains byte-identical to diagram-trace.txt, including final newlines."}
+              - {command: "./course check", status: passed, notes: "The complete pinned Docker gate passes with no host Rust, Node, or Python execution: Rust format; the full locked workspace suite including 411 llm-from-scratch tests; Clippy with warnings denied; all site type, source, content, active-locale parity, production-build, and static-link checks. Astro built 85 pages, and the link gate checked 2,529 local references, 85 SEO routes, 85 sitemap URLs, 85 analytics routes, and 164 artifacts. The resulting image is sha256:8c0d2fede8e7b425680cb19120efe688f508cedbb10eb548999ac3cb77094702."}
+              - {command: "Self-contained Chapter 11 Chromium and Firefox matrices", status: passed, notes: "Browser image sha256:811f8af9d7e721a789fccb11236e4df71ac8787ce2c717ec5e42e80f9a2f26b0 passes all 7 cases in each engine without bind mounts or a host port: exact revision-5 stride and zero-inner evidence, both locales at desktop and 390px narrow widths, full-view travel and bounded-box containment, forced colors, direct routes, and no-JavaScript fallback."}
+              - {command: "Frozen seven-file manifest, checksum verification, and canonical equality", status: passed, notes: "All seven staged outputs verify and equal their canonical files byte for byte; publish.sha256 is sha256:d8ffe97944bbc07245f73f082ef41f6859026da56c1d9ef3dc203eda0ac6ed14. BUILD_STATE.yaml and DECISIONS.md intentionally remain outside the immutable product snapshot."}
+              - {command: "Manifest-locked ./course review 20260805T160614Z-iterate-matmul-by-prevalidated-strides-01 --check", status: passed, notes: "Review image sha256:bd21ecd2b6618bd70ad3cb400d7e772732458dabf7ed22441c961e07e6d90f3b verifies the frozen manifest, content/parity, 216-file zero-diagnostic Astro analysis, 85-page build, all 2,529 local references, and both staged locale routes without changing publish/; the manifest remains sha256:d8ffe979...ed14 afterward."}
+              - {command: "Final host-artifact, immutable-publication, and exact-scope audit before completion", status: passed, notes: "./course audit-host passes with no Rust, Node.js, npm, Python, browser, or test artifact on the host outside the intentional site/dist release. The seven-file manifest still verifies and remains byte-identical to canonical product files. The tracked worktree contains exactly those seven declared product outputs plus BUILD_STATE.yaml and DECISIONS.md, and git diff --check passes."}
+              - {command: "Pinned-Docker running-ledger parser and content-contract validation", status: passed, notes: "The YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts; all 33 content-contract assertions pass. Chapter 11 and this run are the sole running records immediately before the atomic completion transition."}
+              - {command: "Pinned-Docker completed-ledger, scheduler, and content-contract validation", status: passed, notes: "All 33 content-contract assertions pass against the completed YAML. No step or run remains running, and iterate-probability-groups-by-offset is the first eligible checkpoint in the active build."}
+            notes: "Succeeded. Chapter 11 matrix multiplication now plans batch, row, column, and contracted-axis strides once, traverses checked cell-base offsets without per-product coordinate vectors or repeated public lookup, and preserves exact arithmetic order, errors, empty behavior, stdout, and trace evidence. Revision 5 teaches the boundary in independently reviewed English and direct-English Russian. The complete Docker gate, Clippy, self-contained Chromium/Firefox matrices, immutable publication review, host boundary, and running-ledger checks pass; Chapter 12 is the next eligible checkpoint."
 
       - id: iterate-probability-groups-by-offset
         objective: "Make stable probability and indexed-loss passes reuse prevalidated group bases and class strides instead of rebuilding coordinates for every class read."

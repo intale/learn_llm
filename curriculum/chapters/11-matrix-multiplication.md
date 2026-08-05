@@ -2,7 +2,7 @@
 {
   "chapter_id": "11-matrix-multiplication",
   "concept_id": "matrix-multiplication",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 11,
   "objective": {
     "en": "Compute checked 2-D and batched matrix products from scalar loops and tensor strides.",
@@ -128,8 +128,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative tensor core can now multiply rank-two or batched strided views, require equal contracted dimensions, broadcast only leading batch axes, interpret optional final-axis transposes without materializing, and return an owned contiguous result. Later projection and attention chapters will reuse this contraction; Chapter 12 next turns arbitrary matrix outputs into stable probabilities and log-probabilities.",
-    "ru": "Теперь тензорное ядро может умножать двумерные и пакетные представления с произвольными шагами, требовать равенства внутренних размеров, согласовывать формы только по начальным осям пакета, интерпретировать необязательное транспонирование последних осей без материализации и возвращать непрерывный результат с собственным хранилищем. В последующих главах о проекциях и внимании эта операция будет использоваться повторно; в главе 12 произвольные результаты матричного умножения будут преобразованы в устойчивые вероятности и логарифмы вероятностей."
+    "en": "The cumulative tensor core can now multiply rank-two or batched strided views, require equal contracted dimensions, broadcast only leading batch axes, interpret optional final-axis transposes without materializing, and return an owned contiguous result. After validation, checked cell-base cursors and contracted-axis strides express the same logical coordinates without rebuilding them for every scalar. Later projection and attention chapters will reuse this contraction; Chapter 12 next turns arbitrary matrix outputs into stable probabilities and log-probabilities.",
+    "ru": "Теперь тензорное ядро может умножать двумерные и пакетные представления с произвольными шагами, требовать равенства внутренних размеров, согласовывать формы только по начальным осям пакета, интерпретировать необязательное транспонирование последних осей без материализации и возвращать непрерывный результат с собственным хранилищем. После проверки курсоры базовых смещений ячеек и шаги по общей внутренней оси позволяют выбирать те же значения, что и при поиске по логическим координатам, не создавая координаты заново для каждого скалярного умножения. В последующих главах о проекциях и внимании эта операция будет использоваться повторно; в главе 12 произвольные результаты матричного умножения будут преобразованы в устойчивые вероятности и логарифмы вероятностей."
   },
   "terminology": [
     {
@@ -166,12 +166,28 @@
       "concept_id": "running-sum",
       "en": "running sum",
       "ru": "накопленная сумма"
+    },
+    {
+      "concept_id": "effective-stride",
+      "en": "effective stride",
+      "ru": "эффективный шаг"
+    },
+    {
+      "concept_id": "cell-base-offset",
+      "en": "cell-base offset",
+      "ru": "базовое смещение ячейки"
+    },
+    {
+      "concept_id": "contracted-axis-stride",
+      "en": "contracted-axis stride",
+      "ru": "шаг по общей внутренней оси"
     }
   ],
   "translation_notes": [
-    "Chapter 11 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 4 and both lessons publish one same-revision set.",
+    "Chapter 11 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 5 at sha256:374060a543e68a288c129192fa9a232c542b3bcd3e9b88f305e5a64455cabffe and both lessons publish one same-revision set.",
     "Keep A, B, C, Q, K, V, W, W^T, d_k, GPT-2, shape arrays, coordinates, Rust identifiers, trace keywords, formulas, and source URLs as exact technical evidence.",
     "Translate contraction as «суммирование произведений по общей оси», not «свёртка». Use «внутренний размер», «ось пакета», «согласование форм по осям пакета», «флаг транспонирования», «накопленная сумма», «матрица весов проекции», and «представление тензора с произвольными шагами».",
+    "Translate effective stride as «эффективный шаг», cell-base offset as «базовое смещение ячейки», source storage offset as «смещение в исходном хранилище», and contracted-axis stride as «шаг по общей внутренней оси», consistently with Chapters 9 and 10.",
     "Distinguish batch-axis shape alignment from the contracted axes, whose extents must be equal and never broadcast. A transpose flag changes logical axes without eagerly copying values."
   ],
   "acceptance_examples": [
@@ -201,7 +217,11 @@
     },
     {
       "input": "multiply a sliced padded right view or a logically transposed view",
-      "expected": "Values are read through TensorView strides without an implicit materialization and the owned result remains contiguous."
+      "expected": "Checked cell-base offsets and contracted-axis strides follow the TensorView metadata without an implicit materialization, and the owned result remains contiguous."
+    },
+    {
+      "input": "plan contiguous A strides [3,1] and W strides [2,1] for output coordinates [0,0], [0,1], [1,0], [1,1]",
+      "expected": "Left cell-base strides [3,0] yield offsets [0,0,3,3], right cell-base strides [0,1] yield [0,1,0,1], and C[1,0] advances from bases (3,0) by contracted strides (1,2) through offset pairs (3,0), (4,2), and (5,4)."
     },
     {
       "input": "multiply valid empty left shape [usize::MAX,2,0,3] by right shape [1,2,3,1]",
@@ -235,9 +255,12 @@ matrix axes; any earlier axes are batch axes. For effective shapes
 contracted extents must be exactly equal.
 
 `matmul` uses both matrices as stored. `matmul_with_transpose` can logically swap
-the final two axes of either input without copying it. Both functions read through
-`TensorView`, so a sliced or transposed non-contiguous view is traversed through
-its checked strides. Every successful result owns contiguous row-major storage.
+the final two axes of either input without copying it. Both functions receive
+already validated `TensorView` metadata. Once the operation shape is valid, they
+plan checked cell-base offsets and contracted-axis strides rather than rebuilding
+two logical coordinates for every scalar product. A sliced or transposed
+non-contiguous view therefore retains its own base offset and strides. Every
+successful result owns contiguous row-major storage.
 
 The implementation fixes rank, inner-dimension, batch-compatibility, output-layout,
 allocation, zero-size, and error-precedence behavior. It deliberately leaves
@@ -352,12 +375,47 @@ later matrix extent is zero. Missing leading batch axes act as one, and a size-o
 batch axis maps to coordinate zero. Contracted matrix axes never broadcast:
 `K=0` and `K=1` are different and incompatible.
 
-For every output coordinate `[...,i,j]`, the implementation initializes
-`sum=0.0`, traverses `k` from zero through `K-1`, reads both values through
-`TensorView::get`, multiplies them, and adds the product. It does not use
-`mul_add`, so the fold order is explicit. `K=0` therefore returns positive zero
-for every output cell. A zero batch, row, or column extent returns an empty tensor
-without reading an input. Ordinary IEEE-754 NaN and infinity propagation applies.
+`TensorView::get` remains the public path for an arbitrary caller-supplied
+coordinate, so it checks rank and bounds on every call. Matrix multiplication
+receives already valid views and validates the effective matrix dimensions,
+aligned batch axes, and complete output layout, then fallibly reserves the output
+before scalar evaluation. It can therefore derive and reuse an internal offset
+plan without weakening the public coordinate boundary.
+
+For one output cell, each operand needs a starting storage offset before `k`
+changes. That position is the cell-base offset. The contracted-axis stride then
+moves from the `k=0` value to the `k=1` value and onward.
+
+For output shape `[...,M,N]`, each operand receives an effective stride for every
+output axis. A batch axis whose input extent is greater than one keeps its input
+stride; a missing or size-one batch axis receives stride zero. The left row axis
+keeps its matrix stride while the output-column axis receives zero. The right
+output-row axis receives zero while its column axis keeps its matrix stride. The
+left and right contracted-axis strides are stored separately. Logical transpose
+flags swap the last two effective extents and strides without moving storage.
+
+For contiguous A strides `[3,1]` and W strides `[2,1]`, left cell-base strides
+`[3,0]` emit `[0,0,3,3]` for row-major output coordinates `[0,0]`, `[0,1]`,
+`[1,0]`, `[1,1]`; right cell-base strides `[0,1]` emit `[0,1,0,1]`. Cell
+`C[1,0]` starts at offsets `(3,0)`. Contracted strides `(1,2)` then visit
+`(3,0)`, `(4,2)`, and `(5,4)`, which read `4*1`, `5*0`, and `6*2` in ascending
+`k` order. For batched shapes `[2,2,3]` and `[1,3,2]`, cell-base strides are
+`[6,3,0]` and `[0,0,1]`; the right batch stride zero explicitly reuses batch
+zero for both output batches.
+
+The two checked cell-base cursors emit batch-major, row-major, then column-major
+offsets. Within each output cell, the loop reads the left value before the right
+value and advances both contracted offsets in ascending `k` order. It uses
+ordinary safe bounds-checked slice indexing and does not call
+`TensorView::get`, allocate a coordinate vector, or use `mul_add` inside the
+contraction. A sliced or transposed view only changes the checked bases and
+strides; no implicit materialization occurs.
+
+When `K=0`, output cells may still exist even though neither input has an inner
+value to address. After fallible output reservation, the implementation writes
+positive `0.0` to every cell without constructing an offset cursor or reading
+either input. A zero batch, row, or column extent instead returns an empty tensor
+without a read. Ordinary IEEE-754 NaN and infinity propagation applies.
 
 Tests freeze exact integer-valued fixtures and errors, use absolute tolerance
 `1e-12` for a decimal dot product, and include a cancellation case that exposes
@@ -402,8 +460,9 @@ forced-colors mode. The generated page contains no client script.
 5. Predict the result of `[2,0]` by `[0,2]`. Why is it not an error?
 6. Decide which error is reported for rank-one left input, inner extents `3` and
    `4`, and batch extents `2` and `3`.
-7. Explain why a sliced `[3,2]` right view can be multiplied without first
-   copying it into contiguous storage.
+7. For contiguous A strides `[3,1]` and W strides `[2,1]`, write both cell-base
+   stride plans and the three source-offset pairs used by `C[1,0]`. Then explain
+   why a sliced `[3,2]` view can use the same algorithm without a copy.
 8. Misconception check: is matrix multiplication elementwise multiplication
    followed by a global sum? Identify the separate row, column, and contracted
    indices that disprove that shortcut.
@@ -419,6 +478,11 @@ broadcast only their leading batch axes, and interpret optional final-axis
 transposes without copying. Checked shape and allocation failures occur before
 the scalar loop; successful values are owned and contiguous for later operations.
 
+Public coordinate lookup still validates every coordinate supplied by a caller.
+Inside a validated matrix product, checked cell-base cursors plus two
+contracted-axis strides express the same batch, row, column, and contracted-index
+choices without rebuilding coordinates for every scalar product.
+
 Future chapters will use this primitive for learned projections, QK^T attention
 scores, attention-weighted values, feed-forward layers, and their gradients. This
 chapter supplies only the forward numerical contraction. Chapter 12 next makes
@@ -427,7 +491,8 @@ arbitrary matrix outputs safe to normalize as probabilities and log-probabilitie
 <!-- contract-section:localization -->
 ## Localization notes
 
-The exact active locale set is English and Russian. English content revision 4
+The exact active locale set is English and Russian. English content revision 5
+at sha256 `374060a543e68a288c129192fa9a232c542b3bcd3e9b88f305e5a64455cabffe`
 is the canonical semantic source; the complete Russian contract projection,
 lesson, diagram labels, accessible names, exercises, and answers are translated
 directly from that frozen revision and publish as one same-revision set.
@@ -436,7 +501,9 @@ Keep formula symbols, source URLs, Rust identifiers, trace keywords, shapes, and
 coordinate tuples exact. Translate the contraction as «суммирование произведений
 по общей оси», never «свёртка». Distinguish shape alignment along leading batch
 axes from the contracted axes, whose extents must be equal and never broadcast.
-A transpose flag changes logical axes without eagerly copying values.
+A transpose flag changes logical axes without eagerly copying values. Use
+«эффективный шаг», «базовое смещение ячейки», «смещение в исходном хранилище»,
+and «шаг по общей внутренней оси» consistently with Chapters 9 and 10.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

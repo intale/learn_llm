@@ -7,12 +7,12 @@ use super::storage::{Tensor, TensorError, checked_row_major_layout};
 use super::view::{TensorView, TensorViewError};
 
 // region:matmul-errors
-/// A rejected matrix product, output layout, allocation, or strided read.
+/// A rejected matrix product, output layout, allocation, or converted view operation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MatmulError {
     /// An owned output layout violates the tensor storage invariant.
     Tensor(TensorError),
-    /// A checked logical read from an input view failed.
+    /// A tensor-view error was converted into the matrix-multiplication error type.
     View(TensorViewError),
     /// Matrix multiplication does not promote a left vector in this chapter.
     LeftRankTooSmall { rank: usize },
@@ -90,17 +90,30 @@ impl From<TensorViewError> for MatmulError {
 }
 // endregion:matmul-errors
 
+// region:checked-matmul
 #[derive(Debug)]
 struct MatmulPlan {
-    batch_shape: Vec<usize>,
+    /// The owned result's logical row-major shape and element count.
     output_shape: Vec<usize>,
     output_len: usize,
+    /// The number of products accumulated into each output cell.
     inner: usize,
-    transpose_left: bool,
-    transpose_right: bool,
+    /// One source-storage movement per output batch, row, and column axis.
+    left_cell_strides: Vec<usize>,
+    right_cell_strides: Vec<usize>,
+    /// Source-storage movement when the contracted index increases by one.
+    left_inner_stride: usize,
+    right_inner_stride: usize,
 }
 
-// region:checked-matmul
+#[derive(Clone, Copy, Debug)]
+struct EffectiveMatrixLayout {
+    rows: usize,
+    columns: usize,
+    row_stride: usize,
+    column_stride: usize,
+}
+
 /// Multiplies two rank-two or batched tensor views as stored.
 pub fn matmul(left: &TensorView<'_>, right: &TensorView<'_>) -> Result<Tensor, MatmulError> {
     matmul_with_transpose(left, right, false, false)
@@ -111,7 +124,7 @@ pub fn matmul(left: &TensorView<'_>, right: &TensorView<'_>) -> Result<Tensor, M
 /// Inputs must have rank at least two. Only axes before the final two matrix
 /// axes broadcast, using trailing alignment. The effective inner dimensions
 /// must match exactly. The scalar contraction visits `k` in ascending order and
-/// reads every value through [`TensorView::get`].
+/// reads through offsets established by one checked strided plan per operand.
 pub fn matmul_with_transpose(
     left: &TensorView<'_>,
     right: &TensorView<'_>,
@@ -120,39 +133,39 @@ pub fn matmul_with_transpose(
 ) -> Result<Tensor, MatmulError> {
     let plan = MatmulPlan::new(left, right, transpose_left, transpose_right)?;
     let mut values = output_buffer(plan.output_len)?;
-    let batch_rank = plan.batch_shape.len();
-    let left_batch_shape = &left.shape()[..left.rank() - 2];
-    let right_batch_shape = &right.shape()[..right.rank() - 2];
+    if plan.inner == 0 {
+        values.resize(plan.output_len, 0.0);
+        return Tensor::from_vec(plan.output_shape, values).map_err(Into::into);
+    }
 
-    for logical_offset in 0..plan.output_len {
-        let output_coordinate = coordinate_from_logical_offset(&plan.output_shape, logical_offset);
-        let output_batch = &output_coordinate[..batch_rank];
-        let row = output_coordinate[batch_rank];
-        let column = output_coordinate[batch_rank + 1];
-        let mut left_coordinate = batch_coordinate(output_batch, left_batch_shape);
-        let mut right_coordinate = batch_coordinate(output_batch, right_batch_shape);
-        left_coordinate.extend([0, 0]);
-        right_coordinate.extend([0, 0]);
+    let left_cell_offsets = left
+        .projected_offsets(&plan.output_shape, &plan.left_cell_strides, plan.output_len)
+        .expect("a checked matmul plan retains valid left cell offsets");
+    let right_cell_offsets = right
+        .projected_offsets(
+            &plan.output_shape,
+            &plan.right_cell_strides,
+            plan.output_len,
+        )
+        .expect("a checked matmul plan retains valid right cell offsets");
 
-        let left_matrix_axis = left_coordinate.len() - 2;
-        let right_matrix_axis = right_coordinate.len() - 2;
+    for (left_cell_offset, right_cell_offset) in left_cell_offsets.zip(right_cell_offsets) {
         let mut sum = 0.0;
-        for inner in 0..plan.inner {
-            if plan.transpose_left {
-                left_coordinate[left_matrix_axis] = inner;
-                left_coordinate[left_matrix_axis + 1] = row;
-            } else {
-                left_coordinate[left_matrix_axis] = row;
-                left_coordinate[left_matrix_axis + 1] = inner;
+        let mut left_offset = left_cell_offset;
+        let mut right_offset = right_cell_offset;
+        for inner_index in 0..plan.inner {
+            let left_value = left.value_at_storage_offset(left_offset);
+            let right_value = right.value_at_storage_offset(right_offset);
+            sum += left_value * right_value;
+
+            if inner_index + 1 < plan.inner {
+                left_offset = left_offset
+                    .checked_add(plan.left_inner_stride)
+                    .expect("a checked matmul plan cannot overflow along the left inner axis");
+                right_offset = right_offset
+                    .checked_add(plan.right_inner_stride)
+                    .expect("a checked matmul plan cannot overflow along the right inner axis");
             }
-            if plan.transpose_right {
-                right_coordinate[right_matrix_axis] = column;
-                right_coordinate[right_matrix_axis + 1] = inner;
-            } else {
-                right_coordinate[right_matrix_axis] = inner;
-                right_coordinate[right_matrix_axis + 1] = column;
-            }
-            sum += *left.get(&left_coordinate)? * *right.get(&right_coordinate)?;
         }
         values.push(sum);
     }
@@ -174,12 +187,12 @@ impl MatmulPlan {
             return Err(MatmulError::RightRankTooSmall { rank: right.rank() });
         }
 
-        let left_matrix = matrix_shape(left.shape(), transpose_left);
-        let right_matrix = matrix_shape(right.shape(), transpose_right);
-        let rows = left_matrix[0];
-        let inner = left_matrix[1];
-        let right_inner = right_matrix[0];
-        let columns = right_matrix[1];
+        let left_matrix = effective_matrix_layout(left, transpose_left);
+        let right_matrix = effective_matrix_layout(right, transpose_right);
+        let rows = left_matrix.rows;
+        let inner = left_matrix.columns;
+        let right_inner = right_matrix.rows;
+        let columns = right_matrix.columns;
         if inner != right_inner {
             return Err(MatmulError::InnerDimensionMismatch {
                 left: inner,
@@ -194,23 +207,41 @@ impl MatmulPlan {
         output_shape.extend([rows, columns]);
         let (_, output_len) = checked_row_major_layout(&output_shape)?;
 
+        let batch_rank = batch_shape.len();
+        let mut left_cell_strides = batch_effective_strides(left, batch_rank);
+        left_cell_strides.extend([left_matrix.row_stride, 0]);
+        let mut right_cell_strides = batch_effective_strides(right, batch_rank);
+        right_cell_strides.extend([0, right_matrix.column_stride]);
+
         Ok(Self {
-            batch_shape,
             output_shape,
             output_len,
             inner,
-            transpose_left,
-            transpose_right,
+            left_cell_strides,
+            right_cell_strides,
+            left_inner_stride: left_matrix.column_stride,
+            right_inner_stride: right_matrix.row_stride,
         })
     }
 }
 
-fn matrix_shape(shape: &[usize], transposed: bool) -> [usize; 2] {
-    let matrix_axis = shape.len() - 2;
+fn effective_matrix_layout(input: &TensorView<'_>, transposed: bool) -> EffectiveMatrixLayout {
+    let matrix_axis = input.rank() - 2;
+    let stored = EffectiveMatrixLayout {
+        rows: input.shape()[matrix_axis],
+        columns: input.shape()[matrix_axis + 1],
+        row_stride: input.strides()[matrix_axis],
+        column_stride: input.strides()[matrix_axis + 1],
+    };
     if transposed {
-        [shape[matrix_axis + 1], shape[matrix_axis]]
+        EffectiveMatrixLayout {
+            rows: stored.columns,
+            columns: stored.rows,
+            row_stride: stored.column_stride,
+            column_stride: stored.row_stride,
+        }
     } else {
-        [shape[matrix_axis], shape[matrix_axis + 1]]
+        stored
     }
 }
 
@@ -246,6 +277,25 @@ fn broadcast_batch_shape(left: &[usize], right: &[usize]) -> Result<Vec<usize>, 
     }
     Ok(output)
 }
+
+fn batch_effective_strides(input: &TensorView<'_>, output_batch_rank: usize) -> Vec<usize> {
+    let input_batch_rank = input.rank() - 2;
+    let padding = output_batch_rank - input_batch_rank;
+    (0..output_batch_rank)
+        .map(|output_axis| {
+            if output_axis < padding {
+                return 0;
+            }
+
+            let input_axis = output_axis - padding;
+            if input.shape()[input_axis] == 1 {
+                0
+            } else {
+                input.strides()[input_axis]
+            }
+        })
+        .collect()
+}
 // endregion:checked-matmul
 
 fn output_buffer(elements: usize) -> Result<Vec<f64>, MatmulError> {
@@ -254,31 +304,6 @@ fn output_buffer(elements: usize) -> Result<Vec<f64>, MatmulError> {
         .try_reserve_exact(elements)
         .map_err(|_| MatmulError::OutputAllocationFailed { elements })?;
     Ok(values)
-}
-
-fn coordinate_from_logical_offset(shape: &[usize], mut logical_offset: usize) -> Vec<usize> {
-    let mut coordinate = vec![0; shape.len()];
-    for axis in (0..shape.len()).rev() {
-        debug_assert!(shape[axis] > 0, "empty shapes are never enumerated");
-        coordinate[axis] = logical_offset % shape[axis];
-        logical_offset /= shape[axis];
-    }
-    coordinate
-}
-
-fn batch_coordinate(output_batch: &[usize], input_batch_shape: &[usize]) -> Vec<usize> {
-    let padding = output_batch.len() - input_batch_shape.len();
-    input_batch_shape
-        .iter()
-        .enumerate()
-        .map(|(axis, &dimension)| {
-            if dimension == 1 {
-                0
-            } else {
-                output_batch[axis + padding]
-            }
-        })
-        .collect()
 }
 
 #[cfg(test)]
@@ -328,6 +353,23 @@ mod tests {
     }
 
     #[test]
+    fn complementary_singleton_batch_axes_use_zero_effective_strides() {
+        let left = tensor(&[2, 1, 1, 1], &[2.0, 3.0]);
+        let right = tensor(&[1, 3, 1, 1], &[5.0, 7.0, 11.0]);
+
+        let plan = MatmulPlan::new(&left.view(), &right.view(), false, false).unwrap();
+        assert_eq!(plan.output_shape, [2, 3, 1, 1]);
+        assert_eq!(plan.left_cell_strides, [1, 0, 1, 0]);
+        assert_eq!(plan.right_cell_strides, [0, 1, 0, 1]);
+        assert_eq!(plan.left_inner_stride, 1);
+        assert_eq!(plan.right_inner_stride, 1);
+
+        let output = matmul(&left.view(), &right.view()).unwrap();
+        assert_eq!(output.shape(), [2, 3, 1, 1]);
+        assert_eq!(output.as_slice(), [10.0, 14.0, 22.0, 15.0, 21.0, 33.0]);
+    }
+
+    #[test]
     fn every_transpose_flag_combination_uses_the_same_logical_matrices() {
         let left = left_fixture();
         let left_transposed = tensor(&[3, 2], &[1.0, 4.0, 2.0, 5.0, 3.0, 6.0]);
@@ -371,6 +413,46 @@ mod tests {
         )
         .unwrap();
         assert_eq!(transpose_output.as_slice(), [7.0, 4.0, 16.0, 13.0]);
+    }
+
+    #[test]
+    fn nonzero_bases_gaps_and_permuted_matrix_axes_share_one_checked_plan() {
+        let padded_left = tensor(
+            &[3, 2, 4],
+            &[
+                99.0, 99.0, 99.0, 99.0, 99.0, 99.0, 99.0, 99.0, 1.0, 2.0, 3.0, 99.0, 4.0, 5.0, 6.0,
+                99.0, 0.0, 1.0, 2.0, 99.0, 2.0, 1.0, 0.0, 99.0,
+            ],
+        );
+        let left = padded_left
+            .view()
+            .slice(0, 1..3)
+            .unwrap()
+            .slice(2, 0..3)
+            .unwrap();
+        assert_eq!(left.shape(), [2, 2, 3]);
+        assert_eq!(left.strides(), [8, 4, 1]);
+        assert_eq!(left.base_offset(), 8);
+        assert!(!left.is_contiguous());
+
+        let stored_right = tensor(&[1, 2, 4], &[1.0, 0.0, 2.0, 99.0, 2.0, 1.0, 0.0, 99.0]);
+        let right = stored_right.view().slice(2, 0..3).unwrap();
+        assert_eq!(right.shape(), [1, 2, 3]);
+        assert_eq!(right.strides(), [8, 4, 1]);
+        assert!(!right.is_contiguous());
+
+        let plan = MatmulPlan::new(&left, &right, false, true).unwrap();
+        assert_eq!(plan.left_cell_strides, [8, 4, 0]);
+        assert_eq!(plan.right_cell_strides, [0, 0, 4]);
+        assert_eq!(plan.left_inner_stride, 1);
+        assert_eq!(plan.right_inner_stride, 1);
+
+        let output = matmul_with_transpose(&left, &right, false, true).unwrap();
+        assert_eq!(output.shape(), [2, 2, 2]);
+        assert_eq!(
+            output.as_slice(),
+            [7.0, 4.0, 16.0, 13.0, 4.0, 1.0, 2.0, 5.0]
+        );
     }
 
     #[test]

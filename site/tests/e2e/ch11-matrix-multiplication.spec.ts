@@ -24,7 +24,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '11-matrix-multiplication';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`C_{ij}=\sum_{k=0}^{K-1} A_{ik}B_{kj}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -72,6 +72,8 @@ const copy = {
     innerMismatchReason: 'The two inner dimensions must be equal.',
     batchMismatchReason: 'Leading batch dimensions must be equal or one of them must be singleton.',
     exerciseSummary: 'Check the eight matrix-multiplication predictions',
+    strideEvidence: 'offset pairs (3,0), (4,2), and (5,4)',
+    emptyEvidence: 'without constructing an offset cursor or reading either input',
   },
   ru: {
     revisionLabel: 'Версия материала',
@@ -113,6 +115,8 @@ const copy = {
     batchMismatchReason:
       'Пакетные размеры должны совпадать либо один из них должен быть единичным.',
     exerciseSummary: 'Проверьте восемь предсказаний о матричном умножении',
+    strideEvidence: 'пары смещений (3,0), (4,2) и (5,4)',
+    emptyEvidence: 'не создавая курсор смещений и не читая ни один вход',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
@@ -160,6 +164,9 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.chapterDescription);
   await expectSeoDescription(page, localized.chapterDescription);
   await expect(page.locator('.lesson-body h2')).toHaveText([...localized.headings]);
+  const lessonText = await readMathAwareText(page.locator('.lesson-body'));
+  expect(lessonText).toContain(localized.strideEvidence);
+  expect(lessonText).toContain(localized.emptyEvidence);
 
   const historyNodes = page
     .getByRole('heading', { level: 2, name: localized.historyHeading, exact: true })

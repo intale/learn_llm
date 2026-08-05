@@ -2,7 +2,7 @@
 {
   "chapter_id": "11-matrix-multiplication",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 11,
   "concept_id": "matrix-multiplication",
   "title": "Multiply rows by columns, then reuse batches",
@@ -95,7 +95,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/tensor/matmul.rs",
       "region": "checked-matmul",
-      "purpose": "Plan effective matrix and batch shapes, then accumulate scalar products through TensorView coordinates."
+      "purpose": "Plan effective batch, row, column, and contracted-axis strides once, then accumulate scalar products from checked storage offsets without rebuilding coordinates."
     },
     {
       "path": "rust/demos/ch11-matrix-multiplication/src/main.rs",
@@ -108,7 +108,7 @@
     "id": "matrix-multiplication",
     "rationale": "A highlighted left row, right column, ordered running sum, and explicit batch mapping make the contracted inner axis and shared weight batch visible in ways a flat result vector does not."
   },
-  "decoder_connection": "The cumulative tensor core can now multiply rank-two or batched strided views, require equal contracted dimensions, broadcast only leading batch axes, interpret optional final-axis transposes without materializing, and return an owned contiguous result. Later projection and attention chapters will reuse this contraction; Chapter 12 next turns arbitrary matrix outputs into stable probabilities and log-probabilities."
+  "decoder_connection": "The cumulative tensor core can now multiply rank-two or batched strided views, require equal contracted dimensions, broadcast only leading batch axes, interpret optional final-axis transposes without materializing, and return an owned contiguous result. After validation, checked cell-base cursors and contracted-axis strides express the same logical coordinates without rebuilding them for every scalar. Later projection and attention chapters will reuse this contraction; Chapter 12 next turns arbitrary matrix outputs into stable probabilities and log-probabilities."
 }
 ---
 
@@ -337,34 +337,76 @@ that violates several rules therefore has one stable first error.
 <RustSource
   path="rust/crates/llm-from-scratch/src/tensor/matmul.rs"
   region="matmul-errors"
-  caption="Keep rank, inner-dimension, batch, layout, allocation, and strided-read failures distinct"
+  caption="Keep every checked matrix-product rejection in a distinct error variant"
   label="Rust source defining Chapter 11 checked matrix-multiplication errors and their stable messages"
 />
 
 Batch planning right-aligns only axes before the last two matrix axes. Missing
 leading axes act as one, and a singleton input batch coordinate maps to zero.
 The planner validates the complete output shape rather than the batch prefix in
-isolation. That detail admits a valid empty result such as
-the input-shape pair `[usize::MAX,2,0,3]` and `[1,2,3,1]`: the zero row extent makes the full output
+isolation. That detail admits a valid empty result such as the input-shape pair
+`[usize::MAX,2,0,3]` and `[1,2,3,1]`: the zero row extent makes the full output
 empty before any input is read.
 
-Each nonempty output coordinate is decoded in row-major order. The scalar loop
-constructs input coordinates, honors logical transpose flags, reads through
-`TensorView::get`, and accumulates $k$ in ascending order. Sliced and transposed
-views therefore retain their strides; the implementation never inserts an
-implicit materialization.
+`TensorView::get` remains the public operation for a coordinate supplied by a
+caller. Because that coordinate may have the wrong rank or an out-of-bounds
+index, `get` must validate every call. Matrix multiplication starts from a
+different boundary: both views are already valid, and the planner has already
+checked the effective matrix dimensions, batch compatibility, and complete
+output layout. The scalar loop can therefore reuse one checked offset plan
+instead of reconstructing and revalidating two coordinates for every product.
+
+For one output cell, each operand needs a starting storage offset before $k$
+changes. This chapter calls that starting position the cell-base offset. The
+contracted-axis stride then moves from the $k=0$ value to the $k=1$ value, and
+so on.
+
+For output shape `[...,M,N]`, each operand receives one effective stride for
+every output axis. A leading batch axis whose input extent is greater than one
+keeps its input stride; a missing or size-one batch axis receives stride `0` so
+another output batch reuses the same input batch. On the left, the output-row
+axis keeps the effective row stride and the output-column axis receives `0`. On
+the right, the output-row axis receives `0` and the output-column axis keeps the
+effective column stride. The planner separately stores the left and right
+strides for advancing along the shared inner axis.
+
+The worked matrices make this plan concrete. Contiguous $A$ has strides
+`[3,1]`, and contiguous $W$ has strides `[2,1]`. Across output coordinates
+`[0,0]`, `[0,1]`, `[1,0]`, `[1,1]`, the left cell-base strides `[3,0]` produce
+offsets `[0,0,3,3]`; the right cell-base strides `[0,1]` produce offsets
+`[0,1,0,1]`. Cell $C_{1,0}$ therefore starts at left offset `3` and right offset
+`0`. Advancing by the contracted-axis strides `1` and `2` yields the three
+offset pairs `(3,0)`, `(4,2)`, and `(5,4)`, which read $4\cdot1$, $5\cdot0$,
+and $6\cdot2$ in ascending $k$ order.
+
+For the batched shapes `[2,2,3]` and `[1,3,2]`, the corresponding cell-base
+strides are `[6,3,0]` on the left and `[0,0,1]` on the right. The first `0` in
+the right plan is the singleton batch axis: output batches `0` and `1` both
+start from right batch `0`. A transpose flag swaps the roles of an operand's
+last two extents and strides; it does not move the stored values.
+
+The two cell-base cursors are checked once and then emit offsets in batch-major,
+row-major, column-major order. Within each cell, the loop reads the left value,
+reads the right value, multiplies them, and adds to the running sum while $k$
+increases. Reads still use ordinary safe bounds-checked slice indexing. No
+coordinate vector is allocated inside the contraction, and no implicit
+materialization occurs for a sliced or transposed view: that view simply
+supplies different base offsets and strides.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/tensor/matmul.rs"
   region="checked-matmul"
-  caption="Plan effective shapes and accumulate every output cell through checked strided coordinates"
+  caption="Plan checked cell-base and inner-axis strides once, then accumulate by storage offset"
   label="Rust source implementing rank-two and batched matrix multiplication with logical final-axis transpose flags"
 />
 
 If a batch, row, or column extent is zero, the result is empty and performs no
-reads. If only $K=0$, output cells still exist: each running sum begins at
-positive `0.0` and receives no terms. Contracted extents $0$ and $1$ do not
-broadcast and are rejected as an inner mismatch.
+reads. If only $K=0$, output cells still exist but neither input has a readable
+inner-axis value. After reserving the output, the implementation writes one
+positive `0.0` per cell without constructing an offset cursor or reading either
+input.
+Contracted extents $0$ and $1$ do not broadcast and are rejected as an inner
+mismatch.
 
 The small helper constructs the 2-D product, the stored right transpose, and
 two left batches sharing one weight batch. Applying the shape-specific function
@@ -431,7 +473,9 @@ Write effective shapes before calculating any values.
 5. Predict the product of shapes `[2,0]` and `[0,2]`. Why is the result not an error?
 6. Name the first error for a rank-one left input, inner sizes `3` and `4`, and
    compatible matrix axes with leading batch sizes `2` and `3`.
-7. Explain why a sliced non-contiguous `[3,2]` right view needs no preliminary copy.
+7. For contiguous $A$ strides `[3,1]` and $W$ strides `[2,1]`, write both
+   cell-base stride plans and the three source-offset pairs used by $C_{1,0}$.
+   Why can a sliced non-contiguous view use the same algorithm without a copy?
 8. Misconception check: is matrix multiplication elementwise multiplication
    followed by one global sum? Identify the distinct row, column, and inner indices.
 
@@ -451,8 +495,11 @@ Write effective shapes before calculating any values.
 6. The errors are `LeftRankTooSmall { rank: 1 }`, then
    `InnerDimensionMismatch { left: 3, right: 4 }`, then
    `IncompatibleBatch { axis: 0, left_dimension: 2, right_dimension: 3 }`.
-7. `TensorView::get` converts each logical coordinate with the view's stored
-   strides. The output is newly owned and contiguous; the input need not be.
+7. The left cell-base plan is `[3,0]`, and the right plan is `[0,1]`.
+   $C_{1,0}$ starts at offsets `3` and `0`; contracted strides `1` and `2`
+   produce `(3,0)`, `(4,2)`, and `(5,4)`. A sliced view supplies its own checked
+   base offset and strides to the same plan, so only the newly owned contiguous
+   output is allocated.
 8. No. Output row $i$ selects one left row, output column $j$ selects one right
    column, and inner index $k$ pairs and sums their shared positions. Other
    row-column pairs produce other cells rather than joining one global sum.
@@ -468,6 +515,11 @@ require equal contracted dimensions, broadcast only leading batch axes, and
 interpret optional final-axis transposes without copying. Checked shape and
 allocation failures occur before scalar evaluation, while successful results
 own predictable contiguous storage.
+
+Public lookup still validates every coordinate supplied by a caller. Inside a
+validated matrix product, checked cell-base cursors plus two contracted-axis
+strides express the same batch, row, column, and $k$ choices without rebuilding
+coordinates for every scalar product.
 
 This is the numerical contraction behind later learned projections, $QK^{\mathsf T}$
 attention scores, attention-weighted values, feed-forward layers, and their
