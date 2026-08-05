@@ -14097,3 +14097,89 @@ used by ordinary parameter construction.
 `remediate-rust-buffer-ownership-20260805`,
 `make-decoder-state-transfers-explicit-and-movable`, and
 `20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01`.
+
+## 2026-08-05 - Keep Chapter 22's effective-gradient recurrence and repair its browser contract
+
+**Status:** Accepted during preflight for
+`repair-ch22-effective-gradient-formula-expectation` before the test file was
+edited.
+
+**Context:** The broad formula-rendering probe at the end of the decoder-state
+transfer step failed four Chapter 22 cases: English and Russian at desktop and
+narrow widths. The shared browser fixture still required
+$m_t=\beta_1m_{t-1}+(1-\beta_1)g_t$. Chapter 22 revision 7, its contract, and its
+static tests consistently distinguish the raw accumulated gradient $g_t$ from
+the effective gradient $\widetilde g_t=\alpha_tg_t$ that enters both moment
+recurrences. That distinction was introduced deliberately when gradient clipping
+began passing one validated scale into AdamW. KaTeX preserves the source TeX in
+the rendered annotation, so neither locale nor viewport can turn the stale raw
+gradient into the required effective gradient.
+
+**Decision:** Preserve the canonical English lesson, its direct Russian
+localization, the contract, Rust implementation, and content revision. Change
+only the Chapter 22 entry in the shared browser formula fixture so it requires
+$m_t=\beta_1m_{t-1}+(1-\beta_1)\widetilde g_t$. Run the complete formula suite in
+both browser engines rather than treating the four failures as independent
+layout defects. Because no learner-facing English meaning or presentation
+changes, the Russian review does not become stale and no localization file is an
+output of this correction.
+
+**Consequences:** The browser contract again checks the exact learner-facing
+formula already enforced by the static tests. Raw gradient storage, effective
+gradient scaling, AdamW arithmetic, both localized lessons, routes, and rendered
+layout remain unchanged. The F03 tensor-iteration work starts only after this
+baseline repair is committed independently.
+
+**Affected build, step, and run:**
+`restore-ch22-formula-browser-baseline-20260805`,
+`repair-ch22-effective-gradient-formula-expectation`, and
+`20260805T130930Z-repair-ch22-effective-gradient-formula-expectation-01`.
+
+## 2026-08-05 - Remediate tensor traversal at five chapter-owned boundaries
+
+**Status:** Accepted while scheduling audit finding F03 after the independent
+Chapter 22 browser-baseline repair.
+
+**Context:** The Rust overengineering audit found one shared pattern across
+Chapters 9-12 and 15: kernels allocate logical-coordinate vectors and re-enter
+fully checked coordinate lookup for individual scalar reads after their public
+operation has already validated shape, axes, broadcasting, and layout. Replacing
+every occurrence at once would mix the foundational view traversal contract,
+four different learner-facing algorithms, and five chapter projections in one
+checkpoint. Leaving each kernel to invent its own cursor would instead create
+five subtly different implementations of general-purpose iteration plumbing.
+
+**Decision:** Implement F03 as five ordered, independently committed steps. The
+Chapter 9 step will add one crate-private, safe, reusable strided-offset cursor
+owned by `TensorView`; it will preserve the public checked `storage_offset` and
+`get` APIs and cover scalars, empty views, singleton dimensions, nonzero base
+offsets, slices, permutations, and transposes without `unsafe`. Chapter 10 will
+move elementwise broadcasting and reductions onto validated offset traversal.
+Chapter 11 will move batched and optionally transposed matrix multiplication
+onto prevalidated stride plans while retaining its exact accumulation order.
+Chapter 12 will make probability groups reuse prevalidated group and class
+offsets across their deliberate numerical passes. Chapter 15 will remove the
+remaining per-element coordinate allocation from structural tensor and model
+VJPs. Each step advances only its owning chapter revision, revises English
+first, then refreshes Russian directly through the localization workflow.
+
+Public error precedence, exact floating-point evaluation order, output layout,
+zero-size conventions, historical evidence, formulas, and course-owned tensor
+and LLM algorithms remain behavior contracts. The shared cursor is supporting
+iteration plumbing: it may expose storage offsets only within the crate and may
+not hide broadcasting, reduction, matrix multiplication, probability, or VJP
+logic. Allocation-failure policy remains audit finding F08 and is explicitly
+outside this build.
+
+**Consequences:** Every completed chapter leaves the repository coherent and
+gets its own commit. Later kernels depend on the single validated traversal
+primitive instead of copying private coordinate walkers. Focused equivalence,
+edge-case, content, localization, and two-browser checks accompany each chapter,
+with the complete Docker course gate before publication.
+
+**Affected build and steps:** `remediate-rust-tensor-iteration-20260805`,
+`add-validated-strided-offset-iteration`,
+`iterate-elementwise-and-reductions-by-offset`,
+`iterate-matmul-by-prevalidated-strides`,
+`iterate-probability-groups-by-offset`, and
+`iterate-structural-vjps-by-offset`.

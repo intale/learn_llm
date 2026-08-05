@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T13:04:00Z"
+updated_at: "2026-08-05T13:29:08Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: remediate-rust-buffer-ownership-20260805
+active_build: remediate-rust-tensor-iteration-20260805
 
 builds:
   - build_id: bootstrap-course
@@ -31680,11 +31680,11 @@ builds:
 
   - build_id: remediate-rust-buffer-ownership-20260805
     objective: "Remove audit finding F02's accidental full-tensor and whole-model copies from ordinary execution while keeping ownership boundaries, rollback, and learner evidence explicit."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
-      spent: 0
+      spent: 4
       notes: "Four dependency-ordered corrections. Validation uses cached Docker and browser CPU only; no paid service or model generation is used."
     completion_criteria:
       - "Ordinary tensor reads borrow tape-owned storage; every independent tensor copy is requested through an explicitly named snapshot boundary."
@@ -32137,3 +32137,270 @@ builds:
               - {command: "Final exact-scope, canonical-English hash, and immutable-manifest audit", status: passed, notes: "Exactly 35 declared product/test files plus BUILD_STATE.yaml and DECISIONS.md change; no unrelated or untracked file exists beyond the declared new Chapter 35 test. English revisions 8/3/3/5/6 retain hashes cf8b715f..., 7d4144fa..., 128d6726..., e6425feb..., and 2aeb17e8..., and all 35 staged bytes still match canonical files."}
               - {command: "Pinned-Docker completed-ledger and scheduler validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts; all 33 content-ledger assertions pass, and no step remains running."}
             notes: "Succeeded. Deep copies now occur only at named isolation boundaries: initial or retained state snapshots and checkpoint coexistence. Owned decoded or loaded state moves into decoders and checkpoints without another tensor-buffer copy. Final evaluation borrows both the retained state and matching selected model, validates configuration, descriptor order/shape, and every value bit before opening test access, then scores the borrowed model. Checkpoint decode preserves transactional validation and established error precedence while retaining only graph-free leaf tensors. Exact checkpoint bytes, optimizer/RNG continuation, aliases, tied identities, selection, evaluation, and generation remain coherent. Chapters 33-36 and 39 were revised English-first, hashed, and refreshed directly into natural Russian through the localization skill; Chapter 38 changes only in an unrendered helper."
+
+  - build_id: restore-ch22-formula-browser-baseline-20260805
+    objective: "Restore the course-wide formula-rendering browser baseline by aligning Chapter 22's generic assertion with its already reviewed effective-gradient recurrence."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "One test-only correction with cached Docker and two-browser validation; no paid service, generation, dependency change, or network input."
+    completion_criteria:
+      - "The browser contract requires the exact effective-gradient recurrence rendered by both active Chapter 22 locales."
+      - "The canonical English and Russian lessons, contract, formulas, content revision, and executable AdamW behavior remain unchanged."
+      - "The complete formula-rendering suite passes in Chromium and Firefox, and the correction is committed independently before F03 work begins."
+    steps:
+      - id: repair-ch22-effective-gradient-formula-expectation
+        objective: "Replace the stale raw-gradient Chapter 22 browser expectation with the rendered effective-gradient recurrence already enforced by the canonical lesson contract."
+        depends_on: [make-decoder-state-transfers-explicit-and-movable]
+        status: completed
+        inputs:
+          - "Commit 8df75675deaef455fd4968178a1a0b5596a01b0e"
+          - "The failed course-wide formula probe recorded by make-decoder-state-transfers-explicit-and-movable"
+          - "Chapter 22 contract revision 7 and matching English/Russian lessons"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The Chapter 22 browser formula list requires m_t = beta_1 m_(t-1) + (1-beta_1) effective_gradient_t, using the same tilde-g symbol rendered in both lessons."
+          - "No learner-facing source, localized field, formula, Rust implementation, deterministic evidence, route, or content revision changes."
+          - "Chapter 22 and the complete formula-rendering browser suite pass at desktop and narrow widths in Chromium and Firefox."
+        validate:
+          - "./course check"
+          - "Complete site/tests/e2e/formula-rendering.spec.ts in Chromium"
+          - "Complete site/tests/e2e/formula-rendering.spec.ts in Firefox"
+          - "./course audit-host"
+        cost: {class: medium, notes: "One assertion correction plus complete cached formula rendering in two browser engines and Docker workspace validation; no network or paid input."}
+        runs:
+          - run_id: 20260805T130930Z-repair-ch22-effective-gradient-formula-expectation-01
+            started_at: 2026-08-05T13:09:30Z
+            finished_at: 2026-08-05T13:29:08Z
+            status: succeeded
+            input_fingerprint:
+              git: "8df75675deaef455fd4968178a1a0b5596a01b0e; tree ee053834583a3cddf157553041fae2a46f3aafb4"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                chapter-contract: "sha256:aef775506b5f0538c13d3ced740911a7c5efdfea0d13813f1f540bcae32ef315"
+                english-lesson: "sha256:1faeec7c1f983ba768590d2c697dba680d88f4f05bd406a8c7afb3e1387e154c"
+                russian-lesson: "sha256:73a14481aa41cf1991b291f5a64332ff4a9d1a233ad8ece8f889605f1a6254a6"
+                static-formula-contract: "sha256:6542a747d1518e1876f84e2bb8d6110686eaacbd0381efdc74a43714c327960d"
+                browser-formula-contract: "sha256:85500631b18bbf5a48aaabfac309f9b66ede9ec56a458c7a7acc43329b3d57c1"
+                prior-publish-manifest: "sha256:2a802e09a418438692f6e3433d1e5be9611add7a83d4815bc9c09820352d18cf"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No network, paid service, model generation, or dependency input. Product and browser validation remain Docker-only."
+            staging_dir: ".build/runs/20260805T130930Z-repair-ch22-effective-gradient-formula-expectation-01/"
+            commands:
+              - "Run the startup protocol at clean commit 8df7567, verify the four-step F02 build is complete, inspect its final immutable run, and confirm Git/Docker/Compose match the recorded environment."
+              - "Read audit finding F03 for subsequent planning, but stop before F03 because the preceding broad browser probe recorded a reproducible Chapter 22 formula baseline failure."
+              - "Review Chapter 22 English first, compare the Russian formula directly under the localization skill, and confirm both lessons and the static source contract consistently use the effective gradient after scaling."
+              - "Classify the correction as medium cached Docker/browser work within an unlimited budget and claim the one test-only output before editing it."
+              - "Replace the one stale Chapter 22 raw-gradient expectation with the effective-gradient recurrence and leave both localized lessons, the contract, Rust, and content revision unchanged."
+              - "Run focused Chapter 22 and complete formula-rendering matrices from the pinned browser image with the exact canonical test file mounted read-only."
+              - "Run the complete canonical Docker course check, build a self-contained final two-browser validator, and repeat the exact Chapter 22 formula cases without bind-mounted product or test files."
+              - "Freeze the one exact test output under publish/, verify its manifest and canonical byte equality, run the manifest-locked static review, and repeat the host-artifact, scope, scheduler, and whitespace audits."
+            artifacts:
+              - {path: ".build/runs/20260805T130930Z-repair-ch22-effective-gradient-formula-expectation-01/publish.sha256", sha256: "6a757b3cc58085205330c15f5a20eeec7bdc25b6e0c5885d285f4a4b64286813", purpose: "Frozen manifest for the one exact browser-contract output."}
+              - {path: ".build/runs/20260805T130930Z-repair-ch22-effective-gradient-formula-expectation-01/validation/Dockerfile.browser", sha256: "78dbaa654eb534228d3e3cdefa724749d1b13d9b46b131ae09d556ebdb25218d", purpose: "Run-scoped offline Chromium and Firefox validator built from the exact final workspace image."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "bab2960d8808c984903fe18da562b60b3ea4edd22f6ad5b0dafbd0874834a740", purpose: "Final canonical Docker workspace validation image."}
+              - {path: "docker-image:learn-llm-ch22-formula-browser:20260805", sha256: "259d7e76ac9b8d357c3e4abf459d95ddca64aa0356e5703d6dc560a54450902e", purpose: "Self-contained final Chapter 22 Chromium and Firefox validation image."}
+              - {path: "docker-image:learn-llm-review:20260805t130930z-repair-ch22-effective-gradient-formula-expectation-01", sha256: "2b1e3e87c6c4d378358b2e2ae9cb5924d62387737d4cf2550b8e053407f07297", purpose: "Manifest-locked static review image; site sources and resulting static pages are intentionally unchanged."}
+            validation:
+              - {command: "Repository, dependency, input, locale, environment, cost, and prior-failure preflight", status: passed, notes: "HEAD 8df7567 is clean and its 35-file immutable manifest remains sha256:2a802e09...18cf. No step is running, all F02 criteria are complete, and the only active build transition is this baseline repair. Git 2.53.0, Docker 25.0.2, Compose 2.17.3, Rust 1.93.1, Node 22.12.0, npm 10.9.0, and Playwright 1.61.1 match the ledger. English is canonical and Chapter 22's active en/ru pair already renders the same effective-gradient recurrence. Cost is cached Docker/browser CPU only, with no network, dependency, paid, or generation input and no host Rust/Node/Python execution."}
+              - {command: "Independent English-source and direct Russian-parity formula review", status: passed, notes: "The contract, English lesson, Russian lesson, and static tests all require effective gradient tilde-g_t in both moment recurrences. The reviewer confirmed only site/tests/e2e/formula-rendering.spec.ts was stale; no learner-facing or localization change is warranted."}
+              - {command: "Focused Chapter 22 Chromium and Firefox formula checks", status: passed, notes: "Each engine passes all 4 English/Russian desktop/narrow Chapter 22 cases against the corrected canonical test file."}
+              - {command: "Complete Chromium and Firefox formula-rendering matrices", status: passed, notes: "Chromium passes 156 of 156 and Firefox passes 156 of 156 formula scenarios across the complete course, both active locales, and desktop/narrow widths. No formula markup, readability, or containment failure remains."}
+              - {command: "Final canonical ./course check", status: passed, notes: "Workspace image sha256:bab2960d8808c984903fe18da562b60b3ea4edd22f6ad5b0dafbd0874834a740 passes formatting, every demo, doctests, all 394 shared-library tests, all 54 site test files, 80 localized sources, 40 locale sets, 33 catalog keys, 42 diagrams, 40 contracts, zero-diagnostic analysis of 216 Astro files, the 85-page build, and all 2,529 references plus SEO, sitemap, and Analytics checks."}
+              - {command: "Self-contained final Chapter 22 Chromium and Firefox formula checks", status: passed, notes: "Browser image sha256:259d7e76ac9b8d357c3e4abf459d95ddca64aa0356e5703d6dc560a54450902e embeds the corrected test and passes all 4 English/Russian desktop/narrow Chapter 22 cases in each engine without bind-mounted product or test files."}
+              - {command: "Frozen one-file manifest, checksum verification, and canonical equality", status: passed, notes: "The staged formula-rendering fixture verifies and equals the canonical file byte for byte at sha256:99717cfa0f2bd9885d3ac534f01adaf2eb815d0b20ec4cb3ff3997ed24e37750; publish.sha256 is sha256:6a757b3cc58085205330c15f5a20eeec7bdc25b6e0c5885d285f4a4b64286813. BUILD_STATE.yaml and DECISIONS.md remain intentionally outside the immutable product snapshot."}
+              - {command: "Manifest-locked ./course review 20260805T130930Z-repair-ch22-effective-gradient-formula-expectation-01 --check", status: passed, notes: "Review image sha256:2b1e3e87c6c4d378358b2e2ae9cb5924d62387737d4cf2550b8e053407f07297 verifies the manifest, content/parity, 216-file zero-diagnostic Astro analysis, 85-page static build, and all 2,529 references without changing publish/."}
+              - {command: "Final host-artifact, exact-scope, immutable-manifest, and whitespace audit", status: passed, notes: "./course audit-host passes with no Rust, Node.js, or Python host artifact outside the intentional site/dist release. Exactly the declared browser fixture plus BUILD_STATE.yaml and DECISIONS.md change, the frozen byte remains canonical, no untracked or unrelated file exists, and git diff --check passes."}
+              - {command: "First focused content-ledger invocation", status: failed, notes: "The Docker command started npm from /workspace instead of /workspace/site, so repositoryRoot resolved to / and 15 assertions reported missing paths outside the image workspace. The schedule parser itself passed; no product, ledger, or artifact changed, and the identical test was repeated from its required site working directory."}
+              - {command: "Pinned-Docker completed-ledger, next-build scheduler, and content-contract validation", status: passed, notes: "The completed correction and five pending F03 steps parse as a valid schedule with no running owner: 40 chapters, 111 scheduled course steps, and 40 implemented contracts. All 33 content-ledger assertions pass from /workspace/site against the canonical files plus the final bind-mounted ledger and decision records."}
+            notes: "Succeeded. Chapter 22's generic browser contract now requires the same effective-gradient recurrence already taught and statically enforced in both locales. No lesson, localization, contract, formula source, Rust behavior, deterministic evidence, route, or content revision changed. The complete two-engine formula baseline and canonical course gates pass, and the correction is isolated from F03 tensor-iteration work."
+
+  - build_id: remediate-rust-tensor-iteration-20260805
+    objective: "Remove audit finding F03's per-scalar coordinate allocations and repeated checked lookups by introducing one safe validated strided-offset traversal boundary, then migrating each learner-facing tensor algorithm independently."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "Five ordered chapter-owned corrections. Validation uses cached Docker and browser CPU only; no paid service, model generation, dependency change, or required network input is planned."
+    completion_criteria:
+      - "TensorView owns one crate-private safe logical-offset traversal primitive with O(rank) cursor storage and no allocation or fully checked coordinate lookup per scalar."
+      - "Elementwise maps, broadcasting, reductions, matrix multiplication, probability groups, and structural VJPs traverse already validated layouts by offsets while their course-owned algorithms remain explicit."
+      - "Public checked APIs, deterministic error precedence, logical and accumulation order, exact floating-point behavior, zero-size rules, output layout, and learner evidence remain unchanged."
+      - "Chapters 9, 10, 11, 12, and 15 are revised English-first and refreshed directly into natural Russian, with each completed chapter committed independently."
+    steps:
+      - id: add-validated-strided-offset-iteration
+        objective: "Give TensorView one crate-private safe logical row-major storage-offset cursor and use it to materialize validated views without allocating coordinates per element."
+        depends_on: [repair-ch22-effective-gradient-formula-expectation]
+        status: pending
+        inputs:
+          - "Commit produced by repair-ch22-effective-gradient-formula-expectation"
+          - "audits/2026-08-04-rust-overengineering.md finding F03"
+          - "rust/crates/llm-from-scratch/src/tensor/{storage,view}.rs"
+          - "Chapter 9 contract revision 5 and active English/Russian projections"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/src/content/chapters/ru/09-tensor-views.mdx"
+          - "site/tests/09-tensor-views-diagram.test.ts"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Crate-private safe traversal allocates only O(rank) cursor state, never per scalar, performs no unsafe access, and yields logical row-major source offsets from already validated TensorView metadata."
+          - "Scalar, empty, sliced, permuted, transposed, singleton, nonzero-base, and arbitrary-rank offset orders are exact, and materialization preserves every f64 bit."
+          - "Public checked storage_offset and get APIs, their error precedence, view transformation behavior, stdout, and diagram trace remain unchanged."
+          - "Chapter 9 advances from revision 5 to 6, teaches the public-validation versus internal-traversal boundary explicitly, is authored English-first, and receives a natural direct-English Russian refresh."
+        validate:
+          - "./course run cargo test --locked -p llm-from-scratch tensor::view::tests"
+          - "./course run npm --prefix site test -- --run tests/09-tensor-views-diagram.test.ts"
+          - "./course check"
+          - "Focused site/tests/e2e/ch09-tensor-views.spec.ts in Chromium and Firefox"
+          - "./course audit-host"
+        cost: {class: large, notes: "Shared safe traversal primitive, Chapter 9 bilingual revision, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
+        runs: []
+
+      - id: iterate-elementwise-and-reductions-by-offset
+        objective: "Move unary, binary-broadcast, and reduction kernels onto validated offset traversal without changing their algorithms or observable order."
+        depends_on: [add-validated-strided-offset-iteration]
+        status: pending
+        inputs:
+          - "Completed validated strided-offset iteration step"
+          - "audits/2026-08-04-rust-overengineering.md finding F03"
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "Chapter 10 contract revision 4 and active English/Russian projections"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "curriculum/chapters/10-broadcasting-reductions.md"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/content/chapters/ru/10-broadcasting-reductions.mdx"
+          - "site/tests/10-broadcasting-reductions-diagram.test.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Unary, binary, and reduction scalar loops construct no coordinate vectors and call no fully checked coordinate lookup after their operation plan validates."
+          - "Broadcasting uses zero effective strides for missing or expanded axes; reductions reuse one group base and the selected-axis stride."
+          - "Logical row-major closure order, ascending reduction order, NaN payloads, signed zero, empty behavior, output shape, and error precedence remain exact."
+          - "Chapter 10 advances from revision 4 to 5 English-first, Russian is refreshed directly, and stdout plus diagram trace remain byte-identical."
+        validate:
+          - "./course run cargo test --locked -p llm-from-scratch tensor::ops::tests"
+          - "./course run npm --prefix site test -- --run tests/10-broadcasting-reductions-diagram.test.ts"
+          - "./course check"
+          - "Focused site/tests/e2e/ch10-broadcasting-reductions.spec.ts in Chromium and Firefox"
+          - "./course audit-host"
+        cost: {class: large, notes: "Elementwise/reduction kernel migration, Chapter 10 bilingual revision, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
+        runs: []
+
+      - id: iterate-matmul-by-prevalidated-strides
+        objective: "Move batched optionally transposed matrix multiplication onto prevalidated batch and matrix strides without allocating coordinates inside the contraction."
+        depends_on: [iterate-elementwise-and-reductions-by-offset]
+        status: pending
+        inputs:
+          - "Completed elementwise and reduction offset step"
+          - "audits/2026-08-04-rust-overengineering.md finding F03"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "Chapter 11 contract revision 4 and active English/Russian projections"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "curriculum/chapters/11-matrix-multiplication.md"
+          - "site/src/content/chapters/en/11-matrix-multiplication.mdx"
+          - "site/src/content/chapters/ru/11-matrix-multiplication.mdx"
+          - "site/tests/11-matrix-multiplication-diagram.test.ts"
+          - "site/tests/e2e/ch11-matrix-multiplication.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Batch, row, column, and contracted-axis strides are planned once; the contraction allocates no coordinate vectors and calls no TensorView::get."
+          - "Traversal stays batch-major, row-major, then column-major with ascending contracted index, preserving exact multiplication and addition order."
+          - "All transpose combinations, batch broadcasting, noncontiguous views, zero inner extent, empty outputs, allocation checks, output layout, and error precedence remain unchanged."
+          - "Chapter 11 advances from revision 4 to 5 English-first, Russian is refreshed directly, and stdout plus diagram trace remain byte-identical."
+        validate:
+          - "./course run cargo test --locked -p llm-from-scratch tensor::matmul::tests"
+          - "./course run npm --prefix site test -- --run tests/11-matrix-multiplication-diagram.test.ts"
+          - "./course check"
+          - "Focused site/tests/e2e/ch11-matrix-multiplication.spec.ts in Chromium and Firefox"
+          - "./course audit-host"
+        cost: {class: large, notes: "Matmul stride-plan migration, Chapter 11 bilingual revision, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
+        runs: []
+
+      - id: iterate-probability-groups-by-offset
+        objective: "Make stable probability and indexed-loss passes reuse prevalidated group bases and class strides instead of rebuilding coordinates for every class read."
+        depends_on: [iterate-matmul-by-prevalidated-strides]
+        status: pending
+        inputs:
+          - "Completed matrix-multiplication offset step"
+          - "audits/2026-08-04-rust-overengineering.md finding F03"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "Chapter 12 contract revision 5 and active English/Russian projections"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "curriculum/chapters/12-stable-softmax.md"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/content/chapters/ru/12-stable-softmax.mdx"
+          - "site/tests/12-stable-softmax-diagram.test.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "AxisPlan stores validated group traversal and class strides; class passes use group base plus class stride without allocating coordinates or repeating checked lookup."
+          - "Maximum and tail pass order, the first skipped maximum, group-major and class-minor errors, target precedence, subnormal handling, fallback arithmetic, positive zero, and output layout remain exact."
+          - "Chapter 12 advances from revision 5 to 6 English-first, Russian is refreshed directly, stdout and diagram trace remain byte-identical, and Chapter 13 probability-gradient controls remain unchanged."
+        validate:
+          - "./course run cargo test --locked -p llm-from-scratch nn::probability::tests"
+          - "./course run npm --prefix site test -- --run tests/12-stable-softmax-diagram.test.ts"
+          - "./course check"
+          - "Focused site/tests/e2e/ch12-stable-softmax.spec.ts in Chromium and Firefox"
+          - "./course audit-host"
+        cost: {class: large, notes: "Numerically sensitive probability traversal, Chapter 12 bilingual revision, downstream controls, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
+        runs: []
+
+      - id: iterate-structural-vjps-by-offset
+        objective: "Remove per-scalar coordinate reconstruction from broadcast, reduction, and indexed-loss reverse passes by traversing validated projected strides."
+        depends_on: [iterate-probability-groups-by-offset]
+        status: pending
+        inputs:
+          - "Completed probability-group offset step"
+          - "audits/2026-08-04-rust-overengineering.md finding F03"
+          - "rust/crates/llm-from-scratch/src/autograd/{tensor_core,model_ops}.rs"
+          - "Chapter 15 contract revision 7 and active English/Russian projections"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "curriculum/chapters/15-tensor-autodiff-core.md"
+          - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+          - "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx"
+          - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Both unbroadcast paths, reduction expansion, and indexed-NLL reversal use validated projected strides without per-scalar coordinate allocation or Tensor::offset."
+          - "Accumulation order, exact parent shapes, divisors, repeated operands, finite checks, rollback, and graph lifecycle remain unchanged."
+          - "Chapter 15 advances from revision 7 to 8 English-first with a direct natural Russian refresh; Chapter 15 evidence and Chapter 16 output and gradient checks remain exact."
+          - "A final source scan leaves full coordinate reconstruction only in public teaching/tests, deliberately sampled gradient-check evidence, or separately recorded audit scope."
+        validate:
+          - "./course run cargo test --locked -p llm-from-scratch autograd::tensor_core::tests"
+          - "./course run cargo test --locked -p llm-from-scratch autograd::model_ops::tests"
+          - "./course run npm --prefix site test -- --run tests/15-tensor-autodiff-core-diagram.test.ts tests/16-model-autodiff-ops-diagram.test.ts"
+          - "./course check"
+          - "Focused site/tests/e2e/ch15-tensor-autodiff-core.spec.ts and Chapter 16 control in Chromium and Firefox"
+          - "./course audit-host"
+        cost: {class: large, notes: "Autodiff VJP traversal migration, Chapter 15 bilingual revision, Chapter 16 controls, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
+        runs: []
