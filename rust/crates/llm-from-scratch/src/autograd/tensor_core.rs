@@ -1396,26 +1396,36 @@ fn apply_vjp(upstream: &Tensor, saved: &TensorSavedContext) -> Result<Tensor, Te
 }
 
 fn unbroadcast(upstream: &Tensor, input_shape: &[usize]) -> Result<Tensor, TensorAutodiffError> {
-    let output_shape = upstream.shape();
-    let padding = output_shape.len() - input_shape.len();
     let mut result = zeros(input_shape)?;
-    for output_index in 0..upstream.len() {
-        let output_coordinate = coordinate_from_offset(output_shape, output_index);
-        let input_coordinate = input_shape
-            .iter()
-            .enumerate()
-            .map(|(axis, &dimension)| {
-                if dimension == 1 {
-                    0
-                } else {
-                    output_coordinate[axis + padding]
-                }
-            })
-            .collect::<Vec<_>>();
-        let input_index = result.offset(&input_coordinate)?;
-        result.as_mut_slice()[input_index] += upstream.as_slice()[output_index];
-    }
+    accumulate_unbroadcast(upstream, &mut result);
     Ok(result)
+}
+
+pub(super) fn accumulate_unbroadcast(upstream: &Tensor, result: &mut Tensor) {
+    let output_shape = upstream.shape();
+    let input_shape = result.shape();
+    debug_assert!(output_shape.len() >= input_shape.len());
+    let padding = output_shape.len() - input_shape.len();
+
+    let destination_strides = output_shape
+        .iter()
+        .enumerate()
+        .map(|(output_axis, _)| {
+            if output_axis < padding || input_shape[output_axis - padding] == 1 {
+                0
+            } else {
+                result.strides()[output_axis - padding]
+            }
+        })
+        .collect::<Vec<_>>();
+    let destination_offsets = result
+        .view()
+        .projected_offsets(output_shape, &destination_strides, upstream.len())
+        .expect("a checked broadcast VJP retains a valid destination traversal plan");
+
+    for (&value, destination_offset) in upstream.as_slice().iter().zip(destination_offsets) {
+        result.as_mut_slice()[destination_offset] += value;
+    }
 }
 
 fn expand_reduction(
@@ -1427,21 +1437,32 @@ fn expand_reduction(
 ) -> Result<Tensor, TensorAutodiffError> {
     debug_assert!(divisor > 0);
     let mut result = zeros(input_shape)?;
-    for input_index in 0..result.len() {
-        let input_coordinate = coordinate_from_offset(input_shape, input_index);
-        let output_coordinate = if keep_dim {
-            let mut coordinate = input_coordinate.clone();
-            coordinate[axis] = 0;
-            coordinate
-        } else {
-            input_coordinate
-                .iter()
-                .enumerate()
-                .filter_map(|(input_axis, &index)| (input_axis != axis).then_some(index))
-                .collect()
-        };
-        let output_index = upstream.offset(&output_coordinate)?;
-        result.as_mut_slice()[input_index] = upstream.as_slice()[output_index] / divisor as f64;
+
+    let mut upstream_axis = 0;
+    let source_strides = input_shape
+        .iter()
+        .enumerate()
+        .map(|(input_axis, _)| {
+            if input_axis == axis {
+                if keep_dim {
+                    upstream_axis += 1;
+                }
+                0
+            } else {
+                let stride = upstream.strides()[upstream_axis];
+                upstream_axis += 1;
+                stride
+            }
+        })
+        .collect::<Vec<_>>();
+    debug_assert_eq!(upstream_axis, upstream.rank());
+    let source_offsets = upstream
+        .view()
+        .projected_offsets(input_shape, &source_strides, result.len())
+        .expect("a checked reduction VJP retains a valid source traversal plan");
+
+    for (destination, source_offset) in result.as_mut_slice().iter_mut().zip(source_offsets) {
+        *destination = upstream.as_slice()[source_offset] / divisor as f64;
     }
     Ok(result)
 }
@@ -1467,16 +1488,6 @@ fn add_checked(
         values.push(sum);
     }
     Ok(Tensor::from_vec(left.shape().to_vec(), values)?)
-}
-
-fn coordinate_from_offset(shape: &[usize], mut offset: usize) -> Vec<usize> {
-    let mut coordinate = vec![0; shape.len()];
-    for axis in (0..shape.len()).rev() {
-        debug_assert!(shape[axis] > 0, "empty tensors are never enumerated");
-        coordinate[axis] = offset % shape[axis];
-        offset /= shape[axis];
-    }
-    coordinate
 }
 
 #[cfg(test)]
@@ -2065,6 +2076,45 @@ mod tests {
                 && output_shape == &[2, 4, 3]
                 && reduced_axes == &[1]
         ));
+    }
+
+    #[test]
+    fn structural_vjps_follow_checked_projected_offsets_in_row_major_order() {
+        let order_sensitive = unbroadcast(&tensor(&[3], &[1.0e16, -1.0e16, 1.0]), &[]).unwrap();
+        assert_eq!(order_sensitive.as_slice(), &[1.0]);
+
+        let leading_and_singleton =
+            unbroadcast(&tensor(&[4, 2, 5, 3], &[1.0; 120]), &[2, 1, 3]).unwrap();
+        assert_eq!(leading_and_singleton.as_slice(), &[20.0; 6]);
+
+        let removed_axis = expand_reduction(
+            &tensor(&[2, 2], &[3.0, -0.0, 6.0, 9.0]),
+            &[2, 3, 2],
+            1,
+            false,
+            3,
+        )
+        .unwrap();
+        let kept_axis = expand_reduction(
+            &tensor(&[2, 1, 2], &[3.0, -0.0, 6.0, 9.0]),
+            &[2, 3, 2],
+            1,
+            true,
+            3,
+        )
+        .unwrap();
+        let expected = tensor(
+            &[2, 3, 2],
+            &[
+                1.0, -0.0, 1.0, -0.0, 1.0, -0.0, 2.0, 3.0, 2.0, 3.0, 2.0, 3.0,
+            ],
+        );
+        assert_eq!(tensor_bits(&removed_axis), tensor_bits(&expected));
+        assert_eq!(tensor_bits(&kept_axis), tensor_bits(&expected));
+
+        let empty = expand_reduction(&tensor(&[2, 3], &[1.0; 6]), &[2, 0, 3], 1, false, 1).unwrap();
+        assert_eq!(empty.shape(), &[2, 0, 3]);
+        assert!(empty.is_empty());
     }
 
     #[test]

@@ -2,15 +2,15 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "concept_id": "tensor-autodiff-core",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 15,
   "objective": {
     "en": "Differentiate structural and elementwise tensor expressions while reversing shape transformations, broadcasts, and reductions correctly.",
     "ru": "Дифференцировать структурные и поэлементные тензорные выражения, правильно проводя обратный проход через преобразования формы, согласование форм и редукции."
   },
   "worked_inputs": {
-    "en": "Set parameter x to shape [2,3] with values [1,2,3,4,5,6]. Reshape it to [3,2], transpose axes 0 and 1 back to [2,3], explicitly broadcast parameter bias=[1,-1,0] to [2,3], add, reuse that result as both operands of elementwise multiply, and mean axis 1. Predict output y=[11,18], then use seed [3,6] to obtain dx=[4,12,4,12,10,24] and dbias=[16,16,34] before running Rust.",
-    "ru": "Задайте параметр x формы [2,3] со значениями [1,2,3,4,5,6]. Измените его форму на [3,2], транспонируйте оси 0 и 1 обратно к [2,3], явно согласуйте форму параметра bias=[1,-1,0] с [2,3], сложите тензоры, используйте результат как оба операнда поэлементного умножения и усредните по оси 1. До запуска Rust предскажите выход y=[11,18], а затем с начальной сопряжённой величиной [3,6] получите dx=[4,12,4,12,10,24] и dbias=[16,16,34]."
+    "en": "Set parameter x to shape [2,3] with values [1,2,3,4,5,6]. Reshape it to [3,2], transpose axes 0 and 1 back to [2,3], explicitly broadcast parameter bias=[1,-1,0] to [2,3], add, reuse that result as both operands of elementwise multiply, and mean axis 1 with keep_dim=false. Predict output y=[11,18], then use seed [3,6] to obtain dx=[4,12,4,12,10,24] and dbias=[16,16,34] before running Rust.",
+    "ru": "Задайте параметр x формы [2,3] со значениями [1,2,3,4,5,6]. Измените его форму на [3,2], транспонируйте оси 0 и 1, чтобы снова получить [2,3], явно согласуйте форму параметра bias=[1,-1,0] с [2,3] и сложите тензоры. Используйте полученную сумму одновременно как левый и правый операнд поэлементного умножения, затем вычислите среднее по оси 1 с keep_dim=false. До запуска Rust предскажите выход y=[11,18], а затем для начальной сопряжённой величины [3,6] получите dx=[4,12,4,12,10,24] и dbias=[16,16,34]."
   },
   "formula": {
     "latex": "\\bar{p(e)}\\mathrel{+}=J_e^\\top\\bar{c(e)},\\qquad e\\in E",
@@ -18,17 +18,17 @@
       {
         "symbol": "E",
         "en": "the recorded operand-use edges reachable from the selected output",
-        "ru": "записанные рёбра отдельных вхождений операндов, достижимые от выбранного выхода"
+        "ru": "записанные рёбра использования операндов, достижимые от выбранного выхода"
       },
       {
         "symbol": "e",
         "en": "one distinct operand occurrence at one consumer operation",
-        "ru": "одно вхождение родительского тензора в определённое место операнда одной операции"
+        "ru": "одно использование родительского тензора на конкретном входе операции"
       },
       {
         "symbol": "p(e)",
         "en": "the parent tensor supplied through operand-use edge e",
-        "ru": "родительский тензор, переданный по ребру вхождения операнда e"
+        "ru": "родительский тензор, переданный на этот вход по ребру e"
       },
       {
         "symbol": "c(e)",
@@ -38,7 +38,7 @@
       {
         "symbol": "J_e",
         "en": "the conceptual Jacobian of c(e) with respect to this operand slot while the operation's other slots stay fixed",
-        "ru": "концептуальный якобиан c(e) по этому месту операнда при фиксированных остальных операндах операции"
+        "ru": "концептуальный якобиан результата c(e) по значению p(e) на этом входе при фиксированных остальных входах операции"
       },
       {
         "symbol": "\\bar{c(e)}",
@@ -66,11 +66,11 @@
       },
       "later_advance": {
         "en": "Abadi et al. represent computation as operation vertices joined by tensor-valued edges and describe automatic differentiation that finds every backward path from a loss to parameters and sums the paths' partial gradients. Vaswani et al. then train repeated Transformer attention and feed-forward tensor blocks, while Radford et al. scale autoregressive Transformer language models to deeper and wider stacks.",
-        "ru": "Abadi и соавторы представляют вычисление вершинами-операциями, соединёнными тензорными рёбрами, и описывают автоматическое дифференцирование, которое находит все обратные пути от функции потерь к параметрам и суммирует вклады этих путей в градиенты параметров. Затем Vaswani и соавторы обучают повторяющиеся тензорные блоки Transformer с вниманием и сетями прямого распространения, одинаковыми для каждой позиции, а Radford и соавторы масштабируют авторегрессионные языковые модели Transformer в глубину и ширину."
+        "ru": "Abadi и соавторы представляют вычисление как граф, вершины которого являются операциями, а рёбра несут тензоры. Они описывают автоматическое дифференцирование, которое находит все обратные пути от функции потерь к параметрам и суммирует вклады этих путей в градиенты параметров. Затем Vaswani и соавторы обучают повторяющиеся тензорные блоки Transformer с вниманием и сетями прямого распространения, которые отдельно и одинаково применяются к каждой позиции, а Radford и соавторы масштабируют авторегрессионные языковые модели Transformer в глубину и ширину."
       },
       "modern_llm_role": {
         "en": "This chapter records one local vector-Jacobian product for each operand use, restores every contribution to its parent's exact shape through reshape, transpose, broadcast, sum, and mean rules, and checks those rules numerically before model-specific derivatives are added. Ordinary inference does not run the reverse tape; training uses it to carry loss sensitivity back through repeated tensor blocks.",
-        "ru": "В этой главе каждому вхождению операнда сопоставляется локальное произведение вектора на якобиан (VJP). Правила для изменения формы, транспонирования, согласования форм, суммы и среднего возвращают каждый вклад к точной форме родителя, после чего правила проверяются численно ещё до добавления производных специальных операций модели. При обычном инференсе лента обратного прохода не выполняется; во время обучения она переносит чувствительность функции потерь назад через повторяющиеся тензорные блоки."
+        "ru": "В этой главе каждому использованию тензора на входе операции сопоставляется локальное произведение вектора на якобиан (VJP). Правила для изменения формы, транспонирования, согласования форм, суммы и среднего возвращают каждый вклад к точной форме родителя, после чего эти правила проверяются численно до добавления производных операций, специфичных для модели. При обычном инференсе обратный проход по ленте не запускается; во время обучения он переносит чувствительность функции потерь назад через повторяющиеся тензорные блоки."
       },
       "sources": [
         {
@@ -90,7 +90,7 @@
           "source_url": "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf",
           "claim": {
             "en": "Abadi et al. define graph vertices as operations and edge values as tensors, then describe a differentiation library that derives backpropagation for layer-and-loss compositions by finding backward paths to parameters and summing each path's partial-gradient contribution.",
-            "ru": "Abadi и соавторы определяют вершины графа как операции, а значения рёбер — как тензоры, и описывают библиотеку дифференцирования, которая выводит обратное распространение для композиций слоёв и функций потерь: находит обратные пути к параметрам и суммирует вклад каждого пути в градиент параметра."
+            "ru": "Abadi и соавторы определяют вершины графа как операции, а значения рёбер — как тензоры, и описывают библиотеку дифференцирования, которая автоматически строит обратный проход для композиций слоёв и функций потерь: находит обратные пути к параметрам и суммирует вклад каждого пути в градиент параметра."
           }
         },
         {
@@ -100,7 +100,7 @@
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
             "en": "Vaswani et al. build the Transformer from repeated attention and position-wise feed-forward sublayers and train base models for 100,000 steps and big models for 300,000 steps with Adam.",
-            "ru": "Vaswani и соавторы строят Transformer из повторяющихся подслоёв внимания и сетей прямого распространения, одинаковых для каждой позиции, и обучают базовые модели 100 000 шагов, а большие — 300 000 шагов с Adam."
+            "ru": "Vaswani и соавторы строят Transformer из повторяющихся подслоёв внимания и сетей прямого распространения, которые отдельно и одинаково применяются к каждой позиции, и обучают базовые модели в течение 100 000 шагов, а большие — в течение 300 000 шагов, используя Adam."
           }
         },
         {
@@ -117,11 +117,11 @@
     },
     "approach": {
       "en": "From explicit next-word backward equations to reusable edge-local tensor VJPs for scaled Transformer training",
-      "ru": "От явного распространения градиента функции потерь для следующего слова к переиспользуемым локальным VJP тензорных рёбер при обучении Transformer"
+      "ru": "От явных уравнений для модели следующего слова к переиспользуемым локальным VJP для каждого тензорного ребра при обучении Transformer"
     },
     "summary": {
-      "en": "Bengio et al. publish explicit forward and backward/update phases for a neural next-word model. Abadi et al. later describe tensor-valued operation graphs whose differentiation sums every backward path to a parameter. Transformer and GPT-2 work then repeat and scale tensor blocks during training. The Rust contrast replaces one fixed-shape handwritten backward calculation with composable shape-aware VJPs while keeping the implementation-specific lifecycle separate from the historical claims.",
-      "ru": "Bengio и соавторы публикуют явные фазы прямого прохода и обратного прохода с обновлением для нейросетевой модели следующего слова. Позже Abadi и соавторы описывают графы операций над тензорами, при дифференцировании которых суммируются все обратные пути к параметру. В работах о Transformer и GPT-2 тензорные блоки затем повторяются и масштабируются во время обучения. Пример на Rust заменяет обратный расчёт, вручную выписанный для одной фиксированной формы, компонуемыми VJP с учётом форм, а особенности жизненного цикла этой реализации не выдаются за исторические утверждения."
+      "en": "Bengio et al. publish explicit forward and backward/update phases for a neural next-word model. Abadi et al. later describe tensor-valued operation graphs whose differentiation sums every backward path to a parameter. Vaswani et al. train repeated Transformer attention and feed-forward blocks, and Radford et al. report deeper and wider GPT-2 models. The Rust contrast replaces one fixed-shape handwritten backward calculation with composable shape-aware VJPs while keeping the implementation-specific lifecycle separate from the historical claims.",
+      "ru": "Bengio и соавторы публикуют явные этапы прямого прохода, обратного прохода и обновления параметров нейросетевой модели следующего слова. Позже Abadi и соавторы описывают графы операций над тензорами, при дифференцировании которых суммируются все обратные пути к параметру. Vaswani и соавторы обучают Transformer с повторяющимися блоками внимания и сетями прямого распространения, а Radford и соавторы описывают более глубокие и широкие модели GPT-2. Пример на Rust заменяет обратный расчёт, вручную выписанный для одной фиксированной формы, компонуемыми VJP, учитывающими формы тензоров; особенности жизненного цикла конкретной реализации при этом отделены от утверждений, подтверждённых историческими источниками."
     },
     "rust_contrast": "Compute the worked reshape, transpose, broadcast, square, and mean expression once with a fixed-shape handwritten Rust backward calculation, then construct the same expression from TensorValue operations. Both paths must produce y=[11,18], dx=[4,12,4,12,10,24], and dbias=[16,16,34] for seed [3,6]; the tape additionally exposes reusable edge-local VJPs, exact parent shapes, retained accumulation, zeroing, detach, and release."
   },
@@ -138,13 +138,13 @@
     "decision": "useful",
     "id": "tensor-autodiff-core",
     "rationale": {
-      "en": "An eight-node tensor-operation DAG can keep forward shapes, eight ordered operand edges, the non-scalar seed, repeated multiply contributions, broadcast reduction axes, inverse structural transforms, parameter-only stored gradients, and graph lifecycle states visible together; a flat list of final gradients hides where each shape is restored.",
-      "ru": "Граф из восьми узлов тензорных операций позволяет одновременно увидеть формы прямого прохода, восемь упорядоченных рёбер операндов, начальную сопряжённую величину нескалярного выхода, VJP с точными формами, два вклада повторного умножения, оси редукции после согласования форм, обратные структурные преобразования, накопленные градиенты только параметров и состояния жизненного цикла графа. В плоском списке итоговых градиентов не видно, где именно восстанавливается каждая форма."
+      "en": "An eight-node tensor-operation DAG can keep forward shapes, eight ordered operand edges, the non-scalar seed, repeated multiply contributions, broadcast reduction axes, shape restoration by structural VJPs, parameter-only stored gradients, and graph lifecycle states visible together; a flat list of final gradients hides where each shape is restored.",
+      "ru": "Граф из восьми узлов тензорных операций позволяет одновременно увидеть формы прямого прохода, восемь упорядоченных рёбер использования операндов, начальную сопряжённую величину нескалярного выхода, VJP с точными формами, два вклада повторного умножения, оси, по которым суммируются вклады при обращении согласования форм, восстановление формы с помощью структурных VJP, градиенты, накопленные только в параметрах, и состояния жизненного цикла графа. В плоском списке итоговых градиентов не видно, где именно восстанавливается каждая форма."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative project can now reverse shape-preserving elementwise operations and structural tensor transformations while returning every contribution to its parent's exact shape, accumulating only parameter-leaf gradients, and releasing saved operation context safely. Chapter 16 adds model-critical VJPs for matrix multiplication, repeated embedding gathers, nonlinearities, log-softmax, and indexed mean token loss; Chapter 15 alone still cannot train the decoder.",
-    "ru": "Теперь совокупная реализация умеет проводить обратный проход через поэлементные операции, сохраняющие форму, и структурные тензорные преобразования, возвращать каждый вклад к точной форме родителя, накапливать градиенты только в листовых узлах-параметрах и безопасно освобождать сохранённый контекст операций. В главе 16 появятся необходимые для модели VJP матричного умножения, выбора строк эмбеддингов по индексам с повторяющимися ID, нелинейностей, log-softmax и средней функции потерь по индексам целевых токенов; одной главы 15 всё ещё недостаточно для обучения декодера."
+    "en": "The cumulative project can now reverse shape-preserving elementwise operations and structural tensor transformations while returning every contribution to its parent's exact shape, accumulating only parameter-leaf gradients, and releasing saved operation context safely. VJPs that map one logical shape onto another can reuse the checked projected-stride traversal. Chapter 16 adds model-critical VJPs for matrix multiplication, repeated embedding gathers, nonlinearities, log-softmax, and indexed mean token loss; Chapter 15 alone still cannot train the decoder.",
+    "ru": "Теперь совокупная реализация умеет проводить обратный проход через поэлементные операции, сохраняющие форму, и структурные тензорные преобразования, возвращать каждый вклад к точной форме родителя, накапливать градиенты только в листовых узлах-параметрах и безопасно освобождать сохранённый контекст операций. Проверенный обход по эффективным шагам можно переиспользовать в VJP, которые сопоставляют одну логическую форму с другой. В главе 16 появятся необходимые для модели VJP матричного умножения, выбора строк эмбеддингов по индексам с повторяющимися ID, нелинейностей, log-softmax и усреднённой функции потерь для заданных индексов целевых токенов; одной главы 15 всё ещё недостаточно для обучения декодера."
   },
   "terminology": [
     {
@@ -180,7 +180,7 @@
     {
       "concept_id": "graph-release",
       "en": "graph release",
-      "ru": "освобождение ленты операций"
+      "ru": "освобождение графа операций"
     },
     {
       "concept_id": "adjoint",
@@ -196,6 +196,21 @@
       "concept_id": "broadcasting",
       "en": "broadcasting",
       "ru": "согласование форм"
+    },
+    {
+      "concept_id": "effective-stride",
+      "en": "effective stride",
+      "ru": "эффективный шаг"
+    },
+    {
+      "concept_id": "storage-offset",
+      "en": "storage offset",
+      "ru": "смещение в хранилище"
+    },
+    {
+      "concept_id": "offset-cursor",
+      "en": "offset cursor",
+      "ru": "курсор смещений"
     },
     {
       "concept_id": "reduction",
@@ -214,10 +229,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 7 with SHA-256 e909cab42c4a561757edfbb5b1648e043e88d34f1de79394bc56740b6eda4b57 and becomes stale whenever that source changes.",
+    "Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 8 with SHA-256 c5a1eb87e400b3a7e901a2b65c3399a3c5a70c607c07f0f0dc8fe51a36f36128 and becomes stale whenever that source changes.",
     "Keep shapes, axes, ordered values, seeds, gradients, bar notation, Jacobian notation, Rust identifiers, formulas, and source URLs exact across locales.",
     "In the displayed formula, the superscript transpose applies to the conceptual Jacobian map. It is not the same object as the forward TensorValue::transpose operation, whose own VJP swaps the saved axes back.",
     "Describe broadcasting as coordinate reuse. Its VJP sums missing leading and expanded singleton axes back to the original parent shape; it does not select one forward occurrence or preserve the expanded shape.",
+    "Translate effective stride as «эффективный шаг», storage offset as «смещение в хранилище», and offset cursor as «курсор смещений». Preserve the distinction between mean source offsets [0,0,0,1,1,1] from strides [1,0] and bias-gradient destination offsets [0,1,2,0,1,2] from strides [0,1].",
     "Keep temporary read guards separate from independent tensor snapshots, fresh intermediate adjoints, parameter-only stored gradients, and optional trace evidence. A read guard must end before the corresponding storage can be mutated. value_snapshot() and gradient_snapshot() deliberately clone independent tensor data; detach() snapshots the primal and then creates a new untracked TensorValue leaf.",
     "Graph release discards operation edges and saved context after a successful commit; trace capture is an independent choice, zero_grad clears a parameter gradient, and detach creates a new untracked leaf.",
     "Translate primal revision as «номер версии тензора прямого прохода». It binds an operand edge's saved context to the exact parent value used by forward; it is not an optimizer step or a serialized checkpoint field.",
@@ -235,7 +251,7 @@
     },
     {
       "input": "run a second retained pass, zero both parameter handles, then run one releasing pass",
-      "expected": "The second pass doubles both stored gradients, zero_grad writes positive zero, and the releasing pass restores the first-pass gradient values before discarding operation edges and saved context."
+      "expected": "The second pass doubles both stored gradients, zero_grad writes positive zero, and the releasing pass recomputes and commits values equal to the first-pass gradients before discarding operation edges and saved context."
     },
     {
       "input": "request another backward pass or differentiable operation from a released operation result",
@@ -251,7 +267,7 @@
     },
     {
       "input": "reverse add, multiply, reshape, transpose, explicit broadcast, sum, and mean",
-      "expected": "Every VJP returns a finite tensor with exactly its parent's shape; repeated operands and branches add every ordered contribution."
+      "expected": "Every VJP returns a finite tensor with exactly its parent's shape; repeated operands and branches add every ordered contribution. The worked mean uses effective source strides [1,0] and offsets [0,0,0,1,1,1], while worked bias reversal uses effective destination strides [0,1] and offsets [0,1,2,0,1,2]."
     },
     {
       "input": "compare every supported VJP with Chapter 13 sampled central differences",
@@ -314,13 +330,15 @@ mean axis 1:       shape [2],   values [11,18]
 ```
 
 Predict the reverse values before running Rust. Select scalar objective
-`L=3*y[0]+6*y[1]`, whose output cotangent is `[3,6]`. Mean first broadcasts
-`[1,2]` across the three entries in its two rows.
+`L=3*y[0]+6*y[1]`, whose output cotangent is `[3,6]`. Mean divides the two
+seed values by the saved axis extent three, then repeats each quotient across
+the corresponding input row, producing `[1,1,1,2,2,2]`.
 The multiply node has two ordered edges to the same add node, so the two local
-contributions sum to `[4,4,10,12,12,24]`. Add passes that tensor to both parents.
-Broadcast reversal sums the two rows into `dbias=[16,16,34]`. Transpose swaps
-the same axes and reshape restores the original shape without changing logical
-flat order, giving `dx=[4,12,4,12,10,24]`.
+contributions sum to `[4,4,10,12,12,24]`. Add copies that completed adjoint once
+to each parent; it does not split the values between the two edges. Broadcast
+reversal sums the two reused rows into `dbias=[16,16,34]`. Transpose swaps the
+same axes and reshape restores the original shape without changing logical flat
+order, giving `dx=[4,12,4,12,10,24]`.
 
 The graph has eight unique nodes and eight ordered operand edges. Unique
 topological visits never remove the two multiply edges.
@@ -366,8 +384,8 @@ This chapter records one local vector-Jacobian product for each operand use, res
 The runnable Rust contrast calculates the frozen expression first with one
 fixed-shape handwritten backward path, then through composable `TensorValue`
 operations. Abadi et al. support the operation-and-tensor graph and path-sum
-claims, not this eager owned representation. Neither model paper specifies this
-implementation's VJP rules or graph lifecycle.
+claims, not this eager owned representation. Neither Vaswani et al. nor Radford
+et al. specify this implementation's VJP rules or graph lifecycle.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -397,6 +415,31 @@ and sums them in reverse. `sum_axis` reinserts a removed size-one axis before
 broadcasting its upstream adjoint; `mean_axis` also divides by the saved nonzero
 extent. Every forward structural operation materializes an owned contiguous
 result rather than retaining a borrowed view.
+
+Broadcast reversal and reduction expansion use a projected-stride plan. The
+projection maps every axis of one logical traversal shape to an effective stride
+in the storage being addressed. The VJP derives semantic strides from validated
+operation metadata. Missing or restored axes and aligned parent axes of extent
+one receive effective stride zero; ordinary aligned axes keep the relevant
+row-major source or destination stride. For reduction with `keep_dim=false`, the
+omitted reduced axis is inserted with stride zero. With `keep_dim=true`, the
+upstream's retained size-one axis is assigned stride zero. All non-reduced axes
+keep the upstream tensor's row-major strides.
+
+The checked cursor separately verifies that the supplied plan has matching
+rank and logical element count, that span arithmetic does not overflow, and,
+for a nonempty traversal, that the maximum reachable offset fits the addressed
+backing slice. It then emits offsets in row-major order with one coordinate
+record per axis. Empty traversals emit no offsets and perform no reads. No VJP
+allocates a coordinate vector or calls coordinate lookup once per scalar.
+
+For the worked mean input `[2,3]`, effective source strides `[1,0]` map incoming
+adjoint `[3,6]` to source offsets `[0,0,0,1,1,1]`; contiguous destination offsets
+are `[0,1,2,3,4,5]`, and every read is divided by three. With the same input,
+axis, and `keep_dim` choice, sum uses the same offsets with divisor one. For
+worked bias reversal, destination strides `[0,1]` map incoming row-major values
+`[4,4,10,12,12,24]` to destination offsets `[0,1,2,0,1,2]`. The additions keep
+their incoming order and produce `[16,16,34]`.
 
 When a forward operation creates an operand edge, it records the parent node's
 current primal revision together with that edge's saved VJP context. A later
@@ -435,7 +478,7 @@ contributions, and each edge's pass-local parent adjoint immediately before and
 after adding that contribution into `TensorBackwardPass`. Its node records also
 contain the validated prospective stored gradient for parameter leaves. Trace
 capture does not change the arithmetic or decide whether the graph is retained.
-A retained second pass recomputes fresh intermediates and adds one complete pass
+A retained second pass recomputes fresh pass-local adjoints and contributions and adds one complete pass
 to storage when every reachable parent still has the revision captured by the
 forward pass. Retention keeps the graph available; it does not make saved context
 valid across an in-place parameter update.
@@ -461,7 +504,7 @@ eight forward nodes once, labels their shapes and saved context, retains both
 multiply operand edges, and orders each reverse VJP from seed `[3,6]` through
 mean, multiply, add, broadcast, transpose, and reshape. Separate parameter cards
 show the first retained commit, doubled second commit, positive-zero state, the
-releasing commit that restores first-pass gradient values, and the rejected
+releasing commit that recomputes values equal to the first-pass gradients, and the rejected
 post-release request.
 
 Focused evidence covers sum, detach, sampled gradchecks, and typed errors. The
@@ -477,33 +520,47 @@ with JavaScript disabled and forced colors.
 ## Prediction checks
 
 1. Predict all eight forward node shapes and values before reading the trace.
-2. Count unique nodes and ordered operand edges; explain why both totals are eight.
-3. Reverse mean with seed `[3,6]`, then compute both contributions through the reused multiply operand.
-4. Reduce the broadcast contribution to `bias` and undo transpose plus reshape to `x`.
+2. Count unique nodes and ordered operand edges; explain why both totals are eight even though multiply uses the add result twice.
+3. Reverse mean with seed `[3,6]`; state effective source strides `[1,0]`, source offsets `[0,0,0,1,1,1]`, the expanded values, and both contributions through the reused multiply operand.
+4. For the broadcast-`bias` branch, derive effective destination strides `[0,1]` and destination offsets `[0,1,2,0,1,2]` before reducing to `bias`; then undo transpose plus reshape to `x`.
 5. Predict stored gradients after two retained passes, zeroing, and one releasing pass. Explain why the unchanged graph permits the second pass and what an in-place parameter update between passes would require.
-6. For an axis sum with a non-scalar seed, state which axis is reinserted and how its values are broadcast.
+6. For input shape `[2,3]`, sum axis `0` with `keep_dim=false`, output shape `[3]`, and seed `[10,20,30]`, derive the effective source strides, source offsets, and values copied to each input row.
 7. Distinguish a temporary read guard, an independent snapshot, detach, zeroing, retention, and release without treating any pair as synonyms.
 8. Misconception check: decide whether broadcasting creates independent parameter copies whose gradients may keep the expanded shape.
 
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-The cumulative project can now reverse shape-preserving elementwise operations and structural tensor transformations while returning every contribution to its parent's exact shape, accumulating only parameter-leaf gradients, and releasing saved operation context safely. Chapter 16 adds model-critical VJPs for matrix multiplication, repeated embedding gathers, nonlinearities, log-softmax, and indexed mean token loss; Chapter 15 alone still cannot train the decoder.
+The cumulative project can now reverse shape-preserving elementwise operations
+and structural tensor transformations while returning every contribution to its
+parent's exact shape, accumulating only parameter-leaf gradients, and releasing
+saved operation context safely. VJPs that map one logical shape onto another can
+reuse the checked projected-stride traversal. Chapter 16 adds model-critical
+VJPs for matrix multiplication, repeated embedding gathers, nonlinearities,
+log-softmax, and indexed mean token loss; Chapter 15 alone still cannot train the
+decoder.
 
-These rules are the shape and lifecycle foundation that later decoder training
-will reuse. Matrix products, embedding rows, nonlinear activations, and token
-loss still need their own local VJPs before any parameter update can be formed.
+Later decoder blocks reuse the graph, edge, accumulation, commit, and lifecycle
+contract. Operations that undo broadcasting or reduction also reuse structural
+projected strides. Chapter 16's matrix multiplication uses broadcast reversal
+for parent contributions, and indexed token loss uses the checked offset cursor
+for group-base traversal. Other model operations derive traversal plans from
+their own validated shapes and still require their own local derivatives.
 
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 7 is the canonical semantic source and Russian is the complete
+English revision 8 is the canonical semantic source and Russian is the complete
 translated locale for Chapter 15. Any later English change makes the Russian
 review stale until the contract, lesson, diagram labels, accessible names,
 history claims, exercises, and answers are refreshed together from English.
 
 Keep formula transpose distinct from the forward transpose operation. Explain
 broadcasting as coordinate reuse whose reverse sum restores the parent shape.
+Use «эффективный шаг», «смещение в хранилище», and «курсор смещений» for the
+projected-stride mechanism. Keep mean source reads distinct from broadcast
+destination accumulation, preserve both exact stride/offset sequences, and
+state that empty traversal performs no read.
 Keep temporary read guards distinct from independent snapshots, fresh pass-local
 adjoints, stored parameter gradients, and optional trace evidence. Keep graph
 retention distinct from trace capture, zeroing, snapshots, and detach. A
@@ -522,8 +579,8 @@ history.
 The worked graph must have eight unique nodes, eight ordered operand edges,
 output `[11,18]`, seed `[3,6]`, first-pass `dx=[4,12,4,12,10,24]`, and first-pass
 `dbias=[16,16,34]`. A second retained pass doubles both parameter gradients;
-zeroing writes positive zero; one releasing pass restores the first-pass gradient
-values; and a later reverse request reports release without mutation.
+zeroing writes positive zero; one releasing pass recomputes and commits gradient
+values equal to the first pass; and a later reverse request reports release without mutation.
 
 A retained graph whose reachable parameter primal changes in place must return a
 typed stale-operand error before any VJP, trace observation, gradient write, or
@@ -533,7 +590,7 @@ a new forward pass must create the graph used by the next backward pass.
 Every supported structural and elementwise VJP must restore the exact parent
 shape and pass sampled central differences. Sum, detach, non-scalar seeds,
 branches, repeated operands, constants, invalid shapes and axes, empty mean,
-non-finite values, transactional failures, exact learner stdout, and strict
+empty projected traversals without reads, non-finite values, transactional failures, exact learner stdout, and strict
 visualization trace must pass. Contract, English lesson, parity, full content,
 static build, links, SEO, focused browser, full browser, Rust formatting, Clippy,
 workspace tests, dependency policy, demo policy, and both exact-output gates must

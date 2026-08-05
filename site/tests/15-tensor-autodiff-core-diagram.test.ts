@@ -33,6 +33,10 @@ const tensorCoreSource = readFileSync(
   resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/autograd/tensor_core.rs'),
   'utf8',
 );
+const modelOpsSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/autograd/model_ops.rs'),
+  'utf8',
+);
 const trainerSource = readFileSync(
   resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/training/trainer.rs'),
   'utf8',
@@ -262,7 +266,10 @@ describe('Chapter 15 Rust trace parser', () => {
       kernelBody.indexOf('state.parameter_gradient = Some(gradient)'),
     );
 
-    const trainerImplementation = trainerSource.slice(0, trainerSource.indexOf('#[cfg(test)]'));
+    const trainerImplementation = trainerSource.slice(
+      0,
+      trainerSource.lastIndexOf('\n#[cfg(test)]\nmod tests'),
+    );
     expect(trainerImplementation).toContain('.backward_with_seed(');
     expect(trainerImplementation).not.toContain('backward_with_trace');
     expect(trainerImplementation).not.toContain('backward_with_seed_and_trace');
@@ -273,11 +280,11 @@ describe('Chapter 15 Rust trace parser', () => {
     }
 
     for (const source of [chapter15Contract, chapter15English, chapter15Russian]) {
-      expect(source).toContain('"content_revision": 7');
+      expect(source).toContain('"content_revision": 8');
     }
     const canonicalEnglishHash = createHash('sha256').update(chapter15English).digest('hex');
     expect(chapter15Contract).toContain(
-      `Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 7 with SHA-256 ${canonicalEnglishHash} and becomes stale whenever that source changes.`,
+      `Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 8 with SHA-256 ${canonicalEnglishHash} and becomes stale whenever that source changes.`,
     );
     expect(chapter15English.replace(/\s+/g, ' ')).toContain(
       'Both calls build the node order, hold fresh adjoints for the duration of the pass, and read the saved context required by each local VJP.',
@@ -316,9 +323,25 @@ describe('Chapter 15 Rust trace parser', () => {
     expect(normalizedEnglish).toContain(
       'The rejected call changes no stored gradient and does not release any operation context.',
     );
+    expect(normalizedEnglish).toContain(
+      'The projection maps every axis of one logical traversal shape to an **effective stride** in the storage being read or written.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Effective source strides `[1,0]` retain the upstream row stride and assign zero to the restored mean axis.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Destination strides `[0,1]` assign zero to the missing leading axis and retain the bias gradient\'s trailing stride.',
+    );
+    expect(normalizedEnglish).toContain(
+      'The loop reads incoming values `[4,4,10,12,12,24]` in flat row-major order while the cursor maps them to destination offsets `[0,1,2,0,1,2]`.',
+    );
+    expect(normalizedEnglish).toContain(
+      'The two branches contribute $13$ and $50$ to the forward total $63$, but the detached branch has no edge to $p$, so the gradient of $p$ is `[4,6]`.',
+    );
+    expect(normalizedEnglish).not.toContain('Both branches produce forward value $63$');
     const normalizedRussian = chapter15Russian.replace(/\s+/g, ' ');
     expect(normalizedRussian).toContain(
-      'При создании каждого ребра вхождения операнда лента записывает текущий номер версии тензора прямого прохода родителя.',
+      'При создании каждого ребра использования операнда лента записывает текущий номер версии тензора прямого прохода родителя.',
     );
     expect(normalizedRussian).toContain(
       'Номера версий — служебные данные времени выполнения, нужные только для проверки актуальности ленты',
@@ -327,7 +350,7 @@ describe('Chapter 15 Rust trace parser', () => {
       'Они не являются номерами шага оптимизатора и не записываются в контрольные точки модели.',
     );
     expect(normalizedRussian).toContain(
-      'этот `Ref` должен выйти из области видимости: только тогда заимствование завершится.',
+      'этот `Ref` нужно освободить — например, явным вызовом `drop` или завершением области видимости.',
     );
     expect(normalizedRussian).toContain(
       'Запрос отклоняется атомарно: ни накопленные градиенты, ни состояние графа не меняются.',
@@ -336,11 +359,36 @@ describe('Chapter 15 Rust trace parser', () => {
       'Сначала обратный проход проверяет, что контекст выбранного выхода ещё существует и что для этого выхода отслеживаются градиенты.',
     );
     expect(normalizedRussian).toContain(
-      'Вся проверка версий завершается до вычисления любого VJP, передачи сведений необязательному наблюдателю трассировки, получения доступа для записи градиента или освобождения контекста графа.',
+      'Вся проверка версий завершается до вычисления любого VJP, передачи сведений наблюдателю трассировки, если она запрошена, получения доступа для записи градиента или освобождения контекста графа.',
     );
     expect(normalizedRussian).toContain(
       'Отклонённый вызов не меняет накопленные градиенты и не освобождает контекст ни одной операции.',
     );
+    expect(normalizedRussian).toContain(
+      'Проекция сопоставляет каждой оси формы логического обхода эффективный шаг в хранилище, из которого VJP читает либо в которое записывает.',
+    );
+    expect(normalizedRussian).toContain(
+      'Эффективные шаги источника равны `[1,0]`: шаг `1` выбирает следующий элемент величины `[3,6]` при переходе к следующей строке входа среднего, а шаг `0` повторяет выбранный элемент внутри строки.',
+    );
+    expect(normalizedRussian).toContain(
+      'Эффективные шаги назначения равны `[0,1]`: отсутствующей ведущей оси соответствует нулевой шаг, а последняя ось сохраняет шаг градиента `bias`.',
+    );
+    expect(normalizedRussian).toContain(
+      'Цикл читает входящие значения `[4,4,10,12,12,24]` в плоском порядке строк, а курсор сопоставляет им смещения назначения `[0,1,2,0,1,2]`.',
+    );
+    expect(normalizedRussian).toContain(
+      'Перед началом обхода **курсор смещений** проверяет, что число эффективных шагов совпадает с числом осей формы, заново вычисляет логическое число элементов и сверяет его с длиной обхода',
+    );
+    expect(normalizedRussian).toContain(
+      'Цикл сохраняет порядок входящих значений: сначала в аккумуляторы добавляются `[4,4,10]`, затем `[12,12,24]`.',
+    );
+    expect(normalizedRussian).toContain(
+      'В прямом проходе две ветви дают соответственно $13$ и $50$, а их общая сумма равна $63$. У отсоединённой ветви нет ребра к $p$, поэтому градиент параметра $p$ равен `[4,6]`.',
+    );
+    expect(normalizedRussian).toContain(
+      'каждое ребро использования операнда — сохранить и применить к нему один локальный VJP',
+    );
+    expect(normalizedRussian).not.toContain('с сохранением ленты');
 
     expect(tapeValuesBody).toContain('parent_value_revision: parent.value_revision()');
     const graphAvailabilityStart = kernelBody.indexOf('if self.is_released()');
@@ -372,6 +420,27 @@ describe('Chapter 15 Rust trace parser', () => {
     expect(observationStart).toBeGreaterThan(reverseArithmeticStart);
     expect(gradientCommitStart).toBeGreaterThan(observationStart);
     expect(releaseStart).toBeGreaterThan(gradientCommitStart);
+  });
+
+  it('uses checked projected offsets without reconstructing per-scalar coordinates', () => {
+    const tensorCoreImplementation = tensorCoreSource.slice(
+      0,
+      tensorCoreSource.lastIndexOf('\n#[cfg(test)]\nmod tests'),
+    );
+    const modelOpsImplementation = modelOpsSource.slice(
+      0,
+      modelOpsSource.lastIndexOf('\n#[cfg(test)]\nmod tests'),
+    );
+
+    for (const source of [tensorCoreImplementation, modelOpsImplementation]) {
+      expect(source).not.toContain('coordinate_from_offset');
+      expect(source).not.toContain('group_class_coordinate');
+      expect(source).not.toContain('.offset(');
+    }
+    expect(tensorCoreImplementation).toContain('pub(super) fn accumulate_unbroadcast(');
+    expect(tensorCoreImplementation.match(/\.projected_offsets\(/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(modelOpsImplementation).toContain('accumulate_unbroadcast(upstream, &mut result)');
+    expect(modelOpsImplementation).toContain('.projected_offsets(&group_shape, &group_strides, *groups)');
   });
 
   it('projects the exact tensor DAG, VJP ledger, lifecycle, checks, and errors', () => {

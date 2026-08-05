@@ -14851,3 +14851,127 @@ must reproduce those qualitative invariants before publication.
 `remediate-rust-tensor-iteration-20260805`,
 `iterate-probability-groups-by-offset`, and
 `20260805T164137Z-iterate-probability-groups-by-offset-01`.
+
+## 2026-08-05 - Run the Chapter 15 structural VJP migration in Docker
+
+**Status:** Accepted before product edits for
+`iterate-structural-vjps-by-offset`.
+
+**Context:** F03 identifies per-scalar coordinate-vector construction and
+repeated checked `Tensor::offset` calls in both structural unbroadcast paths,
+reduction expansion, and indexed mean-NLL reversal. Chapters 9 through 12 now
+provide and exercise one safe checked projected-offset cursor, but Chapter 15's
+exact edge order, floating-point accumulation order, parent shapes, divisors,
+repeated-operand behavior, finite checks, transaction boundary, and graph
+lifecycle must remain unchanged. The bilingual content and two-engine rendered
+gate make this checkpoint cost class large.
+
+**Decision:** Proceed without a cost approval pause using Docker-only Rust,
+Node.js, npm, and browser execution. Use cached pinned images and the existing
+lockfile-pinned registry-refresh policy if a canonical Docker layer misses its
+cache. Add no dependency, paid service, model generation, or external data, and
+keep host Rust, Node.js, npm, Python, browser, and test artifacts absent. Author
+and freeze English revision 8 first, then refresh Russian directly through the
+localization skill and validate both rendered locale routes.
+
+**Consequences:** The step may change only its declared Chapter 15 Rust,
+contract, active lessons, focused tests, necessary course-plan line, the
+Chapter 16 model-operation integration source, and ledger/decision records.
+Chapter 15 learner stdout and diagram trace and Chapter 16 output, gradients,
+and rendered evidence remain exact. Complete Docker, Chromium, Firefox,
+immutable-publication, and host-boundary gates must pass before the result is
+committed independently.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-structural-vjps-by-offset`, and
+`20260805T180426Z-iterate-structural-vjps-by-offset-01`.
+
+## 2026-08-05 - Keep the Chapter 15 course-plan revision synchronized
+
+**Status:** Accepted during pre-edit review of
+`iterate-structural-vjps-by-offset`.
+
+**Context:** The scheduled checkpoint advances the Chapter 15 contract and both
+active lessons from content revision 7 to 8. The authoritative Chapter 15 entry
+in `curriculum/course-plan.md` still records revision 7, but that shared
+integration file was omitted from the initial output list. Leaving it unchanged
+would make the plan disagree with the checked contract and published locale
+pair.
+
+**Decision:** Add `curriculum/course-plan.md` to this running step's outputs
+before any product edit. Change only Chapter 15's revision-status line to record
+the validated projected-stride explanation in revision 8 while preserving the
+chapter outcome, scope, formula, historical evidence, visualization, practice,
+integration evidence, and Chapter 16 handoff.
+
+**Consequences:** The declared scope grows by one necessary integration line
+without adding a learning concept, formula, source, diagram, runtime dependency,
+or evidence fixture. The plan, contract, and active lessons will identify one
+current revision after publication.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-structural-vjps-by-offset`, and
+`20260805T180426Z-iterate-structural-vjps-by-offset-01`.
+
+## 2026-08-05 - Share structural accumulation, not allocation policy
+
+**Status:** Accepted during implementation review of
+`iterate-structural-vjps-by-offset`.
+
+**Context:** Chapter 15 and the Chapter 16 model-operation integration both
+reverse broadcast reuse with the same projected destination offsets, but their
+existing allocation boundaries are intentionally different. Tensor-core
+allocation reports `TensorOpError::OutputAllocationFailed` and computes shape
+length with its established fold. Model operations report
+`ModelOpError::OutputAllocationFailed` and use `checked_row_major_layout`, which
+also accepts valid empty layouts such as `[usize::MAX, 2, 0]`. Moving the whole
+model unbroadcast wrapper into tensor core would therefore change both a typed
+error and an empty-shape result even though ordinary numerical tests still pass.
+
+**Decision:** Share only
+`accumulate_unbroadcast(upstream, &mut already_allocated_result)` between the two
+modules. Keep one local allocation wrapper in each module, then derive and check
+the same projected destination strides in the shared accumulation kernel. Lock
+the model allocation error and huge empty no-read case with direct tests.
+
+**Consequences:** Broadcast contributions use one checked cursor and preserve
+their exact incoming addition order, while tensor-core and model-operation
+shape, allocation, and typed-error contracts remain unchanged. Allocation-policy
+unification remains outside this checkpoint.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-structural-vjps-by-offset`, and
+`20260805T180426Z-iterate-structural-vjps-by-offset-01`.
+
+## 2026-08-05 - Preserve the shared operand-edge glossary identity
+
+**Status:** Accepted after the final running-ledger integration check for
+`iterate-structural-vjps-by-offset`.
+
+**Context:** Chapter 14 already registers Russian «ребро вхождения операнда»
+for the cross-course `operand-edge` terminology concept. Chapter 15's first
+localized contract changed that registry value to «ребро использования
+операнда», which is clearer in this lesson's explanatory sentences but makes
+the shared concept inconsistent and causes the course-plan validator to reject
+the contract. Revising Chapter 14 and every dependent localized surface would
+be a separate cross-chapter terminology migration with its own review scope.
+
+**Decision:** Keep Chapter 15's `operand-edge` terminology registry value equal
+to Chapter 14's established «ребро вхождения операнда». In Chapter 15's visible
+prose, formulas, diagram labels, and exercises, continue to spell out the
+relationship naturally as an operation input or an operand use whenever the
+compressed registry label would be ambiguous or read like a calque. Do not
+change Chapter 14 in this checkpoint.
+
+**Consequences:** The stable cross-course concept ID validates without expanding
+the completed-step scope, while the Chapter 15 explanation remains explicit and
+natural. A future repository-wide terminology revision may replace the shared
+Russian label only if it updates and reviews every affected chapter together.
+
+**Affected build, step, and run:**
+`remediate-rust-tensor-iteration-20260805`,
+`iterate-structural-vjps-by-offset`, and
+`20260805T180426Z-iterate-structural-vjps-by-offset-01`.

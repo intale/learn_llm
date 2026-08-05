@@ -1206,7 +1206,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `15-tensor-autodiff-core`
 - **Implementation step:** `implement-ch15-tensor-autodiff-core`
-- **Revision status:** Content revision 7 records the parent primal revision on every operand-use edge and rejects a retained graph after any reachable parameter value changes, before reverse arithmetic or mutation; the Russian lesson is refreshed directly from this English revision.
+- **Revision status:** Content revision 8 explains validated effective-stride projection for unbroadcasting and reduction expansion, locks the worked mean and bias offset sequences without changing accumulation order, and refreshes Russian directly from frozen English; revision 7's stale-graph guarantees remain in force.
 - **Depends on:** `14-scalar-autodiff`.
 - **Outcome:** Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly.
 - **Scope boundary:** Teach operation tapes, saved context, leaf parameters, graph release, gradient accumulation, and VJPs for add, multiply, reshape, transpose, broadcast, sum, and mean; defer model-specific matmul, gather, nonlinear, and loss VJPs.

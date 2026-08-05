@@ -3,7 +3,9 @@
 use std::error::Error;
 use std::fmt;
 
-use super::tensor_core::{TensorAutodiffError, TensorOperation, TensorValue};
+use super::tensor_core::{
+    TensorAutodiffError, TensorOperation, TensorValue, accumulate_unbroadcast,
+};
 use crate::nn::probability::{indexed_mean_nll, log_softmax, softmax};
 use crate::tensor::matmul::{matmul, matmul_with_transpose};
 use crate::tensor::ops::{map_binary, map_unary, sum_axis as tensor_sum_axis};
@@ -610,11 +612,25 @@ pub(crate) fn apply_model_vjp(
         } => {
             debug_assert_eq!(upstream.shape(), &[] as &[usize]);
             debug_assert_eq!(probabilities.shape(), input_shape);
+            debug_assert_eq!(targets.len(), *groups);
+            debug_assert!(targets.iter().all(|&target| target < input_shape[*axis]));
             let mut result = probabilities.clone();
-            for (group, &target) in targets.iter().enumerate() {
-                let coordinate = group_class_coordinate(input_shape, *axis, group, target);
-                let offset = result.offset(&coordinate)?;
-                result.as_mut_slice()[offset] -= 1.0;
+
+            let mut group_shape = input_shape.to_vec();
+            let mut group_strides = result.strides().to_vec();
+            group_shape.remove(*axis);
+            let class_stride = group_strides.remove(*axis);
+            let group_offsets = result
+                .view()
+                .projected_offsets(&group_shape, &group_strides, *groups)
+                .expect("a checked indexed-NLL VJP retains valid group offsets");
+
+            for (group_offset, &target) in group_offsets.zip(targets) {
+                let target_offset = target
+                    .checked_mul(class_stride)
+                    .and_then(|class_offset| group_offset.checked_add(class_offset))
+                    .expect("a checked indexed-NLL target retains a valid storage offset");
+                result.as_mut_slice()[target_offset] -= 1.0;
             }
             let scale = upstream.as_slice()[0] / (*groups as f64);
             for value in result.as_mut_slice() {
@@ -630,59 +646,9 @@ pub(crate) fn apply_model_vjp(
 // endregion:model-vjps
 
 fn unbroadcast(upstream: &Tensor, input_shape: &[usize]) -> Result<Tensor, TensorAutodiffError> {
-    debug_assert!(upstream.shape().len() >= input_shape.len());
-    let padding = upstream.shape().len() - input_shape.len();
     let mut result = zeros(input_shape)?;
-    for output_index in 0..upstream.len() {
-        let output_coordinate = coordinate_from_offset(upstream.shape(), output_index);
-        let input_coordinate = input_shape
-            .iter()
-            .enumerate()
-            .map(|(axis, &dimension)| {
-                if dimension == 1 {
-                    0
-                } else {
-                    output_coordinate[axis + padding]
-                }
-            })
-            .collect::<Vec<_>>();
-        let input_index = result.offset(&input_coordinate)?;
-        result.as_mut_slice()[input_index] += upstream.as_slice()[output_index];
-    }
+    accumulate_unbroadcast(upstream, &mut result);
     Ok(result)
-}
-
-fn coordinate_from_offset(shape: &[usize], mut offset: usize) -> Vec<usize> {
-    let mut coordinate = vec![0; shape.len()];
-    for axis in (0..shape.len()).rev() {
-        let dimension = shape[axis];
-        debug_assert!(dimension > 0, "empty tensors have no flat offsets");
-        coordinate[axis] = offset % dimension;
-        offset /= dimension;
-    }
-    coordinate
-}
-
-fn group_class_coordinate(
-    input_shape: &[usize],
-    axis: usize,
-    group: usize,
-    class: usize,
-) -> Vec<usize> {
-    let mut group_shape = input_shape.to_vec();
-    group_shape.remove(axis);
-    let group_coordinate = coordinate_from_offset(&group_shape, group);
-    let mut coordinate = Vec::with_capacity(input_shape.len());
-    let mut group_axis = 0;
-    for input_axis in 0..input_shape.len() {
-        if input_axis == axis {
-            coordinate.push(class);
-        } else {
-            coordinate.push(group_coordinate[group_axis]);
-            group_axis += 1;
-        }
-    }
-    coordinate
 }
 
 #[cfg(test)]
@@ -909,6 +875,24 @@ mod tests {
             right_single.gradient().unwrap().as_slice(),
             &[3.5, 3.5, 5.5, 5.5]
         );
+
+        let left_singleton_batches = parameter(&[2, 1, 1, 1], &[2.0, 3.0]);
+        let right_singleton_batches = parameter(&[1, 3, 1, 1], &[5.0, 7.0, 11.0]);
+        sum_to_scalar(
+            left_singleton_batches
+                .matmul(&right_singleton_batches)
+                .unwrap(),
+        )
+        .backward()
+        .unwrap();
+        assert_eq!(
+            left_singleton_batches.gradient().unwrap().as_slice(),
+            &[23.0, 23.0]
+        );
+        assert_eq!(
+            right_singleton_batches.gradient().unwrap().as_slice(),
+            &[5.0, 5.0, 5.0]
+        );
     }
 
     #[test]
@@ -1051,6 +1035,63 @@ mod tests {
         );
         let loss = logits.indexed_mean_nll(1, &[0, 1]).unwrap();
         assert_eq!(loss.value().as_slice(), &[0.0]);
+    }
+
+    #[test]
+    fn model_vjp_buffers_keep_the_model_allocation_error_boundary() {
+        assert_eq!(
+            zeros(&[usize::MAX]).unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::OutputAllocationFailed {
+                elements: usize::MAX,
+            })
+        );
+
+        let empty_upstream = tensor(&[usize::MAX, 2, 0], &[]);
+        let empty_result = unbroadcast(&empty_upstream, &[usize::MAX, 2, 0]).unwrap();
+        assert_eq!(empty_result.shape(), &[usize::MAX, 2, 0]);
+        assert!(empty_result.is_empty());
+    }
+
+    #[test]
+    fn indexed_nll_vjp_projects_middle_axis_targets_to_storage_offsets() {
+        let logits = parameter(&[2, 3, 2], &[0.0; 12]);
+        let loss = logits.indexed_mean_nll(1, &[0, 1, 2, 0]).unwrap();
+        loss.backward_with_seed(&tensor(&[], &[2.0]).view(), GraphRetention::Retain)
+            .unwrap();
+
+        assert_close(
+            logits.gradient().unwrap().as_slice(),
+            &[
+                -1.0 / 3.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                -1.0 / 3.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                -1.0 / 3.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                -1.0 / 3.0,
+                1.0 / 6.0,
+            ],
+            1e-12,
+        );
+
+        let singleton_class = parameter(&[2, 1, 2], &[0.0; 4]);
+        singleton_class
+            .indexed_mean_nll(1, &[0, 0, 0, 0])
+            .unwrap()
+            .backward()
+            .unwrap();
+        assert!(
+            singleton_class
+                .gradient()
+                .unwrap()
+                .as_slice()
+                .iter()
+                .all(|value| value.to_bits() == 0.0_f64.to_bits())
+        );
     }
 
     #[test]
