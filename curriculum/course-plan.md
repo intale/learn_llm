@@ -1126,7 +1126,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `10-broadcasting-reductions`
 - **Implementation step:** `implement-ch10-broadcasting-reductions`
-- **Revision status:** Content revision 4 adds the complete Russian projection, precise grouped-reduction notation, LLM-focused source wording, and a shared-system diagram during `activate-ch10-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
+- **Revision status:** Content revision 5 explains one-time validated offset traversal, zero effective broadcast strides, and reduction group bases during `iterate-elementwise-and-reductions-by-offset`; revision 4 and its complete Russian projection, grouped-reduction notation, LLM-focused source wording, and shared-system diagram remain recorded by `activate-ch10-russian-localization`.
 - **Depends on:** `09-tensor-views`.
 - **Outcome:** Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity.
 - **Scope boundary:** Teach trailing-axis broadcasting, unary/binary maps, sum/mean/max, keep-dim behavior, and empty-axis errors; defer matrix multiplication.

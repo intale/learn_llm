@@ -24,7 +24,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '10-broadcasting-reductions';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`y_{\mathbf{i}}=f(a_{\beta_a(\mathbf{i})},b_{\beta_b(\mathbf{i})}), \qquad \mu_k(\mathbf{i}_{-k})=\frac{1}{n_k}\sum_{i_k=0}^{n_k-1}x_{\mathbf{i}}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -72,7 +72,12 @@ const copy = {
     emptyMaxReason: 'An empty selected axis has no maximum value.',
     rejected: 'Rejected operation',
     notApplicable: 'Not applicable',
-    exerciseSummary: 'Check the seven broadcast and reduction predictions',
+    traversalEvidence: [
+      'token strides [3,1] yield source offsets [0,1,2,3,4,5], while bias effective strides [0,1] yield source offsets [0,1,2,0,1,2].',
+      'axis 0 uses bases [0,1,2] and stride 3, producing source-offset groups [0,3], [1,4], and [2,5].',
+      'TensorView::get remains the public path for one coordinate supplied by a caller.',
+    ],
+    exerciseSummary: 'Check the eight broadcast and reduction predictions',
   },
   ru: {
     revisionLabel: 'Версия материала',
@@ -100,7 +105,7 @@ const copy = {
       'В официальной реализации GPT-2 явно обозначены оси пакета, последовательности, признаков, голов внимания, позиций назначения и позиций источника. В softmax из значений вычитается максимум по последней оси, затем вычисляются экспоненты сдвинутых значений, и каждая из них делится на их сумму по той же оси; обе редукции сохраняют ось. Нормализация сначала вычисляет средние по последней оси, а затем применяет векторы масштаба и смещения, размер которых совпадает с размером оси признаков.',
     modernLlmRole:
       'Согласование форм и редукции по явно указанным осям позволяют в этом курсе применять ко всему тензору декодера скаляры и параметры, размер которых совпадает с размером оси признаков, а также вычислять статистики по нужным осям для softmax в механизме внимания и нормализации признаков. Точное правило согласования начиная с последних осей, ошибки формы, поведение пустых осей, возможность сохранить редуцируемую ось и правила выделения памяти относятся к этой реализации. Источники по моделям задают сами вычисления, а руководство NumPy описывает вспомогательное правило согласования форм.',
-    diagramTitle: 'Один вектор смещения для двух строк и редукция по осям',
+    diagramTitle: 'Один вектор смещения для двух строк, затем редукция по заданным осям',
     diagramDescription:
       'Согласуйте вектор смещения из трёх признаков с двумя строками токенов, проследите шесть отображений координат и сравните сумму, среднее, максимум и три отклонённых запроса.',
     diagramSections: [
@@ -112,7 +117,12 @@ const copy = {
     emptyMaxReason: 'Для выбранной пустой оси максимум не определён.',
     rejected: 'Операция отклонена',
     notApplicable: 'Не применяется',
-    exerciseSummary: 'Проверить семь ответов о согласовании форм и редукции',
+    traversalEvidence: [
+      'шаги тензора токенов [3,1] задают смещения в исходном хранилище [0,1,2,3,4,5], а эффективные шаги вектора смещения [0,1] задают [0,1,2,0,1,2].',
+      'редукция по оси 0 использует базовые смещения [0,1,2] и шаг 3, поэтому получает группы смещений [0,3], [1,4] и [2,5].',
+      'TensorView::get остаётся общедоступным способом прочитать одно значение по координате, переданной вызывающим кодом.',
+    ],
+    exerciseSummary: 'Проверить восемь ответов о согласовании форм и редукции',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
@@ -178,6 +188,11 @@ async function expectChapterContent(
   expect(await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href')))).toEqual(
     historySources,
   );
+
+  const lessonText = await readMathAwareText(page.locator('.lesson-body'));
+  for (const evidence of localized.traversalEvidence) {
+    expect(lessonText).toContain(evidence);
+  }
 
   const formula = page
     .locator('.katex-display')
@@ -323,7 +338,7 @@ async function expectChapterContent(
   await expect(exerciseDetails.locator('summary')).toHaveText(localized.exerciseSummary);
   await exerciseDetails.locator('summary').click();
   await expect(exerciseDetails).toHaveAttribute('open', '');
-  await expect(exerciseDetails.locator('ol > li')).toHaveCount(7);
+  await expect(exerciseDetails.locator('ol > li')).toHaveCount(8);
 
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);

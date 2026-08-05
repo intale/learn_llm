@@ -2,7 +2,7 @@
 {
   "chapter_id": "10-broadcasting-reductions",
   "concept_id": "broadcasting-reductions",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 10,
   "objective": {
     "en": "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity.",
@@ -158,8 +158,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative tensor core can now apply unary and binary scalar functions over owned or strided logical inputs, reuse singleton and missing leading dimensions through checked trailing-axis broadcasting, and compute deterministic sum, mean, and max reductions over a named axis. These are the supporting primitives for later normalization and softmax chapters; Chapter 11 next adds checked matrix multiplication.",
-    "ru": "Теперь тензорное ядро может применять унарные и бинарные скалярные функции к логическим входам с собственным хранилищем или произвольными шагами, повторно использовать значения на осях размера 1 и учитывать отсутствующие начальные оси при проверяемом согласовании форм начиная с последних осей, а также детерминированно вычислять сумму, среднее и максимум по заданной оси. Эти примитивы понадобятся в последующих главах о нормализации и softmax; в главе 11 будет добавлено проверяемое матричное умножение."
+    "en": "The cumulative tensor core can now apply unary and binary scalar functions over owned or strided logical inputs, reuse singleton and missing leading dimensions through checked trailing-axis broadcasting, and compute deterministic sum, mean, and max reductions over a named axis. Once an operation plan is valid, zero effective strides and reduction group bases avoid rebuilding and revalidating a coordinate for every scalar; public lookup of a caller-supplied coordinate remains checked. These are the supporting primitives for later normalization and softmax chapters; Chapter 11 next adds checked matrix multiplication.",
+    "ru": "Теперь тензорное ядро может применять унарные и бинарные скалярные функции к логическим входам с собственным хранилищем или произвольными шагами, повторно использовать значения на осях размера 1 и учитывать отсутствующие начальные оси при проверяемом согласовании форм начиная с последних осей, а также детерминированно вычислять сумму, среднее и максимум по заданной оси. После проверки плана операции нулевые эффективные шаги и базовые смещения групп редукции позволяют не строить и не проверять заново координату для каждого скалярного значения; при этом метод TensorView::get продолжает проверять каждую координату, полученную от вызывающего кода. Эти примитивы понадобятся в последующих главах о нормализации и softmax; в главе 11 будет добавлено проверяемое матричное умножение."
   },
   "terminology": [
     {
@@ -204,10 +204,10 @@
     }
   ],
   "translation_notes": [
-    "Chapter 10 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 4 and both lessons publish one same-revision set.",
+    "Chapter 10 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 5 and both lessons publish one same-revision set.",
     "Keep Tensor, TensorView, GPT-2, Q, K, V, keep_dim, reduce_max, reduce_sum, usize, f64, other Rust identifiers, arrays, literal trace tokens, and source URLs exact. Translate ordinary terms such as batch, sequence, heads, destination, source, features, shape, and axis into established Russian technical language.",
     "Introduce broadcasting as «согласование форм (broadcasting)», then use «согласование форм» and «согласование начиная с последних осей». Introduce reduction as «агрегирование значений по оси (редукция)», then use natural «редукция» or «агрегирование». Use «ось размера 1», «поэлементная операция», «сохранить редуцируемую ось», «нейтральный элемент сложения», «размер оси», and «вектор смещения по признакам»; avoid «трансляция», «схлопнуть ось», «хвостовые оси», and «сохранить измерение».",
-    "Distinguish shape alignment and coordinate reuse from eager copying. Distinguish reducing along an axis from necessarily removing it, and preserve all empty-axis, NaN-payload, signed-zero, fallible-allocation, ownership, and Chapter 11 boundary commitments.",
+    "Distinguish shape alignment and coordinate reuse from eager copying. Distinguish reducing along an axis from necessarily removing it. Translate effective stride as «эффективный шаг», source storage offset as «смещение в исходном хранилище», group base offset as «базовое смещение группы», and offset cursor as «курсор смещений», consistently with Chapter 9. Preserve all empty-axis, NaN-payload, signed-zero, fallible-allocation, ownership, and Chapter 11 boundary commitments.",
     "Localize every diagram label, explanation, exercise, answer, and accessible name together; verify that Russian text and formula ink remain inside every bounded box in both browser engines and in full view."
   ],
   "acceptance_examples": [
@@ -241,7 +241,7 @@
     },
     {
       "input": "map or reduce a transposed or sliced TensorView",
-      "expected": "Logical coordinates are read through TensorView::get and the result is a newly owned contiguous Tensor in logical row-major order."
+      "expected": "Public caller-supplied coordinates remain checked by TensorView::get. After the map or reduction plan validates, internal zero-stride or group-base offset cursors read the transposed or sliced view in logical row-major order without rebuilding coordinate vectors, and the result is a newly owned contiguous Tensor."
     },
     {
       "input": "max-reduce a row containing two NaN payloads and a row whose first equal maximum is negative zero",
@@ -371,13 +371,34 @@ non-one extent is zero, so the result remains empty. The guide does not supply
 the LLM historical advance, prescribe this implementation's error model, or
 establish allocation behavior.
 
-`map_unary` and `map_binary` enumerate logical row-major result coordinates.
-They read through `TensorView::get`, so transposed and sliced views work without
-an implicit materialization step. A missing or size-one input axis maps to zero;
-all other axes reuse the matching output coordinate. Empty outputs call the
-provided closure zero times. Every operation reserves output storage fallibly;
-a valid shape whose nonempty result cannot fit returns `OutputAllocationFailed`
-instead of panicking. Successful results own contiguous storage.
+`TensorView::get` remains the public path for one coordinate supplied by a
+caller. That coordinate may have the wrong rank or an out-of-bounds axis, so
+every call validates it before reading storage. Elementwise kernels receive
+different inputs: their views are already valid, and `map_binary` validates the
+equal-or-one broadcast shape before value traversal begins. Each internal
+stride plan is then checked once and reused.
+
+For `map_binary`, each input receives one effective element stride for every
+output axis. A missing leading input axis or an aligned input axis of extent one
+receives effective stride `0`, because changing that output coordinate must
+select the same input value. Every other aligned axis keeps its `TensorView`
+stride. In the frozen example, token strides `[3,1]` yield source offsets
+`[0,1,2,3,4,5]`, while bias effective strides `[0,1]` yield source offsets
+`[0,1,2,0,1,2]`.
+
+Pairing those two offset sequences implements the six conceptual coordinate
+mappings predicted earlier. `map_unary` uses the same checked offset traversal
+with the input view's own strides. Neither scalar loop constructs a coordinate
+vector or re-enters the public coordinate validator. The change affects only
+traversal: it preserves left-before-right closure arguments, logical row-major
+closure order, ordinary safe bounds-checked storage reads, and allocation of a
+new contiguous result. Empty outputs call the closure zero times.
+
+Every path that can produce an owned output reserves its buffer fallibly before
+it builds the traversal plan. Empty-axis mean and max return their typed errors
+before output planning. A valid shape whose nonempty result cannot fit returns
+`OutputAllocationFailed` instead of panicking. Successful results own contiguous
+storage.
 
 `sum_axis`, `mean_axis`, and `max_axis` validate the named axis first and fold it
 in ascending coordinate order. With `keep_dim=false`, the axis is removed; with
@@ -385,10 +406,23 @@ in ascending coordinate order. With `keep_dim=false`, the axis is removed; with
 identity `0.0` for every output group. Mean and max return distinct empty-axis
 errors. A zero extent on another retained axis yields a valid empty result.
 
-Maximum initializes from index zero, replaces only for a strictly greater
-candidate, and explicitly propagates the first NaN. Equal values retain the
-earlier bits, including the sign of zero. Sum and mean use a fixed sequential
-fold. Integer-valued results can be compared exactly. A mean such as that of
+After the selected axis and output layout have been validated, each nonempty
+output group receives one source base offset. The reduction visits that group by
+repeatedly adding the selected input axis's element stride, in ascending
+axis-coordinate order. For the contiguous `[2,3]` result, axis `0` uses bases
+`[0,1,2]` and stride `3`, producing source-offset groups `[0,3]`, `[1,4]`, and
+`[2,5]`. Axis `1` uses bases `[0,3]` and stride `1`, producing `[0,1,2]` and
+`[3,4,5]`. A transposed or sliced view supplies different bases and strides,
+but the logical groups and accumulation order remain unchanged. An empty
+selected sum writes `0.0` without reading a base offset. If a different,
+non-selected axis has extent zero, the output has zero groups and no source read
+occurs.
+
+For each nonempty group, maximum starts with the value at selected-axis
+coordinate zero, replaces it only for a strictly greater candidate, and
+explicitly propagates the first NaN. Equal values retain the earlier bits,
+including the sign of zero. Sum and mean use a fixed sequential fold.
+Integer-valued results can be compared exactly. A mean such as that of
 `[0.1,0.2,0.3]` needs an absolute tolerance because those decimal fractions have
 no exact binary floating-point representation.
 
@@ -433,6 +467,11 @@ axis being aggregated and a rejected request without relying on color.
    axis. What is the result shape, and why is a tolerance appropriate?
 7. Predict which NaN payload and which zero sign survive the fixed-order max
    policy for `[1,NaN_A,NaN_B]` and `[-0.0,+0.0,-1.0]`.
+8. For token strides `[3,1]` and bias stride `[1]`, write both effective
+   broadcast stride plans and their six source-offset sequences. Then write the
+   axis-0 reduction bases, selected-axis stride, and source-offset groups. Why
+   can these internal plans be reused while `TensorView::get` must validate
+   every caller-supplied coordinate?
 
 A complete answer states shapes and axis mappings before values, then explains
 which requests have no defined result.
@@ -447,6 +486,11 @@ axis remains with size one. The operations
 accept the strided borrowed views from Chapter 9 and return owned contiguous
 results that later chapters can consume.
 
+Public coordinate lookup still validates every coordinate supplied by a caller.
+Inside a validated operation, zero effective broadcast strides and one checked
+base-plus-stride plan per reduction group express the same coordinate rules
+without rebuilding and revalidating a coordinate for every scalar.
+
 Attention softmax will need max and sum over its source-position axis.
 Normalization will need mean-like feature-axis statistics and elementwise affine
 parameters. This chapter supplies those primitives without claiming to implement
@@ -458,7 +502,7 @@ broadcast silently.
 ## Localization notes
 
 Chapter 10's exact active locale set is English and Russian. English content
-revision 4 is the canonical semantic source; the complete Russian contract
+revision 5 is the canonical semantic source; the complete Russian contract
 projection, lesson, diagram labels, accessible names, exercises, and answers are
 translated directly from that frozen revision and publish as one same-revision
 set.
@@ -470,7 +514,9 @@ the Chapter 11 handoff exact. Introduce broadcasting as «согласовани
 use the concise Russian terms recorded in `terminology`. A size-one axis maps each
 aligned output coordinate to input coordinate zero; this is coordinate reuse,
 not eager copying. Reducing an axis does not imply removing it when the caller
-chooses to retain a size-one result axis.
+chooses to retain a size-one result axis. Use «эффективный шаг», «смещение в
+исходном хранилище», «базовое смещение группы», and «курсор смещений» for the
+revision-5 traversal terms, consistently with Chapter 9.
 
 The Russian page requires its own semantic, terminology, anti-calque,
 monolingual, accessibility, and rendered reviews. Inspect both compact diagram
@@ -485,8 +531,10 @@ Acceptance requires exact formula and metadata parity, all three contract Rust
 paths rendered through their declared source regions, and one exact visible/SEO
 description. Rust tests cover trailing-rank alignment, scalars, zero extents,
 leftmost incompatibility, layout overflow, non-contiguous views, both keep-dim
-modes, scalar reduction, empty-axis rules, fallible output allocation, tolerance,
-NaNs, signed zero, error text, deterministic stdout, and the exact diagram trace.
+modes, scalar reduction, zero effective strides, closure order, checked group
+bases, every rank-three reduction axis, empty-axis rules, fallible output
+allocation, fixed fold order, NaNs, signed zero, error text, deterministic
+stdout, and the exact diagram trace.
 
 The standard Chapter 10 gate runs the course-plan and contract checks, formatting,
 locked Clippy and tests, dependency and demo policies, exact learner and trace

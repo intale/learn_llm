@@ -295,8 +295,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
   }
 
   .broadcasting-reductions-diagram:fullscreen {
-    --diagram-cell-padding-block: 0.35rem !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
     align-content: start;
   }
 
@@ -313,6 +312,22 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
 
   .broadcasting-reductions-diagram:fullscreen :is(.mapping-table, .reductions-table) {
     min-inline-size: 100%;
+  }
+
+  .broadcasting-reductions-diagram:fullscreen > .broadcast-panel {
+    display: grid;
+    grid-template-columns: minmax(18rem, 1fr) minmax(0, 1fr);
+    align-content: start;
+    column-gap: var(--diagram-gap);
+  }
+
+  .broadcasting-reductions-diagram:fullscreen > .broadcast-panel > :is(h4, p, .alignment-facts, .broadcast-error) {
+    grid-column: 1;
+  }
+
+  .broadcasting-reductions-diagram:fullscreen > .broadcast-panel > .mapping-scroll {
+    grid-column: 2;
+    grid-row: 1 / span 4;
   }
 
 </style>

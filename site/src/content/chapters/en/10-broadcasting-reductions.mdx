@@ -2,7 +2,7 @@
 {
   "chapter_id": "10-broadcasting-reductions",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 10,
   "concept_id": "broadcasting-reductions",
   "title": "Align compatible shapes, reduce a named axis",
@@ -114,12 +114,12 @@
     {
       "path": "rust/crates/llm-from-scratch/src/tensor/ops.rs",
       "region": "elementwise-maps",
-      "purpose": "Apply unary and binary scalar functions in logical row-major order over arbitrary TensorView inputs and return owned contiguous tensors."
+      "purpose": "Use checked offset cursors and zero effective strides to apply unary and binary scalar functions in logical row-major order over arbitrary TensorView inputs, then return owned contiguous tensors."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/tensor/ops.rs",
       "region": "axis-reductions",
-      "purpose": "Implement deterministic sum, mean, and max over one checked axis with explicit keep-dimension and empty-axis semantics."
+      "purpose": "Implement deterministic sum, mean, and max from checked group bases and the selected-axis stride, with explicit keep-dimension and empty-axis semantics."
     },
     {
       "path": "rust/demos/ch10-broadcasting-reductions/src/main.rs",
@@ -132,7 +132,7 @@
     "id": "broadcasting-reductions",
     "rationale": "Trailing alignment rows, coordinate mappings, and reduction groups make it possible to see exactly where one feature value is reused and which axis disappears or remains size one."
   },
-  "decoder_connection": "The cumulative tensor core can now apply unary and binary scalar functions over owned or strided logical inputs, reuse singleton and missing leading dimensions through checked trailing-axis broadcasting, and compute deterministic sum, mean, and max reductions over a named axis. These are the supporting primitives for later normalization and softmax chapters; Chapter 11 next adds checked matrix multiplication."
+  "decoder_connection": "The cumulative tensor core can now apply unary and binary scalar functions over owned or strided logical inputs, reuse singleton and missing leading dimensions through checked trailing-axis broadcasting, and compute deterministic sum, mean, and max reductions over a named axis. Once an operation plan is valid, zero effective strides and reduction group bases avoid rebuilding and revalidating a coordinate for every scalar; public lookup of a caller-supplied coordinate remains checked. These are the supporting primitives for later normalization and softmax chapters; Chapter 11 next adds checked matrix multiplication."
 }
 ---
 
@@ -277,9 +277,9 @@ The second expression fixes the coordinates $\mathbf{i}_{-k}$ outside axis $k$,
 lets $i_k$ visit the $n_k$ entries on that axis, and divides their ordered sum
 by $n_k$. The mean is defined only when $n_k>0$; the implementation returns a
 typed empty-axis error otherwise. The complete coordinate $\mathbf{i}$ combines
-those fixed coordinates with the current $i_k$. Choosing
-`keep_dim=true` replaces that output extent with one. It does not add a value to
-the mean or change its divisor.
+those fixed coordinates with the current $i_k$. With `keep_dim=true`, the
+selected axis remains in its original output position with extent one. This does
+not add a value to the mean or change its divisor.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -387,11 +387,29 @@ case explicit: the non-one extent is zero, so the result remains empty. The guid
 is not a source for the LLM history in this chapter and does not prescribe this
 implementation's errors, logical-view traversal, or owned-output policy.
 
-`map_unary` enumerates every logical input coordinate. `map_binary` plans the
-result, maps each result coordinate to both inputs, and evaluates one scalar
-closure. Both read with `TensorView::get`; they do not assume contiguous source
-storage or silently call `materialize`. A transposed or sliced view therefore
-produces a contiguous owned output in its logical row-major order.
+`TensorView::get` remains the public path for one coordinate supplied by a
+caller. That coordinate may have the wrong rank or an out-of-bounds axis, so
+every call validates it before reading storage. Elementwise kernels receive
+different inputs: their views are already valid, and `map_binary` validates the
+equal-or-one broadcast shape before value traversal begins. Each internal
+stride plan is then checked once and reused.
+
+For `map_binary`, each input receives one effective element stride for every
+output axis. A missing leading input axis or an aligned input axis of extent one
+receives effective stride `0`, because changing that output coordinate must
+select the same input value. Every other aligned axis keeps its `TensorView`
+stride. In the frozen example, token strides `[3,1]` yield source offsets
+`[0,1,2,3,4,5]`, while bias effective strides `[0,1]` yield source offsets
+`[0,1,2,0,1,2]`.
+
+Pairing those two offset sequences implements the six conceptual coordinate
+mappings predicted earlier. `map_unary` uses the same checked offset traversal
+with the input view's own strides. Neither scalar loop constructs a coordinate
+vector or re-enters the public coordinate validator. The change affects only
+traversal: it preserves left-before-right closure arguments, logical row-major
+closure order, ordinary safe bounds-checked storage reads, and allocation of a
+new contiguous result. Empty outputs call the closure zero times. A transposed
+or sliced view supplies different strides without an implicit `materialize`.
 
 All output reservations are fallible. For example, `[usize::MAX,0]` is a valid
 empty input shape, but summing its empty axis would require an owned result with
@@ -402,8 +420,8 @@ letting a capacity request panic.
 <RustSource
   path="rust/crates/llm-from-scratch/src/tensor/ops.rs"
   region="elementwise-maps"
-  caption="Apply scalar closures through checked logical coordinates and own each result"
-  label="Rust source implementing unary maps and trailing-axis binary maps over possibly non-contiguous TensorView inputs"
+  caption="Reuse checked offset cursors and zero effective strides, then own each elementwise result"
+  label="Rust source implementing unary maps and trailing-axis binary maps with validated offset traversal over possibly non-contiguous TensorView inputs"
 />
 
 The three reductions share axis validation, output-shape construction, and
@@ -411,16 +429,29 @@ fixed ascending traversal. Sum over an empty selected axis has the additive
 identity `0.0`. Mean and max have no value there and return distinct typed
 errors. A zero extent on another retained axis simply produces an empty output.
 
-Maximum begins with index zero, replaces only for a strictly larger value, and
-retains the first NaN it encounters. Equal values retain the earlier exact bits,
-including `-0.0` versus `+0.0`. This explicit policy avoids inheriting accidental
-NaN or tie behavior from a convenience function.
+After the selected axis and output layout have been validated, each nonempty
+output group receives one source base offset. The reduction visits that group by
+repeatedly adding the selected input axis's element stride, in ascending
+axis-coordinate order. For the contiguous `[2,3]` result, axis `0` uses bases
+`[0,1,2]` and stride `3`, producing source-offset groups `[0,3]`, `[1,4]`, and
+`[2,5]`. Axis `1` uses bases `[0,3]` and stride `1`, producing `[0,1,2]` and
+`[3,4,5]`. A transposed or sliced view supplies different bases and strides,
+but the logical groups and accumulation order remain unchanged. An empty
+selected sum writes `0.0` without reading a base offset. If a different,
+non-selected axis has extent zero, the output has zero groups and no source read
+occurs.
+
+For each nonempty group, maximum starts with the value at selected-axis
+coordinate zero, replaces it only for a strictly larger value, and retains the
+first NaN it encounters. Equal values retain the earlier exact bits, including
+`-0.0` versus `+0.0`. This explicit policy avoids inheriting accidental NaN or
+tie behavior from a convenience function.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/tensor/ops.rs"
   region="axis-reductions"
-  caption="Reduce one checked axis with explicit keep-dimension, empty-axis, order, NaN, and tie semantics"
-  label="Rust source implementing deterministic sum mean and maximum axis reductions over logical TensorView coordinates"
+  caption="Reduce from checked group bases and one selected-axis stride with explicit empty, order, NaN, and tie semantics"
+  label="Rust source implementing deterministic sum mean and maximum axis reductions from validated TensorView storage offsets"
 />
 
 The learner program exercises the frozen model-shaped case, scalar broadcast,
@@ -482,9 +513,14 @@ Write the shape and coordinate mapping before calculating values.
    it. Predict the output shape and explain the tolerance.
 7. Apply the maximum policy to `[1,NaN_A,NaN_B]` and
    `[-0.0,+0.0,-1.0]`. Predict the surviving payload and zero sign.
+8. For token strides `[3,1]` and bias stride `[1]`, write both effective
+   broadcast stride plans and their six source-offset sequences. Then write the
+   axis-0 reduction bases, selected-axis stride, and source-offset groups. Why
+   can these internal plans be reused while `TensorView::get` must validate
+   every caller-supplied coordinate?
 
 <details>
-  <summary>Check the seven broadcast and reduction predictions</summary>
+  <summary>Check the eight broadcast and reduction predictions</summary>
 
 1. Trailing alignment is `[2,1,3]` with `[1,4,3]`, so the result is `[2,4,3]`.
    Output `[1,2,0]` maps to left `[1,0,0]` because the left middle extent is
@@ -509,6 +545,13 @@ Write the shape and coordinate mapping before calculating values.
 7. Ascending traversal reaches `NaN_A` first and preserves its payload after
    that. In the second row, `-0.0` is the first maximum; `+0.0` compares equal,
    so the earlier negative-zero bits remain.
+8. The token plan is `[3,1]`, producing offsets `[0,1,2,3,4,5]`. The missing
+   leading bias axis receives stride zero, so the bias plan is `[0,1]` and
+   produces `[0,1,2,0,1,2]`. Axis-0 reduction uses bases `[0,1,2]`, selected-axis
+   stride `3`, and groups `[0,3]`, `[1,4]`, and `[2,5]`. These plans contain only
+   metadata derived from a valid view and a validated operation, so the kernel
+   can reuse them. `TensorView::get` instead accepts a new caller-supplied
+   coordinate, whose rank and axis bounds must be checked on every call.
 
 </details>
 
@@ -526,6 +569,11 @@ The cumulative tensor core can now combine scalar or feature-sized values with
 token tensors, apply unary activations to logical views, and compute fixed-order
 sum, mean, or max over one explicit axis. The results are checked owned tensors,
 so later model code has one predictable shape and storage boundary.
+
+Public coordinate lookup still validates every coordinate supplied by a caller.
+Inside a validated operation, zero effective broadcast strides and one checked
+base-plus-stride plan per reduction group express the same coordinate rules
+without rebuilding and revalidating a coordinate for every scalar.
 
 These are supporting pieces, not finished model layers. Stable attention
 softmax will subtract an axis maximum, exponentiate elementwise, sum the same

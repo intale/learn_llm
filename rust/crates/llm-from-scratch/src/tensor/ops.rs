@@ -133,9 +133,8 @@ where
     F: FnMut(f64) -> f64,
 {
     let mut values = output_buffer(input.len())?;
-    for logical_offset in 0..input.len() {
-        let coordinate = coordinate_from_logical_offset(input.shape(), logical_offset);
-        values.push(operation(*input.get(&coordinate)?));
+    for input_offset in input.logical_offsets() {
+        values.push(operation(input.value_at_storage_offset(input_offset)));
     }
     Tensor::from_vec(input.shape().to_vec(), values).map_err(Into::into)
 }
@@ -153,14 +152,19 @@ where
     let (_, output_len) = checked_row_major_layout(&output_shape)?;
     let mut values = output_buffer(output_len)?;
 
-    for logical_offset in 0..output_len {
-        let output_coordinate = coordinate_from_logical_offset(&output_shape, logical_offset);
-        let left_coordinate = broadcast_coordinate(&output_coordinate, left.shape());
-        let right_coordinate = broadcast_coordinate(&output_coordinate, right.shape());
-        values.push(operation(
-            *left.get(&left_coordinate)?,
-            *right.get(&right_coordinate)?,
-        ));
+    let left_strides = broadcast_effective_strides(left, output_shape.len());
+    let right_strides = broadcast_effective_strides(right, output_shape.len());
+    let left_offsets = left
+        .projected_offsets(&output_shape, &left_strides, output_len)
+        .expect("a compatible broadcast retains a valid left traversal plan");
+    let right_offsets = right
+        .projected_offsets(&output_shape, &right_strides, output_len)
+        .expect("a compatible broadcast retains a valid right traversal plan");
+
+    for (left_offset, right_offset) in left_offsets.zip(right_offsets) {
+        let left_value = left.value_at_storage_offset(left_offset);
+        let right_value = right.value_at_storage_offset(right_offset);
+        values.push(operation(left_value, right_value));
     }
 
     Tensor::from_vec(output_shape, values).map_err(Into::into)
@@ -237,17 +241,30 @@ fn reduce_axis(
     let (_, output_len) = checked_row_major_layout(&output_shape)?;
     let mut values = output_buffer(output_len)?;
 
-    for logical_offset in 0..output_len {
-        let output_coordinate = coordinate_from_logical_offset(&output_shape, logical_offset);
-        let mut input_coordinate =
-            reduction_input_coordinate(&output_coordinate, input.rank(), axis, keep_dim);
+    if axis_len == 0 {
+        debug_assert!(matches!(reduction, Reduction::Sum));
+        values.resize(output_len, 0.0);
+        return Tensor::from_vec(output_shape, values).map_err(Into::into);
+    }
 
+    let group_strides = reduction_group_strides(input.strides(), axis, keep_dim);
+    let group_offsets = input
+        .projected_offsets(&output_shape, &group_strides, output_len)
+        .expect("a checked reduction retains a valid group traversal plan");
+    let axis_stride = input.strides()[axis];
+
+    for group_offset in group_offsets {
         let value = match reduction {
             Reduction::Sum | Reduction::Mean => {
                 let mut total = 0.0;
+                let mut input_offset = group_offset;
                 for index in 0..axis_len {
-                    input_coordinate[axis] = index;
-                    total += *input.get(&input_coordinate)?;
+                    total += input.value_at_storage_offset(input_offset);
+                    if index + 1 < axis_len {
+                        input_offset = input_offset
+                            .checked_add(axis_stride)
+                            .expect("a checked view cannot overflow along a reduction axis");
+                    }
                 }
                 if matches!(reduction, Reduction::Mean) {
                     total / axis_len as f64
@@ -256,11 +273,13 @@ fn reduce_axis(
                 }
             }
             Reduction::Max => {
-                input_coordinate[axis] = 0;
-                let mut maximum = *input.get(&input_coordinate)?;
-                for index in 1..axis_len {
-                    input_coordinate[axis] = index;
-                    let candidate = *input.get(&input_coordinate)?;
+                let mut input_offset = group_offset;
+                let mut maximum = input.value_at_storage_offset(input_offset);
+                for _ in 1..axis_len {
+                    input_offset = input_offset
+                        .checked_add(axis_stride)
+                        .expect("a checked view cannot overflow along a reduction axis");
+                    let candidate = input.value_at_storage_offset(input_offset);
                     if !maximum.is_nan() && (candidate.is_nan() || candidate > maximum) {
                         maximum = candidate;
                     }
@@ -275,16 +294,6 @@ fn reduce_axis(
 }
 // endregion:axis-reductions
 
-fn coordinate_from_logical_offset(shape: &[usize], mut logical_offset: usize) -> Vec<usize> {
-    let mut coordinate = vec![0; shape.len()];
-    for axis in (0..shape.len()).rev() {
-        debug_assert!(shape[axis] > 0, "empty shapes are never enumerated");
-        coordinate[axis] = logical_offset % shape[axis];
-        logical_offset /= shape[axis];
-    }
-    coordinate
-}
-
 fn output_buffer(elements: usize) -> Result<Vec<f64>, TensorOpError> {
     let mut values = Vec::new();
     values
@@ -293,16 +302,19 @@ fn output_buffer(elements: usize) -> Result<Vec<f64>, TensorOpError> {
     Ok(values)
 }
 
-fn broadcast_coordinate(output_coordinate: &[usize], input_shape: &[usize]) -> Vec<usize> {
-    let padding = output_coordinate.len() - input_shape.len();
-    input_shape
-        .iter()
-        .enumerate()
-        .map(|(axis, &dimension)| {
-            if dimension == 1 {
+fn broadcast_effective_strides(input: &TensorView<'_>, output_rank: usize) -> Vec<usize> {
+    let padding = output_rank - input.rank();
+    (0..output_rank)
+        .map(|output_axis| {
+            if output_axis < padding {
+                return 0;
+            }
+
+            let input_axis = output_axis - padding;
+            if input.shape()[input_axis] == 1 {
                 0
             } else {
-                output_coordinate[axis + padding]
+                input.strides()[input_axis]
             }
         })
         .collect()
@@ -322,29 +334,18 @@ fn reduction_shape(input_shape: &[usize], axis: usize, keep_dim: bool) -> Vec<us
     }
 }
 
-fn reduction_input_coordinate(
-    output_coordinate: &[usize],
-    input_rank: usize,
-    axis: usize,
-    keep_dim: bool,
-) -> Vec<usize> {
+fn reduction_group_strides(input_strides: &[usize], axis: usize, keep_dim: bool) -> Vec<usize> {
     if keep_dim {
-        let mut input_coordinate = output_coordinate.to_vec();
-        input_coordinate[axis] = 0;
-        return input_coordinate;
+        let mut group_strides = input_strides.to_vec();
+        group_strides[axis] = 0;
+        return group_strides;
     }
 
-    let mut input_coordinate = Vec::with_capacity(input_rank);
-    let mut output_axis = 0;
-    for input_axis in 0..input_rank {
-        if input_axis == axis {
-            input_coordinate.push(0);
-        } else {
-            input_coordinate.push(output_coordinate[output_axis]);
-            output_axis += 1;
-        }
-    }
-    input_coordinate
+    input_strides
+        .iter()
+        .enumerate()
+        .filter_map(|(input_axis, &stride)| (input_axis != axis).then_some(stride))
+        .collect()
 }
 
 #[cfg(test)]
@@ -422,10 +423,141 @@ mod tests {
     }
 
     #[test]
+    fn scalar_maps_execute_once_and_expand_across_ranked_inputs() {
+        let scalar = Tensor::from_vec(vec![], vec![2.0]).unwrap();
+        let ranked = Tensor::from_vec(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+        let mut unary_calls = 0;
+        let mut scalar_pair_calls = 0;
+
+        let unary = map_unary(&scalar.view(), |value| {
+            unary_calls += 1;
+            -value
+        })
+        .unwrap();
+        let scalar_pair = map_binary(&scalar.view(), &scalar.view(), |left, right| {
+            scalar_pair_calls += 1;
+            left + right
+        })
+        .unwrap();
+        let expanded =
+            map_binary(&ranked.view(), &scalar.view(), |left, right| left * right).unwrap();
+
+        assert_eq!(unary.shape(), &[] as &[usize]);
+        assert_eq!(unary.as_slice(), [-2.0]);
+        assert_eq!(unary_calls, 1);
+        assert_eq!(scalar_pair.shape(), &[] as &[usize]);
+        assert_eq!(scalar_pair.as_slice(), [4.0]);
+        assert_eq!(scalar_pair_calls, 1);
+        assert_eq!(expanded.shape(), [2, 2]);
+        assert_eq!(expanded.as_slice(), [2.0, 4.0, 6.0, 8.0]);
+    }
+
+    #[test]
+    fn unary_map_preserves_gapped_nonzero_base_order_and_exact_bits() {
+        let nan_bits = 0x7ff8_0000_0000_0042;
+        let source = Tensor::from_vec(
+            vec![2, 3],
+            vec![99.0, -0.0, f64::from_bits(nan_bits), 88.0, 4.0, 5.0],
+        )
+        .unwrap();
+        let sliced = source.view().slice(1, 1..3).unwrap();
+        let mut visited_bits = Vec::new();
+
+        let output = map_unary(&sliced, |value| {
+            visited_bits.push(value.to_bits());
+            value
+        })
+        .unwrap();
+
+        let expected_bits = [
+            (-0.0_f64).to_bits(),
+            nan_bits,
+            4.0_f64.to_bits(),
+            5.0_f64.to_bits(),
+        ];
+        assert_eq!(visited_bits, expected_bits);
+        assert_eq!(
+            output
+                .as_slice()
+                .iter()
+                .map(|value| value.to_bits())
+                .collect::<Vec<_>>(),
+            expected_bits
+        );
+    }
+
+    #[test]
+    fn binary_map_reuses_zero_strides_in_exact_row_major_call_order() {
+        let left = Tensor::from_vec(vec![2, 1, 2], vec![10.0, 11.0, 20.0, 21.0]).unwrap();
+        let right = Tensor::from_vec(vec![1, 3, 1], vec![1.0, 2.0, 3.0]).unwrap();
+        let mut pairs = Vec::new();
+
+        let output = map_binary(&left.view(), &right.view(), |left, right| {
+            pairs.push((left, right));
+            left * 100.0 + right
+        })
+        .unwrap();
+
+        assert_eq!(output.shape(), [2, 3, 2]);
+        assert_eq!(output.strides(), [6, 2, 1]);
+        assert_eq!(
+            pairs,
+            [
+                (10.0, 1.0),
+                (11.0, 1.0),
+                (10.0, 2.0),
+                (11.0, 2.0),
+                (10.0, 3.0),
+                (11.0, 3.0),
+                (20.0, 1.0),
+                (21.0, 1.0),
+                (20.0, 2.0),
+                (21.0, 2.0),
+                (20.0, 3.0),
+                (21.0, 3.0),
+            ]
+        );
+        assert_eq!(
+            output.as_slice(),
+            [
+                1001.0, 1101.0, 1002.0, 1102.0, 1003.0, 1103.0, 2001.0, 2101.0, 2002.0, 2102.0,
+                2003.0, 2103.0,
+            ]
+        );
+    }
+
+    #[test]
+    fn binary_map_preserves_two_gapped_nonzero_base_views() {
+        let left = Tensor::from_vec(vec![2, 3], vec![99.0, 11.0, 12.0, 98.0, 21.0, 22.0]).unwrap();
+        let right = Tensor::from_vec(vec![2, 2], vec![97.0, 200.0, 96.0, 300.0]).unwrap();
+        let left_view = left.view().slice(1, 1..3).unwrap();
+        let right_view = right.view().slice(1, 1..2).unwrap();
+        let mut pairs = Vec::new();
+
+        let output = map_binary(&left_view, &right_view, |left, right| {
+            pairs.push((left, right));
+            left - right
+        })
+        .unwrap();
+
+        assert_eq!(
+            pairs,
+            [(11.0, 200.0), (12.0, 200.0), (21.0, 300.0), (22.0, 300.0)]
+        );
+        assert_eq!(output.as_slice(), [-189.0, -188.0, -279.0, -278.0]);
+    }
+
+    #[test]
     fn empty_broadcast_never_invokes_the_operation() {
         let empty = Tensor::from_vec(vec![2, 0, 3], Vec::new()).unwrap();
         let bias = Tensor::from_vec(vec![3], vec![10.0, 20.0, 30.0]).unwrap();
         let mut calls = 0;
+
+        let unary = map_unary(&empty.view(), |_| {
+            calls += 1;
+            0.0
+        })
+        .unwrap();
 
         let output = map_binary(&empty.view(), &bias.view(), |left, right| {
             calls += 1;
@@ -433,6 +565,7 @@ mod tests {
         })
         .unwrap();
 
+        assert!(unary.is_empty());
         assert_eq!(output.shape(), [2, 0, 3]);
         assert!(output.is_empty());
         assert_eq!(calls, 0);
@@ -491,12 +624,94 @@ mod tests {
     }
 
     #[test]
+    fn reduction_uses_group_bases_and_selected_stride_on_a_permuted_slice() {
+        let source = Tensor::from_vec(vec![2, 3, 4], (0..24).map(f64::from).collect()).unwrap();
+        let sliced = source.view().slice(2, 1..4).unwrap();
+        let permuted = sliced.permute(&[1, 0, 2]).unwrap();
+
+        assert_eq!(permuted.shape(), [3, 2, 3]);
+        assert_eq!(permuted.strides(), [4, 12, 1]);
+        assert_eq!(permuted.base_offset(), 1);
+
+        let removed = sum_axis(&permuted, 1, false).unwrap();
+        let kept = sum_axis(&permuted, 1, true).unwrap();
+        let expected = [14.0, 16.0, 18.0, 22.0, 24.0, 26.0, 30.0, 32.0, 34.0];
+
+        assert_eq!(removed.shape(), [3, 3]);
+        assert_eq!(removed.as_slice(), expected);
+        assert_eq!(kept.shape(), [3, 1, 3]);
+        assert_eq!(kept.as_slice(), expected);
+    }
+
+    #[test]
+    fn sum_and_mean_keep_ascending_fold_order_on_every_rank_three_axis() {
+        for axis in 0..3 {
+            let mut shape = vec![2, 2, 2];
+            shape[axis] = 4;
+            let mut values = vec![0.0; 16];
+
+            for group in 0..4 {
+                for selected in 0..4 {
+                    let mut coordinate = [group / 2, group % 2, 0];
+                    coordinate[axis] = selected;
+                    if axis < 2 {
+                        coordinate[2] = group % 2;
+                    }
+                    if axis == 0 {
+                        coordinate[1] = group / 2;
+                    } else if axis == 1 {
+                        coordinate[0] = group / 2;
+                    }
+                    let offset = coordinate[0] * shape[1] * shape[2]
+                        + coordinate[1] * shape[2]
+                        + coordinate[2];
+                    values[offset] = match selected {
+                        0 => 1.0e16,
+                        1 => 1.0,
+                        2 => -1.0e16,
+                        _ => (group + 1) as f64,
+                    };
+                }
+            }
+
+            let input = Tensor::from_vec(shape.clone(), values).unwrap();
+            for keep_dim in [false, true] {
+                let sum = sum_axis(&input.view(), axis, keep_dim).unwrap();
+                let mean = mean_axis(&input.view(), axis, keep_dim).unwrap();
+                let expected_sum = [1.0, 2.0, 3.0, 4.0];
+                let expected_mean = [0.25, 0.5, 0.75, 1.0];
+
+                assert_eq!(
+                    sum.as_slice(),
+                    expected_sum,
+                    "sum axis={axis} keep={keep_dim}"
+                );
+                assert_eq!(
+                    mean.as_slice(),
+                    expected_mean,
+                    "mean axis={axis} keep={keep_dim}"
+                );
+
+                let mut expected_shape = vec![2, 2, 2];
+                if keep_dim {
+                    expected_shape[axis] = 1;
+                } else {
+                    expected_shape.remove(axis);
+                }
+                assert_eq!(sum.shape(), expected_shape);
+                assert_eq!(mean.shape(), expected_shape);
+            }
+        }
+    }
+
+    #[test]
     fn empty_axis_rules_distinguish_sum_mean_and_max() {
         let empty = Tensor::from_vec(vec![2, 0, 3], Vec::new()).unwrap();
 
         let sum = sum_axis(&empty.view(), 1, false).unwrap();
         assert_eq!(sum.shape(), [2, 3]);
         assert_eq!(sum.as_slice(), [0.0; 6]);
+        assert!(sum.as_slice().iter().all(|value| value.to_bits() == 0));
         assert_eq!(
             mean_axis(&empty.view(), 1, false),
             Err(TensorOpError::EmptyMeanAxis { axis: 1 })
@@ -521,11 +736,79 @@ mod tests {
     fn huge_output_from_a_valid_empty_input_returns_a_typed_allocation_error() {
         let empty = Tensor::from_vec(vec![usize::MAX, 0], Vec::new()).unwrap();
 
-        assert_eq!(
-            sum_axis(&empty.view(), 1, false),
-            Err(TensorOpError::OutputAllocationFailed {
-                elements: usize::MAX,
+        for keep_dim in [false, true] {
+            assert_eq!(
+                sum_axis(&empty.view(), 1, keep_dim),
+                Err(TensorOpError::OutputAllocationFailed {
+                    elements: usize::MAX,
+                })
+            );
+            assert_eq!(
+                mean_axis(&empty.view(), 1, keep_dim),
+                Err(TensorOpError::EmptyMeanAxis { axis: 1 })
+            );
+            assert_eq!(
+                max_axis(&empty.view(), 1, keep_dim),
+                Err(TensorOpError::EmptyMaxAxis { axis: 1 })
+            );
+        }
+    }
+
+    #[test]
+    fn empty_end_slice_never_reads_its_unused_base_offset() {
+        let source = Tensor::from_vec(vec![3], vec![10.0, 20.0, 30.0]).unwrap();
+        let empty = source.view().slice(0, 3..3).unwrap();
+        let mut calls = 0;
+
+        assert_eq!(empty.base_offset(), source.len());
+        assert!(
+            map_unary(&empty, |_| {
+                calls += 1;
+                0.0
             })
+            .unwrap()
+            .is_empty()
+        );
+        assert!(
+            map_binary(&empty, &empty, |_, _| {
+                calls += 1;
+                0.0
+            })
+            .unwrap()
+            .is_empty()
+        );
+        assert_eq!(calls, 0);
+
+        for keep_dim in [false, true] {
+            let sum = sum_axis(&empty, 0, keep_dim).unwrap();
+            assert_eq!(sum.as_slice(), [0.0]);
+            assert_eq!(sum.as_slice()[0].to_bits(), 0);
+            assert_eq!(
+                mean_axis(&empty, 0, keep_dim),
+                Err(TensorOpError::EmptyMeanAxis { axis: 0 })
+            );
+            assert_eq!(
+                max_axis(&empty, 0, keep_dim),
+                Err(TensorOpError::EmptyMaxAxis { axis: 0 })
+            );
+        }
+    }
+
+    #[test]
+    fn singleton_sum_mean_and_max_preserve_their_signed_zero_policies() {
+        let value = Tensor::from_vec(vec![1], vec![-0.0]).unwrap();
+
+        assert_eq!(
+            sum_axis(&value.view(), 0, false).unwrap().as_slice()[0].to_bits(),
+            0.0_f64.to_bits()
+        );
+        assert_eq!(
+            mean_axis(&value.view(), 0, false).unwrap().as_slice()[0].to_bits(),
+            0.0_f64.to_bits()
+        );
+        assert_eq!(
+            max_axis(&value.view(), 0, false).unwrap().as_slice()[0].to_bits(),
+            (-0.0_f64).to_bits()
         );
     }
 

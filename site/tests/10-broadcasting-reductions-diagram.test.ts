@@ -23,6 +23,31 @@ const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/BroadcastingReductionsDiagram.astro'),
   'utf8',
 );
+const tensorOps = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/tensor/ops.rs'),
+  'utf8',
+);
+const contract = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/10-broadcasting-reductions.md'),
+  'utf8',
+);
+const englishLesson = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/10-broadcasting-reductions.mdx'),
+  'utf8',
+);
+const russianLesson = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/ru/10-broadcasting-reductions.mdx'),
+  'utf8',
+);
+
+function readRustRegion(source: string, name: string): string {
+  const startMarker = `// region:${name}`;
+  const endMarker = `// endregion:${name}`;
+  const start = source.indexOf(startMarker);
+  const end = source.indexOf(endMarker, start + startMarker.length);
+  if (start === -1 || end <= start) throw new Error(`Missing ordered Rust region ${name}`);
+  return source.slice(start + startMarker.length, end);
+}
 
 const labels: BroadcastingReductionsDiagramLabels = {
   title: 'title',
@@ -211,6 +236,12 @@ describe('Chapter 10 static diagram component', () => {
     expect(component.match(/data-status="fail"/g)).toHaveLength(1);
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
+    expect(component).not.toContain('--diagram-cell-padding-block');
+    expect(component).toContain(
+      '.broadcasting-reductions-diagram:fullscreen > .broadcast-panel',
+    );
+    expect(component).toContain('grid-template-columns: minmax(18rem, 1fr) minmax(0, 1fr)');
+    expect(component).toContain('grid-row: 1 / span 4');
     expect(component).toContain('↻');
     expect(component).toContain('↓');
     expect(component).not.toContain('Σ');
@@ -218,5 +249,68 @@ describe('Chapter 10 static diagram component', () => {
     expect(component).toContain('data-status="fail"');
     expect(component).not.toMatch(/\.error-card\s*\{[^}]*border/is);
     expect(component).not.toMatch(/@media\s*\(forced-colors:\s*active\)/);
+  });
+});
+
+describe('Chapter 10 validated offset traversal contract', () => {
+  it('uses reusable offset plans instead of rebuilding checked coordinates per scalar', () => {
+    const elementwise = readRustRegion(tensorOps, 'elementwise-maps');
+    const reductions = readRustRegion(tensorOps, 'axis-reductions');
+    const production = tensorOps.split('#[cfg(test)]')[0];
+    const removedCoordinatePaths =
+      /coordinate_from_logical_offset|broadcast_coordinate|reduction_input_coordinate|\bstorage_offset\s*\(|\.get\s*\(/;
+
+    expect(elementwise).toContain('input.logical_offsets()');
+    expect(elementwise.match(/\.projected_offsets\(/g)).toHaveLength(2);
+    expect(elementwise).toContain('left_offsets.zip(right_offsets)');
+    expect(elementwise.match(/value_at_storage_offset/g)).toHaveLength(3);
+    expect(elementwise).not.toMatch(removedCoordinatePaths);
+    expect(elementwise).not.toMatch(/\bVec(?:::|<)|vec!\s*\[/);
+    expect(elementwise.indexOf('let mut values = output_buffer(output_len)?')).toBeLessThan(
+      elementwise.indexOf('broadcast_effective_strides(left'),
+    );
+
+    expect(reductions.match(/\.projected_offsets\(/g)).toHaveLength(1);
+    expect(reductions).toContain('for group_offset in group_offsets');
+    expect(reductions).toContain('let axis_stride = input.strides()[axis]');
+    expect(reductions).toContain('.checked_add(axis_stride)');
+    expect(reductions).toContain('value_at_storage_offset');
+    expect(reductions).not.toMatch(removedCoordinatePaths);
+    expect(reductions).not.toMatch(/\bVec(?:::|<)|vec!\s*\[/);
+
+    expect(production).not.toMatch(
+      /fn (?:coordinate_from_logical_offset|broadcast_coordinate|reduction_input_coordinate)\b/,
+    );
+    expect(production).not.toMatch(/\bunsafe\b/);
+    expect(reductions.indexOf('let mut values = output_buffer(output_len)?')).toBeLessThan(
+      reductions.indexOf('    if axis_len == 0 {'),
+    );
+    expect(reductions).toContain('values.resize(output_len, 0.0)');
+    expect(reductions.indexOf('values.resize(output_len, 0.0)')).toBeLessThan(
+      reductions.indexOf('.projected_offsets('),
+    );
+  });
+
+  it('teaches the revision 5 public-lookup and validated-plan boundary explicitly', () => {
+    for (const source of [contract, englishLesson]) {
+      expect(source).toContain('"content_revision": 5');
+      expect(source).toContain('token strides `[3,1]`');
+      expect(source).toContain('bias effective strides `[0,1]`');
+      expect(source).toContain('`[0,1,2,0,1,2]`');
+      expect(source).toContain('axis `0` uses bases');
+      expect(source).toContain('`[0,1,2]` and stride `3`');
+      expect(source).toContain('source-offset groups `[0,3]`, `[1,4]`');
+      expect(source).toContain('`[2,5]`');
+      expect(source).toContain('`TensorView::get` remains the public path');
+    }
+
+    expect(englishLesson).not.toContain('Both read with `TensorView::get`');
+    expect(contract).not.toContain('They read through `TensorView::get`');
+
+    expect(russianLesson).toContain('"content_revision": 5');
+    expect(russianLesson).toContain('эффективные шаги вектора смещения `[0,1]`');
+    expect(russianLesson).toContain('базовые смещения `[0,1,2]` и шаг `3`');
+    expect(russianLesson).toContain('Проверить восемь ответов о согласовании форм и редукции');
+    expect(russianLesson).not.toContain('Обе операции читают значения через `TensorView::get`');
   });
 });

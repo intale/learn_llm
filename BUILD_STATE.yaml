@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T14:20:37Z"
+updated_at: "2026-08-05T15:57:21Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -32332,7 +32332,7 @@ builds:
       - id: iterate-elementwise-and-reductions-by-offset
         objective: "Move unary, binary-broadcast, and reduction kernels onto validated offset traversal without changing their algorithms or observable order."
         depends_on: [add-validated-strided-offset-iteration]
-        status: pending
+        status: completed
         inputs:
           - "Completed validated strided-offset iteration step"
           - "audits/2026-08-04-rust-overengineering.md finding F03"
@@ -32342,6 +32342,8 @@ builds:
         outputs:
           - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
           - "curriculum/chapters/10-broadcasting-reductions.md"
+          - "curriculum/course-plan.md"
+          - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
           - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
           - "site/src/content/chapters/ru/10-broadcasting-reductions.mdx"
           - "site/tests/10-broadcasting-reductions-diagram.test.ts"
@@ -32353,14 +32355,140 @@ builds:
           - "Broadcasting uses zero effective strides for missing or expanded axes; reductions reuse one group base and the selected-axis stride."
           - "Logical row-major closure order, ascending reduction order, NaN payloads, signed zero, empty behavior, output shape, and error precedence remain exact."
           - "Chapter 10 advances from revision 4 to 5 English-first, Russian is refreshed directly, and stdout plus diagram trace remain byte-identical."
+          - "The complete Chapter 10 figure stays inside every bounded box and within the recorded full-view travel budget in Chromium and Firefox for both active locales."
         validate:
           - "./course run cargo test --locked -p llm-from-scratch tensor::ops::tests"
           - "./course run npm --prefix site test -- --run tests/10-broadcasting-reductions-diagram.test.ts"
           - "./course check"
           - "Focused site/tests/e2e/ch10-broadcasting-reductions.spec.ts in Chromium and Firefox"
           - "./course audit-host"
-        cost: {class: large, notes: "Elementwise/reduction kernel migration, Chapter 10 bilingual revision, complete Docker gate, and two-browser rendered validation; cached local CPU only."}
-        runs: []
+        cost: {class: large, notes: "Elementwise/reduction kernel migration, Chapter 10 bilingual revision, complete Docker gate, and two-browser rendered validation; local CPU plus only a lockfile-pinned registry refresh if a canonical Docker dependency layer misses cache."}
+        runs:
+          - run_id: 20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01
+            started_at: 2026-08-05T14:22:42Z
+            finished_at: 2026-08-05T15:20:54Z
+            status: succeeded
+            input_fingerprint:
+              git: "7a4abc7f63f4c0f731ce561fba32a5b02c01601a; tree 93c9950c07b18b93df5ff51d60e35f4131efa61a"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                tensor-view: "sha256:ebe75932c890daa744f6363c7a070de3b4a5f1a6c4f540027e2cf58a714d131d"
+                tensor-ops: "sha256:df2dbe7e0be93b70c2e3a6159a3cb89b6ea12c6decba72b3baddfea244794db6"
+                chapter-contract: "sha256:67189c1d9a2e34083b79f67b4d051a5d03a581e9f7efcb44b4d975a087a92f9f"
+                course-plan: "sha256:05101526c4df5e49416361d3988d63ae8e2e2ac515bc47e086936da929ed8db6"
+                chapter-diagram: "sha256:1af3e5a69a0ca2fd38ce8069bdb70626c6eae007e796a646479f7f972951ba04"
+                english-lesson: "sha256:d03680c5b4243b05505f0819787ab8d9e5bf17f63779c01833efde40737b2e42"
+                russian-lesson: "sha256:283542e1faadfc0cf3fd181a8e4e01576b5c9cc555c4ec1a545a5542cba9920b"
+                static-chapter-test: "sha256:5b7fdfc2c7d25752e9c6a6cba3945ea89c3f2c27fb615fbfd253c4efcfc8f511"
+                browser-chapter-test: "sha256:12a1ef2805540d389dc0e33e25c5b3be3f044972082def00e753e7c127455067"
+                prior-publish-manifest: "sha256:5913bd961fe90885116e619b41165782cf9a4b2092615169f547c74a0e6e1d80"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No paid service, model generation, external data, or dependency change. Rust, site, and browser validation remain Docker-only; the large cost is local CPU within the unlimited build budget. A canonical dependency-layer miss may use only the accepted lockfile registry-refresh policy."
+            staging_dir: ".build/runs/20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01/"
+            commands:
+              - "Verify commit 7a4abc7 contains exactly the completed Chapter 9 checkpoint, its six-file manifest remains valid, the worktree is clean, no step is running, and iterate-elementwise-and-reductions-by-offset is the first eligible step."
+              - "Read F03's elementwise and reduction finding, fingerprint the Chapter 10 Rust/content/test inputs, confirm the active en/ru revision-4 pair, and recheck Git/Docker/Compose against the recorded environment."
+              - "Classify the step as large local Docker/browser CPU within the unlimited build budget, retain the accepted lockfile-refresh contingency, and claim only the declared Chapter 10 outputs before product edits."
+              - "Extend declared output ownership to curriculum/course-plan.md after pre-edit review found its Chapter 10 revision-status line would become stale at revision 5; keep every other plan field unchanged."
+              - "Replace per-scalar coordinate reconstruction in unary, binary-broadcast, and reduction loops with validated logical/projected offset cursors; retain output-reservation and public error precedence."
+              - "Build the canonical Docker source layer for the first formatter probe; the source-key change reran npm ci under the accepted locked registry-refresh contingency, then rustfmt reported only layout differences."
+              - "Apply rustfmt inside learn-llm-workspace:local, run focused Rust and static contract probes, correct test-assertion defects, and freeze the independently reviewed English revision-5 contract and lesson before localization."
+              - "Refresh Russian directly from the frozen English revision with the localization skill, correct six independent language-review findings, and freeze the approved localized contract and lesson."
+              - "Run the complete canonical Docker gate, warning-denied Clippy, and byte-exact Chapter 10 learner-output and diagram-trace comparisons."
+              - "Build the self-contained pinned Chapter 10 browser image; record the first Chromium matrix's 11-pixel full-view travel failure after its other six cases pass."
+              - "Extend declared output ownership to the Chapter 10 diagram component before correcting only its concept-specific fullscreen table density; preserve the shared presentation contract and browser threshold."
+              - "Reduce Chapter 10 fullscreen table cell block padding from 0.35rem to 0.3rem, rebuild the complete canonical workspace and self-contained browser image, and repeat all seven cases in Chromium and Firefox."
+              - "Remove one verified-empty ignored root target/ directory found by the first host audit; freeze the eight exact product outputs, verify checksums and canonical equality, and render the manifest-locked staged review."
+            artifacts:
+              - {path: ".build/runs/20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01/english/10-broadcasting-reductions.contract.md", sha256: "050f0f89d97ce06c2263b9b23961a94dd131779d1d4fd08573cf0778c3bb8c9a", kind: "Frozen canonical bilingual contract with reviewed revision-5 English semantics; Russian projection still pending."}
+              - {path: ".build/runs/20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01/english/10-broadcasting-reductions.en.mdx", sha256: "ca3140a1bb116a11a6ad66e16f0719913f4c211f8b7a5462074165d6380c609c", kind: "Frozen canonical English revision-5 lesson after independent semantic and wording review."}
+              - {path: ".build/runs/20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01/localization/10-broadcasting-reductions.localized.contract.md", sha256: "a174c96136dbeaf6167fbd509371c9800e3a045bc9cffb8cf4d83e8101fc7712", kind: "Frozen bilingual contract after the direct-English Russian revision-5 refresh and independent localization review."}
+              - {path: ".build/runs/20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01/localization/10-broadcasting-reductions.ru.mdx", sha256: "dec0909db3921a9760c498aa526b4e8b56fb86ec10e9907eeb45793e80bbb24f", kind: "Frozen Russian revision-5 lesson after semantic, terminology, anti-calque, naturalness, monolingual, caption, and accessibility review."}
+              - {path: ".build/runs/20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01/publish.sha256", sha256: "eabafe4c430530654d82a0e89c770ede19216fc6e79aa33fe0224d610e55c895", kind: "Frozen manifest for the eight exact Chapter 10 implementation, content, diagram, integration, and validation outputs."}
+              - {path: ".build/runs/20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01/validation/Dockerfile.browser", sha256: "78dbaa654eb534228d3e3cdefa724749d1b13d9b46b131ae09d556ebdb25218d", kind: "Run-scoped pinned offline Chromium and Firefox validator built from the exact final workspace image."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "44f06d72716b4a2c0427157fcec1eac5a620d2741ecfe8130abd362558deb2f7", kind: "Final canonical Docker workspace validation image after the Chapter 10 fullscreen correction."}
+              - {path: "docker-image:learn-llm-ch10-ops-browser:20260805", sha256: "b3be588464ea68c8f3bef9df4978d25b8737c0e0fc4f291e5401e1c1e725ebeb", kind: "Self-contained final Chapter 10 Chromium and Firefox validation image."}
+              - {path: "docker-image:learn-llm-review:20260805t142242z-iterate-elementwise-and-reductions-by-offset-01", sha256: "0bfb92c281b057a1eb7ab09746960f73839e852c47e333d83580eb1bb1939c6c", kind: "Manifest-locked static review image for the frozen eight-file publication set."}
+            validation:
+              - {command: "Repository, dependency, input, output-ownership, locale, environment, cost, and prior-artifact preflight", status: passed, notes: "HEAD 7a4abc7 and its eight-file commit are clean; add-validated-strided-offset-iteration is completed and publish.sha256 remains sha256:5913bd96...e1d80. This is the first eligible step and no output has another owner. Git 2.53.0, Docker 25.0.2, Compose 2.17.3, Rust 1.93.1, Node 22.12.0, npm 10.9.0, and Playwright 1.61.1 match the ledger. Chapter 10 has active en/ru revision-4 projections. Cost is large local Docker/browser CPU within an unlimited budget, with no dependency, paid, generation, or host-toolchain input; only the accepted lockfile registry-refresh contingency applies."}
+              - {command: "First canonical Docker rustfmt check", status: failed, notes: "The changed source key reran lockfile-pinned npm ci under the recorded refresh contingency; rustfmt then reported formatting-only differences before any test ran. Formatting was applied in the pinned image with no host toolchain artifact."}
+              - {command: "Interim focused cargo test --locked -p llm-from-scratch tensor::ops::tests", status: passed, notes: "All 20 then-current operation cases passed in a disposable Docker target volume; a later read-only review requested one additional scalar-map case, so final focused validation remains pending on the frozen source."}
+              - {command: "Focused Chapter 10 Vitest contract probes", status: passed, notes: "Two initial probes exposed only defective line/order assertions in the new static test; after correcting them, all 19 cases passed. Final rerun remains pending after localization and final formatting."}
+              - {command: "Independent English revision-5 semantic, accuracy, explicit-wording, and scope review", status: passed, notes: "Review confirmed effective strides, exact offset sequences, group bases, checked reads, closure/fold order, empty-sum behavior, and stable formula/history/diagram scope. It found two ambiguities; both were corrected before freezing. Contract sha256:050f0f89...c9a and lesson sha256:ca3140a1...09c are the immutable localization sources."}
+              - {command: "Direct-English Russian revision-5 semantic, terminology, anti-calque, naturalness, monolingual, caption, and accessibility review", status: passed, notes: "The localization skill review found and corrected six issues, including repeated English terminology, omitted shape meaning in diagram labels, an implicit size-one referent, and awkward accessibility wording. A second exact-delta pass approved contract sha256:a174c961...7712 and lesson sha256:dec0909d...b24f. Browser layout remains a separate pending gate."}
+              - {command: "Focused English, Russian, locale-parity, and bilingual static contract checks", status: passed, notes: "Both one-locale Chapter 10 checks, the exact two-locale publishable-set parity check, and all 19 static trace/diagram/offset/content assertions pass in the pinned Docker image."}
+              - {command: "Final focused cargo test --locked -p llm-from-scratch tensor::ops::tests", status: passed, notes: "All 21 final operation cases pass in Docker, including scalar maps, paired zero-stride order, two gapped nonzero-base views, every rank-three fold axis, permuted-slice group bases, empty unused bases, allocation precedence, NaN payloads, and signed zero."}
+              - {command: "Complete canonical ./course check", status: passed, notes: "Workspace image sha256:395d81032eac965bf5d24e0875d1d3d3968e83c6bd897fe544966549aeb68dc0 passes rustfmt, every workspace demo and doctest, all 409 shared-library tests, zero-diagnostic analysis of 216 Astro files, content and locale parity for 80 sources and 40 locale sets, the 85-page static build, and all 2,529 local references plus SEO, sitemap, and Analytics checks."}
+              - {command: "Pinned-Docker cargo clippy --locked -p llm-from-scratch --all-targets -- -D warnings", status: passed, notes: "The exact Chapter 10 crate and every target pass Clippy with all warnings denied and no lint suppression."}
+              - {command: "Byte-exact Chapter 10 stdout and diagram-trace comparisons", status: passed, notes: "The learner binary exactly equals expected.txt including its terminal newline, and the trace example exactly equals diagram-trace.txt; both comparisons ran inside the validated Docker workspace."}
+              - {command: "First self-contained Chapter 10 Chromium matrix", status: failed, notes: "Six of seven cases pass, covering both locales at desktop and 390px narrow widths, containment, forced colors, direct locale routes, and no-JavaScript behavior. Full view has no horizontal or box overflow, but the English two-panel figure needs 165 pixels of vertical travel against a 154-pixel budget. The diagram component is now claimed for a geometry correction before both engines repeat."}
+              - {command: "Final canonical ./course check after the fullscreen correction", status: passed, notes: "Workspace image sha256:44f06d72716b4a2c0427157fcec1eac5a620d2741ecfe8130abd362558deb2f7 passes rustfmt, every workspace demo and doctest, all 409 shared-library tests, zero-diagnostic analysis of 216 Astro files, content and locale parity for 80 sources and 40 locale sets, the 85-page static build, and all 2,529 local references plus SEO, sitemap, and Analytics checks."}
+              - {command: "Self-contained final Chapter 10 Chromium and Firefox matrices", status: passed, notes: "Browser image sha256:b3be588464ea68c8f3bef9df4978d25b8737c0e0fc4f291e5401e1c1e725ebeb passes all 7 cases in each engine: exact revision-5 content, both locales at desktop and 390px narrow widths, full-view travel and box containment, forced colors, direct routes, and no-JavaScript fallback."}
+              - {command: "First final host-artifact audit", status: failed, notes: "The audit found one ignored root target/ directory. Inspection proved it was empty; only that generated directory was removed, with no tracked, user-authored, or cached artifact affected."}
+              - {command: "Frozen eight-file manifest, checksum verification, and canonical equality", status: passed, notes: "All eight staged product outputs verify and equal their canonical files byte for byte; publish.sha256 is sha256:eabafe4c430530654d82a0e89c770ede19216fc6e79aa33fe0224d610e55c895. BUILD_STATE.yaml and DECISIONS.md remain intentionally outside the immutable product snapshot."}
+              - {command: "Manifest-locked ./course review 20260805T142242Z-iterate-elementwise-and-reductions-by-offset-01 --check", status: passed, notes: "Review image sha256:0bfb92c281b057a1eb7ab09746960f73839e852c47e333d83580eb1bb1939c6c verifies the manifest, content/parity, 216-file zero-diagnostic Astro analysis, 85-page static build, all 2,529 references, and both staged locale routes without changing publish/."}
+              - {command: "Final host-artifact and immutable-publication audit", status: passed, notes: "./course audit-host passes with no Rust, Node.js, Python, browser, or test artifact on the host outside the intentional site/dist release. The eight-file staged manifest still verifies and remains byte-identical to canonical product files."}
+              - {command: "Pinned-Docker completed-ledger, next-step scheduler, and content-contract validation", status: passed, notes: "The final bound ledger parses with 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39; all 33 content-ledger assertions pass. No step remains running, and iterate-matmul-by-prevalidated-strides is the first eligible checkpoint."}
+            notes: "Succeeded. Chapter 10 unary, broadcast-binary, and reduction kernels now traverse checked storage offsets without per-scalar coordinate vectors or repeated public lookup while preserving exact ordering, errors, empty behavior, floating-point bits, stdout, and trace evidence. Revision 5 teaches the boundary in reviewed English and natural direct-English Russian. The complete Docker gate, Clippy, two-browser rendered matrix, immutable publication review, and host boundary pass; Chapter 11 is the next eligible tensor-iteration checkpoint."
+          - run_id: 20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02
+            started_at: 2026-08-05T15:26:03Z
+            finished_at: 2026-08-05T15:56:26Z
+            status: succeeded
+            input_fingerprint:
+              git: "7a4abc7f63f4c0f731ce561fba32a5b02c01601a; uncommitted run-01 product manifest sha256:eabafe4c430530654d82a0e89c770ede19216fc6e79aa33fe0224d610e55c895"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                run-01-build-state: "sha256:e916c49f2701d85b0b9bf3bdcff07c2173eb0ff16d1286d872e70661a671b3fa; exact completed pre-run-02 file reconstructed by restoring updated_at 2026-08-05T15:20:54Z and step status completed, omitting only the appended run-02 block, and preserving its blank separator before Chapter 11"
+                run-01-decisions: "sha256:9b136ee4402f78e01de578936ad5e858541661bd089dafe00b58493f98ae421f; exact pre-run-02 file ending with the Traverse Chapter 10 decision, byte-confirmed by the preserved run-01 browser image"
+                run-01-publish-manifest: "sha256:eabafe4c430530654d82a0e89c770ede19216fc6e79aa33fe0224d610e55c895"
+                chapter-diagram: "sha256:fe69b162be3505630b0168d3a0e91f869d453c865bb47f3b5ac5f41f8bb31a30"
+                shared-diagram-module: "sha256:27e8d4d6359af7bd9598567743ad449a83ba2b50a1a5e06d20bcad24429333f3"
+                static-chapter-test: "sha256:609d89c033f8851236fb82c3eb49fab4e4fcdd15780a3219063866c28de2e137"
+                browser-chapter-test: "sha256:799ca64669af243b7df30895cdcf877e6871c0caf109598dab69f42fe40eda0b"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No new dependency, paid service, model generation, external data, or learner-content input. Corrective validation uses Docker-only Rust, site, and two-browser CPU; canonical and review builds accessed container-registry metadata and retrieved only Cargo.lock- or digest-pinned inputs inside Docker under the accepted registry-refresh policy."
+            staging_dir: ".build/runs/20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02/"
+            commands:
+              - "Preserve succeeded run 01 and its immutable eight-file manifest after an independent final review invalidates only its component-local fullscreen cell-spacing choice."
+              - "Read the shared diagram ownership rule and Chapter 28 corrective precedent; reopen the same uncommitted step under corrective run 02 before any further product edit."
+              - "Retain shared table spacing and solve the measured Chapter 10 travel defect only through concept-specific fullscreen grid tracks and placement; add a source assertion against a local cell-padding override."
+              - "Run the 19 focused static assertions, probe the first shared-spacing reflow in Chromium, and use a run-scoped geometry diagnostic to identify the locale and vertical-travel source without changing product content."
+              - "Balance the fullscreen panel tracks and place the broadcast mapping beside its contextual facts while preserving semantic source order, shared spacing, complete tables, inline fallback, and mobile behavior."
+              - "Repeat the exact candidate's seven focused Chapter 10 cases in Chromium and Firefox with final component and static-test bind mounts before the canonical self-contained rebuild."
+              - "Run the complete canonical ./course check after the final corrective component and source assertion; permit only lockfile-pinned container-local dependency retrieval under the recorded refresh policy."
+              - "Build the run-scoped pinned browser image from learn-llm-workspace:local with networking disabled, then run the exact seven-case Chapter 10 spec once in Chromium and once in Firefox without bind mounts or a host-published preview port."
+              - "Copy the eight exact run-02 product outputs into a new immutable publish tree, generate its sorted checksum manifest, verify every checksum, and compare every staged file byte-for-byte with canonical product state."
+              - "Run ./course review 20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02 --check against the checksum-locked publish tree, then reverify the manifest is unchanged."
+              - "Run ./course audit-host and inspect the exact tracked scope after all product, browser, and staged-review validation."
+              - "Audit the corrective-run recovery fingerprints, restore byte-exact run-01 validation and decision history, and replace two unsupported pre-run-02 hashes with deterministic full-file snapshot hashes."
+              - "Validate the repaired running ledger and all 33 content-contract assertions in the pinned workspace before making the completion transition."
+              - "After the completion transition, rerun the pinned course-plan parser and all 33 content-contract assertions against final bind-mounted BUILD_STATE.yaml and DECISIONS.md; confirm no running record and Chapter 11 as the first eligible step."
+            artifacts:
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "221998b2b1f05ffc15b75f664ade6f502a65118de6dd99f89ba6cadeb66eebfc", kind: "Canonical self-contained workspace image after the run-02 concept-geometry correction."}
+              - {path: ".build/runs/20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02/validation/ch10-geometry.spec.ts", sha256: "3af267f70b5514642850c20d372ac88a3bae47794f59e1469b06755e15ff6fcb", kind: "Run-scoped Chromium diagnostic that identifies locale-specific full-view travel and box geometry without changing product files."}
+              - {path: ".build/runs/20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02/validation/Dockerfile.browser", sha256: "78dbaa654eb534228d3e3cdefa724749d1b13d9b46b131ae09d556ebdb25218d", kind: "Run-scoped pinned offline Chromium and Firefox validator built from the exact run-02 workspace image."}
+              - {path: "docker-image:learn-llm-ch10-ops-browser:20260805-r02", sha256: "fac1882fc80d242e45f90151b1ee9ae2539d66affb25b52b6d158e075b8f08e5", kind: "Self-contained final run-02 Chapter 10 Chromium and Firefox validation image."}
+              - {path: ".build/runs/20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02/publish.sha256", sha256: "cc43aaddbbbbce97c710e2a5d074fa5fa3c2ea2649fe36538bdf6131390b7ccd", kind: "Frozen manifest for the eight exact run-02 Chapter 10 product outputs."}
+              - {path: "docker-image:learn-llm-review:20260805t152603z-iterate-elementwise-and-reductions-by-offset-02", sha256: "95f7b6d17cd7e9b06cd265e72c3012eb4affd34e04cc8e70ef56fe461ee13fcd", kind: "Manifest-locked static review image for the final run-02 publication set."}
+            validation:
+              - {command: "Independent final Chapter 10 implementation, content, localization, test, and presentation review", status: failed, notes: "Rust semantics, English accuracy, Russian parity and naturalness, tests, scope, and ledger pass. The reviewer finds one blocking presentation defect: BroadcastingReductionsDiagram.astro locally overrides --diagram-cell-padding-block even though AGENTS.md and the Chapter 28 precedent assign shared table spacing exclusively to diagram.module.css. Run 01 remains immutable evidence for that candidate but is not the final checkpoint."}
+              - {command: "Focused Chapter 10 static contract and source assertions", status: passed, notes: "All 19 assertions pass in Docker. The component contains no local --diagram-cell-padding-block declaration, and the test locks the component-owned fullscreen grid and mapping placement."}
+              - {command: "First shared-spacing Chromium reflow probe", status: failed, notes: "Six of seven cases pass. The Russian full-view figure requires 189 pixels of vertical travel against the unchanged 154-pixel budget, so the first concept-only track split is rejected without weakening the threshold."}
+              - {command: "Run-scoped Chapter 10 full-view geometry diagnostic", status: passed, notes: "The diagnostic and locale loop order identify Russian as the locale behind both the earlier run-01 report and the first corrective overflow. Run 01's failed test had inferred English and had not reached the remaining full-view containment assertions; this run supersedes both inferences without rewriting that record. On the final 0.95/1.05 track split, English needs no vertical travel and Russian needs 142 pixels, within the 154-pixel budget, with no horizontal overflow or bounded-box escape."}
+              - {command: "Focused Chapter 10 Chromium and Firefox candidate matrices", status: passed, notes: "All 7 cases pass in each engine with the exact final component and static-test bind mounts: both locales at desktop and 390px narrow widths, full-view travel and box containment, forced colors, direct routes, and no-JavaScript fallback. A self-contained image rebuild remains pending."}
+              - {command: "Complete canonical ./course check after the run-02 geometry correction", status: passed, notes: "Workspace image sha256:221998b2b1f05ffc15b75f664ade6f502a65118de6dd99f89ba6cadeb66eebfc passes rustfmt, every workspace demo and doctest, all 409 shared-library tests, zero-diagnostic analysis of 216 Astro files, content and locale parity for 80 sources and 40 locale sets, the 85-page static build, and all 2,529 local references plus SEO, sitemap, and Analytics checks. Cargo retrieved only Cargo.lock-pinned crates inside the image under the recorded refresh policy; no host toolchain artifact was created."}
+              - {command: "Self-contained final run-02 Chapter 10 Chromium and Firefox matrices", status: passed, notes: "Browser image sha256:fac1882fc80d242e45f90151b1ee9ae2539d66affb25b52b6d158e075b8f08e5 passes all 7 cases in each engine without bind mounts: exact revision-5 content, both locales at desktop and 390px narrow widths, full-view travel and bounded-box containment, forced colors, direct routes, and no-JavaScript fallback."}
+              - {command: "Frozen run-02 eight-file manifest, checksum verification, and canonical equality", status: passed, notes: "All eight staged product outputs verify and equal their canonical files byte for byte; publish.sha256 is sha256:cc43aaddbbbbce97c710e2a5d074fa5fa3c2ea2649fe36538bdf6131390b7ccd. Run 01 and its separate manifest remain unchanged; BUILD_STATE.yaml and DECISIONS.md intentionally remain outside both product snapshots."}
+              - {command: "Manifest-locked ./course review 20260805T152603Z-iterate-elementwise-and-reductions-by-offset-02 --check", status: passed, notes: "Review image sha256:95f7b6d17cd7e9b06cd265e72c3012eb4affd34e04cc8e70ef56fe461ee13fcd verifies the manifest, content/parity, 216-file zero-diagnostic Astro analysis, 85-page build, all 2,529 references, and both staged locale routes without changing publish/."}
+              - {command: "Final host-artifact and exact-scope audit before completion", status: passed, notes: "./course audit-host passes with no Rust, Node.js, npm, Python, browser, or test artifact on the host outside the intentional site/dist release. The tracked worktree contains exactly the eight frozen Chapter 10 product outputs plus BUILD_STATE.yaml and DECISIONS.md, and git diff --check passes."}
+              - {command: "Independent final product, diagram-ownership, localization, and recovery-ledger reviews", status: passed, notes: "Two read-only reviewers confirm the eight-product scope, Rust/content/localization correctness, shared-style ownership, concept-only fullscreen geometry, exact diagnostic and publication hashes, byte-restored run-01 history, accurate registry input record, and coherent corrective-run evidence. No blocker remains before the completion transition."}
+              - {command: "Deterministic pre-run-02 fingerprint recovery", status: passed, notes: "The exact decision prefix through run 01 hashes to sha256:9b136ee4402f78e01de578936ad5e858541661bd089dafe00b58493f98ae421f and matches /workspace/DECISIONS.md in preserved browser image sha256:b3be5884...beb. Restoring run 01's completion timestamp/status, omitting only run 02, and preserving the Chapter 11 separator produces BUILD_STATE sha256:e916c49f2701d85b0b9bf3bdcff07c2173eb0ff16d1286d872e70661a671b3fa. These replace unsupported hashes fd37cc2a...fa63d and 5ab87aa7...f07e in the still-running run-02 fingerprint."}
+              - {command: "Pinned-Docker repaired running-ledger parser and content-contract validation", status: passed, notes: "The repaired YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts; all 33 content-contract assertions pass. Chapter 10 and run 02 are the sole running records before the completion transition."}
+              - {command: "Pinned-Docker completed-ledger, scheduler, and content-contract validation", status: passed, notes: "The final YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts; all 33 content-contract assertions pass against the completed state. No step or run remains running, and iterate-matmul-by-prevalidated-strides is the first eligible checkpoint."}
+            notes: "Succeeded. Run 02 replaces only run 01's invalid component-local table-spacing choice with concept-owned fullscreen geometry. The shared presentation module, Rust behavior, revision-5 English/Russian teaching, trace, and six other product outputs remain unchanged; only the component and its static regression test differ from run 01. The complete Docker gate, self-contained two-engine matrices, immutable publication review, host boundary, independent audits, recovered provenance, and completed-ledger checks all pass. Commit this step independently before starting Chapter 11."
 
       - id: iterate-matmul-by-prevalidated-strides
         objective: "Move batched optionally transposed matrix multiplication onto prevalidated batch and matrix strides without allocating coordinates inside the contraction."
