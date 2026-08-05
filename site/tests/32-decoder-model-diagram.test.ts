@@ -42,6 +42,14 @@ function frontmatter(source: string) {
   return JSON.parse(match[1]);
 }
 
+function sourceRegion(source: string, region: string): string {
+  const match = source.match(new RegExp(
+    `// region:${region}([\\s\\S]*?)// endregion:${region}`,
+  ));
+  if (!match) throw new Error(`missing Rust source region ${region}`);
+  return match[1];
+}
+
 function diagramLabelsFromLesson(source: string): DecoderModelDiagramLabels {
   const match = source.match(/export const diagramLabels = (\{[\s\S]*?\n\});/);
   if (!match) throw new Error("missing diagramLabels object");
@@ -327,9 +335,9 @@ describe("Chapter 32 static diagram and content boundary", () => {
     const russianLesson = frontmatter(russianLessonSource);
     const englishDiagramLabels = diagramLabelsFromLesson(lessonSource);
     const russianDiagramLabels = diagramLabelsFromLesson(russianLessonSource);
-    expect(contract.content_revision).toBe(3);
-    expect(lesson.content_revision).toBe(3);
-    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lesson.content_revision).toBe(4);
+    expect(russianLesson.content_revision).toBe(4);
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
@@ -462,12 +470,56 @@ describe("Chapter 32 static diagram and content boundary", () => {
       /site parser|page labels|trace executable|fixed grammar|static diagram|programming languages/i,
     );
 
+    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
+    for (const fragment of [
+      "the exact tensor count",
+      "At list index zero, `token_embedding.weight` is the sole embedding and output-projection table slot",
+      "Passing the check therefore proves only that the list has the required layout",
+      "Only this binding step makes lookup and output projection use the same live embedding node",
+    ]) expect(normalizedLesson).toContain(fragment);
+    for (const fragment of [
+      "точное число тензоров",
+      "В позиции с индексом ноль находится единственная запись `token_embedding.weight`",
+      "успешная проверка означает только, что список имеет требуемую схему",
+      "выбор строк и выходная проекция обращаются к одному и тому же узлу эмбеддинга",
+    ]) expect(normalizedRussianLesson).toContain(fragment);
+    expect(coursePlanSource).toContain(
+      "Content revision 4 defines stable parameter names, list order, and component shapes as one reusable borrowed decoder-layout contract",
+    );
+
     expect(modelSource).toContain("region:decoder-model-errors");
     expect(modelSource).toContain("region:decoder-model-config");
     expect(modelSource).toContain("region:decoder-model-layer");
     expect(modelSource).toContain(".transpose(0, 1)");
     expect(modelSource).toContain(".indexed_mean_nll(2, &target_indices)");
-    expect(modelSource).not.toContain("lm_head");
+    const parameterRebuildSource = sourceRegion(
+      modelSource,
+      "decoder-parameter-rebuild",
+    );
+    expect(parameterRebuildSource).toContain(
+      "validate_parameter_layout(config, parameters.as_slice())?;",
+    );
+    expect(parameterRebuildSource.match(/validate_parameter_layout/g)).toHaveLength(1);
+
+    const parameterLayoutSource = sourceRegion(
+      modelSource,
+      "decoder-parameter-layout",
+    );
+    expect(parameterLayoutSource.match(/fn validate_parameter_layout/g)).toHaveLength(1);
+    for (const check of [
+      "validate_config(config)?",
+      "expected_parameter_tensors(config.layers)?",
+      "validate_parameter_names(parameters, config.layers)?",
+      "embedding_dimensions(parameters, 0)?",
+      "validate_block_parameter_shapes(parameters, layer, config)?",
+      "norm_width(parameters, expected - 1)",
+    ]) expect(parameterLayoutSource).toContain(check);
+    expect(parameterLayoutSource).not.toMatch(/\bis_finite\b/);
+    expect(parameterLayoutSource).not.toContain("NamedParameter::from_tensor");
+    expect(parameterLayoutSource).not.toMatch(
+      /\b(?:Embedding|MultiHeadAttention|RmsNorm|SwiGlu|DecoderBlock|DecoderModel)::(?:new|from_)/,
+    );
+    expect(parameterLayoutSource).not.toContain("lm_head");
     expect(demoSource).toContain("region:tied-gradient-proof");
     expect(demoSource).toContain("region:gradient-checks");
     expect(demoSource).toContain("region:learner-evidence");

@@ -1430,7 +1430,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `29-rope`
 - **Implementation step:** `implement-ch29-rope`
-- **Revision status:** Content revision 2 qualifies position-free permutation equivariance and fixed-content equal shifts, defines the complete rotation and adjoint notation, replaces the roadmap-only historical sample with an additive sinusoidal contrast, consolidates the LLM-centered history, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch29-russian-localization`.
+- **Revision status:** Content revision 3 separates deterministic RoPE table-specification validation from allocation and table ownership while preserving every formula, rotation, deterministic error variant and order, and executable result; actual allocator availability remains construction-owned and host-dependent. Revision 2's precise relative-position teaching, LLM-centered history, shared visualization, and direct Russian localization remain in force.
 - **Depends on:** `28-causal-masking`.
 - **Outcome:** Rotate query/key feature pairs by position and observe relative offsets in their dot products.
 - **Scope boundary:** Teach why attention is permutation-equivariant, sinusoidal history, pairwise rotations, frequencies, even dimensions, and sequence offsets; defer multiple heads/cache integration.
@@ -1478,7 +1478,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `32-decoder-model`
 - **Implementation step:** `implement-ch32-decoder-model`
-- **Revision status:** Content revision 2 defines the zero-block identity, replaces hardcoded history flags with derived model evidence, localizes stage labels, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch32-russian-localization`.
+- **Revision status:** Content revision 4 defines stable parameter names, list order, and component shapes as one reusable borrowed decoder-layout contract, then distinguishes that stable-order list check from model construction, which establishes component handles and the tied embedding/output node; revision 3's explicit tensor-read ownership boundaries and direct Russian refresh remain in force.
 - **Depends on:** `31-decoder-block`.
 - **Outcome:** Assemble token embeddings, repeated decoder blocks, final RMSNorm, and a tied vocabulary projection into logits.
 - **Scope boundary:** Teach model configuration, layer stacks, stable parameter names, bias policy, weight tying, context limits, forward logits/loss, and parameter counts; defer optimization.
@@ -1494,7 +1494,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `33-training-selection`
 - **Implementation step:** `implement-ch33-training-selection`
-- **Revision status:** Content revision 7 trains one persistent working decoder and optimizer, commits AdamW updates into the decoder's existing parameter nodes, preserves aliases and tied weights, and explicitly clears the gradients on those nodes; the Russian lesson is refreshed directly from this English revision.
+- **Revision status:** Content revision 9 applies the shared borrowed name-and-shape layout contract to stable parameter leaves before reconstruction binds them into live decoder components and re-establishes the tied embedding/output node; revision 8's explicit snapshot, copy, move, transaction, and gradient-clearing boundaries and direct Russian refresh remain in force.
 - **Depends on:** `32-decoder-model`.
 - **Outcome:** Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data.
 - **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic no-grad validation, and best-state selection; defer final test comparison and generation.

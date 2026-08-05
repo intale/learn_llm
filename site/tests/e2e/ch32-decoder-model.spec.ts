@@ -53,6 +53,10 @@ const copy = {
       "making its tied-head choice explicit rather than universal",
       "without claiming that the tiny fixture reproduces",
     ],
+    implementationFragments: [
+      "exact tensor count",
+      "Passing the check therefore proves only that the list has the required layout",
+    ],
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -89,6 +93,10 @@ const copy = {
     historyFragments: [
       "не объявляются обязательными для всех моделей",
       "не выдаёт маленький пример",
+    ],
+    implementationFragments: [
+      "точное число тензоров",
+      "успешная проверка означает только, что список имеет требуемую схему",
     ],
   },
 } as const;
@@ -274,7 +282,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 32,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: locales,
@@ -315,6 +323,9 @@ async function expectChapterContent(
     expect(lessonText.toLocaleLowerCase(locale)).toContain(
       fragment.toLocaleLowerCase(locale),
     );
+  }
+  for (const fragment of localized.implementationFragments) {
+    expect(lessonText).toContain(fragment);
   }
   expect(lessonText).not.toMatch(
     /TypeScript|static HTML|JavaScript|trace grammar|site parser|page labels|programming languages/i,

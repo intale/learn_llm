@@ -2,7 +2,7 @@
 {
   "chapter_id": "32-decoder-model",
   "concept_id": "decoder-model",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 32,
   "objective": {
     "en": "Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm, and one genuinely tied vocabulary projection into differentiable logits.",
@@ -215,10 +215,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 32 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 607d4bbc7223c49cfc6aef62982e93aa623e38d8186d9a7928819bc5b0b58d2a",
+    "Chapter 32 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: fe6b59faa766968d447cadeec12fcf0fa41fdf44b095af85c47c628417b3e384",
     "Translate weight tying as «связывание весов» and immediately ground it as one shared parameter with two differentiable uses, never as copying, mirroring, or synchronizing two tables. Use «выходная проекция на словарь» in ordinary prose rather than a literal UI-like rendering of output head.",
     "Translate token lookup as «выбор строк таблицы по ID токенов» or the concise contextual phrase «выбор эмбеддингов по ID токенов», never as «поиск токенов».",
+    "Preserve the distinction between the one token_embedding.weight slot in a validated stable-order list and the live lookup/output alias created only when model construction binds shared parameter handles; a successful layout check alone does not create that alias.",
     "Preserve z, E, E[z], E^top, B_i, N, B, T, V, d_model, d_ff, y, ell, L, axis order, exact parameter names, trace tokens, and the distinction between logits and scalar loss.",
     "Programming language names may identify source provenance only where relevant; the history section must remain about the road to modern LLM architecture."
   ],
@@ -230,6 +231,10 @@
     {
       "input": "List the trainable tensors in source order",
       "expected": "token_embedding.weight appears once, followed by nine tensors for blocks.0, nine for blocks.1, and final_norm.gain: 20 tensors and 264 scalars with no bias or lm_head parameter."
+    },
+    {
+      "input": "Validate an existing stable-order decoder parameter list",
+      "expected": "The borrowed check validates configuration, the exact 2+9N count, every name and list index, and every component shape without moving values; list index zero is the sole embedding/output table slot, while live component and tied aliases arise only during model construction."
     },
     {
       "input": "Compare tied and otherwise identical untied parameter counts",
@@ -407,6 +412,15 @@ layout or position capacity cannot hide behind an empty stack.
 `final_norm.gain`, committing the caller's stream only after complete assembly.
 `from_parts` verifies dimensions, depth, head count, feed-forward width, context,
 RoPE base, both block epsilon values, final epsilon, exact names, and uniqueness.
+
+`DecoderModel::from_parameters` first applies one borrowed layout contract to
+an existing stable-order parameter list. It checks configuration, the exact
+$2+9N$ count, the required name at every list index, and each embedding,
+normalization, attention, RoPE, and feed-forward shape relationship. List index
+zero is the sole `token_embedding.weight` slot; no output-head slot exists. The
+check creates no parameter node or component handle and copies no tensor value.
+After it succeeds, model construction gives components shared handles to the
+validated leaves and establishes the one live embedding/output alias.
 
 `forward` accepts only rank-two $[B,T]$ IDs with nonempty axes and
 $T\leq\mathrm{max\_positions}$. Lookup returns $[B,T,d_{\mathrm{model}}]$. Every

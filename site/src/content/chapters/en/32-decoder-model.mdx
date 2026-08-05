@@ -2,7 +2,7 @@
 {
   "chapter_id": "32-decoder-model",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 32,
   "concept_id": "decoder-model",
   "title": "Stack a decoder and tie its vocabulary head",
@@ -129,7 +129,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
       "region": "decoder-model-layer",
-      "purpose": "Own one embedding table, distinct repeated blocks, final RMSNorm, tied projection, indexed loss, and stable parameters."
+      "purpose": "Validate one reusable stable-name-and-shape layout before binding the embedding, distinct blocks, final RMSNorm, tied projection, and indexed loss."
     },
     {
       "path": "rust/demos/ch32-decoder-model/src/lib.rs",
@@ -438,6 +438,20 @@ each entry under `blocks.N`, then `final_norm.gain`. The two-block fixture has
 $20$ tensors and $264$ scalars. There is deliberately no output-head parameter.
 Initialization uses a trial random stream and commits the caller's stream only
 after all components and cross-component invariants pass.
+
+Stable order also defines one reusable decoder parameter layout. Before
+`from_parameters` binds an existing parameter list to model components,
+`validate_parameter_layout` checks the configuration, the exact tensor count,
+the stable name at every list index, and the shape required by the corresponding
+component. At list index zero, `token_embedding.weight` is the sole embedding
+and output-projection table slot; there is no separate output-projection slot.
+
+The layout check borrows each name and tensor only for the duration of its
+inspection. It does not create parameter nodes, component handles, or tensor
+copies. Passing the check therefore proves only that the list has the required
+layout. `from_parameters` then gives the embedding, blocks, and final RMSNorm
+shared handles to the validated parameter leaves. Only this binding step makes
+lookup and output projection use the same live embedding node.
 
 `forward` accepts only nonempty rank-two token IDs with
 $T\leq\mathrm{max\_positions}$. It looks up rows, calls each block at position

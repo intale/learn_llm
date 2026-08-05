@@ -2,7 +2,7 @@
 {
   "chapter_id": "29-rope",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 29,
   "concept_id": "rotary-position-embedding",
   "title": "Turn query and key pairs with RoPE",
@@ -50,7 +50,7 @@
   },
   "rust_sources": [
     { "path": "rust/demos/ch29-rope/src/lib.rs", "region": "historical-position-contrast", "purpose": "Show how the original Transformer-style sinusoidal method adds a position vector to an embedding, in contrast with later query-key rotations." },
-    { "path": "rust/crates/llm-from-scratch/src/attention/rope.rs", "region": "rope-tables", "purpose": "Validate the rotary configuration and precompute inverse frequencies plus sine and cosine tables." },
+    { "path": "rust/crates/llm-from-scratch/src/attention/rope.rs", "region": "rope-tables", "purpose": "Validate the complete deterministic table specification, then allocate and retain its inverse frequencies, sines, and cosines exactly once during RoPE construction." },
     { "path": "rust/crates/llm-from-scratch/src/attention/rope.rs", "region": "rope-rotation", "purpose": "Validate the final feature width and checked absolute interval before rotating the penultimate token axis." },
     { "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs", "region": "rotary-pairs-forward", "purpose": "Apply adjacent rotations in linear time and reuse their transpose for the local reverse rule." },
     { "path": "rust/demos/ch29-rope/src/main.rs", "purpose": "Run the complete Chapter 29 executable example." }
@@ -323,13 +323,30 @@ a shifted input.
 ## Precompute once, rotate each query and key row
 
 `RotaryEmbedding::new` validates a nonzero even width, a nonzero position
-capacity, and a positive finite base. It then precomputes one inverse frequency
-per pair and one sine/cosine row per absolute position:
+capacity, and a positive finite base. The complete table specification also
+checks that the number of position-pair cells fits in `usize`, that each array
+length is a representable `Vec<f64>` capacity, and that every inverse frequency
+is finite and nonnegative. For one pair, multiplying that frequency by larger
+nonnegative positions cannot produce a smaller angle. A finite angle also has a
+finite sine and cosine. The storage-free check can therefore prove that every
+table cell is finite by testing the last position for each pair. If that last
+angle is not finite, binary search finds the pair's first failing position; the
+smallest resulting position-pair index preserves row-major error order.
+
+This bounded check grows with the number of coordinate pairs and, only for a
+failing pair, the logarithm of the position capacity—not with the number of
+table cells. It allocates no table storage and does not test whether the
+allocator can satisfy an otherwise representable request; only construction can
+report that failure. Construction then reserves the three arrays, visits every
+cell in row-major order, and retains one inverse frequency per pair and one
+sine/cosine row per absolute position. A decoder can thus validate the logical
+RoPE table implied by an existing attention layout without building a temporary
+table, while the actual attention component still owns the tables it constructs.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/rope.rs"
   region="rope-tables"
-  caption="Validate the configuration and precompute the rotary tables"
+  caption="Prove every rotary table value is finite, then materialize the table only during RoPE construction"
   label="Rust source building inverse-frequency and trigonometric tables for RoPE"
 />
 

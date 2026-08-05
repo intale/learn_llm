@@ -54,6 +54,14 @@ function frontmatter(source: string) {
   return JSON.parse(match[1]);
 }
 
+function sourceRegion(source: string, region: string): string {
+  const match = source.match(new RegExp(
+    `// region:${region}([\\s\\S]*?)// endregion:${region}`,
+  ));
+  if (!match) throw new Error(`missing Rust source region ${region}`);
+  return match[1];
+}
+
 function diagramLabelsFromLesson(
   source: string,
 ): TrainingSelectionDiagramLabels {
@@ -478,9 +486,9 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(8);
-    expect(lesson.content_revision).toBe(8);
-    expect(russianLesson.content_revision).toBe(8);
+    expect(contract.content_revision).toBe(9);
+    expect(lesson.content_revision).toBe(9);
+    expect(russianLesson.content_revision).toBe(9);
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
@@ -515,6 +523,20 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(russianLessonSource).not.toMatch(
       /byte for byte|final newline|page parses|static diagram|implementation languages/i,
     );
+    expect(coursePlanSource).toContain(
+      "Content revision 9 applies the shared borrowed name-and-shape layout contract to stable parameter leaves",
+    );
+    for (const fragment of [
+      "The layout check neither copies a tensor buffer nor creates component handles",
+      "Passing it means that the leaf list has a valid layout; it does not yet mean that live decoder aliases exist",
+      "Only this binding step re-establishes one embedding node for both lookup and output projection",
+    ]) expect(normalizedLesson).toContain(fragment);
+    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
+    for (const fragment of [
+      "При этой проверке буферы тензоров не копируются, а компоненты ещё не связываются с параметрами",
+      "Успешная проверка означает только, что список имеет допустимую схему",
+      "Только эта привязка снова делает один узел эмбеддинга общим для выбора строк и выходной проекции",
+    ]) expect(normalizedRussianLesson).toContain(fragment);
 
     expect(trainerSource).toContain("region:training-plan");
     expect(trainerSource).toContain("region:no-grad-evaluation");
@@ -584,7 +606,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
       "AdamW deliberately leaves each raw gradient tensor unchanged on its parameter node.",
     );
     expect(normalizedLesson).toContain(
-      "The trainer does not call this boundary after each ordinary AdamW step.",
+      "the trainer does not call this boundary after an ordinary AdamW step.",
     );
     expect(normalizedLesson).toContain(
       "AdamW does hold each fully checked prospective tensor value until the transaction can commit.",
@@ -602,10 +624,18 @@ describe("Chapter 33 static diagram and content boundary", () => {
       "Реестр и компоненты декодера хранят ссылки на те же узлы, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
     );
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "После обычного шага AdamW пересобирать декодер не нужно.",
+      "после обычного шага AdamW пересобирать декодер не нужно.",
     );
     expect(tapeSource).toContain("region:no-grad-scope");
     expect(decoderSource).toContain("region:decoder-parameter-rebuild");
+    const parameterRebuildSource = sourceRegion(
+      decoderSource,
+      "decoder-parameter-rebuild",
+    );
+    expect(parameterRebuildSource).toContain(
+      "validate_parameter_layout(config, parameters.as_slice())?;",
+    );
+    expect(parameterRebuildSource.match(/validate_parameter_layout/g)).toHaveLength(1);
     expect(decoderSource).toContain(
       "Ordinary optimizer steps instead update the existing leaves",
     );

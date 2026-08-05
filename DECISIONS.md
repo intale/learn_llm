@@ -15033,3 +15033,234 @@ remains visible as history and is superseded by this decision rather than edited
 `seal-checkpoint-tokenizer-state`,
 `stream-checkpoint-payloads-from-validated-state`, and
 `20260805T193855Z-seal-checkpoint-tokenizer-state-01`.
+
+## 2026-08-05 - Split shared decoder-layout validation before checkpoint payload streaming
+
+**Status:** Accepted during pre-edit analysis of
+`stream-checkpoint-payloads-from-validated-state`.
+
+**Context:** The rebased F04 checkpoint path has one remaining validation-only
+decoder reconstruction in `DecoderModelState::try_from_owned_parameters` and
+still creates one owned byte vector per encoded tensor. Removing the temporary
+decoder without duplicating its layout rules requires one borrowed validator
+that is also invoked by `DecoderModel::from_parameters`. That function is
+learner-visible twice: Chapter 33 renders `decoder-parameter-rebuild`, and
+Chapter 32 renders the containing `decoder-model-layer` region. The original F04
+step did not own either bilingual surface. Pre-edit review also found that its
+acceptance wording assigned finite-leaf validation and a live tied alias to a
+flat state, implied an exactly sized allocator capacity, and treated failures of
+soon-to-be-removed intermediate allocations as observable behavior.
+
+**Decision:** Interrupt the first F04 run before product edits and add
+`share-decoder-state-layout-validation` as an independently committed
+prerequisite. It owns one crate-private borrowed parameter source and validator
+used by both decoder reconstruction and decoded state construction. The shared
+validator owns configuration, parameter count, stable order and names, exact
+component shapes, and the single embedding/output-table slot. Generic leaf
+construction or untrusted descriptor decoding continues to establish name
+syntax and finite tensor values once before the layout validator; the flat state
+does not claim live aliases, which `DecoderModel::from_parameters` re-establishes
+when it moves buffers into components.
+
+Because the shared call changes rendered Rust, advance Chapter 32 from revision
+3 to 4 and Chapter 33 from revision 8 to 9 English-first, then refresh both
+Russian projections directly with the localization skill and their full static
+and rendered reviews. Keep each lesson focused on its existing concept: Chapter
+32 explains the reusable stable decoder layout, while Chapter 33 explains
+borrowed validation before state buffers are rebound into live components.
+
+After that commit, resume `stream-checkpoint-payloads-from-validated-state` as a
+Chapter 35 checkpoint. Its descriptor plan may own names, shapes, and other small
+metadata but only reference payload values. Encoding may use a provisional
+header and descriptor table, then write payload scalars directly into one
+payload-scale final in-memory `Vec<u8>`. Do not claim allocator capacity equals
+file length, zero-copy or allocation-free encoding, streaming to disk, a live
+tied alias in flat state, repeated finite-value validation, or preservation of
+allocation failures belonging solely to removed intermediates.
+
+**Consequences:** No learner-visible source changes silently under Chapters 32
+or 33, no second decoder-layout implementation is introduced, and the later
+Chapter 35 revision can accurately distinguish leaf validation, layout
+validation, cross-component validation, canonical re-encoding, in-memory payload
+writing, and atomic file publication. The interrupted F04 run remains immutable
+history and has no product artifact to reuse.
+
+**Affected build, steps, and runs:**
+`remediate-checkpoint-validation-and-streaming-20260805`,
+`share-decoder-state-layout-validation`,
+`stream-checkpoint-payloads-from-validated-state`,
+`20260805T200442Z-stream-checkpoint-payloads-from-validated-state-01`, and
+`20260805T201541Z-share-decoder-state-layout-validation-01`.
+
+## 2026-08-05 - Keep the shared-layout checkpoint publishable before state adoption
+
+**Status:** Accepted during the first focused compile of
+`share-decoder-state-layout-validation`.
+
+**Context:** The planned shared validator compiles as a reusable borrowed
+parameter-source boundary, but changing
+`DecoderModelState::try_from_owned_parameters` in the same prerequisite would
+immediately invalidate Chapter 35's revision-3 explanation that decoded state
+is checked with a temporary independent decoder. Chapter 35 and its static test
+belong to the dependent payload-streaming checkpoint. Leaving the prose stale
+for one commit would violate the requirement that every completed step leave a
+coherent, publishable repository; revising Chapter 35 twice would add avoidable
+localization churn and obscure the later complete checkpoint boundary.
+
+**Decision:** Narrow `share-decoder-state-layout-validation` to establishing and
+teaching the reusable decoder reconstruction contract. It introduces the
+crate-private scoped-borrow source interface and the single layout validator,
+and `DecoderModel::from_parameters` invokes it. Chapters 32 and 33 advance as
+planned because that reconstruction source is rendered on both pages. The
+trainer and Chapter 35 remain byte-identical controls in this checkpoint.
+
+Move the `DecoderModelState` source adapter and replacement of its temporary
+validation decoder into `stream-checkpoint-payloads-from-validated-state`.
+That dependent commit will revise Chapter 35 once, at the same time it teaches
+both borrowed decoded-state validation and borrowed payload planning. It may
+change `training/trainer.rs` but must keep the committed decoder validator
+unchanged. The ordered dependency still guarantees that no second layout
+implementation is introduced.
+
+**Consequences:** Each commit remains semantically truthful. The first teaches
+the stable named-and-shaped decoder layout and exact reconstruction boundary;
+the second adopts that boundary for untrusted decoded state and removes payload
+copies while updating the checkpoint lesson. The temporary decoder remains
+intentional and fully tested until the dependent commit replaces it.
+
+**Affected build, steps, and run:**
+`remediate-checkpoint-validation-and-streaming-20260805`,
+`share-decoder-state-layout-validation`,
+`stream-checkpoint-payloads-from-validated-state`, and
+`20260805T201541Z-share-decoder-state-layout-validation-01`.
+
+## 2026-08-05 - Reuse RoPE table-specification validation inside decoder layouts
+
+**Status:** Accepted after independent API review of
+`share-decoder-state-layout-validation`.
+
+**Context:** The first borrowed decoder-layout draft reproduced parameter shape
+checks but did not reproduce the deterministic RoPE table checks performed by
+`RotaryEmbedding::new`. That omission changes public failure precedence. For
+example, a checked table-size overflow must be reported before a later
+feed-forward shape defect or an outer decoder-width mismatch. Calling the RoPE
+constructor merely to validate would allocate and populate tables that are
+immediately discarded, recreating a smaller version of the validation-only
+object construction this audit is removing. Copying RoPE arithmetic into the
+decoder would create a second implementation of a learner-facing LLM operation.
+
+**Decision:** Factor RoPE's deterministic table specification into one
+crate-private traversal owned by `attention/rope.rs`. It validates feature
+width, position capacity, base, checked table size, every inverse frequency,
+every position angle, and finite sine/cosine results while sending computed
+values to caller-provided sinks. `RotaryEmbedding::new` uses collecting sinks
+after reserving storage; the borrowed decoder-layout validator uses no-op sinks,
+so it allocates no table storage. Preserve the original ordering and error
+variants; allocation failures remain construction-owned.
+
+The refactor changes Chapter 29's rendered `rope-tables` source, so advance that
+lesson from revision 2 to 3 English-first and refresh Russian directly with the
+localization skill. Teach only the meaningful boundary: the complete table
+specification can be checked without retaining tables, while construction
+allocates and owns the validated values. Keep all RoPE mathematics, history,
+visualization, exercises, demo bytes, and rotation behavior unchanged. Add
+Chapter 29's contract, locales, static test, browser test, implementation, and
+course-plan line to the running step's declared outputs and validation.
+
+**Consequences:** Decoder-state validation can preserve the former component
+error precedence without building a temporary decoder or duplicating RoPE
+math. Ordinary RoPE construction computes each value once and retains it; the
+borrowed layout path computes the same deterministic values once without table
+allocation. Chapter 29 remains the visible owner of that algorithmic boundary.
+
+**Affected build, step, and run:**
+`remediate-checkpoint-validation-and-streaming-20260805`,
+`share-decoder-state-layout-validation`, and
+`20260805T201541Z-share-decoder-state-layout-validation-01`.
+
+## 2026-08-05 - Preserve RoPE capacity and numerical-error order without table storage
+
+**Status:** Accepted during independent API review of
+`share-decoder-state-layout-validation`.
+
+**Context:** A no-op RoPE value traversal can avoid table storage, but a checked
+cell count can still describe a `Vec<f64>` capacity that Rust cannot represent.
+Traversing such a request before construction attempts allocation would turn an
+immediate `TableAllocationFailed` result into effectively unbounded CPU work.
+An initial correction checked both array capacities too early and would have
+reported the later table-capacity failure before a non-finite inverse frequency,
+unlike the existing constructor.
+
+**Decision:** Share one allocation-free representable-capacity check between the
+validator and every actual table reservation. Preserve constructor order exactly:
+validate dimensions and checked multiplication; establish that the inverse-
+frequency capacity is representable; validate all inverse frequencies; establish
+that the sine/cosine table capacity is representable; then validate every table
+value. Construction additionally asks the allocator for memory at the same two
+points. The existing `TableAllocationFailed` variant continues to cover both a
+deterministically unrepresentable capacity and an otherwise representable request
+that the allocator cannot satisfy; only construction can observe the latter.
+This supersedes only the earlier statement that all allocation failures remain
+construction-owned; deterministic capacity impossibility is now shared, while
+actual allocator exhaustion remains construction-owned.
+It also supersedes the earlier shorthand that the storage-free path computes
+every deterministic value "once": preserving the constructor's all-frequency-
+errors-before-table-errors order requires validating inverse frequencies first
+and recomputing them as inputs to the cell traversal. Each angle, sine, and
+cosine cell is computed once, and no inverse frequency is retained by that path.
+
+**Consequences:** Borrowed decoder-layout validation cannot enter a practically
+unbounded traversal for an impossible `Vec<f64>` capacity, while configuration,
+capacity, numerical-error precedence, valid table values, and public error
+variants remain compatible. Chapter 29 explicitly distinguishes deterministic
+capacity validation from construction-time memory availability.
+
+**Affected build, step, and run:**
+`remediate-checkpoint-validation-and-streaming-20260805`,
+`share-decoder-state-layout-validation`, and
+`20260805T201541Z-share-decoder-state-layout-validation-01`.
+
+## 2026-08-05 - Bound storage-free RoPE validation by the logical layout
+
+**Status:** Accepted after the capacity correction received a second independent
+API review.
+
+**Context:** A table length can fit both `usize` multiplication and Rust's
+representable `Vec<f64>` capacity while still requiring terabytes of memory.
+Enumerating such a table before construction attempts its real allocation would
+replace a normally immediate allocator failure with unbounded validation work.
+An arbitrary maximum table size would make a new course-specific model limit,
+and retaining temporary tables would defeat the storage-free state boundary.
+
+**Decision:** The storage-free validator establishes logical numerical validity
+without enumerating cells. It validates every inverse frequency first. A finite
+inverse frequency is nonnegative, so its angle is monotone over nonnegative
+positions, and the pinned standard-library sine and cosine results are finite for
+finite angles. The validator tests the last position for every coordinate pair;
+when that value is non-finite, an overflow-safe binary search finds the pair's
+first failing position. The lexicographically smallest `(position, pair)` keeps
+the constructor's row-major numerical-error order. Work is proportional to the
+real parameter-backed pair count plus logarithmic searches for failing pairs,
+not to the implied table-cell count.
+
+Construction returns to position-major filling through the same single-cell
+arithmetic helper. It reserves but does not zero-fill the output arrays, pushes
+each validated cell once, and remains the only path that asks the allocator for
+actual memory or retains tables. A flat state establishes logical restorable
+layout, not a guarantee that every future host can satisfy a large allocation.
+`DecoderModel::from_parameters` still reaches construction and therefore still
+reports actual allocation failure; where a deterministic numerical defect and
+host allocation exhaustion coexist, the storage-free precheck may report the
+logical defect first because allocator availability is not a stable invariant.
+This explicitly scopes, and supersedes, earlier claims of complete allocation-
+error precedence and of a no-op traversal over every table cell.
+
+**Consequences:** A checkpoint or parameter layout with a huge position capacity
+cannot consume table-sized CPU time merely to validate, no arbitrary LLM size cap
+is introduced, exact valid table bytes and row-major numerical errors remain
+stable, and Chapter 29 teaches the proof rather than claiming hidden enumeration.
+
+**Affected build, step, and run:**
+`remediate-checkpoint-validation-and-streaming-20260805`,
+`share-decoder-state-layout-validation`, and
+`20260805T201541Z-share-decoder-state-layout-validation-01`.

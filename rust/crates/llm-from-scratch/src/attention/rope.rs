@@ -123,6 +123,12 @@ impl From<TensorAutodiffError> for RopeError {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct RotaryTableLayout {
+    pairs: usize,
+    table_elements: usize,
+}
+
 /// Owned inverse-frequency and sine/cosine tables for one feature width.
 #[derive(Clone, Debug, PartialEq)]
 pub struct RotaryEmbedding {
@@ -138,6 +144,54 @@ impl RotaryEmbedding {
     // region:rope-tables
     /// Precomputes one sine/cosine row per absolute position.
     pub fn new(feature_width: usize, max_positions: usize, base: f64) -> Result<Self, RopeError> {
+        let layout = Self::validate_table_layout(feature_width, max_positions, base)?;
+        let mut frequencies = reserved_values(layout.pairs)?;
+        Self::visit_inverse_frequencies(feature_width, base, |_, frequency| {
+            frequencies.push(frequency);
+        })?;
+
+        let mut cosines = reserved_values(layout.table_elements)?;
+        let mut sines = reserved_values(layout.table_elements)?;
+        Self::visit_table_values(
+            max_positions,
+            layout.pairs,
+            |pair| frequencies[pair],
+            |_, _, sine, cosine| {
+                cosines.push(cosine);
+                sines.push(sine);
+            },
+        )?;
+
+        Ok(Self {
+            feature_width,
+            max_positions,
+            base,
+            inverse_frequencies: Tensor::from_vec(vec![layout.pairs], frequencies)?,
+            cosines: Tensor::from_vec(vec![max_positions, layout.pairs], cosines)?,
+            sines: Tensor::from_vec(vec![max_positions, layout.pairs], sines)?,
+        })
+    }
+
+    /// Proves the deterministic table is finite without allocating its storage.
+    pub(crate) fn validate_table_specification(
+        feature_width: usize,
+        max_positions: usize,
+        base: f64,
+    ) -> Result<(), RopeError> {
+        let layout = Self::validate_table_layout(feature_width, max_positions, base)?;
+        Self::validate_value_capacity(layout.pairs)?;
+        Self::visit_inverse_frequencies(feature_width, base, |_, _| {})?;
+        Self::validate_value_capacity(layout.table_elements)?;
+        Self::validate_table_values(max_positions, layout.pairs, |pair| {
+            Self::inverse_frequency(feature_width, base, pair)
+        })
+    }
+
+    fn validate_table_layout(
+        feature_width: usize,
+        max_positions: usize,
+        base: f64,
+    ) -> Result<RotaryTableLayout, RopeError> {
         if feature_width == 0 {
             return Err(RopeError::ZeroFeatureWidth);
         }
@@ -161,38 +215,99 @@ impl RotaryEmbedding {
                     positions: max_positions,
                     pairs,
                 })?;
-        let mut frequencies = reserved_values(pairs)?;
+        Ok(RotaryTableLayout {
+            pairs,
+            table_elements,
+        })
+    }
+
+    fn validate_value_capacity(elements: usize) -> Result<(), RopeError> {
+        let maximum = (isize::MAX as usize) / std::mem::size_of::<f64>();
+        if elements > maximum {
+            return Err(RopeError::TableAllocationFailed { elements });
+        }
+        Ok(())
+    }
+
+    fn inverse_frequency(feature_width: usize, base: f64, pair: usize) -> f64 {
+        let exponent = -2.0 * (pair as f64) / (feature_width as f64);
+        base.powf(exponent)
+    }
+
+    fn visit_inverse_frequencies(
+        feature_width: usize,
+        base: f64,
+        mut visit: impl FnMut(usize, f64),
+    ) -> Result<(), RopeError> {
+        let pairs = feature_width / 2;
         for pair in 0..pairs {
-            let exponent = -2.0 * (pair as f64) / (feature_width as f64);
-            let frequency = base.powf(exponent);
+            let frequency = Self::inverse_frequency(feature_width, base, pair);
             if !frequency.is_finite() {
                 return Err(RopeError::NonFiniteTableValue { position: 0, pair });
             }
-            frequencies.push(frequency);
+            visit(pair, frequency);
         }
+        Ok(())
+    }
 
-        let mut cosines = reserved_values(table_elements)?;
-        let mut sines = reserved_values(table_elements)?;
+    fn visit_table_values(
+        max_positions: usize,
+        pairs: usize,
+        mut frequency: impl FnMut(usize) -> f64,
+        mut visit: impl FnMut(usize, usize, f64, f64),
+    ) -> Result<(), RopeError> {
         for position in 0..max_positions {
-            for (pair, &frequency) in frequencies.iter().enumerate() {
-                let angle = (position as f64) * frequency;
-                let (sine, cosine) = angle.sin_cos();
-                if !angle.is_finite() || !sine.is_finite() || !cosine.is_finite() {
-                    return Err(RopeError::NonFiniteTableValue { position, pair });
-                }
-                cosines.push(canonical_zero(cosine));
-                sines.push(canonical_zero(sine));
+            for pair in 0..pairs {
+                let (sine, cosine) = Self::table_value(position, frequency(pair))
+                    .ok_or(RopeError::NonFiniteTableValue { position, pair })?;
+                visit(position, pair, sine, cosine);
             }
         }
+        Ok(())
+    }
 
-        Ok(Self {
-            feature_width,
-            max_positions,
-            base,
-            inverse_frequencies: Tensor::from_vec(vec![pairs], frequencies)?,
-            cosines: Tensor::from_vec(vec![max_positions, pairs], cosines)?,
-            sines: Tensor::from_vec(vec![max_positions, pairs], sines)?,
-        })
+    fn validate_table_values(
+        max_positions: usize,
+        pairs: usize,
+        mut frequency: impl FnMut(usize) -> f64,
+    ) -> Result<(), RopeError> {
+        let last_position = max_positions - 1;
+        let mut first_nonfinite = None;
+        for pair in 0..pairs {
+            let frequency = frequency(pair);
+            debug_assert!(frequency.is_finite());
+            if Self::table_value(last_position, frequency).is_some() {
+                continue;
+            }
+
+            let mut last_finite = 0;
+            let mut first_invalid = last_position;
+            debug_assert!(Self::table_value(last_finite, frequency).is_some());
+            while last_finite + 1 < first_invalid {
+                let middle = last_finite + (first_invalid - last_finite) / 2;
+                if Self::table_value(middle, frequency).is_some() {
+                    last_finite = middle;
+                } else {
+                    first_invalid = middle;
+                }
+            }
+            let candidate = (first_invalid, pair);
+            first_nonfinite = Some(match first_nonfinite {
+                Some(current) => std::cmp::min(current, candidate),
+                None => candidate,
+            });
+        }
+        match first_nonfinite {
+            Some((position, pair)) => Err(RopeError::NonFiniteTableValue { position, pair }),
+            None => Ok(()),
+        }
+    }
+
+    fn table_value(position: usize, frequency: f64) -> Option<(f64, f64)> {
+        let angle = (position as f64) * frequency;
+        let (sine, cosine) = angle.sin_cos();
+        (angle.is_finite() && sine.is_finite() && cosine.is_finite())
+            .then(|| (canonical_zero(sine), canonical_zero(cosine)))
     }
     // endregion:rope-tables
 
@@ -279,6 +394,7 @@ impl RotaryEmbedding {
 }
 
 fn reserved_values(elements: usize) -> Result<Vec<f64>, RopeError> {
+    RotaryEmbedding::validate_value_capacity(elements)?;
     let mut values = Vec::new();
     values
         .try_reserve_exact(elements)
@@ -510,6 +626,81 @@ mod tests {
                 max_positions: 3
             }
         );
+    }
+
+    #[test]
+    fn table_storage_free_specification_matches_constructor_validation() {
+        RotaryEmbedding::validate_table_specification(4, 6, 100.0).unwrap();
+
+        for (feature_width, max_positions, base) in [
+            (0, 0, f64::NAN),
+            (3, 0, f64::NAN),
+            (4, 0, f64::NAN),
+            (4, 2, 0.0),
+            (4, usize::MAX, 100.0),
+            (1024, 1, f64::from_bits(1)),
+        ] {
+            assert_eq!(
+                RotaryEmbedding::validate_table_specification(feature_width, max_positions, base,)
+                    .unwrap_err(),
+                RotaryEmbedding::new(feature_width, max_positions, base).unwrap_err()
+            );
+        }
+    }
+
+    #[test]
+    fn table_specification_rejects_unrepresentable_vec_capacities_before_traversal() {
+        let elements = (isize::MAX as usize) / std::mem::size_of::<f64>() + 1;
+        let expected = RopeError::TableAllocationFailed { elements };
+        assert_eq!(
+            RotaryEmbedding::validate_table_specification(2, elements, 100.0),
+            Err(expected.clone())
+        );
+        assert_eq!(
+            RotaryEmbedding::new(2, elements, 100.0),
+            Err(expected.clone())
+        );
+
+        let feature_width = elements * 2;
+        assert_eq!(
+            RotaryEmbedding::validate_table_specification(feature_width, 1, 100.0),
+            Err(expected.clone())
+        );
+        assert_eq!(RotaryEmbedding::new(feature_width, 1, 100.0), Err(expected));
+    }
+
+    #[test]
+    fn inverse_frequency_error_precedes_later_table_capacity_failure() {
+        let maximum = (isize::MAX as usize) / std::mem::size_of::<f64>();
+        let max_positions = maximum / (1024 / 2) + 1;
+        let constructor_error =
+            RotaryEmbedding::new(1024, max_positions, f64::from_bits(1)).unwrap_err();
+        assert!(matches!(
+            constructor_error,
+            RopeError::NonFiniteTableValue { position: 0, .. }
+        ));
+        assert_eq!(
+            RotaryEmbedding::validate_table_specification(1024, max_positions, f64::from_bits(1),),
+            Err(constructor_error)
+        );
+    }
+
+    #[test]
+    fn positive_position_table_error_matches_row_major_precedence() {
+        let expected = RopeError::NonFiniteTableValue {
+            position: 72,
+            pair: 511,
+        };
+        assert_eq!(
+            RotaryEmbedding::validate_table_specification(1024, 300, 1e-307),
+            Err(expected.clone())
+        );
+        assert_eq!(RotaryEmbedding::new(1024, 300, 1e-307), Err(expected));
+    }
+
+    #[test]
+    fn representable_huge_table_specification_uses_bounded_validation_work() {
+        RotaryEmbedding::validate_table_specification(2, 1_000_000_000_000, 100.0).unwrap();
     }
 
     #[test]

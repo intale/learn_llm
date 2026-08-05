@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
@@ -154,7 +154,7 @@
       {
         "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
         "region": "decoder-parameter-rebuild",
-        "purpose": "Bind an exact stable-order parameter set into a decoder and re-establish its component aliases and tied embedding; ordinary optimizer steps preserve those live aliases."
+        "purpose": "Apply the shared stable-name-and-shape layout check before binding an exact parameter set into live decoder components; construction re-establishes component aliases and the tied embedding, while ordinary optimizer steps preserve them."
       },
       {
         "path": "rust/demos/ch33-training-selection/src/lib.rs",
@@ -560,11 +560,19 @@ constructed by the trainer for each update.
 
 `DecoderModel::from_parameters` remains a reconstruction boundary, not an
 ordinary AdamW operation. `into_model` first moves each owned tensor buffer into
-one new parameter leaf. `from_parameters` then validates count, name, and
-component shape and gives the decoder components shared handles to those leaves;
-those handle clones do not copy the tensor buffers. This also re-establishes one
-tied embedding node for both lookup and output projection. The trainer does not
-call this boundary after each ordinary AdamW step.
+one new parameter leaf. `from_parameters` then borrows that stable-order leaf
+list and applies the shared decoder-layout rules: valid configuration, exact
+$2+9N$ tensor count, one required name at every list index, and the shape
+required by each component. The layout check neither copies a tensor buffer nor
+creates component handles. Passing it means that the leaf list has a valid
+layout; it does not yet mean that live decoder aliases exist.
+
+After validation, `from_parameters` gives the embedding, blocks, and final
+RMSNorm shared handles to those leaves. Only this binding step re-establishes
+one embedding node for both lookup and output projection. Cloning the handles
+does not copy their tensor buffers. Reconstruction occurs when owned state
+becomes a model; the trainer does not call this boundary after an ordinary
+AdamW step.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/models/decoder.rs"

@@ -41,6 +41,10 @@ const copy = {
       'rotations of query and key subspaces',
       'original LLaMA',
     ],
+    implementationFragments: [
+      'number of position-pair cells fits in usize',
+      'It allocates no table storage',
+    ],
   },
   ru: {
     revisionLabel: 'Версия материала',
@@ -67,6 +71,10 @@ const copy = {
       'позиционные кодирования к входным эмбеддингам',
       'поворотами подпространств запросов и ключей',
       'исходной LLaMA',
+    ],
+    implementationFragments: [
+      'число ячеек «позиция–пара» помещается в usize',
+      'Память под таблицы при этом не выделяется',
     ],
   },
 } as const;
@@ -244,7 +252,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 29,
-    revision: 2,
+    revision: 3,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: locales,
@@ -267,6 +275,11 @@ async function expectChapterContent(
   }
   await expect(page.locator('.lesson-body .katex-error')).toHaveCount(0);
   await expectFormulaGeometry(page);
+
+  const lessonText = (await page.locator('.lesson-body').innerText()).replace(/\s+/g, ' ');
+  for (const fragment of localized.implementationFragments) {
+    expect(lessonText).toContain(fragment);
+  }
 
   const history = page.getByRole('heading', { level: 2, name: localized.headings[3], exact: true }).locator(
     `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.headings[3]}"]]`,

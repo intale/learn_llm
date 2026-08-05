@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 33,
   "objective": {
     "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data.",
@@ -218,14 +218,15 @@
     }
   ],
   "translation_notes": [
-    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 8 is translated directly from canonical English revision 8; semantic, terminology, anti-calque, monolingual, accessibility, source-order, and rendered reviews must be complete before publication.",
-    "canonical English SHA-256: cf8b715fbe323d46a6c2fa60a27d174f1ba2bf9e0a1f7e8df698cee46e6c3ae1",
+    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 9 is translated directly from canonical English revision 9; semantic, terminology, anti-calque, monolingual, accessibility, source-order, and rendered reviews must be complete before publication.",
+    "canonical English SHA-256: 19de8acfdf11b59521117980a70b62d64e4e1364b171c4c2257b25b9f5ad42a2",
     "Translate mini-batch as «мини-пакет», global-norm gradient clipping as «ограничение общей нормы градиента», and graph-free evaluation as «оценка без записи графа вычислений»; describe raw and clipped gradients as gradients before and after norm clipping rather than using a literal calque.",
     "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test.",
     "Preserve the distinction between the ordinary AdamW method accepting a scheduled rate plus one clipping factor and returning the new optimizer step number, and Chapter 22's explicitly requested trace containing per-parameter records; never imply that AdamW returns parameter leaves.",
     "Translate g_s as the conceptual all-parameter raw gradient, alpha_s as «единый множитель ограничения общей нормы», and g tilde as «градиент после ограничения общей нормы, по которому AdamW обновляет оба момента». Preserve that scaling happens before the second-moment square and never scales decoupled decay.",
     "Preserve the live transaction order: AdamW validates every prospective parameter value and moment, acquires every parameter-value write guard, commits into the existing nodes together with optimizer state, returns the new step number, and only then the trainer explicitly clears the raw gradients on those same nodes.",
     "Preserve the distinction between a named deep snapshot, which copies parameter buffers because independent states must coexist, and an owned state transfer, which moves existing buffers into a decoder. The initial borrowed model needs one snapshot that is immediately consumed; a validation minimum needs a retained snapshot while later updates continue; selected state and selected model are independent results. Never describe a per-update replacement Vec<NamedParameter>, decoder candidate, or optimizer candidate.",
+    "Preserve the reconstruction sequence: into_model moves owned tensor buffers into parameter leaves; the shared layout contract then borrows the stable-order leaf list without copying values; only subsequent component binding creates live shared handles and the tied embedding/output node.",
     "Describe registry entries, component handles, and the tied embedding/output projection as handles that refer to the same parameter nodes: an in-place value commit is visible through every handle without changing node identity.",
     "Preserve theta_s, s, s^*, L_tr, L_va, eta_s, g_s, the norm notation, exact trace tokens, stable parameter names, and step numbers.",
     "Programming language names may identify source provenance only where relevant; the history section must remain about the road to modern LLM training."
@@ -253,7 +254,7 @@
     },
     {
       "input": "Build the working decoder from borrowed input and retain a validation minimum",
-      "expected": "The trainer snapshots the borrowed input once and moves that owned snapshot into the working decoder without a second tensor-buffer copy. A strict validation improvement creates a separate deep snapshot because it must remain unchanged while training continues; the returned selected state and selected model also own independent buffers."
+      "expected": "The trainer snapshots the borrowed input once and moves that owned snapshot into new parameter leaves without a second tensor-buffer copy. The shared borrowed layout check validates those leaves before model components receive shared handles and re-establish the tied node. A strict validation improvement creates a separate deep snapshot because it must remain unchanged while training continues; the returned selected state and selected model also own independent buffers."
     },
     {
       "input": "Commit an AdamW update without rebuilding the decoder",
@@ -488,11 +489,14 @@ across mini-batches.
 `DecoderModelState` stores owned tensor values instead of shared tape handles.
 A snapshot is an explicit deep copy used only when state must remain independent.
 An owned state can instead be consumed by `into_model`, which moves each tensor
-buffer into one new parameter leaf. `DecoderModel::from_parameters` then
-validates the exact $2+9N$ names and shapes, rebuilds every component from shared
-handles to those leaves, and re-establishes the tied embedding node. The handle
-copies do not duplicate the parameter buffers, and the trainer does not call
-this boundary after each AdamW step.
+buffer into one new parameter leaf. `DecoderModel::from_parameters` then borrows
+the stable-order leaf list and applies the shared layout contract: valid
+configuration, the exact $2+9N$ count, one required name at every list index,
+and every component shape. This check copies no tensor buffer and creates no
+component handle. After it succeeds, model construction gives components shared
+handles to the leaves and re-establishes the tied embedding node. Copying those
+handles does not duplicate parameter buffers, and the trainer does not call this
+boundary after each AdamW step.
 
 The loop executes all eight updates. At each requested checkpoint it measures
 train and validation without a graph. Validation loss alone replaces the best

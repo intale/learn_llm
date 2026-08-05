@@ -39,6 +39,23 @@ function frontmatter(source: string) {
   return JSON.parse(match[1]);
 }
 
+function sourceRegion(source: string, region: string): string {
+  const match = source.match(new RegExp(
+    `// region:${region}([\\s\\S]*?)// endregion:${region}`,
+  ));
+  if (!match) throw new Error(`missing Rust source region ${region}`);
+  return match[1];
+}
+
+function sourceBetween(source: string, start: string, end: string): string {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  if (startIndex < 0 || endIndex < 0) {
+    throw new Error(`missing Rust source boundary ${start} ... ${end}`);
+  }
+  return source.slice(startIndex, endIndex);
+}
+
 const normalize = (value: string) => value.replace(/[$*_`]/g, '').replace(/\s+/g, ' ').trim();
 
 function markdownMathTokens(source: string): string[] {
@@ -327,14 +344,15 @@ describe('Chapter 29 static diagram and content boundary', () => {
     expect(lessonSource).not.toContain('Rust-authored proof');
     expect(lessonSource).not.toContain('site_arithmetic');
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.content_revision).toBe(2);
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
     expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
     const englishSourceHash = createHash('sha256').update(lessonSource).digest('hex');
     expect(contract.translation_notes.join(' ')).toContain(
       `canonical English source SHA-256 is ${englishSourceHash}`,
     );
     expect(existsSync(resolve(repositoryRoot, 'site/src/content/chapters/ru/29-rope.mdx'))).toBe(true);
-    expect(russianLesson.content_revision).toBe(2);
+    expect(russianLesson.content_revision).toBe(3);
     expect(russianLesson.formula).toEqual({
       latex: contract.formula.latex,
       symbols: contract.formula.symbols.map(({ symbol, ru }: { symbol: string; ru: string }) => ({
@@ -363,9 +381,73 @@ describe('Chapter 29 static diagram and content boundary', () => {
     ]) expect(normalize(russianLessonBody)).toContain(normalize(field));
     expect(markdownMathTokens(russianLessonBody)).toEqual(markdownMathTokens(lessonBody));
     expect(russianLessonBody).not.toMatch(/TypeScript|Python history|Rust history|браузер/i);
+
+    const normalizedEnglishLesson = normalize(lessonBody);
+    const normalizedRussianLesson = normalize(russianLessonBody);
+    for (const fragment of [
+      'the number of position-pair cells fits in `usize`',
+      'It allocates no table storage',
+      'without building a temporary table',
+    ]) expect(normalizedEnglishLesson).toContain(normalize(fragment));
+    for (const fragment of [
+      'число ячеек «позиция–пара» помещается в `usize`',
+      'Память под таблицы при этом не выделяется',
+      'не создавая временную таблицу',
+    ]) expect(normalizedRussianLesson).toContain(normalize(fragment));
+    expect(coursePlanSource).toContain(
+      'Content revision 3 separates deterministic RoPE table-specification validation from allocation and table ownership',
+    );
+
     for (const region of ['rope-tables', 'rope-rotation']) {
       expect(ropeSource).toContain(`region:${region}`);
     }
+    const ropeTablesSource = sourceRegion(ropeSource, 'rope-tables');
+    for (const operation of [
+      'validate_table_specification',
+      'validate_table_layout',
+      'validate_value_capacity',
+      'visit_inverse_frequencies',
+      'validate_table_values',
+      'visit_table_values',
+      'table_value',
+    ]) expect(ropeTablesSource).toContain(operation);
+
+    const constructorSource = sourceBetween(
+      ropeTablesSource,
+      'pub fn new(',
+      'pub(crate) fn validate_table_specification(',
+    );
+    const validatorSource = sourceBetween(
+      ropeTablesSource,
+      'pub(crate) fn validate_table_specification(',
+      'fn validate_table_layout(',
+    );
+    expect(constructorSource.match(/reserved_values/g)).toHaveLength(3);
+    expect(constructorSource.match(/Tensor::from_vec/g)).toHaveLength(3);
+    expect(validatorSource).toContain('validate_table_layout');
+    expect(validatorSource).toContain('visit_inverse_frequencies');
+    expect(validatorSource).toContain('validate_table_values');
+    expect(validatorSource).not.toContain('visit_table_values');
+    expect(validatorSource.match(/validate_value_capacity/g)).toHaveLength(2);
+    expect(validatorSource).not.toMatch(/reserved_values|\bVec\b|Tensor::from_vec/);
+    const validatorChecks = [
+      'validate_table_layout(feature_width, max_positions, base)?',
+      'validate_value_capacity(layout.pairs)?',
+      'visit_inverse_frequencies(feature_width, base',
+      'validate_value_capacity(layout.table_elements)?',
+      'validate_table_values(',
+    ].map((check) => validatorSource.indexOf(check));
+    expect(validatorChecks.every((position) => position >= 0)).toBe(true);
+    expect(validatorChecks).toEqual([...validatorChecks].sort((left, right) => left - right));
+    const boundedTableValidation = sourceBetween(
+      ropeTablesSource,
+      'fn validate_table_values(',
+      'fn table_value(',
+    );
+    expect(boundedTableValidation).toContain('let last_position = max_positions - 1;');
+    expect(boundedTableValidation).toContain('while last_finite + 1 < first_invalid');
+    expect(boundedTableValidation).not.toMatch(/for position in 0\.\.max_positions/);
+    expect(ropeSource).toContain('RotaryEmbedding::validate_value_capacity(elements)?;');
     expect(modelOpsSource).toContain('region:rotary-pairs-forward');
     expect(tensorCoreSource).toContain('RotaryPairs');
     expect(demoSource).toContain('region:historical-position-contrast');

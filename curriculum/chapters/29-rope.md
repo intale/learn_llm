@@ -2,7 +2,7 @@
 {
   "chapter_id": "29-rope",
   "concept_id": "rotary-position-embedding",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 29,
   "objective": {
     "en": "Rotate query and key feature pairs by absolute position, then observe signed relative positions in their dot products without changing the causal visibility boundary.",
@@ -215,14 +215,15 @@
     }
   ],
   "translation_notes": [
-    "Chapter 29 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "The canonical English source SHA-256 is 2fd2e1550eb156336ed7a2a8839a12b159ba71c576d2704cf90423c61d68be14; Russian was translated directly from those exact bytes.",
+    "Chapter 29 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "The canonical English source SHA-256 is 8dbe894f6723dbaa41d6eec89010812007c4638934ad114112f871546a55ffcc; Russian was translated directly from those exact bytes.",
     "Keep RoPE, R, x_m, q_m, k_n, m, n, k, b, d, theta, coordinate slices, shapes, source roles, URLs, trace tokens, and numeric values unchanged across locales.",
     "RoPE receives absolute positions. The relative offset appears after combining query and key rotations in their dot product; never say that the API receives a relative index.",
     "The relative-dot statement concerns fixed query and key contents. It does not make a complete decoder prediction invariant to shifting a sequence.",
     "Rotate queries and keys, not values. Keep Chapter 28's causal mask separate: rotation shapes scores, while masking controls which key positions are visible.",
     "Use ротационное позиционное кодирование, соседняя пара координат на оси признаков, матрица поворота, знаковая разность позиций, одинаковый сдвиг, выходная сопряжённая величина, and сопряжённая величина входа; avoid ротационный эмбеддинг, относительная дистанция, позиционно-осведомлённый, экспонирует, and семя градиента.",
     "Adjacent coordinate pairs, base 100 in the teaching example, exact error precedence, tolerances, fixed decimals, and trace grammar are course-local choices rather than universal RoPE requirements.",
+    "Preserve the distinction among deterministic representable-capacity validation, proving all table values finite from nonnegative monotone angles plus a binary search for the first failure, and construction-time requests to the actual allocator; only construction enumerates and stores every cell.",
     "Name Rust only for executable source, concrete APIs, commands, paths, and literal program data. Neural-model history and mathematics remain language-independent.",
     "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
     "Validate Russian independently at desktop and narrow widths and in every full-view figure; do not infer containment from English."
@@ -255,6 +256,10 @@
     {
       "input": "Supply zero or odd width, invalid base, rank one, the wrong final width, an out-of-range or overflowing offset, or a released tape",
       "expected": "The typed boundary rejects the first invalid condition without publishing a partial rotated tensor."
+    },
+    {
+      "input": "Validate a RoPE table specification without retaining its values",
+      "expected": "The bounded check validates width, position capacity, base, checked cell count, representable Vec<f64> capacities, and every inverse frequency, then proves all position angles, sines, and cosines finite from the last position of each pair; a binary search locates the first numerical failure. Only construction asks the allocator for actual memory, enumerates every cell, and owns the arrays."
     },
     {
       "input": "cargo run --quiet --locked -p ch29-rope",
@@ -392,12 +397,23 @@ Primary evidence: [Vaswani et al. (2017)](https://arxiv.org/abs/1706.03762),
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
-`RotaryEmbedding::new` validates the configuration and precomputes inverse
-frequencies plus sine/cosine tables. `RotaryEmbedding::rotate` reads tokens on
-the penultimate axis, reads adjacent pairs on the final axis, validates the
-checked absolute interval, and records one linear-time `rotary_pairs` tape
-operation. Calling it independently for query and key avoids a specialized
-wrapper and prepares the same API for later cached decoding.
+`RotaryEmbedding::new` validates width, position capacity, base, checked table
+size, representable `Vec<f64>` capacities, and every inverse frequency. Since a
+validated frequency is finite and nonnegative, its angle is monotone across
+nonnegative positions; finite angles have finite sine and cosine. The
+storage-free validator checks the last position of each pair and binary-searches
+only a failing pair to recover the first row-major numerical error. Its work is
+bounded by coordinate pairs and logarithmic position searches rather than table
+cells. Construction alone asks the allocator for actual memory, enumerates every
+cell in row-major order, fills the inverse-frequency, sine, and cosine arrays,
+and retains the tables. Only construction can report that an otherwise
+representable request exhausted available memory.
+
+`RotaryEmbedding::rotate` reads tokens on the penultimate axis, reads adjacent
+pairs on the final axis, validates the checked absolute interval, and records
+one linear-time `rotary_pairs` tape operation. Calling it independently for
+query and key avoids a specialized wrapper and prepares the same API for later
+cached decoding.
 
 The fixture freezes known signs, both frequency rates, position-zero identity,
 norms, every cell in the relative-offset dot grid, a common shift, rank-three

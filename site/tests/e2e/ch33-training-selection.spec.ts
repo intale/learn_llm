@@ -57,7 +57,11 @@ const copy = {
       "TrainingResult keeps the selected graph-free state as the immutable record of what validation chose",
       "The registry and every decoder component already hold aliases of those nodes, so the next forward pass observes the new values without rebuilding the decoder.",
       "The trainer compares the returned optimizer step number with the planned update index, calls zero_grad() on every live parameter, and verifies that every gradient coordinate is zero before the next forward pass.",
-      "The trainer does not call this boundary after each ordinary AdamW step.",
+      "the trainer does not call this boundary after an ordinary AdamW step.",
+    ],
+    implementationFragments: [
+      "The layout check neither copies a tensor buffer nor creates component handles",
+      "Only this binding step re-establishes one embedding node",
     ],
   },
   ru: {
@@ -101,7 +105,11 @@ const copy = {
       "TrainingResult хранит выбранное состояние, не связанное с графом вычислений",
       "Реестр и компоненты декодера хранят ссылки на те же узлы, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
       "Цикл обучения сравнивает возвращённый номер шага с номером обновления в плане, вызывает zero_grad() для каждого рабочего параметра и проверяет, что все координаты градиента равны нулю, прежде чем начинать следующий прямой проход.",
-      "После обычного шага AdamW пересобирать декодер не нужно.",
+      "после обычного шага AdamW пересобирать декодер не нужно.",
+    ],
+    implementationFragments: [
+      "При этой проверке буферы тензоров не копируются",
+      "Только эта привязка снова делает один узел эмбеддинга общим",
     ],
   },
 } as const;
@@ -335,7 +343,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 8,
+    revision: 9,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -380,6 +388,9 @@ async function expectChapterContent(
     expect(lessonText).toContain(fragment);
   }
   for (const fragment of localized.executionFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  for (const fragment of localized.implementationFragments) {
     expect(lessonText).toContain(fragment);
   }
   await expect(
