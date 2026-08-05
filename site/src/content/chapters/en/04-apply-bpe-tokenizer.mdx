@@ -2,12 +2,12 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "locale": "en",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 4,
   "concept_id": "reversible-byte-bpe-tokenizer",
   "title": "Applying and reversing a BPE tokenizer",
   "description": "Replay frozen byte-pair ranks, reserve document controls, and recover every content byte exactly.",
-  "objective": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
+  "objective": "Apply frozen byte-pair ranks to arbitrary UTF-8 text or byte sequences, wrap documents with reserved control IDs, and recover the exact content bytes.",
   "worked_inputs": "Predict how the frozen ranks encode the bytes of a space followed by Cyrillic а, then compare that canonical sequence with a different valid sequence that decodes to the same bytes.",
   "formula": {
     "latex": "\\operatorname{decode}_{content}(\\operatorname{encode}_{content}(x))=\\operatorname{bytes}(x)",
@@ -256,15 +256,32 @@ comment. It validates the final `u32` extent and exposes the byte and merge rang
   label="Rust constants and checked layout type for BOS, EOS, byte tokens, and merge tokens"
 />
 
-`BpeTokenizer::from_training` copies the ordered pair table and rebuilds every
-byte expansion, so the tokenizer remains usable after the trainer is dropped. A
-validated pair-table constructor gives exercises—and later checkpoints—the same
-invariant: at rank $r$, both operands must already exist, and a pair cannot be
-repeated.
+`BpeTraining` is not an arbitrary pair table. `BpeTrainer::train` creates each
+rank, its assigned training-space token ID, and its byte expansion together. Its
+fields are private and its public accessors expose immutable views, so public
+callers cannot replace or mutate those values. `BpeTokenizer::from_training`
+copies each rule's rank, pair, and assigned training-space ID plus the already-
+built vocabulary, while mapping each rule's operands and result into layout
+version 1 by adding two. It does not reconstruct byte expansions or repeat the
+Chapter 3 invariants. It performs one check newly required by Chapter 4: after
+reserving BOS and EOS, the highest content ID implied by the number of learned
+rules must fit in `u32`. Because the tokenizer owns these copies, it remains
+usable after the training result is dropped.
+
+`BpeTokenizer::from_merge_pairs`, by contrast, accepts raw pairs supplied by a
+caller. It first verifies that the complete layout fits in `u32`. At rank $r$,
+it assigns training-space ID $256+r$, requires both operands to have been defined
+before that rank, rejects a pair seen at an earlier rank, derives the new byte
+expansion by concatenating the stored operand expansions, and maps the operands
+and result into the content namespace by adding two. Exercises and later
+checkpoint loading use this fully checked path when they do not start from a
+`BpeTraining` value.
 
 Encoding takes `&[u8]` as the fundamental input. The `&str` helper simply exposes
-its UTF-8 bytes. Each rule is shifted by $2$ and applied once in ascending rank
-order with Chapter 3's left-to-right replacement.
+its UTF-8 bytes. By the time encoding begins, both operands and the result of
+every rule have already been shifted by $2$ into the content-ID namespace. The
+encoder applies these stored rules once each in ascending rank order, using
+Chapter 3's left-to-right replacement.
 
 The ordinary and traced methods call the same ranked-merge loop. The ordinary
 method does not store before-and-after snapshots; it returns only the final token
@@ -313,17 +330,13 @@ layout, edge-case results, and two byte-exact round-trip examples:
   label="Rust main function that freezes eight ranks and prints reversible English and Cyrillic pipelines"
 />
 
-Run the executable checks from the repository root:
-
-```text
-cargo test --workspace --locked
-cargo run --quiet --locked -p ch04-apply-bpe-tokenizer | diff -u rust/demos/ch04-apply-bpe-tokenizer/expected.txt -
-```
-
-The second command is silent on success. The tests round-trip every possible byte,
-empty content, ASCII, Cyrillic, emoji, NUL/newline mixtures, and malformed UTF-8;
-they also reject overflow, future merge operands, duplicate pairs, unknown IDs,
-and every invalid control placement.
+`BpeTokenizer` also handles empty content, every possible byte value, ASCII,
+Cyrillic, emoji, NUL/newline mixtures, and malformed UTF-8. The
+`BpeTokenizerError` variants distinguish an overflowing ID layout, a merge that
+refers to an operand not yet defined, a duplicate pair, an unknown token ID, and
+each invalid control-token position. These boundary cases matter because exact
+byte recovery includes data that is not valid text, while document structure
+must still reject misplaced controls.
 
 {/* chapter-section:visualization */}
 

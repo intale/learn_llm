@@ -1030,7 +1030,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `04-apply-bpe-tokenizer`
 - **Implementation step:** `implement-ch04-apply-bpe-tokenizer`
-- **Revision status:** Content revision 5 preserves exact ranked-tokenizer and Rust behavior while replacing trace/fixture and responsive-layout machinery with byte-recovery evidence, correcting Russian accessibility terminology and Sennrich's spelling, retaining same-revision English/Russian teaching callouts, and preserving exact-byte recovery.
+- **Revision status:** Content revision 9 distinguishes sealed Chapter 3 training data from a raw caller-supplied pair table: `from_training` copies established rules and byte expansions and checks only the larger Chapter 4 ID extent, while `from_merge_pairs` retains complete validation and reconstruction; revision 8's shared lean/traced merge loop and all exact tokenizer evidence remain unchanged, with Russian refreshed directly from frozen English.
 - **Depends on:** `03-learn-bpe-merges`.
 - **Outcome:** Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.
 - **Scope boundary:** Reserve `BOS=0` and `EOS=1`, offset the 256 byte IDs, place learned merge IDs afterward, and forbid control-token merging. Define content decode and wrapped-document decode explicitly. Fixed-length batching needs no `PAD`; defer padding-heavy serving.

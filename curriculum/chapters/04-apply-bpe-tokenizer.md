@@ -2,10 +2,10 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "concept_id": "reversible-byte-bpe-tokenizer",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 4,
   "objective": {
-    "en": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
+    "en": "Apply frozen byte-pair ranks to arbitrary UTF-8 text or byte sequences, wrap documents with reserved control IDs, and recover the exact content bytes.",
     "ru": "Применять зафиксированные ранги слияний к любой строке UTF-8 или последовательности байтов, добавлять по краям документа зарезервированные управляющие ID и без потерь восстанавливать исходные байты."
   },
   "worked_inputs": {
@@ -119,7 +119,7 @@
     "Describe the lack of PAD as this course's fixed-window scope choice, not a claim that production serving never needs padding.",
     "The GPT-2 source supports the 256-byte base and coverage tradeoff, but its category-boundary policy differs from this course's document-barrier-only variant.",
     "Use пары «вход — цель» for Chapter 5 input–target pairs; do not rename the input as «контекст» in this handoff.",
-    "English revision 8 is the canonical semantic source. Russian revision 8 is refreshed directly from it with source SHA-256 11036f2b64b7fe21e391deb414a4ecf099566683d54ba5e999cf4b43504f614f. Both locales explicitly state that ordinary encoding does not store before-and-after snapshots, while opt-in tracing captures them through the same ranked-merge loop; tokenizer evidence and encoded results are unchanged."
+    "English revision 9 is the canonical semantic source. Russian revision 9 is refreshed directly from it with source SHA-256 ecb07fb076fb3260ded21b5479704028942fbfebedbb59fd9497d83a132c84fd. Both locales distinguish copying sealed Chapter 3 rules and byte expansions from validating and reconstructing a raw pair table, state that Chapter 4 still derives the +2 content-ID mapping and validates its final extent, and retain revision 8's shared lean/traced merge loop and exact tokenizer evidence."
   ],
   "acceptance_examples": [
     {
@@ -214,10 +214,27 @@ only document boundaries as hard barriers.
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
-`BpeTokenizer::from_training` owns a validated ordered pair table and its byte
-expansions. Layout version 1 fixes BOS `0`, EOS `1`, byte IDs `2..=257`, and rank
-`r` at `258+r`. A second validated pair-table constructor supports tiny exercises
-and later checkpoint loading without retaining a trainer object.
+`BpeTraining` is not an arbitrary pair table. `BpeTrainer::train` creates each
+rank, its assigned training-space token ID, and its byte expansion together. Its
+fields are private and its public accessors expose immutable views, so public
+callers cannot replace or mutate those values. `BpeTokenizer::from_training`
+copies each rule's rank, pair, and assigned training-space ID plus the already-
+built vocabulary, while mapping each rule's operands and result into layout
+version 1 by adding two. It does not reconstruct byte expansions or repeat the
+Chapter 3 invariants. It performs one check newly required by Chapter 4: after
+reserving BOS and EOS, the highest content ID implied by the number of learned
+rules must fit in `u32`. Because the tokenizer owns these copies, it remains
+usable after the training result is dropped.
+
+`BpeTokenizer::from_merge_pairs` accepts a raw caller-supplied pair table. At
+that boundary, the constructor first verifies that the complete layout fits in
+`u32`. Layout version 1 fixes BOS `0`, EOS `1`, byte IDs `2..=257`, and assigns
+rank $r$ the content ID $258+r$. At rank $r$, the constructor assigns training-
+space ID $256+r$, requires both operands to have been defined before that rank,
+rejects a pair seen at an earlier rank, derives the new byte expansion by
+concatenating the stored operand expansions, and maps the operands and result
+into the content namespace by adding two. This raw constructor supports tiny
+exercises and later checkpoint loading without a trainer object.
 
 `encode_content` accepts `&[u8]`, maps bytes through `+2`, and applies each mapped
 pair once in rank order. The ordinary and traced methods share that private merge

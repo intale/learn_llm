@@ -15325,3 +15325,137 @@ state adapter and the borrowed record representation.
 `remediate-checkpoint-validation-and-streaming-20260805`,
 `stream-checkpoint-payloads-from-validated-state`, and
 `20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02`.
+
+## 2026-08-05 - Sequence trusted-boundary and staging-copy remediation by learner owner
+
+**Status:** Accepted before starting the F06/F09 implementation build.
+
+**Context:** The post-F04 audit replay confirmed that runtime finding F06 and
+copy finding F09 remain live. Their evidence spans distinct learner owners:
+Chapter 4 freezes a sealed BPE training result; Chapters 16 and 18 share row
+gathering; Chapters 12 and 16 share probability forward state; Chapter 34 owns
+the final-test gate; Chapters 37 and 38 own incremental and model-wide cache
+boundaries; Chapter 21 owns batching and token-gradient accumulation; and
+Chapter 39 owns capstone orchestration. Combining those mechanisms would weaken
+equivalence proofs and localized teaching review. Some shared helpers also alter
+source rendered by a prerequisite chapter before a later chapter can trust it.
+
+**Decision:** Execute one ordered build with chapter-sized commits. First trust
+sealed `BpeTraining` in Chapter 4 while retaining complete checks for raw merge
+pairs. Next establish one validated row-gather plan in Chapter 16 and let Chapter
+18 consume it after validating token IDs once. Then establish reusable
+one-traversal probability forward state in Chapter 12 and let Chapter 16 retain
+its saved softmax probabilities without a second normalization. Chapter 34 will
+open and inspect its test epoch once and pass a sealed checked-index view to a
+crate-private bigram scoring path while public bigram calls remain checked.
+
+For caching, Chapter 37 keeps its public standalone incremental-attention entry
+fully checked but factors the same mathematics into a crate-private already-bound
+kernel. Chapter 38 then binds one model and cache into a session, checks
+configuration, identities, revisions, RoPE, geometry, and layer lengths only at
+that boundary, and retains immutable parameter-value borrows so model updates
+cannot enter during the session. Its `prefill` and `decode` operations no longer
+accept another model or repeat model-wide and layer-wide scans; private commit
+logic preserves the established cache invariants.
+
+Only after all F06 checkpoints commit, address F09. Chapter 21 will shuffle
+lightweight window descriptors and write token slices once into final batches;
+its gradient accumulator will validate every prospective coordinate before one
+in-place commit. Chapter 39 will move the test epoch and prompt IDs at their last
+use and read the selected state's scalar count instead of constructing a random
+decoder solely to count parameters. This order retains the previously accepted
+F06-before-F09 dependency.
+
+Each learner-facing step freezes English before translating Russian directly
+under the localization skill, preserves formulas/history/deterministic evidence,
+and validates both locales in Chromium and Firefox. Public raw-input checks,
+error precedence at boundaries where invalid data can enter, one mathematical
+kernel, transaction rollback, one-shot test access, exact demo/trace output,
+checkpoint bytes, and cached-versus-complete-prefix generation remain controls.
+No dependency or LLM-concept implementation is delegated.
+
+**Consequences:** The build has ten independently committed checkpoints:
+Chapter 4; Chapter 16 then 18 for row gathering; Chapter 12 then 16 for saved
+probability state; Chapter 34; Chapter 37 then 38 for cache binding; and Chapter
+21 then 39 for F09. Two revisions of Chapter 16 are intentional narrow
+checkpoints rather than one cross-concept change. Chapter 6 and unrelated
+downstream chapters remain byte-frozen unless implementation proves that a
+rendered region or learner claim must change; any such scope expansion is
+recorded before edits.
+
+**Affected build and first step:**
+`remediate-trusted-boundaries-and-staging-copies-20260805` and
+`trust-sealed-bpe-training-when-freezing-tokenizer`.
+
+## 2026-08-05 - Keep the Chapter 4 revision registry in its trusted-boundary checkpoint
+
+**Status:** Accepted during the Chapter 4 pre-publication content review.
+
+**Context:** `curriculum/README.md` describes its Chapter 1–13 revision list as
+current, but its Chapter 4 entry still says revision 7 while the canonical lesson
+and contract already carry revision 8. Advancing the lesson to revision 9 without
+correcting that shared registry would preserve a known false source-of-truth
+claim.
+
+**Decision:** Add `curriculum/README.md` to this step's integration outputs and
+advance only the Chapter 4 entry directly to revision 9. Do not rewrite the
+unrelated chapter entries in this checkpoint.
+
+**Consequences:** The workflow summary agrees with the published Chapter 4
+revision after this checkpoint, while unrelated revision history and chapter
+scope remain untouched.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`trust-sealed-bpe-training-when-freezing-tokenizer`, and
+`20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01`.
+
+## 2026-08-05 - Trust sealed BPE training only at the crate-owned freeze boundary
+
+**Status:** Accepted after implementation, exact equivalence controls, bilingual
+content review, and rendered browser validation.
+
+**Context:** `BpeTrainer::train` constructs each rank, training-space token ID,
+and byte expansion together and returns a `BpeTraining` whose fields are private.
+Nevertheless, `BpeTokenizer::from_training` reduced that sealed value to raw
+pairs, called the public raw-pair constructor, rebuilt every expansion, rescanned
+rank and operand continuity, and compared the reconstructed vocabulary with the
+one already validated during training. Chapter 4 still has one invariant Chapter
+3 cannot establish: reserving BOS and EOS enlarges the final ID namespace and
+must fit in `u32`.
+
+**Decision:** Keep `BpeTraining` sealed and add only a crate-private immutable
+view of its complete vocabulary. `BpeTokenizer::from_training` first constructs
+the Chapter 4 `TokenizerLayout`, which validates the larger final extent. It then
+copies the ordered sealed rules directly, derives their content-space operands
+and results by adding the fixed offset of two, and owns one copy of the already
+validated vocabulary. It does not call `from_merge_pairs`, reconstruct byte
+expansions, rescan rank/token continuity, compare spellings, or retain errors for
+sealed-state corruption that public code cannot create.
+
+Keep `BpeTokenizer::from_merge_pairs` as the fully checked raw boundary used by
+caller-supplied pair tables and checkpoint loading. It validates complete layout,
+operand availability, duplicate pairs, ordered token assignment, expansion
+reconstruction, and checked content-ID mapping. Tests compare both paths for the
+canonical eight-rule fixture and for a trainer-produced chain where rule 1
+consumes rule 0's learned token; the directly frozen tokenizer remains byte-exact
+after the source training value is dropped.
+
+Chapter 4 revision 9 teaches this distinction explicitly. It says which facts
+are copied, which `+2` mapping is derived during construction, and which final
+extent is newly checked. Encoding consumes the already shifted stored rules. The
+English and direct Russian projections contain learner evidence rather than
+repository commands or authoring/test requirements.
+
+**Consequences:** Freezing a trained tokenizer is linear only in the data that
+must become independently owned and no longer performs a second semantic
+reconstruction. Raw public input remains defensive, tokenizer layout and exact
+bytes are unchanged, downstream reports and traces remain byte-identical, and no
+dependency or unchecked public API is added. The final bilingual lesson and its
+diagram pass desktop, narrow, full-view, no-JavaScript, forced-color, synthetic
+RTL, Chromium, and Firefox containment checks.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`trust-sealed-bpe-training-when-freezing-tokenizer`, and
+`20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01`.

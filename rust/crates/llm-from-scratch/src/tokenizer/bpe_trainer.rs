@@ -117,6 +117,11 @@ impl BpeTraining {
             .and_then(|index| self.vocabulary.get(index))
             .map(Vec::as_slice)
     }
+
+    /// Borrows the complete validated vocabulary for a crate-owned tokenizer.
+    pub(crate) fn vocabulary(&self) -> &[Vec<u8>] {
+        &self.vocabulary
+    }
 }
 
 /// A deterministic trainer with a fixed upper bound on merge rounds.

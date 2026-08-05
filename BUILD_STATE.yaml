@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T22:39:28Z"
+updated_at: "2026-08-05T23:41:11Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: null
+active_build: remediate-trusted-boundaries-and-staging-copies-20260805
 
 builds:
   - build_id: bootstrap-course
@@ -33218,3 +33218,289 @@ builds:
               - {command: "Pinned-Docker completed-ledger, scheduler, and cross-content validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and all 40 implemented contracts through Chapter 39; all 33 content-contract assertions pass. No build, step, or run remains active or running, and the ordered F05-before-F04 checkpoint-remediation build is complete."}
               - {command: "Independent final Rust invariant, payload, and allocation-scope review", status: passed, notes: "A read-only reviewer found no blocker: private immutable checkpoint state is validated at construction/load, decoded leaves precede borrowed layout validation, optimizer and cross-component checks retain their order, every payload family is borrowed without record-sized payload copies, and canonical ordering plus little-endian bytes remain unchanged. The allocation claims correctly exclude descriptor/header allocations and do not claim zero-copy, allocation-free, or disk-streaming behavior."}
             notes: "Succeeded. Checkpoint construction and untrusted loading now establish semantic relationships once; decoded model buffers are layout-validated in place, while encoding plans only descriptor metadata and borrowed typed payloads before writing canonical values directly into one complete-file Vec. Exact wire bytes, corruption precedence, Chapter 35 evidence, downstream generation, reviewed en/ru rendering, immutable publication, and the Docker-only host boundary all remain valid."
+
+  - build_id: remediate-trusted-boundaries-and-staging-copies-20260805
+    objective: "Represent trusted internal facts once across tokenization, model operations, evaluation, and cached inference, then remove the remaining batch and capstone staging copies without weakening public checks or learner evidence."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "Ten ordered chapter-sized commits covering audit F06 before F09. Large cached Docker/browser CPU and localization review; no paid service, model generation, external data, or new dependency is planned."
+    completion_criteria:
+      - "Sealed BPE training, validated gather plans, reusable probability forward state, inspected test epochs, and model-bound cache sessions establish trusted facts once while every raw/public boundary retains the checks invalid callers can trigger."
+      - "Chapter 37's checked standalone incremental API and Chapter 38's bound model-wide session execute one mathematical kernel; session lifetimes prevent parameter updates and per-token model, revision, RoPE, geometry, or layer-length rescans."
+      - "Mini-batches copy each window's tokens only into final batch buffers, gradient accumulation commits in place only after complete validation, and capstone ownership moves eliminate the recorded F09 copies."
+      - "All affected English chapters are frozen before direct Russian refreshes; formulas, history, exercises, diagrams, exact demos/traces, error precedence, checkpoint and generation evidence, and desktop/narrow Chromium/Firefox rendering remain valid."
+      - "Every checkpoint is independently committed in the declared order, immutable staged publication verifies, the Docker-only host boundary passes, and audit findings F06 and F09 are closed without absorbing F07/F08/F10-F13."
+    steps:
+      - id: trust-sealed-bpe-training-when-freezing-tokenizer
+        objective: "Freeze an owned Chapter 4 tokenizer directly from the sealed Chapter 3 training result without rebuilding and revalidating its ranks and byte expansions."
+        depends_on: [stream-checkpoint-payloads-from-validated-state]
+        status: completed
+        inputs:
+          - "Commit 7ba525c74fb6a6b469b92c3aa1976f5895e5e3c0 completing F05-before-F04 checkpoint remediation"
+          - "audits/2026-08-04-rust-overengineering.md finding F06 BPE-training boundary"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs and bpe_trainer.rs"
+          - "Chapter 4 revision 8 contract, active English/Russian projections, static/browser tests, and exact demo output"
+          - "Chapters 5, 7, 23, 35, and 39 as downstream tokenizer behavior controls"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "BpeTraining remains sealed and exposes only a crate-private read view needed to copy its already validated ordered rules and byte expansions into independent tokenizer-owned storage."
+          - "BpeTokenizer::from_training validates only the Chapter 4 final namespace extent that Chapter 3 cannot establish; it does not call from_merge_pairs, rescan rank/token continuity, rebuild byte expansions, compare every spelling, or retain errors for impossible sealed-training corruption."
+          - "The public raw-pair constructor continues to validate layout, operand availability, duplicate pairs, ordered reconstruction, and every byte expansion because checkpoints and exercises can supply untrusted pairs."
+          - "Tokenizer layout, rule order, IDs, byte expansions, encoding, decoding, errors reachable from public raw inputs, exact Chapter 4 stdout/trace, and downstream tokenizer/model results remain byte-exact."
+          - "Chapter 4 advances to revision 9 and explicitly distinguishes copying trusted learned data from validating raw pair input; Russian is refreshed directly from frozen English and both locales pass complete language and rendered review."
+        validate:
+          - "./course run cargo fmt --all -- --check"
+          - "./course run cargo test --locked -p llm-from-scratch tokenizer::bpe"
+          - "./course run cargo test --locked -p ch04-apply-bpe-tokenizer"
+          - "./course run sh -lc 'cargo run --quiet --locked -p ch04-apply-bpe-tokenizer > /tmp/ch04.out && cmp /tmp/ch04.out rust/demos/ch04-apply-bpe-tokenizer/expected.txt'"
+          - "./course run npm --prefix site test -- --run tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "scripts/check-rust-demos.sh"
+          - "npm --prefix site run check:parity -- --chapter 04-apply-bpe-tokenizer"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:04-apply-bpe-tokenizer'"
+          - "./course run cargo clippy --locked -p llm-from-scratch --lib -- -D warnings"
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run check:contract -- ../curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "./course run npm --prefix site run check:chapter -- --locale en --chapter 04-apply-bpe-tokenizer"
+          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 04-apply-bpe-tokenizer"
+          - "./course run npm --prefix site run check:parity -- --chapter 04-apply-bpe-tokenizer"
+          - "./course run scripts/check-rust-demos.sh"
+          - "./course check"
+          - "docker build --network none -f .build/runs/20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01/validation/Browser.Dockerfile -t learn-llm-ch04-browser:20260805-sealed-bpe ."
+          - "docker run --rm --network none --ipc=host learn-llm-ch04-browser:20260805-sealed-bpe npx playwright test tests/e2e/ch04-apply-bpe-tokenizer.spec.ts tests/e2e/diagram-style-system.spec.ts tests/e2e/diagram-full-view.spec.ts --browser=chromium"
+          - "docker run --rm --network none --ipc=host learn-llm-ch04-browser:20260805-sealed-bpe npx playwright test tests/e2e/ch04-apply-bpe-tokenizer.spec.ts tests/e2e/diagram-style-system.spec.ts tests/e2e/diagram-full-view.spec.ts --browser=firefox"
+          - "Focused Chapter 4 Chromium and Firefox validation in both locales with --network none and no host-published port; downstream Chapters 5/7/23/35/39 remain exact controls"
+          - "./course review 20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01 --check"
+          - "./course audit-host"
+        cost: {class: large, notes: "One sealed Rust boundary, Chapter 4 English-first revision and direct Russian review, exact downstream controls, complete cached Docker gate, and two-browser validation."}
+        runs:
+          - run_id: 20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01
+            started_at: 2026-08-05T22:47:42Z
+            finished_at: 2026-08-05T23:41:11Z
+            status: succeeded
+            input_fingerprint:
+              git: "7ba525c74fb6a6b469b92c3aa1976f5895e5e3c0; tree 1d5f9827321a3a2643ce58d588bd5631bea06a26"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                bpe: "sha256:c6e59406a2b59a038a3d04eb5347d04d9a29847be87f99bbf9c066bb5581083d"
+                bpe-trainer: "sha256:ad6cd710265233036f9dec73869370e312bf04b1ac0d81ea5b7b3050dcf2990f"
+                chapter-04-contract: "sha256:9d6e9163ff93f4c78041a458b77d211c5b958f94806b207302a9a8a826e9fb02"
+                course-plan: "sha256:caa366e0373dd54998e87c517e21c221cc96d5743c9e98b8834bb5cf5cbe1b8d"
+                chapter-04-en: "sha256:11036f2b64b7fe21e391deb414a4ecf099566683d54ba5e999cf4b43504f614f"
+                chapter-04-ru: "sha256:e00da437469749b72e905fe8320de5d61c3b8c2113751433c6d608ecf3578176"
+                chapter-04-static-test: "sha256:526b35d239ac5c18302bcfa28032c8766c0201cec4b80f7b12e14baaf63e9bc4"
+                chapter-04-browser-test: "sha256:6365aff2bdc96a282453890b71b2e89e6e8e52dcdfd5b1b805eb6e3b56afbb85"
+                chapter-04-demo-lib: "sha256:2bc274f8ac9480e4372fb8b74f68976bd5c771913ee173865495178eb021a550"
+                chapter-04-demo-main: "sha256:1726cfe9a81b4b75f07a9ff732e25aba7adc6301a7263324e5fd1d2d04104a91"
+                chapter-04-output: "sha256:8c18674e743499d8226d8436ee3b6d4b469ab9134f0207edb28cba9d18d28227"
+                curriculum-readme: "sha256:c93de8753bcce559e71baa8a2e44d74d2eb9093b50c8fe299bb040f424ad0c54"
+                chapter-05-control-tree: "sha256:e0d97ba523e8c7432c568282dc2faa0997a3d3f3ef6f4ce2a25d79b64d943bc8"
+                chapter-07-control-tree: "sha256:c32ff262fbf4ae441bc9d3bca4091e46958a89dc88329bcd970d168d6f658a5f"
+                chapter-23-control-tree: "sha256:3d4cf66e83f5f80f520eb5a79ec9efe583c2d1731094f7d6fdead10696647e7c"
+                chapter-35-control-tree: "sha256:cf466f4976ab290c9d31393ab7f6d71d1aac863b552d37b1904f4b0b17a53685"
+                chapter-39-control-tree: "sha256:c6cd4ef2096e95ed96433ece5668589b02da3780890126baf349d16bca978a0e"
+                cargo-toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                cargo-lock: "sha256:b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+                prerequisite-publish-manifest: "sha256:dfdcb5cb994edc1f43b2f90ff3e18950e1f9bb0bfda93b2382c10d11f85b9de3"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No new dependency, paid service, model generation, or external data. Product and browser work remains inside pinned Docker images; the accepted lockfile-pinned registry-refresh contingency applies only if a canonical layer misses cache."
+            staging_dir: ".build/runs/20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01/"
+            commands:
+              - "Start from clean committed checkpoint 7ba525c, verify its immutable eight-file manifest and completed build, and select runtime F06 before F09 under the accepted audit order."
+              - "Run three disjoint read-only current-state reviews over token/probability, evaluation/cache, and batch/pipeline paths; confirm every recorded F06/F09 item remains live and split shared rendered boundaries into chapter-sized prerequisites."
+              - "Read the complete localization skill, Chapter 4 workflow, locale registry/projection, contract, active en/ru lessons, source, tests, and exact downstream controls."
+              - "Classify the first step as large cached Docker/browser CPU within the unlimited budget; no dependency, paid service, generation, external data, or approval pause is required."
+              - "Replace Chapter 4's repeated reconstruction with final-layout validation plus owned copies of sealed BpeTraining rules and vocabulary; retain the fully checked raw-pair constructor and add equivalence/ownership and source-architecture controls."
+              - "Run ./course run cargo test --locked -p llm-from-scratch tokenizer::bpe; its Docker workspace build passes formatting, all 430 workspace tests, Astro/content/parity/build/link gates, then all 17 focused tokenizer tests."
+              - "Complete an independent English technical/explicitness review, correct the distinction between copied Chapter 3 facts and derived Chapter 4 ID mapping, and freeze Chapter 4 English revision 9 before Russian translation."
+              - "Run the focused Chapter 4 static test after complete workspace validation; observe one assertion that incorrectly required a prose sentence to remain on one source line, then narrow it to the stable claim fragment without weakening the rendered or source architecture checks."
+              - "Rerun the focused Chapter 4 static suite after making both locale assertions insensitive only to normal Markdown source wrapping; the complete Docker workspace gate and all ten focused tests pass."
+              - "Run one cached Docker control for rustfmt, focused tokenizer and Chapter 4 tests, exact Chapter 4 stdout, and strict crate Clippy; every Chapter 4 control passes, while all-target Clippy stops on an unchanged probability.rs test-only needless_range_loop outside this step."
+              - "Apply the independent final review: state explicitly that encoding consumes rules already shifted during construction, remove repository commands and test-contract prose from both learner-facing locales, and add a trainer-produced chained-merge case that proves copied learned-token expansions remain owned and equivalent."
+              - "Run the focused tokenizer gate after the final review corrections; its first image build stops at one deterministic rustfmt line wrap in the new chained fixture before tests, then apply that exact formatter result."
+              - "Run one cached final static/Rust control: strict library Clippy, the 40-chapter scheduler, Chapter 4 contract and both locale projections, locale parity, ten focused static assertions, and all 39 exact demo reports plus 34 exact diagram traces pass."
+            artifacts:
+              - {path: ".build/runs/20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01/english/04-apply-bpe-tokenizer.mdx", sha256: "ecb07fb076fb3260ded21b5479704028942fbfebedbb59fd9497d83a132c84fd", role: "Final frozen canonical English Chapter 4 revision 9 after independent explicitness and learner-surface review"}
+              - {path: ".build/runs/20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01/localization/04-apply-bpe-tokenizer.ru.mdx", sha256: "7c68fe5a897569681f70710453665d9c74677f071d005cfc2e4b3bb0a905b822", role: "Final Russian Chapter 4 revision 9 refreshed directly against the final frozen English source"}
+              - {path: ".build/runs/20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01/validation/Browser.Dockerfile", sha256: "8a28949645f5b4fa98e2506ec7f27b7af944ba778d64602b352e2ab2c687a73d", role: "Pinned no-network Chromium and Firefox validation image recipe"}
+              - {path: "docker:image/learn-llm-ch04-browser:20260805-sealed-bpe", sha256: "cd7f34df492e27f695376e1248300176c7065495cd46b445631daac660f0a156", role: "Exact browser image used for the final two-engine rendered matrix"}
+              - {path: ".build/runs/20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01/publish.sha256", sha256: "8f7f859c26e117a943bde591fbc21c024920136e07bb168f2c342f21d8b21131", role: "Immutable manifest for the nine exact product and test outputs promoted by this run"}
+              - {path: "docker:image/learn-llm-review:20260805t224742z-trust-sealed-bpe-training-when-freezing-tokenizer-01", sha256: "e93a05f56717e583062b1207464b1c331ce095c55a908a0de006c4029274f4db", role: "Exact immutable-publication review image"}
+            validation:
+              - {command: "Repository, prior checkpoint, dependency, input, output-ownership, locale, environment, and cost preflight", status: passed, notes: "HEAD 7ba525c and the worktree were clean before ledger planning; the F05-before-F04 build is completed, its eight-file manifest remains sha256:dfdcb5cb..., and no step or run was active. Current source review confirms F06 and F09 remain live. Chapter 4's active locale set is exactly {en,ru}; pinned tools match the ledger. Large cached CPU fits the unlimited budget with no new dependency, paid, generation, or external-data input."}
+              - {command: "./course run cargo test --locked -p llm-from-scratch tokenizer::bpe", status: passed, notes: "The rebuilt workspace image first passes rustfmt, all 430 workspace tests, Astro diagnostics, content/parity, production build, and link checks; the requested focused filter then passes all 17 BPE trainer/tokenizer tests. The first attempt exposed one rustfmt-only line wrap before any test ran; applying that deterministic format and rerunning succeeded."}
+              - {command: "Independent Chapter 4 revision 9 English technical, explicitness, and continuity review plus frozen-source checksum", status: passed, notes: "The final wording says exactly which sealed Chapter 3 facts are copied, which layout-v1 IDs are derived by adding two, which new final-extent check remains, and which checks raw pair input requires. Formula, history, visualization, exercises, and handoff remain coherent. Frozen MDX is sha256:f66271e3...."}
+              - {command: "Russian revision 9 direct semantic-parity review against frozen English sha256:f66271e3...", status: passed, notes: "The final candidate preserves retraining provenance, sealed versus raw construction, rank/pair/training-ID/vocabulary facts, the +2 operand/result mapping, final u32 extent, ownership, canonicalization contrast, formulas, code identifiers, values, history, evidence, exercises, and handoff without missing or added claims."}
+              - {command: "Russian revision 9 terminology review", status: passed, notes: "Established terms and Rust identifiers remain consistent: пространство обучения, пространство ID содержимого, байтовое представление, ранг, BOS/EOS, BpeTraining, from_training, from_merge_pairs, u32, and all formulas and numeric mappings."}
+              - {command: "Russian revision 9 anti-calque review", status: passed, notes: "Reorganized the constructor explanation around when data becomes trusted, separated construction paths, named the demonstration program, and removed literal or awkward formulations including исполняемый пример, ранг выучил, and ambiguous совпадение."}
+              - {command: "Russian revision 9 monolingual technical-prose review", status: passed, notes: "A final native-language reread reports no remaining blocker-level calques, ambiguity, or grammar defects; the exact reviewed candidate is sha256:30597243...."}
+              - {command: "Russian revision 9 source-level accessibility and technical-island review", status: passed, notes: "Diagram labels, captions, descriptions, controls, formulas, LTR identifiers, code, trace data, numbers, and link targets remain unchanged; revised prose uses explicit referents and math markup for r, 256+r, and +2 where expressions are learner-facing."}
+              - {command: "./course run npm --prefix site test -- --run tests/04-apply-bpe-tokenizer-diagram.test.ts (first focused attempt)", status: failed, notes: "The Docker image itself passed rustfmt, all 430 workspace tests, Astro diagnostics, content/parity, production build, and 2,529-link audit. Nine of ten focused tests passed; one new prose assertion assumed 'a caller' remained on one MDX source line, although normal wrapping placed a newline between the words. The assertion now pins the same stable constructor claim without encoding source line wrapping."}
+              - {command: "./course run npm --prefix site test -- --run tests/04-apply-bpe-tokenizer-diagram.test.ts (second focused attempt)", status: failed, notes: "The complete Docker workspace gate again passed. The corrected English assertion passed; the analogous Russian source assertion still assumed a sentence had no normal Markdown line break. It now matches the exact sentence while accepting source whitespace, leaving semantic strength unchanged."}
+              - {command: "./course run npm --prefix site test -- --run tests/04-apply-bpe-tokenizer-diagram.test.ts", status: passed, notes: "The complete Docker workspace gate passes rustfmt, all 430 Rust tests, Astro diagnostics, content/parity, production build, and the 2,529-link audit; all 10 focused Chapter 4 architecture, content, diagram, formula, and locale assertions then pass."}
+              - {command: "./course run cargo fmt --all -- --check; cargo test --locked -p llm-from-scratch tokenizer::bpe; cargo test --locked -p ch04-apply-bpe-tokenizer; exact Chapter 4 stdout cmp", status: passed, notes: "A single cached Docker invocation satisfies the four declared controls in order: formatting is clean, all 17 focused tokenizer tests pass, the Chapter 4 package test and doc-test pass, and learner stdout equals expected.txt byte for byte."}
+              - {command: "./course run cargo clippy --locked -p llm-from-scratch --all-targets -- -D warnings", status: failed, notes: "Production/library code checks until an unchanged test-only loop at nn/probability.rs:635 triggers clippy::needless_range_loop. That file is outside this step and belongs to the pending share-probability-forward-plan checkpoint; no Chapter 4 or changed-line lint is reported. Run the scoped --lib strict control before completion and preserve this broader finding for its owning step."}
+              - {command: "./course run cargo test --locked -p llm-from-scratch tokenizer::bpe (post-review first attempt)", status: failed, notes: "The Docker workspace stopped before compilation because rustfmt wanted one local chained-fixture binding on one line. The exact deterministic formatter output was applied; no product behavior, content meaning, or test assertion changed."}
+              - {command: "Final Russian native-language recheck against English sha256:a3a8ca3e...", status: passed, notes: "The reviewer found one calque in the new boundary paragraph ('ошибки обозначают') and supplied a natural cause-to-error formulation. The corrected Russian candidate is sha256:12afd2f3..., contains no learner-facing build or authoring machinery, and awaits one final semantic spot-check after that wording-only correction."}
+              - {command: "./course run cargo test --locked -p llm-from-scratch tokenizer::bpe", status: passed, notes: "After the deterministic format correction, the exact final workspace passes rustfmt, all 431 Rust tests, Astro diagnostics, content/parity, the 85-page production build, and 2,529-link audit; all 18 focused BPE tests pass, including the trainer-produced learned-token chain and post-drop ownership check."}
+              - {command: "Final English/Russian explicitness, semantic, native-language, anti-calque, and learner-surface recheck", status: passed, notes: "Independent reviewers confirm that construction-time +2 mapping is explicit, BpeTokenizer and BpeTokenizerError are concrete local referents, repository commands and test requirements are absent from learner prose, and final English sha256:ecb07fb0... / Russian sha256:7c68fe5a... preserve natural semantic parity with no remaining blocker."}
+              - {command: "./course run cargo clippy --locked -p llm-from-scratch --lib -- -D warnings", status: passed, notes: "The exact final library target passes strict Clippy. The separately preserved all-target failure remains isolated to an unchanged probability.rs test loop owned by a later scheduled checkpoint."}
+              - {command: "./course run node scripts/check-course-plan.mjs; Chapter 4 contract/en/ru/parity/static controls", status: passed, notes: "The scheduler validates 40 chapters, 111 scheduled steps, and all 40 implemented contracts through Chapter 39. Chapter 4's integrated contract, each locale projection, same-revision parity, and all 10 focused architecture/content/formula/diagram assertions pass."}
+              - {command: "./course run scripts/check-rust-demos.sh", status: passed, notes: "All 39 discovered chapter reports and all 34 registered diagram traces match checked-in fixtures byte for byte. This includes Chapter 4 and the declared downstream Chapters 5, 7, 23, 35, and 39 controls; Chapter 35 correctly has no diagram trace."}
+              - {command: "./course check", status: passed, notes: "The exact pre-browser workspace image passes rustfmt, all 431 Rust tests plus four compile-fail docs, zero-diagnostic Astro checks, all 80 localized sources and 40 parity sets, the 85-page production build, and 2,529 local-link references."}
+              - {command: "docker build --network none -f .build/runs/20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01/validation/Browser.Dockerfile -t learn-llm-ch04-browser:20260805-sealed-bpe .", status: passed, notes: "The pinned Playwright 1.61.1 Noble base and exact workspace snapshot produce browser image sha256:cd7f34df... without a host-published preview port."}
+              - {command: "docker run --rm --network none --ipc=host learn-llm-ch04-browser:20260805-sealed-bpe npx playwright test tests/e2e/ch04-apply-bpe-tokenizer.spec.ts tests/e2e/diagram-style-system.spec.ts tests/e2e/diagram-full-view.spec.ts --browser=chromium", status: passed, notes: "All 23 Chromium cases pass: Chapter 4 en/ru desktop and narrow teaching evidence, whole-course diagram desktop/narrow/full-view containment, and progressive full-view no-JavaScript, mobile, focus, forced-color, and synthetic-RTL behavior."}
+              - {command: "docker run --rm --network none --ipc=host learn-llm-ch04-browser:20260805-sealed-bpe npx playwright test tests/e2e/ch04-apply-bpe-tokenizer.spec.ts tests/e2e/diagram-style-system.spec.ts tests/e2e/diagram-full-view.spec.ts --browser=firefox", status: passed, notes: "All 23 Firefox cases pass over the same exact routes, viewports, registered figures, full-view surfaces, and fallback behavior."}
+              - {command: "Independent final Rust invariant, English explicitness, and Russian semantic/native-language review", status: passed, notes: "Read-only final reviewers report no blocker: the sealed path owns copies without reconstruction, the raw path retains every reachable validation, the chained learned-token fixture proves expansion and lifetime behavior, learner prose exposes the exact trust boundary, and the Russian lesson is natural and semantically complete."}
+              - {command: "Canonical versus immutable publish/ equality and publish.sha256 verification", status: passed, notes: "All nine declared product/test files are byte-identical between canonical paths and publish/. Manifest sha256:8f7f859c... records their exact hashes; frozen English and Russian also remain identical to canonical at ecb07fb0... and 7c68fe5a...."}
+              - {command: "./course review 20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01 --check", status: passed, notes: "Review image sha256:e93a05f5... validates the immutable publication through both content gates, zero-diagnostic Astro analysis, the 85-page production build, and all 2,529 reference checks without mutating publish/."}
+              - {command: "./course audit-host", status: passed, notes: "No Rust, Node.js, Python, browser, or generated build artifact escaped the Docker workflow; site/dist remains the intentional static-release exception."}
+              - {command: "git diff --check and exact tracked-output scope audit", status: passed, notes: "Whitespace validation passes and the worktree contains exactly the nine declared canonical product/test files plus BUILD_STATE.yaml and DECISIONS.md."}
+              - {command: "docker run --rm --network none --mount type=bind,src=/home/int/Dropbox/learn_llm,dst=/workspace,readonly -w /workspace node:22.12.0-bookworm node scripts/check-course-plan.mjs", status: passed, notes: "The final completed checkpoint ledger validates in the pinned no-network Node container: 40 chapters, 111 scheduled steps, and all 40 implemented contracts through Chapter 39."}
+            notes: "Succeeded. Chapter 4 now freezes a tokenizer by copying sealed training rules and byte expansions after only the new final-namespace extent check, while untrusted raw pair construction retains complete validation. Exact Rust behavior, downstream demos, bilingual teaching, two-engine rendering, immutable publication, and the Docker-only host boundary all pass."
+
+      - id: share-validated-row-gather-plan
+        objective: "Make Chapter 16's checked row gather create one reusable validated plan that later internal callers can consume without repeating shape, count, or index scans."
+        depends_on: [trust-sealed-bpe-training-when-freezing-tokenizer]
+        status: pending
+        inputs: ["Audit F06 embedding/gather evidence", "autograd/model_ops.rs", "Chapter 16 current contract/locales/tests/output", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/autograd/model_ops.rs", "curriculum/chapters/16-model-autodiff-ops.md", "curriculum/course-plan.md", "site/src/content/chapters/en/16-model-autodiff-ops.mdx", "site/src/content/chapters/ru/16-model-autodiff-ops.mdx", "site/tests/16-model-autodiff-ops-diagram.test.ts", "site/tests/e2e/ch16-model-autodiff-ops.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "One sealed crate-private row-gather plan owns rank, index-shape, count, first-bad-index, and output-shape validation; public gather constructs it and the existing gather/VJP kernel consumes it."
+          - "Public error variants and precedence, values, duplicate-row gradient accumulation, arbitrary index shapes, exact Chapter 16 output/trace, and downstream model behavior remain unchanged."
+          - "Chapter 16 advances English-first and teaches checked public entry versus trusted internal reuse; Russian receives direct semantic and rendered review."
+        validate: ["Focused model_ops Rust tests and strict Clippy in Docker", "Exact Chapter 16 stdout/trace and static contract tests", "./course check", "Chapter 16 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Shared gather boundary plus bilingual Chapter 16 revision, Docker equivalence, and two-browser review."}
+        runs: []
+
+      - id: pass-validated-embedding-indices-to-row-gather
+        objective: "Let Chapter 18 validate token shape and IDs once, then pass the sealed gather plan to the shared row-gather kernel."
+        depends_on: [share-validated-row-gather-plan]
+        status: pending
+        inputs: ["Committed shared row-gather plan", "nn/embedding.rs", "Chapter 18 current contract/locales/tests/output", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/nn/embedding.rs", "curriculum/chapters/18-token-embeddings.md", "curriculum/course-plan.md", "site/src/content/chapters/en/18-token-embeddings.mdx", "site/src/content/chapters/ru/18-token-embeddings.mdx", "site/tests/18-token-embeddings-diagram.test.ts", "site/tests/e2e/ch18-token-embeddings.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Embedding performs its established shape/count/first-bad-u32 validation once and passes converted indices through the committed sealed gather plan without a second scan."
+          - "The public generic gather remains fully checked; embedding values, repeated-ID gradients, error order, initialization, exact Chapter 18 output/trace, and downstream decoder behavior remain unchanged."
+          - "Chapter 18 advances English-first and explains the one-boundary handoff; Russian receives direct semantic and rendered review."
+        validate: ["Focused embedding/model_ops Rust tests and strict Clippy in Docker", "Exact Chapters 16/18 stdout and trace controls plus static tests", "./course check", "Chapter 18 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Embedding adoption plus bilingual Chapter 18 revision, downstream equivalence, and two-browser review."}
+        runs: []
+
+      - id: share-probability-forward-plan
+        objective: "Make Chapter 12 probability operations expose one reusable checked group traversal from which public results and later saved backward context can be emitted without repeating row statistics."
+        depends_on: [pass-validated-embedding-indices-to-row-gather]
+        status: pending
+        inputs: ["Audit F06 probability evidence", "nn/probability.rs", "Pre-existing strict all-target Clippy finding at probability.rs:635 (test-only needless_range_loop), preserved by the Chapter 4 trusted-boundary run", "Chapter 12 current contract/locales/tests/output", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/nn/probability.rs", "curriculum/chapters/12-stable-softmax.md", "curriculum/course-plan.md", "site/src/content/chapters/en/12-stable-softmax.mdx", "site/src/content/chapters/ru/12-stable-softmax.mdx", "site/tests/12-stable-softmax-diagram.test.ts", "site/tests/e2e/ch12-stable-softmax.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "One checked axis/group plan and one row-statistics traversal support softmax, log-softmax, indexed mean NLL, and crate-private saved-probability emission without a parallel normalization algorithm."
+          - "Public APIs remain lean and preserve exact values/bits, ordinary and scaled NLL accumulation, positive zero, noncontiguous axes, target/error precedence, and Chapter 12 output/trace."
+          - "Chapter 12 advances English-first and teaches which row facts can be reused; Russian receives direct semantic and rendered review."
+        validate: ["Focused probability Rust tests across extreme/noncontiguous cases and strict Clippy", "Exact Chapter 12 stdout/trace and static tests", "./course check", "Chapter 12 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Probability core refactor plus bilingual Chapter 12 revision, numerical controls, and two-browser review."}
+        runs: []
+
+      - id: reuse-probability-forward-state-in-autodiff
+        objective: "Let Chapter 16 log-softmax and indexed-NLL autodiff retain probabilities from their single forward traversal instead of normalizing logits twice."
+        depends_on: [share-probability-forward-plan]
+        status: pending
+        inputs: ["Committed Chapter 12 probability plan", "autograd/model_ops.rs", "latest Chapter 16 contract/locales/tests/output", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/autograd/model_ops.rs", "curriculum/chapters/16-model-autodiff-ops.md", "curriculum/course-plan.md", "site/src/content/chapters/en/16-model-autodiff-ops.mdx", "site/src/content/chapters/ru/16-model-autodiff-ops.mdx", "site/tests/16-model-autodiff-ops-diagram.test.ts", "site/tests/e2e/ch16-model-autodiff-ops.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Each autodiff log-softmax or indexed-NLL forward traverses probability groups once and saves the exact probabilities emitted by that traversal for its VJP."
+          - "Forward bits, gradients, graph retention, error precedence, gradchecks, exact Chapters 12/13/16/23/32 controls, and public probability APIs remain unchanged."
+          - "Chapter 16 advances in a second intentional narrow revision, English first, and Russian receives direct semantic and rendered review."
+        validate: ["Focused probability/model_ops Rust tests, gradchecks, and strict Clippy", "Exact affected/downstream demos and Chapter 16 static tests", "./course check", "Chapter 16 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Autodiff adoption plus second narrow Chapter 16 bilingual revision, numerical/gradient controls, and browser review."}
+        runs: []
+
+      - id: score-final-test-after-one-inspection
+        objective: "Inspect Chapter 34's one-shot test epoch once and reuse a sealed checked-index view for evidence and bigram scoring."
+        depends_on: [reuse-probability-forward-state-in-autodiff]
+        status: pending
+        inputs: ["Audit F06 evaluation evidence", "evaluation.rs and bigram.rs", "Chapter 34 current contract/locales/tests/output", "Chapter 39 exact downstream control", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/evaluation.rs", "rust/crates/llm-from-scratch/src/bigram.rs", "curriculum/chapters/34-final-evaluation.md", "curriculum/course-plan.md", "site/src/content/chapters/en/34-final-evaluation.mdx", "site/src/content/chapters/ru/34-final-evaluation.mdx", "site/tests/34-final-evaluation-diagram.test.ts", "site/tests/e2e/ch34-final-evaluation.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Opening the gate creates one private inspected test-epoch view that owns evidence and yields aligned checked indices; first-bad alignment/input/target error order and the burn point remain exact."
+          - "Bigram final scoring trusts only that sealed view through a crate-private checked-index primitive; public BigramModel APIs remain fully checked."
+          - "One-use evaluation, fingerprints/counts, decoder no-grad checks, exact Chapter 34/39 evidence, and model scores remain unchanged; Chapter 34 advances English-first with reviewed Russian."
+        validate: ["Focused evaluation/bigram Rust tests and strict Clippy", "Exact Chapter 34 and 39 stdout/trace controls plus static tests", "./course check", "Chapter 34 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "One-shot evaluation boundary plus bilingual Chapter 34 revision, downstream capstone controls, and browser review."}
+        runs: []
+
+      - id: share-bound-incremental-attention-kernel
+        objective: "Separate Chapter 37's fully checked standalone incremental-attention boundary from one crate-private already-bound kernel for model-wide cache sessions."
+        depends_on: [score-final-test-after-one-inspection]
+        status: pending
+        inputs: ["Audit F06 incremental-cache evidence", "attention/incremental.rs", "Chapter 37 current contract/locales/tests/output", "Chapter 38 exact control", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/attention/incremental.rs", "curriculum/chapters/37-incremental-attention.md", "curriculum/course-plan.md", "site/src/content/chapters/en/37-incremental-attention.mdx", "site/src/content/chapters/ru/37-incremental-attention.mdx", "site/tests/37-incremental-attention-diagram.test.ts", "site/tests/e2e/ch37-incremental-attention.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Public forward_incremental/prepare_incremental retains all geometry, identity, revision, RoPE, phase, and capacity checks before invoking the single prepare/commit kernel."
+          - "A crate-private bound entry can reuse that kernel only after Chapter 38 proves the same relationships; it adds no second attention computation and exposes no unchecked public API."
+          - "Exact Chapter 37/38 values, errors, cache commits, stdout/traces, and rollback remain unchanged; Chapter 37 advances English-first with reviewed Russian."
+        validate: ["Focused incremental-attention Rust tests and strict Clippy", "Exact Chapters 37/38 stdout/trace and static controls", "./course check", "Chapter 37 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Shared incremental kernel plus bilingual Chapter 37 revision, cache controls, and browser review."}
+        runs: []
+
+      - id: bind-decoder-cache-session-once
+        objective: "Bind Chapter 38's model and decoder cache once so prefill and decode cannot accept or rescan another model and parameter values remain immutably borrowed for the session."
+        depends_on: [share-bound-incremental-attention-kernel]
+        status: pending
+        inputs: ["Committed bound incremental kernel", "generation/kv_cache.rs", "Chapter 38 current contract/locales/tests/output", "Chapter 39 exact downstream control", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/generation/kv_cache.rs", "curriculum/chapters/38-cached-generation.md", "curriculum/course-plan.md", "site/src/content/chapters/en/38-cached-generation.mdx", "site/src/content/chapters/ru/38-cached-generation.mdx", "site/tests/38-cached-generation-diagram.test.ts", "site/tests/e2e/ch38-cached-generation.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "One model/cache bind validates configuration, parameter nodes and revisions, RoPE and layer geometry, and coherent layer lengths, then retains immutable parameter-value borrows for the session lifetime."
+          - "Session prefill/decode accept no model argument and perform no model-wide, parameter-wide, RoPE, geometry, or layer-length rescan; private state transitions and all-layer tickets preserve invariants and rollback."
+          - "Mismatch diagnostics remain at bind, phase/token/full/counter precedence remains at operations, and exact Chapter 38/39 tokens, RNG, work counts, stdout/traces, and cached/uncached parity remain unchanged."
+          - "Chapter 38 advances English-first and teaches ownership-bound compatibility; Russian receives direct semantic and rendered review."
+        validate: ["Focused kv-cache/incremental Rust tests and strict Clippy", "Exact Chapters 37/38/39 outputs/traces and static tests", "./course check", "Chapter 38 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Model-bound session plus bilingual Chapter 38 revision, downstream generation controls, and browser review."}
+        runs: []
+
+      - id: write-mini-batches-directly-from-window-descriptors
+        objective: "Make Chapter 21 shuffle lightweight window descriptors, copy tokens once into final batches, and commit validated gradient sums in place."
+        depends_on: [bind-decoder-cache-session-once]
+        status: pending
+        inputs: ["Audit F09 batch evidence", "training/batch.rs", "Chapter 21 current contract/locales/tests/output", "Chapter 39 exact downstream control", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/training/batch.rs", "curriculum/chapters/21-mini-batches.md", "curriculum/course-plan.md", "site/src/content/chapters/en/21-mini-batches.mdx", "site/src/content/chapters/ru/21-mini-batches.mdx", "site/tests/21-mini-batches-diagram.test.ts", "site/tests/e2e/ch21-mini-batches.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Epoch construction shuffles Copy(document_index,start) descriptors and writes each input/target token slice directly into its final batch buffer without OwnedWindow token vectors or duplicate token storage."
+          - "Provenance, sequential/shuffled order, RNG state, shapes, final short batch, errors, and exact Chapter 21/39 outputs and traces remain unchanged."
+          - "Accumulator add/merge preflight every prospective scalar and count before mutating existing sums; successful commits retain the same allocation and late failures leave all state unchanged."
+          - "Chapter 21 advances English-first across both rendered regions and Russian receives direct semantic and rendered review."
+        validate: ["Focused batch Rust tests including pointer/rollback proofs and strict Clippy", "Exact Chapter 21 and 39 stdout/trace controls plus static tests", "./course check", "Chapter 21 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Two same-chapter F09 buffer repairs, bilingual Chapter 21 revision, downstream controls, and browser review."}
+        runs: []
+
+      - id: remove-capstone-orchestration-copies
+        objective: "Move Chapter 39 epochs and prompt IDs at their last use and count selected-state scalars without constructing a throwaway decoder."
+        depends_on: [write-mini-batches-directly-from-window-descriptors]
+        status: pending
+        inputs: ["Committed Chapter 21 direct batches", "pipeline.rs", "Chapter 39 current contract/locales/tests/output", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["rust/crates/llm-from-scratch/src/pipeline.rs", "curriculum/chapters/39-end-to-end-llm.md", "curriculum/course-plan.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Capstone records test window/batch counts before moving the epoch into FinalEvaluator, uses selected_state.scalar_count for parameter evidence, and moves prompt IDs into final evidence after both generation paths finish."
+          - "No new model, epoch clone, or prompt clone remains for those three uses; two training replays, selection-before-test order, one-shot gate, checkpoint bytes, logits, cached/uncached decisions, RNG, and exact Chapter 39 output/trace remain unchanged."
+          - "Chapter 39 advances English-first and explicitly teaches the final ownership flow; Russian receives direct semantic and rendered review."
+        validate: ["Focused pipeline Rust tests and strict Clippy", "Exact Chapter 39 stdout/trace and static tests", "./course check", "Chapter 39 Chromium/Firefox both-locale matrix", "./course audit-host"]
+        cost: {class: large, notes: "Capstone ownership cleanup plus bilingual Chapter 39 revision, end-to-end exact controls, and browser review."}
+        runs: []

@@ -188,48 +188,32 @@ pub struct BpeTokenizer {
 }
 
 impl BpeTokenizer {
-    /// Freezes the ranks and byte expansions from a validated Chapter 3 result.
+    /// Copies the ranks and byte expansions from a validated Chapter 3 result.
     pub fn from_training(training: &BpeTraining) -> Result<Self, BpeTokenizerError> {
-        let mut pairs = Vec::with_capacity(training.rules().len());
-        for (expected_rank, rule) in training.rules().iter().enumerate() {
-            let expected_token = BYTE_TOKEN_COUNT
-                .checked_add(u32::try_from(expected_rank).map_err(|_| {
-                    BpeTokenizerError::LayoutOverflow {
-                        merge_count: training.rules().len(),
-                    }
-                })?)
-                .ok_or(BpeTokenizerError::LayoutOverflow {
-                    merge_count: training.rules().len(),
-                })?;
-            if rule.rank() != expected_rank || rule.token_id() != expected_token {
-                return Err(BpeTokenizerError::InvalidTrainingRule {
-                    expected_rank,
-                    actual_rank: rule.rank(),
-                    actual_token_id: rule.token_id(),
-                });
-            }
-            pairs.push(rule.pair());
-        }
-
-        let tokenizer = Self::from_merge_pairs(&pairs)?;
-        if tokenizer.training_vocabulary.len() != training.vocabulary_size() {
-            return Err(BpeTokenizerError::InconsistentTrainingVocabulary {
-                training_token_id: 0,
-            });
-        }
-        for (training_token_id, bytes) in tokenizer.training_vocabulary.iter().enumerate() {
-            let training_token_id = u32::try_from(training_token_id).map_err(|_| {
-                BpeTokenizerError::LayoutOverflow {
-                    merge_count: training.rules().len(),
+        let layout = TokenizerLayout::new(training.rules().len())?;
+        let merge_rules = training
+            .rules()
+            .iter()
+            .map(|rule| {
+                let training_pair = rule.pair();
+                BpeMergeRule {
+                    rank: rule.rank(),
+                    training_pair,
+                    training_token_id: rule.token_id(),
+                    content_pair: TokenPair::new(
+                        training_pair.left() + CONTENT_ID_OFFSET,
+                        training_pair.right() + CONTENT_ID_OFFSET,
+                    ),
+                    content_token_id: rule.token_id() + CONTENT_ID_OFFSET,
                 }
-            })?;
-            if training.token_bytes(training_token_id) != Some(bytes.as_slice()) {
-                return Err(BpeTokenizerError::InconsistentTrainingVocabulary {
-                    training_token_id,
-                });
-            }
-        }
-        Ok(tokenizer)
+            })
+            .collect();
+
+        Ok(Self {
+            layout,
+            merge_rules,
+            training_vocabulary: training.vocabulary().to_vec(),
+        })
     }
 
     /// Builds a frozen tokenizer from ordered Chapter 3 training-space pairs.
@@ -497,14 +481,6 @@ pub enum BpeTokenizerError {
     UnknownMergeOperand { rank: usize, token_id: u32 },
     /// A pair appears at more than one rank.
     DuplicateMergePair { rank: usize, left: u32, right: u32 },
-    /// A supposedly validated Chapter 3 rule is not contiguous.
-    InvalidTrainingRule {
-        expected_rank: usize,
-        actual_rank: usize,
-        actual_token_id: u32,
-    },
-    /// Stored Chapter 3 bytes disagree with reconstruction from its pair table.
-    InconsistentTrainingVocabulary { training_token_id: u32 },
     /// BOS or EOS was passed to content-only decoding.
     ControlTokenInContent { position: usize, token_id: u32 },
     /// A token ID has no byte expansion in this tokenizer.
@@ -538,18 +514,6 @@ impl fmt::Display for BpeTokenizerError {
             Self::DuplicateMergePair { rank, left, right } => write!(
                 formatter,
                 "merge rank {rank} repeats training pair ({left},{right})"
-            ),
-            Self::InvalidTrainingRule {
-                expected_rank,
-                actual_rank,
-                actual_token_id,
-            } => write!(
-                formatter,
-                "expected training rank {expected_rank}, found rank {actual_rank} with token {actual_token_id}"
-            ),
-            Self::InconsistentTrainingVocabulary { training_token_id } => write!(
-                formatter,
-                "training token {training_token_id} has an inconsistent byte expansion"
             ),
             Self::ControlTokenInContent { position, token_id } => write!(
                 formatter,
@@ -596,14 +560,85 @@ mod tests {
     const CORPUS_JSON: &str = include_str!("../../../../data/tiny-bilingual-corpus.json");
     const SPLIT_MANIFEST: &str = include_str!("../../../../data/splits.json");
 
-    fn canonical_tokenizer() -> BpeTokenizer {
+    fn canonical_training() -> BpeTraining {
         let corpus = Corpus::from_json(CORPUS_JSON).expect("fixture corpus");
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("fixture manifest");
         let partitions = manifest.partition(&corpus).expect("valid fixture split");
-        let training = BpeTrainer::new(8)
+        BpeTrainer::new(8)
             .train(&partitions)
-            .expect("eight frozen ranks");
+            .expect("eight frozen ranks")
+    }
+
+    fn chained_training() -> BpeTraining {
+        const CORPUS: &str = r#"[
+  {"id":"train-one","language":"en","provenance_group":"train-one","text":"aaaa"},
+  {"id":"validation-one","language":"en","provenance_group":"validation-one","text":"bbbb"},
+  {"id":"test-one","language":"en","provenance_group":"test-one","text":"cccc"}
+]"#;
+        let corpus = Corpus::from_json(CORPUS).expect("chained-merge corpus");
+        let manifest_json = format!(
+            r#"{{"schema_version":1,"corpus_checksum":"{}","strategy":"fixed-paired-document-holdout-v1","train":["train-one"],"validation":["validation-one"],"test":["test-one"]}}"#,
+            corpus.checksum()
+        );
+        let manifest = SplitManifest::from_json(&manifest_json).expect("chained-merge manifest");
+        let partitions = manifest
+            .partition(&corpus)
+            .expect("valid chained-merge split");
+        BpeTrainer::new(2)
+            .train(&partitions)
+            .expect("two chained ranks")
+    }
+
+    fn canonical_tokenizer() -> BpeTokenizer {
+        let training = canonical_training();
         BpeTokenizer::from_training(&training).expect("valid frozen tokenizer")
+    }
+
+    #[test]
+    fn copies_the_sealed_training_result_into_independent_storage() {
+        let training = canonical_training();
+        let pairs = training
+            .rules()
+            .iter()
+            .map(|rule| rule.pair())
+            .collect::<Vec<_>>();
+        let expected = BpeTokenizer::from_merge_pairs(&pairs).expect("valid raw pair table");
+        let tokenizer = BpeTokenizer::from_training(&training).expect("valid frozen tokenizer");
+
+        assert_eq!(tokenizer, expected);
+        drop(training);
+        assert_eq!(
+            tokenizer.decode_content_utf8(&[258, 178]),
+            Ok(" а".to_owned())
+        );
+    }
+
+    #[test]
+    fn copies_chained_sealed_expansions_without_reconstruction() {
+        let training = chained_training();
+        assert_eq!(
+            training
+                .rules()
+                .iter()
+                .map(|rule| rule.pair())
+                .collect::<Vec<_>>(),
+            [TokenPair::new(97, 97), TokenPair::new(256, 256)]
+        );
+        assert_eq!(training.token_bytes(257), Some(b"aaaa".as_slice()));
+
+        let pairs = training
+            .rules()
+            .iter()
+            .map(|rule| rule.pair())
+            .collect::<Vec<_>>();
+        let reconstructed =
+            BpeTokenizer::from_merge_pairs(&pairs).expect("valid chained raw pair table");
+        let tokenizer = BpeTokenizer::from_training(&training).expect("valid chained training");
+
+        assert_eq!(tokenizer, reconstructed);
+        drop(training);
+        assert_eq!(tokenizer.token_bytes(259), Some(b"aaaa".as_slice()));
+        assert_eq!(tokenizer.encode_content(b"aaaa"), [259]);
     }
 
     #[test]

@@ -27,6 +27,10 @@ const bpeSource = readFileSync(
   resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/tokenizer/bpe.rs'),
   'utf8',
 );
+const bpeTrainerSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs'),
+  'utf8',
+);
 const contractSource = readFileSync(
   resolve(repositoryRoot, 'curriculum/chapters/04-apply-bpe-tokenizer.md'),
   'utf8',
@@ -181,13 +185,59 @@ describe('apply-BPE-tokenizer trace parser', () => {
     expect(bpeSource.match(/for rule in &self\.merge_rules/g)).toHaveLength(1);
 
     for (const source of [contractSource, englishChapterSource, russianChapterSource]) {
-      expect(frontmatter(source).content_revision).toBe(8);
+      expect(frontmatter(source).content_revision).toBe(9);
     }
     expect(englishChapterSource).toContain(
       'The ordinary and traced methods call the same ranked-merge loop.',
     );
     expect(russianChapterSource).toContain(
       'Обычный метод и метод с трассировкой используют один и тот же цикл',
+    );
+  });
+
+  it('copies sealed training state but fully validates raw pair tables', () => {
+    const trustedStart = bpeSource.indexOf(
+      '    pub fn from_training(training: &BpeTraining)',
+    );
+    const rawStart = bpeSource.indexOf(
+      '    pub fn from_merge_pairs(pairs: &[TokenPair])',
+    );
+    const rawEnd = bpeSource.indexOf('    /// Returns the validated layout extent.', rawStart);
+    expect(trustedStart).toBeGreaterThan(-1);
+    expect(rawStart).toBeGreaterThan(trustedStart);
+    expect(rawEnd).toBeGreaterThan(rawStart);
+
+    const trustedBody = bpeSource.slice(trustedStart, rawStart);
+    expect(trustedBody).toContain('TokenizerLayout::new(training.rules().len())?');
+    expect(trustedBody).toContain('training.vocabulary().to_vec()');
+    expect(trustedBody).toContain('rule.rank()');
+    expect(trustedBody).toContain('rule.token_id()');
+    expect(trustedBody).toContain('rule.pair()');
+    expect(trustedBody).not.toContain('from_merge_pairs');
+    expect(trustedBody).not.toContain('expected_rank');
+    expect(trustedBody).not.toContain('training.token_bytes');
+    expect(bpeSource).not.toContain('InvalidTrainingRule');
+    expect(bpeSource).not.toContain('InconsistentTrainingVocabulary');
+    expect(bpeTrainerSource).toContain(
+      'pub(crate) fn vocabulary(&self) -> &[Vec<u8>]',
+    );
+
+    const rawBody = bpeSource.slice(rawStart, rawEnd);
+    expect(rawBody).toContain('TokenizerLayout::new(pairs.len())?');
+    expect(rawBody).toContain('BpeTokenizerError::UnknownMergeOperand');
+    expect(rawBody).toContain('BpeTokenizerError::DuplicateMergePair');
+    expect(rawBody).toContain('training_vocabulary.push(merged_bytes)');
+
+    expect(englishChapterSource).toContain(
+      "copies each rule's rank, pair, and assigned training-space ID",
+    );
+    expect(englishChapterSource).toContain(
+      '`BpeTokenizer::from_merge_pairs`, by contrast, accepts raw pairs supplied by a',
+    );
+    expect(englishChapterSource).not.toContain('rebuilds every byte expansion');
+    expect(russianChapterSource).not.toContain('заново строит');
+    expect(russianChapterSource).toMatch(
+      /Метод не строит байтовые представления заново и не\s+проверяет повторно инварианты из главы 3\./,
     );
   });
 

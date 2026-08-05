@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '04-apply-bpe-tokenizer';
-const contentRevision = 8;
+const contentRevision = 9;
 const formulaLatex = String.raw`\operatorname{decode}_{content}(\operatorname{encode}_{content}(x))=\operatorname{bytes}(x)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -89,6 +89,8 @@ const copy = {
     exerciseSummary: 'Check your predictions',
     exerciseAnswer: 'IDs [257,256] recover bytes ff fe exactly',
     observation: 'The ordinary and traced methods call the same ranked-merge loop.',
+    trainingBoundary:
+      'It does not reconstruct byte expansions or repeat the Chapter 3 invariants.',
   },
   ru: {
     indexTitle: 'От текста к небольшой языковой модели',
@@ -126,6 +128,8 @@ const copy = {
     exerciseSummary: 'Проверьте ответы',
     exerciseAnswer: 'ID [257,256] точно восстанавливают ff fe',
     observation: 'Обычный метод и метод с трассировкой используют один и тот же цикл: он перебирает правила в порядке рангов и выполняет слияния.',
+    trainingBoundary:
+      'Метод не строит байтовые представления заново и не проверяет повторно инварианты из главы 3.',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
@@ -153,6 +157,11 @@ async function expectChapterContent(
   });
   await expect(observation).toHaveCount(1);
   await expect(observation).toBeVisible();
+  const trainingBoundary = page.locator('.lesson-body p').filter({
+    hasText: localized.trainingBoundary,
+  });
+  await expect(trainingBoundary).toHaveCount(1);
+  await expect(trainingBoundary).toBeVisible();
   const displayedFormula = page.locator('.katex-display');
   await expect(displayedFormula).toHaveCount(1);
   await expect(displayedFormula).toHaveCSS('direction', 'ltr');
