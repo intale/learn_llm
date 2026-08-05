@@ -155,7 +155,7 @@ const explicitCopy = {
     answerEight:
       "This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns decoder.output.weight to decay, so AdamW subtracts the parameter-proportional term \\eta\\lambda\\theta_{t-1} from it. It assigns decoder.norm.scale to no-decay, so that parameter's effective \\lambda is 0; this avoids a decay term that directly pulls the learned normalization scale toward zero.",
     executionClaim:
-      'All four methods use the same internal preparation-and-commit operation and the same elementwise AdamW calculation. Tracing records values produced by that calculation; it does not calculate the update a second time.',
+      'Every entry point uses the same internal preparation-and-commit operation and the same elementwise AdamW calculation. Tracing records values produced by that calculation; it does not calculate the update a second time.',
   },
   ru: {
     workedClaims: [
@@ -166,7 +166,7 @@ const explicitCopy = {
     answerEight:
       'Это настраиваемое правило группировки, принятое в курсе, а не следствие формулы AdamW. По этому правилу decoder.output.weight относится к группе с затуханием, поэтому AdamW вычитает из него пропорциональную параметру поправку \\eta\\lambda\\theta_{t-1}. Параметр decoder.norm.scale относится к группе без затухания, и его эффективный коэффициент \\lambda равен 0: так затухание не создаёт отдельную поправку, напрямую стягивающую обучаемый масштаб нормализации к нулю.',
     executionClaim:
-      'Все четыре метода используют одну и ту же внутреннюю операцию подготовки и атомарной фиксации, а также один и тот же покоординатный расчёт AdamW. Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
+      'Все точки входа используют одну и ту же внутреннюю операцию подготовки и атомарной фиксации, а также один и тот же покоординатный расчёт AdamW. Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
   },
 } as const satisfies Record<
   ChapterLocale,
@@ -641,7 +641,7 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
-  expect(localized.revision).toBe(5);
+  expect(localized.revision).toBe(6);
   expect(normalizeProse(await page.locator('.lesson-body').innerText())).toContain(
     normalizeProse(explicitCopy[locale].executionClaim),
   );
@@ -692,6 +692,7 @@ async function expectChapterContent(
     await page.locator('annotation[encoding="application/x-tex"]').allTextContents()
   ).map(normalizeMath);
   for (const expected of [
+    String.raw`\widetilde g_t=0.25[0.8,-0.4]=[0.2,-0.1]`,
     String.raw`1-\beta_1^t=0.500000`,
     String.raw`1-\beta_2^t=0.500000`,
     String.raw`\eta\lambda\theta_0=[0.01,-0.02]`,

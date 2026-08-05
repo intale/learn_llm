@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T07:15:59Z"
+updated_at: "2026-08-05T07:26:39Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -31580,6 +31580,8 @@ builds:
           - "site/src/content/chapters/ru/33-training-selection.mdx"
           - "site/tests/33-training-selection-diagram.test.ts"
           - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/cheat-sheets.test.ts"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
@@ -31798,27 +31800,121 @@ builds:
       - id: thread-gradient-scale-into-adamw
         objective: "Pass the validated clipping scale into AdamW so clipping does not allocate a replacement parameter set before the optimizer transaction."
         depends_on: [make-tensorvalue-reads-borrowed]
-        status: pending
+        status: completed
         inputs:
           - "Completed make-tensorvalue-reads-borrowed step"
           - "Audit finding F02 clipping-copy cluster"
           - "Chapter 21 clipping and Chapter 22 AdamW invariants"
         outputs:
-          - "Rust clipping, trainer, and AdamW implementation and tests"
-          - "Affected chapter contracts, English/Russian projections, and focused browser/source tests determined during preflight"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/crates/llm-from-scratch/src/training/trainer.rs"
+          - "curriculum/chapters/22-adamw.md"
+          - "site/src/content/chapters/en/22-adamw.mdx"
+          - "site/src/content/chapters/ru/22-adamw.mdx"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "curriculum/chapters/33-training-selection.md"
+          - "site/src/content/chapters/en/33-training-selection.mdx"
+          - "site/src/content/chapters/ru/33-training-selection.mdx"
+          - "site/tests/33-training-selection-diagram.test.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
           - "The optimizer applies one finite scale in the closed interval [0, 1] to each gradient during its existing whole-set preparation; scale one is bit-identical to the unclipped path."
           - "The trainer does not construct a second complete set of parameter leaves solely to represent clipped gradients."
+          - "The scale is validated after a scheduled learning rate but before parameter inspection; invalid scale, later arithmetic failure, or trace observation cannot partially change parameters or optimizer state."
+          - "Only the gradient entering Adam moments is scaled. Decoupled weight decay still uses the unscaled parameter value, and an explicit trace records the effective gradient produced by the shared kernel rather than recalculating it."
           - "Clipping norms, scale evidence, AdamW arithmetic, error precedence, and rollback remain exact."
+          - "Shared formula and cheat-sheet grounding checks require the effective scaled gradient and the current explicit global-norm wording rather than obsolete pre-scale phrases."
         validate:
+          - "./course run cargo fmt --all -- --check"
+          - "./course run cargo clippy --workspace --all-targets --locked -- -D warnings"
+          - "./course run cargo test --workspace --all-targets --locked"
+          - "./course run cargo test --doc --workspace --locked"
+          - "./course run bash scripts/check-rust-demos.sh"
+          - "./course run sh -lc 'cd site && npm run test -- --run tests/22-adamw-diagram.test.ts tests/33-training-selection-diagram.test.ts'"
+          - "./course run sh -lc 'cd site && npm run check:content && npm run check:parity && npm run check && npm run build && npm run test:links'"
+          - "./course run sh -lc 'cd site && npm run test:e2e -- tests/e2e/ch22-adamw.spec.ts tests/e2e/ch33-training-selection.spec.ts --browser=chromium'"
+          - "./course run sh -lc 'cd site && npm run test:e2e -- tests/e2e/ch22-adamw.spec.ts tests/e2e/ch33-training-selection.spec.ts --browser=firefox'"
           - "./course check"
-          - "Focused deterministic Chapter 21/22/33 replay and source/content tests"
-          - "Focused Chromium and Firefox affected-route validation"
+          - "./course review 20260805T072639Z-thread-gradient-scale-into-adamw-01 --check"
           - "./course audit-host"
         cost: {class: large, notes: "Optimizer/trainer ownership correction with deterministic and bilingual rendered validation; cached Docker/browser CPU only."}
-        runs: []
+        runs:
+          - run_id: 20260805T072639Z-thread-gradient-scale-into-adamw-01
+            started_at: 2026-08-05T07:26:39Z
+            finished_at: 2026-08-05T08:23:36Z
+            status: succeeded
+            input_fingerprint:
+              git: "f3a41f59b7629dd9943d710fe4e0789ab091aa5f; tree 76149d87709ce8af745896dbfb8879902e1717da"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                adamw: "sha256:f42e5e36d115a55a39d8b3523bdd0bda5f280ef812743005e633231495685452"
+                trainer: "sha256:9168a5c231205968617cc4cddc88330a1766faadab6a646fc47382dce15f0a27"
+                chapter-22-contract: "sha256:c38d724bff9f4136383dffd3f49d91a05c572cfab58954023ec17a9aacd1d021"
+                chapter-22-en: "sha256:90d9a7d7b436c88096584a3caae427ac0e5a459a9a4efefc153687a7795f4825"
+                chapter-22-ru: "sha256:2b290553b7ba36ed0d58f43cb25922500fd3ce7c6c4a6882dd2a011dacc5af84"
+                chapter-22-source-test: "sha256:eb45daef94702eb334b915503fa776ca4a0c9ee7326d5f9e389f700fe58e2d81"
+                chapter-22-browser-test: "sha256:80e20b32f2c32c9a42d533cf49e7f3e504ef6ea0dd75be347f272a0e9fa13adf"
+                chapter-33-contract: "sha256:137f88af8e2bdfb5743f15a35f4ceb46183eed276aed2bb466c9ff286826d951"
+                chapter-33-en: "sha256:c897728e29a7effd5588c72c33783010b5cf3630a410ed1783d802ebe84da203"
+                chapter-33-ru: "sha256:adb173fee13e5aab3aec58db1a7a0836f24c6428491d874829bbcbcf6552a6ff"
+                chapter-33-source-test: "sha256:0001b2ba282aeff8349ed10cf4d3c08d29b263458db657e911db335e4854e14e"
+                chapter-33-browser-test: "sha256:e33bfe395be732d53bbb12c9c7778992e1d914d653135eb9ddb4c00703b523ce"
+                expected-evidence: "sha256:75e0667f446106cd55795123b4094169bd866b0e77d3826ad281aa4cce931221"
+                diagram-evidence: "sha256:eda32e21abaaad424531e8bdf5e225bfa39ec3c13200bcd6e1b582c024d4014d"
+              tools: {git: "2.53.0", docker: "25.0.2", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No paid service, model generation, or network input. Product build and validation remain Docker-only."
+            staging_dir: ".build/runs/20260805T072639Z-thread-gradient-scale-into-adamw-01/"
+            commands:
+              - "Verify clean committed dependency f3a41f5, exact input hashes, cached tool pins, no running owner, and no overlapping product change."
+              - "Perform independent read-only Rust API, content-projection, and validation/evidence preflights before claiming the step."
+              - "Classify the step as large cached-Docker/browser work within the unlimited budget and record the scale-inside-one-kernel decision before product edits."
+              - "Implement and independently review the AdamW scale boundary, trainer handle reuse, canonical English Chapter 22/33 revisions, direct Russian refreshes, and focused source/browser contract updates."
+              - "./course run npm --prefix site run test -- --run tests/22-adamw-diagram.test.ts tests/33-training-selection-diagram.test.ts (sandbox attempt denied Docker build-cache write; escalated retry reached the complete workspace image gate)"
+              - "Build isolated source image learn-llm-f02-source:20260805 and run the content, locale-parity, and focused Chapter 22/33 Vitest gates without host Node.js artifacts."
+              - "Run canonical ./course check, exact format/Clippy/all-target/doctest gates, the corrected Bash demo replay, focused and complete Vitest, and the exact content/parity/Astro/build/link gate."
+              - "Build learn-llm-f02-browser:20260805 from the exact workspace plus pinned Playwright 1.61.1 image and run focused Chromium and Firefox matrices offline."
+              - "Freeze fourteen exact product and semantic-test outputs under publish/, verify their manifest, run the manifest-locked review, repeat canonical ./course check, and audit the host and exact Git scope."
+            artifacts:
+              - {path: ".build/runs/20260805T072639Z-thread-gradient-scale-into-adamw-01/publish.sha256", sha256: "e41b0b972eb8facea380b0adb494e3cd790e26a69e4da55f4b2dfd979ac56e9a", purpose: "Frozen fourteen-file canonical publication manifest."}
+              - {path: ".build/runs/20260805T072639Z-thread-gradient-scale-into-adamw-01/validation/Dockerfile.browser", sha256: "78dbaa654eb534228d3e3cdefa724749d1b13d9b46b131ae09d556ebdb25218d", purpose: "Run-scoped offline two-engine validator derived from exact workspace and pinned Playwright images."}
+              - {path: "docker-image:learn-llm-f02-source:20260805", sha256: "307852a00521d6dae2db9f7bae64aef2378d84127b6ae3a17da631dd13735a52", purpose: "Exact product and semantic-test source image that passed all 964 static assertions."}
+              - {path: "docker-image:learn-llm-f02-browser:20260805", sha256: "ce938349ec89f0a0e6a115045232ae9e7ecaaddfaf8ff3b2cd5b4a7c5bc40cfe", purpose: "Exact product browser image that passed both focused engines."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "123874ba8aa21406f08d1a42d12585994d2fbe86baf402129c4713816fffd045", purpose: "Final canonical Docker workspace validation image."}
+              - {path: "docker-image:learn-llm-review:20260805t072639z-thread-gradient-scale-into-adamw-01", sha256: "edb91437f10bc6d25d292c9edcc04d11c158cbd240c6eaee6eeffc21f7714ac7", purpose: "Manifest-locked staged static review image for all four revised routes."}
+            validation:
+              - {command: "Repository, dependency, scope, source, locale, environment, cost, and frozen-evidence preflight", status: passed, notes: "The borrowed-read dependency is committed at f3a41f5; the worktree is clean; all declared inputs exist; no output has another running owner. Independent reviews agree that only AdamW, trainer, and Chapters 22/33 change, while Chapter 21 and every frozen report/trace remain controls. Cost is cached Docker/browser CPU within an unlimited budget with no paid service or generation."}
+              - {command: "First Docker workspace and focused Rust library gate", status: failed, notes: "Every demo and 378 of 379 shared library tests passed. Scaled-versus-pre-scaled traces, moments, parameters, and effective gradients were already bit-identical; only an extra assertion compared the ordered binary64 decay products with the decimal literals 0.02 and -0.04, which differ by one ULP. The implementation, production fixtures, and frozen evidence did not fail. Keep bitwise path equivalence as the exact oracle and use the existing tolerance helper only for the human-readable decimal decay check, then repeat the gate."}
+              - {command: "First isolated focused-test retry with a Docker tmpfs target", status: failed, notes: "The container tmpfs mounted at /workspace/target was non-executable, so Cargo could not launch serde_json's build script and no test ran. No repository or staged file changed; use an ephemeral executable Docker volume instead."}
+              - {command: "Corrected isolated focused scaled-kernel regression", status: passed, notes: "An anonymous executable Docker target volume leaves no host artifact, and the exact scaled-versus-pre-scaled bitwise trace/state/parameter regression passes."}
+              - {command: "Docker Rust formatting plus complete shared-library test suite", status: passed, notes: "Rust formatting is clean and all 379 shared library tests pass. Coverage includes unit-scale parity across scheduled reordered updates, scaled-versus-pre-scaled bit identity, effective-gradient trace capture, scale-domain and error precedence, zero-scale decay behavior, late whole-set rollback, huge finite gradient clipping, complete trainer replay, and unchanged downstream pipeline behavior."}
+              - {command: "First focused site invocation without Docker cache access", status: failed, notes: "The managed sandbox denied Docker buildx's activity-file write before image inspection or validation. No repository source changed; the same command was repeated with the already authorized host Docker boundary."}
+              - {command: "Escalated focused site invocation and prerequisite workspace image gate", status: failed, notes: "The Docker prerequisite gate passed cargo formatting, every Rust demo, all 379 shared library tests, all doc tests, and zero-diagnostic Astro analysis. Content validation then found that Chapter 22's visible modern-role paragraph was semantically equivalent but not the exact frontmatter projection because sentence punctuation differed. No focused Vitest assertion ran. Align the visible English and direct Russian paragraph byte-semantically with their frontmatter, refresh the canonical English hash, and repeat."}
+              - {command: "Isolated source-image content and locale-parity gates", status: passed, notes: "Source image sha256:9f7be2f8c8af0809fdc990e9d36b607bccbb46d6e3e87ab69a7f066fd1e95581 validates all 80 localized sources, 40 publishable locale sets, 33 catalog keys, and 42 shared diagram components after the Chapter 22 projection correction."}
+              - {command: "First source-image focused Vitest invocation", status: failed, notes: "npm --prefix started Vitest at /workspace, so the tests' documented repository-root calculation looked for frozen Rust fixtures under /rust. No assertion or product behavior ran; repeat from /workspace/site."}
+              - {command: "Corrected source-image focused Vitest invocation", status: failed, notes: "All 26 Chapter 22 tests and six of seven Chapter 33 tests passed. The remaining assertion still expected the pre-review phrase 'one parameter's gradient tensor' while the canonical lesson now says the more exact 'one candidate leaf's gradient tensor'; synchronize that source assertion and repeat. Rust evidence, formulas, locale parity, and every other focused contract passed."}
+              - {command: "Synchronized source-image focused Vitest gate", status: passed, notes: "Refreshed source image sha256:fbbeb618322e5433dca6428015caad8a80566dfafca1c9cc8b865f9de264bfe4 runs all 33 focused Chapter 22/33 assertions successfully from /workspace/site. The contract now enforces the exact candidate-leaf gradient lifetime taught by the canonical lesson."}
+              - {command: "Canonical ./course check before shared-test synchronization", status: passed, notes: "Workspace image sha256:bbf291c94a3e07737e9cb15005bca58cc986663cbd633d8f8aaeb2daf71ca2e3 passes formatting, every demo and 379 shared tests, doctests, 215-file Astro diagnostics, content/parity, the 85-page build, and all 2,529 local references, SEO routes, sitemap URLs, and analytics routes."}
+              - {command: "Exact Rust format, all-target Clippy -D warnings, all-target workspace tests, and doctests", status: passed, notes: "The exact Docker gates pass without warnings. All 379 shared tests pass across all targets, including scale-one parity, scaled/pre-scaled bit identity, validation precedence, effective-gradient trace capture, late rollback, huge-finite clipping, and complete trainer replay; both compile-fail doctests pass."}
+              - {command: "First declared deterministic demo replay through sh", status: failed, notes: "The ledger invoked the existing Bash script through sh, which rejects its required pipefail option before discovering or running a demo. No evidence or product code ran; correct the declared interpreter to bash and repeat."}
+              - {command: "Corrected Bash deterministic demo replay and frozen evidence hashes", status: passed, notes: "All 39 chapter demos and 34 diagram traces replay exactly. The expected.txt aggregate remains sha256:75e0667f446106cd55795123b4094169bd866b0e77d3826ad281aa4cce931221 and diagram-trace.txt remains sha256:eda32e21abaaad424531e8bdf5e225bfa39ec3c13200bcd6e1b582c024d4014d."}
+              - {command: "Focused Chapter 22/33 Vitest plus exact content/parity/Astro/build/link gate", status: passed, notes: "All 33 focused assertions pass. All 80 localized sources, 40 locale sets, 33 catalog keys, 42 diagram components, 215 Astro files, 85 static pages, 2,529 references, 85 SEO/sitemap/analytics routes, and 164 artifacts validate."}
+              - {command: "First parallel Chromium and Firefox focused matrices", status: failed, notes: "Both engines stopped before browser launch because the run-scoped image served the already-built test site under /learn_llm/ while Playwright readiness intentionally probes the root-base fixture. Diagnostic web-server logs proved repeated root 404 responses; no browser assertion ran. Set the validation image's test-only SITE_BASE to / and repeat."}
+              - {command: "Corrected offline Chromium and Firefox Chapter 22/33 matrices", status: passed, notes: "Run-scoped browser image sha256:ce938349ec89f0a0e6a115045232ae9e7ecaaddfaf8ff3b2cd5b4a7c5bc40cfe passes 13/13 in each engine. Both locales pass desktop/narrow containment, full-view reuse/focus restoration, forced colors, RTL, no-JavaScript fallback, formulas, and diagram evidence."}
+              - {command: "First complete Vitest matrix", status: failed, notes: "962 of 964 assertions passed. The shared Chapter 22 formula audit still required raw g_t rather than the new effective gradient, and Chapter 33 cheat-sheet grounding retained two obsolete compressed phrases. Record these shared dependencies and align their assertions with the canonical scaled-gradient semantics."}
+              - {command: "Corrected complete Vitest matrix", status: passed, notes: "Source image sha256:307852a00521d6dae2db9f7bae64aef2378d84127b6ae3a17da631dd13735a52 passes all 964 assertions in 54 files. The formula audit now requires both the scale equation and first-moment recurrence over the effective gradient; the cheat-sheet grounding uses current explicit visible prose."}
+              - {command: "Frozen fourteen-file publication manifest", status: passed, notes: "Every staged file verifies, every canonical product is byte-identical to its staged counterpart, and publish.sha256 is sha256:e41b0b972eb8facea380b0adb494e3cd790e26a69e4da55f4b2dfd979ac56e9a."}
+              - {command: "Manifest-locked ./course review 20260805T072639Z-thread-gradient-scale-into-adamw-01 --check", status: passed, notes: "Review image sha256:edb91437f10bc6d25d292c9edcc04d11c158cbd240c6eaee6eeffc21f7714ac7 validates the manifest, content/parity, 215-file Astro diagnostics, 85-page build, 2,529 references, and all four revised English/Russian routes without changing the publish tree."}
+              - {command: "Final canonical ./course check", status: passed, notes: "Workspace image sha256:123874ba8aa21406f08d1a42d12585994d2fbe86baf402129c4713816fffd045 passes formatting, all demos and 379 shared tests, doctests, content/parity, zero-diagnostic Astro analysis, the 85-page build, and link/SEO/sitemap/analytics validation after the shared semantic-test synchronization."}
+              - {command: "First final ./course audit-host", status: failed, notes: "The audit found an empty 4 KiB root target/ directory owned by the container user. Inspection proved it contained no file or reusable artifact; rmdir removed only that empty generated directory."}
+              - {command: "Final host, manifest, canonical-equality, exact-scope, and whitespace audit", status: passed, notes: "The host contains no Rust, Node.js, or Python artifact outside the intentional site/dist release. All fourteen products match the frozen manifest; exactly those products plus BUILD_STATE.yaml and DECISIONS.md change, and git diff --check passes."}
+              - {command: "Pinned-Docker completed-ledger and scheduler validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts. There is no running owner, and preserve-live-parameter-leaves-on-commit is the next eligible step in the active build."}
+            notes: "Succeeded. The trainer now computes one global clipping factor, shallow-copies only NamedParameter handles, and passes the factor with the scheduled rate into AdamW. The shared transaction validates rate then scale then parameters, applies the effective gradient once before both moments, leaves decoupled decay unscaled, records that effective gradient only when tracing, and preserves whole-set rollback. Chapters 22 and 33 revision 6 explain the complete boundary in reviewed English and direct natural Russian; all deterministic evidence, static checks, and two-engine rendered checks pass. Fresh-leaf replacement and decoder reconstruction remain the next independent checkpoint."
 
       - id: preserve-live-parameter-leaves-on-commit
         objective: "Commit a fully validated AdamW update into the live model without cloning and replacing every parameter leaf and decoder."

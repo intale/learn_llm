@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
@@ -28,11 +28,15 @@
           },
           {
             "symbol": "g_s",
-            "meaning": "the finite raw gradient of update s at the parameter state preceding that update"
+            "meaning": "the conceptual vector of every finite raw gradient coordinate from every named parameter before update s"
           },
           {
             "symbol": "\\widetilde g_s",
             "meaning": "the globally clipped gradient consumed by AdamW"
+          },
+          {
+            "symbol": "\\alpha_s",
+            "meaning": "the single global clipping factor passed to AdamW; it equals one when clipping is unnecessary"
           },
           {
             "symbol": "c",
@@ -130,12 +134,12 @@
       {
         "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
         "region": "complete-training-loop",
-        "purpose": "Execute every scheduled update, compare each returned optimizer step number with the planned update index, measure validation loss at every declared checkpoint, and restore the model state saved at the earliest checkpoint with minimum validation loss."
+        "purpose": "Compute one global clipping factor, pass shallow parameter handles plus that factor to each scheduled AdamW update, compare the returned step number with the plan, measure every declared validation checkpoint, and restore the earliest minimum."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
         "region": "adamw-execution-and-trace-api",
-        "purpose": "Run an atomic AdamW update at a scheduled learning rate; the ordinary method returns only the new optimizer step number, while the explicit trace method returns detailed update evidence."
+        "purpose": "Run an atomic AdamW update with a scheduled learning rate and one validated gradient scale; the ordinary method returns only the new optimizer step number."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
@@ -296,8 +300,19 @@ $\mathcal{L}_{tr}$ and changes the parameters. The value $\mathcal{L}_{va}$ is
 measured only at the declared checkpoint steps and may replace the saved
 candidate, but it is never differentiated and never updates the decoder.
 
-For a raw gradient $g_s$ and ceiling $c=0.35$, the trainer applies one global
-scale across every parameter tensor:
+Treat $g_s$ as one conceptual vector formed by concatenating every coordinate
+$g_{s,p,i}$ from every named parameter $p$. Here $\mathcal{P}$ is the set of
+all named trainable parameters, and $i$ indexes the scalar coordinates within
+parameter $p$. This definition does not require an allocated concatenated
+tensor. The one global norm is
+
+$$
+\lVert g_s\rVert_2=
+\sqrt{\sum_{p\in\mathcal{P}}\sum_i g_{s,p,i}^2}.
+$$
+
+For ceiling $c=0.35$, the trainer derives one scale from that complete norm and
+applies it to every coordinate:
 
 $$
 \alpha_s=\frac{c}{\max(c,\lVert g_s\rVert_2)},
@@ -309,6 +324,15 @@ therefore uses $\alpha_s=1$, while a larger norm is reduced to $c$. At every
 declared schedule boundary, AdamW continues the existing moments and step counter
 while using the new rate $\eta_s$; changing the rate does not restart the
 optimizer.
+
+For example, $\lVert g_s\rVert_2=1.4$ and $c=0.35$ give
+$\alpha_s=0.25$. The trainer passes that one scalar with $\eta_s$ to AdamW.
+For every parameter $p$ and coordinate $i$, the first-moment recurrence uses
+$\widetilde g_{s,p,i}=\alpha_sg_{s,p,i}$, while the second-moment recurrence
+uses $\widetilde g_{s,p,i}^2=\alpha_s^2g_{s,p,i}^2$. Thus the effective
+gradient has global norm $0.35$, and the scale is applied before squaring. The
+raw gradient tensors remain unchanged on the old parameter leaves, and
+$\alpha_s$ does not scale AdamW's separate weight-decay term.
 
 Validation averages by predicted-token count, not by number of batches. If
 validation batch $j$ contains $n_j$ target tokens and has mean loss
@@ -335,7 +359,8 @@ $$
 - $\theta_0$ is the initialized decoder; $\theta_s$ is its state after update $s$.
 - $s\geq1$ is a one-based update index; checkpoint indices also include $0$.
 - $\mathcal{L}_{tr}^{(s)}$ is next-token loss for training mini-batch $s$.
-- $g_s=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})$ is the finite gradient before clipping.
+- $g_s=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})$ conceptually concatenates every finite named-parameter gradient coordinate before clipping.
+- $\alpha_s$ is the single global clipping factor passed to AdamW; it is $1$ when no clipping is needed.
 - $\widetilde g_s$ is the globally clipped gradient consumed by AdamW.
 - $c$ is the positive global-norm ceiling.
 - $\eta_s$ is the predetermined learning rate for update $s$.
@@ -461,27 +486,41 @@ the call if any bit changes.
   label="Rust source implementing Chapter 33 graph-free epoch evaluation"
 />
 
-The trainer calls the ordinary `AdamW::step_with_learning_rate` method, not
-`AdamW::step_with_learning_rate_and_trace`, because the loop needs only the
-returned optimizer step number. Before changing live state, the method validates the
-learning rate for the current update and prepares the next moment values, step
-counter, and complete parameter replacement set. It commits all of them only
-after every candidate succeeds. The method then returns the new optimizer step
-number, which the trainer compares directly with the planned update index.
-Chapter 22 explicitly requests one trace containing each parameter's AdamW
-terms because it inspects every term of the calculation; this training loop
-does not need that detailed evidence. The trainer then inspects the fresh
-replacement leaves. `gradient()` lends a read guard over one parameter's
-gradient tensor. After verifying that every value in that tensor is zero, the
-trainer ends the guard before `zero_grad()` mutably clears the same tensor. This
-keeps the initially zero gradients and the later clear operation separate in
-the evidence.
+After checking every raw gradient and computing one norm over all named
+coordinates, the trainer derives one $\alpha_s$. It calls
+`model.parameters().to_vec()` and clones the current optimizer. The call creates a shallow vector of
+`NamedParameter` handles: the handles still refer to the model's existing
+parameter leaves. It does not copy parameter values, overwrite their raw
+gradients, or allocate tensors containing clipped gradients.
+
+The trainer calls the candidate optimizer's ordinary
+`step_with_learning_rate_and_gradient_scale` method with $\eta_s$ and
+$\alpha_s$ because the loop needs only the returned optimizer step number. The
+candidate optimizer validates both scalars before inspecting the parameters.
+Inside its whole-set preparation, the first moment uses
+$\widetilde g_{s,p,i}$ and the second moment uses
+$\widetilde g_{s,p,i}^2$, so clipping is applied before the square. Decoupled
+weight decay still uses the old parameter directly and is not multiplied by
+$\alpha_s$. Only after every candidate update succeeds does AdamW replace the
+candidate-vector entries and commit the next moments and step counter to the
+candidate optimizer. The live loop model and optimizer have not changed yet.
+
+The trainer compares the returned optimizer step number directly with the
+planned update index, then rebuilds a complete candidate decoder from the fresh
+replacement leaves. `gradient()` lends a read guard over one candidate leaf's
+gradient tensor. After verifying that every value is zero, the trainer ends the
+guard before `zero_grad()` mutably clears the same tensor. Only after every
+candidate leaf passes does the trainer assign the candidate decoder and
+candidate optimizer to the live loop variables. The previous model is then
+discarded with the old leaves that held the raw gradients, so those gradients
+cannot accumulate into the next step. Chapter 22 requests detailed trace
+evidence; this training loop does not retain it.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
   region="adamw-execution-and-trace-api"
-  caption="Return the new optimizer step number from an ordinary scheduled AdamW update"
-  label="Rust source distinguishing ordinary and traced AdamW updates in Chapter 33"
+  caption="Apply the scheduled rate and one validated clipping factor without retaining a trace"
+  label="Rust source defining the ordinary scaled AdamW update used in Chapter 33"
 />
 
 Because AdamW replaces leaves, `DecoderModel::from_parameters` reconstructs
@@ -505,7 +544,7 @@ optimizer remain unchanged even on failure.
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/trainer.rs"
   region="complete-training-loop"
-  caption="Compare each returned optimizer step number with its planned update index, execute every update, and restore the model state saved at the earliest validation minimum without consulting test data"
+  caption="Pass shallow parameter handles and one clipping factor to AdamW, execute every update, and restore the earliest validation minimum without consulting test data"
   label="Rust source implementing the complete Chapter 33 training loop"
 />
 

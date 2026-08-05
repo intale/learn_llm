@@ -834,36 +834,6 @@ fn gradient_norm(model: &DecoderModel, maximum: f64) -> Result<GradientNorm, Tra
     })
 }
 
-fn clipped_parameter_copy(
-    model: &DecoderModel,
-    scale: f64,
-) -> Result<Vec<NamedParameter>, TrainerError> {
-    let mut copied = Vec::with_capacity(model.parameters().len());
-    for parameter in model.parameters() {
-        let gradient =
-            parameter
-                .tensor()
-                .gradient()
-                .ok_or_else(|| TrainerError::MissingGradient {
-                    name: parameter.name().to_owned(),
-                })?;
-        let scaled = Tensor::from_vec(
-            gradient.shape().to_vec(),
-            gradient
-                .as_slice()
-                .iter()
-                .map(|value| value * scale)
-                .collect(),
-        )?;
-        let copied_parameter =
-            NamedParameter::from_tensor(parameter.name(), parameter.tensor().value_snapshot())?;
-        copied_parameter
-            .tensor()
-            .backward_with_seed(&scaled.view(), GraphRetention::Release)?;
-        copied.push(copied_parameter);
-    }
-    Ok(copied)
-}
 // endregion:global-norm-clipping
 
 fn verify_and_clear_gradients(model: &DecoderModel) -> Result<(), TrainerError> {
@@ -986,14 +956,17 @@ pub fn train_decoder(
         drop(loss);
 
         let norm = gradient_norm(&model, config.max_gradient_norm)?;
-        let mut candidate_parameters = clipped_parameter_copy(&model, norm.scale)?;
+        let mut candidate_parameters = model.parameters().to_vec();
         let mut candidate_optimizer = optimizer.clone();
         let learning_rate = config
             .schedule
             .learning_rate(step)
             .expect("the loop stays inside the validated schedule");
-        let optimizer_step = candidate_optimizer
-            .step_with_learning_rate(&mut candidate_parameters, learning_rate)?;
+        let optimizer_step = candidate_optimizer.step_with_learning_rate_and_gradient_scale(
+            &mut candidate_parameters,
+            learning_rate,
+            norm.scale,
+        )?;
         let expected_optimizer_step = u64::try_from(step).unwrap_or(u64::MAX);
         if optimizer_step != expected_optimizer_step {
             return Err(TrainerError::OptimizerStepMismatch {
@@ -1277,16 +1250,58 @@ mod tests {
         assert_eq!(norm.before, f64::MAX);
         assert_eq!(norm.after, 1.0);
         assert!(norm.scale.is_finite() && norm.scale > 0.0 && norm.scale < 1.0);
-        let clipped = clipped_parameter_copy(&model, norm.scale).unwrap();
-        assert!(clipped.iter().all(|parameter| {
-            parameter
+        let original_leaves = model
+            .parameters()
+            .iter()
+            .map(|parameter| parameter.tensor().clone())
+            .collect::<Vec<_>>();
+        let mut candidates = model.parameters().to_vec();
+        assert!(
+            candidates
+                .iter()
+                .zip(&original_leaves)
+                .all(|(candidate, original)| candidate.tensor().is_same_node(original))
+        );
+        let mut candidate_optimizer = optimizer();
+        candidate_optimizer
+            .step_with_learning_rate_and_gradient_scale(&mut candidates, 0.02, norm.scale)
+            .unwrap();
+
+        assert!(
+            candidates
+                .iter()
+                .zip(&original_leaves)
+                .all(|(candidate, original)| !candidate.tensor().is_same_node(original))
+        );
+        assert!(candidates.iter().all(|candidate| {
+            candidate
                 .tensor()
-                .gradient()
-                .unwrap()
+                .value()
                 .as_slice()
                 .iter()
                 .all(|value| value.is_finite())
+                && candidate
+                    .tensor()
+                    .gradient()
+                    .unwrap()
+                    .as_slice()
+                    .iter()
+                    .all(|value| value.to_bits() == 0.0_f64.to_bits())
         }));
+        assert!(candidate_optimizer.parameter_names().all(|name| {
+            let state = candidate_optimizer
+                .state(name)
+                .expect("every candidate parameter has moment state");
+            state
+                .first_moment()
+                .iter()
+                .chain(state.second_moment())
+                .all(|value| value.is_finite())
+        }));
+        assert_eq!(
+            gradient_bits(&model).unwrap()[..2],
+            [f64::MAX.to_bits(), f64::MAX.to_bits()]
+        );
     }
 
     #[test]

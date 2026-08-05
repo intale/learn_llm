@@ -568,11 +568,11 @@ describe('Chapter 22 contract and lesson projection', () => {
   } as const;
 
   it('names the worked parameter and explains the configurable no-decay policy', () => {
-    expect(contract.content_revision).toBe(5);
-    expect(lessons.en.content_revision).toBe(5);
-    expect(lessons.ru.content_revision).toBe(5);
+    expect(contract.content_revision).toBe(6);
+    expect(lessons.en.content_revision).toBe(6);
+    expect(lessons.ru.content_revision).toBe(6);
     expect(contract.translation_notes).toContain(
-      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 5 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
+      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 6 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
     );
 
     const contractWorked = markedSection(
@@ -791,12 +791,19 @@ describe('Chapter 22 contract and lesson projection', () => {
     expect(historical.slice(gradientBlock, mutableStep)).not.toContain('value_snapshot');
 
     const api = rustRegion(adamwSource, 'adamw-execution-and-trace-api');
-    for (const name of ['step', 'step_with_learning_rate']) {
+    for (const name of [
+      'step',
+      'step_with_learning_rate',
+      'step_with_learning_rate_and_gradient_scale',
+    ]) {
       const method = publicRustMethod(api, name);
       expect(method).toContain('Result<u64, AdamWError>');
       expect(method).toContain('NoAdamWTrace');
       expect(method).not.toContain('RecordAdamWTrace');
     }
+    expect(publicRustMethod(api, 'step_with_learning_rate_and_gradient_scale')).toContain(
+      'gradient_scale: f64',
+    );
     for (const name of ['step_with_trace', 'step_with_learning_rate_and_trace']) {
       const method = publicRustMethod(api, name);
       expect(method).toContain('Result<AdamWStep, AdamWError>');
@@ -817,6 +824,11 @@ describe('Chapter 22 contract and lesson projection', () => {
     );
     expect(demoSource.match(/\.step_with_trace\(/g)).toHaveLength(2);
     expect(demoSource.match(/optimizer\s*\.\s*step\(/g)).toHaveLength(3);
+    expect(adamwSource).toContain('InvalidGradientScale');
+    expect(trainerSource).toMatch(
+      /candidate_optimizer\.step_with_learning_rate_and_gradient_scale\([\s\S]*?&mut candidate_parameters,[\s\S]*?learning_rate,[\s\S]*?norm\.scale,[\s\S]*?\)\?/,
+    );
+    expect(trainerSource).not.toContain('clipped_parameter_copy');
     for (const source of [trainerSource, chapter23Source, chapter35Source]) {
       expect(source).not.toContain('step_with_trace');
       expect(source).not.toContain('step_with_learning_rate_and_trace');
@@ -829,6 +841,12 @@ describe('Chapter 22 contract and lesson projection', () => {
     );
     expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
       'Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
+    );
+    expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
+      'The first moment consumes $[0.2,-0.1]$, and the second moment consumes its coordinate squares $[0.04,0.01]$. The separate decay term remains $\\eta\\lambda\\theta_{t-1}$.',
+    );
+    expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
+      'В первый момент поступает $[0.2,-0.1]$, а во второй — квадраты координат $[0.04,0.01]$. Отдельная поправка затухания остаётся равной $\\eta\\lambda\\theta_{t-1}$.',
     );
   });
 
@@ -853,7 +871,8 @@ describe('Chapter 22 contract and lesson projection', () => {
 
       const compactMath = lessonBody.replace(/\s+/g, '');
       for (const formula of [
-        String.raw`m_t=\beta_1m_{t-1}+(1-\beta_1)g_t`,
+        String.raw`\widetilde g_t=\alpha_t g_t`,
+        String.raw`m_t=\beta_1m_{t-1}+(1-\beta_1)\widetilde g_t`,
         String.raw`\hat m_t=\frac{m_t}{1-\beta_1^t}`,
         contract.formula.latex,
         String.raw`\eta\lambda\theta_0=[0.01,-0.02]`,

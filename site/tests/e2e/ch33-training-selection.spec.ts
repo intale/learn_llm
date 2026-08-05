@@ -47,7 +47,7 @@ const copy = {
       "local teaching choices, not universal properties of LLM training",
     ],
     executionFragment:
-      "The method then returns the new optimizer step number, which the trainer compares directly with the planned update index.",
+      "The trainer compares the returned optimizer step number directly with the planned update index, then rebuilds a complete candidate decoder from the fresh replacement leaves.",
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -80,7 +80,7 @@ const copy = {
       "локальные учебные решения, а не общепринятая практика",
     ],
     executionFragment:
-      "Затем он возвращает новый номер шага оптимизатора, и цикл напрямую сравнивает его с номером обновления в плане.",
+      "Цикл сравнивает возвращённый номер шага с номером обновления в плане, а затем заново собирает полный декодер-кандидат из новых листовых узлов.",
   },
 } as const;
 
@@ -313,7 +313,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 5,
+    revision: 6,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],

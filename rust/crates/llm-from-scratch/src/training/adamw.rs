@@ -210,6 +210,9 @@ pub enum AdamWError {
     InvalidLearningRate {
         value: f64,
     },
+    InvalidGradientScale {
+        value: f64,
+    },
     InvalidBeta1 {
         value: f64,
     },
@@ -273,6 +276,10 @@ impl fmt::Display for AdamWError {
             Self::InvalidLearningRate { value } => write!(
                 formatter,
                 "learning rate must be finite and greater than zero, got {value}"
+            ),
+            Self::InvalidGradientScale { value } => write!(
+                formatter,
+                "gradient scale must be finite in the closed interval [0,1], got {value}"
             ),
             Self::InvalidBeta1 { value } => write!(
                 formatter,
@@ -713,6 +720,7 @@ impl AdamWParameterUpdate {
         &self.before
     }
 
+    /// The effective gradient consumed by the moment calculation.
     pub fn gradient(&self) -> &[f64] {
         &self.gradient
     }
@@ -795,13 +803,13 @@ struct AdamWParameterContext<'a> {
     name: &'a str,
     shape: &'a [usize],
     before: &'a [f64],
-    gradient: &'a [f64],
     decay_applied: bool,
     effective_weight_decay: f64,
 }
 
 #[derive(Clone, Copy)]
 struct AdamWScalarResult {
+    gradient: f64,
     first_moment: f64,
     second_moment: f64,
     corrected_first_moment: f64,
@@ -889,7 +897,7 @@ impl AdamWStepObserver for RecordAdamWTrace {
             name: context.name.to_owned(),
             shape: context.shape.to_vec(),
             before: context.before.to_vec(),
-            gradient: context.gradient.to_vec(),
+            gradient: Vec::with_capacity(elements),
             decay_applied: context.decay_applied,
             effective_weight_decay: context.effective_weight_decay,
             first_moment: Vec::with_capacity(elements),
@@ -904,6 +912,7 @@ impl AdamWStepObserver for RecordAdamWTrace {
     }
 
     fn observe_scalar(&mut self, parameter: &mut Self::Parameter, result: AdamWScalarResult) {
+        parameter.gradient.push(result.gradient);
         parameter.first_moment.push(result.first_moment);
         parameter.second_moment.push(result.second_moment);
         parameter
@@ -1024,7 +1033,7 @@ impl AdamW {
     /// The result is only the committed step number; use `step_with_trace` when
     /// the elementwise update vectors are needed for inspection.
     pub fn step(&mut self, parameters: &mut [NamedParameter]) -> Result<u64, AdamWError> {
-        self.step_with_config(parameters, self.config, NoAdamWTrace)
+        self.step_with_config(parameters, self.config, 1.0, NoAdamWTrace)
     }
 
     /// Applies the same transaction while recording every elementwise update.
@@ -1033,7 +1042,7 @@ impl AdamW {
         parameters: &mut [NamedParameter],
     ) -> Result<AdamWStep, AdamWError> {
         let observer = RecordAdamWTrace::with_capacity(parameters.len());
-        self.step_with_config(parameters, self.config, observer)
+        self.step_with_config(parameters, self.config, 1.0, observer)
     }
 
     /// Applies one validated scheduled learning rate without resetting moments.
@@ -1047,7 +1056,21 @@ impl AdamW {
         learning_rate: f64,
     ) -> Result<u64, AdamWError> {
         let step_config = self.config.with_learning_rate(learning_rate)?;
-        self.step_with_config(parameters, step_config, NoAdamWTrace)
+        self.step_with_config(parameters, step_config, 1.0, NoAdamWTrace)
+    }
+
+    /// Applies one scheduled rate and one validated global gradient scale.
+    ///
+    /// The scale multiplies only the gradient consumed by Adam's moments. The
+    /// decoupled weight-decay branch continues to use the unscaled parameter.
+    pub fn step_with_learning_rate_and_gradient_scale(
+        &mut self,
+        parameters: &mut [NamedParameter],
+        learning_rate: f64,
+        gradient_scale: f64,
+    ) -> Result<u64, AdamWError> {
+        let step_config = self.config.with_learning_rate(learning_rate)?;
+        self.step_with_config(parameters, step_config, gradient_scale, NoAdamWTrace)
     }
 
     /// Applies a scheduled learning rate and records the complete update trace.
@@ -1058,7 +1081,7 @@ impl AdamW {
     ) -> Result<AdamWStep, AdamWError> {
         let step_config = self.config.with_learning_rate(learning_rate)?;
         let observer = RecordAdamWTrace::with_capacity(parameters.len());
-        self.step_with_config(parameters, step_config, observer)
+        self.step_with_config(parameters, step_config, 1.0, observer)
     }
     // endregion:adamw-execution-and-trace-api
 
@@ -1067,8 +1090,10 @@ impl AdamW {
         &mut self,
         parameters: &mut [NamedParameter],
         step_config: AdamWConfig,
+        gradient_scale: f64,
         mut observer: O,
     ) -> Result<O::Output, AdamWError> {
+        validate_gradient_scale(gradient_scale)?;
         let actual_names = validate_parameter_names(parameters)?;
         if let Some(groups) = &self.groups {
             let expected_names = groups.parameter_names();
@@ -1146,6 +1171,7 @@ impl AdamW {
                     first_correction,
                     second_correction,
                     name,
+                    gradient_scale,
                 },
                 &before,
                 &gradient,
@@ -1172,6 +1198,14 @@ impl AdamW {
         ))
     }
     // endregion:transactional-adamw-step
+}
+
+fn validate_gradient_scale(value: f64) -> Result<(), AdamWError> {
+    if value.is_finite() && (0.0..=1.0).contains(&value) {
+        Ok(())
+    } else {
+        Err(AdamWError::InvalidGradientScale { value })
+    }
 }
 
 fn validate_parameter_names(parameters: &[NamedParameter]) -> Result<Vec<String>, AdamWError> {
@@ -1212,6 +1246,7 @@ struct AdamWPreparation<'a> {
     first_correction: f64,
     second_correction: f64,
     name: &'a str,
+    gradient_scale: f64,
 }
 
 fn prepare_parameter_update<O: AdamWStepObserver>(
@@ -1227,6 +1262,7 @@ fn prepare_parameter_update<O: AdamWStepObserver>(
         first_correction,
         second_correction,
         name,
+        gradient_scale,
     } = preparation;
     let effective_weight_decay = if decay_applied {
         config.weight_decay
@@ -1238,7 +1274,6 @@ fn prepare_parameter_update<O: AdamWStepObserver>(
             name,
             shape: before.shape(),
             before: before.as_slice(),
-            gradient: gradient.as_slice(),
             decay_applied,
             effective_weight_decay,
         },
@@ -1246,13 +1281,18 @@ fn prepare_parameter_update<O: AdamWStepObserver>(
     );
     let mut after = Vec::with_capacity(before.len());
 
-    for (index, ((value, gradient), (first, second))) in before
+    for (index, ((value, raw_gradient), (first, second))) in before
         .as_slice()
         .iter()
         .zip(gradient.as_slice())
         .zip(state.first.iter_mut().zip(&mut state.second))
         .enumerate()
     {
+        let gradient = if gradient_scale == 1.0 {
+            *raw_gradient
+        } else {
+            raw_gradient * gradient_scale
+        };
         let next_first = finite(
             name,
             index,
@@ -1314,6 +1354,7 @@ fn prepare_parameter_update<O: AdamWStepObserver>(
         observer.observe_scalar(
             &mut parameter_observation,
             AdamWScalarResult {
+                gradient,
                 first_moment: next_first,
                 second_moment: next_second,
                 corrected_first_moment: corrected_first,
@@ -1426,6 +1467,52 @@ mod tests {
         }
     }
 
+    fn assert_same_trace_bits(left: &AdamWStep, right: &AdamWStep) {
+        assert_eq!(left.step(), right.step());
+        assert_eq!(
+            left.learning_rate().to_bits(),
+            right.learning_rate().to_bits()
+        );
+        assert_eq!(
+            left.first_correction().to_bits(),
+            right.first_correction().to_bits()
+        );
+        assert_eq!(
+            left.second_correction().to_bits(),
+            right.second_correction().to_bits()
+        );
+        assert_eq!(left.updates().len(), right.updates().len());
+        for (left, right) in left.updates().iter().zip(right.updates()) {
+            assert_eq!(left.name(), right.name());
+            assert_eq!(left.shape(), right.shape());
+            assert_eq!(left.decay_applied(), right.decay_applied());
+            assert_eq!(
+                left.effective_weight_decay().to_bits(),
+                right.effective_weight_decay().to_bits()
+            );
+            for (left, right) in [
+                (left.before(), right.before()),
+                (left.gradient(), right.gradient()),
+                (left.first_moment(), right.first_moment()),
+                (left.second_moment(), right.second_moment()),
+                (
+                    left.corrected_first_moment(),
+                    right.corrected_first_moment(),
+                ),
+                (
+                    left.corrected_second_moment(),
+                    right.corrected_second_moment(),
+                ),
+                (left.adaptive_direction(), right.adaptive_direction()),
+                (left.adaptive_delta(), right.adaptive_delta()),
+                (left.decay_delta(), right.decay_delta()),
+                (left.after(), right.after()),
+            ] {
+                assert_eq!(value_bits(left), value_bits(right));
+            }
+        }
+    }
+
     fn fixture_config() -> AdamWConfig {
         AdamWConfig::new(0.1, 0.5, 0.5, 0.1, 0.1).unwrap()
     }
@@ -1495,7 +1582,11 @@ mod tests {
             parameter("decoder.weight", &[2], &[1.0, -2.0]),
             parameter("decoder.norm.scale", &[1], &[-0.0]),
         ];
-        for parameters in [&lean_parameters, &traced_parameters] {
+        let mut scaled_parameters = vec![
+            parameter("decoder.weight", &[2], &[1.0, -2.0]),
+            parameter("decoder.norm.scale", &[1], &[-0.0]),
+        ];
+        for parameters in [&lean_parameters, &traced_parameters, &scaled_parameters] {
             seed_gradient(&parameters[0], &[0.2, -0.4]);
             seed_gradient(&parameters[1], &[-0.0]);
         }
@@ -1508,7 +1599,8 @@ mod tests {
             .map(|parameter| parameter.tensor().clone())
             .collect::<Vec<_>>();
         let mut lean_optimizer = AdamW::with_parameter_groups(fixture_config(), groups.clone());
-        let mut traced_optimizer = AdamW::with_parameter_groups(fixture_config(), groups);
+        let mut traced_optimizer = AdamW::with_parameter_groups(fixture_config(), groups.clone());
+        let mut scaled_optimizer = AdamW::with_parameter_groups(fixture_config(), groups);
 
         let lean_step = lean_optimizer
             .step_with_learning_rate(&mut lean_parameters, 0.2)
@@ -1516,12 +1608,18 @@ mod tests {
         let trace = traced_optimizer
             .step_with_learning_rate_and_trace(&mut traced_parameters, 0.2)
             .unwrap();
+        let scaled_step = scaled_optimizer
+            .step_with_learning_rate_and_gradient_scale(&mut scaled_parameters, 0.2, 1.0)
+            .unwrap();
 
         assert_eq!(lean_step, trace.step());
+        assert_eq!(lean_step, scaled_step);
         assert_eq!(trace.learning_rate().to_bits(), 0.2_f64.to_bits());
         assert_eq!(trace.updates().len(), 2);
         assert_same_optimizer_bits(&lean_optimizer, &traced_optimizer);
+        assert_same_optimizer_bits(&lean_optimizer, &scaled_optimizer);
         assert_same_parameter_bits(&lean_parameters, &traced_parameters);
+        assert_same_parameter_bits(&lean_parameters, &scaled_parameters);
         assert!(
             lean_parameters
                 .iter()
@@ -1537,7 +1635,8 @@ mod tests {
 
         lean_parameters.reverse();
         traced_parameters.reverse();
-        for parameters in [&lean_parameters, &traced_parameters] {
+        scaled_parameters.reverse();
+        for parameters in [&lean_parameters, &traced_parameters, &scaled_parameters] {
             seed_gradient(&parameters[0], &[0.0]);
             seed_gradient(&parameters[1], &[-0.3, 0.0]);
         }
@@ -1547,13 +1646,56 @@ mod tests {
         let trace = traced_optimizer
             .step_with_learning_rate_and_trace(&mut traced_parameters, 0.05)
             .unwrap();
+        let scaled_step = scaled_optimizer
+            .step_with_learning_rate_and_gradient_scale(&mut scaled_parameters, 0.05, 1.0)
+            .unwrap();
 
         assert_eq!(lean_step, trace.step());
+        assert_eq!(lean_step, scaled_step);
         assert_eq!(trace.step(), 2);
         assert_eq!(trace.updates()[0].name(), "decoder.norm.scale");
         assert_eq!(trace.updates()[1].name(), "decoder.weight");
         assert_same_optimizer_bits(&lean_optimizer, &traced_optimizer);
+        assert_same_optimizer_bits(&lean_optimizer, &scaled_optimizer);
         assert_same_parameter_bits(&lean_parameters, &traced_parameters);
+        assert_same_parameter_bits(&lean_parameters, &scaled_parameters);
+    }
+
+    #[test]
+    fn scaled_kernel_matches_an_explicitly_pre_scaled_gradient_bit_for_bit() {
+        let mut scaled_parameters = vec![parameter("decoder.weight", &[2], &[1.0, -2.0])];
+        let mut pre_scaled_parameters = vec![parameter("decoder.weight", &[2], &[1.0, -2.0])];
+        seed_gradient(&scaled_parameters[0], &[0.8, -0.4]);
+        seed_gradient(&pre_scaled_parameters[0], &[0.2, -0.1]);
+        let raw_leaf = scaled_parameters[0].tensor().clone();
+        let mut scaled_optimizer = AdamW::new(fixture_config());
+        let mut pre_scaled_optimizer = AdamW::new(fixture_config());
+        let step_config = scaled_optimizer.config().with_learning_rate(0.2).unwrap();
+
+        let scaled_trace = scaled_optimizer
+            .step_with_config(
+                &mut scaled_parameters,
+                step_config,
+                0.25,
+                RecordAdamWTrace::with_capacity(1),
+            )
+            .unwrap();
+        let pre_scaled_trace = pre_scaled_optimizer
+            .step_with_learning_rate_and_trace(&mut pre_scaled_parameters, 0.2)
+            .unwrap();
+
+        assert_same_trace_bits(&scaled_trace, &pre_scaled_trace);
+        assert_same_optimizer_bits(&scaled_optimizer, &pre_scaled_optimizer);
+        assert_same_parameter_bits(&scaled_parameters, &pre_scaled_parameters);
+        assert_eq!(
+            value_bits(scaled_trace.updates()[0].gradient()),
+            value_bits(&[0.2, -0.1])
+        );
+        assert_close(scaled_trace.updates()[0].decay_delta(), &[0.02, -0.04]);
+        assert_eq!(
+            value_bits(raw_leaf.gradient().unwrap().as_slice()),
+            value_bits(&[0.8, -0.4])
+        );
     }
 
     #[test]
@@ -1629,6 +1771,68 @@ mod tests {
                 .iter()
                 .zip(traced_leaves)
                 .all(|(parameter, old)| parameter.tensor().is_same_node(&old))
+        );
+    }
+
+    #[test]
+    fn gradient_scale_validation_has_fixed_precedence_and_preserves_state() {
+        let invalid_scales = [-0.1, 1.1, f64::NAN, f64::NEG_INFINITY, f64::INFINITY];
+        for invalid_scale in invalid_scales {
+            let mut parameters = vec![parameter("decoder.weight", &[1], &[1.0])];
+            seed_gradient(&parameters[0], &[0.25]);
+            let leaf = parameters[0].tensor().clone();
+            let mut optimizer = AdamW::new(fixture_config());
+            let before = optimizer.clone();
+
+            let error = optimizer
+                .step_with_learning_rate_and_gradient_scale(&mut parameters, 0.2, invalid_scale)
+                .unwrap_err();
+
+            match error {
+                AdamWError::InvalidGradientScale { value } => {
+                    assert_eq!(value.to_bits(), invalid_scale.to_bits());
+                }
+                other => panic!("unexpected gradient-scale error: {other:?}"),
+            }
+            assert_same_optimizer_bits(&optimizer, &before);
+            assert!(parameters[0].tensor().is_same_node(&leaf));
+            assert_eq!(
+                value_bits(parameters[0].tensor().gradient().unwrap().as_slice()),
+                value_bits(&[0.25])
+            );
+        }
+
+        let mut empty = Vec::new();
+        let mut optimizer = AdamW::new(fixture_config());
+        assert!(matches!(
+            optimizer.step_with_learning_rate_and_gradient_scale(&mut empty, f64::NAN, f64::NAN,),
+            Err(AdamWError::InvalidLearningRate { .. })
+        ));
+        assert!(matches!(
+            optimizer.step_with_learning_rate_and_gradient_scale(&mut empty, 0.2, f64::NAN),
+            Err(AdamWError::InvalidGradientScale { .. })
+        ));
+        assert_eq!(
+            optimizer.step_with_learning_rate_and_gradient_scale(&mut empty, 0.2, 1.0),
+            Err(AdamWError::EmptyParameterSet)
+        );
+
+        let mut zero_scaled = vec![parameter("decoder.weight", &[1], &[2.0])];
+        seed_gradient(&zero_scaled[0], &[0.5]);
+        let mut optimizer = AdamW::new(fixture_config());
+        assert_eq!(
+            optimizer
+                .step_with_learning_rate_and_gradient_scale(&mut zero_scaled, 0.1, 0.0)
+                .unwrap(),
+            1
+        );
+        assert_eq!(
+            value_bits(optimizer.state("decoder.weight").unwrap().first_moment()),
+            value_bits(&[0.0])
+        );
+        assert_eq!(
+            value_bits(zero_scaled[0].tensor().value().as_slice()),
+            value_bits(&[1.98])
         );
     }
 
@@ -1888,12 +2092,14 @@ mod tests {
     }
 
     #[test]
-    fn non_finite_candidate_rolls_back_every_parameter_and_moment() {
-        let config = AdamWConfig::new(f64::MAX, 0.5, 0.5, 0.1, 1.0).unwrap();
+    fn scaled_late_failure_rolls_back_every_parameter_and_moment() {
+        let config = AdamWConfig::new(0.1, 0.5, 0.5, 0.1, 0.0).unwrap();
         let mut parameters = vec![
             parameter("a.weight", &[1], &[0.0]),
-            parameter("b.weight", &[1], &[f64::MAX]),
+            parameter("b.weight", &[1], &[1.0]),
         ];
+        seed_gradient(&parameters[0], &[0.2]);
+        seed_gradient(&parameters[1], &[f64::MAX]);
         let original_leaves = parameters
             .iter()
             .map(|parameter| parameter.tensor().clone())
@@ -1901,10 +2107,10 @@ mod tests {
         let mut optimizer = AdamW::new(config);
 
         assert!(matches!(
-            optimizer.step(&mut parameters),
+            optimizer.step_with_learning_rate_and_gradient_scale(&mut parameters, 0.1, 0.5),
             Err(AdamWError::NonFiniteArithmetic {
                 name,
-                stage: AdamWArithmetic::DecayDelta,
+                stage: AdamWArithmetic::SquaredGradient,
                 ..
             }) if name == "b.weight"
         ));
@@ -1914,6 +2120,14 @@ mod tests {
                 .iter()
                 .zip(original_leaves)
                 .all(|(parameter, leaf)| parameter.tensor().is_same_node(&leaf))
+        );
+        assert_eq!(
+            value_bits(parameters[0].tensor().gradient().unwrap().as_slice()),
+            value_bits(&[0.2])
+        );
+        assert_eq!(
+            value_bits(parameters[1].tensor().gradient().unwrap().as_slice()),
+            value_bits(&[f64::MAX])
         );
     }
 

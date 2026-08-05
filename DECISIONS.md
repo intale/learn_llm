@@ -13462,6 +13462,113 @@ checkpoint byte, route, dependency, style, or deployment behavior changes.
 `make-tensorvalue-reads-borrowed`, and
 `20260805T054730Z-make-tensorvalue-reads-borrowed-01`.
 
+## 2026-08-05 - Thread one validated clipping scale through the AdamW transaction
+
+**Status:** Accepted during preflight for `thread-gradient-scale-into-adamw`
+before product files were edited.
+
+**Context:** Audit finding F02 identifies `clipped_parameter_copy` as a second
+parameter-sized representation of one training update. The trainer currently
+copies every parameter tensor, allocates every scaled gradient tensor, creates a
+fresh leaf for each copy, and invokes backward on those leaves solely to store
+the clipped gradients that AdamW will immediately consume. AdamW then performs
+its own whole-set preparation and creates another fresh replacement set. The
+global-norm calculation already produces one finite scalar scale, while the
+optimizer's private observer-based kernel is the single accepted implementation
+of the AdamW arithmetic and transaction.
+
+**Decision:** Keep `step`, `step_with_trace`, `step_with_learning_rate`, and
+`step_with_learning_rate_and_trace` as backward-compatible unit-scale entry
+points. Add one lean
+`step_with_learning_rate_and_gradient_scale(parameters, learning_rate,
+gradient_scale)` entry point for the trainer. Validate the scheduled learning
+rate first, then require the scale to be finite in the closed interval $[0,1]$,
+then perform the existing parameter-set and arithmetic validation. Report an
+invalid scale with a typed `InvalidGradientScale` error before inspecting any
+parameter. This fixes error precedence and leaves parameters, moments, powers,
+and the step counter unchanged on rejection.
+
+Pass the scale into the same private observer-parameterized prepare-and-commit
+kernel. For scale exactly one, use the raw gradient scalar directly so the
+existing path is bit-identical. Otherwise multiply each raw coordinate exactly
+once before the first- and second-moment calculations. Do not multiply the
+decoupled decay branch by the gradient scale: decay continues to use the old
+parameter value. Move optional trace capture of the consumed gradient into the
+kernel's per-scalar result so an observer records that exact effective gradient
+without implementing scaling a second time.
+
+Delete `clipped_parameter_copy`. In the trainer, shallow-copy the stable-order
+`NamedParameter` handles with `model.parameters().to_vec()`, clone the candidate
+optimizer as before, and pass the norm-derived scale with the scheduled learning
+rate. Those handles share the original node-owned raw gradients until AdamW
+atomically replaces only the candidate-vector entries. Preserve the current
+fresh-leaf replacement, decoder reconstruction, candidate-optimizer commit,
+selected checkpoints, and caller-owned rollback; preserving live leaf identity
+belongs to the next separate step.
+
+Advance Chapters 22 and 33 to revision 6. Chapter 22 must state that the scalar
+multiplies only the gradient entering Adam moments, that its worked fixture uses
+the identity scale, that decay is unscaled, and that trace evidence records the
+consumed gradient. Chapter 33 must connect its existing clipping equation to the
+scalar handoff and state explicitly that raw accumulated gradients are neither
+overwritten nor copied into replacement leaves merely to carry clipping. Author
+English first, then refresh Russian directly under the localization workflow.
+Chapter 21 remains unchanged because it teaches token-weighted mini-batching and
+does not own or render clipping or AdamW code.
+
+**Consequences:** Clipping no longer allocates parameter-sized value and gradient
+copies before the optimizer transaction. Unit-scale Chapter 22 arithmetic,
+traces, historical examples, and every downstream training/checkpoint/generation
+fixture remain byte-identical. The new API adds one scalar multiplication only
+when clipping is active; AdamW still prepares one complete fresh-leaf transaction
+and the trainer still reconstructs the decoder in this checkpoint. No
+dependency, package, build, route, diagram, hosting, or deployment change is
+made.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`thread-gradient-scale-into-adamw`, and
+`20260805T072639Z-thread-gradient-scale-into-adamw-01`.
+
+## 2026-08-05 - Align shared learning-surface checks with scaled Adam moments
+
+**Status:** Accepted during validation of `thread-gradient-scale-into-adamw`
+after the complete site test matrix exposed two stale cross-chapter assertions.
+
+**Context:** Chapter 22 now correctly writes Adam's first-moment recurrence in
+terms of the effective gradient $\widetilde g_t=\alpha_tg_t$, but the shared
+formula audit still required the earlier raw-$g_t$ recurrence. Chapter 33's
+cheat-sheet grounding check likewise searched for the compressed phrase
+"finite gradient before clipping" and "scale across every parameter tensor",
+while the revised canonical lesson explicitly names finite raw coordinates,
+the set of named parameters, and one factor applied to every coordinate. The
+complete focused chapter tests passed, so these failures are shared semantic
+contracts that depend on the revised lessons rather than implementation defects.
+
+**Decision:** Add `site/tests/formula-rendering.test.ts` and
+`site/tests/cheat-sheets.test.ts` to this step's declared outputs. Require both
+$\widetilde g_t=\alpha_tg_t$ and the first-moment recurrence over
+$\widetilde g_t$ in the formula audit. Ground Chapter 33's `Raw gradient` and
+`Global-norm clipping` terms in the exact current explanations of finite raw
+coordinates and one factor applied to every coordinate. Do not weaken the
+checks, reintroduce raw $g_t$ into the moments, or distort the lesson merely to
+retain obsolete literal fragments.
+
+Correct the demo validation command to invoke the existing Bash script through
+`bash`; calling that Bash script through `sh` rejects its required `pipefail`
+option before a demo can run. Preserve the failed invocation in the run record
+and rerun the same deterministic evidence gate with its declared interpreter.
+
+**Consequences:** The complete static suite now tests the scaled optimizer
+semantics and the explicit learner wording introduced by this checkpoint. No
+cheat-sheet content, formula rendering pipeline, lesson meaning, dependency,
+route, style, or runtime behavior changes.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`thread-gradient-scale-into-adamw`, and
+`20260805T072639Z-thread-gradient-scale-into-adamw-01`.
+
 ## 2026-08-05 - Add Chapter 22 to the guarded-read projection
 
 **Status:** Accepted during execution of `make-tensorvalue-reads-borrowed` when

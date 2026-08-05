@@ -455,9 +455,9 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(5);
-    expect(lesson.content_revision).toBe(5);
-    expect(russianLesson.content_revision).toBe(5);
+    expect(contract.content_revision).toBe(6);
+    expect(lesson.content_revision).toBe(6);
+    expect(russianLesson.content_revision).toBe(6);
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
@@ -506,16 +506,24 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(adamwSource).toMatch(
       /pub fn step_with_learning_rate_and_trace\([\s\S]*?\) -> Result<AdamWStep, AdamWError>/,
     );
-    expect(trainerSource).toContain(
-      ".step_with_learning_rate(&mut candidate_parameters, learning_rate)?",
+    expect(adamwSource).toMatch(
+      /pub fn step_with_learning_rate_and_gradient_scale\([\s\S]*?gradient_scale: f64,[\s\S]*?\) -> Result<u64, AdamWError>/,
     );
+    expect(trainerSource).toMatch(
+      /candidate_optimizer\.step_with_learning_rate_and_gradient_scale\([\s\S]*?&mut candidate_parameters,[\s\S]*?learning_rate,[\s\S]*?norm\.scale,[\s\S]*?\)\?/,
+    );
+    expect(trainerSource).toContain("let mut candidate_parameters = model.parameters().to_vec();");
+    expect(trainerSource).not.toContain("clipped_parameter_copy");
     expect(trainerSource).toContain("if optimizer_step != expected_optimizer_step");
     expect(trainerSource).not.toContain("optimizer_step.step()");
     expect(normalizedLesson).toContain(
-      "The method then returns the new optimizer step number, which the trainer compares directly with the planned update index.",
+      "The trainer compares the returned optimizer step number directly with the planned update index, then rebuilds a complete candidate decoder from the fresh replacement leaves.",
     );
     expect(normalizedLesson).toContain(
-      "`gradient()` lends a read guard over one parameter's gradient tensor. After verifying that every value in that tensor is zero, the trainer ends the guard before `zero_grad()` mutably clears the same tensor.",
+      "The previous model is then discarded with the old leaves that held the raw gradients, so those gradients cannot accumulate into the next step.",
+    );
+    expect(normalizedLesson).toContain(
+      "`gradient()` lends a read guard over one candidate leaf's gradient tensor. After verifying that every value is zero, the trainer ends the guard before `zero_grad()` mutably clears the same tensor.",
     );
     expect(normalizedLesson).toContain(
       "`parameter_bits` temporarily reads each parameter tensor, converts its scalar values to `u64`, and retains only the resulting bit vector after the read ends.",
@@ -524,7 +532,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
       /drop\(gradient\);\s*parameter\.tensor\(\)\.zero_grad\(\)\?/,
     );
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "Затем он возвращает новый номер шага оптимизатора, и цикл напрямую сравнивает его с номером обновления в плане.",
+      "Прежняя модель уничтожается вместе со старыми листовыми узлами, на которых хранились исходные градиенты, поэтому эти градиенты не накапливаются на следующем шаге.",
     );
     expect(tapeSource).toContain("region:no-grad-scope");
     expect(decoderSource).toContain("region:decoder-parameter-rebuild");

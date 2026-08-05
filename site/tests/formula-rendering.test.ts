@@ -389,7 +389,8 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
     String.raw`\mathcal{L}_{B_1}=\frac{1.75}{2\cdot2}=0.4375`,
   ],
   "22": [
-    String.raw`m_t=\beta_1m_{t-1}+(1-\beta_1)g_t`,
+    String.raw`\widetilde g_t=\alpha_t g_t`,
+    String.raw`m_t=\beta_1m_{t-1}+(1-\beta_1)\widetilde g_t`,
     String.raw`\hat m_t=\frac{m_t}{1-\beta_1^t}`,
     String.raw`\hat m_t=\frac{m_t}{1-\beta_1^t},\quad \hat v_t=\frac{v_t}{1-\beta_2^t},\quad \theta_t=(1-\eta\lambda)\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}`,
     String.raw`\eta\lambda\theta_0=[0.01,-0.02]`,

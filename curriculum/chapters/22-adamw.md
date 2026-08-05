@@ -2,7 +2,7 @@
 {
   "chapter_id": "22-adamw",
   "concept_id": "adamw",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 22,
   "objective": {
     "en": "Update a stable set of named decoder parameters with bias-corrected first and second gradient moments while keeping weight decay outside the adaptive gradient path.",
@@ -29,6 +29,21 @@
         "symbol": "t",
         "en": "the positive optimizer step index used by both bias corrections",
         "ru": "положительный номер шага оптимизатора, используемый в обеих поправках на смещение"
+      },
+      {
+        "symbol": "g_t",
+        "en": "the accumulated token-mean loss gradient stored on the old named-parameter leaf read before optimizer step t",
+        "ru": "накопленный градиент функции потерь, усреднённой по токенам, который хранится в старом листовом узле именованного параметра до шага оптимизатора t"
+      },
+      {
+        "symbol": "\\alpha_t",
+        "en": "the validated gradient scale from zero to one; at one the effective gradient exactly equals the raw gradient",
+        "ru": "проверенный коэффициент масштабирования градиента от нуля до единицы; при значении один градиент после масштабирования точно совпадает с исходным"
+      },
+      {
+        "symbol": "\\widetilde g_t",
+        "en": "the effective gradient that enters both Adam moments",
+        "ru": "градиент после масштабирования, который поступает в оба момента Adam"
       },
       {
         "symbol": "m_t",
@@ -89,8 +104,8 @@
         "ru": "По сравнению с этим прямым правилом SGD метод импульса добавляет затухающую память о прошлых направлениях. Позднее Adam хранит две экспоненциально сглаженные оценки — первый момент и второй нецентрированный момент градиента — и вносит поправку на их начальное смещение к нулю; если член $L_2$ включён в градиент, эта пропорциональная параметру составляющая попадает в обе скользящие оценки. В AdamW поправка, стягивающая параметр к нулю, напротив, вынесена из градиента, по которому обновляются эти адаптивные моменты."
       },
       "modern_llm_role": {
-        "en": "LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B parameters. The course's optimizer now converts token-mean autograd gradients into fresh named parameter leaves; schedules, clipping, mixed precision, and distributed state remain later pipeline concerns.",
-        "ru": "В статье о LLaMA описано применение AdamW при предобучении декодерных языковых моделей с числом параметров от $7$B до $65$B. Оптимизатор курса теперь превращает усреднённые по токенам градиенты, полученные автоматическим дифференцированием, в новые именованные листовые узлы-параметры; расписание скорости обучения, ограничение нормы градиента, смешанная точность и распределённое состояние относятся к последующим этапам конвейера."
+        "en": "LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B parameters. The course's optimizer converts token-mean autograd gradients into fresh named parameter leaves; Chapter 33 supplies a scheduled learning rate and one validated global clipping factor, while mixed precision and distributed optimizer state remain outside this bounded implementation.",
+        "ru": "В статье о LLaMA описано применение AdamW при предобучении декодерных языковых моделей с числом параметров от $7$B до $65$B. Оптимизатор курса превращает усреднённые по токенам градиенты, полученные автоматическим дифференцированием, в новые именованные листовые узлы-параметры; в главе 33 к нему передаются скорость обучения из расписания и один проверенный множитель ограничения общей нормы градиента, а смешанная точность и распределённое состояние оптимизатора остаются за рамками этой реализации."
       },
       "sources": [
         {
@@ -210,6 +225,11 @@
       "ru": "адаптивное направление обновления"
     },
     {
+      "concept_id": "gradient-scale",
+      "en": "gradient scale",
+      "ru": "коэффициент масштабирования градиента"
+    },
+    {
       "concept_id": "optimizer-state",
       "en": "optimizer state",
       "ru": "состояние оптимизатора"
@@ -221,13 +241,14 @@
     }
   ],
   "translation_notes": [
-    "Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 5 with SHA-256 90d9a7d7b436c88096584a3caae427ac0e5a459a9a4efefc153687a7795f4825 and becomes stale whenever that English source changes.",
-    "Keep theta, g, m, v, beta, eta, lambda, epsilon, hats, step indices, vectors, parameter names, trace keywords, source roles, and source URLs unchanged across locales.",
+    "Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 6 with SHA-256 5bee4404886be0333105a5363793c969fc541f1304e76e46d8adcc80f3a0d81b and becomes stale whenever that English source changes.",
+    "Keep theta, g, alpha, g tilde, m, v, beta, eta, lambda, epsilon, hats, step indices, vectors, parameter names, trace keywords, source roles, and source URLs unchanged across locales.",
     "Translate bias correction as correction of the zero-initialized moving estimates, not correction of the model's social or statistical output bias.",
     "Decoupled means the parameter-proportional decay does not enter the gradient moments. It does not mean the final parameter update is independent of the adaptive term.",
     "Bengio supports the direct neural-language-model update, Kingma and Ba the moment and correction equations, Loshchilov and Hutter the separation of decay, and Touvron et al. the modern LLM training example. None defines this implementation's names, rollback, new leaves, fixed example constants, errors, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and program data. Optimizer equations and the historical progression are language-independent.",
     "Translate an ordinary method or call as «обычный метод» or «вызов без трассировки» and an explicitly requested trace as «явно запрошенная трассировка»; never translate lean literally.",
+    "Distinguish «исходный накопленный градиент» on the old leaf, «коэффициент масштабирования градиента», and «градиент после масштабирования». A successful candidate update installs a new zero-gradient leaf but does not mutate the raw gradient visible through any retained handle to the old leaf.",
     "Keep the canonical formula byte-equivalent across English and Russian. Render every learner-facing expression through inline or display math delimiters, and reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
     "Use Russian «первый момент градиента», «второй нецентрированный момент градиента», «поправка на смещение», «затухание весов, отделённое от градиентного обновления», «адаптивная поправка», «поправка затухания», «состояние оптимизатора» and «листовой узел-параметр» consistently. Avoid literal calques such as «сырой момент», «свежий лист», «байпас» and «коммитить».",
     "Validate Russian prose, diagram labels, captions, scroller names, and accessibility labels in Chromium and Firefox at desktop and narrow widths and in full view. Text and formula ink must remain inside their bounded boxes without page-level overflow; fix fit through natural wording, wrapping, or reflow, never clipping, truncation, or reduced text size."
@@ -240,6 +261,10 @@
     {
       "input": "Separate the adaptive and decay contributions for decoder.output.weight",
       "expected": "The adaptive delta is [0.066666666667,-0.08], the decay delta is [0.01,-0.02], and the committed value is [0.923333333333,-1.9]."
+    },
+    {
+      "input": "Apply gradient scale 0.25 to raw gradient [0.8,-0.4]",
+      "expected": "The effective gradient is [0.2,-0.1]. The first moment consumes that vector and the second moment consumes its coordinate squares. AdamW does not mutate the raw gradient on the old leaf: after success the supplied candidate entry contains a fresh zero-gradient leaf, while any other handle retaining the old leaf still observes its unchanged raw gradient. The separate decay term remains eta times lambda times the old parameter."
     },
     {
       "input": "Start a fresh optimizer for a decay-group parameter with value 3 and an exact zero gradient",
@@ -293,13 +318,14 @@
 Chapter 21 produces token-mean gradient coordinates, but it deliberately leaves
 them anonymous. Before AdamW computes a parameter update, this chapter
 associates each tensor-shaped gradient with the stable name of the parameter
-with respect to which it was computed. It then implements fixed-learning-rate
-AdamW for that stable named set: exponential
-first and second raw moments, early-step bias correction, an adaptive direction,
-decoupled weight decay, explicit decay and no-decay parameter groups, finite
-checks, and whole-set commit. Learning-rate schedules, gradient clipping, mixed
-precision, checkpoint serialization, and distributed optimizer state remain
-outside scope.
+with respect to which it was computed. It then implements AdamW for that stable
+named set: exponential first and second raw moments, early-step bias correction,
+an adaptive direction, decoupled weight decay, explicit decay and no-decay
+parameter groups, finite checks, and whole-set commit. The mechanism accepts a
+positive learning rate and one validated scalar that can preserve or reduce the
+gradient entering both moments. Chapter 33 owns the schedule and the global-norm
+rule that computes that scalar. Mixed precision, checkpoint serialization, and
+distributed optimizer state remain outside scope.
 
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
@@ -325,8 +351,9 @@ The stable name, not the parameter's position in the parameter list, identifies
 its moment history.
 
 Freeze $\eta=0.1$, $\beta_1=\beta_2=0.5$, $\varepsilon=0.1$, and
-$\lambda=0.1$. Predict two separate subtractions before replacing the leaf:
-the adaptive delta and the decay delta.
+$\lambda=0.1$. This direct worked step uses gradient scale $\alpha_1=1$, so
+the effective gradient is exactly $\widetilde g_1=g_1$. Predict two separate
+subtractions before replacing the leaf: the adaptive delta and the decay delta.
 
 The zero-initialized moments make the first step easy to inspect. They become
 $m_1=[0.1,-0.2]$ and $v_1=[0.02,0.08]$. Both correction denominators are
@@ -338,12 +365,40 @@ $\theta_1\approx[0.923333,-1.9]$.
 <!-- contract-section:formula -->
 ## Formula and symbols
 
-Adam first updates the exponential gradient moments elementwise:
+The optimizer receives the raw accumulated gradient $g_t$ stored on the named
+parameter and a validated scalar $0\leq\alpha_t\leq1$. It forms the effective
+gradient
 
 $$
-m_t=\beta_1m_{t-1}+(1-\beta_1)g_t,
+\widetilde g_t=\alpha_t g_t.
+$$
+
+The scalar is shared by every coordinate of the complete parameter set. It is
+not a second learning rate: it changes only the gradient supplied to the moment
+recurrences. The optimizer reads $g_t$ without modifying the old leaf. After a
+successful transaction, the supplied candidate entry holds a fresh leaf whose
+gradient is zero; any other handle that still retains the old leaf observes its
+unchanged raw gradient. A scale of $1$ preserves every gradient bit used by the
+calculation, as in this chapter's worked step; Chapter 33 derives a scale below
+$1$ when the complete gradient norm exceeds its ceiling.
+
+For a non-unit example, let the raw gradient be $[0.8,-0.4]$ and let
+$\alpha_t=0.25$. Then
+
+$$
+\widetilde g_t=0.25[0.8,-0.4]=[0.2,-0.1].
+$$
+
+The first moment consumes $[0.2,-0.1]$, and the second moment consumes its
+coordinate squares $[0.04,0.01]$. The separate decay term remains
+$\eta\lambda\theta_{t-1}$.
+
+Adam then updates the exponential gradient moments elementwise:
+
+$$
+m_t=\beta_1m_{t-1}+(1-\beta_1)\widetilde g_t,
 \qquad
-v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2.
+v_t=\beta_2v_{t-1}+(1-\beta_2)\widetilde g_t^2.
 $$
 
 The first moment carries recent gradient direction forward, which is the
@@ -377,7 +432,8 @@ stabilizes the denominator.
 
 The factor $(1-\eta\lambda)\theta_{t-1}$ is equivalently the old parameter
 minus $\eta\lambda\theta_{t-1}$. Crucially, that decay term never enters
-$g_t$, $m_t$, or $v_t$. On the fresh probe, $m_0=v_0=0$ and $g_1=0$, so the
+$g_t$, $\widetilde g_t$, $m_t$, or $v_t$, and changing $\alpha_t$ does not
+scale the decay term. On the fresh probe, $m_0=v_0=0$ and $g_1=0$, so the
 adaptive delta is zero; a decay-group parameter still shrinks while a no-decay
 parameter remains unchanged. After earlier nonzero gradients, however,
 $g_t=0$ only removes the new contribution: stored moments decay but can still
@@ -418,9 +474,11 @@ those adaptive moments.
 
 In compact loss-minimization notation, momentum uses
 $u_t=\mu u_{t-1}+g_t$ and $\theta_t=\theta_{t-1}-\eta u_t$. Coupled $L_2$ feeds
-$g_t+\lambda\theta_{t-1}$ into Adam's moments; AdamW leaves $g_t$ as the moment
-input and applies shrinkage separately. Here $u_t$ is the retained update
-velocity and $0\leq\mu\lt1$ is its retention rate.
+$g_t+\lambda\theta_{t-1}$ into Adam's moments. AdamW excludes the
+parameter-proportional term from the gradient input to those moments and applies
+shrinkage separately. In this chapter's direct $\alpha_t=1$ example, that input
+is $g_t$; after Chapter 33 applies clipping, it is $\widetilde g_t$. Here
+$u_t$ is the retained update velocity and $0\leq\mu\lt1$ is its retention rate.
 
 [Kingma and Ba, *Adam: A Method for Stochastic Optimization*](https://arxiv.org/pdf/1412.6980)
 support the adaptive stage: Kingma and Ba's Adam keeps exponential first and
@@ -437,9 +495,10 @@ parameter-proportional decay outside the gradient entering those adaptive
 moments, so it cannot be mixed into the stored moments.
 
 LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B
-parameters. The course's optimizer now converts token-mean autograd gradients
-into fresh named parameter leaves; schedules, clipping, mixed precision, and
-distributed state remain later pipeline concerns.
+parameters. The course's optimizer converts token-mean autograd gradients into
+fresh named parameter leaves. Chapter 33 supplies a scheduled learning rate and
+one validated global clipping factor; mixed precision and distributed optimizer
+state remain outside this bounded implementation.
 
 That progression—from direct next-word gradients to adaptive, decoupled
 updates used in decoder pretraining—is why AdamW belongs on the road to modern
@@ -471,21 +530,29 @@ constructor applies decay to every parameter. Moment tensors are keyed by stable
 external names rather than slice positions.
 
 Ordinary methods `step` and `step_with_learning_rate` execute the complete
-atomic update and return only the committed step number. They do not construct
-an `AdamWStep` or copy old values, gradients, moments, deltas, and replacement values
-into a separate trace. The explicit `step_with_trace` and
-`step_with_learning_rate_and_trace` methods retain those per-parameter values
-for inspection. All four methods use the same private preparation-and-commit
-operation and the same elementwise calculation; tracing records values produced
-by that calculation rather than repeating the calculation.
+atomic update and return only the committed step number. The additional ordinary
+method `step_with_learning_rate_and_gradient_scale` receives the scheduled rate
+and $\alpha_t$ while still returning only the step number. The four earlier
+ordinary and traced entry points behave exactly as $\alpha_t=1$. They do not
+construct an `AdamWStep` unless the caller uses `step_with_trace` or
+`step_with_learning_rate_and_trace`. Every entry point uses the same private
+preparation-and-commit operation and the same elementwise calculation; tracing
+records values produced by that calculation rather than repeating it. In a
+trace, `gradient()` is the effective $\widetilde g_t$ actually consumed by both
+moments, not a second calculation performed by the observer.
 
-On the first update, the shared operation prepares zero moment state with each
-parameter's shape. Later updates require the same name set and shapes, although
-presentation order may change. The implementation reads each leaf's accumulated
-gradient, calculates every intermediate with a finite check, constructs every
-replacement leaf, and only then commits parameters, moments, powers, and the
-step counter. A successful fresh leaf has an exact zero gradient; a failure
-preserves all old leaf identities and optimizer bytes.
+The public scheduled-update method validates the learning rate while constructing
+its per-step configuration. It then enters the shared operation, which validates
+$0\leq\alpha_t\leq1$ before inspecting any parameter. On the first update, the
+shared operation prepares zero moment state with each parameter's shape. Later updates
+require the same name set and shapes, although presentation order may change.
+The implementation reads each leaf's accumulated raw gradient, forms each
+effective coordinate once, calculates every later intermediate with a finite
+check, constructs every replacement leaf, and only then commits parameters,
+moments, powers, and the step counter. Weight decay still reads the old
+parameter directly and is never multiplied by $\alpha_t$. A successful fresh
+leaf has an exact zero gradient; a failure preserves all old leaf identities and
+optimizer bytes.
 
 The cumulative module and executable example are dependency-free. Tests cover
 the first-step numbers, a second step after reordering, fresh-state
@@ -513,8 +580,9 @@ The block does not copy the primal or change the optimizer calculation.
 ## Visualization
 
 Two useful static diagrams read `diagram-trace.txt`, which only the Rust example
-authors. The primary update view follows the decay-group weight: $g_t$ enters
-$m_t$ and $v_t$, bias correction produces the adaptive delta, and a separate
+authors. The primary update view follows the decay-group weight in the fixed
+$\alpha_t=1$ fixture, so the displayed $g_t$ equals $\widetilde g_t$ and enters
+$m_t$ and $v_t$. Bias correction produces the adaptive delta, while a separate
 lane carries $\theta_{t-1}$ directly to $\eta\lambda\theta_{t-1}$ before both
 deltas meet at the replacement. The supplementary evidence view keeps the
 no-decay parameter compact but explicit, then presents the five SGD and AdamW
@@ -573,16 +641,19 @@ then checks that training improves held-out loss.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The exact active locale set is {en, ru}. English content revision 5 is the
+The exact active locale set is {en, ru}. English content revision 6 is the
 canonical source; Russian is translated directly from that revision, and its
 semantic, terminology, anti-calque, accessibility, and rendered-surface review
 becomes stale whenever the English meaning or presentation changes. Keep
 mathematical symbols, parameter names, shapes, source evidence, trace grammar,
-and Rust paths locale-neutral.
+and Rust paths locale-neutral. Preserve the distinction between the raw gradient
+on the old leaf, the validated scale, the effective gradient entering the
+moments, and the fresh zero-gradient replacement leaf.
 
 Russian uses «поправка на смещение» for correction of zero-initialized moment
 estimates and «затухание весов, отделённое от градиентного обновления» for decay
 that stays outside those moments. Use «второй нецентрированный момент
+градиента», «исходный накопленный градиент», «коэффициент масштабирования
 градиента» and «листовой узел-параметр» rather than literal calques such as
 «сырой момент» or «свежий лист».
 
