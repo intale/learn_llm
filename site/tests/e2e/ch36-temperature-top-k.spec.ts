@@ -44,6 +44,8 @@ const copy = {
       "not a universal quality guarantee, a hallucination defense, or the endpoint of decoding research",
     executionFragment:
       "The ordinary call still needs temporary arrays of ranked token IDs and probabilities",
+    ownershipFragment:
+      "It first records the saved random state, then consumes the checkpoint and moves its already-owned model buffers into the decoder",
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -74,6 +76,8 @@ const copy = {
       "не универсальная гарантия качества, не защита от галлюцинаций и не конечная точка исследований декодирования",
     executionFragment:
       "Обычному вызову всё равно нужны временные массивы",
+    ownershipFragment:
+      "Сначала он сохраняет отдельно записанное в ней состояние генератора псевдослучайных чисел. Затем метод into_model получает контрольную точку по значению и перемещает в декодер буферы модели",
   },
 } as const;
 
@@ -306,7 +310,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 36,
-    revision: 4,
+    revision: 5,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -352,6 +356,7 @@ async function expectChapterContent(
   );
   expect(lessonText).toContain(localized.historyFragment);
   expect(lessonText).toContain(localized.executionFragment);
+  expect(lessonText).toContain(localized.ownershipFragment);
   await expect(
     page.locator('.lesson-body a[href="https://arxiv.org/pdf/1805.04833"]'),
   ).toHaveCount(1);

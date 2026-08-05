@@ -2,7 +2,7 @@
 {
   "chapter_id": "35-checkpoints",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 35,
   "concept_id": "checkpoints",
   "title": "Save every state, resume exactly",
@@ -79,13 +79,18 @@
   "rust_sources": [
     {
       "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
+      "region": "checkpoint-state-transfer",
+      "purpose": "Name the durable snapshot required when borrowed training state must remain available, and move already-owned checkpoint state into a decoder without another tensor-buffer copy."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
       "region": "versioned-checkpoint-encoding",
       "purpose": "Encode one canonical little-endian header, descriptor table, mixed-width payload, and complete-file accidental-corruption checksum."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
       "region": "validated-checkpoint-loading",
-      "purpose": "Reject extent, checksum, descriptor, tokenizer, model, optimizer, and canonical-reencoding drift before exposing restored state."
+      "purpose": "Validate the decoded model before decoding optimizer tensors, retain the original decoded buffers after the temporary validation decoder is dropped, and reject all remaining cross-component or canonical-reencoding drift."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
@@ -105,7 +110,7 @@
     {
       "path": "rust/demos/ch35-checkpoints/src/lib.rs",
       "region": "learner-evidence",
-      "purpose": "Serialize the selected Chapter 33 state, reload it independently, compare exact logits and RNG continuation, and execute the same next update."
+      "purpose": "Snapshot the retained Chapter 33 state, reload owned checkpoint state, compare exact logits and RNG continuation, and execute the same next update on independent branches."
     },
     {
       "path": "rust/demos/ch35-checkpoints/src/main.rs",
@@ -366,6 +371,33 @@ existing validated tokenizer constructor; restoring the random stream uses its
 raw state. This is a continuation stream for later sampling, not the Chapter 33
 batch-shuffle seed.
 
+Checkpoint creation and loading start from different inputs.
+`Checkpoint::from_snapshot` receives selected model state and an optimizer that
+their callers still need, so it copies the model tensors and optimizer
+persistence state into an independently owned checkpoint.
+`Checkpoint::from_bytes` instead owns the tensor buffers decoded from the file.
+After structural checks and tokenizer decoding, it decodes the model tensors and
+builds one independent temporary decoder to validate the configuration,
+parameter count and order, names, shapes, finite values, and tied
+embedding/output structure. This validation finishes before optimizer tensors
+are decoded. The temporary decoder is then dropped; the original decoded model
+buffers remain in the validated graph-free state. The reader decodes and
+validates the optimizer, checks cross-component relationships and canonical
+re-encoding, and moves the validated model and optimizer states into the
+returned checkpoint.
+
+`restore_independent_model` copies because the checkpoint must remain available;
+`into_model` consumes the checkpoint and moves its model buffers. Both produce
+the same parameter values and tied structure; the difference is whether the
+source checkpoint remains usable.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/checkpoint.rs"
+  region="checkpoint-state-transfer"
+  caption="Snapshot borrowed state for a durable checkpoint, or move buffers from an owned checkpoint into a decoder"
+  label="Rust source defining the Chapter 35 checkpoint state-transfer boundary"
+/>
+
 The encoder first builds the `u8`, `u32`, and `f64` records, then measures the
 header and assigns absolute offsets. Every primitive is written explicitly in
 little-endian form. FNV-1a covers the complete canonical file while the checksum
@@ -379,9 +411,13 @@ field itself is treated as zero.
 />
 
 The reader checks the fixed header, complete extent, checksum, known roles and
-dtypes, and descriptor ranges before constructing components. It then validates
-the restored tokenizer, model, and optimizer invariants plus exact canonical
-re-encoding. A failure at either stage returns no `Checkpoint`.
+dtypes, and descriptor ranges before constructing components. Each decoded
+model record first passes the ordinary parameter-name and finite-value checks.
+The loader then validates the complete model before decoding optimizer tensors,
+followed by the optimizer, the relationships among tokenizer, model, and
+optimizer, and exact canonical re-encoding. Only after every check does it
+return the checkpoint that owns the original decoded model and optimizer
+buffers. A failure at any stage returns no `Checkpoint`.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/checkpoint.rs"
@@ -403,11 +439,16 @@ unsupported error instead of deleting the prior checkpoint.
   label="Rust source implementing Chapter 35 checkpoint publication"
 />
 
-The executable fixture restores independent original and loaded models. Both
-produce no-gradient logits for inputs $[0,1]$, then backpropagate targets
-$[1,2]$ and apply the same explicit next learning rate $0.006$. It compares
-every parameter bit, exact optimizer state, post-update logits, and the next
-SplitMix64 draw.
+The executable fixture needs two independent continuation branches. It retains
+the original checkpoint for later corruption and atomic-save evidence, so that
+branch uses `restore_independent_model`. The loaded checkpoint has no later
+owner: after obtaining the optimizer continuation and saved RNG value needed by
+the loaded branch, the fixture consumes it with `into_model` and moves its
+tensors into the second decoder. Both decoders produce
+no-gradient logits for inputs $[0,1]$, then backpropagate targets $[1,2]$ and
+apply the same explicit next learning rate $0.006$. The fixture compares every
+parameter bit, exact optimizer state, post-update logits, and the next SplitMix64
+draw.
 
 <RustSource
   path="rust/demos/ch35-checkpoints/src/lib.rs"

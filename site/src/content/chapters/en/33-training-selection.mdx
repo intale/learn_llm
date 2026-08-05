@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
@@ -133,8 +133,13 @@
       },
       {
         "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
+        "region": "decoder-state-snapshot",
+        "purpose": "Name the deep-copy boundary for state that must remain independent, and move an owned graph-free state into a decoder without copying its tensor buffers again."
+      },
+      {
+        "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
         "region": "complete-training-loop",
-        "purpose": "Keep one working decoder and optimizer across every scheduled update, compute one global clipping factor, commit AdamW into the existing parameter nodes, clear their gradients explicitly, measure every declared validation checkpoint, and restore the earliest minimum."
+        "purpose": "Keep one working decoder and optimizer across every scheduled update, compute one global clipping factor, commit AdamW into the existing parameter nodes, clear their gradients explicitly, measure every declared validation checkpoint, and retain the earliest minimum as independent state."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -149,7 +154,7 @@
       {
         "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
         "region": "decoder-parameter-rebuild",
-        "purpose": "Reconstruct an isolated decoder when restoring an owned state snapshot; ordinary optimizer steps preserve the live component aliases."
+        "purpose": "Bind an exact stable-order parameter set into a decoder and re-establish its component aliases and tied embedding; ordinary optimizer steps preserve those live aliases."
       },
       {
         "path": "rust/demos/ch33-training-selection/src/lib.rs",
@@ -490,13 +495,29 @@ the call if any bit changes.
   label="Rust source implementing Chapter 33 graph-free epoch evaluation"
 />
 
-Before the first update, `train_decoder` reconstructs one isolated working
-decoder from the caller's state and clones the caller's optimizer once. The
-working decoder and optimizer then persist through all eight updates. This
-single initial isolation keeps the caller's inputs unchanged; it is not a model
-or optimizer copy performed for every mini-batch. In particular, the trainer
-does not clone a replacement `Vec<NamedParameter>`, candidate decoder, or
-candidate optimizer for each update.
+Before the first update, `train_decoder` must isolate its working decoder from
+the model borrowed from its caller. `DecoderModelState::snapshot` therefore
+copies every named parameter tensor once into graph-free state. The trainer
+immediately calls `into_model` on that owned state: each name and tensor buffer
+moves into the working decoder instead of being copied a second time. The
+trainer also clones the caller's optimizer once. That working decoder and
+optimizer then persist through all eight updates, so neither is reconstructed
+for each mini-batch.
+
+Later snapshots solve a different problem. When a validation checkpoint becomes
+the new minimum, its parameter values must remain unchanged while later updates
+continue to mutate the working decoder, so that minimum requires a deep snapshot.
+At the end, `TrainingResult` keeps the selected graph-free state as the immutable
+record of what validation chose and a separate decoder with the same values for
+later evaluation. Because both must remain available,
+`restore_independent_model` makes the one additional buffer copy.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/trainer.rs"
+  region="decoder-state-snapshot"
+  caption="Copy buffers when two results must remain independently usable, then move buffers when owned state is consumed"
+  label="Rust source defining the Chapter 33 decoder state-transfer boundary"
+/>
 
 After checking every raw gradient and computing one norm over all named
 coordinates, the trainer derives one $\alpha_s$. It passes the working model's
@@ -537,31 +558,32 @@ constructed by the trainer for each update.
   label="Rust source defining the ordinary scaled AdamW update used in Chapter 33"
 />
 
-`DecoderModel::from_parameters` remains a reconstruction boundary for state
-restoration, not for an ordinary AdamW step. It builds an isolated decoder from
-one exact stable-order parameter vector, rejects count, name, and
-component-shape drift, and re-establishes one tied embedding node for both
-lookup and output projection. The trainer does not call it after each ordinary
-AdamW step. It uses this boundary before the loop and when restoring the
-selected deep snapshot after the loop.
+`DecoderModel::from_parameters` remains a reconstruction boundary, not an
+ordinary AdamW operation. `into_model` first moves each owned tensor buffer into
+one new parameter leaf. `from_parameters` then validates count, name, and
+component shape and gives the decoder components shared handles to those leaves;
+those handle clones do not copy the tensor buffers. This also re-establishes one
+tied embedding node for both lookup and output projection. The trainer does not
+call this boundary after each ordinary AdamW step.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/models/decoder.rs"
   region="decoder-parameter-rebuild"
-  caption="Reconstruct an isolated decoder when restoring an owned stable-name state snapshot"
-  label="Rust source defining the Chapter 33 decoder state-restoration boundary"
+  caption="Bind moved parameter buffers into one decoder and re-establish every component alias"
+  label="Rust source defining the Chapter 33 decoder parameter-binding boundary"
 />
 
 `train_decoder` first rejects the wrong partitions and incompatible epochs. It
-then deep-copies the caller's model, executes all scheduled updates, measures
-only declared checkpoints, replaces the selected snapshot only on strict loss
-improvement, and restores that snapshot at the end. The caller's model and
-optimizer remain unchanged even on failure.
+then creates the one isolated working model, executes all scheduled updates,
+measures only declared checkpoints, and replaces the selected snapshot only on
+strict loss improvement. After the final update, it returns the retained
+selected snapshot together with its explicitly independent decoder. The
+caller's model and optimizer remain unchanged even on failure.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/trainer.rs"
   region="complete-training-loop"
-  caption="Update one persistent working decoder and optimizer, clear gradients explicitly, and restore the earliest validation minimum without consulting test data"
+  caption="Update one persistent decoder, snapshot strict validation improvements, and return the earliest minimum without consulting test data"
   label="Rust source implementing the complete Chapter 33 training loop"
 />
 

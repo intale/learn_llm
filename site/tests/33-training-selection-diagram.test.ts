@@ -478,9 +478,9 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(7);
-    expect(lesson.content_revision).toBe(7);
-    expect(russianLesson.content_revision).toBe(7);
+    expect(contract.content_revision).toBe(8);
+    expect(lesson.content_revision).toBe(8);
+    expect(russianLesson.content_revision).toBe(8);
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
@@ -494,7 +494,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
       expect(normalizedLesson).toContain(source.claim);
     }
     expect(lessonSource.match(/chapter-section:/g)).toHaveLength(8);
-    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(10);
+    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(11);
     expect(lessonSource).toContain(
       "<TrainingSelectionDiagram labels={diagramLabels} />",
     );
@@ -508,7 +508,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
       /byte for byte|final newline|page parses|static diagram|implementation languages/i,
     );
     expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
-    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(10);
+    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(11);
     expect(russianLessonSource).toContain(
       "<TrainingSelectionDiagram labels={diagramLabels} />",
     );
@@ -518,6 +518,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
 
     expect(trainerSource).toContain("region:training-plan");
     expect(trainerSource).toContain("region:no-grad-evaluation");
+    expect(trainerSource).toContain("region:decoder-state-snapshot");
     expect(trainerSource).toContain("region:global-norm-clipping");
     expect(trainerSource).toContain("region:complete-training-loop");
     expect(trainerSource).toContain("Partition::Validation");
@@ -535,20 +536,46 @@ describe("Chapter 33 static diagram and content boundary", () => {
     const completeLoopSource = trainerSource.match(
       /\/\/ region:complete-training-loop([\s\S]*?)\/\/ endregion:complete-training-loop/,
     )?.[1];
+    const stateTransferSource = trainerSource.match(
+      /\/\/ region:decoder-state-snapshot([\s\S]*?)\/\/ endregion:decoder-state-snapshot/,
+    )?.[1];
     expect(completeLoopSource).toBeDefined();
+    expect(stateTransferSource).toBeDefined();
+    expect(stateTransferSource).not.toMatch(
+      /#\[derive\([^\]]*Clone[^\]]*\)\]\s*pub struct DecoderModelState/,
+    );
+    expect(stateTransferSource).toContain("pub fn snapshot(");
+    expect(stateTransferSource).toContain("pub fn independent_snapshot(");
+    expect(stateTransferSource).toContain("pub fn restore_independent_model(");
+    expect(stateTransferSource).toContain("pub fn into_model(self)");
+    expect(stateTransferSource).toContain("NamedParameter::from_tensor");
+    expect(stateTransferSource).not.toContain("try_from_owned_parameters");
     expect(completeLoopSource).toMatch(
       /optimizer\.step_with_learning_rate_and_gradient_scale\([\s\S]*?model\.parameters\(\),[\s\S]*?learning_rate,[\s\S]*?norm\.scale,[\s\S]*?\)\?/,
     );
     expect(completeLoopSource).not.toMatch(
       /candidate_parameters|candidate_optimizer|\.parameters\(\)\.to_vec\(\)/,
     );
+    expect(completeLoopSource).toContain(
+      "DecoderModelState::snapshot(initial_model).into_model()?",
+    );
+    expect(completeLoopSource).toContain(
+      "selected_state = DecoderModelState::snapshot(&model)",
+    );
+    expect(completeLoopSource).toContain(
+      "let final_state = DecoderModelState::snapshot(&model);",
+    );
+    expect(completeLoopSource).toContain(
+      "selected_state.restore_independent_model()?",
+    );
+    expect(completeLoopSource).not.toMatch(/DecoderModelState::capture|\.restore\(\)/);
     expect(completeLoopSource).toContain("clear_and_verify_gradients(&model)?;");
     expect(completeLoopSource).toContain("parameter_nodes_preserved: true");
     expect(trainerSource).not.toContain("clipped_parameter_copy");
     expect(trainerSource).toContain("if optimizer_step != expected_optimizer_step");
     expect(trainerSource).not.toContain("optimizer_step.step()");
     expect(normalizedLesson).toContain(
-      "The working decoder and optimizer then persist through all eight updates.",
+      "That working decoder and optimizer then persist through all eight updates",
     );
     expect(normalizedLesson).toContain(
       "The registry and every decoder component already hold aliases of those nodes, so the next forward pass observes the new values without rebuilding the decoder.",
@@ -557,7 +584,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
       "AdamW deliberately leaves each raw gradient tensor unchanged on its parameter node.",
     );
     expect(normalizedLesson).toContain(
-      "The trainer does not call it after each ordinary AdamW step.",
+      "The trainer does not call this boundary after each ordinary AdamW step.",
     );
     expect(normalizedLesson).toContain(
       "AdamW does hold each fully checked prospective tensor value until the transaction can commit.",
@@ -569,13 +596,13 @@ describe("Chapter 33 static diagram and content boundary", () => {
       /fn clear_and_verify_gradients\([\s\S]*?parameter\.tensor\(\)\.zero_grad\(\)\?;[\s\S]*?\.gradient\(\)/,
     );
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "Затем этот декодер и этот оптимизатор используются во всех восьми обновлениях.",
+      "После этого все восемь обновлений выполняются одним и тем же рабочим декодером и одним и тем же оптимизатором",
     );
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "В реестре и компонентах декодера хранятся дескрипторы этих же узлов, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
+      "Реестр и компоненты декодера хранят ссылки на те же узлы, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
     );
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "Его не вызывают после каждого такого шага.",
+      "После обычного шага AdamW пересобирать декодер не нужно.",
     );
     expect(tapeSource).toContain("region:no-grad-scope");
     expect(decoderSource).toContain("region:decoder-parameter-rebuild");

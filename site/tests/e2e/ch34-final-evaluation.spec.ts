@@ -44,6 +44,11 @@ const copy = {
       "Early neural language-model evaluation moved from training-set reporting",
       "does not claim that these papers used exactly one test query",
     ],
+    ownershipFragments: [
+      "TrainingResult already owns two independent representations of the validation choice",
+      "Immediately before the test gate opens, FinalEvaluator compares the decoder configuration",
+      "A mismatch returns SelectedStateMismatch while the gate-opening count remains 0",
+    ],
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -55,10 +60,10 @@ const copy = {
       "Усредняйте неожиданность по целевым токенам",
       "Не смешивайте состояния, позиции и роли выборок",
       "От результатов обучения к управляемой итоговой оценке LLM",
-      "Сделайте границу итоговой оценки исполняемой",
+      "Реализуйте правила итоговой оценки в коде",
       "Проследите одну информационную границу и одно сравнение",
       "Определите допустимые решения до запуска",
-      "Передайте дальше выбранное и оценённое состояние",
+      "Сохраните в контрольной точке то же выбранное состояние",
     ],
     diagramTitle: "Зафиксируйте решения до итоговой оценки",
     diagramDescription:
@@ -72,6 +77,11 @@ const copy = {
     historyFragments: [
       "В ранних исследованиях нейронных языковых моделей постепенно переходили",
       "Это не означает, что в процитированных работах тестовую выборку запрашивали ровно один раз",
+    ],
+    ownershipFragments: [
+      "TrainingResult хранит результат выбора по валидации в двух независимых формах",
+      "Непосредственно перед открытием доступа к тестовой выборке FinalEvaluator сверяет с сохранённым состоянием конфигурацию декодера",
+      "При несовпадении возвращается SelectedStateMismatch, а счётчик открытий доступа остаётся равным 0",
     ],
   },
 } as const;
@@ -283,7 +293,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 34,
-    revision: 2,
+    revision: 3,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -323,6 +333,9 @@ async function expectChapterContent(
     " ",
   );
   for (const fragment of localized.historyFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  for (const fragment of localized.ownershipFragments) {
     expect(lessonText).toContain(fragment);
   }
   expect(lessonText).toContain(

@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from "node:crypto";
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { existsSync, readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
@@ -380,8 +382,12 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
     );
-    expect(contract.content_revision).toBe(2);
-    expect(lesson.content_revision).toBe(2);
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
+    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.translation_notes).toContain(
+      `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
+    );
     expect(contractSource).not.toContain("s^\\*");
     expect(lessonSource).not.toContain("s^\\*");
 
@@ -415,9 +421,26 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(evaluationSource).toContain("region:once-only-final-evaluation");
     expect(evaluationSource).toContain("AlreadyEvaluated");
     expect(evaluationSource).toContain("Partition::Test");
+    expect(evaluationSource).toMatch(
+      /pub struct SelectedDecoder<'a> \{[\s\S]*?state: &'a DecoderModelState,[\s\S]*?model: &'a DecoderModel,/,
+    );
+    const finalEvaluationSource = evaluationSource.match(
+      /\/\/ region:once-only-final-evaluation([\s\S]*?)\/\/ endregion:once-only-final-evaluation/,
+    )?.[1];
+    expect(finalEvaluationSource).toBeDefined();
+    expect(finalEvaluationSource!.indexOf("selected_state_matches_model(")).toBeGreaterThan(-1);
+    expect(finalEvaluationSource!.indexOf("self.access_count = 1")).toBeGreaterThan(
+      finalEvaluationSource!.indexOf("selected_state_matches_model("),
+    );
+    expect(finalEvaluationSource).not.toMatch(
+      /restore_independent_model|into_model|\.restore\(\)/,
+    );
     expect(selectionSource).toContain("fixture_training_documents");
     expect(demoSource).not.toContain("region:historical-evaluation-contrast");
     expect(demoSource).toContain("region:learner-evidence");
+    expect(demoSource).toMatch(
+      /SelectedDecoder::new\([\s\S]*?selected_state\(\),[\s\S]*?selected_model\(\),/,
+    );
     expect(traceRustSource).toContain("FINAL_EVALUATION_TRACE_V1");
   });
 });

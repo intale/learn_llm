@@ -2,7 +2,7 @@
 {
   "chapter_id": "35-checkpoints",
   "concept_id": "checkpoints",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 35,
   "objective": {
     "en": "Save and load one versioned decoder checkpoint that reproduces its tokenizer and configuration, parameter and optimizer state, continuation RNG, logits, and one resumed update.",
@@ -130,7 +130,7 @@
   },
   "decoder_connection": {
     "en": "The cumulative decoder can now leave memory as one validated selected-state checkpoint and return with identical logits, optimizer continuation, and RNG continuation; Chapter 36 will load it before converting logits into token choices.",
-    "ru": "Теперь совокупный декодер можно сохранить как одну проверенную контрольную точку выбранного состояния и загрузить с теми же логитами, состоянием оптимизатора и продолжением генератора псевдослучайных чисел; глава 36 загрузит её перед преобразованием логитов в выбор токена."
+    "ru": "К этому этапу выбранное состояние декодера можно сохранить в одной проверенной контрольной точке, а после загрузки получить те же логиты, состояние оптимизатора и продолжение генератора псевдослучайных чисел. В главе 36 эта контрольная точка будет загружена перед преобразованием логитов в выбор токена."
   },
   "terminology": [
     {
@@ -165,10 +165,10 @@
     }
   ],
   "translation_notes": [
-    "Chapter 35 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 5cc4fb290db13c2162fa62bc825e2ffc2aee5004e1ddf60beff39bb3f92c8d78",
+    "Chapter 35 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 128d67269dbe7f4437fa4a471b5bb24c2793271b98a5b271bc15122f99a28d44",
     "Preserve o_k, b_k, n_i^(k), h, byte widths, absolute half-open ranges, hexadecimal values, and exact trace tokens.",
-    "A checkpoint is more than model weights; keep tokenizer, configuration, optimizer moments, accumulated beta powers, and RNG state distinct.",
+    "A checkpoint is more than model weights; keep tokenizer, configuration, optimizer moments, accumulated beta powers, and RNG state distinct. Preserve the ownership distinction: from_snapshot copies borrowed selected model state and optimizer persistence state because both callers remain available; into_model consumes owned checkpoint state and moves its model tensor buffers; restore_independent_model copies because the checkpoint remains available.",
     "Describe FNV-1a as accidental-corruption detection, never authentication, and qualify atomic replacement by the supported Unix same-filesystem rename semantics.",
     "History must remain about reproducible language-model state, not programming-language or serialization-library history."
   ],
@@ -192,6 +192,10 @@
     {
       "input": "Load the step-8 file and run inputs [0,1]",
       "expected": "All [1,2,5] logit bits match with fingerprint fnv1a64:6029064fe7cd162d."
+    },
+    {
+      "input": "Create a checkpoint from retained selected state, then load and consume a separate checkpoint",
+      "expected": "Checkpoint creation explicitly copies the retained model state and optimizer persistence state. Loading validates each model record and the complete decoder before decoding optimizer tensors, and consuming the owned loaded checkpoint moves its decoded model buffers into one decoder without changing names, shapes, values, order, or checkpoint bytes."
     },
     {
       "input": "Backpropagate targets [1,2] and apply learning rate 0.006 to original and loaded states",
@@ -335,13 +339,29 @@ tokenizer constructor; loading RNG state calls the existing raw-state constructo
 The saved stream is a continuation stream for later sampling, not the Chapter 33
 batch-shuffle seed.
 
+`Checkpoint::from_snapshot` receives selected model state and an optimizer that
+their callers still need, so it copies the model tensors and optimizer
+persistence state into an independently owned checkpoint.
+`restore_independent_model` likewise copies model state when a caller retains the
+checkpoint. In contrast, an owned checkpoint can be consumed by `into_model`,
+which moves each stored model tensor buffer into one decoder. These paths
+preserve the same names, order, shapes, values, and tied embedding; they differ
+only in whether the source must remain available afterward.
+
 The encoder builds `u8`, `u32`, and `f64` payload records, measures the header in
 one pass, assigns absolute offsets in a second pass, and writes explicit
 little-endian primitives. It computes FNV-1a over the complete canonical file
 while treating the checksum field as zero. The reader checks the fixed header,
 extent, checksum, roles, dtypes, and descriptor ranges before constructing
-components. It then checks restored component invariants and exact canonical
-re-encoding. A failure at either stage exposes no `Checkpoint`.
+components. Each decoded model record first passes the ordinary parameter-name
+and finite-value checks. The loader then uses one independent temporary decoder
+to validate the complete configuration, parameter count and order, names,
+shapes, finite values, and tied component structure before it decodes optimizer
+tensors. After dropping that temporary decoder, the original decoded model
+buffers remain in graph-free state. The loader validates the optimizer,
+cross-component relationships, and exact canonical re-encoding, then moves the
+validated model and optimizer states into the returned checkpoint. A failure at
+any stage exposes no `Checkpoint`.
 
 Saving uses a unique `create_new` temporary in the destination directory, writes
 and synchronizes the complete file, renames over the destination, then
@@ -349,11 +369,16 @@ synchronizes the directory. This is atomic replacement under the supported Unix
 same-filesystem rename semantics. Other targets return an explicit unsupported
 error rather than deleting the previous file.
 
-The fixture restores independent original and loaded models. Both run no-grad
-logits for inputs `[0,1]`, then backpropagate targets `[1,2]` and apply the same
-explicit next learning rate $0.006$. It compares all parameter bits, exact AdamW
-state, post-update logits, and the next SplitMix64 draw. Tests also cover BPE,
-mixed widths, deterministic bytes, all core corruptions, and atomic replacement.
+The fixture retains the original checkpoint for later evidence, so it restores
+an independent original model. The loaded checkpoint has no later owner: after
+obtaining the optimizer continuation and saved RNG value needed by the loaded
+branch, the fixture consumes it and moves its model buffers into that decoder.
+Both run no-grad logits for inputs `[0,1]`,
+then backpropagate targets `[1,2]` and apply the same explicit next learning rate
+$0.006$. It compares all parameter bits, exact AdamW state, post-update logits,
+and the next SplitMix64 draw. Tests also cover BPE, mixed widths, deterministic
+bytes, semantic model validation, all core corruptions, buffer identity across
+owned transfer, isolation across retained snapshots, and atomic replacement.
 
 <!-- contract-section:visualization -->
 ## Visualization decision

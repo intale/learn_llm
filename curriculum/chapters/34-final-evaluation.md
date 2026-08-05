@@ -2,7 +2,7 @@
 {
   "chapter_id": "34-final-evaluation",
   "concept_id": "final-evaluation",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 34,
   "objective": {
     "en": "Evaluate the frozen validation-selected decoder through one test-only gate, aggregate every target token fairly, and compare it with a frozen bigram fitted on the same training tokens.",
@@ -139,8 +139,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize that exact selected and evaluated state with its tokenizer, configuration, optimizer, and RNG provenance.",
-    "ru": "Теперь у совокупного декодера есть одно состояние, выбранное по валидации, и один неизменяемый итоговый отчёт по одним и тем же целевым позициям. В главе 35 именно это выбранное и оценённое состояние будет сериализовано вместе со сведениями о токенизаторе, конфигурации, оптимизаторе и генераторе случайных чисел."
+    "en": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance.",
+    "ru": "К этому этапу у декодера есть состояние, выбранное по валидации, и неизменяемый итоговый отчёт по тем же целевым позициям. В главе 35 мы сериализуем именно то выбранное состояние, которое оценили здесь, а вместе с ним — токенизатор, конфигурацию, состояние оптимизатора и состояние генератора псевдослучайных чисел."
   },
   "terminology": [
     {
@@ -175,11 +175,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 34 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 9a41f39e8332703d3dd542fdcea159b31174054eb72a23d51ad78f361dd59277",
+    "Chapter 34 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 7d4144faec5fe30b7c4f2b4d3467275d28ee91b8fab51a300ca08bc62082fba3",
     "Preserve the distinct Train, Validation, and Test responsibilities; test is not a synonym for validation.",
     "Preserve theta_{s^*}, s^*, L_te, N_te, x_n, y_n, natural-log notation, exact trace tokens, fingerprints, and numeric lexemes.",
-    "Translate exactly once as a strict course protocol with a documented local-gate limit, not as a universal historical claim.",
+    "Translate exactly once as a strict course protocol with a documented local-gate limit, not as a universal historical claim. Preserve that the one-use resource is permission to inspect the test epoch, while SelectedDecoder borrows both the retained selected state and the matching already isolated model.",
     "Programming language names may identify source provenance only where relevant; the history must stay on the road to trustworthy modern LLM evaluation."
   ],
   "acceptance_examples": [
@@ -205,7 +205,7 @@
     },
     {
       "input": "Inspect the decoder around final scoring",
-      "expected": "No graph is recorded and every parameter-value and gradient bit remains unchanged."
+      "expected": "SelectedDecoder borrows both the retained selected state and the already isolated model owned by TrainingResult instead of restoring another copy. Before the test gate opens, their exact configuration, ordered names, shapes, and parameter bits must agree. No graph is recorded and every parameter-value and gradient bit remains unchanged."
     },
     {
       "input": "cargo run --quiet --locked -p ch34-final-evaluation",
@@ -330,10 +330,16 @@ belongs to this course; it is not attributed to the papers.
 ## Rust behavior
 
 `EvaluationProvenance` owns nonblank corpus, split, and tokenizer fingerprints
-plus one positive context length. `SelectedDecoder` accepts only a state chosen
-by `Validation`; `FrozenBigram` accepts only a model fitted on `Train`. Their
-provenance must match exactly, their vocabularies must agree, and the test epoch's
-context must match both provenance and decoder capacity.
+plus one positive context length. `TrainingResult` already owns a retained
+graph-free selected state and a separate decoder built from the same values.
+`SelectedDecoder` borrows both and accepts them only with a `Validation`
+selection label; it performs no second state restoration. Immediately before
+opening the test gate, the evaluator requires bit-exact floating configuration,
+equal integer configuration, stable parameter count, order, names, shapes, and
+value bits. A mismatch is `SelectedStateMismatch` and leaves the gate unused.
+`FrozenBigram` accepts only a model fitted on `Train`. Their provenance must
+match exactly, their vocabularies must agree, and the test epoch's context must
+match both provenance and decoder capacity.
 
 `FinalEvaluator` owns one nonempty `Test` epoch and is deliberately neither
 cloneable nor copyable. Metadata errors occur before opening. Immediately before
@@ -342,12 +348,14 @@ Even a later numerical error leaves it consumed, so a retry returns
 `AlreadyEvaluated`. This is an API protocol within one owner, not a claim that a
 caller cannot construct a second owner from separately copied data.
 
-The decoder restores fresh leaves from `DecoderModelState`, checks their value
-bits against the snapshot, captures parameter and gradient bits, and calls the
-existing graph-free evaluator. The bigram then visits the same batches and zips
-each flat input position with the corresponding target position. An explicit
-length check prevents `zip` from hiding future alignment drift. Its assigned
-probabilities enter the existing negative-log-likelihood accumulator.
+After the retained state and selected model agree, the evaluator captures
+parameter and gradient bits from the borrowed decoder and calls the existing
+graph-free evaluator directly. The model remains available afterward; the
+separate resource consumed by the call is the local permission to inspect the
+test epoch. The bigram then visits the same batches
+and zips each flat input position with the corresponding target position. An
+explicit length check prevents `zip` from hiding future alignment drift. Its
+assigned probabilities enter the existing negative-log-likelihood accumulator.
 
 The report requires equal target counts, zero recorded graphs, unchanged decoder
 parameter and gradient bits, finite scores, one gate opening, and an ordered evidence

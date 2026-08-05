@@ -399,7 +399,9 @@ fn loaded_generation_evidence() -> Result<LoadedGenerationEvidence, FixtureError
     let prior = checkpoint_evidence()?;
     let checkpoint_bytes = prior.encoded.bytes().len();
     let checkpoint = Checkpoint::from_bytes(prior.encoded.bytes())?;
-    let model = checkpoint.restore_model()?;
+    let rng_state = checkpoint.rng_state();
+    let tokenizer = checkpoint.tokenizer().clone();
+    let model = checkpoint.into_model()?;
     let context_capacity = model.config().max_positions();
     let prompt = vec![0];
     let generation_config = GenerationConfig::new(
@@ -410,14 +412,13 @@ fn loaded_generation_evidence() -> Result<LoadedGenerationEvidence, FixtureError
         None,
         4,
     );
-    let rng_state = checkpoint.rng_state();
     let mut cached_rng = SplitMix64::from_state(rng_state);
     let mut uncached_rng = cached_rng.clone();
     let cached = generate_cached(&model, &prompt, generation_config, &mut cached_rng)?;
     let uncached = generate_uncached(&model, &prompt, generation_config, &mut uncached_rng)?;
     let match_exactly = same_generation(&cached, &uncached);
     let rng_final_match = cached_rng.state() == uncached_rng.state();
-    let text = decode_literal(checkpoint.tokenizer(), cached.generated())?;
+    let text = decode_literal(&tokenizer, cached.generated())?;
     let eos_token = *cached.generated().first().ok_or(FixtureError::Invariant(
         "loaded generation selected no token",
     ))?;

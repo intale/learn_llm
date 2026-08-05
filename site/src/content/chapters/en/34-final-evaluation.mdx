@@ -2,7 +2,7 @@
 {
   "chapter_id": "34-final-evaluation",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 34,
   "concept_id": "final-evaluation",
   "title": "Open test once, keep the report",
@@ -93,12 +93,12 @@
     {
       "path": "rust/crates/llm-from-scratch/src/evaluation.rs",
       "region": "once-only-final-evaluation",
-      "purpose": "Reject pre-open role and provenance drift, consume one local test permission, score both models over identical targets, and return the immutable report."
+      "purpose": "Borrow the retained validation-selected state and matching decoder, verify their exact agreement before opening the test gate, score both models over identical targets, and return the immutable report."
     },
     {
       "path": "rust/demos/ch34-final-evaluation/src/lib.rs",
       "region": "learner-evidence",
-      "purpose": "Freeze the exact Chapter 33-selected state and same-training-token bigram before opening the unequal two-document test epoch once."
+      "purpose": "Borrow the retained Chapter 33-selected state and matching model, and freeze the same-training-token bigram before opening the unequal two-document test epoch once."
     },
     {
       "path": "rust/demos/ch34-final-evaluation/src/main.rs",
@@ -115,7 +115,7 @@
     "id": "final-evaluation-boundary",
     "rationale": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and provenance cards show why the numeric comparison is like-for-like evidence rather than another model-selection step."
   },
-  "decoder_connection": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize that exact selected and evaluated state with its tokenizer, configuration, optimizer, and RNG provenance."
+  "decoder_connection": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance."
 }
 ---
 
@@ -337,7 +337,15 @@ cannot hide a changed tokenizer or context.
   label="Rust source implementing Chapter 34 evaluation provenance"
 />
 
-`SelectedDecoder` accepts only a `Validation`-selected snapshot.
+`TrainingResult` already owns two independent representations of the validation
+choice: a graph-free selected state and a decoder built from the same values.
+`SelectedDecoder` borrows both and accepts them only with a `Validation`
+selection label; it neither copies nor rebuilds the decoder. Immediately before
+the test gate opens, `FinalEvaluator` compares the decoder configuration,
+parameter count and order, every parameter name and shape, and every value bit
+with the retained selected state. A mismatch returns `SelectedStateMismatch`
+while the gate-opening count remains $0$.
+
 `FrozenBigram` accepts only a model fitted on `Train`. The Chapter 34 fixture
 obtains the exact Chapter 33 training slices through a read-only helper, so the
 baseline does not depend on copied constants. It fits the unchanged alpha-one
@@ -346,20 +354,21 @@ bigram algorithm before constructing the test evaluator.
 <RustSource
   path="rust/demos/ch34-final-evaluation/src/lib.rs"
   region="learner-evidence"
-  caption="Freeze the selected decoder and same-training-token baseline before opening the unequal test documents once"
+  caption="Borrow the retained selected state and matching decoder, then freeze the same-training-token baseline before opening the unequal test documents once"
   label="Rust source assembling the Chapter 34 final comparison"
 />
 
 `FinalEvaluator` owns a nonempty `Test` epoch and is neither cloneable nor
-copyable. Role, provenance, context, and vocabulary errors leave the gate-opening
-count at $0$. Immediately before scoring starts, the evaluator changes the count
-to $1$. A later error still consumes that local permission.
+copyable. Role, provenance, selected-state/model, context, and vocabulary errors
+leave the gate-opening count at $0$. After those checks pass, the evaluator
+changes the count to $1$, records the borrowed decoder's parameter and gradient
+bits, scores it inside the no-grad boundary, and compares those bits afterward.
+The decoder is not consumed; the one-use resource is permission to inspect this
+test epoch. A later error still consumes that local permission.
 
-The decoder is restored from its deep state, scored inside the existing no-grad
-boundary, and checked bit for bit afterward. The bigram then visits the exact
-same flat input/target slots, including repetitions from overlapping decoder
-windows. A length check runs before `zip`, so future alignment drift cannot be
-silently truncated.
+The bigram visits the exact same flat input/target slots, including repetitions
+from overlapping decoder windows. A length check runs before `zip`, so future
+alignment drift cannot be silently truncated.
 
 The report has getters but no setters or selection operation. It owns schema
 version $1$, the selected step, provenance, ordered target fingerprint, counts,

@@ -2,7 +2,7 @@
 {
   "chapter_id": "36-temperature-top-k",
   "concept_id": "temperature-top-k",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 36,
   "objective": {
     "en": "Shape one next-token distribution with positive-temperature scaling and stable top-k filtering, then reproduce a categorical choice by restoring the same random-generator state in an uncached autoregressive loop.",
@@ -144,7 +144,7 @@
   },
   "decoder_connection": {
     "en": "The cumulative decoder can now load its selected checkpoint, turn each final-position logit row into a controlled next-token distribution, replay choices from a restored random-generator state, stop at EOS or context capacity, and expose the uncached reference sequence that Chapter 37 will preserve incrementally.",
-    "ru": "Теперь совокупный декодер может загрузить выбранную контрольную точку, преобразовать строку логитов последней позиции в управляемое распределение следующего токена, повторить выбор из восстановленного состояния генератора, остановиться на EOS или при исчерпании ёмкости контекста и предоставить эталонную последовательность без кэша, которую глава 37 сохранит при поэтапных вычислениях."
+    "ru": "К этому этапу программа умеет загрузить выбранную контрольную точку, преобразовать строку логитов последней позиции в управляемое распределение следующего токена, повторить выбор из восстановленного состояния генератора, остановиться на EOS или при исчерпании ёмкости контекста и получить эталонную последовательность без кэша, которую глава 37 сохранит при поэтапных вычислениях."
   },
   "terminology": [
     {
@@ -179,10 +179,12 @@
     }
   ],
   "translation_notes": [
-    "Chapter 36 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian was reviewed directly against that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 6dd0d4c23472826d3fcd7b4a326cc7f62c7be8a346645bf91fec171dd6619b69",
+    "Chapter 36 has the exact active locale set {en, ru}. English content revision 5 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: e6425feb61bab2b14577037fa3c50b2a18b4d32ab6492b24ac24429e3fc03e24",
     "Preserve tau, k, K_k, ell_i, q_i, token IDs, seeds, logits, probabilities, half-open intervals, and exact trace tokens.",
     "Keep the ordinary compact SampledToken result distinct from the explicitly requested SamplingDecision distribution trace without implying that the algorithm needs no private ranking or probability workspace.",
+    "Preserve the generation ownership order: read the saved RNG state from the loaded checkpoint, consume the checkpoint with into_model so its owned model buffers move into the decoder, and replay from the recorded RNG state.",
+    "For Russian, describe checkpoint consumption as передать контрольную точку в метод into_model по значению and describe the result as переместить принадлежащие ей буферы модели; avoid потребить контрольную точку, случайное состояние, уже владеемые буферы, and translating prompt as подсказка.",
     "Greedy is a separate valid mode; tau equals zero is only a mathematical limit and is rejected as a stochastic setting.",
     "Top-k is a useful controlled decoder but not a universal quality guarantee, hallucination defense, or endpoint of decoding research.",
     "The history must remain about language-model decoding from constrained search to open-ended sampling, not programming languages."
@@ -206,7 +208,7 @@
     },
     {
       "input": "Load the Chapter 35 checkpoint, resume its RNG, and generate from prompt [0] without EOS",
-      "expected": "The decoder emits [4,4] from complete prefixes of lengths [1,2], performs two full-prefix calls, and stops before any third call would exceed context capacity."
+      "expected": "The fixture records the checkpoint's saved RNG state, consumes the checkpoint by moving its owned model buffers into the decoder, emits [4,4] from complete prefixes of lengths [1,2], performs two full-prefix calls, and stops before any third call would exceed context capacity."
     },
     {
       "input": "Repeat the loaded run with token 4 configured as EOS",
@@ -335,9 +337,11 @@ candidate distribution per generated token. The result includes emitted IDs,
 per-step prefix lengths, the stop reason, and full-prefix call count. EOS remains
 in the emitted sequence.
 
-The demo loads bytes produced by the Chapter 35 checkpoint fixture and restores
-its saved RNG state. Its standard output and separate diagram trace are exact,
-deterministic Rust evidence.
+The demo loads bytes produced by the Chapter 35 checkpoint fixture. It first
+records the saved RNG state, then consumes the checkpoint and moves its owned
+model buffers into the decoder because no later operation needs that checkpoint
+object. Generation starts from the recorded RNG state. Its standard output and
+separate diagram trace are exact, deterministic Rust evidence.
 
 Over the full temperature-$1$ distribution, greedy chooses token $3$ without
 advancing the random generator. Fixed $k=3$ keeps IDs $[3,1,2]$, retaining

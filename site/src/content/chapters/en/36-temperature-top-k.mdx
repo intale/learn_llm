@@ -2,7 +2,7 @@
 {
   "chapter_id": "36-temperature-top-k",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 36,
   "concept_id": "temperature-top-k",
   "title": "Shape the choices, then draw once",
@@ -107,7 +107,7 @@
     {
       "path": "rust/demos/ch36-temperature-top-k/src/lib.rs",
       "region": "learner-evidence",
-      "purpose": "Produce the temperature, tied-boundary, seeded replay, checkpoint generation, EOS, and transactional-error evidence."
+      "purpose": "Produce the temperature, tied-boundary, and seeded replay evidence, then read the saved RNG state and consume the loaded checkpoint's model state for generation, EOS, and transactional-error evidence."
     },
     {
       "path": "rust/demos/ch36-temperature-top-k/src/main.rs",
@@ -371,11 +371,15 @@ submitted for another call.
   label="Rust source implementing Chapter 36 uncached autoregressive generation"
 />
 
-The fixture loads the exact Chapter 35 checkpoint bytes and restores its saved
-random state. Prompt $[0]$ emits $[4,4]$ from prefix lengths $[1,2]$, performs
-two complete-prefix calls, and reports a context stop. Repeating the run restores
-the same sequence and final random state. With token $4$ configured as EOS, the
-result includes $[4]$ and stops after one call.
+The fixture loads the exact Chapter 35 checkpoint bytes. It first records the
+saved random state, then consumes the checkpoint and moves its already-owned
+model buffers into the decoder; no later operation needs the checkpoint object.
+This ownership transfer does not change any parameter value or sampling rule.
+Prompt $[0]$ emits $[4,4]$ from prefix lengths $[1,2]$, performs two
+complete-prefix calls, and reports a context stop. Repeating from that saved
+starting state reproduces the same generated sequence and final random state.
+With token $4$ configured as EOS, the result includes $[4]$ and stops after one
+call.
 
 <RustSource
   path="rust/demos/ch36-temperature-top-k/src/lib.rs"

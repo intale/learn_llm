@@ -152,6 +152,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
 
     let decoder = SelectedDecoder::new(
         selected.result.selected_state(),
+        selected.result.selected_model(),
         selected.result.selected_step(),
         selected.result.selected_validation_loss(),
         Partition::Validation,

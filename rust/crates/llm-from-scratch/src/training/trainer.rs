@@ -395,22 +395,23 @@ impl From<TensorError> for TrainerError {
     }
 }
 
+// region:decoder-state-snapshot
 #[derive(Clone, Debug, PartialEq)]
 struct StateParameter {
     name: String,
     value: Tensor,
 }
 
-// region:decoder-state-snapshot
-/// A graph-free deep copy of one complete decoder state.
-#[derive(Clone, Debug, PartialEq)]
+/// Graph-free owned values for one complete decoder state.
+#[derive(Debug, PartialEq)]
 pub struct DecoderModelState {
     config: DecoderModelConfig,
     parameters: Vec<StateParameter>,
 }
 
 impl DecoderModelState {
-    pub fn capture(model: &DecoderModel) -> Self {
+    /// Copies a live decoder into graph-free state that can outlive later updates.
+    pub fn snapshot(model: &DecoderModel) -> Self {
         Self {
             config: model.config(),
             parameters: model
@@ -421,6 +422,14 @@ impl DecoderModelState {
                     value: parameter.tensor().value_snapshot(),
                 })
                 .collect(),
+        }
+    }
+
+    /// Copies this state when two independent owners must retain the same values.
+    pub fn independent_snapshot(&self) -> Self {
+        Self {
+            config: self.config,
+            parameters: self.parameters.clone(),
         }
     }
 
@@ -454,18 +463,53 @@ impl DecoderModelState {
             .collect()
     }
 
-    pub fn restore(&self) -> Result<DecoderModel, TrainerError> {
-        let parameters = self
-            .parameters
-            .iter()
-            .map(|parameter| {
-                NamedParameter::from_tensor(parameter.name.clone(), parameter.value.clone())
-            })
+    /// Rebuilds an independent decoder while retaining this state snapshot.
+    pub fn restore_independent_model(&self) -> Result<DecoderModel, TrainerError> {
+        self.independent_snapshot().into_model()
+    }
+
+    /// Consumes graph-free state and moves every tensor buffer into one decoder.
+    pub fn into_model(self) -> Result<DecoderModel, TrainerError> {
+        let Self { config, parameters } = self;
+        let parameters = parameters
+            .into_iter()
+            .map(|parameter| NamedParameter::from_tensor(parameter.name, parameter.value))
             .collect::<Result<Vec<_>, _>>()?;
-        DecoderModel::from_parameters(self.config, parameters).map_err(Into::into)
+        DecoderModel::from_parameters(config, parameters).map_err(Into::into)
     }
 }
 // endregion:decoder-state-snapshot
+
+impl DecoderModelState {
+    pub(crate) fn try_from_owned_parameters(
+        config: DecoderModelConfig,
+        parameters: Vec<(String, Tensor)>,
+    ) -> Result<Self, TrainerError> {
+        let state = Self {
+            config,
+            parameters: parameters
+                .into_iter()
+                .map(|(name, value)| StateParameter { name, value })
+                .collect(),
+        };
+        drop(state.restore_independent_model()?);
+        Ok(state)
+    }
+
+    pub(crate) fn named_tensors(&self) -> impl ExactSizeIterator<Item = (&str, &Tensor)> {
+        self.parameters
+            .iter()
+            .map(|parameter| (parameter.name.as_str(), &parameter.value))
+    }
+
+    #[cfg(test)]
+    pub(crate) fn storage_addresses(&self) -> Vec<usize> {
+        self.parameters
+            .iter()
+            .map(|parameter| parameter.value.as_slice().as_ptr() as usize)
+            .collect()
+    }
+}
 
 /// One graph-free token-weighted mean over a materialized epoch.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -589,7 +633,7 @@ impl TrainingStep {
 }
 
 /// The selected state plus complete evidence from a fully executed run.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct TrainingResult {
     steps: Vec<TrainingStep>,
     checkpoints: Vec<LossCheckpoint>,
@@ -915,12 +959,12 @@ pub fn train_decoder(
         validation,
     )?;
 
-    let model = DecoderModelState::capture(initial_model).restore()?;
+    let model = DecoderModelState::snapshot(initial_model).into_model()?;
     let mut optimizer = initial_optimizer.clone();
     let mut checkpoints = vec![checkpoint(0, &model, train_evaluation, validation)?];
     let mut selected_step = 0_usize;
     let mut selected_validation_loss = checkpoints[0].validation.mean_loss();
-    let mut selected_state = DecoderModelState::capture(&model);
+    let mut selected_state = DecoderModelState::snapshot(&model);
     let mut steps = Vec::with_capacity(config.schedule.steps());
 
     for step in 1..=config.schedule.steps() {
@@ -982,7 +1026,7 @@ pub fn train_decoder(
             if measured.validation.mean_loss() < selected_validation_loss {
                 selected_step = step;
                 selected_validation_loss = measured.validation.mean_loss();
-                selected_state = DecoderModelState::capture(&model);
+                selected_state = DecoderModelState::snapshot(&model);
             }
             checkpoints.push(measured);
         }
@@ -991,8 +1035,8 @@ pub fn train_decoder(
     for measured in &mut checkpoints {
         measured.selected = measured.step == selected_step;
     }
-    let final_state = DecoderModelState::capture(&model);
-    let selected_model = selected_state.restore()?;
+    let final_state = DecoderModelState::snapshot(&model);
+    let selected_model = selected_state.restore_independent_model()?;
     Ok(TrainingResult {
         steps,
         checkpoints,
@@ -1047,6 +1091,14 @@ mod tests {
             0.1,
         )
         .unwrap()
+    }
+
+    fn model_storage_addresses(model: &DecoderModel) -> Vec<usize> {
+        model
+            .parameters()
+            .iter()
+            .map(|parameter| parameter.tensor().value().as_slice().as_ptr() as usize)
+            .collect()
     }
 
     #[test]
@@ -1115,13 +1167,80 @@ mod tests {
     }
 
     #[test]
+    fn owned_state_moves_buffers_while_independent_restore_copies_them() {
+        let source = model();
+        let owned_state = DecoderModelState::snapshot(&source);
+        let owned_bits = owned_state.bit_pattern();
+        let owned_addresses = owned_state.storage_addresses();
+        let moved = owned_state.into_model().unwrap();
+
+        assert_eq!(model_storage_addresses(&moved), owned_addresses);
+        assert_eq!(
+            DecoderModelState::snapshot(&moved).bit_pattern(),
+            owned_bits
+        );
+        assert!(
+            moved.parameters()[0]
+                .tensor()
+                .is_same_node(moved.tied_embedding().tensor())
+        );
+        assert!(
+            gradient_bits(&moved)
+                .unwrap()
+                .iter()
+                .all(|bits| *bits == 0.0_f64.to_bits())
+        );
+
+        let retained_state = DecoderModelState::snapshot(&source);
+        let retained_bits = retained_state.bit_pattern();
+        let retained_addresses = retained_state.storage_addresses();
+        let independent = retained_state.restore_independent_model().unwrap();
+
+        assert_eq!(retained_state.bit_pattern(), retained_bits);
+        assert_eq!(retained_state.storage_addresses(), retained_addresses);
+        assert_eq!(
+            DecoderModelState::snapshot(&independent).bit_pattern(),
+            retained_bits
+        );
+        assert!(
+            model_storage_addresses(&independent)
+                .iter()
+                .zip(&retained_addresses)
+                .all(|(restored, retained)| restored != retained)
+        );
+    }
+
+    #[test]
+    fn failed_independent_restore_leaves_the_retained_state_unchanged() {
+        let mut state = DecoderModelState::snapshot(&model());
+        state.parameters[0].name = "renamed.weight".to_owned();
+        let names = state
+            .parameter_names()
+            .map(str::to_owned)
+            .collect::<Vec<_>>();
+        let bits = state.bit_pattern();
+        let addresses = state.storage_addresses();
+
+        assert!(state.restore_independent_model().is_err());
+        assert_eq!(
+            state
+                .parameter_names()
+                .map(str::to_owned)
+                .collect::<Vec<_>>(),
+            names
+        );
+        assert_eq!(state.bit_pattern(), bits);
+        assert_eq!(state.storage_addresses(), addresses);
+    }
+
+    #[test]
     fn trainer_executes_schedule_on_live_nodes_and_keeps_inputs_immutable() {
         let model = model();
         let optimizer = optimizer();
         let updates = epoch(Partition::Train, "train", &TRAIN_IDS);
         let train_evaluation = epoch(Partition::Train, "train", &TRAIN_IDS);
         let validation = epoch(Partition::Validation, "validation", &VALIDATION_IDS);
-        let initial = DecoderModelState::capture(&model);
+        let initial = DecoderModelState::snapshot(&model);
         let result = train_decoder(
             &model,
             &optimizer,
@@ -1143,11 +1262,11 @@ mod tests {
                 && step.cleared_gradients()
         }));
         assert_eq!(result.final_optimizer().step_count(), 2);
-        assert_eq!(DecoderModelState::capture(&model), initial);
+        assert_eq!(DecoderModelState::snapshot(&model), initial);
         assert_eq!(optimizer.step_count(), 0);
         assert_eq!(
             result.selected_state().bit_pattern(),
-            DecoderModelState::capture(result.selected_model()).bit_pattern()
+            DecoderModelState::snapshot(result.selected_model()).bit_pattern()
         );
         for (selected, initial) in result
             .selected_model()
@@ -1166,7 +1285,7 @@ mod tests {
         let train = epoch(Partition::Train, "train", &TRAIN_IDS);
         let validation = epoch(Partition::Validation, "validation", &VALIDATION_IDS);
         let test = epoch(Partition::Test, "test", &VALIDATION_IDS);
-        let state = DecoderModelState::capture(&model);
+        let state = DecoderModelState::snapshot(&model);
         assert_eq!(
             train_decoder(
                 &model,
@@ -1183,7 +1302,7 @@ mod tests {
                 actual: Partition::Test,
             }
         );
-        assert_eq!(DecoderModelState::capture(&model), state);
+        assert_eq!(DecoderModelState::snapshot(&model), state);
         assert_eq!(optimizer.step_count(), 0);
     }
 

@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from "node:crypto";
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { existsSync, readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
@@ -27,6 +29,7 @@ const englishLessonSource = read(
 const russianLessonSource = read(
   "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
 );
+const pipelineSource = read("rust/crates/llm-from-scratch/src/pipeline.rs");
 const chapterLocaleConfiguration = JSON.parse(
   read("site/src/i18n/chapter-locales.json"),
 );
@@ -376,7 +379,7 @@ describe("Chapter 39 diagram labels and component contract", () => {
 });
 
 describe("Chapter 39 bilingual lesson and evidence contract", () => {
-  it("publishes one exact revision-4 English/Russian lesson set", () => {
+  it("publishes one exact revision-6 English/Russian lesson set", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(englishLessonSource),
@@ -399,14 +402,17 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract).toMatchObject({
       chapter_id: "39-end-to-end-llm",
       concept_id: "end-to-end-llm",
-      content_revision: 5,
+      content_revision: 6,
       order: 39,
     });
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      "direct, meaning-first refresh of frozen English revision 5",
+      "direct, meaning-first translation of frozen English revision 6",
+    );
+    expect(contract.translation_notes.join(" ")).toContain(
+      `SHA-256 ${createHash("sha256").update(englishLessonSource).digest("hex")}`,
     );
 
     const localizedRecords = [
@@ -471,7 +477,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.en).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "en",
-      content_revision: 5,
+      content_revision: 6,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Run the whole tiny LLM",
@@ -481,7 +487,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.ru).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "ru",
-      content_revision: 5,
+      content_revision: 6,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Запустите небольшую LLM целиком",
@@ -593,6 +599,39 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         ),
       ),
     ).toBe(true);
+  });
+
+  it("keeps evaluation, checkpoint snapshot, loaded move, and probe order explicit", () => {
+    const capstoneSource = pipelineSource.match(
+      /\/\/ region:end-to-end-capstone([\s\S]*?)\/\/ endregion:end-to-end-capstone/,
+    )?.[1];
+    expect(capstoneSource).toBeDefined();
+    expect(capstoneSource).toMatch(
+      /SelectedDecoder::new\([\s\S]*?primary\.selected_state\(\),[\s\S]*?primary\.selected_model\(\),/,
+    );
+    const evaluationIndex = capstoneSource!.indexOf("evaluator.evaluate_once(");
+    const checkpointIndex = capstoneSource!.indexOf("Checkpoint::from_snapshot(");
+    const intoModelIndex = capstoneSource!.indexOf("loaded.into_model()");
+    const probeIndex = capstoneSource!.indexOf(
+      "logits_bits(primary.selected_model(), &logit_probe_ids)",
+    );
+    expect(evaluationIndex).toBeGreaterThan(-1);
+    expect(checkpointIndex).toBeGreaterThan(evaluationIndex);
+    expect(capstoneSource).toContain("primary.selected_state(),");
+    for (const metadata of [
+      "loaded.tokenizer().restore_bpe()",
+      "loaded.selected_step()",
+      "loaded.optimizer_state()",
+      "loaded.rng_state()",
+    ]) {
+      const metadataIndex = capstoneSource!.indexOf(metadata);
+      expect(metadataIndex).toBeGreaterThan(checkpointIndex);
+      expect(intoModelIndex).toBeGreaterThan(metadataIndex);
+    }
+    expect(probeIndex).toBeGreaterThan(intoModelIndex);
+    expect(capstoneSource).not.toMatch(
+      /DecoderModelState::capture|restore_model|restore_independent_model|\.restore\(\)/,
+    );
   });
 
   it("keeps the contract report and raw diagram trace on the same Rust evidence", () => {

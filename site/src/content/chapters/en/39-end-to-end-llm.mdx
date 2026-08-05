@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 39,
   "concept_id": "end-to-end-llm",
   "title": "Run the whole tiny LLM",
@@ -84,7 +84,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/pipeline.rs",
       "region": "end-to-end-capstone",
-      "purpose": "Call the cumulative data, training, final-evaluation, checkpoint, and generation APIs in their one-way evidence order."
+      "purpose": "Borrow the retained selected state and matching model for final evaluation, snapshot selected state for durable storage, record loaded continuation metadata, and consume the loaded checkpoint before the logit probe and generation."
     },
     {
       "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
@@ -321,23 +321,39 @@ separate causal epochs for update, validation, and final evaluation.
 Two decoder runs receive the same initialization and batch-order seed. Each
 executes all $32$ updates. The implementation compares every training event,
 loss checkpoint, optimizer moment, selected step, and model value by bit pattern.
-Only after that replay agrees and validation fixes the selected state does the
-run materialize test mini-batches. One owned <code>FinalEvaluator</code> then
-consumes its local permission once; this is an executable boundary inside this
-run, not a claim that the repository globally prevents other code from reading
-the corpus.
+Only after replay agrees and validation fixes the selection does the run
+materialize test mini-batches. `TrainingResult` owns both the retained selected
+state and an independent decoder with the same values. `SelectedDecoder` borrows
+both. Immediately before opening the local test gate, `FinalEvaluator` verifies
+that the decoder's configuration, ordered names and shapes, and every parameter
+bit still match the retained state; this prevents a changed decoder from being
+evaluated under stale selection metadata without making another model copy. The
+evaluator then scores the borrowed model and consumes its local test permission
+once. The permission, not either borrowed object, is the one-use resource. This
+is an executable boundary inside this run, not a claim that the repository
+globally prevents other code from reading the corpus.
 
-The selected model and step-$32$ optimizer enter one versioned checkpoint.
-Re-encoding the loaded checkpoint must reproduce the saved bytes; restored model
-and optimizer bits, BPE ranks, step, and RNG state must all agree. Logits for the
-separate probe <code>At</code> must match bit for bit. Only then does the loaded
+Final evaluation and durable checkpoint storage have different ownership needs.
+Evaluation only borrows the retained selected state and matching decoder. After
+evaluation, the checkpoint must coexist with the complete training result, so
+`Checkpoint::from_snapshot` deliberately copies the selected graph-free state
+and optimizer persistence state. That copy is required because the training
+result and checkpoint must remain independently usable.
+
+Re-encoding the loaded checkpoint must reproduce the saved bytes, and its model
+and optimizer bits, BPE ranks, step, and RNG state must all agree. Before
+consuming the checkpoint, the pipeline records the tokenizer, selected step,
+optimizer state, and saved RNG value needed by later evidence. It then calls
+`loaded.into_model()`, which moves the owned model buffers into a decoder. The
+separate <code>At</code> probe compares that decoder with
+`primary.selected_model()` and must match bit for bit. Only then does the loaded
 model run cached and complete-prefix generation from prompt <code>A</code> and
-the same RNG state.
+the saved RNG state.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/pipeline.rs"
   region="end-to-end-capstone"
-  caption="Call the cumulative pipeline in its one-way evidence order"
+  caption="Borrow selected state and model, snapshot state for durable storage, then consume owned loaded state in one-way order"
   label="Rust source implementing the Chapter 39 end-to-end capstone"
 />
 

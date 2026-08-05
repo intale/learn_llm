@@ -1039,6 +1039,7 @@ pub fn run_capstone(
         PipelineStage::FinalEvaluation,
         SelectedDecoder::new(
             primary.selected_state(),
+            primary.selected_model(),
             primary.selected_step(),
             primary.selected_validation_loss(),
             Partition::Validation,
@@ -1076,7 +1077,7 @@ pub fn run_capstone(
     let rng_state = SplitMix64::from_seed(config.generation_seed()).state();
     let checkpoint = map(
         PipelineStage::Checkpoint,
-        Checkpoint::new(
+        Checkpoint::from_snapshot(
             CheckpointTokenizer::byte_bpe(&data.tokenizer),
             primary.selected_state(),
             primary.final_optimizer(),
@@ -1100,20 +1101,19 @@ pub fn run_capstone(
     )?;
     let loaded_tokenizer = map(PipelineStage::Checkpoint, loaded.tokenizer().restore_bpe())?
         .ok_or_else(|| PipelineError::invariant("checkpoint lost its byte BPE tokenizer"))?;
-    let selected_model = map(
-        PipelineStage::Checkpoint,
-        primary.selected_state().restore(),
-    )?;
-    let loaded_model = map(PipelineStage::Checkpoint, loaded.restore_model())?;
     let model_bits_exact =
         loaded.model_state().bit_pattern() == primary.selected_state().bit_pattern();
     let optimizer_bits_exact = adamw_state_bitwise(
         loaded.optimizer_state(),
         &primary.final_optimizer().persistence_state(),
     );
+    let loaded_selected_step = loaded.selected_step();
+    let loaded_optimizer_step = loaded.optimizer_state().step_count();
+    let loaded_rng_state = loaded.rng_state();
+    let loaded_model = map(PipelineStage::Checkpoint, loaded.into_model())?;
     let logit_probe_text = "At";
     let logit_probe_ids = data.tokenizer.encode_utf8(logit_probe_text);
-    let prompt_logits_bitwise = logits_bits(&selected_model, &logit_probe_ids)?
+    let prompt_logits_bitwise = logits_bits(primary.selected_model(), &logit_probe_ids)?
         == logits_bits(&loaded_model, &logit_probe_ids)?;
     let tokenizer_exact = loaded_tokenizer == data.tokenizer;
     require(
@@ -1121,7 +1121,7 @@ pub fn run_capstone(
         "checkpoint reload changed model, optimizer, tokenizer, or probe logits",
     )?;
     let generation =
-        generation_evidence(&loaded_model, &loaded_tokenizer, loaded.rng_state(), config)?;
+        generation_evidence(&loaded_model, &loaded_tokenizer, loaded_rng_state, config)?;
 
     let model = map(
         PipelineStage::Model,
@@ -1164,9 +1164,9 @@ pub fn run_capstone(
         header_bytes: encoded_checkpoint.header_bytes(),
         checksum: encoded_checkpoint.checksum_label(),
         tensor_records: encoded_checkpoint.tensors().len(),
-        selected_step: loaded.selected_step(),
-        optimizer_step: loaded.optimizer_state().step_count(),
-        rng_state: loaded.rng_state(),
+        selected_step: loaded_selected_step,
+        optimizer_step: loaded_optimizer_step,
+        rng_state: loaded_rng_state,
         bytes_roundtrip,
         model_bits_exact,
         optimizer_bits_exact,

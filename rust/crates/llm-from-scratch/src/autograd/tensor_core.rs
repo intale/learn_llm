@@ -634,6 +634,13 @@ impl TensorValue {
 }
 // endregion:tensor-tape-values
 
+impl TensorValue {
+    /// Checks the finite-value invariant of a parameter without creating a node.
+    pub(crate) fn validate_parameter_value(value: &Tensor) -> Result<(), TensorAutodiffError> {
+        check_finite_leaf(value, TensorOperation::Parameter)
+    }
+}
+
 /// Exclusive access to one live node primal prepared for an infallible commit.
 pub(crate) struct TensorValueWriteGuard<'a> {
     value: RefMut<'a, Tensor>,

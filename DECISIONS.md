@@ -13899,3 +13899,201 @@ accepted pedagogical result.
 `remediate-rust-runtime-observation-20260804`,
 `separate-adamw-observation`, and
 `20260804T175743Z-separate-adamw-observation-01`.
+
+## 2026-08-05 - Name independent decoder snapshots and consume owned state
+
+**Status:** Accepted during preflight for
+`make-decoder-state-transfers-explicit-and-movable` before product files were
+edited.
+
+**Context:** The last F02 checkpoint removed per-update decoder replacement but
+deliberately retained `DecoderModelState::capture` and `restore`. Those names do
+not reveal that both operations deep-copy every parameter tensor. The trainer
+therefore captures the borrowed input model and immediately copies the captured
+state a second time into its working decoder. `Checkpoint::new` silently clones
+a borrowed state, checkpoint loading owns decoded tensors but passes them through
+that borrowing constructor, and locally owned loaded checkpoints reconstruct a
+model by copying buffers that could instead move. Final evaluation also rebuilds
+the selected state even though `TrainingResult` already owns an isolated selected
+model.
+
+Some copies remain necessary. The trainer must isolate its borrowed input before
+mutating it. A validation minimum must survive later updates. `TrainingResult`
+intentionally returns both an owned selected-state snapshot and an independent
+selected model. A checkpoint built while the selected training result remains
+available must own another independent state. Conversely, a decoder state or
+loaded checkpoint that is already owned by one internal path does not need a
+second tensor-buffer copy merely to construct its model.
+
+**Decision:** Replace the ambiguous state API with four ownership-explicit
+operations. `DecoderModelState::snapshot(&DecoderModel)` deep-copies a live
+model into graph-free state. `independent_snapshot(&self)` makes a second durable
+state copy. `restore_independent_model(&self)` keeps the state and therefore
+copies through `independent_snapshot`. `into_model(self)` consumes the state and
+moves each owned name and tensor into the single existing
+`DecoderModel::from_parameters` validation and alias-reconstruction boundary.
+Remove `Clone` from `DecoderModelState` so a whole-state copy cannot hide behind
+a generic trait call. Prove the distinction with buffer-address continuity for
+the consuming path, distinct storage for independent restores, exact values,
+zero gradients, stable order, component aliases, and tied embedding identity.
+
+The training loop takes one named snapshot of the borrowed input and immediately
+consumes it into the working decoder. It keeps explicit snapshots only for the
+initial and improved validation minima and the returned final state, and creates
+the independent selected model from the retained selected snapshot. Do not add a
+fallible protocol for extracting tensors from an owned `DecoderModel`: its
+components and registry intentionally contain several `Rc` aliases, so such an
+unwrapping mechanism would add complexity without removing a hot-path cost.
+
+`SelectedDecoder` borrows the already isolated `TrainingResult::selected_model`
+instead of restoring another model from selected state. Final evaluation remains
+read-only, verifies parameter and gradient bits around no-grad scoring, and keeps
+the one-use test-data gate distinct from Rust ownership. Chapter 39 reuses the
+same selected model for its checkpoint logit probe.
+
+Replace `Checkpoint::new` with `from_snapshot` for callers that retain their
+selected state and with an owned internal constructor for decoded state. Name
+borrowed model restoration `restore_independent_model` and add `into_model` for
+an owned checkpoint. Loading moves its decoded `DecoderModelState` and
+`AdamWState` into the returned checkpoint instead of round-tripping through
+`AdamW` or cloning the model state. Checkpoint encoding reads the graph-free
+state's named tensors directly instead of reconstructing a decoder merely to
+serialize it. Untrusted decoded model tensors still pass the existing
+`DecoderModel::from_parameters` semantic validation before a checkpoint is
+exposed; one independent validation reconstruction is retained until the later
+checkpoint-streaming work supplies a shared borrowed layout validator. This
+checkpoint does not implement F04 streaming or remove required payload-record
+copies.
+
+Use consuming loaded-checkpoint restoration in the Chapter 35 loaded resume
+branch, Chapter 36 generation fixture, Chapter 38 helper, and Chapter 39
+pipeline after each caller saves the small metadata it still needs. Preserve
+borrowed independent restoration for the original Chapter 35 comparison branch
+because that checkpoint is also returned as learner evidence. Replace state
+captures used only to compare bits with scoped borrowed parameter-bit reads.
+
+Advance Chapters 33, 34, 35, 36, and 39 to revisions 8, 3, 3, 5, and 6. Chapter
+33 renders the state snapshot/transfer API for the first time. Chapter 34 names
+the immutable selected-model borrow. Chapter 35 distinguishes loading bytes,
+validating decoded state, retaining an independent checkpoint snapshot, and
+moving an owned checkpoint into a model. Chapter 36 shows its owned loaded state
+moving into the generation model. Chapter 39 identifies its independent final
+evaluation and checkpoint consumers and its reused selected model. Author
+English first and refresh Russian directly under the localization workflow.
+Chapter 38 changes only in a helper outside its rendered source region and does
+not advance.
+
+**Consequences:** Ordinary training no longer copies the initial model twice,
+final evaluation no longer reconstructs a model, decoded state is not cloned
+into its checkpoint, and owned generation/checkpoint paths move parameter
+buffers. Every remaining full decoder copy is named and tied to a concrete
+coexistence or validation lifetime. Model values, parameter order, gradients,
+losses, selection, tied identities, checkpoint schema and bytes, resumed
+trajectory, sampling, cached generation, routes, dependencies, and deployment
+remain unchanged. The complete Rust, content, localization, static-site, and
+two-browser matrices must prove that equivalence.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`make-decoder-state-transfers-explicit-and-movable`, and
+`20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01`.
+
+## 2026-08-05 - Bind borrowed final evaluation to the retained selected state
+
+**Status:** Accepted during implementation of
+`make-decoder-state-transfers-explicit-and-movable`; this entry narrows two
+details of the immediately preceding decision after independent review exposed
+otherwise hidden validation regressions.
+
+**Context:** Borrowing `TrainingResult::selected_model()` removes an unnecessary
+decoder reconstruction, but a model-only `SelectedDecoder` does not prove that
+the borrowed model still matches the immutable selected-state snapshot. Decoder
+parameters use interior-mutable shared nodes, so an existing alias could change a
+parameter after the view is constructed and before the test gate opens. The
+first implementation also decoded optimizer records before semantically
+validating decoded model records and wrapped model-construction failures inside
+`CheckpointError::Trainer`, changing the earlier malformed-file precedence and
+error categories.
+
+**Decision:** `SelectedDecoder` will borrow both the retained
+`DecoderModelState` and the already isolated `DecoderModel`. Immediately before
+opening the test gate, final evaluation must compare configuration, stable names,
+shapes, and every parameter bit. A mismatch is a typed pre-open error and leaves
+the gate unused. Scoring still borrows the existing selected model and makes no
+full tensor copy.
+
+Decoded checkpoint parameters will become an ordinary `DecoderModelState` only
+through a crate-private validating constructor. That constructor performs the
+one independent decoder reconstruction already allowed by the preceding
+decision. `from_bytes` must complete this model validation immediately after
+model decoding and before optimizer decoding, and checkpoint code must map model,
+initialization, and tensor failures back to their established
+`CheckpointError` categories. The owned validated model and optimizer states are
+then moved into the checkpoint.
+
+Keep the Chapter 33 `decoder-state-snapshot` projection limited to the owned
+state representation and its four learner-facing transfer operations; unchecked
+decode plumbing and pointer-only test helpers remain outside the rendered
+region. Describe `DecoderModelState` as graph-free owned state because decoded
+state can be moved into it; only its snapshot operations necessarily copy.
+
+Do not broaden this checkpoint into a consuming optimizer-state API or a public
+checkpoint decomposition API. Current callers may read or clone the continuation
+metadata they require before `Checkpoint::into_model`; removing optimizer and
+tokenizer copies needs coordinated ownership APIs outside this decoder-buffer
+step and remains separate work. The current method explicitly consumes the
+checkpoint and promises only to move its model buffers.
+
+**Consequences:** Final evaluation retains the no-copy model path without losing
+its frozen-selection invariant. Malformed checkpoint model state again wins over
+later optimizer faults and preserves prior public error categories. No valid
+model value, checkpoint byte, report, route, or lesson result changes.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`make-decoder-state-transfers-explicit-and-movable`, and
+`20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01`.
+
+## 2026-08-05 - Preserve exact configuration and descriptor-local validation
+
+**Status:** Accepted during implementation of
+`make-decoder-state-transfers-explicit-and-movable` after adversarial review of
+the retained-state check and owned checkpoint decode path.
+
+**Context:** Derived floating-point equality treats positive and negative zero
+as equal, but decoder construction and cache identity preserve the exact bits of
+`rope_base` and `rms_epsilon`. A selected model whose configuration differs only
+by a signed-zero bit must not pass under retained selection metadata. Separately,
+retaining decoded tensors as graph-free state postponed generic parameter-name
+and finite-value checks until after every model descriptor had been decoded. An
+invalid early parameter could therefore be hidden by a later descriptor error,
+even though the previous loader validated each decoded parameter leaf before
+advancing to the next descriptor.
+
+**Decision:** The final-evaluation pre-gate check will compare every integer
+decoder configuration field normally and each floating configuration field by
+its `f64` bit pattern. A signed-zero-only mismatch is a
+`SelectedStateMismatch` and leaves the test gate unopened.
+
+Checkpoint decoding will reuse the ordinary named-parameter leaf validation on
+each decoded name and borrowed tensor before retaining that tensor in owned
+state. The shared validation helper checks the same name grammar and finite-leaf
+invariant as `NamedParameter::from_tensor` without creating a parameter node or
+copying the tensor buffer. Exact model-specific count, stable-name order, shapes,
+and component aliases remain checked by the one independent decoder
+reconstruction. Tests will combine an early model fault with a later descriptor
+or optimizer fault and require the earlier established error category to win.
+
+**Consequences:** The move-based loader retains its original decoded buffers and
+one allowed validation reconstruction while preserving the established
+malformed-file error order. Final evaluation now binds selection metadata to the
+complete bit-exact decoder configuration as well as parameter names, shapes, and
+values. Valid checkpoints, checkpoint bytes, model results, and learner evidence
+remain unchanged. The shared `TensorValue` and named-parameter files join the
+declared integration outputs only to expose the non-copying validation already
+used by ordinary parameter construction.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`make-decoder-state-transfers-explicit-and-movable`, and
+`20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01`.

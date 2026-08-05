@@ -6,7 +6,7 @@ use std::fmt;
 use crate::bigram::{BigramError, BigramModel};
 use crate::corpus::Partition;
 use crate::metrics::{MetricError, score_assigned_probabilities};
-use crate::models::decoder::DecoderModel;
+use crate::models::decoder::{DecoderModel, DecoderModelConfig};
 use crate::training::batch::MiniBatchEpoch;
 use crate::training::trainer::{DecoderModelState, TrainerError, evaluate_no_grad};
 
@@ -99,7 +99,7 @@ pub enum EvaluationError {
         id: u32,
         vocabulary_size: usize,
     },
-    RestoredStateMismatch,
+    SelectedStateMismatch,
     MissingGradient {
         name: String,
     },
@@ -194,9 +194,9 @@ impl fmt::Display for EvaluationError {
                 formatter,
                 "test batch {batch} target {position} has token {id} outside vocabulary {vocabulary_size}"
             ),
-            Self::RestoredStateMismatch => {
-                formatter.write_str("restored decoder bits differ from the selected state")
-            }
+            Self::SelectedStateMismatch => formatter.write_str(
+                "the selected decoder no longer matches its retained validation-selected state",
+            ),
             Self::MissingGradient { name } => {
                 write!(
                     formatter,
@@ -321,10 +321,11 @@ impl EvaluationProvenance {
 }
 // endregion:evaluation-provenance
 
-/// A borrowed validation-selected decoder snapshot with no mutation API.
+/// A borrowed validation-selected decoder with no mutation API.
 #[derive(Clone, Copy, Debug)]
 pub struct SelectedDecoder<'a> {
     state: &'a DecoderModelState,
+    model: &'a DecoderModel,
     selected_step: usize,
     selected_validation_loss: f64,
     provenance: &'a EvaluationProvenance,
@@ -333,6 +334,7 @@ pub struct SelectedDecoder<'a> {
 impl<'a> SelectedDecoder<'a> {
     pub fn new(
         state: &'a DecoderModelState,
+        model: &'a DecoderModel,
         selected_step: usize,
         selected_validation_loss: f64,
         selection_partition: Partition,
@@ -350,13 +352,18 @@ impl<'a> SelectedDecoder<'a> {
         }
         Ok(Self {
             state,
+            model,
             selected_step,
             selected_validation_loss,
             provenance,
         })
     }
 
-    pub const fn state(self) -> &'a DecoderModelState {
+    const fn model(self) -> &'a DecoderModel {
+        self.model
+    }
+
+    const fn state(self) -> &'a DecoderModelState {
         self.state
     }
 
@@ -591,6 +598,40 @@ fn parameter_bits(model: &DecoderModel) -> Vec<u64> {
     bits
 }
 
+fn decoder_configs_match_exactly(selected: DecoderModelConfig, model: DecoderModelConfig) -> bool {
+    selected.vocabulary_size() == model.vocabulary_size()
+        && selected.model_width() == model.model_width()
+        && selected.heads() == model.heads()
+        && selected.feed_forward_width() == model.feed_forward_width()
+        && selected.layers() == model.layers()
+        && selected.max_positions() == model.max_positions()
+        && selected.rope_base().to_bits() == model.rope_base().to_bits()
+        && selected.rms_epsilon().to_bits() == model.rms_epsilon().to_bits()
+}
+
+fn selected_state_matches_model(state: &DecoderModelState, model: &DecoderModel) -> bool {
+    if !decoder_configs_match_exactly(state.config(), model.config())
+        || state.named_tensors().len() != model.parameters().len()
+    {
+        return false;
+    }
+    state
+        .named_tensors()
+        .zip(model.parameters())
+        .all(|((state_name, state_tensor), parameter)| {
+            let model_tensor = parameter.tensor().value();
+            state_name == parameter.name()
+                && state_tensor.shape() == model_tensor.shape()
+                && state_tensor
+                    .as_slice()
+                    .iter()
+                    .zip(model_tensor.as_slice())
+                    .all(|(state_value, model_value)| {
+                        state_value.to_bits() == model_value.to_bits()
+                    })
+        })
+}
+
 fn gradient_bits(model: &DecoderModel) -> Result<Vec<u64>, EvaluationError> {
     let mut bits = Vec::new();
     for parameter in model.parameters() {
@@ -789,7 +830,11 @@ impl FinalEvaluator {
         require_matching_provenance(&self.provenance, decoder.provenance())?;
         require_matching_provenance(&self.provenance, bigram.provenance())?;
 
-        let model_config = decoder.state().config();
+        if !selected_state_matches_model(decoder.state(), decoder.model()) {
+            return Err(EvaluationError::SelectedStateMismatch);
+        }
+
+        let model_config = decoder.model().config();
         if model_config.max_positions() != self.provenance.context_length() {
             return Err(EvaluationError::ModelContextMismatch {
                 expected: self.provenance.context_length(),
@@ -809,25 +854,21 @@ impl FinalEvaluator {
         // even an error burns the local gate because token evidence is inspected.
         self.access_count = 1;
         let evidence = inspect_test_epoch(&self.test_epoch, decoder_vocabulary)?;
-        let model = decoder.state().restore()?;
-        let selected_bits = decoder.state().bit_pattern();
-        let parameters_before = parameter_bits(&model);
-        if parameters_before != selected_bits {
-            return Err(EvaluationError::RestoredStateMismatch);
-        }
-        let gradients_before = gradient_bits(&model)?;
+        let model = decoder.model();
+        let parameters_before = parameter_bits(model);
+        let gradients_before = gradient_bits(model)?;
 
-        let measured = evaluate_no_grad(&model, &self.test_epoch)?;
+        let measured = evaluate_no_grad(model, &self.test_epoch)?;
         if measured.recorded_graphs() != 0 {
             return Err(EvaluationError::GraphRecorded {
                 count: measured.recorded_graphs(),
             });
         }
-        let parameters_after = parameter_bits(&model);
+        let parameters_after = parameter_bits(model);
         if parameters_after != parameters_before {
             return Err(EvaluationError::DecoderParameterChanged);
         }
-        let gradients_after = gradient_bits(&model)?;
+        let gradients_after = gradient_bits(model)?;
         if gradients_after != gradients_before {
             return Err(EvaluationError::DecoderGradientChanged);
         }
@@ -941,16 +982,31 @@ mod tests {
 
     #[test]
     fn typed_views_enforce_validation_selection_and_training_fit() {
-        let state = DecoderModelState::capture(&model(5, 2));
+        let decoder_model = model(5, 2);
+        let state = DecoderModelState::snapshot(&decoder_model);
         let provenance = provenance();
         assert!(matches!(
-            SelectedDecoder::new(&state, 2, 1.0, Partition::Train, &provenance),
+            SelectedDecoder::new(
+                &state,
+                &decoder_model,
+                2,
+                1.0,
+                Partition::Train,
+                &provenance
+            ),
             Err(EvaluationError::WrongSelectionPartition {
                 actual: Partition::Train
             })
         ));
         assert!(matches!(
-            SelectedDecoder::new(&state, 2, f64::NAN, Partition::Validation, &provenance),
+            SelectedDecoder::new(
+                &state,
+                &decoder_model,
+                2,
+                f64::NAN,
+                Partition::Validation,
+                &provenance
+            ),
             Err(EvaluationError::InvalidSelectionLoss { .. })
         ));
         assert!(matches!(
@@ -1013,9 +1069,16 @@ mod tests {
     fn one_report_scores_identical_targets_without_changing_decoder_bits() {
         let provenance = provenance();
         let decoder_model = model(5, 2);
-        let state = DecoderModelState::capture(&decoder_model);
-        let decoder =
-            SelectedDecoder::new(&state, 7, 1.25, Partition::Validation, &provenance).unwrap();
+        let state = DecoderModelState::snapshot(&decoder_model);
+        let decoder = SelectedDecoder::new(
+            &state,
+            &decoder_model,
+            7,
+            1.25,
+            Partition::Validation,
+            &provenance,
+        )
+        .unwrap();
         let bigram_model = baseline(5);
         let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
         let mut evaluator = FinalEvaluator::new(
@@ -1049,9 +1112,90 @@ mod tests {
     }
 
     #[test]
+    fn selected_model_drift_is_rejected_before_the_test_gate_opens() {
+        let provenance = provenance();
+        let decoder_model = model(5, 2);
+        let state = DecoderModelState::snapshot(&decoder_model);
+        let decoder = SelectedDecoder::new(
+            &state,
+            &decoder_model,
+            7,
+            1.25,
+            Partition::Validation,
+            &provenance,
+        )
+        .unwrap();
+        let parameter = decoder_model.parameters()[0].tensor();
+        let mut changed = parameter.value_snapshot();
+        changed.as_mut_slice()[0] += 1.0;
+        let next_revision = parameter.next_value_revision().unwrap();
+        parameter
+            .try_value_write()
+            .unwrap()
+            .commit(changed, next_revision);
+
+        let bigram_model = baseline(5);
+        let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
+        let mut evaluator = FinalEvaluator::new(
+            epoch(Partition::Test, &[("test", &TEST_A)]),
+            provenance.clone(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+            EvaluationError::SelectedStateMismatch
+        );
+        assert_eq!(evaluator.access_count(), 0);
+    }
+
+    #[test]
+    fn signed_zero_config_drift_is_rejected_before_the_test_gate_opens() {
+        let provenance = provenance();
+        let selected_model = DecoderModel::new(
+            DecoderModelConfig::new(5, 4, 2, 4, 0, 2, 10_000.0, 0.0),
+            &mut SplitMix64::from_seed(34),
+        )
+        .unwrap();
+        let changed_model = DecoderModel::new(
+            DecoderModelConfig::new(5, 4, 2, 4, 0, 2, 10_000.0, -0.0),
+            &mut SplitMix64::from_seed(34),
+        )
+        .unwrap();
+        let state = DecoderModelState::snapshot(&selected_model);
+        assert_eq!(
+            state.bit_pattern(),
+            DecoderModelState::snapshot(&changed_model).bit_pattern()
+        );
+        let decoder = SelectedDecoder::new(
+            &state,
+            &changed_model,
+            7,
+            1.25,
+            Partition::Validation,
+            &provenance,
+        )
+        .unwrap();
+        let bigram_model = baseline(5);
+        let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
+        let mut evaluator = FinalEvaluator::new(
+            epoch(Partition::Test, &[("test", &TEST_A)]),
+            provenance.clone(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+            EvaluationError::SelectedStateMismatch
+        );
+        assert_eq!(evaluator.access_count(), 0);
+    }
+
+    #[test]
     fn provenance_and_shape_errors_before_open_leave_access_unused() {
         let provenance = provenance();
-        let state = DecoderModelState::capture(&model(5, 2));
+        let decoder_model = model(5, 2);
+        let state = DecoderModelState::snapshot(&decoder_model);
         let bigram_model = baseline(5);
         let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
         for (wrong, field) in [
@@ -1072,8 +1216,15 @@ mod tests {
                 ProvenanceField::Context,
             ),
         ] {
-            let decoder =
-                SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &wrong).unwrap();
+            let decoder = SelectedDecoder::new(
+                &state,
+                &decoder_model,
+                1,
+                1.0,
+                Partition::Validation,
+                &wrong,
+            )
+            .unwrap();
             let mut evaluator = FinalEvaluator::new(
                 epoch(Partition::Test, &[("test", &TEST_A)]),
                 provenance.clone(),
@@ -1092,9 +1243,17 @@ mod tests {
         )
         .unwrap();
 
-        let state = DecoderModelState::capture(&model(5, 3));
-        let decoder =
-            SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &provenance).unwrap();
+        let wrong_context_model = model(5, 3);
+        let wrong_context_state = DecoderModelState::snapshot(&wrong_context_model);
+        let decoder = SelectedDecoder::new(
+            &wrong_context_state,
+            &wrong_context_model,
+            1,
+            1.0,
+            Partition::Validation,
+            &provenance,
+        )
+        .unwrap();
         assert_eq!(
             evaluator.evaluate_once(decoder, bigram).unwrap_err(),
             EvaluationError::ModelContextMismatch {
@@ -1104,9 +1263,17 @@ mod tests {
         );
         assert_eq!(evaluator.access_count(), 0);
 
-        let state = DecoderModelState::capture(&model(6, 2));
-        let decoder =
-            SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &provenance).unwrap();
+        let wrong_vocabulary_model = model(6, 2);
+        let wrong_vocabulary_state = DecoderModelState::snapshot(&wrong_vocabulary_model);
+        let decoder = SelectedDecoder::new(
+            &wrong_vocabulary_state,
+            &wrong_vocabulary_model,
+            1,
+            1.0,
+            Partition::Validation,
+            &provenance,
+        )
+        .unwrap();
         assert_eq!(
             evaluator.evaluate_once(decoder, bigram).unwrap_err(),
             EvaluationError::VocabularyMismatch {
@@ -1120,9 +1287,17 @@ mod tests {
     #[test]
     fn post_open_token_error_consumes_the_gate() {
         let provenance = provenance();
-        let state = DecoderModelState::capture(&model(5, 2));
-        let decoder =
-            SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &provenance).unwrap();
+        let decoder_model = model(5, 2);
+        let state = DecoderModelState::snapshot(&decoder_model);
+        let decoder = SelectedDecoder::new(
+            &state,
+            &decoder_model,
+            1,
+            1.0,
+            Partition::Validation,
+            &provenance,
+        )
+        .unwrap();
         let bigram_model = baseline(5);
         let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
         for (invalid, expected_input_error) in [([5, 0, 0, 0], true), ([0, 0, 5, 0], false)] {

@@ -358,6 +358,15 @@ impl NamedParameters {
 }
 // endregion:named-parameters
 
+impl NamedParameter {
+    /// Validates a borrowed name and tensor without creating a node or copying values.
+    pub(crate) fn validate_leaf(name: &str, tensor: &Tensor) -> Result<(), InitializationError> {
+        validate_name(name)?;
+        TensorValue::validate_parameter_value(tensor)?;
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

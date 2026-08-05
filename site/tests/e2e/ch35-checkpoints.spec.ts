@@ -54,6 +54,11 @@ const copy = {
     evidenceFragment: "Together with the exact round trip and resumed update",
     answerFragment:
       "FNV-1a detects accidental corruption but provides no authentication",
+    ownershipFragments: [
+      "Checkpoint::from_snapshot receives selected model state and an optimizer that their callers still need",
+      "This validation finishes before optimizer tensors are decoded",
+      "into_model consumes the checkpoint and moves its model buffers",
+    ],
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -81,7 +86,7 @@ const copy = {
       "Полуоткрытый диапазон байтов",
     ],
     historyFragments: [
-      "Эта последовательность показывает, как сохранялись смысл языковой модели",
+      "Эта последовательность показывает, какое состояние нужно сохранять",
       "Этот скрипт не задаёт единый автономный файл, точное продолжение обучения",
       "Сам по себе он не задаёт токенизатор, конфигурацию декодера, оптимизатор",
       "не описывает GPT-2 или safetensors как дамп памяти",
@@ -96,6 +101,11 @@ const copy = {
       "Вместе с точным циклом сохранения-загрузки и одинаковым следующим обновлением",
     answerFragment:
       "FNV-1a обнаруживает случайные повреждения, но не подтверждает подлинность",
+    ownershipFragments: [
+      "Checkpoint::from_snapshot получает по ссылке состояние выбранной модели и оптимизатор",
+      "Проверка модели полностью завершается до декодирования тензоров состояния оптимизатора",
+      "При вызове into_model контрольная точка передаётся методу целиком и больше недоступна вызывающему коду",
+    ],
   },
 } as const;
 
@@ -185,7 +195,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 35,
-    revision: 2,
+    revision: 3,
     revisionLabel: expected.revisionLabel,
     title: expected.title,
     equivalentLocales: ["en", "ru"],
@@ -314,6 +324,9 @@ async function expectChapterContent(
   ]) {
     expect(lessonText).not.toContain(buildMeta);
   }
+  for (const fragment of expected.ownershipFragments) {
+    expect(lessonText).toContain(fragment);
+  }
 
   await expect(
     page.locator(
@@ -328,7 +341,7 @@ async function expectChapterContent(
       '.lesson-body a[href="https://github.com/huggingface/safetensors/blob/main/README.md"]',
     ),
   ).toHaveCount(1);
-  await expect(page.locator("figure.rust-source")).toHaveCount(7);
+  await expect(page.locator("figure.rust-source")).toHaveCount(8);
   await expectVisualizationDecision(page, {
     decision: "not-useful",
     id: null,
@@ -464,7 +477,7 @@ test.describe(
             '.lesson-body annotation[encoding="application/x-tex"]',
           ),
         ).not.toHaveCount(0);
-        await expect(page.locator("figure.rust-source")).toHaveCount(7);
+        await expect(page.locator("figure.rust-source")).toHaveCount(8);
         await expect(page.locator("figure[data-visualization-id]")).toHaveCount(0);
         await expect(
           page.locator("[data-diagram-full-view-toggle]"),

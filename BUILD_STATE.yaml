@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T11:00:17Z"
+updated_at: "2026-08-05T13:04:00Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -32047,14 +32047,27 @@ builds:
       - id: make-decoder-state-transfers-explicit-and-movable
         objective: "Keep deep decoder copies only at named isolation boundaries and move owned state through internal restore and selection paths when possible."
         depends_on: [preserve-live-parameter-leaves-on-commit]
-        status: pending
+        status: completed
         inputs:
           - "Completed live-parameter commit step"
           - "Audit finding F02 model-state capture/restore cluster"
           - "Chapter 33 selection and Chapter 35 checkpoint isolation requirements"
         outputs:
-          - "Rust trainer, decoder-state, and checkpoint ownership implementation and tests"
-          - "Affected chapter contracts, English/Russian projections, and focused source/browser tests determined during preflight"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/training/trainer.rs"
+          - "rust/crates/llm-from-scratch/src/evaluation.rs"
+          - "rust/crates/llm-from-scratch/src/checkpoint.rs"
+          - "rust/crates/llm-from-scratch/src/pipeline.rs"
+          - "rust/demos/ch33-training-selection/src/lib.rs"
+          - "rust/demos/ch34-final-evaluation/src/lib.rs"
+          - "rust/demos/ch35-checkpoints/src/lib.rs"
+          - "rust/demos/ch36-temperature-top-k/src/lib.rs"
+          - "rust/demos/ch38-cached-generation/src/lib.rs"
+          - "curriculum/chapters/{33-training-selection,34-final-evaluation,35-checkpoints,36-temperature-top-k,39-end-to-end-llm}.md"
+          - "site/src/content/chapters/{en,ru}/{33-training-selection,34-final-evaluation,35-checkpoints,36-temperature-top-k,39-end-to-end-llm}.mdx"
+          - "site/tests/{33-training-selection-diagram,34-final-evaluation-diagram,35-checkpoints,36-temperature-top-k-diagram,39-end-to-end-llm-diagram}.test.ts"
+          - "site/tests/e2e/ch{33-training-selection,34-final-evaluation,35-checkpoints,36-temperature-top-k,39-end-to-end-llm}.spec.ts"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
@@ -32067,4 +32080,60 @@ builds:
           - "Focused Chromium and Firefox affected-route validation"
           - "./course audit-host"
         cost: {class: large, notes: "State-ownership API correction with checkpoint and bilingual rendered validation; cached Docker/browser CPU only."}
-        runs: []
+        runs:
+          - run_id: 20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01
+            started_at: 2026-08-05T11:19:16Z
+            finished_at: 2026-08-05T13:04:00Z
+            status: succeeded
+            input_fingerprint:
+              git: "1b10292462077332815c3623923e1b15bf057db8; tree 005f0b72cf9e65a987bd25cb73993920be76b2a2"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                trainer: "sha256:b4a7f5965c7606779f59f592e1d22342adceaf8c3e6492502c7f905d485e7770"
+                decoder: "sha256:005572170c3fb48cc4df8c59fc62de939a2a62ff685a61baba29431a8538227b"
+                checkpoint: "sha256:ec97561e4ff8ab4187bb13d2c9a9c98ae228283dbbaeb6c01e51e430fa4083f2"
+                affected-chapter-projections: "sha256:214b7a6f44a711e7051c71e5eb206078386649d53f227f70fe0f7d20cc9f342c"
+                prior-publish-manifest: "sha256:65ebd1a71a81a15b378a42132671c8a5bd44fdf38af989ce2286b68324a3c3b6"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No paid service, model generation, or required network input. Product and browser validation remain Docker-only; a changed dependency-layer cache may use the previously accepted registry-refresh policy."
+            staging_dir: ".build/runs/20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01/"
+            commands:
+              - "Run the complete startup protocol at clean commit 1b10292, verify the completed live-parameter dependency and next eligible F02 step, inspect the prior immutable manifest, and compare Git/Docker/Compose with the recorded environment."
+              - "Read the F02 audit, state-transfer call graph, Chapters 33-35 and 39 rendered source consumers, localization policy and skill, and classify copies as durable snapshots or owned internal transfers."
+              - "Classify the step as large cached Docker/browser CPU within the unlimited budget; use no paid service or model generation and do not pause for cost approval."
+              - "Start independent read-only Rust call-graph, content-projection, and validation-risk reviews before product implementation."
+              - "Expand declared scope before product edits after projection review identifies Chapter 36's owned loaded-checkpoint path and Chapter 38's unrendered owned helper; include Chapter 36's bilingual projection and focused tests, the Chapter 38 Rust caller, Chapter 34's explicit selected-state snapshot caller, and a new focused Chapter 35 source contract."
+              - "Expand declared Rust integration scope before editing shared validation helpers after adversarial review identifies descriptor-local parameter validation as necessary to preserve malformed-checkpoint error precedence without copying decoded tensor buffers."
+              - "Implement explicit DecoderModelState snapshot, independent-snapshot, borrowed-inspection, and consuming into_model boundaries; bind final evaluation to the retained state and matching decoder; decode checkpoint state transactionally into owned graph-free leaves before moving it into the checkpoint."
+              - "Update Chapters 33, 34, 35, 36, and 39 English-first, freeze their canonical semantic hashes, refresh Russian directly through the localization workflow, and synchronize source contracts plus static and browser assertions."
+              - "Run complete Docker Rust/site validation, focused ownership and projection tests, independent Rust/content/localization reviews, and affected desktop, narrow, fullscreen, no-JavaScript, forced-color, RTL, and formula rendering checks in Chromium and Firefox."
+              - "Freeze the 35 exact product/test files under publish/, verify manifest and canonical byte equality, build the manifest-locked static review image, remove the root-owned generated Cargo target tree, and repeat the host-artifact audit."
+            artifacts:
+              - {path: ".build/runs/20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01/publish.sha256", sha256: "2a802e09a418438692f6e3433d1e5be9611add7a83d4815bc9c09820352d18cf", purpose: "Frozen 35-file canonical publication manifest."}
+              - {path: ".build/runs/20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01/validation/Dockerfile.browser", sha256: "9709316209719e9d406d06d8314cbee1e7914708251eda67bdacbab6ff3d55c3", purpose: "Run-scoped offline Chromium and Firefox validator derived from the exact workspace image with the final rendered-text assertion overlaid."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "192b0a6d3dff72e7b1f79c0f4998a19b7be5f3ace73c639ad307a2d83b036f69", purpose: "Final canonical Docker workspace validation image; the later one-character browser-only smart-apostrophe assertion does not affect product or workspace gates."}
+              - {path: "docker-image:learn-llm-ownership-browser:20260805", sha256: "f6eeda5cee5774eccb1e7d577877ad6b8bdf9b106e0f65cf1a9b999e9831f16a", purpose: "Self-contained final product and validator image used for the exact Chapter 39 two-engine confirmation."}
+              - {path: "docker-image:learn-llm-review:20260805t111916z-make-decoder-state-transfers-explicit-and-movable-01", sha256: "2b1e3e87c6c4d378358b2e2ae9cb5924d62387737d4cf2550b8e053407f07297", purpose: "Manifest-locked staged static review image for all ten revised English/Russian routes."}
+            validation:
+              - {command: "Repository, dependency, input, ownership, locale, environment, cost, and prior-artifact preflight", status: passed, notes: "HEAD 1b10292 and the worktree are clean; the prior 62-file manifest remains recorded at sha256:65ebd1a7...a3c3b6; no step is running and this is the first eligible checkpoint. Git 2.53.0, Docker 25.0.2, and Compose 2.17.3 match the ledger; the Dockerfile retains Rust 1.93.1 and Node 22.12.0. Chapters 33, 34, 35, and 39 have active en/ru source projections. Cost is cached Docker/browser CPU within an unlimited budget, with no paid service or generation; no Rust, Node, or Python tool ran on the host."}
+              - {command: "First sandboxed Docker environment probe", status: failed, notes: "The managed sandbox denied access to /var/run/docker.sock before Docker could run; the identical read-only version probe passed with the required Docker-daemon permission and changed no repository file or image."}
+              - {command: "First Docker cargo fmt --all -- --check", status: failed, notes: "The ownership implementation was syntactically present but rustfmt reported layout-only diffs in checkpoint, evaluation, and trainer tests, so the workspace image stopped before compilation. The existing pinned image then formatted only Rust sources through a bind mount; no build artifact was written to the host."}
+              - {command: "Post-correction Docker workspace build before localization refresh", status: failed, notes: "Rust formatting, every demo, all doctests, all 394 shared-library tests, and zero-diagnostic Astro analysis passed. The build then stopped at the expected publication gate because the five Russian lessons still carried their prior revisions while frozen English revisions 8/3/3/5/6 awaited direct translation; no Rust or generated host artifact was created."}
+              - {command: "First focused five-chapter Vitest ownership matrix", status: failed, notes: "47 of 50 assertions passed. Three new test assertions were stale or structurally overstrict: one Chapter 33 prose anchor used the former sentence, Chapter 35 compared a localized rationale byte-for-byte, and its tensor-record slice named a nonexistent following helper. Product behavior and localization parity passed; the assertions were corrected without changing frozen English semantics."}
+              - {command: "Corrected localized content gate and focused five-chapter Vitest matrix", status: passed, notes: "All 80 localized sources, 40 publishable locale sets, 33 catalog keys, and 42 shared diagram components pass. Chapters 33, 34, 35, 36, and 39 pass all 50 focused assertions with revisions 8/3/3/5/6, exact canonical-English hashes, source-region parity, ownership order, decode precedence, and natural direct-English Russian projections."}
+              - {command: "Independent Rust ownership, integrated content, and final localization reviews", status: passed, notes: "The Rust reviewer found no remaining correctness defect in state movement, alias/tied identity, gate ordering, checkpoint error precedence, or continuation. Three final Russian rechecks found Chapters 33-36 and 39 natural and semantically aligned after direct English-source corrections; no literal-translation, ownership-order, terminology, or accessibility defect remains."}
+              - {command: "Final canonical ./course check", status: passed, notes: "Workspace image sha256:192b0a6d3dff72e7b1f79c0f4998a19b7be5f3ace73c639ad307a2d83b036f69 passes formatting, every demo, doctests, all 394 shared-library tests, focused site tests, content/parity, zero-diagnostic Astro analysis, the 85-page static build, and 2,529-reference link/SEO/sitemap/analytics validation."}
+              - {command: "First broad Chromium and Firefox chapter/diagram/formula matrix", status: failed, notes: "The affected layouts and formulas passed, but Chapter 39's browser assertion used an ASCII apostrophe while rendered typography emitted decoder’s. Chromium additionally exposed four pre-existing Chapter 22 formula-contract expectations for an unchanged chapter; an isolated four-case retry reproduced only that unrelated stale expectation. Correct the rendered Chapter 39 anchor and keep Chapter 22 outside this ownership checkpoint."}
+              - {command: "Corrected Chromium and Firefox affected-route plus shared diagram matrices", status: passed, notes: "Both engines pass 47 of 47 scenarios for Chapters 33, 34, 35, 36, and 39 plus the course-wide diagram style and full-view contracts. Both locales validate at desktop and narrow widths with fullscreen, containment, no JavaScript, forced colors, RTL, accessibility, and focus restoration."}
+              - {command: "Affected-chapter Chromium and Firefox formula matrices", status: passed, notes: "Both engines pass 20 of 20 server-rendered formula scenarios for the five changed chapters across English/Russian and desktop/narrow widths. The unchanged Chapter 22 stale expectation discovered by the broader exploratory invocation is recorded but not mixed into this step's outputs."}
+              - {command: "Self-contained final Chapter 39 Chromium and Firefox confirmation", status: passed, notes: "Browser image sha256:f6eeda5cee5774eccb1e7d577877ad6b8bdf9b106e0f65cf1a9b999e9831f16 embeds the corrected rendered-text assertion and passes all 6 Chapter 39 scenarios in each engine without a bind override."}
+              - {command: "Frozen 35-file manifest, checksum verification, and canonical equality", status: passed, notes: "Every staged file verifies and equals its canonical counterpart byte for byte; publish.sha256 is sha256:2a802e09a418438692f6e3433d1e5be9611add7a83d4815bc9c09820352d18cf. BUILD_STATE.yaml and DECISIONS.md remain intentionally outside the immutable product snapshot."}
+              - {command: "Manifest-locked ./course review 20260805T111916Z-make-decoder-state-transfers-explicit-and-movable-01 --check", status: passed, notes: "Review image sha256:2b1e3e87c6c4d378358b2e2ae9cb5924d62387737d4cf2550b8e053407f07297 validates the manifest, content/parity, 216-file zero-diagnostic Astro analysis, 85-page static build, 2,529 references, and all ten revised English/Russian routes without changing publish/."}
+              - {command: "First final ./course audit-host", status: failed, notes: "The audit found one ignored 278 MiB root-owned target/ tree from an earlier host-mounted Cargo invocation. Inspection confirmed only Cargo cache, dependency, and test products; host removal was denied by ownership, so the validated container removed exactly /workspace/target."}
+              - {command: "Final host-artifact and whitespace audit", status: passed, notes: "The repeated host audit passes with no Rust, Node.js, or Python artifact outside the intentional site/dist release, and git diff --check reports no whitespace error."}
+              - {command: "Final exact-scope, canonical-English hash, and immutable-manifest audit", status: passed, notes: "Exactly 35 declared product/test files plus BUILD_STATE.yaml and DECISIONS.md change; no unrelated or untracked file exists beyond the declared new Chapter 35 test. English revisions 8/3/3/5/6 retain hashes cf8b715f..., 7d4144fa..., 128d6726..., e6425feb..., and 2aeb17e8..., and all 35 staged bytes still match canonical files."}
+              - {command: "Pinned-Docker completed-ledger and scheduler validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and 40 implemented contracts; all 33 content-ledger assertions pass, and no step remains running."}
+            notes: "Succeeded. Deep copies now occur only at named isolation boundaries: initial or retained state snapshots and checkpoint coexistence. Owned decoded or loaded state moves into decoders and checkpoints without another tensor-buffer copy. Final evaluation borrows both the retained state and matching selected model, validates configuration, descriptor order/shape, and every value bit before opening test access, then scores the borrowed model. Checkpoint decode preserves transactional validation and established error precedence while retaining only graph-free leaf tensors. Exact checkpoint bytes, optimizer/RNG continuation, aliases, tied identities, selection, evaluation, and generation remain coherent. Chapters 33-36 and 39 were revised English-first, hashed, and refreshed directly into natural Russian through the localization skill; Chapter 38 changes only in an unrendered helper."

@@ -14,7 +14,6 @@ use llm_from_scratch::models::decoder::{DecoderModel, DecoderModelError};
 use llm_from_scratch::nn::init::SplitMix64;
 use llm_from_scratch::tensor::storage::{Tensor, TensorError};
 use llm_from_scratch::training::adamw::{AdamW, AdamWError};
-use llm_from_scratch::training::trainer::DecoderModelState;
 
 pub const NEXT_LEARNING_RATE: f64 = 0.006;
 pub const RNG_SEED: u64 = 35;
@@ -229,6 +228,21 @@ fn logits_bits(model: &DecoderModel) -> Result<Vec<u64>, FixtureError> {
         .collect())
 }
 
+fn parameter_bits(model: &DecoderModel) -> Vec<u64> {
+    let mut bits = Vec::new();
+    for parameter in model.parameters() {
+        bits.extend(
+            parameter
+                .tensor()
+                .value()
+                .as_slice()
+                .iter()
+                .map(|value| value.to_bits()),
+        );
+    }
+    bits
+}
+
 fn bits_fingerprint(bits: &[u64]) -> String {
     let hash = bits
         .iter()
@@ -266,11 +280,10 @@ fn corruption_evidence(
         Checkpoint::from_bytes(&wrong_version),
         Err(CheckpointError::UnsupportedVersion { .. })
     );
-    let model = checkpoint.restore_model()?;
     let vocabulary_mismatch_rejected = matches!(
-        Checkpoint::new(
+        Checkpoint::from_snapshot(
             CheckpointTokenizer::literal_tokens(vec![b"x".to_vec()])?,
-            &DecoderModelState::capture(&model),
+            checkpoint.model_state(),
             &checkpoint.restore_optimizer(),
             checkpoint.selected_step(),
             checkpoint.rng_state(),
@@ -314,7 +327,7 @@ fn atomic_evidence(checkpoint: &Checkpoint) -> Result<AtomicEvidence, FixtureErr
     let path = parent.join("selected.llmcp");
     let result = (|| -> Result<AtomicEvidence, FixtureError> {
         checkpoint.save_atomic(&path)?;
-        let replacement = Checkpoint::new(
+        let replacement = Checkpoint::from_snapshot(
             checkpoint.tokenizer().clone(),
             checkpoint.model_state(),
             &checkpoint.restore_optimizer(),
@@ -360,7 +373,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let _ = rng.next_u64();
     let saved_rng_state = rng.state();
     let expected_rng_next = rng.next_u64();
-    let checkpoint = Checkpoint::new(
+    let checkpoint = Checkpoint::from_snapshot(
         literal_tokenizer()?,
         selected.result.selected_state(),
         optimizer,
@@ -372,19 +385,21 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let loaded = Checkpoint::from_bytes(encoded.bytes())?;
     let loaded_encoded = loaded.encode()?;
 
-    let original_model = checkpoint.restore_model()?;
-    let loaded_model = loaded.restore_model()?;
+    let original_model = checkpoint.restore_independent_model()?;
+    let loaded_optimizer = loaded.restore_optimizer();
+    let loaded_rng_state = loaded.rng_state();
+    let loaded_model = loaded.into_model()?;
     let original_logits = logits_bits(&original_model)?;
     let loaded_logits = logits_bits(&loaded_model)?;
     let (updated_original, updated_original_optimizer) =
         apply_resumed_update(original_model, checkpoint.restore_optimizer())?;
     let (updated_loaded, updated_loaded_optimizer) =
-        apply_resumed_update(loaded_model, loaded.restore_optimizer())?;
-    let updated_original_bits = DecoderModelState::capture(&updated_original).bit_pattern();
-    let updated_loaded_bits = DecoderModelState::capture(&updated_loaded).bit_pattern();
+        apply_resumed_update(loaded_model, loaded_optimizer)?;
+    let updated_original_bits = parameter_bits(&updated_original);
+    let updated_loaded_bits = parameter_bits(&updated_loaded);
     let updated_original_logits = logits_bits(&updated_original)?;
     let updated_loaded_logits = logits_bits(&updated_loaded)?;
-    let loaded_rng_next = SplitMix64::from_state(loaded.rng_state()).next_u64();
+    let loaded_rng_next = SplitMix64::from_state(loaded_rng_state).next_u64();
     let corruption = corruption_evidence(&checkpoint, encoded.bytes())?;
     let atomic = atomic_evidence(&checkpoint)?;
 

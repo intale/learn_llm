@@ -48,6 +48,12 @@ const copy = {
     generationCue: "= cached and complete-prefix decisions match",
     decodedTextLabel: "Cyrillic т followed by two generated spaces",
     spaceMarker: "Each ␠ marks one generated space.",
+    ownershipFragments: [
+      "SelectedDecoder borrows both",
+      "FinalEvaluator verifies that the decoder’s configuration, ordered names and shapes, and every parameter bit still match the retained state",
+      "Checkpoint::from_snapshot deliberately copies the selected graph-free state and optimizer persistence state",
+      "It then calls loaded.into_model(), which moves the owned model buffers into a decoder",
+    ],
     fullViewOpenLabel: "View diagram full screen",
     fullViewCloseLabel: "Exit full screen",
   },
@@ -84,6 +90,12 @@ const copy = {
       "= решения с кэшем и полным пересчётом префикса совпадают",
     decodedTextLabel: "кириллическая т и два сгенерированных пробела",
     spaceMarker: "␠ — сгенерированный пробел.",
+    ownershipFragments: [
+      "SelectedDecoder получает неизменяемые ссылки на оба объекта",
+      "FinalEvaluator проверяет точное совпадение конфигурации декодера",
+      "Checkpoint::from_snapshot намеренно копирует выбранное состояние без графа вычислений и состояние оптимизатора",
+      "loaded.into_model() принимает контрольную точку по значению и перемещает принадлежащие ей буферы модели в декодер",
+    ],
     fullViewOpenLabel: "Развернуть схему на весь экран",
     fullViewCloseLabel: "Выйти из полноэкранного режима",
   },
@@ -376,7 +388,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 39,
-    revision: 5,
+    revision: 6,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -420,6 +432,9 @@ async function expectChapterContent(
   expect(lessonText).toContain(localized.historyLimitation);
   expect(lessonText).toContain(localized.scaleBoundary);
   expect(lessonText).toContain(localized.qualityBoundary);
+  for (const fragment of localized.ownershipFragments) {
+    expect(lessonText).toContain(fragment);
+  }
   for (const href of [
     "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
     "https://arxiv.org/pdf/1706.03762",

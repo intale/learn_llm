@@ -51,10 +51,13 @@ const copy = {
       "local teaching choices, not universal properties of LLM training",
     ],
     executionFragments: [
-      "The working decoder and optimizer then persist through all eight updates.",
+      "The trainer immediately calls into_model on that owned state",
+      "That working decoder and optimizer then persist through all eight updates",
+      "When a validation checkpoint becomes the new minimum, its parameter values must remain unchanged",
+      "TrainingResult keeps the selected graph-free state as the immutable record of what validation chose",
       "The registry and every decoder component already hold aliases of those nodes, so the next forward pass observes the new values without rebuilding the decoder.",
       "The trainer compares the returned optimizer step number with the planned update index, calls zero_grad() on every live parameter, and verifies that every gradient coordinate is zero before the next forward pass.",
-      "The trainer does not call it after each ordinary AdamW step.",
+      "The trainer does not call this boundary after each ordinary AdamW step.",
     ],
   },
   ru: {
@@ -92,10 +95,13 @@ const copy = {
       "локальные учебные решения, а не общепринятая практика",
     ],
     executionFragments: [
-      "Затем этот декодер и этот оптимизатор используются во всех восьми обновлениях.",
-      "В реестре и компонентах декодера хранятся дескрипторы этих же узлов, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
+      "Затем это состояние сразу передаётся в into_model: метод получает его во владение и переносит имена и буферы тензоров в рабочий декодер без повторного копирования.",
+      "После этого все восемь обновлений выполняются одним и тем же рабочим декодером и одним и тем же оптимизатором",
+      "Если очередная контрольная точка даёт новый минимум потерь на валидации, её значения параметров должны сохраниться",
+      "TrainingResult хранит выбранное состояние, не связанное с графом вычислений",
+      "Реестр и компоненты декодера хранят ссылки на те же узлы, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
       "Цикл обучения сравнивает возвращённый номер шага с номером обновления в плане, вызывает zero_grad() для каждого рабочего параметра и проверяет, что все координаты градиента равны нулю, прежде чем начинать следующий прямой проход.",
-      "Его не вызывают после каждого такого шага.",
+      "После обычного шага AdamW пересобирать декодер не нужно.",
     ],
   },
 } as const;
@@ -329,7 +335,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 7,
+    revision: 8,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -382,7 +388,7 @@ async function expectChapterContent(
   await expect(
     page.locator('.lesson-body a[href^="https://arxiv.org/"]'),
   ).toHaveCount(3);
-  await expect(page.locator("figure.rust-source")).toHaveCount(10);
+  await expect(page.locator("figure.rust-source")).toHaveCount(11);
   await expectVisualizationDecision(page, {
     decision: "useful",
     id: "training-validation-checkpoints",

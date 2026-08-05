@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 39,
   "objective": {
     "en": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
@@ -174,14 +174,16 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 5 is a direct, meaning-first refresh of frozen English revision 5 with SHA-256 39c0c3b9ff84784badeb2df3247871d97b9469cbb33fef6241af0fc213f37ee5; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}. Revision 5 preserves every explicit figure mapping while changing the rendered corpus input boundary from raw bytes to JSON text as &str; the Rust trace and computation remain unchanged.",
+    "Russian revision 6 is a direct, meaning-first translation of frozen English revision 6 with SHA-256 2aeb17e824344972a0d62ef0b4cbf488c86475850cd77c76807db67d3b7cce4d; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
     "Preserve BPE, LLM, AdamW, BOS, EOS, KV, RNG, token IDs, hashes, tensor shapes, exact losses, source titles, formulas, links, and trace grammar.",
     "Keep the general autoregressive factorization distinct from this retained four-token context C=4 and keep the local selection-isolated test boundary distinct from a global claim that test data has never been read anywhere.",
     "The checkpoint claim covers byte-for-byte re-encoding and exact model, optimizer, tokenizer, step, and RNG state; the separate At probe must not be confused with generation from prompt A.",
+    "Preserve the ownership order: final evaluation borrows and verifies the retained selected state plus matching selected model; checkpoint creation copies selected model and optimizer persistence state because the training result remains available; loaded metadata is recorded before into_model consumes the checkpoint and moves model buffers into the probe and generation decoder.",
+    "For Russian, render borrowing as получение неизменяемых ссылок, graph-free state as состояние без графа вычислений, optimizer persistence state as состояние оптимизатора, необходимое для продолжения обучения, and consuming into_model as передача контрольной точки по значению followed by перемещение её буферов; avoid заимствовать объект, потреблять контрольную точку, граф-свободное состояние, персистентное состояние, совпадающая модель, and метаданные продолжения.",
     "The generated learner-visible output is Cyrillic т followed by two spaces, rendered as т␠␠ where the spaces must be visible; it demonstrates shared byte-tokenizer decoding, not translation quality.",
     "Keep the history on the path from count n-gram language models through learned distributed representations and masked self-attention to scaled autoregressive LLMs; scope paper claims to their sources and local evidence policies to this implementation.",
     "Prefer natural Russian mathematical and technical prose, including полный цикл работы LLM, состояние, выбранное по валидации, зафиксированная биграммная базовая модель, and продолжение с KV-кэшем; reject literal calques and mixed-language learner prose.",
-    "Any later semantic or presentation change to English revision 5 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Any later semantic or presentation change to English revision 6 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
   ],
   "acceptance_examples": [
     {
@@ -198,11 +200,11 @@
     },
     {
       "input": "Materialize context-four test batches and open the local final evaluator after selection",
-      "expected": "Four evaluation mini-batches contain 436 windows and 1,744 target slots; one local access scores identical decoder and bigram targets, with losses 3.866087547 and 3.981342714 and gap 0.115255167."
+      "expected": "The evaluator first verifies that the retained selected state and matching selected model agree exactly. Four evaluation mini-batches then contain 436 windows and 1,744 target slots; one local access scores identical decoder and bigram targets, with losses 3.866087547 and 3.981342714 and gap 0.115255167."
     },
     {
       "input": "Save and reload the selected state",
-      "expected": "The 30,994-byte, 34-record checkpoint re-encodes byte for byte; model, optimizer, BPE tokenizer, selected step, and RNG state are exact, while logits for probe text At, encoded as token IDs [67,118], agree bit for bit."
+      "expected": "Checkpoint creation snapshots selected model state and optimizer persistence state because the training result remains available. The 30,994-byte, 34-record checkpoint re-encodes byte for byte; model, optimizer, BPE tokenizer, selected step, and RNG state are exact. After the loaded metadata is recorded, into_model consumes the checkpoint and moves its model buffers; logits for probe text At, encoded as token IDs [67,118], still agree bit for bit."
     },
     {
       "input": "Generate three tokens from prompt A with temperature 0.8, top-k four, and seed 38",
@@ -318,17 +320,27 @@ requires identical step metadata and every floating-point bit in losses,
 gradients, checkpoints, optimizer moments, and model state.
 
 After both replays complete and validation fixes the state, the run materializes
-test mini-batches. The primary state enters `FinalEvaluator`, which consumes its
-local permission once and scores the selected decoder and frozen bigram on
-identical targets without a graph or mutation. This is a boundary owned by the
-capstone run, not global access control over repository data.
+test mini-batches. `SelectedDecoder` receives both `primary.selected_state()` and
+`primary.selected_model()`. Before the gate opens, `FinalEvaluator` verifies the
+bit-exact configuration, ordered names and shapes, and every parameter bit, then
+consumes its local permission once and scores the borrowed decoder and frozen
+bigram on identical targets without a graph or mutation. This is a boundary
+owned by the capstone run, not global access control over repository data.
 
-Checkpoint save/load must preserve exact re-encoded bytes, tokenizer ranks,
-model values, optimizer values and step, and RNG state. Logits must agree bit for
-bit for the explicit `At` probe. Cached generation from `A` and the
-complete-prefix reference then consume identical sampling draws and must agree
-on tokens, prefix schedule, intervals, stopping, and final RNG state. Invalid
-corpus input fails before training or file creation.
+After final evaluation, `Checkpoint::from_snapshot` receives
+`primary.selected_state()` and the final optimizer. It copies their persistence
+state because both the complete training result and checkpoint must remain
+independently usable. Checkpoint save/load must preserve exact re-encoded bytes,
+tokenizer ranks, model values, optimizer values and step, and RNG state.
+
+The pipeline records the loaded tokenizer, selected step, optimizer state, and
+RNG state before calling `loaded.into_model()`. That call consumes the checkpoint
+and moves its model buffers into the loaded decoder. Logits for the explicit
+`At` probe compare `primary.selected_model()` with that moved decoder bit for
+bit. Cached generation from `A` and the complete-prefix reference then consume
+identical sampling draws and must agree on tokens, prefix schedule, intervals,
+stopping, and final RNG state. Invalid corpus input fails before training or file
+creation.
 
 <!-- contract-section:visualization -->
 ## Visualization
@@ -392,7 +404,7 @@ contract changed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 5 is the canonical semantic source; Russian revision 5 is
+English revision 6 is the canonical semantic source; Russian revision 6 is
 published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
 links, and trace grammar. Keep probe `At` distinct from generation prompt `A`.

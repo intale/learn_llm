@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from "node:crypto";
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { existsSync, readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
@@ -153,7 +155,7 @@ describe("Chapter 36 Rust trace parser", () => {
     expect(demoSource).toContain("sample_next_token_with_trace");
 
     for (const source of [contractSource, lessonSource, russianLessonSource]) {
-      expect(frontmatter(source).content_revision).toBe(4);
+      expect(frontmatter(source).content_revision).toBe(5);
     }
     expect(lessonSource.replace(/\s+/g, " ")).toContain(
       "The ordinary call still needs temporary arrays of ranked token IDs and probabilities",
@@ -406,9 +408,12 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
     );
-    expect(contract.content_revision).toBe(4);
-    expect(lesson.content_revision).toBe(4);
-    expect(russianLesson.content_revision).toBe(4);
+    expect(contract.content_revision).toBe(5);
+    expect(lesson.content_revision).toBe(5);
+    expect(russianLesson.content_revision).toBe(5);
+    expect(contract.translation_notes).toContain(
+      `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
+    );
     expect(russianLesson.formula).toEqual({
       latex: contract.formula.latex,
       symbols: contract.formula.symbols.map(
@@ -484,5 +489,14 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(demoSource).toContain("region:historical-decoding-contrast");
     expect(demoSource).toContain("region:learner-evidence");
     expect(demoSource).toContain("TEMPERATURE_TOP_K_TRACE_V1");
+    const learnerEvidence = demoSource.match(
+      /\/\/ region:learner-evidence([\s\S]*?)\/\/ endregion:learner-evidence/,
+    )?.[1];
+    expect(learnerEvidence).toBeDefined();
+    expect(learnerEvidence!.indexOf("checkpoint.rng_state()")).toBeGreaterThan(-1);
+    expect(learnerEvidence!.indexOf("checkpoint.into_model()?")).toBeGreaterThan(
+      learnerEvidence!.indexOf("checkpoint.rng_state()"),
+    );
+    expect(learnerEvidence).not.toMatch(/restore_model|restore_independent_model/);
   });
 });

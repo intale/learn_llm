@@ -275,11 +275,11 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let prior = checkpoint_evidence()?;
     let loaded_checkpoint_bytes = prior.encoded.bytes().len();
     let checkpoint = Checkpoint::from_bytes(prior.encoded.bytes())?;
-    let model = checkpoint.restore_model()?;
+    let loaded_rng_state = checkpoint.rng_state();
+    let model = checkpoint.into_model()?;
     let model_config = model.config();
     let loaded_vocabulary_size = model_config.vocabulary_size();
     let loaded_context = model_config.max_positions();
-    let loaded_rng_state = checkpoint.rng_state();
     let generation_config = GenerationConfig::new(
         SamplingMode::TemperatureTopK {
             temperature: 1.0,

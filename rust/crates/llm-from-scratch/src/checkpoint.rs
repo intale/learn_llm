@@ -258,7 +258,7 @@ impl CheckpointTokenizer {
 }
 
 /// A complete decoder continuation boundary with no attention-cache state.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Checkpoint {
     tokenizer: CheckpointTokenizer,
     model_state: DecoderModelState,
@@ -268,17 +268,35 @@ pub struct Checkpoint {
 }
 
 impl Checkpoint {
-    pub fn new(
+    // region:checkpoint-state-transfer
+    /// Creates a durable checkpoint by explicitly copying borrowed training state.
+    pub fn from_snapshot(
         tokenizer: CheckpointTokenizer,
         model_state: &DecoderModelState,
         optimizer: &AdamW,
         selected_step: u64,
         rng_state: u64,
     ) -> Result<Self, CheckpointError> {
+        Self::from_owned_parts(
+            tokenizer,
+            model_state.independent_snapshot(),
+            optimizer.persistence_state(),
+            selected_step,
+            rng_state,
+        )
+    }
+
+    fn from_owned_parts(
+        tokenizer: CheckpointTokenizer,
+        model_state: DecoderModelState,
+        optimizer_state: AdamWState,
+        selected_step: u64,
+        rng_state: u64,
+    ) -> Result<Self, CheckpointError> {
         let checkpoint = Self {
             tokenizer,
-            model_state: model_state.clone(),
-            optimizer_state: optimizer.persistence_state(),
+            model_state,
+            optimizer_state,
             selected_step,
             rng_state,
         };
@@ -306,17 +324,25 @@ impl Checkpoint {
         self.rng_state
     }
 
-    pub fn restore_model(&self) -> Result<DecoderModel, CheckpointError> {
-        self.model_state.restore().map_err(Into::into)
+    /// Rebuilds an independent decoder while retaining the checkpoint.
+    pub fn restore_independent_model(&self) -> Result<DecoderModel, CheckpointError> {
+        self.model_state
+            .restore_independent_model()
+            .map_err(Into::into)
+    }
+
+    /// Consumes the checkpoint and moves its model buffers into one decoder.
+    pub fn into_model(self) -> Result<DecoderModel, CheckpointError> {
+        self.model_state.into_model().map_err(Into::into)
     }
 
     pub fn restore_optimizer(&self) -> AdamW {
         AdamW::from_persistence_state(&self.optimizer_state)
     }
+    // endregion:checkpoint-state-transfer
 
     fn validate_parts(&self) -> Result<(), CheckpointError> {
-        let model = self.model_state.restore()?;
-        let config = model.config();
+        let config = self.model_state.config();
         if self.tokenizer.vocabulary_size() != config.vocabulary_size() {
             return Err(CheckpointError::VocabularyMismatch {
                 tokenizer: self.tokenizer.vocabulary_size(),
@@ -330,15 +356,10 @@ impl Checkpoint {
             });
         }
 
-        let model_shapes = model
-            .parameters()
-            .iter()
-            .map(|parameter| {
-                (
-                    parameter.name().to_owned(),
-                    parameter.tensor().value().shape().to_vec(),
-                )
-            })
+        let model_shapes = self
+            .model_state
+            .named_tensors()
+            .map(|(name, tensor)| (name.to_owned(), tensor.shape().to_vec()))
             .collect::<BTreeMap<_, _>>();
         let optimizer_names = self
             .optimizer_state
@@ -584,6 +605,15 @@ impl From<TrainerError> for CheckpointError {
     }
 }
 
+fn checkpoint_model_state_error(error: TrainerError) -> CheckpointError {
+    match error {
+        TrainerError::Model(error) => CheckpointError::Model(error),
+        TrainerError::Initialization(error) => CheckpointError::Initialization(error),
+        TrainerError::Tensor(error) => CheckpointError::Tensor(error),
+        error => CheckpointError::Trainer(error),
+    }
+}
+
 impl From<TensorError> for CheckpointError {
     fn from(error: TensorError) -> Self {
         Self::Tensor(error)
@@ -742,12 +772,11 @@ impl Checkpoint {
     // endregion:versioned-checkpoint-encoding
 
     fn tensor_records(&self) -> Result<Vec<TensorRecord>, CheckpointError> {
-        let model = self.model_state.restore()?;
         let estimated = match &self.tokenizer {
             CheckpointTokenizer::LiteralTokens(tokens) => tokens.len(),
             CheckpointTokenizer::ByteBpe(_) => 1,
         }
-        .checked_add(model.parameters().len())
+        .checked_add(self.model_state.parameter_names().len())
         .and_then(|count| {
             self.optimizer_state
                 .parameter_names()
@@ -807,11 +836,10 @@ impl Checkpoint {
             }
         }
 
-        for parameter in model.parameters() {
-            let value = parameter.tensor().value();
+        for (name, value) in self.model_state.named_tensors() {
             records.push(TensorRecord::new(
                 CheckpointTensorRole::ModelParameter,
-                parameter.name(),
+                name,
                 CheckpointDType::F64,
                 value.shape().to_vec(),
                 f64_bytes(value.as_slice()),
@@ -1148,11 +1176,10 @@ impl Checkpoint {
             &header.descriptors[model_end..],
             bytes,
         )?;
-        let optimizer = AdamW::from_persistence_state(&optimizer_state);
-        let checkpoint = Self::new(
+        let checkpoint = Self::from_owned_parts(
             tokenizer,
-            &model_state,
-            &optimizer,
+            model_state,
+            optimizer_state,
             header.selected_step,
             header.rng_state,
         )?;
@@ -1433,13 +1460,11 @@ fn decode_model(
         }
         let values = decode_f64(descriptor_bytes(descriptor, file)?)?;
         let tensor = Tensor::from_vec(descriptor.shape.clone(), values)?;
-        parameters.push(NamedParameter::from_tensor(
-            descriptor.name.clone(),
-            tensor,
-        )?);
+        NamedParameter::validate_leaf(&descriptor.name, &tensor)?;
+        parameters.push((descriptor.name.clone(), tensor));
     }
-    let model = DecoderModel::from_parameters(config, parameters)?;
-    Ok(DecoderModelState::capture(&model))
+    DecoderModelState::try_from_owned_parameters(config, parameters)
+        .map_err(checkpoint_model_state_error)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1782,7 +1807,7 @@ mod tests {
 
     fn literal_checkpoint(rng_state: u64) -> Checkpoint {
         let model = model(5);
-        Checkpoint::new(
+        Checkpoint::from_snapshot(
             CheckpointTokenizer::literal_tokens(vec![
                 b"a".to_vec(),
                 b"bb".to_vec(),
@@ -1791,7 +1816,7 @@ mod tests {
                 b"e".to_vec(),
             ])
             .unwrap(),
-            &DecoderModelState::capture(&model),
+            &DecoderModelState::snapshot(&model),
             &optimizer(),
             0,
             rng_state,
@@ -1842,14 +1867,64 @@ mod tests {
     }
 
     #[test]
+    fn checkpoint_snapshot_copies_but_owned_restore_moves_model_buffers() {
+        let source = model(5);
+        let source_state = DecoderModelState::snapshot(&source);
+        let source_addresses = source_state.storage_addresses();
+        let checkpoint = Checkpoint::from_snapshot(
+            CheckpointTokenizer::literal_tokens(vec![
+                b"a".to_vec(),
+                b"b".to_vec(),
+                b"c".to_vec(),
+                b"d".to_vec(),
+                b"e".to_vec(),
+            ])
+            .unwrap(),
+            &source_state,
+            &optimizer(),
+            0,
+            17,
+        )
+        .unwrap();
+        let checkpoint_addresses = checkpoint.model_state().storage_addresses();
+
+        assert!(
+            checkpoint_addresses
+                .iter()
+                .zip(&source_addresses)
+                .all(|(checkpoint, source)| checkpoint != source)
+        );
+        let independent = checkpoint.restore_independent_model().unwrap();
+        assert!(
+            independent
+                .parameters()
+                .iter()
+                .zip(&checkpoint_addresses)
+                .all(|(parameter, checkpoint)| {
+                    parameter.tensor().value().as_slice().as_ptr() as usize != *checkpoint
+                })
+        );
+
+        let moved = checkpoint.into_model().unwrap();
+        assert_eq!(
+            moved
+                .parameters()
+                .iter()
+                .map(|parameter| parameter.tensor().value().as_slice().as_ptr() as usize)
+                .collect::<Vec<_>>(),
+            checkpoint_addresses
+        );
+    }
+
+    #[test]
     fn byte_bpe_round_trip_rebuilds_ordered_merge_pairs() {
         let tokenizer =
             BpeTokenizer::from_merge_pairs(&[TokenPair::new(97, 98), TokenPair::new(256, 99)])
                 .unwrap();
         let model = model(tokenizer.layout().vocabulary_size());
-        let checkpoint = Checkpoint::new(
+        let checkpoint = Checkpoint::from_snapshot(
             CheckpointTokenizer::byte_bpe(&tokenizer),
-            &DecoderModelState::capture(&model),
+            &DecoderModelState::snapshot(&model),
             &optimizer(),
             0,
             7,
@@ -1865,9 +1940,9 @@ mod tests {
     #[test]
     fn tokenizer_and_decoder_vocabulary_must_match() {
         let model = model(3);
-        let error = Checkpoint::new(
+        let error = Checkpoint::from_snapshot(
             CheckpointTokenizer::literal_tokens(vec![b"a".to_vec(), b"b".to_vec()]).unwrap(),
-            &DecoderModelState::capture(&model),
+            &DecoderModelState::snapshot(&model),
             &optimizer(),
             0,
             0,
@@ -1880,6 +1955,38 @@ mod tests {
                 tokenizer: 2,
                 decoder: 3
             }
+        ));
+    }
+
+    #[test]
+    fn decoded_parameters_fail_before_a_later_descriptor_role() {
+        let descriptors = [
+            CheckpointTensorDescriptor {
+                role: CheckpointTensorRole::ModelParameter,
+                name: "Bad".to_owned(),
+                dtype: CheckpointDType::F64,
+                shape: vec![1],
+                offset: 0,
+                byte_len: 8,
+            },
+            CheckpointTensorDescriptor {
+                role: CheckpointTensorRole::OptimizerFirstMoment,
+                name: "later".to_owned(),
+                dtype: CheckpointDType::F64,
+                shape: vec![1],
+                offset: 8,
+                byte_len: 8,
+            },
+        ];
+
+        assert!(matches!(
+            decode_model(model(5).config(), &descriptors, &[0; 16]),
+            Err(CheckpointError::Initialization(
+                InitializationError::InvalidNameCharacter {
+                    index: 0,
+                    byte: b'B',
+                }
+            ))
         ));
     }
 
@@ -1924,6 +2031,86 @@ mod tests {
         assert!(matches!(
             Checkpoint::from_bytes(&trailing),
             Err(CheckpointError::FileExtent { .. })
+        ));
+    }
+
+    #[test]
+    fn checksummed_model_name_corruption_reports_the_decoder_error() {
+        let encoded = literal_checkpoint(9).encode().unwrap();
+        let mut changed_name = encoded.bytes().to_vec();
+        let expected_name = b"token_embedding.weight";
+        let start = changed_name
+            .windows(expected_name.len())
+            .position(|window| window == expected_name)
+            .unwrap();
+        changed_name[start] = b'u';
+        let checksum = checkpoint_checksum(&changed_name);
+        changed_name[CHECKSUM_OFFSET..CHECKSUM_OFFSET + CHECKSUM_WIDTH]
+            .copy_from_slice(&checksum.to_le_bytes());
+
+        assert!(matches!(
+            Checkpoint::from_bytes(&changed_name),
+            Err(CheckpointError::Model(
+                DecoderModelError::ParameterNameMismatch {
+                    index: 0,
+                    expected,
+                    actual,
+                }
+            )) if expected == "token_embedding.weight" && actual == "uoken_embedding.weight"
+        ));
+    }
+
+    #[test]
+    fn model_error_precedes_a_later_optimizer_fault() {
+        let checkpoint_model = model(5);
+        let mut checkpoint_optimizer = optimizer();
+        checkpoint_optimizer
+            .step(checkpoint_model.parameters())
+            .unwrap();
+        let checkpoint = Checkpoint::from_snapshot(
+            CheckpointTokenizer::literal_tokens(vec![
+                b"a".to_vec(),
+                b"b".to_vec(),
+                b"c".to_vec(),
+                b"d".to_vec(),
+                b"e".to_vec(),
+            ])
+            .unwrap(),
+            &DecoderModelState::snapshot(&checkpoint_model),
+            &checkpoint_optimizer,
+            1,
+            9,
+        )
+        .unwrap();
+        let encoded = checkpoint.encode().unwrap();
+        let mut dual_fault = encoded.bytes().to_vec();
+        let expected_name = b"token_embedding.weight";
+        let name_start = dual_fault
+            .windows(expected_name.len())
+            .position(|window| window == expected_name)
+            .unwrap();
+        dual_fault[name_start] = b'u';
+        let optimizer_offset = encoded
+            .tensors()
+            .iter()
+            .find(|descriptor| descriptor.role() == CheckpointTensorRole::OptimizerFirstMoment)
+            .unwrap()
+            .offset() as usize;
+        dual_fault[optimizer_offset..optimizer_offset + 8]
+            .copy_from_slice(&f64::NAN.to_bits().to_le_bytes());
+        let checksum = checkpoint_checksum(&dual_fault);
+        dual_fault[CHECKSUM_OFFSET..CHECKSUM_OFFSET + CHECKSUM_WIDTH]
+            .copy_from_slice(&checksum.to_le_bytes());
+
+        assert!(matches!(
+            Checkpoint::from_bytes(&dual_fault),
+            Err(CheckpointError::Model(
+                DecoderModelError::ParameterNameMismatch {
+                    index: 0,
+                    expected,
+                    actual,
+                }
+            )) if expected == "token_embedding.weight" && actual == "uoken_embedding.weight"
         ));
     }
 
