@@ -101,37 +101,52 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     pass.output()
         .backward_with_seed(&upstream.view(), GraphRetention::Retain)?;
     let input_gradient = input
-        .gradient()
+        .gradient_snapshot()
         .expect("trainable input stores its reverse gradient");
-    let gate_weight_gradient = layer.gate().weight().tensor().gradient().expect("gate dW");
-    let up_weight_gradient = layer.up().weight().tensor().gradient().expect("up dW");
-    let down_weight_gradient = layer.down().weight().tensor().gradient().expect("down dW");
+    let gate_weight_gradient = layer
+        .gate()
+        .weight()
+        .tensor()
+        .gradient_snapshot()
+        .expect("gate dW");
+    let up_weight_gradient = layer
+        .up()
+        .weight()
+        .tensor()
+        .gradient_snapshot()
+        .expect("up dW");
+    let down_weight_gradient = layer
+        .down()
+        .weight()
+        .tensor()
+        .gradient_snapshot()
+        .expect("down dW");
 
     // Persistent gradients belong to parameter leaves. These two tiny probes
     // promote recorded intermediates to leaves so their local VJPs are visible.
     let product_probe_layer = known_swiglu();
-    let product_probe = TensorValue::parameter(pass.product().value())?;
+    let product_probe = TensorValue::parameter(pass.product().value_snapshot())?;
     product_probe_layer
         .down()
         .forward(&product_probe)?
         .backward_with_seed(&upstream.view(), GraphRetention::Release)?;
     let product_gradient = product_probe
-        .gradient()
+        .gradient_snapshot()
         .expect("product probe stores its reverse gradient");
 
     let branch_probe_layer = known_swiglu();
-    let gate_linear_probe = TensorValue::parameter(pass.gate_linear().value())?;
-    let up_probe = TensorValue::parameter(pass.up().value())?;
+    let gate_linear_probe = TensorValue::parameter(pass.gate_linear().value_snapshot())?;
+    let up_probe = TensorValue::parameter(pass.up().value_snapshot())?;
     let branch_product = gate_linear_probe.silu()?.mul(&up_probe)?;
     branch_probe_layer
         .down()
         .forward(&branch_product)?
         .backward_with_seed(&upstream.view(), GraphRetention::Release)?;
     let gate_linear_gradient = gate_linear_probe
-        .gradient()
+        .gradient_snapshot()
         .expect("gate probe stores its reverse gradient");
     let up_gradient = up_probe
-        .gradient()
+        .gradient_snapshot()
         .expect("up probe stores its reverse gradient");
     // endregion:swiglu-gradients
 
@@ -153,7 +168,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
         .shape();
     let empty_output = layer
         .forward(&TensorValue::constant(tensor(&[0, 2], &[]))?)?
-        .value();
+        .value_snapshot();
 
     // region:initialized-swiglu
     let mut first_rng = SplitMix64::from_seed(20);
@@ -164,7 +179,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
         .parameters()
         .iter()
         .zip(reproduced.parameters())
-        .all(|(left, right)| left.tensor().value() == right.tensor().value());
+        .all(|(left, right)| *left.tensor().value() == *right.tensor().value());
     let cloned = initialized.clone();
     let clone_shares_parameters = initialized
         .parameters()
@@ -179,7 +194,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
             &INPUT_SHAPE,
             &PERTURBED_INPUT_VALUES,
         ))?)?
-        .value();
+        .value_snapshot();
     let independent_before = pass.output().value().as_slice()[2..4].to_vec();
     let independent_after = perturbed.as_slice()[2..4].to_vec();
     let position_independent = independent_before == independent_after;
@@ -212,15 +227,15 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     );
 
     Ok(LearnerReport {
-        input: input.value(),
-        gate_weight: layer.gate().weight().tensor().value(),
-        up_weight: layer.up().weight().tensor().value(),
-        down_weight: layer.down().weight().tensor().value(),
-        gate_linear: pass.gate_linear().value(),
-        gate_silu: pass.gate_silu().value(),
-        up: pass.up().value(),
-        product: pass.product().value(),
-        output: pass.output().value(),
+        input: input.value_snapshot(),
+        gate_weight: layer.gate().weight().tensor().value_snapshot(),
+        up_weight: layer.up().weight().tensor().value_snapshot(),
+        down_weight: layer.down().weight().tensor().value_snapshot(),
+        gate_linear: pass.gate_linear().value_snapshot(),
+        gate_silu: pass.gate_silu().value_snapshot(),
+        up: pass.up().value_snapshot(),
+        product: pass.product().value_snapshot(),
+        output: pass.output().value_snapshot(),
         upstream,
         product_gradient,
         gate_linear_gradient,

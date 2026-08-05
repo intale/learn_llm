@@ -55,7 +55,7 @@ interface LocalizedCopy {
 }
 
 const chapterId = '18-token-embeddings';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}`;
 const upstreamAdjointLatex = String.raw`\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}`;
 const tableAdjointLatex = String.raw`\bar{E}_{i,:}=\partial L/\partial E_{i,:}`;

@@ -27,6 +27,18 @@ const componentSource = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/ParameterInitializationDiagram.astro'),
   'utf8',
 );
+const chapter17Contract = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/17-parameter-initialization.md'),
+  'utf8',
+);
+const chapter17English = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/17-parameter-initialization.mdx'),
+  'utf8',
+);
+const chapter17Russian = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/ru/17-parameter-initialization.mdx'),
+  'utf8',
+);
 
 const labels: ParameterInitializationDiagramLabels = {
   title: 'title',
@@ -95,6 +107,12 @@ const labels: ParameterInitializationDiagramLabels = {
 };
 
 describe('Chapter 17 Rust trace parser', () => {
+  it('projects canonical content revision 4 into both active lessons', () => {
+    for (const source of [chapter17Contract, chapter17English, chapter17Russian]) {
+      expect(source).toContain('"content_revision": 4');
+    }
+  });
+
   it('projects the exact fixture, histograms, statistics, propagation, and seeds', () => {
     const trace = parseParameterInitializationTrace(fixture);
 

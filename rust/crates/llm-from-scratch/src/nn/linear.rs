@@ -338,13 +338,13 @@ mod tests {
             ),
         ] {
             let input = TensorValue::constant(tensor(shape, values)).unwrap();
-            let output = layer.forward(&input).unwrap().value();
+            let output = layer.forward(&input).unwrap().value_snapshot();
             assert_eq!(output.shape(), expected_shape);
             assert_eq!(output.as_slice(), expected);
         }
 
         let empty = TensorValue::constant(tensor(&[0, 2], &[])).unwrap();
-        let output = layer.forward(&empty).unwrap().value();
+        let output = layer.forward(&empty).unwrap().value_snapshot();
         assert_eq!(output.shape(), &[0, 3]);
         assert!(output.is_empty());
     }
@@ -405,8 +405,8 @@ mod tests {
         assert_eq!(bias_free.parameters().len(), 1);
         assert_eq!(bias_free.weight().name(), "bias_free.weight");
         assert_eq!(
-            first.weight().tensor().value(),
-            second.weight().tensor().value()
+            &*first.weight().tensor().value(),
+            &*second.weight().tensor().value()
         );
         assert!(
             !first

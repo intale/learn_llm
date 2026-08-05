@@ -418,7 +418,7 @@ impl DecoderModelState {
                 .iter()
                 .map(|parameter| StateParameter {
                     name: parameter.name().to_owned(),
-                    value: parameter.tensor().value(),
+                    value: parameter.tensor().value_snapshot(),
                 })
                 .collect(),
         }
@@ -856,7 +856,7 @@ fn clipped_parameter_copy(
                 .collect(),
         )?;
         let copied_parameter =
-            NamedParameter::from_tensor(parameter.name(), parameter.tensor().value())?;
+            NamedParameter::from_tensor(parameter.name(), parameter.tensor().value_snapshot())?;
         copied_parameter
             .tensor()
             .backward_with_seed(&scaled.view(), GraphRetention::Release)?;
@@ -884,6 +884,7 @@ fn verify_and_clear_gradients(model: &DecoderModel) -> Result<(), TrainerError> 
                 value,
             });
         }
+        drop(gradient);
         parameter.tensor().zero_grad()?;
         let cleared = parameter
             .tensor()

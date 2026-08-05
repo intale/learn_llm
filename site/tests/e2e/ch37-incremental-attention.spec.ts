@@ -255,7 +255,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 37,
-    revision: 2,
+    revision: 3,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],

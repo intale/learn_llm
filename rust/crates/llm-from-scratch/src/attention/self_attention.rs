@@ -465,8 +465,8 @@ mod tests {
             &constant(&[1, 2, 2], &VALUE),
         )
         .unwrap();
-        assert_eq!(pass.weights().value(), replay.weights().value());
-        assert_eq!(pass.output().value(), replay.output().value());
+        assert_eq!(&*pass.weights().value(), &*replay.weights().value());
+        assert_eq!(&*pass.output().value(), &*replay.output().value());
     }
 
     #[test]

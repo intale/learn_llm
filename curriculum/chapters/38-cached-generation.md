@@ -2,7 +2,7 @@
 {
   "chapter_id": "38-cached-generation",
   "concept_id": "cached-generation",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 38,
   "objective": {
     "en": "Give every decoder block its own KV cache, prefill the prompt once, and match complete-prefix newest-position and generation evidence for the exact fixtures while advancing model-wide state coherently.",
@@ -180,8 +180,8 @@
     }
   ],
   "translation_notes": [
-    "Russian was translated directly from frozen canonical English content revision 2 with SHA-256 7d0c69e27b270ef976a924bdb6e88b04829a6bb92ff4a6a33f066cecbaada62d; Chapter 38's exact active locale set is {en, ru}, and the two lessons are semantic equivalents.",
-    "The Russian lesson is a direct translation of the current English revision 2; no pivot locale or external translation service was used.",
+    "Russian was translated directly from frozen canonical English content revision 3 with SHA-256 be26bf4a0a7c4b6b742f4c31132f6083511488189973bf6ec76fee3bae4f08c1; Chapter 38's exact active locale set is {en, ru}, and the two lessons are semantic equivalents.",
+    "The Russian lesson is a direct translation of the current English revision 3; no pivot locale or external translation service was used.",
     "Preserve KV, K, V, T, t, Theta, Q/K/V, RNG, EOS, tensor shapes, tolerance, source names, URLs, exact trace tokens and values, code identifiers, and the Chapter 39 handoff across both locales.",
     "Formula parity requires the exact shared LaTeX and symbol meanings, the distinct cached retained lengths [1,2,3] versus complete-prefix call lengths [2,3], and the measured 24 versus 52 score values with 28 avoided values; none of these counts is total runtime or speedup.",
     "History parity requires the causal Transformer stack, the explicit previous-K/V incremental interface, the later prompt and sequential-generation stages of LLM serving, every source qualification, and the distinction between cited advances and this course's local correctness policies.",
@@ -418,7 +418,7 @@ save/load, and decoded text in one end-to-end program.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 2 is the canonical source, and English and Russian are the exact
+English revision 3 is the canonical source, and English and Russian are the exact
 active locale set. The Russian lesson was translated directly from the frozen
 English source recorded in `translation_notes`; any later English change in
 meaning or presentation makes that review stale. Keep source names, tensor-axis

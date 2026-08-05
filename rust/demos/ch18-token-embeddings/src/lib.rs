@@ -85,7 +85,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     let table_gradient = embedding
         .table()
         .tensor()
-        .gradient()
+        .gradient_snapshot()
         .expect("trainable table stores its gradient");
     // endregion:repeated-token-gradient
 
@@ -95,7 +95,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     let initialized = Embedding::new("token_embedding.weight", 4, 2, &mut first_rng)?;
     let reproduced = Embedding::new("token_embedding.weight", 4, 2, &mut second_rng)?;
     let initialized_reproducible =
-        initialized.table().tensor().value() == reproduced.table().tensor().value();
+        *initialized.table().tensor().value() == *reproduced.table().tensor().value();
     let clone_same_node = initialized
         .table()
         .tensor()
@@ -103,7 +103,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     // endregion:initialized-token-embedding
 
     // region:embedding-edge-cases
-    let empty_output = embedding.forward(&[], &[0])?.value();
+    let empty_output = embedding.forward(&[], &[0])?.value_snapshot();
     let bounds_rejected = matches!(
         embedding.forward(&[4], &[1]),
         Err(EmbeddingError::TokenIdOutOfBounds {
@@ -122,7 +122,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
         table_shape: embedding.table().tensor().shape(),
         token_ids: TOKEN_IDS.to_vec(),
         token_shape: TOKEN_SHAPE.to_vec(),
-        output: output.value(),
+        output: output.value_snapshot(),
         one_hot_matches,
         upstream,
         table_gradient,

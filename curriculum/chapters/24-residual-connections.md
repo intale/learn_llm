@@ -2,7 +2,7 @@
 {
   "chapter_id": "24-residual-connections",
   "concept_id": "residual-connections",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 24,
   "objective": {
     "en": "Add a shape-preserving residual branch and verify identity and gradient paths through stacked transformations.",
@@ -140,7 +140,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 24 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 2 with SHA-256 9bf275b51c3d3c995af1b6f8115c06046b2f384065329fe430aade5bb8445b6a and becomes stale whenever that source changes.",
+    "Chapter 24 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 3 with SHA-256 d11b7f1a2e7b8674911a7c48c809b9336cfce1981f4cb7b8d31644d6c77205f5 and becomes stale whenever that source changes.",
     "Keep x, F, F(x), y, overbar notation, J_F, alpha, mathematical vectors, parameter names, shapes, trace keywords, source roles, and source URLs unchanged across both locales.",
     "Translate residual connection as «остаточная связь», residual branch as «остаточная ветвь», residual stream as «остаточный поток», and identity path as «тождественный путь». Residual denotes an update relative to the identity path, not a statistical error, and addition does not concatenate features.",
     "Translate plain stack as «цепочка без остаточных связей» or concise «обычная цепочка», not a phrase implying simplicity of the model; introduce broadcasting as «согласование форм (broadcasting)» and then use «согласование форм», never «трансляция»; translate upstream gradient as «входящий градиент», input gradient as «градиент по входу», and branch contribution as «вклад ветви».",
@@ -346,7 +346,7 @@ normalization operation.
 ## Localization notes
 
 English and Russian are the exact active Chapter 24 locales. English content
-revision 2 is the sole semantic source; the Russian lesson translates that exact
+revision 3 is the sole semantic source; the Russian lesson translates that exact
 revision directly and becomes stale whenever the English meaning or presentation
 changes. The contract, route, alternate links, lesson, diagram labels, accessible
 descriptions, exercises, answers, SEO, and terminology publish together.

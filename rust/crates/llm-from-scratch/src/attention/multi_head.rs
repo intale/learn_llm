@@ -789,7 +789,7 @@ mod tests {
         merged
             .backward_with_seed(&seed.view(), GraphRetention::Retain)
             .unwrap();
-        assert_eq!(input.gradient().unwrap(), seed);
+        assert_eq!(&*input.gradient().unwrap(), &seed);
     }
 
     #[test]
@@ -1094,7 +1094,7 @@ mod tests {
         );
         for (left, right) in first.parameters().iter().zip(second.parameters()) {
             assert_eq!(left.name(), right.name());
-            assert_eq!(left.tensor().value(), right.tensor().value());
+            assert_eq!(&*left.tensor().value(), &*right.tensor().value());
         }
 
         let mut rejected = SplitMix64::from_seed(77);

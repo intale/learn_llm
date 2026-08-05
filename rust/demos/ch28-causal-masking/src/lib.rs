@@ -235,14 +235,14 @@ fn scalar_loss(query: &Tensor, key: &Tensor, value: &Tensor) -> f64 {
     .expect("the frozen probe shapes are valid");
     let upstream = TensorValue::constant(tensor(&[1, 3, 2], &UPSTREAM))
         .expect("the frozen upstream is finite");
-    sum_to_scalar(
+    let loss = sum_to_scalar(
         pass.output()
             .mul(&upstream)
             .expect("the frozen loss shapes match"),
     )
-    .expect("the frozen loss reduces")
-    .value()
-    .as_slice()[0]
+    .expect("the frozen loss reduces");
+    let value = loss.value();
+    value.as_slice()[0]
 }
 
 fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
@@ -250,10 +250,10 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let key = parameter(&[1, 3, 2], &KEY)?;
     let value = parameter(&[1, 3, 2], &VALUE)?;
     let pass = causal_scaled_dot_product_self_attention(&query, &key, &value)?;
-    let raw_scores = pass.raw_scores().value();
-    let scaled_scores = pass.scaled_scores().value();
-    let probabilities = pass.probabilities().value();
-    let output = pass.output().value();
+    let raw_scores = pass.raw_scores().value_snapshot();
+    let scaled_scores = pass.scaled_scores().value_snapshot();
+    let probabilities = pass.probabilities().value_snapshot();
+    let output = pass.output().value_snapshot();
     let row_sums =
         std::array::from_fn(|row| probabilities.as_slice()[row * 3..row * 3 + 3].iter().sum());
     let mixture_terms = std::array::from_fn(|row| {
@@ -280,9 +280,9 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         loss.backward_with_seed_and_trace(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
 
     Ok(PrimaryEvidence {
-        query: query.value(),
-        key: key.value(),
-        value: value.value(),
+        query: query.value_snapshot(),
+        key: key.value_snapshot(),
+        value: value.value_snapshot(),
         mask: pass.additive_mask().clone(),
         raw_scores,
         scaled_scores,
@@ -292,9 +292,15 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         output,
         upstream,
         loss: loss_value,
-        query_gradient: query.gradient().expect("query receives a score gradient"),
-        key_gradient: key.gradient().expect("key receives a score gradient"),
-        value_gradient: value.gradient().expect("value receives a mixture gradient"),
+        query_gradient: query
+            .gradient_snapshot()
+            .expect("query receives a score gradient"),
+        key_gradient: key
+            .gradient_snapshot()
+            .expect("key receives a score gradient"),
+        value_gradient: value
+            .gradient_snapshot()
+            .expect("value receives a mixture gradient"),
         scale: pass.scale(),
         tape_finite: backward_pass_is_finite(&backward),
     })
@@ -311,8 +317,8 @@ fn prefix_evidence() -> Result<PrefixEvidence, FixtureError> {
         &constant(&[1, 3, 2], &PERTURBED_KEY)?,
         &constant(&[1, 3, 2], &PERTURBED_VALUE)?,
     )?;
-    let baseline_output = baseline.output().value();
-    let perturbed_output = perturbed.output().value();
+    let baseline_output = baseline.output().value_snapshot();
+    let perturbed_output = perturbed.output().value_snapshot();
 
     let query = parameter(&[1, 3, 2], &QUERY)?;
     let key = parameter(&[1, 3, 2], &KEY)?;
@@ -320,9 +326,13 @@ fn prefix_evidence() -> Result<PrefixEvidence, FixtureError> {
     let prefix = causal_scaled_dot_product_self_attention(&query, &key, &value)?;
     let seed = tensor(&[1, 3, 2], &PREFIX_UPSTREAM);
     sum_to_scalar(prefix.output().mul(&TensorValue::constant(seed.clone())?)?)?.backward()?;
-    let query_gradient = query.gradient().expect("prefix query gradient exists");
-    let key_gradient = key.gradient().expect("prefix key gradient exists");
-    let value_gradient = value.gradient().expect("prefix value gradient exists");
+    let query_gradient = query
+        .gradient_snapshot()
+        .expect("prefix query gradient exists");
+    let key_gradient = key.gradient_snapshot().expect("prefix key gradient exists");
+    let value_gradient = value
+        .gradient_snapshot()
+        .expect("prefix value gradient exists");
     let suffix_zero = [&query_gradient, &key_gradient, &value_gradient]
         .iter()
         .all(|gradient| gradient.as_slice()[4..].iter().all(|value| *value == 0.0));
@@ -350,8 +360,8 @@ fn single_token_evidence() -> Result<SingleTokenEvidence, FixtureError> {
     let value = parameter(&[1, 1, 2], &[5.0, -2.0])?;
     let pass = causal_scaled_dot_product_self_attention(&query, &key, &value)?;
     let mask = pass.additive_mask().clone();
-    let probabilities = pass.probabilities().value();
-    let output = pass.output().value();
+    let probabilities = pass.probabilities().value_snapshot();
+    let output = pass.output().value_snapshot();
     sum_to_scalar(pass.output().clone())?.backward()?;
     Ok(SingleTokenEvidence {
         mask,

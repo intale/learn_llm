@@ -415,8 +415,8 @@ mod tests {
         assert_eq!(left.table().name(), "token_embedding.weight");
         assert_eq!(left.table().tensor().shape(), vec![4, 2]);
         assert_eq!(
-            left.table().tensor().value(),
-            right.table().tensor().value()
+            &*left.table().tensor().value(),
+            &*right.table().tensor().value()
         );
         assert!(!left.table().tensor().is_same_node(right.table().tensor()));
 

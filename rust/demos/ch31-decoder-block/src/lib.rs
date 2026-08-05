@@ -393,7 +393,7 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let input = TensorValue::parameter(input_tensor.clone())?;
     let pass = block.forward(&input, 0)?;
     let probe_weight = constant(&[MODEL_WIDTH, 3], &PROBE_WEIGHT)?;
-    let probe_logits = pass.output().matmul(&probe_weight)?.value();
+    let probe_logits = pass.output().matmul(&probe_weight)?.value_snapshot();
 
     let mut perturbed_values = INPUT_VALUES;
     perturbed_values[8..].copy_from_slice(&[1.0, -1.0, 1.0, 1.0]);
@@ -403,15 +403,15 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
             0,
         )?
         .output()
-        .value();
+        .value_snapshot();
 
-    let attention_norm = pass.attention_norm().output().value();
-    let attention_weights = pass.attention_weights().value();
-    let attention_branch = pass.attention().output().value();
-    let after_attention = pass.after_attention().value();
-    let feed_forward_norm = pass.feed_forward_norm().output().value();
-    let feed_forward_branch = pass.feed_forward().output().value();
-    let output = pass.output().value();
+    let attention_norm = pass.attention_norm().output().value_snapshot();
+    let attention_weights = pass.attention_weights().value_snapshot();
+    let attention_branch = pass.attention().output().value_snapshot();
+    let after_attention = pass.after_attention().value_snapshot();
+    let feed_forward_norm = pass.feed_forward_norm().output().value_snapshot();
+    let feed_forward_branch = pass.feed_forward().output().value_snapshot();
+    let output = pass.output().value_snapshot();
     let post_norm_first_stage = post_norm_first_stage(&block, &input_tensor)?;
     let upstream = tensor(&[BATCH, TOKENS, MODEL_WIDTH], &UPSTREAM);
     let loss = sum_to_scalar(
@@ -422,7 +422,7 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let backward =
         loss.backward_with_seed_and_trace(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
     let input_gradient = input
-        .gradient()
+        .gradient_snapshot()
         .expect("the fixture input receives a gradient");
     let parameter_gradients = block
         .parameters()
@@ -430,7 +430,7 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         .map(|parameter| {
             parameter
                 .tensor()
-                .gradient()
+                .gradient_snapshot()
                 .expect("every decoder-block parameter receives a gradient")
         })
         .collect::<Vec<_>>();
@@ -474,10 +474,8 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
 
 fn scalar_loss(input: &Tensor, parameters: &[Tensor]) -> Result<f64, FixtureError> {
     let block = block_from_parameters(parameters)?;
-    let output = block
-        .forward(&TensorValue::constant(input.clone())?, 0)?
-        .output()
-        .value();
+    let pass = block.forward(&TensorValue::constant(input.clone())?, 0)?;
+    let output = pass.output().value();
     Ok(output
         .as_slice()
         .iter()

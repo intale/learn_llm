@@ -511,9 +511,9 @@ mod tests {
         let input = TensorValue::constant(tensor(&[1, 2, 3], &INPUT_VALUES)).unwrap();
         let baseline = baseline.forward(&input).unwrap();
         let changed = changed.forward(&input).unwrap();
-        assert_ne!(baseline.query().value(), changed.query().value());
-        assert_eq!(baseline.key().value(), changed.key().value());
-        assert_eq!(baseline.value().value(), changed.value().value());
+        assert_ne!(&*baseline.query().value(), &*changed.query().value());
+        assert_eq!(&*baseline.key().value(), &*changed.key().value());
+        assert_eq!(&*baseline.value().value(), &*changed.value().value());
     }
 
     #[test]
@@ -537,16 +537,16 @@ mod tests {
             ]
         );
         for (left, right) in first.parameters().iter().zip(second.parameters()) {
-            assert_eq!(left.tensor().value(), right.tensor().value());
+            assert_eq!(&*left.tensor().value(), &*right.tensor().value());
             assert!(!left.tensor().is_same_node(right.tensor()));
         }
         assert_ne!(
-            first.query().weight().tensor().value(),
-            first.key().weight().tensor().value()
+            &*first.query().weight().tensor().value(),
+            &*first.key().weight().tensor().value()
         );
         assert_ne!(
-            first.query().weight().tensor().value(),
-            first.value().weight().tensor().value()
+            &*first.query().weight().tensor().value(),
+            &*first.value().weight().tensor().value()
         );
 
         let mut reference_rng = SplitMix64::from_seed(26);
@@ -579,7 +579,7 @@ mod tests {
             reference_key.weight(),
             reference_value.weight(),
         ]) {
-            assert_eq!(actual.tensor().value(), expected.tensor().value());
+            assert_eq!(&*actual.tensor().value(), &*expected.tensor().value());
         }
         assert_eq!(first_rng.state(), reference_rng.state());
 

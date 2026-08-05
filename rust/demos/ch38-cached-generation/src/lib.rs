@@ -255,7 +255,8 @@ fn copied_parameters(model: &DecoderModel) -> Vec<NamedParameter> {
         .parameters()
         .iter()
         .map(|parameter| {
-            NamedParameter::from_tensor(parameter.name(), parameter.tensor().value()).unwrap()
+            NamedParameter::from_tensor(parameter.name(), parameter.tensor().value_snapshot())
+                .unwrap()
         })
         .collect()
 }

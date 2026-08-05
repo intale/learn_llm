@@ -1,6 +1,6 @@
 //! A dependency-free reverse-mode tape for owned tensors.
 
-use std::cell::{Cell, RefCell};
+use std::cell::{Cell, Ref, RefCell, RefMut};
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt;
@@ -16,7 +16,7 @@ use crate::tensor::ops::{
 use crate::tensor::storage::{Tensor, TensorError};
 use crate::tensor::view::{TensorView, TensorViewError};
 
-type NodeKey = *const RefCell<Node>;
+type NodeKey = *const Node;
 
 // region:no-grad-scope
 thread_local! {
@@ -232,6 +232,7 @@ pub enum TensorAutodiffError {
         stored: f64,
         pass_adjoint: f64,
     },
+    GradientBorrowed,
     NotAParameter {
         operation: TensorOperation,
     },
@@ -320,6 +321,9 @@ impl fmt::Display for TensorAutodiffError {
                 formatter,
                 "topology node {node} cannot accumulate stored gradient {stored:?} plus pass adjoint {pass_adjoint:?} at flat index {index}"
             ),
+            Self::GradientBorrowed => formatter.write_str(
+                "cannot mutate a parameter gradient while a read-only gradient borrow is active",
+            ),
             Self::NotAParameter { operation } => {
                 write!(
                     formatter,
@@ -388,19 +392,23 @@ struct ParentEdge {
     saved: TensorSavedContext,
 }
 
-struct Node {
-    value: Tensor,
-    operation: TensorOperation,
+struct NodeState {
     parents: Vec<ParentEdge>,
-    tracked: bool,
     parameter_gradient: Option<Tensor>,
     released: bool,
+}
+
+struct Node {
+    value: RefCell<Tensor>,
+    operation: TensorOperation,
+    tracked: bool,
+    state: RefCell<NodeState>,
 }
 
 /// One owned tensor value and its operation-level reverse-mode tape.
 #[derive(Clone)]
 pub struct TensorValue {
-    node: Rc<RefCell<Node>>,
+    node: Rc<Node>,
 }
 
 impl fmt::Debug for TensorValue {
@@ -486,14 +494,16 @@ impl TensorValue {
         parameter_gradient: Option<Tensor>,
     ) -> Self {
         Self {
-            node: Rc::new(RefCell::new(Node {
-                value,
+            node: Rc::new(Node {
+                value: RefCell::new(value),
                 operation,
-                parents,
                 tracked,
-                parameter_gradient,
-                released: false,
-            })),
+                state: RefCell::new(NodeState {
+                    parents,
+                    parameter_gradient,
+                    released: false,
+                }),
+            }),
         }
     }
 
@@ -515,12 +525,13 @@ impl TensorValue {
         operation: TensorOperation,
         operands: [&Self; N],
         forward: impl FnOnce(
-            &[Tensor; N],
+            [&Tensor; N],
         ) -> Result<(Tensor, [ModelSavedContext; N]), TensorAutodiffError>,
     ) -> Result<Self, TensorAutodiffError> {
         ensure_operands_available(operation, &operands)?;
-        let primals: [Tensor; N] = std::array::from_fn(|index| operands[index].value());
-        let (value, contexts) = forward(&primals)?;
+        let primals: [Ref<'_, Tensor>; N] = std::array::from_fn(|index| operands[index].value());
+        let primal_refs: [&Tensor; N] = std::array::from_fn(|index| &*primals[index]);
+        let (value, contexts) = forward(primal_refs)?;
         let parents = operands
             .into_iter()
             .zip(contexts)
@@ -532,22 +543,27 @@ impl TensorValue {
         Self::operation_node(value, operation, parents)
     }
 
-    /// Copies the owned primal tensor.
-    pub fn value(&self) -> Tensor {
-        self.node.borrow().value.clone()
+    /// Borrows the node-owned primal tensor.
+    pub fn value(&self) -> Ref<'_, Tensor> {
+        self.node.value.borrow()
+    }
+
+    /// Copies the node-owned primal into an independent tensor snapshot.
+    pub fn value_snapshot(&self) -> Tensor {
+        self.node.value.borrow().clone()
     }
 
     /// Copies the primal shape.
     pub fn shape(&self) -> Vec<usize> {
-        self.node.borrow().value.shape().to_vec()
+        self.node.value.borrow().shape().to_vec()
     }
 
     pub fn operation(&self) -> TensorOperation {
-        self.node.borrow().operation
+        self.node.operation
     }
 
     pub fn tracks_gradient(&self) -> bool {
-        self.node.borrow().tracked
+        self.node.tracked
     }
 
     pub fn is_parameter(&self) -> bool {
@@ -555,12 +571,20 @@ impl TensorValue {
     }
 
     pub fn is_released(&self) -> bool {
-        self.node.borrow().released
+        self.node.state.borrow().released
     }
 
-    /// Copies the accumulated gradient stored only by a parameter leaf.
-    pub fn gradient(&self) -> Option<Tensor> {
-        self.node.borrow().parameter_gradient.clone()
+    /// Borrows the accumulated gradient stored only by a parameter leaf.
+    pub fn gradient(&self) -> Option<Ref<'_, Tensor>> {
+        Ref::filter_map(self.node.state.borrow(), |state| {
+            state.parameter_gradient.as_ref()
+        })
+        .ok()
+    }
+
+    /// Copies the accumulated parameter gradient into an independent snapshot.
+    pub fn gradient_snapshot(&self) -> Option<Tensor> {
+        self.gradient().as_deref().cloned()
     }
 
     /// Returns whether two handles refer to the same tape node.
@@ -571,7 +595,7 @@ impl TensorValue {
     /// Copies the primal into a new untracked leaf and severs all parent edges.
     pub fn detach(&self) -> Self {
         Self::new_node(
-            self.value(),
+            self.value_snapshot(),
             TensorOperation::Detached,
             Vec::new(),
             false,
@@ -734,11 +758,11 @@ impl TensorValue {
         let parents = vec![
             ParentEdge {
                 parent: self.clone(),
-                saved: multiply_context(left.shape(), &output_shape, right.clone()),
+                saved: multiply_context(left.shape(), &output_shape, Tensor::clone(&right)),
             },
             ParentEdge {
                 parent: other.clone(),
-                saved: multiply_context(right.shape(), &output_shape, left),
+                saved: multiply_context(right.shape(), &output_shape, Tensor::clone(&left)),
             },
         ];
         Self::operation_node(value, TensorOperation::Multiply, parents)
@@ -877,15 +901,13 @@ impl TensorValue {
             if !visited.insert(node.key()) {
                 return Ok(());
             }
-            let borrowed = node.node.borrow();
-            if borrowed.released {
+            let state = node.node.state.borrow();
+            if state.released {
                 return Err(TensorAutodiffError::GraphReleased {
-                    operation: borrowed.operation,
+                    operation: node.operation(),
                 });
             }
-            let parents = borrowed.parents.clone();
-            drop(borrowed);
-            for edge in parents {
+            for edge in &state.parents {
                 visit(&edge.parent, visited, order)?;
             }
             order.push(node.clone());
@@ -995,8 +1017,8 @@ impl TensorValue {
             let Some(upstream) = pass_adjoints[child].clone() else {
                 continue;
             };
-            let parents = topology[child].node.borrow().parents.clone();
-            for (operand, edge) in parents.iter().enumerate() {
+            let state = topology[child].node.state.borrow();
+            for (operand, edge) in state.parents.iter().enumerate() {
                 let parent = indices[&edge.parent.key()];
                 let contribution = apply_vjp(&upstream, &edge.saved)?;
                 if let Some((index, value)) = first_nonfinite(&contribution) {
@@ -1073,18 +1095,27 @@ impl TensorValue {
 
         let observation = observer.finish(retention, &topology, &pass_adjoints, &prospective);
 
-        for (value, gradient) in topology.iter().zip(&prospective) {
+        let mut commits: Vec<(RefMut<'_, NodeState>, Tensor)> = Vec::new();
+        for (value, gradient) in topology.iter().zip(prospective) {
             if let Some(gradient) = gradient {
-                value.node.borrow_mut().parameter_gradient = Some(gradient.clone());
+                let state = value
+                    .node
+                    .state
+                    .try_borrow_mut()
+                    .map_err(|_| TensorAutodiffError::GradientBorrowed)?;
+                commits.push((state, gradient));
             }
+        }
+        for (mut state, gradient) in commits {
+            state.parameter_gradient = Some(gradient);
         }
 
         if retention == GraphRetention::Release {
             for value in &topology {
-                let mut node = value.node.borrow_mut();
-                if !node.operation.is_leaf() {
-                    node.parents.clear();
-                    node.released = true;
+                if !value.operation().is_leaf() {
+                    let mut state = value.node.state.borrow_mut();
+                    state.parents.clear();
+                    state.released = true;
                 }
             }
         }
@@ -1100,7 +1131,11 @@ impl TensorValue {
             });
         }
         let shape = self.shape();
-        self.node.borrow_mut().parameter_gradient = Some(zeros(&shape)?);
+        self.node
+            .state
+            .try_borrow_mut()
+            .map_err(|_| TensorAutodiffError::GradientBorrowed)?
+            .parameter_gradient = Some(zeros(&shape)?);
         Ok(())
     }
     // endregion:tensor-reverse-pass
@@ -1446,6 +1481,123 @@ mod tests {
             }
             (lean, traced) => panic!("unexpected parity errors: lean={lean:?} traced={traced:?}"),
         }
+    }
+
+    #[test]
+    fn borrowed_reads_share_node_storage_while_snapshots_are_independent() {
+        let parameter = TensorValue::parameter(tensor(&[2], &[2.0, 3.0])).unwrap();
+
+        let value = parameter.value();
+        let mut value_snapshot = parameter.value_snapshot();
+        value_snapshot.as_mut_slice()[0] = 99.0;
+        assert_eq!(value.as_slice(), [2.0, 3.0]);
+        assert_eq!(value_snapshot.as_slice(), [99.0, 3.0]);
+
+        parameter
+            .backward_with_seed(&tensor(&[2], &[4.0, 5.0]).view(), GraphRetention::Retain)
+            .unwrap();
+        assert_eq!(value.as_slice(), [2.0, 3.0]);
+        drop(value);
+
+        let gradient = parameter.gradient().expect("parameter gradient exists");
+        let mut gradient_snapshot = parameter
+            .gradient_snapshot()
+            .expect("parameter gradient snapshot exists");
+        gradient_snapshot.as_mut_slice()[0] = -1.0;
+        assert_eq!(gradient.as_slice(), [4.0, 5.0]);
+        assert_eq!(gradient_snapshot.as_slice(), [-1.0, 5.0]);
+        drop(gradient);
+
+        let detached = parameter.detach();
+        assert!(!parameter.is_same_node(&detached));
+        assert_eq!(detached.operation(), TensorOperation::Detached);
+        assert!(!detached.tracks_gradient());
+        assert!(detached.gradient().is_none());
+        assert_eq!(&*detached.value(), &*parameter.value());
+    }
+
+    #[test]
+    fn zero_grad_rejects_an_active_gradient_reader_without_mutation() {
+        let parameter = TensorValue::parameter(tensor(&[2], &[2.0, 3.0])).unwrap();
+        parameter
+            .backward_with_seed(&tensor(&[2], &[4.0, 5.0]).view(), GraphRetention::Retain)
+            .unwrap();
+        let before = tensor_bits(
+            &parameter
+                .gradient_snapshot()
+                .expect("parameter gradient snapshot exists"),
+        );
+
+        let gradient = parameter.gradient().expect("parameter gradient exists");
+        assert_eq!(
+            parameter.zero_grad(),
+            Err(TensorAutodiffError::GradientBorrowed)
+        );
+        assert_eq!(tensor_bits(&gradient), before);
+        drop(gradient);
+        assert_eq!(
+            tensor_bits(
+                &parameter
+                    .gradient_snapshot()
+                    .expect("parameter gradient snapshot exists")
+            ),
+            before
+        );
+
+        parameter.zero_grad().unwrap();
+        assert_eq!(parameter.gradient().unwrap().as_slice(), [0.0, 0.0]);
+    }
+
+    #[test]
+    fn release_backward_rolls_back_all_parameters_when_one_gradient_is_borrowed() {
+        let left = TensorValue::parameter(scalar(2.0)).unwrap();
+        let right = TensorValue::parameter(scalar(3.0)).unwrap();
+        let sum = left.add(&right).unwrap();
+        let output = sum.mul(&left).unwrap();
+        let seed = scalar(1.0);
+        output
+            .backward_with_seed(&seed.view(), GraphRetention::Retain)
+            .unwrap();
+        let left_before = tensor_bits(
+            &left
+                .gradient_snapshot()
+                .expect("left parameter gradient exists"),
+        );
+        let right_before = tensor_bits(
+            &right
+                .gradient_snapshot()
+                .expect("right parameter gradient exists"),
+        );
+
+        let right_gradient = right.gradient().expect("right parameter gradient exists");
+        assert_eq!(
+            output.backward_with_seed(&seed.view(), GraphRetention::Release),
+            Err(TensorAutodiffError::GradientBorrowed)
+        );
+        assert_eq!(
+            output.backward_with_seed_and_trace(&seed.view(), GraphRetention::Release),
+            Err(TensorAutodiffError::GradientBorrowed)
+        );
+        assert_eq!(
+            tensor_bits(
+                &left
+                    .gradient_snapshot()
+                    .expect("left parameter gradient exists")
+            ),
+            left_before
+        );
+        assert_eq!(tensor_bits(&right_gradient), right_before);
+        assert!(!sum.is_released());
+        assert!(!output.is_released());
+        drop(right_gradient);
+
+        output
+            .backward_with_seed(&seed.view(), GraphRetention::Release)
+            .unwrap();
+        assert_eq!(left.gradient().unwrap().as_slice(), [14.0]);
+        assert_eq!(right.gradient().unwrap().as_slice(), [4.0]);
+        assert!(sum.is_released());
+        assert!(output.is_released());
     }
 
     #[test]
@@ -1822,8 +1974,8 @@ mod tests {
 
         loss.backward().unwrap();
         assert_eq!(x.gradient().unwrap().as_slice(), [8.0]);
-        assert_eq!(square.gradient(), None);
-        assert_eq!(loss.gradient(), None);
+        assert!(square.gradient().is_none());
+        assert!(loss.gradient().is_none());
         loss.backward().unwrap();
         assert_eq!(x.gradient().unwrap().as_slice(), [16.0]);
 
@@ -1854,8 +2006,8 @@ mod tests {
             .unwrap();
         assert_eq!(output.value().as_slice(), [24.0, 69.0]);
         assert_eq!(x.gradient().unwrap().as_slice(), [4.0, 6.0]);
-        assert_eq!(detached.gradient(), None);
-        assert_eq!(constant.gradient(), None);
+        assert!(detached.gradient().is_none());
+        assert!(constant.gradient().is_none());
         assert!(!x.is_same_node(&detached));
         assert_eq!(detached.operation(), TensorOperation::Detached);
     }
@@ -2113,6 +2265,10 @@ mod tests {
             .to_string(),
             "backward seed shape [1, 2] does not match output shape [2]"
         );
+        assert_eq!(
+            TensorAutodiffError::GradientBorrowed.to_string(),
+            "cannot mutate a parameter gradient while a read-only gradient borrow is active"
+        );
         assert!(
             TensorAutodiffError::Tensor(TensorError::ShapeOverflow)
                 .source()
@@ -2125,6 +2281,7 @@ mod tests {
             .source()
             .is_none()
         );
+        assert!(TensorAutodiffError::GradientBorrowed.source().is_none());
     }
 
     #[test]

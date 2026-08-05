@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
@@ -471,9 +471,11 @@ number, which the trainer compares directly with the planned update index.
 Chapter 22 explicitly requests one trace containing each parameter's AdamW
 terms because it inspects every term of the calculation; this training loop
 does not need that detailed evidence. The trainer then inspects the fresh
-replacement leaves before explicitly clearing their gradients, keeping the
-initially zero gradients and the later clear operation separate in the
-evidence.
+replacement leaves. `gradient()` lends a read guard over one parameter's
+gradient tensor. After verifying that every value in that tensor is zero, the
+trainer ends the guard before `zero_grad()` mutably clears the same tensor. This
+keeps the initially zero gradients and the later clear operation separate in
+the evidence.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -510,6 +512,11 @@ optimizer remain unchanged even on failure.
 The deterministic fixture runs the complete plan twice, checks bitwise replay,
 confirms clipping occurred, proves evaluation recorded no graphs, and verifies
 that the selected model reproduces the saved parameter bits.
+
+The exact-state checks need an owned vector of bit patterns, not owned copies of
+the parameter tensors. `parameter_bits` temporarily reads each parameter tensor,
+converts its scalar values to `u64`, and retains only the resulting bit vector
+after the read ends.
 
 <RustSource
   path="rust/demos/ch33-training-selection/src/lib.rs"

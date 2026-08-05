@@ -222,11 +222,13 @@ pub fn anisotropic_trajectory() -> Vec<TrajectoryPoint> {
             sgd[axis] -= LEARNING_RATE * sgd_gradient[axis];
         }
 
-        let value = adamw_parameter.tensor().value();
-        let adamw_gradient = [
-            CURVATURE[0] * value.as_slice()[0],
-            CURVATURE[1] * value.as_slice()[1],
-        ];
+        let adamw_gradient = {
+            let value = adamw_parameter.tensor().value();
+            [
+                CURVATURE[0] * value.as_slice()[0],
+                CURVATURE[1] * value.as_slice()[1],
+            ]
+        };
         seed_gradient(&adamw_parameter, &adamw_gradient);
         optimizer
             .step(std::slice::from_mut(&mut adamw_parameter))

@@ -2,7 +2,7 @@
 {
   "chapter_id": "22-adamw",
   "concept_id": "adamw",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 22,
   "objective": {
     "en": "Update a stable set of named decoder parameters with bias-corrected first and second gradient moments while keeping weight decay outside the adaptive gradient path.",
@@ -221,7 +221,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 6e7d2b1b174b616e9de41d4a61321d93987ba76b8bf59cbad327027e2c07a0eb and becomes stale whenever that English source changes.",
+    "Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 5 with SHA-256 90d9a7d7b436c88096584a3caae427ac0e5a459a9a4efefc153687a7795f4825 and becomes stale whenever that English source changes.",
     "Keep theta, g, m, v, beta, eta, lambda, epsilon, hats, step indices, vectors, parameter names, trace keywords, source roles, and source URLs unchanged across locales.",
     "Translate bias correction as correction of the zero-initialized moving estimates, not correction of the model's social or statistical output bias.",
     "Decoupled means the parameter-proportional decay does not enter the gradient moments. It does not mean the final parameter update is independent of the adaptive term.",
@@ -504,6 +504,11 @@ It does not compare programming languages: coupled Adam adds its penalty before
 the gradient enters optimizer memory, while AdamW keeps the loss gradient
 unchanged and applies decay separately.
 
+In the fixed trajectory, one inner block borrows the current AdamW parameter
+primal through `value()`, computes both coordinates of the quadratic gradient,
+and then ends the read guard before `step()` mutably accesses the parameter.
+The block does not copy the primal or change the optimizer calculation.
+
 <!-- contract-section:visualization -->
 ## Visualization
 
@@ -568,7 +573,7 @@ then checks that training improves held-out loss.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The exact active locale set is {en, ru}. English content revision 4 is the
+The exact active locale set is {en, ru}. English content revision 5 is the
 canonical source; Russian is translated directly from that revision, and its
 semantic, terminology, anti-calque, accessibility, and rendered-surface review
 becomes stale whenever the English meaning or presentation changes. Keep

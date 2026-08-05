@@ -267,12 +267,12 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let shifted_query_value = rope.rotate(&query, 3)?;
     let shifted_key_value = rope.rotate(&key, 3)?;
 
-    let query_tensor = query.value();
-    let key_tensor = key.value();
-    let rotated_query = rotated_query_value.value();
-    let rotated_key = rotated_key_value.value();
-    let shifted_query = shifted_query_value.value();
-    let shifted_key = shifted_key_value.value();
+    let query_tensor = query.value_snapshot();
+    let key_tensor = key.value_snapshot();
+    let rotated_query = rotated_query_value.value_snapshot();
+    let rotated_key = rotated_key_value.value_snapshot();
+    let shifted_query = shifted_query_value.value_snapshot();
+    let shifted_key = shifted_key_value.value_snapshot();
     let dot_grid = build_dot_grid(&rotated_query, &rotated_key);
     let shifted_dot_grid = build_dot_grid(&shifted_query, &shifted_key);
     let input_norms = vector_norms(&query_tensor);
@@ -350,8 +350,12 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         query_upstream,
         key_upstream,
         loss: loss_value,
-        query_gradient: query.gradient().expect("query receives a rotary gradient"),
-        key_gradient: key.gradient().expect("key receives a rotary gradient"),
+        query_gradient: query
+            .gradient_snapshot()
+            .expect("query receives a rotary gradient"),
+        key_gradient: key
+            .gradient_snapshot()
+            .expect("key receives a rotary gradient"),
         tape_finite: backward_pass_is_finite(&backward),
     })
 }

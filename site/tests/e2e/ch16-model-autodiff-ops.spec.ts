@@ -23,7 +23,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '16-model-autodiff-ops';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [

@@ -47,7 +47,7 @@ interface LocalizedCopy {
 }
 
 const chapterId = '19-linear-layers';
-const contentRevision = 4;
+const contentRevision = 5;
 const repositoryRoot = resolve(process.cwd(), '..');
 const workedFormulaLatex = String.raw`W=
 \begin{bmatrix}

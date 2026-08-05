@@ -2,7 +2,7 @@
 {
   "chapter_id": "17-parameter-initialization",
   "concept_id": "parameter-initialization",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 17,
   "objective": {
     "en": "Create named trainable weight matrices reproducibly at width-aware scales and distinguish the separate starting policies for biases, normalization gains, and token tables.",

@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from "node:crypto";
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
@@ -325,8 +327,12 @@ describe("Chapter 32 static diagram and content boundary", () => {
     const russianLesson = frontmatter(russianLessonSource);
     const englishDiagramLabels = diagramLabelsFromLesson(lessonSource);
     const russianDiagramLabels = diagramLabelsFromLesson(russianLessonSource);
-    expect(contract.content_revision).toBe(2);
-    expect(lesson.content_revision).toBe(2);
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
+    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.translation_notes).toContain(
+      `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
+    );
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,

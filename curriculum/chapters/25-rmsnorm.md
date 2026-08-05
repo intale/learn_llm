@@ -2,7 +2,7 @@
 {
   "chapter_id": "25-rmsnorm",
   "concept_id": "rmsnorm",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 25,
   "objective": {
     "en": "Implement differentiable last-axis RMSNorm and distinguish ideal positive-scale invariance from epsilon-dominated behavior near zero.",
@@ -184,7 +184,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 25 has the exact active locale set {en, ru}. Russian revision 4 is translated directly from English revision 4 with source SHA-256 23811a3bd8095b1fc1a2ab8018da974273015b9a9d51c6c0e7cf99f309a0c8fc.",
+    "Chapter 25 has the exact active locale set {en, ru}. Russian revision 5 is translated directly from English revision 5 with source SHA-256 7425427063a19e832756433dc33118e627952e06fee51f5c75fac8575d1da297.",
     "Keep x, g, d, i, x_i, epsilon, the Hadamard product, vectors, shapes, parameter names, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
     "RMSNorm rescales the final feature axis and does not subtract the feature mean. Do not describe it as centering, standardization, batch normalization, clipping, or a guarantee that every coordinate has unit magnitude.",
     "The RMSNorm paper supports its epsilon-free rescaling property. Epsilon 1e-5, its near-zero behavior, the exact gain name, no-decay assignment, typed errors, trace, and accessible presentation are course-local policies.",
@@ -207,7 +207,7 @@
     },
     {
       "input": "Normalize an all-zero row with epsilon 0.00001, then try epsilon zero",
-      "expected": "Production epsilon returns finite zeros; epsilon zero rejects the zero-energy row before taking a logarithm."
+      "expected": "Production epsilon returns finite zeros; epsilon zero rejects a row whose mean square is zero before taking a logarithm."
     },
     {
       "input": "Apply gain [1.5,0.5] to input shape [2,2]",
@@ -354,7 +354,7 @@ logarithm, exponential, broadcast, and multiply tape operations. It does not add
 a second normalization implementation to the tape. `forward_with_intermediates`
 exposes mean square, reciprocal RMS, normalized values, and output for evidence.
 Production epsilon maps an all-zero row to finite zeros. Epsilon zero rejects a
-zero-energy row before the logarithm, and invalid requests return typed errors
+row whose mean square is zero before the logarithm, and invalid requests return typed errors
 before producing an output.
 
 The primary reverse pass uses upstream $[1,-2]$. Sampled central differences
@@ -423,7 +423,7 @@ the three bias-free query, key, and value projections required by attention.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 4 is the canonical semantic source, and Russian revision 4 is
+English revision 5 is the canonical semantic source, and Russian revision 5 is
 its direct meaning-first translation. Both locales publish the complete lesson,
 diagram labels, accessible descriptions, exercises, answers, SEO description,
 and reciprocal alternate route together.

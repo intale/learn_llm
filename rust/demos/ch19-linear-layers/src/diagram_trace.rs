@@ -62,7 +62,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     let bias_free = known_linear(false);
     let bias_free_output = bias_free
         .forward(&TensorValue::constant(tensor(&INPUT_SHAPE, &INPUT_VALUES))?)?
-        .value();
+        .value_snapshot();
 
     let mut trace = String::new();
     writeln!(trace, "TRACE linear-layers-v1 BEGIN")?;

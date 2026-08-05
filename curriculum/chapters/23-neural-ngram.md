@@ -2,7 +2,7 @@
 {
   "chapter_id": "23-neural-ngram",
   "concept_id": "neural-ngram",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 23,
   "objective": {
     "en": "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.",
@@ -10,7 +10,7 @@
   },
   "worked_inputs": {
     "en": "Take one complete two-token context $[z_{t-2},z_{t-1}]$ and its single following target $z_t$. With $D=4$, $H=8$, and $V=266$, predict the shapes after lookup, concatenation, SwiGLU, and vocabulary projection before inspecting any numeric output.",
-    "ru": "Возьмите один полный двухтокенный контекст $[z_{t-2},z_{t-1}]$ и единственный следующий за ним целевой токен $z_t$. При $D=4$, $H=8$ и $V=266$ заранее определите формы тензоров после поиска эмбеддингов, конкатенации, SwiGLU и проекции в пространство словаря, прежде чем смотреть на числовые результаты."
+    "ru": "Возьмите один полный двухтокенный контекст $[z_{t-2},z_{t-1}]$ и единственный следующий за ним целевой токен $z_t$. При $D=4$, $H=8$ и $V=266$ заранее определите формы тензоров после выбора строк эмбеддингов по ID токенов, конкатенации, SwiGLU и проекции в пространство словаря, прежде чем смотреть на числовые результаты."
   },
   "formula": {
     "latex": "h=\\operatorname{SwiGLU}([E_{z_{t-C}},\\ldots,E_{z_{t-1}}]),\\quad \\ell=hW_o",
@@ -71,7 +71,7 @@
       },
       "later_advance": {
         "en": "Bengio et al. jointly learn distributed word vectors and a feed-forward function over a concatenated fixed context, so evidence about one word sequence can inform sequences made from nearby word representations.",
-        "ru": "Бенжио и соавторы совместно обучают распределённые векторы слов и функцию сети прямого распространения, применяемую к конкатенированному фиксированному контексту. Благодаря этому сведения об одной последовательности помогают оценивать последовательности, составленные из слов с близкими векторными представлениями."
+        "ru": "В этой модели распределённые векторы слов и функция сети прямого распространения, применяемая к конкатенированному фиксированному контексту, обучаются совместно. Благодаря этому сведения об одной последовательности помогают оценивать последовательности, составленные из слов с близкими векторными представлениями."
       },
       "modern_llm_role": {
         "en": "Transformers later replace fixed-context mixing with masked self-attention while retaining learned embeddings, position-wise feed-forward transformations, and a vocabulary projection for next-token prediction.",
@@ -165,7 +165,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 23 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 2 with SHA-256 65be3f5fc2f8e6596970bd75e6e8c9f753c853a8c06d495df2b7d2f714eec944 and becomes stale whenever that source changes.",
+    "Chapter 23 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 3 with SHA-256 a7862010010e46b8cca63916803579fae9705f1c0c9eaa28bf229d61b29bddf9 and becomes stale whenever that source changes.",
     "Keep V, C, D, H, E, h, W_o, ell, z with its indices, shapes, token IDs, parameter names, trace keywords, source roles, and source URLs unchanged across both locales.",
     "Translate neural n-gram as «нейронная n-граммная языковая модель»: a fixed-context feed-forward language model, not a count table and not a Transformer.",
     "Translate held-out validation loss as «функция потерь на отложенной валидационной выборке» when the distinction matters; do not use a calque that implies data are physically outside the model.",
@@ -414,7 +414,7 @@ attention-based causal information mixing between sequence positions.
 ## Localization notes
 
 English and Russian are the exact active Chapter 23 locales. English content
-revision 2 is the sole semantic source; the Russian lesson translates that exact
+revision 3 is the sole semantic source; the Russian lesson translates that exact
 revision directly and becomes stale whenever the English meaning or presentation
 changes. The contract, route, alternate links, lesson, diagram labels, accessible
 descriptions, exercises, answers, SEO, and terminology publish together.

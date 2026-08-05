@@ -2,7 +2,7 @@
 
 pub mod diagram_trace;
 
-use std::error::Error;
+use std::{cell::Ref, error::Error};
 
 use llm_from_scratch::autograd::gradcheck::{TensorGradientCheck, sampled_tensor_gradient_check};
 use llm_from_scratch::autograd::tensor_core::{
@@ -140,8 +140,8 @@ pub struct FrozenTensorExample {
 
 fn parameter_snapshot(x: &TensorValue, bias: &TensorValue) -> ParameterGradients {
     ParameterGradients {
-        x: x.gradient().expect("x is a parameter"),
-        bias: bias.gradient().expect("bias is a parameter"),
+        x: x.gradient_snapshot().expect("x is a parameter"),
+        bias: bias.gradient_snapshot().expect("bias is a parameter"),
     }
 }
 
@@ -149,8 +149,8 @@ fn tensor_bits(value: &Tensor) -> Vec<u64> {
     value.as_slice().iter().map(|item| item.to_bits()).collect()
 }
 
-fn optional_tensor_bits(value: Option<Tensor>) -> Option<Vec<u64>> {
-    value.as_ref().map(tensor_bits)
+fn optional_tensor_bits(value: Option<Ref<'_, Tensor>>) -> Option<Vec<u64>> {
+    value.as_ref().map(|value| tensor_bits(value))
 }
 
 /// Builds the same expression through reusable operation-level VJPs and checks
@@ -296,8 +296,8 @@ pub fn detach_sum_example() -> Result<DetachSumExample, TensorAutodiffError> {
 
     Ok(DetachSumExample {
         value: output.value().as_slice()[0],
-        p_gradient: p.gradient().expect("p is a parameter"),
-        detached_gradient: detached.gradient(),
+        p_gradient: p.gradient_snapshot().expect("p is a parameter"),
+        detached_gradient: detached.gradient_snapshot(),
         detached_is_new_node: !p.is_same_node(&detached),
         detached_tracks_gradient: detached.tracks_gradient(),
     })

@@ -259,6 +259,21 @@ struct SingleRun {
     test_partition_rejected: bool,
 }
 
+fn parameter_bits(model: &DecoderModel) -> Vec<u64> {
+    let mut bits = Vec::new();
+    for parameter in model.parameters() {
+        bits.extend(
+            parameter
+                .tensor()
+                .value()
+                .as_slice()
+                .iter()
+                .map(|value| value.to_bits()),
+        );
+    }
+    bits
+}
+
 fn run_once() -> Result<SingleRun, FixtureError> {
     let epochs = prepared_epochs()?;
     let model = DecoderModel::new(
@@ -273,18 +288,7 @@ fn run_once() -> Result<SingleRun, FixtureError> {
         model.parameter_count() == 144,
         "parameter scalar count changed",
     )?;
-    let initial_bits = model
-        .parameters()
-        .iter()
-        .flat_map(|parameter| {
-            parameter
-                .tensor()
-                .value()
-                .into_vec()
-                .into_iter()
-                .map(f64::to_bits)
-        })
-        .collect::<Vec<_>>();
+    let initial_bits = parameter_bits(&model);
     let optimizer = fixture_optimizer(&model)?;
     let result = train_decoder(
         &model,
@@ -309,18 +313,7 @@ fn run_once() -> Result<SingleRun, FixtureError> {
             actual: Partition::Test,
         })
     );
-    let model_after = model
-        .parameters()
-        .iter()
-        .flat_map(|parameter| {
-            parameter
-                .tensor()
-                .value()
-                .into_vec()
-                .into_iter()
-                .map(f64::to_bits)
-        })
-        .collect::<Vec<_>>();
+    let model_after = parameter_bits(&model);
     Ok(SingleRun {
         result,
         input_model_unchanged: model_after == initial_bits,
@@ -415,20 +408,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     )?;
     require(
         first.result.selected_state().bit_pattern()
-            == first
-                .result
-                .selected_model()
-                .parameters()
-                .iter()
-                .flat_map(|parameter| {
-                    parameter
-                        .tensor()
-                        .value()
-                        .into_vec()
-                        .into_iter()
-                        .map(f64::to_bits)
-                })
-                .collect::<Vec<_>>(),
+            == parameter_bits(first.result.selected_model()),
         "restored selected model changed snapshot bits",
     )?;
     let replay_bitwise = replay_equal(&first, &second);

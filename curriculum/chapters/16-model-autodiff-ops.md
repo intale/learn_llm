@@ -2,7 +2,7 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "concept_id": "model-autodiff-ops",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 16,
   "objective": {
     "en": "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.",
@@ -209,7 +209,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 16 has the exact active locale set {en,ru}. English revision 4 is the canonical semantic source, and Russian is translated directly from that revision.",
+    "Chapter 16 has the exact active locale set {en,ru}. English revision 5 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep E, X, L, V, d, i, b, t, z, the colon feature slice, conditioned summation, shapes, row-major IDs, targets, signs, gradients, Rust identifiers, trace keywords, formulas, and source URLs exact when another locale is activated later.",
     "Translate gather as selecting and materializing table rows and scatter-add as summing each occurrence's adjoint into its destination row. Do not imply that gathered output rows alias the parent table. Token IDs are integer selectors and receive no gradient.",
     "Use established Russian mathematical language: сопряжённая величина for adjoint, выбор строк по индексам for row gather, and накопление вкладов по индексам for scatter-add. Do not calque pullback or scatter-add as пулбэк or рассеянное сложение.",
@@ -469,7 +469,7 @@ backward pass for each whole layer.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 4 is the canonical source for both active locales. Russian must
+English revision 5 is the canonical source for both active locales. Russian must
 translate the complete contract, lesson, diagram labels, accessible names,
 history claims, exercises, and answers directly from that revision.
 

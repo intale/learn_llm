@@ -135,21 +135,21 @@ fn primary_fixture() -> Result<PrimaryFixture, Box<dyn Error>> {
         .backward_with_seed(&upstream.view(), GraphRetention::Retain)?;
 
     Ok(PrimaryFixture {
-        input: input.value(),
+        input: input.value_snapshot(),
         branch_parameter_name: layer.weight().name().to_owned(),
-        branch_weight: layer.weight().tensor().value(),
-        branch_output: branch_output.value(),
-        residual_output: output.value(),
+        branch_weight: layer.weight().tensor().value_snapshot(),
+        branch_output: branch_output.value_snapshot(),
+        residual_output: output.value_snapshot(),
         upstream: upstream.clone(),
         identity_gradient: upstream,
         branch_input_gradient: branch_probe_input
-            .gradient()
+            .gradient_snapshot()
             .expect("branch probe input gradient"),
-        input_gradient: input.gradient().expect("residual input gradient"),
+        input_gradient: input.gradient_snapshot().expect("residual input gradient"),
         weight_gradient: layer
             .weight()
             .tensor()
-            .gradient()
+            .gradient_snapshot()
             .expect("residual branch weight gradient"),
     })
 }
@@ -166,7 +166,7 @@ fn zero_branch_fixture() -> Result<(Tensor, Tensor, Tensor, bool), Box<dyn Error
     let weight_gradient = layer
         .weight()
         .tensor()
-        .gradient()
+        .gradient_snapshot()
         .expect("zero branch weight gradient");
     let nonzero = weight_gradient
         .as_slice()
@@ -174,8 +174,10 @@ fn zero_branch_fixture() -> Result<(Tensor, Tensor, Tensor, bool), Box<dyn Error
         .all(|value| value.is_finite())
         && weight_gradient.as_slice().iter().any(|value| *value != 0.0);
     Ok((
-        output.value(),
-        input.gradient().expect("zero branch input gradient"),
+        output.value_snapshot(),
+        input
+            .gradient_snapshot()
+            .expect("zero branch input gradient"),
         weight_gradient,
         nonzero,
     ))
@@ -204,7 +206,7 @@ fn stack_fixture(use_residual: bool) -> Result<StackFixture, Box<dyn Error>> {
     let prefix = if use_residual { "residual" } else { "plain" };
     let input = TensorValue::parameter(tensor(&INPUT_SHAPE, &INPUT_VALUES))?;
     let mut current = input.clone();
-    let mut values = vec![current.value()];
+    let mut values = vec![current.value_snapshot()];
     let mut layers = Vec::new();
     for depth in 0..4 {
         let layer = named_linear(
@@ -217,7 +219,7 @@ fn stack_fixture(use_residual: bool) -> Result<StackFixture, Box<dyn Error>> {
         } else {
             branch
         };
-        values.push(current.value());
+        values.push(current.value_snapshot());
         layers.push(layer);
     }
     current.backward_with_seed(
@@ -236,7 +238,7 @@ fn stack_fixture(use_residual: bool) -> Result<StackFixture, Box<dyn Error>> {
     });
     Ok(StackFixture {
         values,
-        input_gradient: input.gradient().expect("stack input gradient"),
+        input_gradient: input.gradient_snapshot().expect("stack input gradient"),
         parameter_names,
         parameter_gradients_finite_nonzero,
     })

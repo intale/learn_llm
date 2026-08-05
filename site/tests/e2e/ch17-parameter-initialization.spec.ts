@@ -48,7 +48,7 @@ interface LocalizedCopy {
 }
 
 const chapterId = '17-parameter-initialization';
-const contentRevision = 3;
+const contentRevision = 4;
 const formulaLatex =
   '\\operatorname{Var}(W_{ij})=\\frac{2}{\\operatorname{fan}_{in}+\\operatorname{fan}_{out}}';
 const repositoryRoot = resolve(process.cwd(), '..');

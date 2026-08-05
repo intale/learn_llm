@@ -165,7 +165,7 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     forward
         .output()
         .backward_with_seed(&upstream.view(), GraphRetention::Retain)?;
-    let normalized = forward.normalized().value();
+    let normalized = forward.normalized().value_snapshot();
     let normalized_mean_square = normalized
         .as_slice()
         .iter()
@@ -174,20 +174,20 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         / normalized.len() as f64;
 
     Ok(PrimaryEvidence {
-        input: input.value(),
-        mean_square: forward.mean_square().value(),
-        inverse_rms: forward.inverse_rms().value(),
+        input: input.value_snapshot(),
+        mean_square: forward.mean_square().value_snapshot(),
+        inverse_rms: forward.inverse_rms().value_snapshot(),
         normalized,
-        gain: layer.gain().tensor().value(),
-        output: forward.output().value(),
+        gain: layer.gain().tensor().value_snapshot(),
+        output: forward.output().value_snapshot(),
         upstream,
         input_gradient: input
-            .gradient()
+            .gradient_snapshot()
             .expect("the tracked primary input received a gradient"),
         gain_gradient: layer
             .gain()
             .tensor()
-            .gradient()
+            .gradient_snapshot()
             .expect("the tracked gain received a gradient"),
         normalized_mean_square,
     })
@@ -396,7 +396,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
             &[2, 2],
             &[3.0, 4.0, 0.0, 5.0],
         ))?)?
-        .value();
+        .value_snapshot();
 
     let groups = AdamWParameterGroups::new([] as [&str; 0], [GAIN_NAME])?;
     let no_decay = groups.decayed_names().count() == 0

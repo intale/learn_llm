@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 15,
   "concept_id": "tensor-autodiff-core",
   "title": "Reverse tensor operations with edge-local VJPs",
@@ -101,7 +101,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
       "region": "tensor-tape-values",
-      "purpose": "Own finite parameter, constant, and operation primals while separating node identity, detach, parameter gradients, and released state."
+      "purpose": "Own each finite contiguous primal, lend temporary read-only access, name independent snapshots, and separate node identity, detach, parameter gradients, and released state."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
@@ -399,15 +399,29 @@ prescribe these VJP rules or lifecycle choices.
 ## Own tensor primals and save only local context
 
 `TensorValue::parameter` and `TensorValue::constant` accept finite contiguous
-tensors. Parameters can accumulate stored gradients; constants cannot. A clone
-keeps node identity, while `detach` copies the same primal into a new untracked
-leaf with no operand edge. Both `value()` and `gradient()` return owned tensor
-copies, so inspecting a result cannot mutate tape storage through an alias.
+tensors. Each tape node owns its primal tensor, including every parameter,
+constant, and operation result. Calling `value()` lends a temporary read-only
+guard to that node-owned primal; it does not copy the tensor. Calling
+`gradient()` similarly lends a read-only guard when a parameter leaf has a
+stored gradient. Constants and operation nodes do not store parameter gradients.
+
+A read guard is temporary and must be dropped before code can mutate the same
+storage. If a stored-gradient guard is still active, `zero_grad` or a reverse
+pass returns `GradientBorrowed` instead of panicking or committing only part of
+a pass. When data must remain independently owned after the read ends,
+`value_snapshot()` clones the primal and `gradient_snapshot()` clones the stored
+gradient when one exists.
+
+A tensor snapshot contains data but is not a tape node. Cloning a `TensorValue`
+keeps the original node identity. `detach()` does something different from both:
+it snapshots the primal, then creates a new untracked `TensorValue` leaf with no
+operand edge. Later changes to either node's storage cannot change the other
+leaf's independently owned primal.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
   region="tensor-tape-values"
-  caption="Own finite tensor primals while separating parameter storage, constants, identity, detach, and release"
+  caption="Own finite tensor primals while distinguishing guarded reads, independent snapshots, identity, detach, and release"
   label="Rust source defining the Chapter 15 tensor tape values"
 />
 
@@ -493,9 +507,9 @@ differences:
 />
 
 Typed errors distinguish unsafe leaves and results, invalid operations, seed
-shape or value failures, non-finite reverse values, untracked outputs, and
-released graphs. A failed pass leaves stored gradient bits and lifecycle state
-unchanged.
+shape or value failures, non-finite reverse values, untracked outputs, released
+graphs, and a stored gradient that is still read-borrowed. A failed pass leaves
+stored gradient bits and lifecycle state unchanged.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
@@ -567,7 +581,7 @@ shape, VJP, accumulated gradient, numerical comparison, and rejection.
 4. Sum the broadcast rows into `bias`, swap transpose axes, and restore `x`'s shape.
 5. Predict both parameter gradients after two retained passes, zeroing, and one releasing pass.
 6. For a sum over axis `0` with non-scalar seed `[10,20,30]`, explain which values return to each input row.
-7. Distinguish `detach`, `zero_grad`, `Retain`, and `Release` by the state each one changes.
+7. Distinguish the `value()` and `gradient()` read guards, the `value_snapshot()` and `gradient_snapshot()` copies, `detach`, `zero_grad`, `Retain`, and `Release` by the data or state each one exposes or changes.
 8. Misconception check: does a broadcast create independent parameter copies whose gradients can keep the output shape or select one occurrence?
 
 <details>
@@ -579,7 +593,7 @@ shape, VJP, accumulated gradient, numerical comparison, and rejection.
 4. Summing the two broadcast rows gives $\bar{\mathrm{bias}}=[16,16,34]$. Swapping axes gives shape `[3,2]` and values `[4,12,4,12,10,24]`; reshape restores shape `[2,3]` with the same flat order.
 5. First-pass gradients are $\bar{x}=[4,12,4,12,10,24]$ and $\bar{\mathrm{bias}}=[16,16,34]$. The second retained pass doubles them. Zeroing writes positive zero. One releasing pass restores the first-pass values and then removes operation context.
 6. Sum's VJP reinserts axis `0` as size one and broadcasts the seed over every original row, so every row receives `[10,20,30]`.
-7. `detach` creates a new untracked leaf; `zero_grad` clears one parameter's stored gradient; `Retain` keeps operation context after a successful commit; `Release` discards that context after a successful commit but preserves primals and stored parameter gradients.
+7. `value()` and `gradient()` temporarily borrow node-owned data without copying it; the gradient guard exists only when a parameter has a stored gradient. `value_snapshot()` and `gradient_snapshot()` clone independent tensor data but create no tape node. A read guard must end before the corresponding storage can be mutated; an overlapping stored-gradient mutation returns `GradientBorrowed` without a partial commit. `detach` uses a primal snapshot to create a new untracked leaf. `zero_grad` clears one parameter's stored gradient; `Retain` keeps operation context after a successful commit; `Release` discards that context after a successful commit but preserves primals and stored parameter gradients.
 8. No. Broadcast reuses source coordinates. Its VJP sums every reused output coordinate back to the original parameter shape. Keeping `[2,3]` or selecting one row would both be wrong for `bias[3]`.
 
 </details>

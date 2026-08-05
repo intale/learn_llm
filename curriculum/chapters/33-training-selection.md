@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 33,
   "objective": {
     "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data.",
@@ -213,11 +213,12 @@
     }
   ],
   "translation_notes": [
-    "Chapter 33 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 3432074500d8047c815774ce2b14cc31f3a5b7a8f4ab04cb58c8e4638b012b5b",
+    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 5 is translated directly from canonical English revision 5 and has passed semantic, terminology, anti-calque, monolingual, accessibility, and source-order review.",
+    "canonical English SHA-256: c897728e29a7effd5588c72c33783010b5cf3630a410ed1783d802ebe84da203",
     "Translate mini-batch as «мини-пакет», global-norm gradient clipping as «ограничение общей нормы градиента», and graph-free evaluation as «оценка без записи графа вычислений»; describe raw and clipped gradients as gradients before and after norm clipping rather than using a literal calque.",
     "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test.",
     "Preserve the distinction between the ordinary AdamW method returning the new optimizer step number and Chapter 22's one explicitly requested step trace containing per-parameter records; never imply that AdamW returns parameter leaves.",
+    "Preserve the Rust borrow order in the Chapter 33 explanation: gradient() lends a read guard over one tensor, verification ends that guard, and only then zero_grad() mutably clears the same tensor; do not describe the guard as an owned gradient copy.",
     "Preserve theta_s, s, s^*, L_tr, L_va, eta_s, g_s, the norm notation, exact trace tokens, stable parameter names, and step numbers.",
     "Programming language names may identify source provenance only where relevant; the history section must remain about the road to modern LLM training."
   ],
@@ -412,8 +413,10 @@ rate and prepares the next moment values, step counter, and complete parameter
 replacement set while leaving its configured base rate unchanged. After every
 candidate succeeds, it commits the complete set and returns the new optimizer
 step number. The trainer compares that number directly with the planned update
-index. It then inspects the fresh replacement leaves before explicitly clearing
-their gradients, so the evidence distinguishes gradients that were already
+index. It then inspects the fresh replacement leaves. `gradient()` lends a read
+guard over one parameter's gradient tensor. After verifying that every value in
+that tensor is zero, the trainer ends the guard before `zero_grad()` mutably
+clears the same tensor. This order distinguishes gradients that were already
 zero on fresh leaves from the later clear operation.
 
 The Chapter 32 model cannot merely mutate a copied parameter registry: its

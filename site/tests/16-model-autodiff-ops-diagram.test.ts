@@ -132,7 +132,7 @@ describe('Chapter 16 Rust trace parser', () => {
     expect(fixtureSource).not.toContain('loss.backward()?');
 
     for (const source of [chapter16Contract, chapter16English, chapter16Russian]) {
-      expect(source).toContain('"content_revision": 4');
+      expect(source).toContain('"content_revision": 5');
     }
     expect(chapter16English.replace(/\s+/g, ' ')).toContain(
       'Ordinary training uses a lean method: `backward` when implicit graph retention is appropriate, or `backward_with_seed` when the caller must choose retention or release.',

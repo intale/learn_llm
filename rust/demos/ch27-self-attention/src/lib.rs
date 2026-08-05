@@ -191,14 +191,14 @@ fn attention_loss(query: &Tensor, key: &Tensor, value: &Tensor) -> f64 {
         .expect("the frozen probe shapes are valid");
     let upstream = TensorValue::constant(tensor(&[1, 2, 2], &UPSTREAM))
         .expect("the frozen upstream is finite");
-    sum_to_scalar(
+    let loss = sum_to_scalar(
         pass.output()
             .mul(&upstream)
             .expect("the frozen loss shapes match"),
     )
-    .expect("the frozen loss reduces")
-    .value()
-    .as_slice()[0]
+    .expect("the frozen loss reduces");
+    let value = loss.value();
+    value.as_slice()[0]
 }
 
 fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
@@ -206,10 +206,10 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let key = parameter(&[1, 2, 2], &KEY)?;
     let value = parameter(&[1, 2, 2], &VALUE)?;
     let pass = scaled_dot_product_self_attention(&query, &key, &value)?;
-    let dot_products = pass.dot_products().value();
-    let scaled_scores = pass.scaled_scores().value();
-    let probabilities = pass.probabilities().value();
-    let output = pass.output().value();
+    let dot_products = pass.dot_products().value_snapshot();
+    let scaled_scores = pass.scaled_scores().value_snapshot();
+    let probabilities = pass.probabilities().value_snapshot();
+    let output = pass.output().value_snapshot();
     let probability_values = probabilities.as_slice();
     let mixture_terms = [
         [
@@ -243,9 +243,9 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     loss.backward_with_seed(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
 
     Ok(PrimaryEvidence {
-        query: query.value(),
-        key: key.value(),
-        value: value.value(),
+        query: query.value_snapshot(),
+        key: key.value_snapshot(),
+        value: value.value_snapshot(),
         dot_products,
         scaled_scores,
         probabilities,
@@ -255,13 +255,13 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         upstream,
         loss: loss_value,
         query_gradient: query
-            .gradient()
+            .gradient_snapshot()
             .expect("the query receives a gradient through the scores"),
         key_gradient: key
-            .gradient()
+            .gradient_snapshot()
             .expect("the key receives a gradient through the scores"),
         value_gradient: value
-            .gradient()
+            .gradient_snapshot()
             .expect("the value receives a gradient through the mixture"),
         scale: pass.scale(),
     })
@@ -287,10 +287,10 @@ fn single_token_evidence() -> Result<SingleTokenEvidence, FixtureError> {
     let key = parameter(&[1, 1, 2], &[-3.0, 4.0])?;
     let value = parameter(&[1, 1, 2], &[5.0, -2.0])?;
     let pass = scaled_dot_product_self_attention(&query, &key, &value)?;
-    let dot_products = pass.dot_products().value();
-    let scaled_scores = pass.scaled_scores().value();
-    let probabilities = pass.probabilities().value();
-    let output = pass.output().value();
+    let dot_products = pass.dot_products().value_snapshot();
+    let scaled_scores = pass.scaled_scores().value_snapshot();
+    let probabilities = pass.probabilities().value_snapshot();
+    let output = pass.output().value_snapshot();
     sum_to_scalar(pass.output().clone())?.backward()?;
     let query_gradient_zero = query
         .gradient()
@@ -306,9 +306,9 @@ fn single_token_evidence() -> Result<SingleTokenEvidence, FixtureError> {
         .all(|value| *value == 0.0);
 
     Ok(SingleTokenEvidence {
-        query: query.value(),
-        key: key.value(),
-        value: value.value(),
+        query: query.value_snapshot(),
+        key: key.value_snapshot(),
+        value: value.value_snapshot(),
         dot_products,
         scaled_scores,
         probabilities,

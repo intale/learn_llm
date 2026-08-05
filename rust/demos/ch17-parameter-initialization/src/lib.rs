@@ -51,7 +51,7 @@ pub fn zero_symmetry_probe() -> Result<SymmetryProbe, Box<dyn Error>> {
 
     let output_value = output.value().as_slice()[0];
     let gradient = input_weights
-        .gradient()
+        .gradient_snapshot()
         .expect("the input weights are a trainable leaf");
     let columns_equal = gradient.as_slice()[0] == gradient.as_slice()[1]
         && gradient.as_slice()[2] == gradient.as_slice()[3];
@@ -72,7 +72,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     let scale = xavier_scale(2, 2)?;
     let mut rng = SplitMix64::from_seed(FIXTURE_SEED);
     let projection = projection_parameter(&mut rng)?;
-    let weights = projection.tensor().value();
+    let weights = projection.tensor().value_snapshot();
 
     let mut matching_rng = SplitMix64::from_seed(FIXTURE_SEED);
     let matching = projection_parameter(&mut matching_rng)?;
@@ -103,8 +103,8 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     Ok(LearnerReport {
         scale,
         weights,
-        same_seed_reproduces: projection.tensor().value() == matching.tensor().value(),
-        different_seed_differs: projection.tensor().value() != alternate.tensor().value(),
+        same_seed_reproduces: *projection.tensor().value() == *matching.tensor().value(),
+        different_seed_differs: *projection.tensor().value() != *alternate.tensor().value(),
         symmetry: zero_symmetry_probe()?,
         parameters,
         clone_same_node,

@@ -999,14 +999,16 @@ pub fn generate_cached(
             model_config.heads(),
             prefix_length,
         )?;
-        let logits = current.logits().value();
-        if logits.len() != vocabulary_size {
-            return Err(CachedGenerationError::LogitCountMismatch {
-                expected: vocabulary_size,
-                actual: logits.len(),
-            });
-        }
-        let decision = sample_next_token(logits.as_slice(), config.mode(), rng)?;
+        let decision = {
+            let logits = current.logits().value();
+            if logits.len() != vocabulary_size {
+                return Err(CachedGenerationError::LogitCountMismatch {
+                    expected: vocabulary_size,
+                    actual: logits.len(),
+                });
+            }
+            sample_next_token(logits.as_slice(), config.mode(), rng)?
+        };
         let token_id = decision.token_id();
         generated.push(token_id);
         steps.push(CachedGenerationStep {
@@ -1149,7 +1151,8 @@ mod tests {
             .parameters()
             .iter()
             .map(|parameter| {
-                NamedParameter::from_tensor(parameter.name(), parameter.tensor().value()).unwrap()
+                NamedParameter::from_tensor(parameter.name(), parameter.tensor().value_snapshot())
+                    .unwrap()
             })
             .collect()
     }
@@ -1158,7 +1161,7 @@ mod tests {
         let logits = no_grad(|| model.forward(prefix, &[1, prefix.len()]))
             .unwrap()
             .logits()
-            .value();
+            .value_snapshot();
         logits.as_slice()[logits.len() - model.config().vocabulary_size()..].to_vec()
     }
 
@@ -1261,7 +1264,7 @@ mod tests {
         for index in [0, feed_forward, final_norm] {
             let mut parameters = model.parameters().to_vec();
             let name = parameters[index].name().to_owned();
-            let value = parameters[index].tensor().value();
+            let value = parameters[index].tensor().value_snapshot();
             parameters[index] = NamedParameter::from_tensor(name, value).unwrap();
             let rebuilt = DecoderModel::from_parameters(model.config(), parameters).unwrap();
             assert!(matches!(
@@ -1339,7 +1342,7 @@ mod tests {
         let config = config(2, 3, 0.0);
         let base = DecoderModel::new(config, &mut SplitMix64::from_seed(142)).unwrap();
         let mut parameters = base.parameters().to_vec();
-        let mut embedding = parameters[0].tensor().value();
+        let mut embedding = parameters[0].tensor().value_snapshot();
         embedding.as_mut_slice()[4..8].fill(0.0);
         let embedding_name = parameters[0].name().to_owned();
         parameters[0] = NamedParameter::from_tensor(embedding_name, embedding).unwrap();

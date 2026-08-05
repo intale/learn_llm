@@ -577,18 +577,18 @@ fn require_matching_provenance(
 }
 
 fn parameter_bits(model: &DecoderModel) -> Vec<u64> {
-    model
-        .parameters()
-        .iter()
-        .flat_map(|parameter| {
+    let mut bits = Vec::new();
+    for parameter in model.parameters() {
+        bits.extend(
             parameter
                 .tensor()
                 .value()
-                .into_vec()
-                .into_iter()
-                .map(f64::to_bits)
-        })
-        .collect()
+                .as_slice()
+                .iter()
+                .map(|value| value.to_bits()),
+        );
+    }
+    bits
 }
 
 fn gradient_bits(model: &DecoderModel) -> Result<Vec<u64>, EvaluationError> {

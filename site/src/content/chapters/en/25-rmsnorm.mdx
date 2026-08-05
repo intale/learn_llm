@@ -2,7 +2,7 @@
 {
   "chapter_id": "25-rmsnorm",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 25,
   "concept_id": "rmsnorm",
   "title": "Normalize scale without subtracting the mean",
@@ -375,7 +375,7 @@ vector far out of the epsilon-dominated regime.
 1. Compute the mean square and reciprocal RMS for $x=[3,4]$.
 2. Apply $g=[1.5,0.5]$ to the normalized vector.
 3. For a nonzero vector and $\varepsilon=0$, predict the pre-gain RMS-rescaled vector $\hat{x}$ after multiplying the input by $10$; do not apply learned gain $g$.
-4. Explain why production epsilon changes a near-zero vector much more.
+4. Explain why a positive $\varepsilon$ changes a near-zero vector much more.
 5. Predict the output for an all-zero row with positive epsilon and zero epsilon.
 6. Decide whether RMSNorm subtracts the feature mean or mixes batch examples.
 7. Predict the output shape and gain-gradient shape for input $[B,T,d]$.
@@ -389,7 +389,7 @@ vector far out of the epsilon-dominated regime.
   2. The output is approximately $[1.272792,0.565685]$.
   3. When $\varepsilon=0$, positive input scaling cancels in $\hat{x}$, so the pre-gain RMS-rescaled vector is unchanged before learned gain $g$ is applied.
   4. Finite epsilon does not scale with the signal, so it dominates the tiny vector's denominator.
-  5. Positive epsilon returns $[0,0]$; zero epsilon rejects the zero-energy row before the logarithm.
+  5. Positive epsilon returns $[0,0]$; zero epsilon rejects a row whose mean square is zero before the logarithm.
   6. Neither: it uses only one example's final feature axis and does not subtract its mean.
   7. The output shape is $[B,T,d]$ and the gain-gradient shape is $[d]$.
   8. The optimizer decides which named parameters receive decay; RMSNorm's equation does not.

@@ -2,7 +2,7 @@
 {
   "chapter_id": "20-swiglu-feed-forward",
   "concept_id": "swiglu-feed-forward",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 20,
   "objective": {
     "en": "Compose three bias-free projections with a differentiable SiLU gate, preserve every leading position, and verify the exact forward and reverse values.",
@@ -190,7 +190,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 20 has the exact active locale set {en,ru}. English revision 2 is the canonical semantic source, and Russian is translated directly from that revision.",
+    "Chapter 20 has the exact active locale set {en,ru}. English revision 3 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep X, W_g, W_u, W_2, SiLU, FFN, the elementwise-product symbol, dimension symbols, shapes, numeric values, parameter names, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
     "Translate gate as an input-dependent multiplicative branch, not as a probability. SiLU can be negative and is not bounded to the unit interval.",
     "Keep the overview term «вентильная обработка» for the broad mechanism. Within this chapter distinguish «вентильная ветвь» (gate branch), «ветвь расширения» (up branch), and «проекция сжатия» (down projection).",
@@ -393,7 +393,7 @@ averaging of token losses and gradients.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The active locale set is exactly English and Russian. English revision 2 is the
+The active locale set is exactly English and Russian. English revision 3 is the
 canonical source, and Russian is translated directly from it. The translation
 preserves symbols, dimensions, numeric values, parameter names, trace keywords,
 source roles, and URLs.

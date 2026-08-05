@@ -214,8 +214,12 @@ pub fn frozen_model_example() -> Result<FrozenModelExample, TensorAutodiffError>
     let loss_input_gradient = pass_adjoint(&backward, TensorOperation::Silu);
     let matmul_output_gradient = pass_adjoint(&backward, TensorOperation::MatMul);
     let gathered_gradient = pass_adjoint(&backward, TensorOperation::GatherRows);
-    let embedding_gradient = embeddings.gradient().expect("embeddings are a parameter");
-    let weight_gradient = weights.gradient().expect("weights are a parameter");
+    let embedding_gradient = embeddings
+        .gradient_snapshot()
+        .expect("embeddings are a parameter");
+    let weight_gradient = weights
+        .gradient_snapshot()
+        .expect("weights are a parameter");
     assert_close(
         loss_input_gradient.as_slice(),
         &baseline.loss_input_gradient,
@@ -239,15 +243,15 @@ pub fn frozen_model_example() -> Result<FrozenModelExample, TensorAutodiffError>
     assert_close(weight_gradient.as_slice(), &baseline.weight_gradient, 1e-12);
 
     Ok(FrozenModelExample {
-        embeddings: embeddings.value(),
+        embeddings: embeddings.value_snapshot(),
         token_ids: TOKEN_IDS.to_vec(),
-        weights: weights.value(),
+        weights: weights.value_snapshot(),
         targets: TARGETS.to_vec(),
-        gathered: gathered.value(),
-        projection_preactivations: projection_preactivations.value(),
-        activated: activated.value(),
-        log_probabilities: log_probabilities.value(),
-        loss: loss.value(),
+        gathered: gathered.value_snapshot(),
+        projection_preactivations: projection_preactivations.value_snapshot(),
+        activated: activated.value_snapshot(),
+        log_probabilities: log_probabilities.value_snapshot(),
+        loss: loss.value_snapshot(),
         backward,
         loss_input_gradient,
         matmul_output_gradient,

@@ -2,7 +2,7 @@
 {
   "chapter_id": "22-adamw",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 22,
   "concept_id": "adamw",
   "title": "Keep decay out of the gradient moments",
@@ -107,7 +107,7 @@
     {
       "path": "rust/demos/ch22-adamw/src/lib.rs",
       "region": "historical-optimizer-road",
-      "purpose": "Compare two-step SGD, momentum, Adam with a coupled penalty, and AdamW, and generate fixed SGD and AdamW paths on unequal curvature, without turning history into a language comparison."
+      "purpose": "Compare two-step SGD, momentum, Adam with a coupled penalty, and AdamW, then generate fixed unequal-curvature paths while ending each borrowed primal read before the mutable optimizer step."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -433,6 +433,12 @@ The historical example runs two-step plain SGD, momentum, Adam with coupled
 $L_2$, and AdamW for the same scalar loss-gradient sequence, then supplies the
 fixed unequal-curvature trajectory. Rust is only the executable medium for this
 language-independent comparison:
+
+Inside the trajectory loop, one block calls `value()` to borrow the current
+AdamW parameter primal without copying it and computes both coordinates of the
+quadratic gradient. Leaving that block ends the read guard before `step()`
+mutably accesses the parameter. This scope changes the lifetime of the read,
+not the optimizer mathematics or the recorded trajectory.
 
 <RustSource
   path="rust/demos/ch22-adamw/src/lib.rs"

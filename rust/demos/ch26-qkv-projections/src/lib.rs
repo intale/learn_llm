@@ -227,37 +227,37 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     loss.backward_with_seed(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
 
     Ok(PrimaryEvidence {
-        input: input.value(),
-        query_weight: layer.query().weight().tensor().value(),
-        key_weight: layer.key().weight().tensor().value(),
-        value_weight: layer.value().weight().tensor().value(),
-        query: pass.query().value(),
-        key: pass.key().value(),
-        value: pass.value().value(),
+        input: input.value_snapshot(),
+        query_weight: layer.query().weight().tensor().value_snapshot(),
+        key_weight: layer.key().weight().tensor().value_snapshot(),
+        value_weight: layer.value().weight().tensor().value_snapshot(),
+        query: pass.query().value_snapshot(),
+        key: pass.key().value_snapshot(),
+        value: pass.value().value_snapshot(),
         query_upstream,
         key_upstream,
         value_upstream,
         loss: loss_value,
         input_gradient: input
-            .gradient()
+            .gradient_snapshot()
             .expect("the tracked input received all three gradient paths"),
         query_weight_gradient: layer
             .query()
             .weight()
             .tensor()
-            .gradient()
+            .gradient_snapshot()
             .expect("the query weight received a gradient"),
         key_weight_gradient: layer
             .key()
             .weight()
             .tensor()
-            .gradient()
+            .gradient_snapshot()
             .expect("the key weight received a gradient"),
         value_weight_gradient: layer
             .value()
             .weight()
             .tensor()
-            .gradient()
+            .gradient_snapshot()
             .expect("the value weight received a gradient"),
         parameter_names: layer
             .parameters()
@@ -371,11 +371,11 @@ fn initialization_evidence() -> Result<InitializationEvidence, FixtureError> {
             .parameters()
             .iter()
             .zip(second.parameters())
-            .all(|(left, right)| left.tensor().value() == right.tensor().value());
+            .all(|(left, right)| *left.tensor().value() == *right.tensor().value());
     let independent = first.parameters().iter().enumerate().all(|(index, left)| {
         first.parameters()[index + 1..].iter().all(|right| {
             !left.tensor().is_same_node(right.tensor())
-                && left.tensor().value() != right.tensor().value()
+                && *left.tensor().value() != *right.tensor().value()
         })
     });
 
@@ -396,9 +396,9 @@ fn independence_evidence() -> Result<(bool, bool, bool), FixtureError> {
     let baseline = baseline.forward(&input)?;
     let changed = changed.forward(&input)?;
     Ok((
-        baseline.query().value() != changed.query().value(),
-        baseline.key().value() == changed.key().value(),
-        baseline.value().value() == changed.value().value(),
+        *baseline.query().value() != *changed.query().value(),
+        *baseline.key().value() == *changed.key().value(),
+        *baseline.value().value() == *changed.value().value(),
     ))
 }
 
@@ -417,14 +417,14 @@ fn scalar_loss(layer: &QkvProjections, input: &Tensor) -> f64 {
     let query_upstream = tensor(&[1, 2, 2], &QUERY_UPSTREAM);
     let key_upstream = tensor(&[1, 2, 2], &KEY_UPSTREAM);
     let value_upstream = tensor(&[1, 2, 2], &VALUE_UPSTREAM);
-    weighted_loss(
+    let loss = weighted_loss(
         layer,
         input,
         [&query_upstream, &key_upstream, &value_upstream],
     )
-    .expect("the frozen probe is valid")
-    .value()
-    .as_slice()[0]
+    .expect("the frozen probe is valid");
+    let value = loss.value();
+    value.as_slice()[0]
 }
 
 fn gradient_evidence(

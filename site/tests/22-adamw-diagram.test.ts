@@ -568,11 +568,11 @@ describe('Chapter 22 contract and lesson projection', () => {
   } as const;
 
   it('names the worked parameter and explains the configurable no-decay policy', () => {
-    expect(contract.content_revision).toBe(4);
-    expect(lessons.en.content_revision).toBe(4);
-    expect(lessons.ru.content_revision).toBe(4);
+    expect(contract.content_revision).toBe(5);
+    expect(lessons.en.content_revision).toBe(5);
+    expect(lessons.ru.content_revision).toBe(5);
     expect(contract.translation_notes).toContain(
-      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
+      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 5 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
     );
 
     const contractWorked = markedSection(
@@ -781,6 +781,15 @@ describe('Chapter 22 contract and lesson projection', () => {
   });
 
   it('keeps ordinary optimizer calls lean and makes Chapter 22 evidence explicit', () => {
+    const historical = rustRegion(demoSource, 'historical-optimizer-road');
+    const gradientBlock = historical.indexOf('let adamw_gradient = {');
+    const primalRead = historical.indexOf('let value = adamw_parameter.tensor().value();');
+    const mutableStep = historical.indexOf('.step(std::slice::from_mut(&mut adamw_parameter))');
+    expect(gradientBlock).toBeGreaterThan(-1);
+    expect(primalRead).toBeGreaterThan(gradientBlock);
+    expect(mutableStep).toBeGreaterThan(primalRead);
+    expect(historical.slice(gradientBlock, mutableStep)).not.toContain('value_snapshot');
+
     const api = rustRegion(adamwSource, 'adamw-execution-and-trace-api');
     for (const name of ['step', 'step_with_learning_rate']) {
       const method = publicRustMethod(api, name);
@@ -814,6 +823,9 @@ describe('Chapter 22 contract and lesson projection', () => {
     }
     expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
       'Tracing records values produced by that calculation; it does not calculate the update a second time.',
+    );
+    expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
+      'Leaving that block ends the read guard before `step()` mutably accesses the parameter.',
     );
     expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
       'Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',

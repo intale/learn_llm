@@ -141,20 +141,20 @@ impl TensorValue {
     /// Multiplies rank-two or batched tensors and records both matrix pullbacks.
     pub fn matmul(&self, right: &Self) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::MatMul, [self, right], |primals| {
-            let left = &primals[0];
-            let right = &primals[1];
+            let left = primals[0];
+            let right = primals[1];
             let value = matmul(&left.view(), &right.view())?;
             let output_shape = value.shape().to_vec();
             Ok((
                 value,
                 [
                     ModelSavedContext::MatmulLeft {
-                        right: right.clone(),
+                        right: Tensor::clone(right),
                         input_shape: left.shape().to_vec(),
                         output_shape: output_shape.clone(),
                     },
                     ModelSavedContext::MatmulRight {
-                        left: left.clone(),
+                        left: Tensor::clone(left),
                         input_shape: right.shape().to_vec(),
                         output_shape,
                     },
@@ -173,7 +173,7 @@ impl TensorValue {
         index_shape: &[usize],
     ) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::GatherRows, [self], |primals| {
-            let table = &primals[0];
+            let table = primals[0];
             let value = gather_rows_forward(table, indices, index_shape)?;
             let output_shape = value.shape().to_vec();
             Ok((
@@ -201,12 +201,12 @@ impl TensorValue {
     /// the tape's finite-forward invariant.
     pub fn log(&self) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::Log, [self], |primals| {
-            let input = &primals[0];
+            let input = primals[0];
             let value = map_unary(&input.view(), f64::ln)?;
             Ok((
                 value,
                 [ModelSavedContext::Log {
-                    input: input.clone(),
+                    input: Tensor::clone(input),
                 }],
             ))
         })
@@ -215,7 +215,7 @@ impl TensorValue {
     /// Applies SiLU, `x * sigmoid(x)`, with a branchwise stable sigmoid.
     pub fn silu(&self) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::Silu, [self], |primals| {
-            let input = &primals[0];
+            let input = primals[0];
             let sigmoid = map_unary(&input.view(), stable_sigmoid)?;
             let value = map_binary(&input.view(), &sigmoid.view(), |x, probability| {
                 x * probability
@@ -223,7 +223,7 @@ impl TensorValue {
             Ok((
                 value,
                 [ModelSavedContext::Silu {
-                    input: input.clone(),
+                    input: Tensor::clone(input),
                     sigmoid,
                 }],
             ))
@@ -233,7 +233,7 @@ impl TensorValue {
     /// Applies stable log-softmax along one explicit class axis.
     pub fn log_softmax(&self, axis: usize) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::LogSoftmax, [self], |primals| {
-            let input = &primals[0];
+            let input = primals[0];
             let value = log_softmax(&input.view(), axis)?;
             let probabilities = softmax(&input.view(), axis)?;
             Ok((
@@ -254,7 +254,7 @@ impl TensorValue {
     /// never enter the operation tape.
     pub fn causal_softmax(&self) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::CausalSoftmax, [self], |primals| {
-            let input = &primals[0];
+            let input = primals[0];
             let probabilities = causal_softmax_forward(input)?;
             let tokens = input.shape()[input.rank() - 1];
             Ok((
@@ -281,7 +281,7 @@ impl TensorValue {
         let cosines = cosines.clone();
         let sines = sines.clone();
         Self::model_operation(TensorOperation::RotaryPairs, [self], move |primals| {
-            let input = &primals[0];
+            let input = primals[0];
             let value = rotary_pairs_forward(input, &cosines, &sines, false)?;
             Ok((
                 value,
@@ -301,7 +301,7 @@ impl TensorValue {
         targets: &[usize],
     ) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::IndexedMeanNll, [self], |primals| {
-            let logits = &primals[0];
+            let logits = primals[0];
             let loss = indexed_mean_nll(&logits.view(), axis, targets)?;
             let probabilities = softmax(&logits.view(), axis)?;
             let value = Tensor::from_vec(Vec::new(), vec![loss])?;
@@ -1001,7 +1001,7 @@ mod tests {
         let large = constant(&[3], &[-1000.0, 0.0, 1000.0])
             .silu()
             .unwrap()
-            .value();
+            .value_snapshot();
         assert_close(large.as_slice(), &[0.0, 0.0, 1000.0], 1e-12);
     }
 
@@ -1078,7 +1078,9 @@ mod tests {
         logged
             .backward_with_seed(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)
             .unwrap();
-        let gradient_before_failure = input.gradient().unwrap();
+        let gradient_before_failure = input
+            .gradient_snapshot()
+            .expect("the first pass stores a parameter gradient");
 
         let huge_seed = tensor(&[], &[f64::MAX]);
         assert!(matches!(
@@ -1091,7 +1093,7 @@ mod tests {
                 ..
             })
         ));
-        assert_eq!(input.gradient().unwrap(), gradient_before_failure);
+        assert_eq!(&*input.gradient().unwrap(), &gradient_before_failure);
         assert!(!logged.is_released());
 
         logged.backward().unwrap();

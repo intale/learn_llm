@@ -510,7 +510,7 @@ mod tests {
         }
 
         let empty = TensorValue::constant(tensor(&[0, 2], &[])).unwrap();
-        let output = layer.forward(&empty).unwrap().value();
+        let output = layer.forward(&empty).unwrap().value_snapshot();
         assert_eq!(output.shape(), &[0, 2]);
         assert!(output.is_empty());
     }
@@ -521,11 +521,11 @@ mod tests {
         let baseline = layer
             .forward(&TensorValue::constant(tensor(&[2, 2], &INPUT_VALUES)).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         let changed = layer
             .forward(&TensorValue::constant(tensor(&[2, 2], &[0.0, 0.0, 0.0, 1.0])).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         assert_ne!(&baseline.as_slice()[0..2], &changed.as_slice()[0..2]);
         assert_eq!(&baseline.as_slice()[2..], &changed.as_slice()[2..]);
     }
@@ -569,7 +569,7 @@ mod tests {
         let second = SwiGlu::new("ffn", 2, 3, 2, &mut second_rng).unwrap();
         assert_eq!(first_rng.state(), second_rng.state());
         for (left, right) in first.parameters().iter().zip(second.parameters()) {
-            assert_eq!(left.tensor().value(), right.tensor().value());
+            assert_eq!(&*left.tensor().value(), &*right.tensor().value());
             assert!(!left.tensor().is_same_node(right.tensor()));
         }
         assert_eq!(
@@ -581,8 +581,8 @@ mod tests {
             ["ffn.gate.weight", "ffn.up.weight", "ffn.down.weight"]
         );
         assert_ne!(
-            first.gate().weight().tensor().value(),
-            first.up().weight().tensor().value()
+            &*first.gate().weight().tensor().value(),
+            &*first.up().weight().tensor().value()
         );
 
         let mut reference_rng = SplitMix64::from_seed(20);
@@ -590,16 +590,16 @@ mod tests {
         let reference_up = Linear::new("ffn.up", 2, 3, false, &mut reference_rng).unwrap();
         let reference_down = Linear::new("ffn.down", 3, 2, false, &mut reference_rng).unwrap();
         assert_eq!(
-            first.gate().weight().tensor().value(),
-            reference_gate.weight().tensor().value()
+            &*first.gate().weight().tensor().value(),
+            &*reference_gate.weight().tensor().value()
         );
         assert_eq!(
-            first.up().weight().tensor().value(),
-            reference_up.weight().tensor().value()
+            &*first.up().weight().tensor().value(),
+            &*reference_up.weight().tensor().value()
         );
         assert_eq!(
-            first.down().weight().tensor().value(),
-            reference_down.weight().tensor().value()
+            &*first.down().weight().tensor().value(),
+            &*reference_down.weight().tensor().value()
         );
         assert_eq!(first_rng.state(), reference_rng.state());
 
@@ -764,7 +764,7 @@ mod tests {
             .unwrap()
             .silu()
             .unwrap()
-            .value();
+            .value_snapshot();
         assert_eq!(values.as_slice(), &[0.0, 0.0, 1000.0]);
     }
 

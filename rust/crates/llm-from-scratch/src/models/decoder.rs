@@ -1008,7 +1008,8 @@ mod tests {
             .parameters()
             .iter()
             .map(|parameter| {
-                NamedParameter::from_tensor(parameter.name(), parameter.tensor().value()).unwrap()
+                NamedParameter::from_tensor(parameter.name(), parameter.tensor().value_snapshot())
+                    .unwrap()
             })
             .collect()
     }
@@ -1073,7 +1074,7 @@ mod tests {
             ]
         );
         for (left, right) in left.parameters().iter().zip(right.parameters()) {
-            assert_eq!(left.tensor().value(), right.tensor().value());
+            assert_eq!(&*left.tensor().value(), &*right.tensor().value());
             assert!(!left.tensor().is_same_node(right.tensor()));
             assert!(!left.name().contains("bias"));
         }
@@ -1093,18 +1094,12 @@ mod tests {
             .forward(&ids, &[1, 3])
             .unwrap()
             .into_logits()
-            .value();
+            .value_snapshot();
         let rebuilt =
             DecoderModel::from_parameters(config(1), copied_parameters(&original)).unwrap();
 
-        assert_eq!(
-            rebuilt
-                .forward(&ids, &[1, 3])
-                .unwrap()
-                .into_logits()
-                .value(),
-            expected_logits
-        );
+        let rebuilt_logits = rebuilt.forward(&ids, &[1, 3]).unwrap().into_logits();
+        assert_eq!(&*rebuilt_logits.value(), &expected_logits);
         assert!(
             rebuilt
                 .embedding()
@@ -1144,9 +1139,11 @@ mod tests {
         );
 
         let mut renamed = copied_parameters(&original);
-        renamed[1] =
-            NamedParameter::from_tensor("blocks.0.wrong.gain", renamed[1].tensor().value())
-                .unwrap();
+        renamed[1] = NamedParameter::from_tensor(
+            "blocks.0.wrong.gain",
+            renamed[1].tensor().value_snapshot(),
+        )
+        .unwrap();
         assert_eq!(
             DecoderModel::from_parameters(config(1), renamed).unwrap_err(),
             DecoderModelError::ParameterNameMismatch {

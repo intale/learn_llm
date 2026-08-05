@@ -455,11 +455,11 @@ mod tests {
         let left = NamedParameter::xavier_uniform("projection.left", 2, 2, &mut left_rng).unwrap();
         let right =
             NamedParameter::xavier_uniform("projection.right", 2, 2, &mut right_rng).unwrap();
-        assert_eq!(left.tensor().value(), right.tensor().value());
+        assert_eq!(&*left.tensor().value(), &*right.tensor().value());
 
         let second =
             NamedParameter::xavier_uniform("projection.second", 2, 2, &mut left_rng).unwrap();
-        assert_ne!(left.tensor().value(), second.tensor().value());
+        assert_ne!(&*left.tensor().value(), &*second.tensor().value());
     }
 
     #[test]
@@ -470,7 +470,7 @@ mod tests {
             NamedParameter::xavier_uniform("projection.weight", 2, 2, &mut first_rng).unwrap();
         let second =
             NamedParameter::xavier_uniform("projection.weight", 2, 2, &mut second_rng).unwrap();
-        assert_ne!(first.tensor().value(), second.tensor().value());
+        assert_ne!(&*first.tensor().value(), &*second.tensor().value());
     }
 
     #[test]
@@ -614,7 +614,7 @@ mod tests {
 
         assert!(parameter.tensor().is_same_node(clone.tensor()));
         assert!(!parameter.tensor().is_same_node(recreated.tensor()));
-        assert_eq!(parameter.tensor().value(), recreated.tensor().value());
+        assert_eq!(&*parameter.tensor().value(), &*recreated.tensor().value());
         let gradient = parameter.tensor().gradient().unwrap();
         assert!(gradient.as_slice().iter().all(|value| value.to_bits() == 0));
     }

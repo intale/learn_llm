@@ -824,8 +824,8 @@ impl MultiHeadAttention {
                         input: MultiHeadInput::Key,
                         source,
                     })?;
-            let candidate_key = rotated_key_heads.value();
-            let candidate_value = projected_value_heads.value();
+            let candidate_key = rotated_key_heads.value_snapshot();
+            let candidate_value = projected_value_heads.value_snapshot();
             let (attention_weights, head_output_tensor) = incremental_mixture(
                 &rotated_query_heads.value(),
                 &candidate_key,

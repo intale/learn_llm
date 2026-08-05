@@ -2,7 +2,7 @@
 {
   "chapter_id": "32-decoder-model",
   "concept_id": "decoder-model",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 32,
   "objective": {
     "en": "Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm, and one genuinely tied vocabulary projection into differentiable logits.",
@@ -215,8 +215,8 @@
     }
   ],
   "translation_notes": [
-    "Chapter 32 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 317367f552a6e9de39fc0e3173c6c5319d9a2cb2d53a490d50bc024e06323d08",
+    "Chapter 32 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 607d4bbc7223c49cfc6aef62982e93aa623e38d8186d9a7928819bc5b0b58d2a",
     "Translate weight tying as «связывание весов» and immediately ground it as one shared parameter with two differentiable uses, never as copying, mirroring, or synchronizing two tables. Use «выходная проекция на словарь» in ordinary prose rather than a literal UI-like rendering of output head.",
     "Translate token lookup as «выбор строк таблицы по ID токенов» or the concise contextual phrase «выбор эмбеддингов по ID токенов», never as «поиск токенов».",
     "Preserve z, E, E[z], E^top, B_i, N, B, T, V, d_model, d_ff, y, ell, L, axis order, exact parameter names, trace tokens, and the distinction between logits and scalar loss.",

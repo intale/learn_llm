@@ -23,7 +23,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '15-tensor-autodiff-core';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)},\qquad e\in E`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [

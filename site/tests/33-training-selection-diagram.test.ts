@@ -455,9 +455,9 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(4);
-    expect(lesson.content_revision).toBe(4);
-    expect(russianLesson.content_revision).toBe(4);
+    expect(contract.content_revision).toBe(5);
+    expect(lesson.content_revision).toBe(5);
+    expect(russianLesson.content_revision).toBe(5);
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
@@ -514,6 +514,15 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(normalizedLesson).toContain(
       "The method then returns the new optimizer step number, which the trainer compares directly with the planned update index.",
     );
+    expect(normalizedLesson).toContain(
+      "`gradient()` lends a read guard over one parameter's gradient tensor. After verifying that every value in that tensor is zero, the trainer ends the guard before `zero_grad()` mutably clears the same tensor.",
+    );
+    expect(normalizedLesson).toContain(
+      "`parameter_bits` temporarily reads each parameter tensor, converts its scalar values to `u64`, and retains only the resulting bit vector after the read ends.",
+    );
+    expect(trainerSource).toMatch(
+      /drop\(gradient\);\s*parameter\.tensor\(\)\.zero_grad\(\)\?/,
+    );
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
       "Затем он возвращает новый номер шага оптимизатора, и цикл напрямую сравнивает его с номером обновления в плане.",
     );
@@ -521,6 +530,10 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(decoderSource).toContain("region:decoder-parameter-rebuild");
     expect(demoSource).toContain("region:historical-selection-contrast");
     expect(demoSource).toContain("region:learner-evidence");
+    expect(demoSource).toMatch(
+      /fn parameter_bits\(model: &DecoderModel\)[\s\S]*?\.value\(\)[\s\S]*?\.as_slice\(\)/,
+    );
+    expect(demoSource).not.toContain(".value_snapshot()");
     expect(traceRustSource).toContain("TRAINING_SELECTION_TRACE_V1");
   });
 });

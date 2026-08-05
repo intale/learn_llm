@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T19:07:33Z"
+updated_at: "2026-08-05T07:15:59Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: null
+active_build: remediate-rust-buffer-ownership-20260805
 
 builds:
   - build_id: bootstrap-course
@@ -22,7 +22,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 0
+      spent: 1
       notes: "No explicit resource budget has been supplied. Estimate and seek approval for large or paid work."
     completion_criteria:
       - "Architecture and toolchain decisions are recorded."
@@ -69,7 +69,13 @@ builds:
               - "git status"
               - "rustc --version && cargo --version && node --version && npm --version && git --version"
               - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml"
-            artifacts: []
+            artifacts:
+              - {path: ".build/runs/20260805T054730Z-make-tensorvalue-reads-borrowed-01/publish.sha256", sha256: "390dd3955202bb58df18e9f4c08b37ecd989a8a60d9e4099f11e6cf258fc8cb5", purpose: "Frozen manifest for the 111 exact product outputs promoted by this run."}
+              - {path: "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs", sha256: "7d373ccdaf2c4dc4be24066fed3c9c10a4ae690a363c1445bb567f406d72900c", purpose: "Borrowed primal and gradient guards, explicit snapshot boundaries, separated guarded storage, and atomic gradient-commit conflict handling."}
+              - {path: "rust/crates/llm-from-scratch/src/autograd/model_ops.rs", sha256: "9949267c0998ad4e97b7657b2c2ad46ca4563f9a71b314df68d20208434c9fa7", purpose: "Ordinary model operations borrow tape-owned primals while saved reverse context owns only the required lifetime-independent tensors."}
+              - {path: "curriculum/chapters/15-tensor-autodiff-core.md", sha256: "6e4820124506e97d43f2d9774df7d13027b1d6062fa92952d6c710b26809fcdc", purpose: "Revision-6 Chapter 15 contract for node-owned storage, borrowed reads, explicit snapshots, and detach semantics."}
+              - {path: "site/src/content/chapters/en/15-tensor-autodiff-core.mdx", sha256: "3c9d25e50967bd7f4dee49f3427d16232fa9bdc7945ff74f5bb25a02670682d5", purpose: "Canonical English teaching projection for the ownership boundary."}
+              - {path: "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx", sha256: "a25c01a4978f647bbaa503357693fd6a21f82c5486fbb5a938372be0b9a98d26", purpose: "Directly refreshed and independently reviewed Russian projection."}
             validation: []
             notes: "Interrupted after AGENTS.md changed materially during execution to add learning objective 8 (English/Russian localization). The partial architecture decision in DECISIONS.md is preserved and requires a superseding localization decision."
           - run_id: 20260718T082625Z-define-course-architecture-02
@@ -31669,3 +31675,198 @@ builds:
               - {command: "Final manifest, publication, and host-boundary audit", status: passed, notes: "All thirteen canonical product files are byte-identical to their staged counterparts and match manifest sha256:c9cf849388d552e10b64818e647a3c3a6377a979bb7522a78f4460e109bb42fd. ./course audit-host passes with only the intentional site/dist release exception."}
               - {command: "Final pinned-Docker ledger parse, exact scope, and whitespace check", status: passed, notes: "The completed YAML parses, closes the F01 build with no active or running owner, and retains F02-F13 for separate builds. Exactly the thirteen declared products plus BUILD_STATE.yaml and DECISIONS.md change; git diff --check passes."}
             notes: "Succeeded. Ordinary AdamW updates return only the committed step number and construct no parameter-scale teaching record; explicit trace methods observe the same private prepare-and-commit kernel. Exact parity tests preserve arithmetic, error precedence, fresh-leaf replacement, name-keyed moment state, beta powers, and whole-set rollback. Chapters 22 and 33 now explain the API and saved optimizer/model state explicitly in reviewed English and natural Russian, while all downstream evidence remains exact. F02 trainer ownership, F03/F07 trace transport, and F08 allocation policy remain separate audit work."
+
+  - build_id: remediate-rust-buffer-ownership-20260805
+    objective: "Remove audit finding F02's accidental full-tensor and whole-model copies from ordinary execution while keeping ownership boundaries, rollback, and learner evidence explicit."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "Four dependency-ordered corrections. Validation uses cached Docker and browser CPU only; no paid service or model generation is used."
+    completion_criteria:
+      - "Ordinary tensor reads borrow tape-owned storage; every independent tensor copy is requested through an explicitly named snapshot boundary."
+      - "Gradient clipping supplies a scale to the optimizer without rebuilding a complete parameter set."
+      - "A successful optimizer step preserves live parameter-leaf identity and commits one validated whole-set update in place without cloning and replacing the complete decoder."
+      - "Checkpoint and best-model isolation remain explicit deep-copy boundaries, while internal restore and transfer paths move owned state when ownership is available."
+      - "All affected English content is revised first, Russian is refreshed directly through the localization workflow, and each completed correction is committed independently."
+    steps:
+      - id: make-tensorvalue-reads-borrowed
+        objective: "Make ordinary TensorValue primal and gradient inspection non-copying, and name every caller that intentionally takes an independent tensor snapshot."
+        depends_on: []
+        status: completed
+        inputs:
+          - "User direction to continue and fix the reviewed Rust overengineering findings"
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "audits/2026-08-04-rust-overengineering.md finding F02"
+          - "Commit 7a55194a12bdd5b5a15c07eb692852bff9535c7c"
+          - "TensorValue implementation, all canonical Rust value/gradient callers, and the rendered Rust projections in Chapters 15-20, 22-25, 32-33, and 37-38"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "Modified canonical Rust callers under rust/crates/llm-from-scratch/src/ and rust/demos/, fixed exactly by the successful run manifest before publication"
+          - "curriculum/chapters/{15-tensor-autodiff-core,16-model-autodiff-ops,17-parameter-initialization,18-token-embeddings,19-linear-layers,20-swiglu-feed-forward,22-adamw,23-neural-ngram,24-residual-connections,25-rmsnorm,32-decoder-model,33-training-selection,37-incremental-attention,38-cached-generation}.md"
+          - "site/src/content/chapters/{en,ru}/{15-tensor-autodiff-core,16-model-autodiff-ops,17-parameter-initialization,18-token-embeddings,19-linear-layers,20-swiglu-feed-forward,22-adamw,23-neural-ngram,24-residual-connections,25-rmsnorm,32-decoder-model,33-training-selection,37-incremental-attention,38-cached-generation}.mdx"
+          - "site/tests/{15-tensor-autodiff-core,16-model-autodiff-ops,17-parameter-initialization,18-token-embeddings,19-linear-layers,20-swiglu-feed-forward,22-adamw,23-neural-ngram,24-residual-connections,25-rmsnorm,32-decoder-model,33-training-selection,37-incremental-attention,38-cached-generation}-diagram.test.ts"
+          - "site/tests/e2e/ch{15-tensor-autodiff-core,16-model-autodiff-ops,17-parameter-initialization,18-token-embeddings,19-linear-layers,20-swiglu-feed-forward,22-adamw,23-neural-ngram,24-residual-connections,25-rmsnorm,32-decoder-model,33-training-selection,37-incremental-attention,38-cached-generation}.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "TensorValue::value returns a read-only guard for the node-owned primal, TensorValue::gradient returns a read-only guard for the stored parameter gradient, and explicitly named value_snapshot and gradient_snapshot methods are the only default API for independent copies."
+          - "Primal storage and mutable tape state use separate guard-capable cells so ordinary primal inspection can coexist with graph-state inspection and the later optimizer can safely mutate the same parameter leaf after a whole-set borrow preflight."
+          - "Holding a gradient read guard across zero_grad or backward returns a typed borrow-conflict error rather than panicking; a late conflict rejects the complete gradient commit before any parameter or graph-lifecycle change."
+          - "Every ordinary forward kernel borrows operand primals. Copies remain only where reverse-mode saved context or an explicit state/evidence lifetime requires independent ownership."
+          - "All callers compile with a visible distinction between borrowed inspection and owned snapshot; value_snapshot is distinguished from detach, which creates a new untracked TensorValue leaf."
+          - "Chapters 15-20, 22-25, 32-33, and 37-38 advance by one revision and project the compiled API exactly; Chapter 15 explicitly teaches node ownership, borrowed reads, snapshots, and detach, while Chapter 22 makes the temporary primal-read scope before mutable optimizer access explicit. English is canonical and Russian is refreshed naturally from each matching revision."
+          - "Tensor values, gradients, errors, graph lifecycle, stdout reports, diagram traces, training results, checkpoint bytes, sampling decisions, and cached/uncached generation remain exact."
+        validate:
+          - "./course run cargo fmt --all -- --check"
+          - "./course run cargo clippy --workspace --all-targets --locked -- -D warnings"
+          - "./course run cargo test --workspace --all-targets --locked"
+          - "./course run cargo test --doc --workspace --locked"
+          - "./course check"
+          - "./course review 20260805T054730Z-make-tensorvalue-reads-borrowed-01 --check"
+          - "./course run sh -lc 'cd site && npm run test:e2e -- --browser=chromium'"
+          - "./course run sh -lc 'cd site && npm run test:e2e -- --browser=firefox'"
+          - "./course audit-host"
+        cost: {class: large, notes: "Core ownership API migration, thirteen bilingual rendered projections, complete deterministic replay, static-site validation, and two-browser validation; cached Docker CPU only, no paid service or generation."}
+        runs:
+          - run_id: 20260805T054730Z-make-tensorvalue-reads-borrowed-01
+            started_at: 2026-08-05T05:47:30Z
+            finished_at: 2026-08-05T07:15:59Z
+            status: succeeded
+            input_fingerprint:
+              git: "7a55194a12bdd5b5a15c07eb692852bff9535c7c; tree 89d499fd43f9f010d22b4d8f20e680ef5fbfeeef"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                tensor-core: "sha256:a08d29d7b5137a8174d4f3718050ce8e273c745093a3e2cf11c26de9b41b3236"
+                model-ops: "sha256:b1aaee3d3dc7d02289f2c236bbdc43f462912115d05081d8442fce5e719d4ee0"
+                trainer: "sha256:10c795710108e89554fca65ad48920f551b3709f775e3e51511cbff97b75c43c"
+                affected-chapter-projections: "sha256:c3dcd588f1cf763769e0bd416095c5dc415e3d2bacaa83c97a5f19b274904d17"
+              tools: {git: "2.53.0", docker: "25.0.2", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No paid service, model generation, or network input. Product build and validation remain Docker-only."
+            staging_dir: ".build/runs/20260805T054730Z-make-tensorvalue-reads-borrowed-01/"
+            commands:
+              - "Run the complete session startup protocol, verify a clean commit 7a55194, completed F01 dependency, exact tool pins, no running owner, and no overlapping product change."
+              - "Perform independent read-only Rust API, F02 sequencing, and rendered-content projection reviews before claiming the step."
+              - "Classify the step as large cached-Docker/browser work within the unlimited budget and record the immutable-node/borrowed-read/snapshot decision before product edits."
+              - "Supersede the initial immutable-primal choice after invariant review showed it would prevent the scheduled safe in-place parameter commit; require separate guard-capable primal and tape-state cells plus typed gradient-borrow rejection."
+              - "Add Chapter 22 revision 5 after Rust borrow checking required its rendered historical optimizer loop to end the primal read before passing the parameter slice mutably to AdamW; preserve all optimizer evidence and mathematics."
+              - "Implement separate guarded primal and tape-state storage, borrowed value/gradient access, explicit snapshot APIs, borrowed model-operation primals, typed whole-set gradient-borrow rollback, detach snapshotting, and every canonical Rust caller migration."
+              - "Run Docker Rust formatting, workspace/all-target compile, focused tensor-core tests, complete workspace tests, and doctests after the Rust caller migration."
+              - "Advance fourteen canonical English contracts and lessons, source/parity tests, and browser revisions; explicitly teach guarded reads in Chapter 15, the bounded primal read in Chapter 22, and gradient-guard release before zero_grad in Chapter 33."
+              - "Refresh all fourteen Russian lessons directly from the frozen English revisions under the localization skill; perform semantic, terminology, anti-calque, monolingual, and revision-parity review."
+              - "Run the complete Docker site unit-test gate after the canonical English and Russian projections are synchronized."
+              - "Run the pinned all-target Clippy gate; preserve its failed result before correcting the reported redundant-reference comparisons."
+              - "Receive an independent Rust ownership review finding that Chapter 33 still snapshots complete parameter tensors merely to compute evidence bits; return those sites to scoped borrowed iteration and refresh the Chapter 33 projection."
+              - "Apply the complete independent localization review: correct one shared reset-semantics defect in English and Russian, replace Russian storage and lookup mistranslations, make empty-shape behavior explicit, and remove the reported calques and ambiguous referents across the fourteen touched lessons."
+              - "Add a Chapter 33 source assertion that exact-state evidence borrows parameter tensors and owns only the resulting bit-pattern vector."
+            artifacts: []
+            validation:
+              - {command: "Pinned Docker baseline workspace gate and running-ledger parse", status: passed, notes: "Workspace image sha256:451bfa5e70cbceb96405cb2cf9bab2001db95c4a021c93462271b319b3f69594 passes all 39 demos, 374 shared tests, doctests, content/parity, 215-file Astro diagnostics, the 85-page build, and 2,529-reference link check; the parsed ledger has exactly this running step."}
+              - {command: "Frozen checked-in deterministic evidence manifest", status: passed, notes: "All 39 expected.txt files combine to sha256:75e0667f446106cd55795123b4094169bd866b0e77d3826ad281aa4cce931221; all 34 diagram-trace.txt files combine to sha256:eda32e21abaaad424531e8bdf5e225bfa39ec3c13200bcd6e1b582c024d4014d."}
+              - {command: "Docker cargo fmt, workspace/all-target check, focused tensor-core tests, complete workspace tests, and doctests", status: passed, notes: "The migrated Rust workspace is formatted and compiles across every target. All 22 focused tensor-core tests pass, including independent snapshot mutation, value-read/backward coexistence, typed zero_grad rejection, and a late two-parameter GradientBorrowed rollback under Release. The complete Rust workspace and doctests pass with all deterministic learner assertions intact."}
+              - {command: "Canonical English and direct Russian semantic/localization review", status: passed, notes: "Fourteen contracts and locale pairs advance together. Chapters 15, 22, and 33 receive explicit guarded-read explanations; the other eleven preserve their canonical prose while projecting changed compiled Rust. Russian was refreshed directly and passed semantic, terminology, anti-calque, monolingual, and revision-parity review; an inherited Chapter 15 zero-copy-view calque was replaced with concrete node-owned tensor wording."}
+              - {command: "Post-localization Docker workspace, Astro, content/parity, build, links, SEO, and sitemap gate", status: passed, notes: "After the Russian refresh, the full Docker pipeline passes Rust tests, Astro diagnostics, content and locale parity, static production build, and link/SEO/sitemap validation. Complete Vitest and browser matrices remain pending."}
+              - {command: "./course run sh -lc 'cd site && npm run test -- --run'", status: passed, notes: "The post-localization Docker image sha256:19c79f80609ab781b3378daae3eb3396a2db13f605a3177a1c44b7324e1764b1 passes all 39 demos, 377 shared Rust tests, doctests, 215-file Astro diagnostics, content/parity, the 85-page static build, 2,529-reference link/SEO/sitemap validation, and all 964 Vitest assertions in 54 files."}
+              - {command: "./course run cargo clippy --workspace --all-targets --locked -- -D warnings", status: failed, notes: "The strict Clippy gate found redundant references around borrowed Tensor comparisons introduced during the migration. No runtime or learner-evidence failure occurred; the findings must be corrected and the exact gate rerun before completion."}
+              - {command: "Corrected ./course run cargo clippy --workspace --all-targets --locked -- -D warnings attempt", status: failed, notes: "Rust formatting, all 39 demos, 377 shared tests, doctests, and 215-file Astro diagnostics passed. The pre-Clippy content gate correctly rejected the naturalized Chapter 23 Russian history because its duplicated frontmatter source claim and later-advance fields had not yet been synchronized with the newly revised visible prose; no image was published and no Clippy result was inferred."}
+              - {command: "Parallel staged Docker content, parity, and Vitest correction check", status: failed, notes: "Chapter 23 source-field synchronization passed, but the check exposed one JavaScript-patch escape that wrote a vertical-tab control character before varepsilon in Russian Chapter 25 and one newly introduced undocumented Chapter 18 code span. Vitest otherwise passed 962 of 964 assertions; both authoring defects are local and were preserved before correction."}
+              - {command: "Corrected staged Docker content, parity, and Vitest gates", status: passed, notes: "All 80 localized sources, 40 publishable locale sets, 33 catalog keys, and 42 shared diagram components pass content and parity validation. All 964 Vitest assertions in 54 files pass, including formula parity, Chapter 33 borrowed-evidence enforcement, and canonical-source hashes."}
+              - {command: "./course run cargo clippy --workspace --all-targets --locked -- -D warnings", status: passed, notes: "The exact strict all-target Clippy gate passes after removing every redundant reference comparison. Its prerequisite Docker image sha256:dd6e573a45b588885e30a007fe38ca0aacd48324b9a34c397a88b134466473ff also passes formatting, all 39 demos, 377 shared tests, doctests, Astro diagnostics, content/parity, the 85-page build, and the 2,529-reference static-link/SEO/sitemap gate."}
+              - {command: "Docker scripts/check-rust-demos.sh plus frozen evidence manifest recomputation", status: passed, notes: "All 39 learner reports and 34 diagram traces replay exactly. The expected.txt aggregate remains sha256:75e0667f446106cd55795123b4094169bd866b0e77d3826ad281aa4cce931221 and the diagram-trace.txt aggregate remains sha256:eda32e21abaaad424531e8bdf5e225bfa39ec3c13200bcd6e1b582c024d4014d, byte-identical to preflight."}
+              - {command: "Complete staged Chromium and Firefox Playwright matrices", status: failed, notes: "Chromium passed 664 of 665 and reported Chapter 25's combined localized desktop/narrow rendering check; Firefox passed 663 of 665 and reported the same Chapter 25 check plus Chapter 30's combined rendering check. Because both 16-worker matrices ran concurrently, focused single-worker reproduction is required before classifying layout defects or resource-related flakiness."}
+              - {command: "Single-worker Chromium Chapter 25 and Firefox Chapter 30 reproduction", status: passed, notes: "Chapter 25 reproduced as one stale Russian heading expectation after the localization correction, not a containment defect; its E2E fixture now expects мини-пакета. All seven Chapter 30 Firefox checks pass alone, classifying that concurrent-matrix report as resource flakiness rather than a product defect."}
+              - {command: "git diff --check and ./course check", status: passed, notes: "The canonical Docker workspace image sha256:4f9bd5194a6e4a2274a0e436509ad4abbff8eedb81dbf943e246dafafaff7e44 passes Rust formatting, all 39 demos, 377 shared tests, doctests, 215-file Astro diagnostics, content and locale parity, the 85-page build, and 2,529-reference link/SEO/sitemap validation after synchronizing the Chapter 25 browser fixture."}
+              - {command: "Final isolated Chromium Playwright matrix", status: passed, notes: "All 665 Chromium browser checks pass against browser image sha256:fbea8ff6a1b2f2e04e2b72bb11251af9fff93aa1c997fd214be1bf358987e859, including both locales at desktop and narrow widths, no-JavaScript fallbacks, formula containment, diagram full view, forced colors, RTL, and the corrected Chapter 25 heading."}
+              - {command: "Final isolated Firefox Playwright matrix", status: passed, notes: "All 665 Firefox browser checks pass against the same browser image sha256:fbea8ff6a1b2f2e04e2b72bb11251af9fff93aa1c997fd214be1bf358987e859, including both locales at desktop and narrow widths, no-JavaScript fallbacks, formula containment, diagram full view, forced colors, RTL, and the corrected Chapter 25 heading."}
+              - {command: "Freeze and verify the exact product publication manifest", status: passed, notes: "The publish tree contains exactly the 111 declared product files: 41 Rust files, fourteen chapter contracts, 28 localized lessons, fourteen source tests, and fourteen browser tests. Every staged file verifies, and publish.sha256 is sha256:390dd3955202bb58df18e9f4c08b37ecd989a8a60d9e4099f11e6cf258fc8cb5."}
+              - {command: "First manifest-locked ./course review 20260805T054730Z-make-tensorvalue-reads-borrowed-01 --check invocation", status: failed, notes: "The sandbox prevented Docker Buildx from updating its activity metadata under /home/int/.docker, so the command stopped before building or changing any product or staged file. The exact command was repeated with the required Docker access."}
+              - {command: "Manifest-locked ./course review 20260805T054730Z-make-tensorvalue-reads-borrowed-01 --check", status: passed, notes: "Official review image sha256:1e9c531825232ab5a374f26e240ea8cd8ded5d21460726a4830169cc8e273a94 validates the 111-file manifest, 80 localized sources, 40 locale sets, 33 catalog keys, 42 diagrams, 215 Astro files, 85 static pages, 2,529 local references, and all 28 affected English/Russian routes without changing the publish tree."}
+              - {command: "First ./course audit-host invocation", status: failed, notes: "The audit found one ignored 45 MB root target/ directory created by an earlier host Cargo invocation. It contained only regenerable Cargo fingerprints and build output, was removed at its exact validated path, and did not affect source, the staged manifest, or site/dist."}
+              - {command: "./course audit-host after generated-artifact cleanup", status: passed, notes: "The host contains no Rust, Node.js, or Python build artifacts; site/dist remains the sole intentional static-release exception."}
+              - {command: "Final staged/canonical byte equality, exact Git scope, and whitespace checks", status: passed, notes: "Every canonical product output is byte-identical to its frozen staged counterpart. The 113 changed paths are exactly 111 declared products plus BUILD_STATE.yaml and DECISIONS.md; git diff --check passes."}
+              - {command: "First pinned-Docker completed-ledger validation invocation", status: failed, notes: "The sandbox denied access to the Docker daemon before image inspection or validation. No file or Docker state changed; the same read-only validation was repeated with Docker access."}
+              - {command: "Final pinned-Docker completed-ledger and scheduler validation", status: passed, notes: "Workspace image sha256:4f9bd5194a6e4a2274a0e436509ad4abbff8eedb81dbf943e246dafafaff7e44 parses the completed YAML and validates 40 chapters, 111 scheduled steps, and 40 implemented contracts. There is no running owner, and thread-gradient-scale-into-adamw is the next eligible step in the active build."}
+            notes: "Succeeded. TensorValue primal and gradient inspection now returns scoped read guards over node-owned storage, while value_snapshot and gradient_snapshot name independent copies and detach creates a new untracked leaf. Separate primal and tape-state cells preserve read/backward compatibility; typed conflicts reject zero_grad or a complete late gradient commit without panic or partial mutation. Ordinary model operations borrow primals, Chapter 33 evidence owns only scalar bit patterns, and all deterministic learner output remains exact. Fourteen English chapters and their direct, independently reviewed Russian revisions teach or project the boundary accurately. Complete Rust, content, static-site, Chromium, Firefox, manifest, and host-boundary gates pass. Gradient scaling, in-place parameter identity, and decoder state transfer remain separate pending steps."
+
+      - id: thread-gradient-scale-into-adamw
+        objective: "Pass the validated clipping scale into AdamW so clipping does not allocate a replacement parameter set before the optimizer transaction."
+        depends_on: [make-tensorvalue-reads-borrowed]
+        status: pending
+        inputs:
+          - "Completed make-tensorvalue-reads-borrowed step"
+          - "Audit finding F02 clipping-copy cluster"
+          - "Chapter 21 clipping and Chapter 22 AdamW invariants"
+        outputs:
+          - "Rust clipping, trainer, and AdamW implementation and tests"
+          - "Affected chapter contracts, English/Russian projections, and focused browser/source tests determined during preflight"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The optimizer applies one finite scale in the closed interval [0, 1] to each gradient during its existing whole-set preparation; scale one is bit-identical to the unclipped path."
+          - "The trainer does not construct a second complete set of parameter leaves solely to represent clipped gradients."
+          - "Clipping norms, scale evidence, AdamW arithmetic, error precedence, and rollback remain exact."
+        validate:
+          - "./course check"
+          - "Focused deterministic Chapter 21/22/33 replay and source/content tests"
+          - "Focused Chromium and Firefox affected-route validation"
+          - "./course audit-host"
+        cost: {class: large, notes: "Optimizer/trainer ownership correction with deterministic and bilingual rendered validation; cached Docker/browser CPU only."}
+        runs: []
+
+      - id: preserve-live-parameter-leaves-on-commit
+        objective: "Commit a fully validated AdamW update into the live model without cloning and replacing every parameter leaf and decoder."
+        depends_on: [thread-gradient-scale-into-adamw]
+        status: pending
+        inputs:
+          - "Completed gradient-scale step"
+          - "Audit finding F02 fresh-leaf and whole-model replacement clusters"
+          - "Accepted Chapter 22 transaction, Chapter 23 training, and Chapter 33 saved-state semantics"
+        outputs:
+          - "Rust TensorValue, AdamW, trainer, and model ownership implementation and tests"
+          - "Chapter 22, 23, and 33 contracts, English/Russian projections, evidence adapters, and focused source/browser tests"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "AdamW validates every named candidate and all prospective optimizer state before one infallible commit mutates existing parameter leaves; any preparation failure changes neither model nor optimizer."
+          - "Successful updates preserve parameter TensorValue node identity, tied-weight identity, stable names, ordering, and exact arithmetic."
+          - "The trainer owns one live decoder and optimizer, performs explicit post-step gradient clearing, and does not reconstruct and swap a full candidate decoder each batch."
+          - "Chapter evidence is revised wherever fresh-leaf replacement was previously presented as required behavior."
+        validate:
+          - "./course check"
+          - "Focused identity, tied-weight, rollback, trajectory, checkpoint, and deterministic replay tests"
+          - "Focused Chromium and Firefox Chapter 22/23/33 validation"
+          - "./course audit-host"
+        cost: {class: large, notes: "Semantically significant transaction and learner-evidence correction with complete Rust/site/browser validation; cached Docker/browser CPU only."}
+        runs: []
+
+      - id: make-decoder-state-transfers-explicit-and-movable
+        objective: "Keep deep decoder copies only at named isolation boundaries and move owned state through internal restore and selection paths when possible."
+        depends_on: [preserve-live-parameter-leaves-on-commit]
+        status: pending
+        inputs:
+          - "Completed live-parameter commit step"
+          - "Audit finding F02 model-state capture/restore cluster"
+          - "Chapter 33 selection and Chapter 35 checkpoint isolation requirements"
+        outputs:
+          - "Rust trainer, decoder-state, and checkpoint ownership implementation and tests"
+          - "Affected chapter contracts, English/Russian projections, and focused source/browser tests determined during preflight"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Checkpoint serialization and best-model isolation use explicitly named snapshots because the copy must outlive the live model."
+          - "Internal paths that already own decoder state consume and move it instead of cloning every tensor buffer again."
+          - "Restore validation remains transactional and exact checkpoint bytes, resumed trajectories, selected state, and tied identities remain unchanged."
+        validate:
+          - "./course check"
+          - "Focused Chapter 33/35 snapshot, restore, continuation, corruption, and exact-byte tests"
+          - "Focused Chromium and Firefox affected-route validation"
+          - "./course audit-host"
+        cost: {class: large, notes: "State-ownership API correction with checkpoint and bilingual rendered validation; cached Docker/browser CPU only."}
+        runs: []

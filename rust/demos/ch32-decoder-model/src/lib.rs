@@ -261,7 +261,7 @@ fn stage(
     StageEvidence {
         name: name.into(),
         shape: value.shape(),
-        values: value.value(),
+        values: value.value_snapshot(),
     }
 }
 
@@ -334,14 +334,10 @@ fn error_evidence() -> ErrorEvidence {
 }
 
 fn causality_evidence(model: &DecoderModel) -> Result<CausalityEvidence, DecoderModelError> {
-    let original = model
-        .forward(&TOKEN_IDS, &[BATCH, TOKENS])?
-        .logits()
-        .value();
-    let changed = model
-        .forward(&[0, 1, 4], &[BATCH, TOKENS])?
-        .logits()
-        .value();
+    let original_forward = model.forward(&TOKEN_IDS, &[BATCH, TOKENS])?;
+    let original = original_forward.logits().value();
+    let changed_forward = model.forward(&[0, 1, 4], &[BATCH, TOKENS])?;
+    let changed = changed_forward.logits().value();
     Ok(CausalityEvidence {
         prefix_0_bitwise: original.as_slice()[..VOCABULARY] == changed.as_slice()[..VOCABULARY],
         prefix_1_bitwise: original.as_slice()[VOCABULARY..2 * VOCABULARY]
@@ -361,7 +357,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, Box<dyn Error>> {
         stages.push(stage(format!("block-{layer}"), block.output()));
     }
     stages.push(stage("final-norm", forward.final_norm().output()));
-    let logits = forward.logits().value();
+    let logits = forward.logits().value_snapshot();
     let loss = model
         .loss(&TOKEN_IDS, &[BATCH, TOKENS], &TARGET_IDS)?
         .value()
@@ -369,7 +365,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, Box<dyn Error>> {
     let replay = initialized_model(LAYERS)?
         .forward(&TOKEN_IDS, &[BATCH, TOKENS])?
         .logits()
-        .value();
+        .value_snapshot();
     let expected_names = model
         .parameters()
         .iter()

@@ -372,8 +372,8 @@ mod tests {
         let rope = RotaryEmbedding::new(4, 6, 100.0).unwrap();
         let repeated_values = [1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0];
         let input = constant(&[3, 4], &repeated_values);
-        let original = rope.rotate(&input, 0).unwrap().value();
-        let shifted = rope.rotate(&input, 3).unwrap().value();
+        let original = rope.rotate(&input, 0).unwrap().value_snapshot();
+        let shifted = rope.rotate(&input, 3).unwrap().value_snapshot();
 
         for values in [original.as_slice(), shifted.as_slice()] {
             for row in values.chunks_exact(4) {

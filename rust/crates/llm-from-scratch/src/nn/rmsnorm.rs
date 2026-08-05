@@ -402,21 +402,21 @@ mod tests {
         let ideal_base = ideal
             .forward(&TensorValue::constant(base.clone()).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         let ideal_scaled = ideal
             .forward(&TensorValue::constant(scaled.clone()).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         assert_close(ideal_base.as_slice(), ideal_scaled.as_slice(), 3e-16);
 
         let production_base = production
             .forward(&TensorValue::constant(base).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         let production_scaled = production
             .forward(&TensorValue::constant(scaled).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         assert_ne!(production_base.as_slice(), production_scaled.as_slice());
         let difference = production_base.as_slice()[1] - production_scaled.as_slice()[1];
         assert!((difference.abs() - 4.4802258503118253e-7).abs() < 1e-15);
@@ -428,11 +428,11 @@ mod tests {
         let tiny = layer
             .forward(&TensorValue::constant(tensor(&[2], &[3e-4, 4e-4])).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         let scaled = layer
             .forward(&TensorValue::constant(tensor(&[2], &[3e-3, 4e-3])).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         assert_close(
             tiny.as_slice(),
             &[0.09428090415820634, 0.1257078722109418],
@@ -447,7 +447,7 @@ mod tests {
         let zero = layer
             .forward(&TensorValue::constant(tensor(&[2], &[0.0, 0.0])).unwrap())
             .unwrap()
-            .value();
+            .value_snapshot();
         assert_eq!(zero.as_slice(), [0.0, 0.0]);
         assert_eq!(
             RmsNorm::from_gain(gain(&[1.0, 1.0]), 0.0)
@@ -473,7 +473,7 @@ mod tests {
     fn final_axis_rows_are_independent_and_empty_outer_batches_are_valid() {
         let layer = known_layer(EPSILON);
         let input = TensorValue::constant(tensor(&[2, 2], &[3.0, 4.0, 0.0, 5.0])).unwrap();
-        let output = layer.forward(&input).unwrap().value();
+        let output = layer.forward(&input).unwrap().value_snapshot();
         assert_eq!(output.shape(), [2, 2]);
         assert_close(
             output.as_slice(),
@@ -487,7 +487,7 @@ mod tests {
         );
 
         let empty = TensorValue::constant(tensor(&[2, 0, 2], &[])).unwrap();
-        let empty_output = layer.forward(&empty).unwrap().value();
+        let empty_output = layer.forward(&empty).unwrap().value_snapshot();
         assert_eq!(empty_output.shape(), [2, 0, 2]);
         assert!(empty_output.is_empty());
     }

@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from "node:crypto";
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { existsSync, readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
@@ -405,7 +407,7 @@ describe("Chapter 38 diagram label contract", () => {
 });
 
 describe("Chapter 38 lesson localization contract", () => {
-  it("keeps both active lessons semantically aligned with revision 2", () => {
+  it("keeps both active lessons semantically aligned with revision 3", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(lessonSource),
@@ -425,10 +427,13 @@ describe("Chapter 38 lesson localization contract", () => {
       order: 38,
       activeLocales: ["en", "ru"],
     });
-    expect(contract.content_revision).toBe(2);
+    expect(contract.content_revision).toBe(3);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
+    );
+    expect(contract.translation_notes.join(" ")).toContain(
+      `SHA-256 ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
 
     const localizedRecords = [
@@ -464,7 +469,7 @@ describe("Chapter 38 lesson localization contract", () => {
       expect(lesson).toMatchObject({
         chapter_id: contract.chapter_id,
         locale,
-        content_revision: 2,
+        content_revision: 3,
         order: contract.order,
         concept_id: contract.concept_id,
         objective: localized(contract.objective),

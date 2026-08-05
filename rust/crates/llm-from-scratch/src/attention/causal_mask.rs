@@ -548,7 +548,7 @@ mod tests {
             .backward()
             .unwrap();
 
-        let check = |mut probe: Tensor, analytic: Tensor, operand: usize| {
+        let check = |mut probe: Tensor, analytic: &Tensor, operand: usize| {
             sampled_tensor_gradient_check(
                 &mut probe,
                 &analytic.view(),
@@ -576,9 +576,9 @@ mod tests {
             .unwrap()
         };
 
-        let query_report = check(tensor(&[1, 3, 2], &QUERY), query.gradient().unwrap(), 0);
-        let key_report = check(tensor(&[1, 3, 2], &KEY), key.gradient().unwrap(), 1);
-        let value_report = check(tensor(&[1, 3, 2], &VALUE), value.gradient().unwrap(), 2);
+        let query_report = check(tensor(&[1, 3, 2], &QUERY), &query.gradient().unwrap(), 0);
+        let key_report = check(tensor(&[1, 3, 2], &KEY), &key.gradient().unwrap(), 1);
+        let value_report = check(tensor(&[1, 3, 2], &VALUE), &value.gradient().unwrap(), 2);
         assert!(query_report.passed);
         assert!(key_report.passed);
         assert!(value_report.passed);
@@ -592,7 +592,10 @@ mod tests {
             &constant(&[1, 3, 2], &VALUE),
         )
         .unwrap();
-        assert_eq!(pass.probabilities().value(), replay.probabilities().value());
-        assert_eq!(pass.output().value(), replay.output().value());
+        assert_eq!(
+            &*pass.probabilities().value(),
+            &*replay.probabilities().value()
+        );
+        assert_eq!(&*pass.output().value(), &*replay.output().value());
     }
 }

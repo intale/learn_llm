@@ -535,7 +535,8 @@ impl NeuralNgram {
                 })?;
             masked[index] = true;
         }
-        let logits = self.forward(context_ids, 1)?.into_logits().value();
+        let forward = self.forward(context_ids, 1)?;
+        let logits = forward.logits().value();
         let mut best: Option<(usize, f64)> = None;
         for (token_id, &value) in logits.as_slice().iter().enumerate() {
             if !value.is_finite() {
@@ -674,7 +675,7 @@ mod tests {
             [vec![7, 3], vec![6, 5], vec![6, 5], vec![5, 5], vec![5, 7]]
         );
         for (left, right) in left.parameters().iter().zip(right.parameters()) {
-            assert_eq!(left.tensor().value(), right.tensor().value());
+            assert_eq!(&*left.tensor().value(), &*right.tensor().value());
             assert!(!left.tensor().is_same_node(right.tensor()));
         }
         assert_eq!(left_rng.state(), right_rng.state());
@@ -718,7 +719,7 @@ mod tests {
         let loss = model.loss(&batch).unwrap();
         let logits = model.forward(&[1, 2], 1).unwrap().into_logits();
         let expected = logits.indexed_mean_nll(1, &[3]).unwrap();
-        assert_eq!(loss.value(), expected.value());
+        assert_eq!(&*loss.value(), &*expected.value());
         let scalar_seed = tensor(&[], &[1.0]);
         loss.backward_with_seed(&scalar_seed.view(), GraphRetention::Release)
             .unwrap();

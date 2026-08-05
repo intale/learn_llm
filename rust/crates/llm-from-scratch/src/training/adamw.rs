@@ -1808,8 +1808,10 @@ mod tests {
             let mut parameters = vec![parameter("quadratic.weight", &[2], &[1.0, -1.0])];
             let mut optimizer = AdamW::new(fixture_config());
             for _ in 0..200 {
-                let value = parameters[0].tensor().value();
-                let gradient = [value.as_slice()[0], 4.0 * value.as_slice()[1]];
+                let gradient = {
+                    let value = parameters[0].tensor().value();
+                    [value.as_slice()[0], 4.0 * value.as_slice()[1]]
+                };
                 seed_gradient(&parameters[0], &gradient);
                 optimizer.step(&mut parameters).unwrap();
             }

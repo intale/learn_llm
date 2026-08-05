@@ -478,7 +478,7 @@ mod tests {
         let input = TensorValue::constant(tensor(&[1, TOKENS, MODEL_WIDTH], &INPUT)).unwrap();
         let pass = block.forward(&input, 0).unwrap();
 
-        assert_eq!(pass.attention_norm().output().value(), input.value());
+        assert_eq!(&*pass.attention_norm().output().value(), &*input.value());
         let expected_after_attention = input
             .value()
             .as_slice()
@@ -500,8 +500,8 @@ mod tests {
             .collect::<Vec<_>>();
         assert_eq!(pass.output().value().as_slice(), expected_output);
         assert_ne!(
-            pass.after_attention().value(),
-            pass.feed_forward_norm().output().value()
+            &*pass.after_attention().value(),
+            &*pass.feed_forward_norm().output().value()
         );
     }
 
@@ -532,7 +532,7 @@ mod tests {
             )
             .unwrap()
             .output()
-            .value();
+            .value_snapshot();
         assert_eq!(
             pass.output().value().as_slice()[..8],
             changed.as_slice()[..8]
@@ -596,7 +596,7 @@ mod tests {
                 .parameters()
                 .iter()
                 .zip(second.parameters())
-                .all(|(left, right)| left.tensor().value() == right.tensor().value())
+                .all(|(left, right)| *left.tensor().value() == *right.tensor().value())
         );
 
         let mut rejected_rng = SplitMix64::from_seed(31);

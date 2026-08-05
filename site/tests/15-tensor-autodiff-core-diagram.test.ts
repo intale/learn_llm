@@ -168,7 +168,7 @@ const labels: TensorAutodiffCoreDiagramLabels = {
 };
 
 describe('Chapter 15 Rust trace parser', () => {
-  it('keeps ordinary backward lean while explicit tracing observes one reverse kernel', () => {
+  it('keeps ordinary reads borrowed and backward lean while snapshots and tracing stay explicit', () => {
     const backwardStart = tensorCoreSource.indexOf('pub fn backward(&self)');
     const backwardEnd = tensorCoreSource.indexOf(
       '/// Reverses a rank-zero output and records its node and edge evidence.',
@@ -191,6 +191,8 @@ describe('Chapter 15 Rust trace parser', () => {
       '#[derive(Default)]\nstruct RecordTensorBackwardTrace',
       ignoreStart,
     );
+    const tapeValuesStart = tensorCoreSource.indexOf('// region:tensor-tape-values');
+    const tapeValuesEnd = tensorCoreSource.indexOf('// endregion:tensor-tape-values');
 
     expect(backwardStart).toBeGreaterThan(-1);
     expect(backwardEnd).toBeGreaterThan(backwardStart);
@@ -200,11 +202,28 @@ describe('Chapter 15 Rust trace parser', () => {
     expect(kernelEnd).toBeGreaterThan(kernelStart);
     expect(ignoreStart).toBeGreaterThan(-1);
     expect(ignoreEnd).toBeGreaterThan(ignoreStart);
+    expect(tapeValuesStart).toBeGreaterThan(-1);
+    expect(tapeValuesEnd).toBeGreaterThan(tapeValuesStart);
 
     const backwardBody = tensorCoreSource.slice(backwardStart, backwardEnd);
     const seededBody = tensorCoreSource.slice(seededStart, seededEnd);
     const kernelBody = tensorCoreSource.slice(kernelStart, kernelEnd);
     const ignoreBody = tensorCoreSource.slice(ignoreStart, ignoreEnd);
+    const tapeValuesBody = tensorCoreSource.slice(tapeValuesStart, tapeValuesEnd);
+    const valueReadStart = tapeValuesBody.indexOf("pub fn value(&self) -> Ref<'_, Tensor>");
+    const valueSnapshotStart = tapeValuesBody.indexOf('pub fn value_snapshot(&self) -> Tensor');
+    const gradientReadStart = tapeValuesBody.indexOf(
+      "pub fn gradient(&self) -> Option<Ref<'_, Tensor>>",
+    );
+    const gradientSnapshotStart = tapeValuesBody.indexOf(
+      'pub fn gradient_snapshot(&self) -> Option<Tensor>',
+    );
+    const sameNodeStart = tapeValuesBody.indexOf('pub fn is_same_node(');
+    expect(valueReadStart).toBeGreaterThan(-1);
+    expect(valueSnapshotStart).toBeGreaterThan(valueReadStart);
+    expect(gradientReadStart).toBeGreaterThan(valueSnapshotStart);
+    expect(gradientSnapshotStart).toBeGreaterThan(gradientReadStart);
+    expect(sameNodeStart).toBeGreaterThan(gradientSnapshotStart);
     for (const ordinaryBody of [backwardBody, seededBody]) {
       expect(ordinaryBody).toContain('NoTensorBackwardTrace');
       expect(ordinaryBody).not.toContain('RecordTensorBackwardTrace');
@@ -220,6 +239,27 @@ describe('Chapter 15 Rust trace parser', () => {
     expect(ignoreBody).not.toContain('.clone()');
     expect(ignoreBody).not.toContain('Vec<');
 
+    expect(tapeValuesBody).toContain("pub fn value(&self) -> Ref<'_, Tensor>");
+    expect(tapeValuesBody).toContain('self.node.value.borrow()');
+    expect(tapeValuesBody).toContain('pub fn value_snapshot(&self) -> Tensor');
+    expect(tapeValuesBody).toContain('self.node.value.borrow().clone()');
+    expect(tapeValuesBody).toContain("pub fn gradient(&self) -> Option<Ref<'_, Tensor>>");
+    expect(tapeValuesBody).toContain('pub fn gradient_snapshot(&self) -> Option<Tensor>');
+    expect(tapeValuesBody).toContain('self.gradient().as_deref().cloned()');
+    expect(tapeValuesBody).toContain('self.value_snapshot()');
+    expect(tapeValuesBody).toContain('TensorOperation::Detached');
+    expect(tapeValuesBody.slice(valueReadStart, valueSnapshotStart)).not.toContain('.clone()');
+    expect(tapeValuesBody.slice(gradientReadStart, gradientSnapshotStart)).not.toContain('.clone()');
+    expect(tapeValuesBody.slice(valueSnapshotStart, gradientReadStart)).toContain('.clone()');
+    expect(tapeValuesBody.slice(gradientSnapshotStart, sameNodeStart)).toContain('.cloned()');
+    expect(tensorCoreSource).toContain('GradientBorrowed');
+    expect(kernelBody).toContain('.try_borrow_mut()');
+    expect(kernelBody).toContain('TensorAutodiffError::GradientBorrowed');
+    expect(kernelBody).toContain("let mut commits: Vec<(RefMut<'_, NodeState>, Tensor)> = Vec::new()");
+    expect(kernelBody.indexOf('commits.push((state, gradient))')).toBeLessThan(
+      kernelBody.indexOf('state.parameter_gradient = Some(gradient)'),
+    );
+
     const trainerImplementation = trainerSource.slice(0, trainerSource.indexOf('#[cfg(test)]'));
     expect(trainerImplementation).toContain('.backward_with_seed(');
     expect(trainerImplementation).not.toContain('backward_with_trace');
@@ -231,10 +271,16 @@ describe('Chapter 15 Rust trace parser', () => {
     }
 
     for (const source of [chapter15Contract, chapter15English, chapter15Russian]) {
-      expect(source).toContain('"content_revision": 5');
+      expect(source).toContain('"content_revision": 6');
     }
     expect(chapter15English.replace(/\s+/g, ' ')).toContain(
       'Both calls build the node order, hold fresh adjoints for the duration of the pass, and read the saved context required by each local VJP.',
+    );
+    expect(chapter15English.replace(/\s+/g, ' ')).toContain(
+      'Calling `value()` lends a temporary read-only guard to that node-owned primal; it does not copy the tensor.',
+    );
+    expect(chapter15English.replace(/\s+/g, ' ')).toContain(
+      '`detach()` does something different from both: it snapshots the primal, then creates a new untracked `TensorValue` leaf with no operand edge.',
     );
     expect(chapter15Russian.replace(/\s+/g, ' ')).toContain(
       'Оба метода строят порядок узлов, хранят сопряжённые величины только на время текущего прохода',

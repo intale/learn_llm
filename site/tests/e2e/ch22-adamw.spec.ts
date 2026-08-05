@@ -641,7 +641,7 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
-  expect(localized.revision).toBe(4);
+  expect(localized.revision).toBe(5);
   expect(normalizeProse(await page.locator('.lesson-body').innerText())).toContain(
     normalizeProse(explicitCopy[locale].executionClaim),
   );

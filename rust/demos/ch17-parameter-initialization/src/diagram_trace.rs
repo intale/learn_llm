@@ -170,7 +170,8 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     let xavier = NamedParameter::xavier_uniform("diagnostic.weight", WIDTH, WIDTH, &mut rng)?
         .tensor()
         .value()
-        .into_vec();
+        .as_slice()
+        .to_vec();
     let oversized: Vec<_> = xavier.iter().map(|value| value * 2.0).collect();
     let zero = vec![0.0; SAMPLE_COUNT];
 
@@ -186,13 +187,15 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
         NamedParameter::xavier_uniform("diagnostic.weight", WIDTH, WIDTH, &mut same_seed_rng)?
             .tensor()
             .value()
-            .into_vec();
+            .as_slice()
+            .to_vec();
     let mut alternate_rng = SplitMix64::from_seed(ALTERNATE_SEED);
     let alternate =
         NamedParameter::xavier_uniform("diagnostic.weight", WIDTH, WIDTH, &mut alternate_rng)?
             .tensor()
             .value()
-            .into_vec();
+            .as_slice()
+            .to_vec();
 
     let mut trace = String::new();
     writeln!(trace, "TRACE parameter-initialization-v2 BEGIN")?;

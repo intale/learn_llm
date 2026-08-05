@@ -2,7 +2,7 @@
 {
   "chapter_id": "37-incremental-attention",
   "concept_id": "incremental-attention",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 37,
   "objective": {
     "en": "Append one position's rotated keys and unrotated values to one attention-layer cache and reproduce the full-prefix attention result at that newest position.",
@@ -179,7 +179,7 @@
     }
   ],
   "translation_notes": [
-    "Russian was translated directly from frozen canonical English content revision 2 with SHA-256 ca5680a0d8ff4f43a3ceaa84dacbab5c695a2c6aee503613cdb9856e6ba567b6; Chapter 37's exact active locale set is {en, ru}.",
+    "Russian was translated directly from frozen canonical English content revision 3 with SHA-256 4c27aa5d416c60245578663f287df442949ee9bb3cef98eff49092d8b118fbb0; Chapter 37's exact active locale set is {en, ru}.",
     "Preserve the exact formula, K, V, k, v, ell, t, B, H, C, d_h, RoPE, KV, tensor shapes, tolerances, code identifiers, trace tokens and values, source names, URLs, and source-specific evidence across both locales.",
     "The cache stores rotated keys and unrotated values; it does not retain queries.",
     "A rebuilt or updated model has new parameter nodes and therefore needs new caches.",

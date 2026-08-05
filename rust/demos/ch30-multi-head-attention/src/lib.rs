@@ -335,13 +335,11 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let pass = layer.forward(&input, 0)?;
     let offset_pass = layer.forward(&input, 3)?;
 
-    let split_merge_bitwise =
-        merge_heads(&split_heads(&input, HEADS).expect("valid fixture split"))
-            .expect("valid fixture merge")
-            .value()
-            == input_tensor;
+    let merged_input = merge_heads(&split_heads(&input, HEADS).expect("valid fixture split"))
+        .expect("valid fixture merge");
+    let split_merge_bitwise = *merged_input.value() == input_tensor;
 
-    let attention_weights = pass.attention_weights().value();
+    let attention_weights = pass.attention_weights().value_snapshot();
     let expected_uniform = [
         1.0,
         0.0,
@@ -379,8 +377,8 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         &constant(&[BATCH, TOKENS, MODEL_WIDTH], &isolated_values)?,
         0,
     )?;
-    let head_outputs = pass.head_outputs().value();
-    let isolated_head_outputs = isolated.head_outputs().value();
+    let head_outputs = pass.head_outputs().value_snapshot();
+    let isolated_head_outputs = isolated.head_outputs().value_snapshot();
     let head_isolation_before_output = head_outputs.as_slice()[..6]
         != isolated_head_outputs.as_slice()[..6]
         && head_outputs.as_slice()[6..] == isolated_head_outputs.as_slice()[6..];
@@ -388,8 +386,8 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let mut suffix_values = fixture_input_values();
     suffix_values[8..].copy_from_slice(&[3.0, -2.0, -1.0, 4.0]);
     let suffix = layer.forward(&constant(&[BATCH, TOKENS, MODEL_WIDTH], &suffix_values)?, 0)?;
-    let output = pass.output().value();
-    let prefix_perturbed_output = suffix.output().value();
+    let output = pass.output().value_snapshot();
+    let prefix_perturbed_output = suffix.output().value_snapshot();
     let prefix_zero_unchanged = output.as_slice()[..4] == prefix_perturbed_output.as_slice()[..4];
     let prefix_one_unchanged = output.as_slice()[4..8] == prefix_perturbed_output.as_slice()[4..8];
     let suffix_changed = output.as_slice()[8..] != prefix_perturbed_output.as_slice()[8..];
@@ -403,7 +401,7 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
     let backward =
         loss.backward_with_seed_and_trace(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
     let input_gradient = input
-        .gradient()
+        .gradient_snapshot()
         .expect("fixture input participates in loss");
     let parameter_gradients = layer
         .parameters()
@@ -411,7 +409,7 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         .map(|parameter| {
             parameter
                 .tensor()
-                .gradient()
+                .gradient_snapshot()
                 .expect("every fixture matrix participates in loss")
         })
         .collect::<Vec<_>>();
@@ -426,15 +424,15 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
 
     Ok(PrimaryEvidence {
         input: input_tensor,
-        projected_query_heads: pass.projected_query_heads().value(),
-        projected_key_heads: pass.projected_key_heads().value(),
-        projected_value_heads: pass.projected_value_heads().value(),
-        rotated_query_heads: pass.rotated_query_heads().value(),
-        rotated_key_heads: pass.rotated_key_heads().value(),
+        projected_query_heads: pass.projected_query_heads().value_snapshot(),
+        projected_key_heads: pass.projected_key_heads().value_snapshot(),
+        projected_value_heads: pass.projected_value_heads().value_snapshot(),
+        rotated_query_heads: pass.rotated_query_heads().value_snapshot(),
+        rotated_key_heads: pass.rotated_key_heads().value_snapshot(),
         attention_weights,
         head_outputs,
-        merged: pass.merged().value(),
-        output_weight: layer.output_projection().weight().tensor().value(),
+        merged: pass.merged().value_snapshot(),
+        output_weight: layer.output_projection().weight().tensor().value_snapshot(),
         output,
         upstream,
         loss: loss_value,

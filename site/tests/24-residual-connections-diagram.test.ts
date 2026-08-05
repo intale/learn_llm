@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from 'node:crypto';
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from 'node:path';
@@ -257,8 +259,8 @@ describe('Chapter 24 static diagram boundary', () => {
     expect(lessonSource).not.toContain('branch input gradient are zero');
     expect(contractSource).not.toMatch(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/);
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.content_revision).toBe(2);
-    expect(lesson.content_revision).toBe(2);
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
     expect(russianLesson).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: 'ru',
@@ -331,7 +333,7 @@ describe('Chapter 24 static diagram boundary', () => {
     expect(englishMath).toHaveLength(53);
     expect(russianMath).toEqual(englishMath);
     expect(contract.translation_notes.join(' ')).toContain(
-      'SHA-256 9bf275b51c3d3c995af1b6f8115c06046b2f384065329fe430aade5bb8445b6a',
+      `SHA-256 ${createHash('sha256').update(lessonSource).digest('hex')}`,
     );
     expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
     expect(russianLessonBody).not.toMatch(/TypeScript|Python history|Rust history|трансляц/i);

@@ -320,8 +320,8 @@ describe('Chapter 18 labels and static component', () => {
       /#111827|#182235|#4b5563|#7dd3fc|#38bdf8|var\(--border/,
     );
 
-    expect(contractSource).toContain('"content_revision": 5');
-    expect(lessonSource).toContain('"content_revision": 5');
+    expect(contractSource).toContain('"content_revision": 6');
+    expect(lessonSource).toContain('"content_revision": 6');
     expect(contractSource).toContain(
       '`\\bar{X}_{b,t,:} = \\partial L / \\partial X_{b,t,:}`',
     );

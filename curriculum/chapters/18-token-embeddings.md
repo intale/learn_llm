@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "concept_id": "token-embeddings",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 18,
   "objective": {
     "en": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.",
@@ -185,7 +185,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 18 has the exact active locale set {en,ru}. Russian is translated directly from frozen English revision 5; its semantic, linguistic, accessibility, and rendered-layout review becomes stale whenever the English meaning or presentation changes.",
+    "Chapter 18 has the exact active locale set {en,ru}. Russian is translated directly from frozen English revision 6; its semantic, linguistic, accessibility, and rendered-layout review becomes stale whenever the English meaning or presentation changes.",
     "Keep E, X, z, V, d, b, t, i, overbars, the colon, shapes, IDs, values, parameter name, trace keywords, formula, and source URLs unchanged across locales.",
     "Distinguish a token ID, which is a non-differentiable integer selector, from its selected trainable vector. Numeric closeness between IDs says nothing about semantic closeness.",
     "Use ID токена, таблица эмбеддингов, ширина эмбеддинга, one-hot-вектор, выбор строки по индексу, накопление вкладов по индексам, and повторяющийся токен in Russian. One-hot means exactly one active vocabulary coordinate; multiplication by it is an algebraic explanation, not a claim that Bengio et al. or this implementation materializes sparse vectors.",
@@ -388,7 +388,7 @@ one embedding-table row.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English and Russian form the exact active locale set for Chapter 18 revision 5.
+English and Russian form the exact active locale set for Chapter 18 revision 6.
 Russian is translated directly from the frozen English revision and covers the
 complete contract, lesson, history, diagram labels, accessible names, exercises,
 and answers. Any later English change that affects meaning or presentation makes

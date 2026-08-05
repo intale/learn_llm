@@ -2,7 +2,7 @@
 {
   "chapter_id": "19-linear-layers",
   "concept_id": "linear-layers",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 19,
   "objective": {
     "en": "Project vectors, sequences, and mini-batches through one trainable feature matrix with an explicit optional-bias policy.",
@@ -175,7 +175,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 19 has the exact active locale set {en,ru}. English revision 4 is the canonical semantic source, and Russian is translated directly from that revision.",
+    "Chapter 19 has the exact active locale set {en,ru}. English revision 5 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep X, W, b, Y, d_in, d_out, the ellipsis, shapes, numeric values, parameter names, trace keywords, formula, and source URLs unchanged when another locale is activated later.",
     "Use linear layer for the conventional module name, but explain that Y=XW+b is affine when b is present. Do not imply that the bias term is mathematically linear.",
     "Leading axes identify independent positions. The layer mixes only the final feature axis; it does not mix tokens, sequence positions, or batch items.",
@@ -397,7 +397,7 @@ no longer applies.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The active locale set is exactly English and Russian. English revision 4 is the
+The active locale set is exactly English and Russian. English revision 5 is the
 canonical source; Russian is translated directly from it and keeps formula
 symbols, shapes, values, parameter names, trace keywords, source roles, and URLs
 unchanged while explaining naturally that conventional “linear layer”

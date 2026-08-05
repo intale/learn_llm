@@ -55,7 +55,7 @@ interface LocalizedCopy {
 }
 
 const chapterId = "20-swiglu-feed-forward";
-const contentRevision = 2;
+const contentRevision = 3;
 const repositoryRoot = resolve(process.cwd(), "..");
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 

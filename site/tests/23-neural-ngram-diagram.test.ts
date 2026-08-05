@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from 'node:crypto';
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from 'node:path';
@@ -317,6 +319,12 @@ describe('Chapter 23 contract and lesson projection', () => {
   const russianLesson = frontmatter(russianLessonSource);
 
   it('keeps metadata, formula, LLM history, visualization, handoff, sources, and output aligned', () => {
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
+    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.translation_notes.join(' ')).toContain(
+      `SHA-256 ${createHash('sha256').update(lessonSource).digest('hex')}`,
+    );
     expect(lesson).toMatchObject({
       chapter_id: contract.chapter_id,
       concept_id: contract.concept_id,

@@ -13405,6 +13405,152 @@ deployment.
 `separate-adamw-observation`, and
 `20260804T175743Z-separate-adamw-observation-01`.
 
+## 2026-08-05 - Borrow ordinary TensorValue reads and name independent snapshots
+
+**Status:** Accepted during preflight for `make-tensorvalue-reads-borrowed`
+before product files were edited.
+
+**Context:** Audit finding F02 identifies `TensorValue::value` and
+`TensorValue::gradient` as deep-copy APIs. Ordinary forward kernels, shape
+checks, reports, and tests therefore copy complete contiguous buffers merely to
+read them. `model_operation` additionally clones every operand before invoking
+the forward kernel. Some callers genuinely need independent ownership—for
+reverse-mode saved context, a cache candidate, checkpoint state, or evidence
+that outlives the read—but the current method names do not distinguish those
+boundaries. The same rendered calls appear in thirteen chapters, so changing
+the default ownership contract without advancing those projections would make
+the course disagree with its compiled implementation.
+
+**Decision:** Store each node's immutable primal, operation, and tracked flag
+outside its interior-mutable tape state. Keep parent edges, accumulated
+parameter gradient, and release state in that mutable state. Make `value`
+return a plain borrowed `&Tensor`; make `gradient` return an optional read-only
+borrow guard for the stored parameter gradient. Add the deliberately named
+`value_snapshot` and `gradient_snapshot` methods for independent owned copies.
+`detach` remains a different operation: it snapshots the data and creates a new
+untracked `TensorValue` leaf.
+
+Pass borrowed primals to model-operation forward kernels. Ordinary kernels and
+read-only callers must retain borrows. A caller may request a snapshot only
+when the tensor must outlive the access or become independently owned; required
+reverse-mode saved tensors remain algorithm state rather than accidental
+copies. Preserve graph release, accumulated-gradient mutation, checked errors,
+rollback, ordering, arithmetic, trace grammar, and every deterministic fixture.
+Do not change gradient clipping, fresh-leaf AdamW replacement, trainer model
+replacement, or decoder state transfer in this step; those are the next three
+independent F02 checkpoints.
+
+Advance Chapters 15-20, 23-25, 32-33, and 37-38 by one revision because their
+rendered Rust changes. Chapter 15 must explicitly distinguish node-owned
+primals, temporary read-only access, independent snapshots, and detached
+leaves. Other chapter claims remain fixed while their exact source projection
+and provenance advance. Author English first, then refresh Russian directly
+from each matching English revision under the localization workflow. Classify
+the step as large cached-Docker/browser work under the unlimited session budget;
+use no paid service or model generation and do not pause for cost approval.
+
+**Consequences:** Repeated tensor inspection becomes non-copying by default,
+while every full copy becomes visible at the ownership boundary that requires
+it. A primal borrow does not turn operation results into views: each tape node
+still owns one finite contiguous primal. The public API becomes more precise,
+so canonical callers and thirteen bilingual projections must migrate together.
+No formula, learned value, gradient, model result, report, diagram trace,
+checkpoint byte, route, dependency, style, or deployment behavior changes.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`make-tensorvalue-reads-borrowed`, and
+`20260805T054730Z-make-tensorvalue-reads-borrowed-01`.
+
+## 2026-08-05 - Add Chapter 22 to the guarded-read projection
+
+**Status:** Accepted during execution of `make-tensorvalue-reads-borrowed` when
+Rust borrow checking exposed one additional rendered source change.
+
+**Context:** Chapter 22's historical SGD-versus-AdamW trajectory binds the
+current AdamW parameter primal, derives a two-element gradient from it, installs
+that gradient, and then passes the parameter slice mutably to `AdamW::step`.
+With the new read-guard API, the named primal guard remains live until its scope
+ends. Although primal and gradient storage use separate runtime cells, Rust
+correctly rejects mutable access to the outer parameter while that guard is
+live. The minimal sound implementation scopes the read and derived gradient
+together so the guard ends before the optimizer receives mutable access. That
+code lies inside Chapter 22's rendered `historical-optimizer-road` region.
+
+**Decision:** Add the Chapter 22 contract, English and Russian lessons, static
+test, and browser test to this step. Advance Chapter 22 from revision 4 to 5.
+Keep the small lexical read scope visible and explain only the concrete reason:
+the primal is read to derive the trajectory gradient, then that read ends before
+AdamW mutates the parameter set. Do not replace the borrow with an unnecessary
+owned snapshot merely to keep old source bytes. Author English first and
+refresh Russian directly under the localization workflow.
+
+Preserve the historical equations, AdamW update, lean/trace API boundary,
+fresh-leaf transaction policy, trajectory values, report, diagram trace, and
+all downstream evidence. The later live-leaf checkpoint will separately revise
+Chapter 22's transaction policy; this source-scope correction neither performs
+nor anticipates that semantic rewrite.
+
+**Consequences:** The rendered lesson stays byte-faithful to compiled Rust and
+shows a non-copying read ending at the correct ownership boundary. The
+checkpoint grows from thirteen to fourteen bilingual projections, but no model
+or optimizer result changes.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`make-tensorvalue-reads-borrowed`, and
+`20260805T054730Z-make-tensorvalue-reads-borrowed-01`.
+
+## 2026-08-05 - Keep borrowed primals compatible with live-leaf updates
+
+**Status:** Accepted during `make-tensorvalue-reads-borrowed`; supersedes only
+the preceding entry's choice to place the primal outside interior mutability and
+return a plain `&Tensor`.
+
+**Context:** The dependency review for the next F02 checkpoints found that a
+public plain primal reference may outlive an optimizer call. Safe Rust could
+then neither replace nor mutate that primal while preserving the same
+`TensorValue` node. The active build explicitly requires the later AdamW commit
+to preserve parameter-leaf identity, so making the primal permanently immutable
+would force another breaking API change or leave the ownership finding
+unresolved. A returned gradient `Ref` also lets callers hold a read guard across
+`zero_grad` or `backward`; an unchecked `borrow_mut` would panic and could
+violate the promised typed, whole-pass transaction boundary.
+
+**Decision:** Give each node two separate guard-capable cells: one owns its
+primal `Tensor`, and one owns parent edges, accumulated parameter gradient, and
+release state. Keep operation and tracked metadata immutable. Both `value` and
+`gradient` return read-only guards; the separately named snapshot methods remain
+the only ordinary deep-copy APIs. Separate cells let primal inspection coexist
+with tape-state inspection today and let the later optimizer preflight mutable
+access to every live parameter primal before one in-place commit.
+
+Add a typed `GradientBorrowed` error for an accumulated-gradient read guard held
+across `zero_grad` or backward. Before committing any prospective gradients,
+acquire mutable state guards for the complete parameter set; if any acquisition
+fails, drop all acquired guards and return the typed error before changing a
+gradient or releasing an edge. The later in-place optimizer step must use the
+same whole-set preflight principle for primal write guards and must never rely
+on a panicking `borrow_mut` at a public mutation boundary.
+
+Update Chapter 15's canonical explanation and Russian localization to state the
+guard lifetime and typed mutation conflict explicitly. This is an ownership and
+lifecycle clarification, not a mathematical change. The remaining twelve
+affected chapters need only their compiled source projection and revision
+provenance refreshed unless final source review exposes another direct claim.
+
+**Consequences:** Non-copying reads remain the default, public mutation stays
+panic-free and transactional, and this API remains compatible with preserving
+live parameter-node identity in the next checkpoint. A caller must let a read
+guard go out of scope before asking the same stored buffer to change. Values,
+gradients, successful execution, existing error precedence outside the new
+active-reader state, traces, and deterministic fixtures remain unchanged.
+
+**Affected build, step, and run:**
+`remediate-rust-buffer-ownership-20260805`,
+`make-tensorvalue-reads-borrowed`, and
+`20260805T054730Z-make-tensorvalue-reads-borrowed-01`.
+
 ## 2026-08-04 - Include Chapter 33's rendered training loop in the AdamW correction
 
 **Status:** Accepted during execution of `separate-adamw-observation` when the

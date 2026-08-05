@@ -417,6 +417,8 @@ describe("Chapter 20 contract and lesson projection", () => {
   const lesson = frontmatter(lessonSource);
 
   it("keeps metadata, formula, LLM history, visualization, and handoff aligned", () => {
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
     expect(lesson).toMatchObject({
       chapter_id: contract.chapter_id,
       concept_id: contract.concept_id,

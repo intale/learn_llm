@@ -2,7 +2,7 @@
 {
   "chapter_id": "38-cached-generation",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 38,
   "concept_id": "cached-generation",
   "title": "Prefill once, then advance one token",
@@ -448,7 +448,7 @@ to the exact decoder parameters and configuration that produced it.
 6. There are $1\times2\times2=4$ batch-layer-head lanes, and each forms $1+2+3=6$ score values, giving $4\times6=24$.
 7. No. The newest query still reads $t$ retained keys at prefix length $t$.
 8. No. EOS is returned as the selected token, and no later logits are needed.
-9. Reset changes logical length, phase, and counters to zero while retaining the backing allocation and stored K/V values for reuse.
+9. Reset sets logical length, phase, and counters to zero while retaining the backing allocation and the old K/V bits until they are overwritten. Because logical length is zero, none of those old rows is valid for a later query.
 
 </details>
 

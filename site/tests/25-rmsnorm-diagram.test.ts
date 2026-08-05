@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from 'node:crypto';
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from 'node:path';
@@ -285,8 +287,8 @@ describe('Chapter 25 static diagram boundary', () => {
     expect(lessonSource).toContain('https://arxiv.org/pdf/2302.13971');
     expect(lessonSource).toContain('whose squares underflow');
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.content_revision).toBe(4);
-    expect(lesson.content_revision).toBe(4);
+    expect(contract.content_revision).toBe(5);
+    expect(lesson.content_revision).toBe(5);
     expect(russianLesson).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: 'ru',
@@ -350,7 +352,7 @@ describe('Chapter 25 static diagram boundary', () => {
     const russianMath = markdownMathTokens(russianLessonBody);
     expect(russianMath).toEqual(englishMath);
     expect(contract.translation_notes.join(' ')).toContain(
-      'SHA-256 23811a3bd8095b1fc1a2ab8018da974273015b9a9d51c6c0e7cf99f309a0c8fc',
+      `SHA-256 ${createHash('sha256').update(lessonSource).digest('hex')}`,
     );
     expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
     expect(russianLessonBody).toContain('среднеквадратичн');

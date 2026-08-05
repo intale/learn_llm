@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "concept_id": "tensor-autodiff-core",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 15,
   "objective": {
     "en": "Differentiate structural and elementwise tensor expressions while reversing shape transformations, broadcasts, and reductions correctly.",
@@ -209,12 +209,13 @@
     }
   ],
   "translation_notes": [
-    "Chapter 15 has the exact active locale set {en,ru}. English revision 5 is the canonical semantic source, and Russian is translated directly from that revision.",
+    "Chapter 15 has the exact active locale set {en,ru}. English revision 6 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep shapes, axes, ordered values, seeds, gradients, bar notation, Jacobian notation, Rust identifiers, formulas, and source URLs exact across locales.",
     "In the displayed formula, the superscript transpose applies to the conceptual Jacobian map. It is not the same object as the forward TensorValue::transpose operation, whose own VJP swaps the saved axes back.",
     "Describe broadcasting as coordinate reuse. Its VJP sums missing leading and expanded singleton axes back to the original parent shape; it does not select one forward occurrence or preserve the expanded shape.",
-    "Keep fresh intermediate adjoints separate from parameter-only stored gradients and from optional trace evidence. Graph release discards operation edges and saved context after a successful commit; trace capture is an independent choice, zero_grad clears a parameter gradient, and detach creates a new untracked leaf.",
-    "Do not describe structural operations as zero-copy views: each TensorValue result owns a finite contiguous tensor. Do not imply that ordinary decoder inference runs backward.",
+    "Keep temporary read guards separate from independent tensor snapshots, fresh intermediate adjoints, parameter-only stored gradients, and optional trace evidence. A read guard must end before the corresponding storage can be mutated. value_snapshot() and gradient_snapshot() deliberately clone independent tensor data; detach() snapshots the primal and then creates a new untracked TensorValue leaf.",
+    "Graph release discards operation edges and saved context after a successful commit; trace capture is an independent choice, zero_grad clears a parameter gradient, and detach creates a new untracked leaf.",
+    "Do not describe structural operation results as views of their operands: each TensorValue node owns a finite contiguous primal even though value() lends temporary read-only access to that node-owned storage. Do not imply that ordinary decoder inference runs backward.",
     "The sources support the LLM-training progression and bounded claims, not this implementation's owned tape, saved-context enum, structural VJPs, retain/release policy, f64 checks, API, or error precedence."
   ],
   "acceptance_examples": [
@@ -358,10 +359,19 @@ implementation's VJP rules or graph lifecycle.
 ## Rust behavior
 
 `TensorValue::parameter` and `TensorValue::constant` reject the first non-finite
-value in row-major order. Parameters alone own optional stored gradients.
-`value` and `gradient` return owned tensor copies, `is_same_node` distinguishes
-identity from equal values, and `detach` returns an untracked leaf with the same
-finite primal and no operand edge.
+value in row-major order. Every node owns one finite contiguous primal.
+`value()` lends a temporary read-only guard to that node-owned primal; it does not
+clone the tensor. Parameters alone own optional stored gradients, and `gradient()`
+lends the same kind of read-only guard when a stored gradient exists.
+
+`value_snapshot()` and `gradient_snapshot()` explicitly clone independently owned
+tensor data for a caller that needs it after the read ends. Any read guard must
+be dropped before the corresponding storage is mutated. If a gradient guard is
+still active, `zero_grad()` or a reverse pass returns the typed `GradientBorrowed`
+error instead of panicking or partially committing gradients. `is_same_node`
+distinguishes node identity from equal values. `detach()` is not another name for
+a snapshot: it snapshots the primal and uses that data to create a new untracked
+`TensorValue` leaf with no operand edge.
 
 Checked `add` and `mul` use trailing-axis broadcasting. Add saves both parent
 shapes; each multiply edge additionally saves the other operand's primal. Their
@@ -435,7 +445,7 @@ with JavaScript disabled and forced colors.
 4. Reduce the broadcast contribution to `bias` and undo transpose plus reshape to `x`.
 5. Predict stored gradients after two retained passes, zeroing, and one releasing pass.
 6. For an axis sum with a non-scalar seed, state which axis is reinserted and how its values are broadcast.
-7. Distinguish detach, zeroing, retention, and release without treating any pair as synonyms.
+7. Distinguish a temporary read guard, an independent snapshot, detach, zeroing, retention, and release without treating any pair as synonyms.
 8. Misconception check: decide whether broadcasting creates independent parameter copies whose gradients may keep the expanded shape.
 
 <!-- contract-section:decoder-connection -->
@@ -450,17 +460,19 @@ loss still need their own local VJPs before any parameter update can be formed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 5 is the canonical semantic source and Russian is the complete
+English revision 6 is the canonical semantic source and Russian is the complete
 translated locale for Chapter 15. Any later English change makes the Russian
 review stale until the contract, lesson, diagram labels, accessible names,
 history claims, exercises, and answers are refreshed together from English.
 
 Keep formula transpose distinct from the forward transpose operation. Explain
 broadcasting as coordinate reuse whose reverse sum restores the parent shape.
-Keep fresh pass-local adjoints distinct from stored parameter gradients and
-optional trace evidence. Keep graph retention distinct from trace capture,
-zeroing, and detach. Never call structural results zero-copy views or turn the
-history into programming-language, framework, or array-API history.
+Keep temporary read guards distinct from independent snapshots, fresh pass-local
+adjoints, stored parameter gradients, and optional trace evidence. Keep graph
+retention distinct from trace capture, zeroing, snapshots, and detach. A
+structural operation result owns its primal; it is not a view of an operand.
+Never turn the history into programming-language, framework, or array-API
+history.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

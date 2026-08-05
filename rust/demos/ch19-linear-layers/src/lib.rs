@@ -85,25 +85,25 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     let bias_free = known_linear(false);
     let bias_free_output = bias_free
         .forward(&TensorValue::constant(tensor(&INPUT_SHAPE, &INPUT_VALUES))?)?
-        .value();
+        .value_snapshot();
     // endregion:known-linear-layer
 
     // region:linear-gradients
     let upstream = tensor(&UPSTREAM_SHAPE, &UPSTREAM_VALUES);
     output.backward_with_seed(&upstream.view(), GraphRetention::Retain)?;
     let input_gradient = input
-        .gradient()
+        .gradient_snapshot()
         .expect("trainable input stores its exact gradient");
     let weight_gradient = layer
         .weight()
         .tensor()
-        .gradient()
+        .gradient_snapshot()
         .expect("trainable weight stores its exact gradient");
     let bias_gradient = layer
         .bias()
         .expect("affine fixture owns bias")
         .tensor()
-        .gradient()
+        .gradient_snapshot()
         .expect("trainable bias stores its exact gradient");
     // endregion:linear-gradients
 
@@ -123,7 +123,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     let initialized = Linear::new("token_projection", 2, 3, true, &mut first_rng)?;
     let reproduced = Linear::new("token_projection", 2, 3, true, &mut second_rng)?;
     let initialized_reproducible =
-        initialized.weight().tensor().value() == reproduced.weight().tensor().value();
+        *initialized.weight().tensor().value() == *reproduced.weight().tensor().value();
     let initialized_bias_zero = initialized
         .bias()
         .expect("requested bias")
@@ -146,7 +146,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
 
     let empty_output = layer
         .forward(&TensorValue::constant(tensor(&[0, 2], &[]))?)?
-        .value();
+        .value_snapshot();
     let scalar_rejected = matches!(
         layer.forward(&TensorValue::constant(tensor(&[], &[1.0]))?),
         Err(LinearError::InputRank { rank: 0 })
@@ -176,14 +176,14 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
     );
 
     Ok(LearnerReport {
-        input: input.value(),
-        weight: layer.weight().tensor().value(),
+        input: input.value_snapshot(),
+        weight: layer.weight().tensor().value_snapshot(),
         bias: layer
             .bias()
             .expect("affine fixture owns bias")
             .tensor()
-            .value(),
-        output: output.value(),
+            .value_snapshot(),
+        output: output.value_snapshot(),
         bias_free_output,
         upstream,
         input_gradient,
