@@ -15264,3 +15264,64 @@ stable, and Chapter 29 teaches the proof rather than claiming hidden enumeration
 `remediate-checkpoint-validation-and-streaming-20260805`,
 `share-decoder-state-layout-validation`, and
 `20260805T201541Z-share-decoder-state-layout-validation-01`.
+
+## 2026-08-05 - Validate sealed checkpoint state once and plan borrowed typed payloads
+
+**Status:** Accepted during implementation and independent API/content review of
+`stream-checkpoint-payloads-from-validated-state`.
+
+**Context:** The dependent F04 step still rebuilt a complete decoder only to
+validate decoded parameter layout, repeated the checkpoint's cross-part semantic
+validation on every encode, cloned literal-token spellings during uniqueness
+validation, decoded BPE payloads through an intermediate `Vec<u32>`, and retained
+one encoded `Vec<u8>` for every planned record before assembling the final file.
+The earlier decision's phrase "payload-scale final buffer" was also imprecise:
+the requested final capacity covers the complete header-plus-payload file, while
+the allocator may reserve more capacity internally. Review additionally found
+that the Chapter 33 snapshot source region must not absorb Chapter 35's decoded-
+state adapter and that layout validation accepts only already leaf-validated
+parameters.
+
+**Decision:** Keep parameter-leaf validation at the ordered untrusted descriptor
+boundary, then move those owned `(String, Tensor)` values into
+`DecoderModelState::try_from_leaf_validated_parameters`. That state implements
+the shared `DecoderParameterSource` with scoped tensor inspection and invokes
+`validate_parameter_layout` by reference. It does not construct components,
+parameter handles, a live tied alias, a second state snapshot, or copied tensor
+buffers. Isolate this adapter in the Chapter-35-specific
+`decoder-state-layout-validation` region so the Chapter 33
+`decoder-state-snapshot` evidence remains unchanged.
+
+Treat every successfully constructed or loaded `Checkpoint` as sealed: its
+private API cannot invalidate tokenizer/model/optimizer relationships, so
+`encode` does not repeat `validate_parts`. Validate literal uniqueness with
+borrowed byte slices. Decode each on-disk BPE pair directly into the retained
+`Vec<TokenPair>`, then use the existing BPE constructor for the course-owned
+semantic checks.
+
+Represent encoding work as `TensorRecordPlan`: descriptor metadata is owned,
+while `TensorPayload` borrows literal bytes, BPE pairs, model values, or AdamW
+moment values. Derive descriptor dtype from the payload variant, calculate all
+byte counts and offsets with checked arithmetic, reserve one final `Vec<u8>` for
+the complete header-plus-payload file, and convert each borrowed value directly
+into that buffer in canonical little-endian order. Separate record-descriptor and
+provisional-header allocations remain. This is neither allocation-free nor
+zero-copy serialization, and `save_atomic` still receives the complete in-memory
+buffer before writing; "stream" in the stable step ID means direct in-memory
+emission, not disk streaming. This precision supersedes only the earlier
+"payload-scale" shorthand.
+
+**Consequences:** Validation order remains descriptor leaf, borrowed decoder
+layout, optimizer, cross-component relationships, and canonical re-encoding.
+The final file bytes, typed corruption behavior, ownership distinction between
+snapshot/copy and consuming/move restoration, and downstream checkpoint users
+remain exact. Encoding no longer retains per-record encoded payload buffers;
+collectively those buffers previously held one additional copy of all payload
+bytes. Chapter 35 revision 4 teaches the exact boundary in frozen English and a
+direct meaning-first Russian refresh, with focused source cards for both the
+state adapter and the borrowed record representation.
+
+**Affected build, step, and run:**
+`remediate-checkpoint-validation-and-streaming-20260805`,
+`stream-checkpoint-payloads-from-validated-state`, and
+`20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02`.

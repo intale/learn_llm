@@ -227,12 +227,13 @@ impl CheckpointTokenizer {
                     "literal token ID {id} has an empty byte spelling"
                 )));
             }
-            if !seen.insert(token.clone()) {
+            if !seen.insert(token.as_slice()) {
                 return Err(CheckpointError::Tokenizer(format!(
                     "literal token ID {id} repeats an earlier byte spelling"
                 )));
             }
         }
+        drop(seen);
         Ok(Self {
             vocabulary_size: tokens.len(),
             representation: CheckpointTokenizerRepresentation::LiteralTokens(tokens),
@@ -677,19 +678,74 @@ impl From<AdamWError> for CheckpointError {
     }
 }
 
-#[derive(Clone, Debug)]
-struct TensorRecord {
-    descriptor: CheckpointTensorDescriptor,
-    bytes: Vec<u8>,
+// region:checkpoint-record-planning
+#[derive(Clone, Copy, Debug)]
+enum TensorPayload<'a> {
+    Bytes(&'a [u8]),
+    BpePairs(&'a [TokenPair]),
+    Float64(&'a [f64]),
 }
 
-impl TensorRecord {
+impl TensorPayload<'_> {
+    const fn dtype(self) -> CheckpointDType {
+        match self {
+            Self::Bytes(_) => CheckpointDType::U8,
+            Self::BpePairs(_) => CheckpointDType::U32,
+            Self::Float64(_) => CheckpointDType::F64,
+        }
+    }
+
+    fn byte_len(self) -> Result<usize, CheckpointError> {
+        match self {
+            Self::Bytes(values) => Ok(values.len()),
+            Self::BpePairs(pairs) => pairs
+                .len()
+                .checked_mul(2)
+                .and_then(|values| values.checked_mul(CheckpointDType::U32.byte_width()))
+                .ok_or(CheckpointError::SizeOverflow {
+                    context: "BPE pair payload",
+                }),
+            Self::Float64(values) => values
+                .len()
+                .checked_mul(CheckpointDType::F64.byte_width())
+                .ok_or(CheckpointError::SizeOverflow {
+                    context: "f64 tensor payload",
+                }),
+        }
+    }
+
+    fn write_to(self, bytes: &mut Vec<u8>) {
+        match self {
+            Self::Bytes(values) => bytes.extend_from_slice(values),
+            Self::BpePairs(pairs) => {
+                for pair in pairs {
+                    put_u32(bytes, pair.left());
+                    put_u32(bytes, pair.right());
+                }
+            }
+            Self::Float64(values) => {
+                for &value in values {
+                    put_f64(bytes, value);
+                }
+            }
+        }
+    }
+}
+
+/// Owns record metadata while borrowing the values that will become file bytes.
+#[derive(Debug)]
+struct TensorRecordPlan<'a> {
+    descriptor: CheckpointTensorDescriptor,
+    payload: TensorPayload<'a>,
+}
+// endregion:checkpoint-record-planning
+
+impl<'a> TensorRecordPlan<'a> {
     fn new(
         role: CheckpointTensorRole,
         name: impl Into<String>,
-        dtype: CheckpointDType,
         shape: Vec<usize>,
-        bytes: Vec<u8>,
+        payload: TensorPayload<'a>,
     ) -> Result<Self, CheckpointError> {
         let name = name.into();
         if name.is_empty() {
@@ -697,11 +753,13 @@ impl TensorRecord {
                 "a tensor descriptor has an empty logical name".to_owned(),
             ));
         }
+        let dtype = payload.dtype();
         let expected = checked_tensor_bytes(&shape, dtype)?;
-        if bytes.len() != expected {
+        let actual = payload.byte_len()?;
+        if actual != expected {
             return Err(CheckpointError::Layout(format!(
                 "tensor {name:?} with shape {shape:?} and dtype {dtype} needs {expected} bytes, got {}",
-                bytes.len()
+                actual
             )));
         }
         Ok(Self {
@@ -711,9 +769,9 @@ impl TensorRecord {
                 dtype,
                 shape,
                 offset: 0,
-                byte_len: usize_to_u64(bytes.len(), "tensor byte length")?,
+                byte_len: usize_to_u64(actual, "tensor byte length")?,
             },
-            bytes,
+            payload,
         })
     }
 }
@@ -722,8 +780,7 @@ impl Checkpoint {
     // region:versioned-checkpoint-encoding
     /// Encodes one canonical little-endian file without native-memory casts.
     pub fn encode(&self) -> Result<EncodedCheckpoint, CheckpointError> {
-        self.validate_parts()?;
-        let mut records = self.tensor_records()?;
+        let mut records = self.tensor_record_plan()?;
         let model_parameter_count = self.model_state.parameter_names().len();
         let optimizer_state_count = self.optimizer_state.parameter_names().len();
 
@@ -781,7 +838,7 @@ impl Checkpoint {
             ));
         }
         for record in &records {
-            bytes.extend_from_slice(&record.bytes);
+            record.payload.write_to(&mut bytes);
         }
         if bytes.len() != total_capacity {
             return Err(CheckpointError::Layout(
@@ -804,7 +861,7 @@ impl Checkpoint {
     }
     // endregion:versioned-checkpoint-encoding
 
-    fn tensor_records(&self) -> Result<Vec<TensorRecord>, CheckpointError> {
+    fn tensor_record_plan(&self) -> Result<Vec<TensorRecordPlan<'_>>, CheckpointError> {
         let estimated = match &self.tokenizer.representation {
             CheckpointTokenizerRepresentation::LiteralTokens(tokens) => tokens.len(),
             CheckpointTokenizerRepresentation::ByteBpe(_) => 1,
@@ -830,52 +887,30 @@ impl Checkpoint {
         match &self.tokenizer.representation {
             CheckpointTokenizerRepresentation::LiteralTokens(tokens) => {
                 for (token_id, token) in tokens.iter().enumerate() {
-                    records.push(TensorRecord::new(
+                    records.push(TensorRecordPlan::new(
                         CheckpointTensorRole::LiteralToken,
                         token_id.to_string(),
-                        CheckpointDType::U8,
                         vec![token.len()],
-                        token.clone(),
+                        TensorPayload::Bytes(token),
                     )?);
                 }
             }
             CheckpointTokenizerRepresentation::ByteBpe(pairs) => {
-                let mut bytes = Vec::new();
-                let byte_len = pairs
-                    .len()
-                    .checked_mul(2)
-                    .and_then(|values| values.checked_mul(4));
-                let Some(byte_len) = byte_len else {
-                    return Err(CheckpointError::SizeOverflow {
-                        context: "BPE pair payload",
-                    });
-                };
-                bytes
-                    .try_reserve_exact(byte_len)
-                    .map_err(|_| CheckpointError::Allocation {
-                        context: "BPE pair payload",
-                    })?;
-                for pair in pairs {
-                    put_u32(&mut bytes, pair.left());
-                    put_u32(&mut bytes, pair.right());
-                }
-                records.push(TensorRecord::new(
+                records.push(TensorRecordPlan::new(
                     CheckpointTensorRole::BpePairs,
                     "training-pairs",
-                    CheckpointDType::U32,
                     vec![pairs.len(), 2],
-                    bytes,
+                    TensorPayload::BpePairs(pairs),
                 )?);
             }
         }
 
         for (name, value) in self.model_state.named_tensors() {
-            records.push(TensorRecord::new(
+            records.push(TensorRecordPlan::new(
                 CheckpointTensorRole::ModelParameter,
                 name,
-                CheckpointDType::F64,
                 value.shape().to_vec(),
-                f64_bytes(value.as_slice()),
+                TensorPayload::Float64(value.as_slice()),
             )?);
         }
         for name in self.optimizer_state.parameter_names() {
@@ -883,19 +918,17 @@ impl Checkpoint {
                 .optimizer_state
                 .state(name)
                 .expect("the state iterator yields stored names");
-            records.push(TensorRecord::new(
+            records.push(TensorRecordPlan::new(
                 CheckpointTensorRole::OptimizerFirstMoment,
                 name,
-                CheckpointDType::F64,
                 moments.shape().to_vec(),
-                f64_bytes(moments.first_moment()),
+                TensorPayload::Float64(moments.first_moment()),
             )?);
-            records.push(TensorRecord::new(
+            records.push(TensorRecordPlan::new(
                 CheckpointTensorRole::OptimizerSecondMoment,
                 name,
-                CheckpointDType::F64,
                 moments.shape().to_vec(),
-                f64_bytes(moments.second_moment()),
+                TensorPayload::Float64(moments.second_moment()),
             )?);
         }
         Ok(records)
@@ -916,7 +949,7 @@ fn write_metadata(
     checkpoint: &Checkpoint,
     model_parameter_count: usize,
     optimizer_state_count: usize,
-    records: &[TensorRecord],
+    records: &[TensorRecordPlan<'_>],
 ) -> Result<(), CheckpointError> {
     put_u16(bytes, TOKENIZER_LAYOUT_VERSION);
     put_u16(bytes, RNG_ALGORITHM_VERSION);
@@ -1014,14 +1047,6 @@ fn write_string(bytes: &mut Vec<u8>, value: &str) -> Result<(), CheckpointError>
     put_u32(bytes, usize_to_u32(value.len(), "UTF-8 string length")?);
     bytes.extend_from_slice(value.as_bytes());
     Ok(())
-}
-
-fn f64_bytes(values: &[f64]) -> Vec<u8> {
-    let mut bytes = Vec::with_capacity(values.len().saturating_mul(8));
-    for value in values {
-        bytes.extend_from_slice(&value.to_bits().to_le_bytes());
-    }
-    bytes
 }
 
 fn put_u8(bytes: &mut Vec<u8>, value: u8) {
@@ -1436,15 +1461,30 @@ fn decode_tokenizer(
                     descriptor.shape
                 )));
             }
-            let values = decode_u32(descriptor_bytes(descriptor, file)?)?;
+            let bytes = descriptor_bytes(descriptor, file)?;
+            if !bytes.len().is_multiple_of(4) {
+                return Err(CheckpointError::Layout(
+                    "u32 tensor payload is not a multiple of four bytes".to_owned(),
+                ));
+            }
             let mut pairs = Vec::new();
             pairs.try_reserve_exact(descriptor.shape[0]).map_err(|_| {
                 CheckpointError::Allocation {
                     context: "BPE merge pairs",
                 }
             })?;
-            for pair in values.chunks_exact(2) {
-                pairs.push(TokenPair::new(pair[0], pair[1]));
+            for pair in bytes.chunks_exact(8) {
+                let left = u32::from_le_bytes(
+                    pair[..4]
+                        .try_into()
+                        .expect("the pair chunk contains the left u32"),
+                );
+                let right = u32::from_le_bytes(
+                    pair[4..]
+                        .try_into()
+                        .expect("the pair chunk contains the right u32"),
+                );
+                pairs.push(TokenPair::new(left, right));
             }
             CheckpointTokenizer::from_byte_bpe_pairs(pairs)?
         }
@@ -1489,7 +1529,7 @@ fn decode_model(
         NamedParameter::validate_leaf(&descriptor.name, &tensor)?;
         parameters.push((descriptor.name.clone(), tensor));
     }
-    DecoderModelState::try_from_owned_parameters(config, parameters)
+    DecoderModelState::try_from_leaf_validated_parameters(config, parameters)
         .map_err(checkpoint_model_state_error)
 }
 
@@ -1569,18 +1609,6 @@ fn descriptor_bytes<'a>(
     file.get(start..end).ok_or(CheckpointError::Truncated {
         context: "tensor payload",
     })
-}
-
-fn decode_u32(bytes: &[u8]) -> Result<Vec<u32>, CheckpointError> {
-    if !bytes.len().is_multiple_of(4) {
-        return Err(CheckpointError::Layout(
-            "u32 tensor payload is not a multiple of four bytes".to_owned(),
-        ));
-    }
-    Ok(bytes
-        .chunks_exact(4)
-        .map(|chunk| u32::from_le_bytes(chunk.try_into().expect("chunk width is four")))
-        .collect())
 }
 
 fn decode_f64(bytes: &[u8]) -> Result<Vec<f64>, CheckpointError> {
@@ -1950,6 +1978,85 @@ mod tests {
         assert_eq!(loaded.encode().unwrap(), first);
         assert_eq!(loaded.rng_state(), 0xfeed_beef);
         assert_eq!(loaded.tokenizer().kind_name(), "literal-u32");
+    }
+
+    #[test]
+    fn record_plan_borrows_every_payload_family() {
+        let checkpoint_model = model(5);
+        let mut checkpoint_optimizer = optimizer();
+        checkpoint_optimizer
+            .step(checkpoint_model.parameters())
+            .unwrap();
+        let checkpoint = Checkpoint::from_snapshot(
+            CheckpointTokenizer::literal_tokens(vec![
+                b"a".to_vec(),
+                b"b".to_vec(),
+                b"c".to_vec(),
+                b"d".to_vec(),
+                b"e".to_vec(),
+            ])
+            .unwrap(),
+            &DecoderModelState::snapshot(&checkpoint_model),
+            &checkpoint_optimizer,
+            1,
+            17,
+        )
+        .unwrap();
+        let records = checkpoint.tensor_record_plan().unwrap();
+
+        let token = &checkpoint.tokenizer.literal_pieces().unwrap()[0];
+        assert!(matches!(
+            records[0].payload,
+            TensorPayload::Bytes(values)
+                if std::ptr::eq(values.as_ptr(), token.as_ptr()) && values.len() == token.len()
+        ));
+
+        let (_, model_tensor) = checkpoint.model_state.named_tensors().next().unwrap();
+        let model_record = records
+            .iter()
+            .find(|record| record.descriptor.role == CheckpointTensorRole::ModelParameter)
+            .unwrap();
+        assert!(matches!(
+            model_record.payload,
+            TensorPayload::Float64(values)
+                if std::ptr::eq(values.as_ptr(), model_tensor.as_slice().as_ptr())
+                    && values.len() == model_tensor.len()
+        ));
+
+        let optimizer_name = checkpoint.optimizer_state.parameter_names().next().unwrap();
+        let moments = checkpoint.optimizer_state.state(optimizer_name).unwrap();
+        let optimizer_record = records
+            .iter()
+            .find(|record| record.descriptor.role == CheckpointTensorRole::OptimizerFirstMoment)
+            .unwrap();
+        assert!(matches!(
+            optimizer_record.payload,
+            TensorPayload::Float64(values)
+                if std::ptr::eq(values.as_ptr(), moments.first_moment().as_ptr())
+                    && values.len() == moments.first_moment().len()
+        ));
+
+        let tokenizer = BpeTokenizer::from_merge_pairs(&[TokenPair::new(97, 98)]).unwrap();
+        let bpe_checkpoint = Checkpoint::from_snapshot(
+            CheckpointTokenizer::byte_bpe(&tokenizer),
+            &DecoderModelState::snapshot(&model(tokenizer.layout().vocabulary_size())),
+            &optimizer(),
+            0,
+            17,
+        )
+        .unwrap();
+        let bpe_records = bpe_checkpoint.tensor_record_plan().unwrap();
+        let CheckpointTokenizerRepresentation::ByteBpe(source_pairs) =
+            &bpe_checkpoint.tokenizer.representation
+        else {
+            panic!("the fixture uses byte BPE");
+        };
+        assert!(matches!(
+            bpe_records[0].payload,
+            TensorPayload::BpePairs(pairs)
+                if std::ptr::eq(pairs.as_ptr(), source_pairs.as_ptr())
+                    && pairs.len() == source_pairs.len()
+        ));
     }
 
     #[test]

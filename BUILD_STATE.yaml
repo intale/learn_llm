@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-05T18:04:26Z"
+updated_at: "2026-08-05T22:39:28Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: remediate-rust-tensor-iteration-20260805
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -32831,7 +32831,7 @@ builds:
 
   - build_id: remediate-checkpoint-validation-and-streaming-20260805
     objective: "Make Chapter 35 checkpoint tokenizer state trustworthy by construction, then encode already validated state without validation-only decoder reconstruction or parameter-scale temporary payload copies."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -33072,7 +33072,7 @@ builds:
       - id: stream-checkpoint-payloads-from-validated-state
         objective: "Plan checkpoint descriptors from borrowed validated state and stream every tokenizer, model, and optimizer value directly into the final canonical byte buffer."
         depends_on: [share-decoder-state-layout-validation]
-        status: pending
+        status: completed
         inputs:
           - "Committed share-decoder-state-layout-validation result"
           - "audits/2026-08-04-rust-overengineering.md finding F04 payload-copy portion rebased after F02, F05, and shared decoder-layout validation"
@@ -33096,7 +33096,7 @@ builds:
           - "The committed decoder source remains unchanged while the trainer adopts its validator; descriptor and leaf validation still precede decoder-layout validation, which still precedes optimizer and remaining cross-component validation."
           - "Checkpoint establishes tokenizer-model-optimizer relationships at sealed construction or untrusted load; encode trusts those established semantic relationships and performs no repeated validate_parts traversal."
           - "The record plan owns descriptor metadata only and borrows literal bytes, BPE pairs, model f64 slices, and AdamW moment slices; it allocates no per-record payload Vec<u8>, token clone, BPE payload buffer, or f64_bytes buffer."
-          - "After header sizing and checked offset assignment, payload scalars are encoded in canonical order directly into one payload-scale final Vec<u8>; small descriptor/header metadata remains allowed, memory growth stays checked, and no unsafe or native-memory cast is introduced."
+          - "After header sizing and checked offset assignment, payload scalars are encoded in canonical order directly into one final Vec<u8> reserved for the complete header-plus-payload file; descriptor and provisional-header allocations remain allowed, memory growth stays checked, and no unsafe or native-memory cast is introduced."
           - "Loading retains canonical re-encoding, public corruption checks, semantic error categories and precedence, and all untrusted size checks; from_snapshot retains its intentional durable state copy, while removed intermediate allocations no longer expose impossible allocation failures."
           - "The exact 6330-byte Chapter 35 fixture, 38 descriptors, offsets, checksum fnv1a64:2b8b6097eaed6a91, stdout, logits, RNG and resume results, atomic replacement, and downstream Chapters 36/38/39 evidence remain unchanged."
           - "Chapter 35 advances from revision 3 to 4, teaches constructor-validated tokenizer state, invariant ownership at construction/load boundaries, and a descriptor plan that references source values before direct final-buffer encoding; it receives a direct natural Russian refresh without claiming zero-copy, allocation-free, or disk streaming behavior."
@@ -33149,3 +33149,72 @@ builds:
               - {command: "Repository, dependency, input, output-ownership, locale, environment, cost, and prior-artifact preflight", status: passed, notes: "HEAD 1609ed6 and the worktree are clean; F05 is completed and independently committed, its two-file manifest verifies, and ./course audit-host passes. F04 is the first eligible step, depends on committed F05, and no output has another running owner. The active Chapter 35 locale set remains {en,ru}. Git 2.53.0, Docker 25.0.2, Compose 2.17.3, and pinned Rust 1.93.1, Cargo 1.93.1, Node 22.12.0, npm 10.9.0, and Playwright 1.61.1 match the ledger. Cost is large cached local Docker/browser CPU within an unlimited budget, with no new dependency, paid service, generation, or external-data input."}
               - {command: "Pre-edit shared-validator ownership and rendered-source audit", status: passed, notes: "The only nonduplicated validator must be invoked by DecoderModel::from_parameters, whose source is nested in Chapter 33's decoder-parameter-rebuild region and Chapter 32's decoder-model-layer region. Finite leaf values, the flat tied-table slot, payload-scale buffer scope, and removed-allocation errors also required narrower ownership claims. No product file or reusable artifact was created before rescheduling."}
             notes: "Interrupted before product edits because an unrecorded Chapters 32/33 rendered-source dependency made the original combined F04 scope incomplete. Resume only after share-decoder-state-layout-validation is completed and independently committed."
+          - run_id: 20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02
+            started_at: 2026-08-05T21:39:44Z
+            finished_at: 2026-08-05T22:39:28Z
+            status: succeeded
+            input_fingerprint:
+              git: "7193075415db577b72d3a41302bcd8739b5a37b8; tree e71f45ad2d62efc28753a191656fad8d022afb4f"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                checkpoint: "sha256:24f43817eb995f524db50267236c2077c1e825315b877087079bc470789cb8ee"
+                trainer: "sha256:992d72bf4737834a4ebe23caaef6c29a75e204d28fd0c9045ed485197cbe37ee"
+                decoder: "sha256:23ba36286c8b7f1ec5970dc89d28cbcd684c73f8751fcb4f8fd7cc6170a96608"
+                chapter-35-contract: "sha256:6bc2c2750fc4fc52988ff78330cf507b58c6307053335af5f6d8924442409459"
+                course-plan: "sha256:651d269776e1191ac74a57c38bc7f62cf98f3e82dec218ce14f4521d84a0db22"
+                chapter-35-en: "sha256:128d67269dbe7f4437fa4a471b5bb24c2793271b98a5b271bc15122f99a28d44"
+                chapter-35-ru: "sha256:9e8776e801ad4757f1dc230f9258efa0a76f0810968e5225c15d1ddc008619e5"
+                chapter-35-static-test: "sha256:358bade7aba47fd7c4d87c31de251ac36f54245e7050a5c8a0490ab83ded4378"
+                chapter-35-browser-test: "sha256:ff9ed991540a4c5ada505be7797a2fb2eb44b270907b6b8b8e52095d46ac0101"
+                chapter-35-demo-lib: "sha256:ec4f62c61e483dd31ff68f968b848bc3719d6c44e68590f8c4c12588b67cb7f0"
+                chapter-35-demo-main: "sha256:66b036afce393a51572fcdfff85d500eca77a55bbdb1f375ba56e2a964cacf28"
+                chapter-35-output: "sha256:aa641c3ae72687fcf4bf3f80c96ddc1c7a67bc38921575c067209576b229fccc"
+                chapter-36-demo-lib: "sha256:942de5f2a703adf7e7187f6d5bac17447529dbdc93f9a195a5a5855c5d49a89d"
+                chapter-36-demo-main: "sha256:3d697f209bc510b6c83c57bbe6a9cfcf917f08008a95b2e9d8c310c31445700a"
+                chapter-36-output: "sha256:ddcaea1b726e364133e95ba5119437f375f8124d6712844f0938a920a622627d"
+                chapter-38-demo-lib: "sha256:3564e09532f1457805ff6b9dc69a193b3c32a0cb410dc3920524875b58a30f36"
+                chapter-38-demo-main: "sha256:72fbc9b05b4fdf6b29d01babe98a783bb2532370cde87bb1a7f7d46befa661cc"
+                chapter-38-output: "sha256:9272a274d71a0c5ade3dfd75d9db36371b6b774244711fac73519518466e2d7f"
+                chapter-39-demo-lib: "sha256:19fefea79f3411a5bf416f738291655f4b6319a09da9c35050dd294b2d5ac095"
+                chapter-39-demo-main: "sha256:e2fb1157c144fb159c79acb33b02ad99c0302a3841d0b14199be59afb94301e2"
+                chapter-39-output: "sha256:a0b0398a587f6f3d1cbc40d3cf6854f022f01b71b76d7eaf5192489b32f2cef4"
+                cargo-toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                cargo-lock: "sha256:b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+                prerequisite-publish-manifest: "sha256:c50871239e7a052719b43bd37c8e3611223e3e36bdc5eac90a9ee7b804707069"
+              tools: {git: "2.53.0", docker: "25.0.2", docker_compose: "2.17.3", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No new dependency, paid service, model generation, or external data. Rust, site, localization, and browser work remains inside pinned Docker images; the accepted lockfile-pinned registry-refresh contingency applies only if a canonical layer misses cache."
+            staging_dir: ".build/runs/20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02/"
+            commands:
+              - "Start from clean committed prerequisite 7193075, verify its eighteen-file immutable manifest and Docker-only host boundary, inspect the interrupted no-product run, and select this dependent F04 step as the first eligible checkpoint."
+              - "Read the ordered acceptance, durable split and payload-boundary decisions, localization workflow, Chapter 35 contract/pages/tests, exact downstream fixtures, and remaining checkpoint/trainer allocation and validation paths."
+              - "Confirm large cached Docker/browser CPU fits the unlimited budget; no new dependency, paid service, model generation, external data, or approval pause is required."
+              - "Adopt the shared scoped decoder-layout validator for leaf-validated owned state, remove encode-time semantic revalidation, represent record payloads as borrowed typed slices, decode BPE pairs directly, and write planned values into the final file buffer."
+              - "Run independent source/API, learner-evidence, and browser-assertion reviews; isolate the Chapter 35 layout adapter from Chapter 33's rendered snapshot region and correct every ownership, validation-stage, allocation, tie, descriptor, dtype, and deterministic-order overclaim."
+              - "Freeze English Chapter 35 revision 4 after final semantic and explicit-wording review at sha256:4ee3a1ad75d4af2dea8bb921792d4c62579b3afeb7329110952769e924bd05bf before direct Russian localization."
+              - "Translate Russian directly from frozen English revision 4, then run independent claim-parity and target-only anti-calque reviews over the complete chapter; correct both new text and pre-existing literal phrasing before freezing sha256:8569eb966cd4d4e859356920333bc6c744417aaaba62e9a19d2896972e697a13."
+              - "Normalize only whitespace-sensitive Chapter 35 prose assertions after the frozen-source audit, then run the complete Docker gate, focused Rust/static controls, strict Clippy, exact Chapter 35/36/38/39 output comparisons, and two-engine rendered validation."
+              - "Stage the eight declared canonical product and regression-test files under publish/, seal their checksums, rebuild the staged review image, and verify canonical equality plus the Docker-only host boundary."
+            artifacts:
+              - {path: ".build/runs/20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02/english/site/src/content/chapters/en/35-checkpoints.mdx", sha256: "4ee3a1ad75d4af2dea8bb921792d4c62579b3afeb7329110952769e924bd05bf"}
+              - {path: ".build/runs/20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02/localization/site/src/content/chapters/ru/35-checkpoints.mdx", sha256: "8569eb966cd4d4e859356920333bc6c744417aaaba62e9a19d2896972e697a13"}
+              - {path: "docker-image://learn-llm-workspace:local", sha256: "d5eb8931c473b740668dc438873095a4a728e8ce19d0aca60691d8d89ac00ab1", kind: "Exact final product workspace image passing the complete Rust, content, static-site, and link gate."}
+              - {path: "docker-image://learn-llm-review:20260805t213944z-stream-checkpoint-payloads-from-validated-state-02", sha256: "30a9fb5b647b1a0d3b718d127219ce267f3b45643c0f0ca6e662dfe4084ff07c", kind: "Immutable staged Chapter 35 review image."}
+              - {path: ".build/runs/20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02/publish.sha256", sha256: "dfdcb5cb994edc1f43b2f90ff3e18950e1f9bb0bfda93b2382c10d11f85b9de3", kind: "Immutable manifest for the eight declared canonical product and regression-test outputs."}
+            validation:
+              - {command: "Repository, dependency, prerequisite, input, output-ownership, locale, environment, cost, and prior-run preflight", status: passed, notes: "HEAD 7193075 and the worktree are clean; share-decoder-state-layout-validation is completed and independently committed, its manifest verifies, and ./course audit-host passes. This is the only eligible step and no output has another owner. The interrupted run produced no reusable product artifact. Active locales remain {en,ru}; pinned tools match the ledger; large cached CPU fits the unlimited budget with no dependency, paid, generation, or external-data input."}
+              - {command: "First Docker workspace replay after Rust implementation", status: failed, notes: "Rust formatting, all 429 llm-from-scratch unit cases, every workspace demo test and doc test, and zero-diagnostic Astro analysis passed. The build then stopped at the expected publication gate because frozen English is revision 4 while Russian remains revision 3; no Rust, type, or product failure occurred."}
+              - {command: "Canonical English revision-4 semantic, explicitness, source-evidence, and allocation-boundary review", status: passed, notes: "Three independent read-only passes and the root review found no remaining semantic, wording, learning-flow, source-region, or Rust-consistency defect. Formula/history/evidence remain intact; the frozen file and contract hash agree at 4ee3a1ad... ."}
+              - {command: "Direct Russian revision-4 semantic, terminology, anti-calque, monolingual, and isolated-accessibility review", status: passed, notes: "Two independent localization passes compared every claim with frozen English and read the complete Russian lesson alone. They corrected pre-existing history, referent, half-open-range, exercise, visualization, and handoff defects as well as the new ownership/allocation prose. Contract fields match, no English-shaped calque or semantic divergence remains, and the reviewed candidate is frozen at 8569eb96...; rendered desktop/narrow checks remain pending."}
+              - {command: "Final ./course check", status: passed, notes: "Workspace image sha256:d5eb8931... passes Rust formatting, all workspace and demo tests including 429 shared-library cases and four compile-fail doctests, zero-diagnostic Astro analysis, both 40-locale-set content gates, the 85-page production build, and all 2,529 link/SEO/sitemap/Analytics references."}
+              - {command: "Focused Chapter 35 Rust, strict Clippy, and static assertions", status: passed, notes: "The exact final Docker source passes cargo fmt, all 429 llm-from-scratch library tests, both ch35-checkpoints tests, strict production-library Clippy with warnings denied, and all four Chapter 35 Vitest cases. The two initially failing assertions were test-only raw-MDX whitespace assumptions; normalized prose checks now preserve exact raw hashes and structural assertions."}
+              - {command: "Exact Chapter 35 and downstream Chapter 36/38/39 controls", status: passed, notes: "All four demos reproduce their expected stdout byte for byte. Chapter 35 remains aa641c3a...; every Chapter 36/38/39 demo source and expected-output hash remains identical to the recorded input, preserving logits, RNG, and generation evidence."}
+              - {command: "Focused Chromium and Firefox rendered validation", status: passed, notes: "All three Chapter 35 cases pass in each pinned browser against the exact final workspace: reciprocal en/ru routes, desktop and narrow containment, ten Rust source cards, complete formulas/tables/evidence, and the no-JavaScript surface. Both containers used --network none, loopback-only internal ports, and no host-published port."}
+              - {command: "Frozen English/Russian provenance and final localization review", status: passed, notes: "Canonical and run-frozen copies remain byte-identical at English 4ee3a1ad... and Russian 8569eb96.... Russian was translated directly from the frozen English revision and independently passed complete semantic parity plus target-only terminology, anti-calque, monolingual, accessibility, and rendered-layout review."}
+              - {command: "Immutable publication and ./course review 20260805T213944Z-stream-checkpoint-payloads-from-validated-state-02 --check", status: passed, notes: "Manifest sha256:dfdcb5cb... verifies exactly eight staged product/test files, each byte-identical to canonical output. Review image sha256:30a9fb5b... passes both content gates, zero-diagnostic Astro analysis, the 85-page build, and all 2,529 reference checks without mutating publish/."}
+              - {command: "Host artifact, tracked scope, and whitespace audit", status: passed, notes: "./course audit-host passes with site/dist as the intentional release exception; git diff --check passes; the worktree contains exactly the eight declared canonical product/test files plus BUILD_STATE.yaml and DECISIONS.md."}
+              - {command: "Pinned-Docker completed-ledger, scheduler, and cross-content validation", status: passed, notes: "The completed YAML validates 40 chapters, 111 scheduled steps, and all 40 implemented contracts through Chapter 39; all 33 content-contract assertions pass. No build, step, or run remains active or running, and the ordered F05-before-F04 checkpoint-remediation build is complete."}
+              - {command: "Independent final Rust invariant, payload, and allocation-scope review", status: passed, notes: "A read-only reviewer found no blocker: private immutable checkpoint state is validated at construction/load, decoded leaves precede borrowed layout validation, optimizer and cross-component checks retain their order, every payload family is borrowed without record-sized payload copies, and canonical ordering plus little-endian bytes remain unchanged. The allocation claims correctly exclude descriptor/header allocations and do not claim zero-copy, allocation-free, or disk-streaming behavior."}
+            notes: "Succeeded. Checkpoint construction and untrusted loading now establish semantic relationships once; decoded model buffers are layout-validated in place, while encoding plans only descriptor metadata and borrowed typed payloads before writing canonical values directly into one complete-file Vec. Exact wire bytes, corruption precedence, Chapter 35 evidence, downstream generation, reviewed en/ru rendering, immutable publication, and the Docker-only host boundary all remain valid."

@@ -54,10 +54,18 @@ const copy = {
     evidenceFragment: "Together with the exact round trip and resumed update",
     answerFragment:
       "FNV-1a detects accidental corruption but provides no authentication",
-    ownershipFragments: [
-      "Checkpoint::from_snapshot receives selected model state and an optimizer that their callers still need",
-      "This validation finishes before optimizer tensors are decoded",
+    implementationFragments: [
+      "Checkpoint::from_snapshot borrows selected model state",
       "into_model consumes the checkpoint and moves its model buffers",
+      "one token_embedding.weight value slot, no separate output-head parameter, and no live component alias",
+      "The plan creates no encoded byte vector per record",
+      "converts each referenced payload value directly into that final buffer",
+      "This is not allocation-free or zero-copy serialization",
+      "It is also not streaming to disk",
+      "The shared decoder-layout validator reads each name and tensor through a scoped reference",
+      "It does not copy a tensor",
+      "build decoder components, or create a live embedding/output alias",
+      "This layout check finishes before the reader decodes optimizer tensors",
     ],
   },
   ru: {
@@ -87,7 +95,7 @@ const copy = {
     ],
     historyFragments: [
       "Эта последовательность показывает, какое состояние нужно сохранять",
-      "Этот скрипт не задаёт единый автономный файл, точное продолжение обучения",
+      "Однако скрипт не описывает единый самодостаточный файл, точное продолжение обучения",
       "Сам по себе он не задаёт токенизатор, конфигурацию декодера, оптимизатор",
       "не описывает GPT-2 или safetensors как дамп памяти",
     ],
@@ -98,13 +106,21 @@ const copy = {
     adjacencyFragment:
       "Каждая строка должна начинаться точно там, где заканчивается предыдущая",
     evidenceFragment:
-      "Вместе с точным циклом сохранения-загрузки и одинаковым следующим обновлением",
+      "Вместе со строками roundtrip и resume, которые подтверждают точную загрузку",
     answerFragment:
       "FNV-1a обнаруживает случайные повреждения, но не подтверждает подлинность",
-    ownershipFragments: [
-      "Checkpoint::from_snapshot получает по ссылке состояние выбранной модели и оптимизатор",
-      "Проверка модели полностью завершается до декодирования тензоров состояния оптимизатора",
-      "При вызове into_model контрольная точка передаётся методу целиком и больше недоступна вызывающему коду",
+    implementationFragments: [
+      "Checkpoint::from_snapshot получает по ссылке состояние выбранной модели",
+      "into_model забирает контрольную точку целиком и переносит её буферы модели",
+      "один тензор token_embedding.weight и не содержит отдельного параметра выходной проекции",
+      "План не создаёт отдельный вектор закодированных байтов для каждой записи",
+      "сразу преобразует каждое значение из плана в канонические байты",
+      "Это не сериализация без выделения памяти и не сериализация без копирования данных",
+      "Данные также не записываются на диск потоком",
+      "Этот интерфейс позволяет общей проверке структуры декодера читать имена по ссылке",
+      "Для этого не копируется ни один тензор",
+      "не создаются объекты NamedParameter или компоненты декодера",
+      "Вся эта проверка завершается до декодирования тензоров оптимизатора",
     ],
   },
 } as const;
@@ -195,7 +211,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 35,
-    revision: 3,
+    revision: 4,
     revisionLabel: expected.revisionLabel,
     title: expected.title,
     equivalentLocales: ["en", "ru"],
@@ -324,7 +340,7 @@ async function expectChapterContent(
   ]) {
     expect(lessonText).not.toContain(buildMeta);
   }
-  for (const fragment of expected.ownershipFragments) {
+  for (const fragment of expected.implementationFragments) {
     expect(lessonText).toContain(fragment);
   }
 
@@ -341,7 +357,7 @@ async function expectChapterContent(
       '.lesson-body a[href="https://github.com/huggingface/safetensors/blob/main/README.md"]',
     ),
   ).toHaveCount(1);
-  await expect(page.locator("figure.rust-source")).toHaveCount(8);
+  await expect(page.locator("figure.rust-source")).toHaveCount(10);
   await expectVisualizationDecision(page, {
     decision: "not-useful",
     id: null,
@@ -477,7 +493,7 @@ test.describe(
             '.lesson-body annotation[encoding="application/x-tex"]',
           ),
         ).not.toHaveCount(0);
-        await expect(page.locator("figure.rust-source")).toHaveCount(8);
+        await expect(page.locator("figure.rust-source")).toHaveCount(10);
         await expect(page.locator("figure[data-visualization-id]")).toHaveCount(0);
         await expect(
           page.locator("[data-diagram-full-view-toggle]"),

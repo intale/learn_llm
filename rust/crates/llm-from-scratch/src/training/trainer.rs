@@ -5,7 +5,10 @@ use std::fmt;
 
 use crate::autograd::tensor_core::{GraphRetention, TensorAutodiffError, TensorValue, no_grad};
 use crate::corpus::Partition;
-use crate::models::decoder::{DecoderModel, DecoderModelConfig, DecoderModelError};
+use crate::models::decoder::{
+    DecoderModel, DecoderModelConfig, DecoderModelError, DecoderParameterSource,
+    validate_parameter_layout,
+};
 use crate::nn::init::{InitializationError, NamedParameter};
 use crate::tensor::storage::{Tensor, TensorError};
 use crate::training::adamw::{AdamW, AdamWError};
@@ -480,8 +483,24 @@ impl DecoderModelState {
 }
 // endregion:decoder-state-snapshot
 
+// region:decoder-state-layout-validation
+impl DecoderParameterSource for DecoderModelState {
+    fn len(&self) -> usize {
+        self.parameters.len()
+    }
+
+    fn name(&self, index: usize) -> &str {
+        &self.parameters[index].name
+    }
+
+    fn with_tensor<R>(&self, index: usize, inspect: impl FnOnce(&Tensor) -> R) -> R {
+        inspect(&self.parameters[index].value)
+    }
+}
+
 impl DecoderModelState {
-    pub(crate) fn try_from_owned_parameters(
+    /// Builds graph-free state after the caller has validated every parameter leaf.
+    pub(crate) fn try_from_leaf_validated_parameters(
         config: DecoderModelConfig,
         parameters: Vec<(String, Tensor)>,
     ) -> Result<Self, TrainerError> {
@@ -492,10 +511,13 @@ impl DecoderModelState {
                 .map(|(name, value)| StateParameter { name, value })
                 .collect(),
         };
-        drop(state.restore_independent_model()?);
+        validate_parameter_layout(config, &state)?;
         Ok(state)
     }
+}
+// endregion:decoder-state-layout-validation
 
+impl DecoderModelState {
     pub(crate) fn named_tensors(&self) -> impl ExactSizeIterator<Item = (&str, &Tensor)> {
         self.parameters
             .iter()
@@ -1208,6 +1230,23 @@ mod tests {
                 .zip(&retained_addresses)
                 .all(|(restored, retained)| restored != retained)
         );
+    }
+
+    #[test]
+    fn owned_parameter_layout_validation_retains_the_input_buffers() {
+        let source = DecoderModelState::snapshot(&model());
+        let config = source.config;
+        let expected_addresses = source.storage_addresses();
+        let parameters = source
+            .parameters
+            .into_iter()
+            .map(|parameter| (parameter.name, parameter.value))
+            .collect();
+
+        let validated =
+            DecoderModelState::try_from_leaf_validated_parameters(config, parameters).unwrap();
+
+        assert_eq!(validated.storage_addresses(), expected_addresses);
     }
 
     #[test]

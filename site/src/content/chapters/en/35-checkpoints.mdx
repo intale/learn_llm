@@ -2,7 +2,7 @@
 {
   "chapter_id": "35-checkpoints",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 35,
   "concept_id": "checkpoints",
   "title": "Save every state, resume exactly",
@@ -22,7 +22,7 @@
       },
       {
         "symbol": "b_k",
-        "meaning": "the stored byte width of one element in record k, such as 1 for u8, 4 for u32, or 8 for f64"
+        "meaning": "the byte width implied by record k's stored dtype, such as 1 for u8, 4 for u32, or 8 for f64"
       },
       {
         "symbol": "n_i^{(k)}",
@@ -83,14 +83,24 @@
       "purpose": "Name the durable snapshot required when borrowed training state must remain available, and move already-owned checkpoint state into a decoder without another tensor-buffer copy."
     },
     {
+      "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
+      "region": "decoder-state-layout-validation",
+      "purpose": "Move leaf-validated parameter buffers into graph-free state, expose each tensor only through a scoped borrow, and validate the decoder layout without constructing decoder components."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
+      "region": "checkpoint-record-planning",
+      "purpose": "Represent each record as owned descriptor metadata plus a borrowed byte, BPE-pair, or f64 payload, measure that payload safely, and write it into a caller-provided buffer."
+    },
+    {
       "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
       "region": "versioned-checkpoint-encoding",
-      "purpose": "Encode one canonical little-endian header, descriptor table, mixed-width payload, and complete-file accidental-corruption checksum."
+      "purpose": "Measure checked offsets, reserve one final canonical file buffer, write every borrowed payload value in little-endian form, and compute the complete-file accidental-corruption checksum."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
       "region": "validated-checkpoint-loading",
-      "purpose": "Validate the decoded model before decoding optimizer tensors, retain the original decoded buffers after the temporary validation decoder is dropped, and reject all remaining cross-component or canonical-reencoding drift."
+      "purpose": "Validate decoded parameter leaves and the borrowed decoder layout before decoding optimizer tensors, retain the decoded buffers without a temporary decoder, and reject remaining cross-component or canonical-reencoding drift."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
@@ -198,8 +208,8 @@ overlap, arithmetic overflow, truncation, or trailing byte is an error.
 
 - $o_k$ is the absolute start offset of record $k$.
 - $o_{k+1}$ is the absolute start offset of the following record.
-- $b_k$ is one element's stored byte width in record $k$: $1$ for `u8`, $4$
-  for `u32`, or $8$ for `f64`.
+- $b_k$ is the byte width implied by record $k$'s stored dtype: $1$ for `u8`,
+  $4$ for `u32`, or $8$ for `f64`.
 - $n_i^{(k)}$ is the length of axis $i$ in record $k$.
 - $\prod_i n_i^{(k)}$ is the record's element count.
 - $i$ selects one shape axis.
@@ -207,10 +217,10 @@ overlap, arithmetic overflow, truncation, or trailing byte is an error.
 - $h$ is the complete header size and first payload offset, so $o_0=h$.
 
 A descriptor stores role, name, dtype, shape, absolute offset, and byte length.
-Those fields have different jobs. Shape says how values become a tensor; dtype
-says how many bytes represent each value; canonical order says which component
-owns the values. A matching file length cannot compensate for a changed name or
-shape.
+Those fields have different jobs. Shape says how values form a tensor; dtype
+determines representation and byte width; role and name identify the stored
+state and its component; canonical order fixes the deterministic sequence. A
+matching file length cannot compensate for a changed name or shape.
 
 The five grouped spans below cover all $38$ descriptors without gaps. Aggregated
 rows summarize adjacent descriptors; the loader still validates every descriptor
@@ -364,32 +374,28 @@ path.
   label="Rust source implementing the Chapter 35 AdamW persistence boundary"
 />
 
-`CheckpointTokenizer` stores either nonempty unique literal byte pieces or the
-byte-BPE tokenizer's ordered training-space merge pairs. The file records the
-tokenizer-layout and SplitMix64 algorithm versions. Restoring BPE calls the
-existing validated tokenizer constructor; restoring the random stream uses its
-raw state. This is a continuation stream for later sampling, not the Chapter 33
+`CheckpointTokenizer` is sealed after construction. Its literal constructor
+rejects an empty vocabulary, an empty piece, and repeated byte spellings. Its
+byte-BPE constructor accepts an already validated tokenizer; untrusted decoded
+pairs are accepted only after the existing BPE constructor validates them during
+loading. Each valid path records the resulting vocabulary size, and the private
+representation has no mutator that could make that size stale. The file also
+records the tokenizer-layout and SplitMix64 algorithm versions. The saved random
+state is a continuation stream for later sampling, not the Chapter 33
 batch-shuffle seed.
 
-Checkpoint creation and loading start from different inputs.
-`Checkpoint::from_snapshot` receives selected model state and an optimizer that
-their callers still need, so it copies the model tensors and optimizer
-persistence state into an independently owned checkpoint.
-`Checkpoint::from_bytes` instead owns the tensor buffers decoded from the file.
-After structural checks and tokenizer decoding, it decodes the model tensors and
-builds one independent temporary decoder to validate the configuration,
-parameter count and order, names, shapes, finite values, and tied
-embedding/output structure. This validation finishes before optimizer tensors
-are decoded. The temporary decoder is then dropped; the original decoded model
-buffers remain in the validated graph-free state. The reader decodes and
-validates the optimizer, checks cross-component relationships and canonical
-re-encoding, and moves the validated model and optimizer states into the
-returned checkpoint.
-
+Checkpoint creation and loading start from different ownership situations.
+`Checkpoint::from_snapshot` borrows selected model state and an optimizer that
+the caller must continue using afterward, so it copies both into an independently
+owned checkpoint. `Checkpoint::from_bytes` instead returns a checkpoint that
+owns the tensor buffers decoded from the file.
 `restore_independent_model` copies because the checkpoint must remain available;
 `into_model` consumes the checkpoint and moves its model buffers. Both produce
-the same parameter values and tied structure; the difference is whether the
-source checkpoint remains usable.
+the same parameter values. Either model-restoration boundary creates the live
+tied embedding/output relationship: `restore_independent_model` first copies the
+graph-free state, whereas `into_model` moves its buffers. The checkpoint state
+itself has one `token_embedding.weight` value slot, no separate output-head
+parameter, and no live component alias.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/checkpoint.rs"
@@ -398,25 +404,69 @@ source checkpoint remains usable.
   label="Rust source defining the Chapter 35 checkpoint state-transfer boundary"
 />
 
-The encoder first builds the `u8`, `u32`, and `f64` records, then measures the
-header and assigns absolute offsets. Every primitive is written explicitly in
-little-endian form. FNV-1a covers the complete canonical file while the checksum
-field itself is treated as zero.
+Checkpoint construction and untrusted loading establish the tokenizer/model/
+optimizer relationships before exposing a checkpoint. Because the checkpoint's
+fields are private and expose no mutating access, `encode` does not repeat that
+semantic validation. It creates a record plan whose descriptors own their names,
+shapes, roles, dtypes, and eventual offsets. Each `TensorPayload` borrows either
+literal-token bytes, a BPE-pair slice, or an `f64` slice; model tensors and AdamW
+moments both use the `f64` variant. The plan creates no encoded byte vector per
+record.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/checkpoint.rs"
+  region="checkpoint-record-planning"
+  caption="Pair owned record metadata with a borrowed typed payload that writes into a caller-provided buffer"
+  label="Rust source defining the Chapter 35 borrowed checkpoint record plan"
+/>
+
+The encoder measures a provisional header, assigns every checked absolute
+offset, and computes the complete byte count. It then reserves one final
+`Vec<u8>` sized for the complete header-plus-payload file, writes the header and
+descriptor table, and converts each referenced payload value directly into that
+final buffer in canonical little-endian order. FNV-1a covers the complete file
+while the checksum field itself is treated as zero.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/checkpoint.rs"
   region="versioned-checkpoint-encoding"
-  caption="Measure and encode one canonical descriptor table and mixed-width payload"
+  caption="Measure checked offsets and write every mixed-width payload directly into one final file buffer"
   label="Rust source implementing Chapter 35 versioned checkpoint encoding"
 />
 
+This is not allocation-free or zero-copy serialization. Separate descriptor and
+provisional-header allocations remain, and the complete encoded file needs its
+final byte buffer. Numeric values are converted to explicit little-endian bytes
+rather than reinterpreted in native memory. It is also not streaming to disk:
+`save_atomic` first obtains the complete encoded buffer, then writes and
+synchronizes that buffer in the destination directory. Encoding no longer
+materializes a separate encoded payload buffer for every record; collectively,
+those removed record buffers previously retained one extra copy of all payload
+bytes before the final file was assembled.
+
 The reader checks the fixed header, complete extent, checksum, known roles and
-dtypes, and descriptor ranges before constructing components. Each decoded
-model record first passes the ordinary parameter-name and finite-value checks.
-The loader then validates the complete model before decoding optimizer tensors,
-followed by the optimizer, the relationships among tokenizer, model, and
-optimizer, and exact canonical re-encoding. Only after every check does it
-return the checkpoint that owns the original decoded model and optimizer
+dtypes, and descriptor ranges before decoding owned state. After tokenizer
+decoding, every model descriptor must have the model-parameter role and `f64`
+dtype. Its bytes become one `Tensor`, and the ordinary leaf check validates the
+parameter name and finite scalar values at this loading stage.
+`DecoderModelState` retains those buffers and exposes its ordered list through
+`DecoderParameterSource`. The shared decoder-layout validator reads each name
+and tensor through a scoped reference and checks the configuration, parameter
+count, order, names, shapes, and one `token_embedding.weight` slot. It does not
+copy a tensor, construct `NamedParameter` handles, build decoder components, or
+create a live embedding/output alias. This layout check finishes before the
+reader decodes optimizer tensors.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/trainer.rs"
+  region="decoder-state-layout-validation"
+  caption="Move leaf-validated buffers into graph-free state and validate their decoder layout through scoped borrows"
+  label="Rust source defining the Chapter 35 decoded-state layout-validation boundary"
+/>
+
+The reader then validates the optimizer, the relationships among tokenizer,
+model, and optimizer, and exact canonical re-encoding. Only after every check
+does it return the `Checkpoint` that owns the decoded model and optimizer
 buffers. A failure at any stage returns no `Checkpoint`.
 
 <RustSource

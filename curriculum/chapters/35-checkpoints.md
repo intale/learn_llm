@@ -2,11 +2,11 @@
 {
   "chapter_id": "35-checkpoints",
   "concept_id": "checkpoints",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 35,
   "objective": {
     "en": "Save and load one versioned decoder checkpoint that reproduces its tokenizer and configuration, parameter and optimizer state, continuation RNG, logits, and one resumed update.",
-    "ru": "Сохранить и загрузить контрольную точку декодера с версией формата так, чтобы точно восстановить токенизатор и конфигурацию, параметры и состояние оптимизатора, состояние генератора псевдослучайных чисел, логиты и одно последующее обновление."
+    "ru": "Сохранить и загрузить контрольную точку декодера с версией формата: восстановить токенизатор, конфигурацию, параметры, состояние оптимизатора и генератора псевдослучайных чисел, а затем точно воспроизвести логиты и одно последующее обновление."
   },
   "worked_inputs": {
     "en": "Serialize the Chapter 33 step-8 vocabulary-five decoder with five one-byte literal-token labels, 11 parameter tensors, 22 AdamW moment tensors, and one saved SplitMix64 state; then load it and apply the same step-9 update.",
@@ -27,8 +27,8 @@
       },
       {
         "symbol": "b_k",
-        "en": "the stored byte width of one element in record k, such as 1 for u8, 4 for u32, or 8 for f64",
-        "ru": "размер одного элемента записи k в байтах: например, 1 для u8, 4 для u32 или 8 для f64"
+        "en": "the byte width implied by record k's stored dtype, such as 1 for u8, 4 for u32, or 8 for f64",
+        "ru": "число байтов на один элемент, заданное сохранённым типом данных записи k: например, 1 для u8, 4 для u32 или 8 для f64"
       },
       {
         "symbol": "n_i^{(k)}",
@@ -57,15 +57,15 @@
       "predecessor_kind": "model-building-practice",
       "limitation": {
         "en": "An isolated parameter blob does not say which tokenizer, model configuration, tensor shapes, optimizer moments, or random stream gives those bytes their meaning, while separately coordinated artifacts can drift apart.",
-        "ru": "Изолированный массив значений параметров не сообщает, какой токенизатор, конфигурация модели, формы тензоров, моменты оптимизатора и поток псевдослучайных чисел придают этим байтам смысл, а раздельно хранимые файлы могут перестать соответствовать друг другу."
+        "ru": "По одному изолированному массиву значений параметров нельзя определить, с какими токенизатором и конфигурацией модели, формами тензоров, моментами оптимизатора и потоком псевдослучайных чисел нужно использовать эти байты. Если хранить эти части в отдельных файлах, со временем они могут перестать соответствовать друг другу."
       },
       "later_advance": {
         "en": "Released neural language models coordinated tokenizer, configuration, and checkpoint artifacts; large-model training made optimizer state a major state family, and later tensor containers exposed dtype, shape, and byte offsets before loading values.",
-        "ru": "Выпуски нейронных языковых моделей стали согласованно распространять токенизатор, конфигурацию и контрольные точки; при обучении крупных моделей состояние оптимизатора превратилось в значительную часть сохраняемого состояния, а более поздние тензорные контейнеры начали указывать тип данных, форму и смещения до загрузки значений."
+        "ru": "Выпуски нейронных языковых моделей включали согласованный набор файлов токенизатора, конфигурации и контрольных точек. По мере роста моделей состояние оптимизатора стало занимать значительную часть сохраняемых данных, а более поздние тензорные контейнеры позволили узнать тип данных, форму и смещения до загрузки значений."
       },
       "modern_llm_role": {
         "en": "A reproducible LLM checkpoint binds self-describing tensor storage to an application schema for tokenizer, decoder configuration, optimizer continuation, RNG state, validation, and publication.",
-        "ru": "Воспроизводимая контрольная точка LLM связывает тензорный формат, который хранит типы данных, формы и смещения, со схемой приложения для токенизатора, конфигурации декодера, состояния оптимизатора, необходимого для продолжения обучения, состояния генератора псевдослучайных чисел, проверки данных и сохранения файла."
+        "ru": "Воспроизводимая контрольная точка LLM использует тензорный формат с описанием типов данных, форм и смещений. Схема приложения дополнительно задаёт токенизатор, конфигурацию декодера, состояние оптимизатора и генератора псевдослучайных чисел для продолжения вычислений, а также правила проверки и публикации контрольной точки."
       },
       "sources": [
         {
@@ -75,7 +75,7 @@
           "source_url": "https://github.com/openai/gpt-2/blob/master/download_model.py",
           "claim": {
             "en": "OpenAI's downloader retrieves GPT-2 checkpoint data, index, and metadata together with a checkpoint pointer, hyperparameters, encoder data, and BPE vocabulary, showing that the released language model was a coordinated artifact bundle rather than one isolated weight file.",
-            "ru": "Загрузчик OpenAI получает данные, индекс и метаданные контрольной точки GPT-2 вместе с указателем на контрольную точку, гиперпараметрами, данными кодировщика и словарём BPE. Это показывает, что выпущенная языковая модель представляла собой согласованный комплект файлов, а не один изолированный файл весов."
+            "ru": "Загрузчик OpenAI получает данные, индекс и метаданные контрольной точки GPT-2 вместе с указателем на неё, гиперпараметрами, данными кодировщика и словарём BPE. Это показывает, что выпущенная модель была комплектом связанных файлов, а не одним изолированным файлом весов."
           }
         },
         {
@@ -102,7 +102,7 @@
     },
     "approach": {
       "en": "Move from isolated weight bytes and separately coordinated model artifacts toward a versioned, validated checkpoint that binds every state needed to interpret and continue one LLM.",
-      "ru": "Перейти от изолированных байтов весов и раздельно согласуемых файлов модели к проверяемой контрольной точке с версией формата, которая связывает всё состояние, необходимое для интерпретации одной LLM и продолжения её вычислений."
+      "ru": "Перейти от отдельного массива байтов весов и набора раздельно хранимых файлов, которые могут перестать соответствовать друг другу, к проверяемой контрольной точке с версией формата. Такая контрольная точка объединяет всё состояние, необходимое для однозначной интерпретации модели и продолжения её вычислений."
     },
     "summary": {
       "en": "The road to reproducible modern LLMs joins coordinated tokenizer and configuration artifacts, first-class optimizer state, and self-describing tensor metadata. This chapter's checksum and atomic file policy are course-specific integrity boundaries, not properties attributed to GPT-2, ZeRO, or safetensors.",
@@ -114,6 +114,7 @@
     "package": "ch35-checkpoints",
     "sources": [
       "rust/crates/llm-from-scratch/src/checkpoint.rs",
+      "rust/crates/llm-from-scratch/src/training/trainer.rs",
       "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "rust/demos/ch35-checkpoints/src/lib.rs",
       "rust/demos/ch35-checkpoints/src/main.rs"
@@ -125,12 +126,12 @@
     "id": null,
     "rationale": {
       "en": "A semantic byte-layout table, a short exact hex prefix, and executable corruption results expose record order and offsets more precisely than a diagram would.",
-      "ru": "Смысловая таблица расположения байтов, короткий точный шестнадцатеричный префикс и результаты проверки повреждённых файлов показывают порядок записей и смещения точнее, чем схема."
+      "ru": "Таблица, связывающая назначение записей с их расположением в файле, короткий точный шестнадцатеричный префикс и результаты запуска на повреждённых данных показывают порядок записей и смещения точнее, чем схема."
     }
   },
   "decoder_connection": {
     "en": "The cumulative decoder can now leave memory as one validated selected-state checkpoint and return with identical logits, optimizer continuation, and RNG continuation; Chapter 36 will load it before converting logits into token choices.",
-    "ru": "К этому этапу выбранное состояние декодера можно сохранить в одной проверенной контрольной точке, а после загрузки получить те же логиты, состояние оптимизатора и продолжение генератора псевдослучайных чисел. В главе 36 эта контрольная точка будет загружена перед преобразованием логитов в выбор токена."
+    "ru": "К этому этапу выбранное состояние декодера можно сохранить в одной проверенной контрольной точке. После загрузки модель выдаёт те же логиты, а вычисления можно продолжить с тем же состоянием оптимизатора и генератора псевдослучайных чисел. В главе 36 эта контрольная точка будет загружена перед преобразованием логитов в выбор токена."
   },
   "terminology": [
     {
@@ -165,10 +166,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 35 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 128d67269dbe7f4437fa4a471b5bb24c2793271b98a5b271bc15122f99a28d44",
+    "Chapter 35 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 4ee3a1ad75d4af2dea8bb921792d4c62579b3afeb7329110952769e924bd05bf",
     "Preserve o_k, b_k, n_i^(k), h, byte widths, absolute half-open ranges, hexadecimal values, and exact trace tokens.",
-    "A checkpoint is more than model weights; keep tokenizer, configuration, optimizer moments, accumulated beta powers, and RNG state distinct. Preserve the ownership distinction: from_snapshot copies borrowed selected model state and optimizer persistence state because both callers remain available; into_model consumes owned checkpoint state and moves its model tensor buffers; restore_independent_model copies because the checkpoint remains available.",
+    "A checkpoint is more than model weights; keep tokenizer, configuration, optimizer moments, accumulated beta powers, and RNG state distinct. Preserve the ownership distinction: from_snapshot copies borrowed selected model state and optimizer persistence state because both callers remain available; decoded state validates its stable decoder layout by reference without a temporary decoder or tensor copy; into_model consumes owned checkpoint state and moves its model buffers into live tied components; restore_independent_model copies because the checkpoint remains available.",
+    "Preserve the encoding boundary: descriptor metadata owns names, shapes, roles, dtypes, and offsets while referencing source payload values; encode writes those values into one final in-memory file buffer without per-record payload buffers. Do not describe this as allocation-free, zero-copy, disk streaming, or native-memory casting.",
     "Describe FNV-1a as accidental-corruption detection, never authentication, and qualify atomic replacement by the supported Unix same-filesystem rename semantics.",
     "History must remain about reproducible language-model state, not programming-language or serialization-library history."
   ],
@@ -195,7 +197,7 @@
     },
     {
       "input": "Create a checkpoint from retained selected state, then load and consume a separate checkpoint",
-      "expected": "Checkpoint creation explicitly copies the retained model state and optimizer persistence state. Loading validates each model record and the complete decoder before decoding optimizer tensors, and consuming the owned loaded checkpoint moves its decoded model buffers into one decoder without changing names, shapes, values, order, or checkpoint bytes."
+      "expected": "Checkpoint creation explicitly copies the retained model state and optimizer persistence state. Loading validates each model leaf and the stable decoder parameter layout by reference before decoding optimizer tensors, without constructing a temporary decoder or copying the decoded model buffers. Before consumption, the loaded checkpoint's canonical re-encoding is byte-identical. into_model then moves its model buffers into one decoder, preserving names, shapes, values, and order while creating the live tied embedding/output parameter."
     },
     {
       "input": "Backpropagate targets [1,2] and apply learning rate 0.006 to original and loaded states",
@@ -220,7 +222,8 @@
 
 This chapter persists the complete selected decoder continuation boundary: schema
 and tokenizer-layout versions, explicit little-endian primitives, an ordered
-literal-token table or byte-BPE merge ranks, every decoder configuration field,
+literal-token table or ordered byte-BPE training-space merge pairs whose list
+positions define their ranks, every decoder configuration field,
 stable named parameter tensors, AdamW configuration and parameter groups, exact
 moment tensors and accumulated beta powers, the selected step, and one raw
 SplitMix64 continuation state.
@@ -273,8 +276,8 @@ o_{k+1}=o_k+b_k\prod_i n_i^{(k)},\quad o_0=h.
 $$
 
 $o_k$ is the absolute start offset of record $k$, and $o_{k+1}$ is the next
-record's start. $b_k$ is the record's declared element width in bytes: $1$ for
-`u8`, $4$ for `u32`, or $8$ for `f64`. $n_i^{(k)}$ is axis $i$ of record $k$,
+record's start. $b_k$ is the byte width implied by the record's stored dtype:
+$1$ for `u8`, $4$ for `u32`, or $8$ for `f64`. $n_i^{(k)}$ is axis $i$ of record $k$,
 so $\prod_i n_i^{(k)}$ is its element count. $k$ follows one stable tokenizer,
 model-parameter, and optimizer-state order. $h$ is the complete header length,
 so the first payload offset is $o_0=h$.
@@ -332,36 +335,51 @@ name-keyed map. Step $0$ requires powers exactly $1$ and no moments; a later ste
 requires powers in $[0,1)$ and nonempty moments. Restoring never recomputes powers
 with a different arithmetic path.
 
-`CheckpointTokenizer` stores either nonempty unique literal byte pieces or the
-byte-BPE tokenizer's ordered training-space pairs. The file also stores tokenizer
-and SplitMix64 algorithm versions. Loading BPE pairs calls the existing validated
-tokenizer constructor; loading RNG state calls the existing raw-state constructor.
-The saved stream is a continuation stream for later sampling, not the Chapter 33
-batch-shuffle seed.
+`CheckpointTokenizer` is sealed by its constructors. Literal state rejects an
+empty vocabulary, empty pieces, and repeated byte spellings. Byte-BPE state
+comes from an already validated tokenizer, while untrusted decoded pairs are
+accepted only after the existing BPE constructor validates them during loading.
+Each valid path stores its resulting vocabulary size, and the private
+representation has no mutator that could make that value stale. The file also
+stores tokenizer and SplitMix64 algorithm versions. The saved random stream
+continues later sampling; it is not the Chapter 33 batch-shuffle seed.
 
-`Checkpoint::from_snapshot` receives selected model state and an optimizer that
-their callers still need, so it copies the model tensors and optimizer
-persistence state into an independently owned checkpoint.
-`restore_independent_model` likewise copies model state when a caller retains the
-checkpoint. In contrast, an owned checkpoint can be consumed by `into_model`,
-which moves each stored model tensor buffer into one decoder. These paths
-preserve the same names, order, shapes, values, and tied embedding; they differ
-only in whether the source must remain available afterward.
+`Checkpoint::from_snapshot` borrows selected model state and an optimizer that
+the caller must continue using afterward, so it copies both into an independently
+owned checkpoint. The two model-restoration paths preserve the same parameter
+values. Either restoration creates the live tied embedding/output relationship:
+`restore_independent_model` first copies graph-free state, whereas `into_model`
+moves its buffers. They differ in whether the checkpoint remains usable. The
+graph-free state itself has one `token_embedding.weight` value slot, no separate
+output-head parameter, and no live component alias.
 
-The encoder builds `u8`, `u32`, and `f64` payload records, measures the header in
-one pass, assigns absolute offsets in a second pass, and writes explicit
-little-endian primitives. It computes FNV-1a over the complete canonical file
-while treating the checksum field as zero. The reader checks the fixed header,
-extent, checksum, roles, dtypes, and descriptor ranges before constructing
-components. Each decoded model record first passes the ordinary parameter-name
-and finite-value checks. The loader then uses one independent temporary decoder
-to validate the complete configuration, parameter count and order, names,
-shapes, finite values, and tied component structure before it decodes optimizer
-tensors. After dropping that temporary decoder, the original decoded model
-buffers remain in graph-free state. The loader validates the optimizer,
-cross-component relationships, and exact canonical re-encoding, then moves the
-validated model and optimizer states into the returned checkpoint. A failure at
-any stage exposes no `Checkpoint`.
+Checkpoint construction and untrusted loading establish tokenizer/model/
+optimizer relationships before a checkpoint is exposed. Because the checkpoint
+representation is private and immutable through its public API, encoding trusts
+those established relationships instead of repeating semantic validation. Its
+record plan owns descriptor metadata but borrows literal bytes, BPE pairs, model values, and
+AdamW moments. After measuring the provisional header and assigning checked
+offsets, encoding reserves one final `Vec<u8>` sized for the complete
+header-plus-payload file and writes every referenced value directly into that
+buffer in explicit little-endian form. Separate descriptor and provisional-header
+allocations remain; the operation still creates the final bytes and is neither
+zero-copy nor disk streaming. Encoding no longer materializes a separate encoded
+payload buffer for every record; collectively, those removed record buffers
+previously retained one extra copy of all payload bytes. FNV-1a covers the
+complete canonical file while treating its checksum field as zero.
+
+The reader checks the fixed header, extent, checksum, roles, dtypes, and
+descriptor ranges first. Each decoded model record then passes the ordinary
+parameter-name and finite-value checks at this loading stage.
+`DecoderModelState` retains those tensor buffers and exposes the stable
+name/tensor list through the shared borrowed layout interface. That validator
+checks configuration, parameter count and order, names, shapes, and the one
+`token_embedding.weight` slot before optimizer decoding. It creates no temporary
+decoder, component handles, live tied alias, or tensor copy. The loader next
+validates optimizer and cross-component state and exact canonical re-encoding.
+Only a later model-restoration boundary turns graph-free state into components
+and establishes the live tied embedding/output node. A failure at any stage
+exposes no `Checkpoint`.
 
 Saving uses a unique `create_new` temporary in the destination directory, writes
 and synchronizes the complete file, renames over the destination, then
