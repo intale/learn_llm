@@ -23,8 +23,9 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '16-model-autodiff-ops';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`;
+const indexedMeanNllLatex = String.raw`\bar Z_{g,c}=\frac{\bar L}{G}\left(P_{g,c}-\mathbf{1}[c=y_g]\right).`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
   'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
@@ -40,10 +41,16 @@ interface LocalizedCopy {
   headings: readonly string[];
   historyHeading: string;
   historyFragments: readonly string[];
+  gatherBoundaryFragments: readonly string[];
+  gatherPlanCaption: string;
+  gatherPlanLabel: string;
+  gatherOperationCaption: string;
   diagramTitle: string;
   diagramDescription: string;
   diagramSections: readonly string[];
   diagramFork: string;
+  diagramTargetRule: string;
+  diagramScatterRule: string;
   targetTableCaption: string;
   diagramTerms: readonly string[];
   selectedTargetAccessibleName: RegExp;
@@ -73,6 +80,16 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'ordinary inference uses only the forward paths',
       'a new Rust example, not code copied from or attributed to the paper',
     ],
+    gatherBoundaryFragments: [
+      'TensorValue::gather_rows is the checked public entry for row selection.',
+      'The flat-order scan reports the first invalid selector.',
+      'It does not mean that public input may be unchecked.',
+    ],
+    gatherPlanCaption:
+      'Validate a raw row-gather request once and seal its selectors and shapes in an owned plan',
+    gatherPlanLabel: 'Rust source implementing the Chapter 16 validated row-gather plan',
+    gatherOperationCaption:
+      'Create the checked plan after operand validation, copy its rows, and retain its facts for reversal',
     diagramTitle: 'Follow a repeated token ID from lookup to loss and back',
     diagramDescription:
       'Inspect the compact forward chain, signed target gradients with zero class sums, both matrix VJPs, and four occurrence contributions grouped inside three destination embedding rows.',
@@ -83,6 +100,10 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     ],
     diagramFork:
       'After SiLU, the graph forks: log-softmax displays log-probabilities, while combined mean NLL reads the same activated values as loss logits together with target classes. This compact chain tests operations; it is not the final decoder layout.',
+    diagramTargetRule:
+      'For every flat position in this equal-logit example, begin with the two saved class probabilities, each equal to one half. Subtract one from the target-class component, leave the competing component unchanged, then divide both components by the four positions in the mean.',
+    diagramScatterRule:
+      'Every gathered output row owns its values. In reverse, each occurrence keeps its own adjoint and the gather VJP adds it to the parent-table row named by that token ID.',
     targetTableCaption: 'Loss gradients for the four flat token positions',
     diagramTerms: [
       'Differentiable tensor shape',
@@ -97,27 +118,42 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
   ru: {
     revisionLabel: 'Версия материала',
     title:
-      'Выполните обратный проход через операции, преобразующие ID токенов в функцию потерь',
+      'Проведите обратный проход по цепочке операций от ID токенов до значения функции потерь',
     description:
-      'Реализуйте VJP для матричных произведений, выбора строк эмбеддингов по индексам с повторяющимися ID, SiLU, log-softmax и средней функции потерь NLL по токенам, а затем сравните каждое новое локальное правило с центральными разностями в выбранных координатах.',
+      'Реализуйте VJP для матричных произведений, выбора строк эмбеддингов по ID, среди которых есть повторы, SiLU, log-softmax и усреднённого по токенам NLL, а затем сравните каждое новое локальное правило с оценками производных, полученными методом центральных разностей в выбранных координатах.',
     headings: [
       'Предскажите путь повторяющегося токена',
       'Добавляйте вклад каждого вхождения в одну и ту же строку эмбеддингов',
       'Обозначьте функцию потерь, таблицу, ID токенов и сопряжённые величины',
-      'От одного обратного расчёта следующего слова к переиспользуемым VJP декодера',
+      'От обратного прохода в нейросетевой модели следующего слова к переиспользуемым VJP декодера',
       'Сохраняйте данные прямого прохода, необходимые каждому локальному VJP',
       'Проследите четыре градиентных вклада до трёх строк параметра',
       'Предскажите результат до запуска Rust',
       'Задайте начальные значения параметров, которые будут обновляться по этим градиентам',
     ],
-    historyHeading: 'От одного обратного расчёта следующего слова к переиспользуемым VJP декодера',
+    historyHeading:
+      'От обратного прохода в нейросетевой модели следующего слова к переиспользуемым VJP декодера',
     historyFragments: [
-      'уравнениями обратного прохода и обновления, составленными специально для этой модели',
-      'обучаемые эмбеддинги и выходная проекция находятся на границах модели',
-      'ту же функцию, что и SiLU',
+      'формулы обратного прохода и обновления параметров именно для этой архитектуры',
+      'обучаемые эмбеддинги находятся на входе, а выходная проекция — на выходе модели',
+      'получается функция SiLU',
       'при обычном инференсе выполняется только прямой проход',
       'Это новый пример на Rust, а не код, взятый из статьи или приписанный ей',
     ],
+    gatherBoundaryFragments: [
+      'TensorValue::gather_rows — публичная точка входа, которая проверяет аргументы выбора строк.',
+      'Если встречается ID вне диапазона строк, метод сообщает его первую плоскую позицию.',
+      'Публичный API по-прежнему не принимает непроверенные ID.',
+      'После успешной проверки закрытый тип RowGatherPlan, доступный только внутри крейта, владеет копиями ID и их логической формы, а также хранит форму исходной таблицы, вычисленную форму выхода и число элементов выхода.',
+      'Сам факт существования плана означает, что размеры и ID уже проверены; однако выделение памяти под выходной буфер всё ещё может завершиться ошибкой.',
+      'Для целевого класса из сохранённой вероятности в скобках вычитается единица.',
+      'Затем все компоненты умножаются на общий множитель',
+    ],
+    gatherPlanCaption:
+      'Один раз проверить запрос на выбор строк и создать план, хранящий проверенные ID и вычисленные формы',
+    gatherPlanLabel: 'Исходный код на Rust с проверенным планом выбора строк из главы 16',
+    gatherOperationCaption:
+      'Создать проверенный план после проверки доступности операнда, скопировать строки и сохранить данные плана для обратного прохода',
     diagramTitle: 'Проследите путь повторяющегося ID токена до функции потерь и обратно',
     diagramDescription:
       'Проследите компактную цепочку прямого прохода, градиенты по логитам с указанием знаков и нулевой суммой по классам, VJP для обоих операндов матричного умножения и четыре вклада вхождений, сгруппированные внутри трёх строк таблицы эмбеддингов.',
@@ -128,16 +164,20 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     ],
     diagramFork:
       'После SiLU граф разветвляется: log-softmax показывает логарифмы вероятностей, а объединённое среднее NLL использует те же активированные значения в качестве логитов вместе с целевыми классами. Эта компактная цепочка предназначена для изучения отдельных операций и не изображает устройство итогового декодера.',
+    diagramTargetRule:
+      'Для каждой плоской позиции в этом примере с равными логитами начните с двух сохранённых вероятностей классов: каждая равна одной второй. Вычтите единицу из компоненты целевого класса, оставьте компоненту другого класса без изменения, затем разделите обе компоненты на число усредняемых позиций — четыре.',
+    diagramScatterRule:
+      'У каждой выбранной выходной строки есть собственная копия значений. При обратном проходе для каждого вхождения сохраняется отдельная сопряжённая величина, а VJP выбора строк добавляет её в строку родительской таблицы, номер которой равен ID токена.',
     targetTableCaption: 'Градиенты функции потерь по логитам в четырёх плоских позициях',
     diagramTerms: [
-      'Форма входного тензора',
-      'Форма градиента',
+      'Форма дифференцируемого тензора',
+      'Форма градиента по родительскому тензору',
       'Сумма по классам',
       'строка с суммой вкладов',
       'строка с одним вкладом',
       'неиспользованная строка',
     ],
-    selectedTargetAccessibleName: /отрицательный.*целевой класс/i,
+    selectedTargetAccessibleName: /отрицательный.*выбранный целевой класс/i,
   },
 };
 
@@ -153,6 +193,7 @@ function readRustRegion(path: string, region: string): string {
 
 const expectedRustRegions = [
   ['rust/demos/ch16-model-autodiff-ops/src/lib.rs', 'handwritten-model-backward'],
+  ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-row-gather-plan'],
   ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-row-gather-operation'],
   ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-row-gather-vjp'],
   ['rust/demos/ch16-model-autodiff-ops/src/lib.rs', 'shared-model-vjp-fixture'],
@@ -207,6 +248,10 @@ async function expectChapterContent(
     await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual(historySources);
 
+  for (const fragment of localized.gatherBoundaryFragments) {
+    await expect(page.locator('.lesson-body')).toContainText(fragment);
+  }
+
   const formulae = page.locator('.katex-display');
   expect(await formulae.count()).toBeGreaterThan(0);
   expect(
@@ -216,7 +261,7 @@ async function expectChapterContent(
   ).not.toContain('rtl');
   expect(
     await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
-  ).toContain(formulaLatex);
+  ).toEqual(expect.arrayContaining([formulaLatex, indexedMeanNllLatex]));
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
@@ -234,6 +279,28 @@ async function expectChapterContent(
       sources.map((source) => source.getAttribute('data-source-region')),
     ),
   ).toEqual(expectedRustRegions.map(([, region]) => region));
+  const gatherPlanSource = page.locator(
+    'figure.rust-source[data-source-region="model-row-gather-plan"]',
+  );
+  await expect(gatherPlanSource.locator('figcaption > span')).toHaveText(
+    localized.gatherPlanCaption,
+  );
+  await expect(gatherPlanSource.locator('figcaption > code')).toHaveText(
+    'rust/crates/llm-from-scratch/src/autograd/model_ops.rs#model-row-gather-plan',
+  );
+  await expect(gatherPlanSource.locator('pre')).toHaveAttribute(
+    'aria-label',
+    localized.gatherPlanLabel,
+  );
+  const gatherOperationSource = page.locator(
+    'figure.rust-source[data-source-region="model-row-gather-operation"]',
+  );
+  await expect(gatherOperationSource.locator('figcaption > span')).toHaveText(
+    localized.gatherOperationCaption,
+  );
+  await expect(gatherOperationSource.locator('figcaption > code')).toHaveText(
+    'rust/crates/llm-from-scratch/src/autograd/model_ops.rs#model-row-gather-operation',
+  );
   for (const evidence of await highlighted.evaluateAll((blocks) =>
     blocks.map((block) => ({
       tabIndex: block.getAttribute('tabindex'),
@@ -264,6 +331,8 @@ async function expectChapterContent(
     await expect(diagram.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
   await expect(diagram.locator('.forward-fork-note')).toHaveText(localized.diagramFork);
+  await expect(diagram.getByText(localized.diagramTargetRule, { exact: true })).toBeVisible();
+  await expect(diagram.getByText(localized.diagramScatterRule, { exact: true })).toBeVisible();
   await expect(diagram.getByRole('table', { name: localized.targetTableCaption })).toBeVisible();
   for (const term of localized.diagramTerms) {
     await expect(diagram.getByText(term, { exact: true }).first()).toBeVisible();

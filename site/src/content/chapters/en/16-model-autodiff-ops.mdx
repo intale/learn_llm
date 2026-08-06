@@ -2,7 +2,7 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 16,
   "concept_id": "model-autodiff-ops",
   "title": "Reverse the operations that turn token IDs into loss",
@@ -107,8 +107,13 @@
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
+      "region": "model-row-gather-plan",
+      "purpose": "Validate a raw row-gather request in the established order and own the selectors plus derived shapes that later kernels may trust."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
       "region": "model-row-gather-operation",
-      "purpose": "Materialize selected rows while recording integer selectors and exact parent/output shapes for reversal."
+      "purpose": "Construct the checked plan only after tape operand availability, materialize rows from it, and transfer its facts into saved reverse context."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
@@ -141,7 +146,7 @@
     "id": "model-autodiff-ops",
     "rationale": "A compact forward chain plus reverse target and matrix evidence can lead into three destination-row boxes that contain their own occurrence contributions. Grouping positions 0, 1, and 2 inside embedding row 1 makes the many-to-one accumulation visible; final dE alone hides that relationship."
   },
-  "decoder_connection": "The cumulative implementation can now differentiate a compact chain from selected embedding rows through a projection, nonlinearity, and stable mean token loss. This is an operation test, not the final decoder architecture: later feed-forward blocks use SiLU internally, and a separate vocabulary projection produces the decoder's loss logits. Correct gradients still do not choose useful parameter values, so Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP."
+  "decoder_connection": "The cumulative implementation can now differentiate a compact chain from selected embedding rows through a projection, nonlinearity, and stable mean token loss. This is an operation-level example, not the final decoder architecture: later feed-forward blocks use SiLU internally, and a separate vocabulary projection produces the decoder's loss logits. Correct gradients still do not choose useful parameter values, so Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP."
 }
 ---
 
@@ -234,7 +239,7 @@ export const diagramLabels = {
   },
   rules: {
     forwardFork: 'After SiLU, the graph forks: log-softmax displays log-probabilities, while combined mean NLL reads the same activated values as loss logits together with target classes. This compact chain tests operations; it is not the final decoder layout.',
-    target: 'For every flat position, subtract one at the selected target, then divide every class component by the four-position mean.',
+    target: 'For every flat position in this equal-logit example, begin with the two saved class probabilities, each equal to one half. Subtract one from the target-class component, leave the competing component unchanged, then divide both components by the four positions in the mean.',
     matmul: 'Transpose the opposite matrix axes, multiply, and reduce broadcast batches to each parent shape.',
     scatter: 'Every gathered output row owns its values. In reverse, each occurrence keeps its own adjoint and the gather VJP adds it to the parent-table row named by that token ID.',
   },
@@ -398,15 +403,45 @@ inference uses only the forward paths.
 ## Save the forward data each local VJP needs
 
 The public methods extend the Chapter 15 tape instead of constructing a second
-graph. `gather_rows` receives integer selectors and their logical shape; the IDs
-choose rows but are not differentiable tensor operands. The forward operation
-materializes its selected values and stores the selectors plus enough shape
-metadata to route the reverse contribution. It does not store a full Jacobian.
+graph. `TensorValue::gather_rows` is the checked public entry for row selection.
+The tape first establishes that its table operand is available. For an available
+operand, the method validates these facts in order:
+
+1. the table has rank two;
+2. `index_shape` is a valid row-major logical shape and therefore has a known
+   number of positions;
+3. that position count equals `indices.len()`; and
+4. each selector, visited in flat order, is smaller than the table's row count.
+
+The flat-order scan reports the first invalid selector. Only after all four facts
+hold does the operation append the table width to `index_shape` and validate the
+output shape. In the worked example, table shape `[3,2]`, `index_shape=[4]`, and
+selectors `[1,1,1,2]` produce output shape `[4,2]`.
+
+One crate-private `RowGatherPlan` then owns the selectors, logical shape, parent
+shape, derived output shape, and output element count. Private fields prevent a
+public caller from constructing a plan that bypasses those checks. The plan
+establishes dimensions and bounds; allocating the output buffer can still fail
+separately.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+  region="model-row-gather-plan"
+  caption="Validate a raw row-gather request once and seal its selectors and shapes in an owned plan"
+  label="Rust source implementing the Chapter 16 validated row-gather plan"
+/>
+
+The forward row-copy kernel receives the plan rather than raw selectors and
+shapes, so it does not rescan rank, count, or bounds. It materializes independent
+row values; the result does not alias the table. After copying succeeds, the
+plan's selectors and shapes move into the saved gather context. “Trusted” here
+means that the kernel consumes a value whose private construction established
+the facts. It does not mean that public input may be unchecked.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
   region="model-row-gather-operation"
-  caption="Materialize selected table rows and save their selectors and shapes for reversal"
+  caption="Create the checked plan after operand validation, copy its rows, and retain its facts for reversal"
   label="Rust source implementing Chapter 16 row gather"
 />
 
@@ -426,8 +461,17 @@ The other rules follow the same local pattern. Matrix VJPs transpose the final
 matrix axes and sum expanded batch contributions back to each parent shape.
 `exp` multiplies by its saved output; `log` divides by its saved positive input;
 SiLU uses its saved input and stable sigmoid. Log-softmax subtracts probability
-times the upstream class-axis sum. Combined indexed mean NLL subtracts one at
-each target and applies the saved mean scale.
+times the upstream class-axis sum. For group $g$, class $c$, input logit
+$Z_{g,c}$, target $y_g$, $G$ groups, saved probability $P_{g,c}$, and incoming
+scalar adjoint $\bar L$, the combined indexed mean NLL gives the logit adjoint
+
+$$
+\bar Z_{g,c}=\frac{\bar L}{G}\left(P_{g,c}-\mathbf{1}[c=y_g]\right).
+$$
+
+At the target class, the parenthesized term subtracts one from the saved
+probability. Every class component is then multiplied by the same upstream and
+mean scale $\bar L/G$.
 
 The complete example builds gather, matmul, SiLU, displayed log-softmax, and
 combined loss from the values above, then compares its forward and reverse
@@ -478,10 +522,6 @@ sampled central-difference result, and the aggregate error-preservation result:
   caption="Run the complete worked operation chain and print its forward, reverse, numerical, and error results"
   label="Rust source running the Chapter 16 model-operation example"
 />
-
-```bash
-./course run cargo run --quiet --locked -p ch16-model-autodiff-ops
-```
 
 ```text
 embeddings: shape=3x2 values=2.000000000000,2.000000000000,1.000000000000,-1.000000000000,-1.000000000000,1.000000000000
@@ -534,7 +574,7 @@ four materialized output rows produce only three parent-table gradient rows.
 6. List the three contributions to embedding row `1` before adding them. What reaches rows `0` and `2`?
 7. Predict both value and local derivative for $\exp(0)$, $\ln(1)$, and $\operatorname{SiLU}(0)$.
 8. Explain why logits near $\pm1000$ require probabilities computed after subtracting the group maximum.
-9. At what stage is an invalid token ID, invalid target class, and empty target set detected?
+9. Which row-gather facts are checked at the public entry, and which work may the validated plan omit? At what stage are an invalid target class and an empty target set detected?
 10. Misconception check: should row `1` be divided by three after its three occurrence gradients are added?
 
 <details>
@@ -547,17 +587,11 @@ four materialized output rows produce only three parent-table gradient rows.
 5. The left-parent gradient has gathered shape `[4,2]`; the right-parent gradient has weight shape `[2,2]`. The value is $dW=[[-1/4,1/4],[1/4,-1/4]]$.
 6. Positions `0`, `1`, and `2` each contribute $[-1/8,-1/8]$ to row `1`, so it gets $[-3/8,-3/8]$. Row `2` gets $[1/8,1/8]$; unused row `0` gets `[0,0]`.
 7. $\exp(0)=1$ with derivative $1$; $\ln(1)=0$ with derivative $1$; $\operatorname{SiLU}(0)=0$ with derivative $1/2$.
-8. Exponentiating raw logits can overflow. Subtracting the group maximum keeps every exponential at most one while preserving normalized probabilities; the saved finite probabilities then support both normalization VJPs.
-9. Gather checks each ID against the table row count. Indexed loss checks every target against the class axis and rejects an empty group set because its mean would be undefined.
+8. Exponentiating raw logits can overflow. Subtracting the group maximum keeps every exponential at most one without changing the softmax probabilities. The resulting finite probabilities are saved for the log-softmax and indexed-mean-NLL VJPs.
+9. The public row-gather entry first checks operand availability, table rank, the logical selector shape, the selector count, and then IDs in flat order. Its validated plan lets row copying and scatter-add reuse those facts without rescanning the raw request. The indexed-loss entry validates the class axis, checks that the target count equals the number of class-axis groups, rejects zero groups, and then checks targets in flat group order before computing the loss or saved probabilities.
 10. No. Every contribution already includes the loss's $1/4$ factor. Gather reversal sums the three contributions exactly once and does not apply another mean.
 
 </details>
-
-Run the example after predicting:
-
-```bash
-./course run cargo run --quiet --locked -p ch16-model-autodiff-ops
-```
 
 {/* chapter-section:decoder-connection */}
 
@@ -565,7 +599,7 @@ Run the example after predicting:
 
 The cumulative implementation can now differentiate a compact chain from
 selected embedding rows through a projection, nonlinearity, and stable mean
-token loss. This is an operation test, not the final decoder architecture:
+token loss. This is an operation-level example, not the final decoder architecture:
 later feed-forward blocks use SiLU internally, and a separate vocabulary
 projection produces the decoder's loss logits.
 

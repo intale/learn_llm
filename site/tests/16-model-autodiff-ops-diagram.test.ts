@@ -31,6 +31,10 @@ const demoSource = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch16-model-autodiff-ops/src/lib.rs'),
   'utf8',
 );
+const modelOpsSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/autograd/model_ops.rs'),
+  'utf8',
+);
 const chapter16Contract = readFileSync(
   resolve(repositoryRoot, 'curriculum/chapters/16-model-autodiff-ops.md'),
   'utf8',
@@ -132,7 +136,7 @@ describe('Chapter 16 Rust trace parser', () => {
     expect(fixtureSource).not.toContain('loss.backward()?');
 
     for (const source of [chapter16Contract, chapter16English, chapter16Russian]) {
-      expect(source).toContain('"content_revision": 5');
+      expect(source).toContain('"content_revision": 6');
     }
     expect(chapter16English.replace(/\s+/g, ' ')).toContain(
       'Ordinary training uses a lean method: `backward` when implicit graph retention is appropriate, or `backward_with_seed` when the caller must choose retention or release.',
@@ -140,6 +144,145 @@ describe('Chapter 16 Rust trace parser', () => {
     expect(chapter16Russian.replace(/\s+/g, ' ')).toContain(
       'При обычном обучении используется метод без трассировки',
     );
+  });
+
+  it('validates one sealed row-gather plan before trusted forward and reverse reuse', () => {
+    const planStart = modelOpsSource.indexOf('// region:model-row-gather-plan');
+    const planEnd = modelOpsSource.indexOf('// endregion:model-row-gather-plan');
+    const operationStart = modelOpsSource.indexOf('// region:model-row-gather-operation');
+    const operationEnd = modelOpsSource.indexOf('// endregion:model-row-gather-operation');
+    const forwardStart = modelOpsSource.indexOf('fn gather_rows_forward(');
+    const forwardEnd = modelOpsSource.indexOf('// region:causal-softmax-forward');
+    const vjpStart = modelOpsSource.indexOf('// region:model-row-gather-vjp');
+    const vjpEnd = modelOpsSource.indexOf('// endregion:model-row-gather-vjp');
+    for (const [start, end] of [
+      [planStart, planEnd],
+      [operationStart, operationEnd],
+      [forwardStart, forwardEnd],
+      [vjpStart, vjpEnd],
+    ]) {
+      expect(start).toBeGreaterThan(-1);
+      expect(end).toBeGreaterThan(start);
+    }
+
+    const plan = modelOpsSource.slice(planStart, planEnd);
+    const operation = modelOpsSource.slice(operationStart, operationEnd);
+    const forward = modelOpsSource.slice(forwardStart, forwardEnd);
+    const vjp = modelOpsSource.slice(vjpStart, vjpEnd);
+    const checkedStart = plan.indexOf('fn checked(');
+    const trustedStart = plan.indexOf('pub(crate) fn from_validated_indices(');
+    const trustedEnd = plan.indexOf('fn into_saved_context(');
+    expect(checkedStart).toBeGreaterThan(-1);
+    expect(trustedStart).toBeGreaterThan(checkedStart);
+    expect(trustedEnd).toBeGreaterThan(trustedStart);
+    const checked = plan.slice(checkedStart, trustedStart);
+    const trusted = plan.slice(trustedStart, trustedEnd);
+
+    expect(plan).toContain('pub(crate) struct RowGatherPlan');
+    expect(plan).not.toContain('pub struct RowGatherPlan');
+    for (const field of [
+      'indices: Vec<usize>',
+      'index_shape: Vec<usize>',
+      'input_shape: [usize; 2]',
+      'output_shape: Vec<usize>',
+      'output_len: usize',
+    ]) {
+      expect(plan).toContain(field);
+      expect(plan).not.toMatch(new RegExp(`pub(?:\\(crate\\))?\\s+${field.replace(/[\[\]]/g, '\\$&')}`));
+    }
+    expect(plan).toContain('pub(crate) fn from_validated_indices(');
+    const orderedChecks = [
+      'table.rank() != 2',
+      'checked_row_major_layout(index_shape)',
+      'indices.len() != expected',
+      'indices.iter().enumerate()',
+      'Self::from_validated_indices',
+    ].map((fragment) => checked.indexOf(fragment));
+    expect(orderedChecks.every((position) => position >= 0)).toBe(true);
+    expect(orderedChecks).toEqual([...orderedChecks].sort((left, right) => left - right));
+    expect(trusted).toContain('checked_row_major_layout(&output_shape)');
+    for (const rawValidation of [
+      'table.rank()',
+      'checked_row_major_layout(index_shape)',
+      'indices.len() !=',
+      'indices.iter()',
+      'GatherTableRank',
+      'GatherIndexCountMismatch',
+      'GatherIndexOutOfBounds',
+    ]) {
+      expect(trusted).not.toContain(rawValidation);
+    }
+
+    expect(operation).toContain('pub(crate) fn gather_rows_with_plan(');
+    expect(operation).toContain(
+      'self.gather_rows_with_plan(|table| RowGatherPlan::checked(table, indices, index_shape))',
+    );
+    expect(operation).toContain('let plan = build_plan(table)?;');
+    expect(operation).toContain('gather_rows_forward(table, &plan)?');
+    expect(operation).toContain('plan.into_saved_context()');
+    for (const trustedSource of [forward, vjp]) {
+      expect(trustedSource).not.toContain('GatherTableRank');
+      expect(trustedSource).not.toContain('GatherIndexCountMismatch');
+      expect(trustedSource).not.toContain('GatherIndexOutOfBounds');
+      expect(trustedSource).not.toContain('checked_row_major_layout(index_shape)');
+    }
+    expect(forward.replace(/\s+/g, ' ')).toContain(
+      'fn gather_rows_forward( table: &Tensor, plan: &RowGatherPlan, )',
+    );
+    expect(forward).toContain('output_buffer(plan.output_len)');
+    expect(forward).toContain('plan.indices.iter().enumerate()');
+    expect(forward).toContain('plan.output_shape.clone()');
+    expect(vjp).toContain('indices.iter().enumerate()');
+
+    const english = chapter16English.replace(/\s+/g, ' ');
+    expect(english).toContain(
+      '`TensorValue::gather_rows` is the checked public entry for row selection.',
+    );
+    expect(english).toContain(
+      '“Trusted” here means that the kernel consumes a value whose private construction established the facts.',
+    );
+    expect(english).toContain(
+      'table shape `[3,2]`, `index_shape=[4]`, and selectors `[1,1,1,2]` produce output shape `[4,2]`',
+    );
+    const russian = chapter16Russian.replace(/\s+/g, ' ');
+    expect(russian).toContain(
+      '`TensorValue::gather_rows` — публичная точка входа, которая проверяет аргументы выбора строк.',
+    );
+    expect(russian).toContain(
+      'Если встречается ID вне диапазона строк, метод сообщает его первую плоскую позицию.',
+    );
+    expect(russian).toContain(
+      'Публичный API по-прежнему не принимает непроверенные ID.',
+    );
+    expect(russian).toContain(
+      'форма таблицы `[3,2]`, значение `index_shape=[4]` и ID `[1,1,1,2]` дают форму выхода `[4,2]`',
+    );
+    expect(russian).toContain(
+      'владеет копиями ID и их логической формы, а также хранит форму исходной таблицы, вычисленную форму выхода и число элементов выхода.',
+    );
+    expect(russian).toContain(
+      'Сам факт существования плана означает, что размеры и ID уже проверены; однако выделение памяти под выходной буфер всё ещё может завершиться ошибкой.',
+    );
+    expect(russian).toContain(
+      'Здесь два логита в каждой позиции равны, поэтому вероятность каждого класса равна $1/2$.',
+    );
+    expect(russian).not.toContain('При двух равных классах');
+    expect(russian).toContain(
+      'В формуле каждое вхождение токена обозначено парой $(b,t)$: $b$ — индекс примера в пакете, а $t$ — позиция токена в этом примере.',
+    );
+    expect(russian).toContain(
+      'В прямом проходе операция выбора создаёт четыре независимые строки.',
+    );
+    expect(russian).not.toContain('Результат прямого выбора владеет');
+    expect(russian).toContain(
+      'VJP для log-softmax вычитает из каждой входящей компоненты произведение сохранённой вероятности на сумму всех входящих компонент по оси классов.',
+    );
+    expect(russian).toContain(
+      'Для целевого класса из сохранённой вероятности в скобках вычитается единица. Затем все компоненты умножаются на общий множитель $\\bar L/G$: $\\bar L$ передаёт входящую сопряжённую величину, а деление на $G$ учитывает усреднение по группам.',
+    );
+    for (const lesson of [chapter16English, chapter16Russian]) {
+      expect(lesson).not.toContain('./course run');
+    }
   });
 
   it('projects the exact repeated-token path, pullbacks, accumulation, checks, and errors', () => {

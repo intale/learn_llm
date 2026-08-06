@@ -15459,3 +15459,51 @@ RTL, Chromium, and Firefox containment checks.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `trust-sealed-bpe-training-when-freezing-tokenizer`, and
 `20260805T224742Z-trust-sealed-bpe-training-when-freezing-tokenizer-01`.
+
+## 2026-08-06 - Seal row-gather validation in one owned crate-private plan
+
+**Status:** Accepted after implementation, invariant review, bilingual content
+review, exact Docker validation, and Chromium/Firefox rendered validation.
+
+**Context:** The public Chapter 16 row-gather operation must reject an unavailable
+operand, a non-matrix table, an invalid logical index shape, a mismatched index
+count, the first out-of-range selector in flat order, and an impossible output
+shape in its established order. Its forward kernel and saved reverse context
+previously received the raw selectors and separately reconstructed facts that a
+later crate-owned caller also needs. Exposing an unchecked public entry or
+letting a trusted caller fabricate partially validated fields would weaken that
+boundary.
+
+**Decision:** Introduce a non-cloneable crate-private `RowGatherPlan` with private
+fields that owns the selector copy, logical index shape, rank-two input shape,
+derived output shape, and output element count. The checked constructor performs
+the complete raw-input validation in the established order. The public gather
+entry constructs that plan inside the existing operand-availability boundary;
+the forward row-copy kernel receives only the plan, allocates from its checked
+output length, and consumes the plan into the unchanged saved `GatherRows`
+context used by the VJP.
+
+Provide a crate-private trusted constructor only for already validated owned
+selectors and shapes. It derives the remaining layout facts with checked
+arithmetic but does not rescan rank, count, or selector bounds. Allocation of the
+output buffer remains a distinct fallible operation after validation. Chapter 18
+does not use this constructor in this checkpoint; its separate dependent step
+must preserve embedding-specific shape, conversion, and first-bad-ID precedence
+before handing the sealed facts to row gathering.
+
+Chapter 16 revision 6 teaches the checked public boundary, the exact validation
+order, owned-plan meaning, remaining allocation boundary, forward reuse, and
+saved reverse facts. English is the frozen semantic source and Russian is a
+direct meaning-first localization of that revision.
+
+**Consequences:** Public errors, precedence, values, arbitrary index shapes,
+scalar and empty logical shapes, duplicate-row scatter-add, saved VJP context,
+demo output, and downstream behavior remain exact. The mathematical row-copy and
+reverse-scatter kernels no longer repeat raw selector validation after a plan is
+formed, no unsafe or public unchecked API is added, and Chapter 18 can adopt the
+same sealed representation without reopening Chapter 16's implementation.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`share-validated-row-gather-plan`, and
+`20260805T234249Z-share-validated-row-gather-plan-01`.

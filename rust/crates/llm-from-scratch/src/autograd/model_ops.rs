@@ -138,6 +138,93 @@ pub enum ModelSavedContext {
 }
 // endregion:model-saved-context
 
+// region:model-row-gather-plan
+/// Owned row-gather facts established before materialization begins.
+#[derive(Debug)]
+pub(crate) struct RowGatherPlan {
+    indices: Vec<usize>,
+    index_shape: Vec<usize>,
+    input_shape: [usize; 2],
+    output_shape: Vec<usize>,
+    output_len: usize,
+}
+
+impl RowGatherPlan {
+    fn checked(
+        table: &Tensor,
+        indices: &[usize],
+        index_shape: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        if table.rank() != 2 {
+            return Err(ModelOpError::GatherTableRank { rank: table.rank() }.into());
+        }
+        let (_, expected) = checked_row_major_layout(index_shape)?;
+        if indices.len() != expected {
+            return Err(ModelOpError::GatherIndexCountMismatch {
+                expected,
+                actual: indices.len(),
+            }
+            .into());
+        }
+        let rows = table.shape()[0];
+        for (position, &index) in indices.iter().enumerate() {
+            if index >= rows {
+                return Err(ModelOpError::GatherIndexOutOfBounds {
+                    position,
+                    index,
+                    rows,
+                }
+                .into());
+            }
+        }
+
+        Self::from_validated_indices(table, indices.to_vec(), index_shape.to_vec())
+    }
+
+    /// Seals indices whose shape, count, and bounds were established by a
+    /// crate-owned caller for this exact rank-two table.
+    pub(crate) fn from_validated_indices(
+        table: &Tensor,
+        indices: Vec<usize>,
+        index_shape: Vec<usize>,
+    ) -> Result<Self, TensorAutodiffError> {
+        let input_shape = [table.shape()[0], table.shape()[1]];
+        let width = input_shape[1];
+        let mut output_shape = index_shape.clone();
+        output_shape
+            .try_reserve_exact(1)
+            .map_err(|_| ModelOpError::OutputAllocationFailed {
+                elements: indices.len().saturating_mul(width),
+            })?;
+        output_shape.push(width);
+        let (_, output_len) = checked_row_major_layout(&output_shape)?;
+        Ok(Self {
+            indices,
+            index_shape,
+            input_shape,
+            output_shape,
+            output_len,
+        })
+    }
+
+    fn into_saved_context(self) -> ModelSavedContext {
+        let Self {
+            indices,
+            index_shape,
+            input_shape,
+            output_shape,
+            ..
+        } = self;
+        ModelSavedContext::GatherRows {
+            indices,
+            index_shape,
+            input_shape: input_shape.to_vec(),
+            output_shape,
+        }
+    }
+}
+// endregion:model-row-gather-plan
+
 // region:model-autodiff-operations
 impl TensorValue {
     /// Multiplies rank-two or batched tensors and records both matrix pullbacks.
@@ -174,19 +261,19 @@ impl TensorValue {
         indices: &[usize],
         index_shape: &[usize],
     ) -> Result<Self, TensorAutodiffError> {
+        self.gather_rows_with_plan(|table| RowGatherPlan::checked(table, indices, index_shape))
+    }
+
+    /// Builds one row-gather plan after operand availability is established.
+    pub(crate) fn gather_rows_with_plan(
+        &self,
+        build_plan: impl FnOnce(&Tensor) -> Result<RowGatherPlan, TensorAutodiffError>,
+    ) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::GatherRows, [self], |primals| {
             let table = primals[0];
-            let value = gather_rows_forward(table, indices, index_shape)?;
-            let output_shape = value.shape().to_vec();
-            Ok((
-                value,
-                [ModelSavedContext::GatherRows {
-                    indices: indices.to_vec(),
-                    index_shape: index_shape.to_vec(),
-                    input_shape: table.shape().to_vec(),
-                    output_shape,
-                }],
-            ))
+            let plan = build_plan(table)?;
+            let value = gather_rows_forward(table, &plan)?;
+            Ok((value, [plan.into_saved_context()]))
         })
     }
     // endregion:model-row-gather-operation
@@ -347,49 +434,18 @@ fn zeros(shape: &[usize]) -> Result<Tensor, TensorAutodiffError> {
 
 fn gather_rows_forward(
     table: &Tensor,
-    indices: &[usize],
-    index_shape: &[usize],
+    plan: &RowGatherPlan,
 ) -> Result<Tensor, TensorAutodiffError> {
-    if table.rank() != 2 {
-        return Err(ModelOpError::GatherTableRank { rank: table.rank() }.into());
-    }
-    let (_, expected) = checked_row_major_layout(index_shape)?;
-    if indices.len() != expected {
-        return Err(ModelOpError::GatherIndexCountMismatch {
-            expected,
-            actual: indices.len(),
-        }
-        .into());
-    }
-    let rows = table.shape()[0];
-    for (position, &index) in indices.iter().enumerate() {
-        if index >= rows {
-            return Err(ModelOpError::GatherIndexOutOfBounds {
-                position,
-                index,
-                rows,
-            }
-            .into());
-        }
-    }
-
-    let width = table.shape()[1];
-    let mut output_shape = index_shape.to_vec();
-    output_shape
-        .try_reserve_exact(1)
-        .map_err(|_| ModelOpError::OutputAllocationFailed {
-            elements: indices.len().saturating_mul(width),
-        })?;
-    output_shape.push(width);
-    let (_, output_len) = checked_row_major_layout(&output_shape)?;
-    let mut values = output_buffer(output_len)?;
-    for (position, &index) in indices.iter().enumerate() {
+    debug_assert_eq!(table.shape(), plan.input_shape);
+    let width = plan.input_shape[1];
+    let mut values = output_buffer(plan.output_len)?;
+    for (position, &index) in plan.indices.iter().enumerate() {
         let source = index * width;
         let destination = position * width;
         values[destination..destination + width]
             .copy_from_slice(&table.as_slice()[source..source + width]);
     }
-    Tensor::from_vec(output_shape, values).map_err(Into::into)
+    Tensor::from_vec(plan.output_shape.clone(), values).map_err(Into::into)
 }
 
 // region:causal-softmax-forward
@@ -770,7 +826,8 @@ mod tests {
             tensor(&[3, 2], &table_values),
             &table.gradient().unwrap(),
             |probe| {
-                gather_rows_forward(probe, &[2, 1, 2], &[3])
+                let plan = RowGatherPlan::checked(probe, &[2, 1, 2], &[3]).unwrap();
+                gather_rows_forward(probe, &plan)
                     .unwrap()
                     .as_slice()
                     .iter()
@@ -937,27 +994,102 @@ mod tests {
     }
 
     #[test]
+    fn checked_and_prevalidated_gather_plans_have_exact_forward_and_reverse_results() {
+        let values = [9.0, 8.0, 1.0, 2.0, 3.0, 5.0];
+        let checked_table = parameter(&[3, 2], &values);
+        let planned_table = parameter(&[3, 2], &values);
+        let indices = [2, 1, 2, 0];
+
+        let checked = checked_table.gather_rows(&indices, &[2, 2]).unwrap();
+        let planned = planned_table
+            .gather_rows_with_plan(|table| {
+                RowGatherPlan::from_validated_indices(table, indices.to_vec(), vec![2, 2])
+            })
+            .unwrap();
+        assert_eq!(planned.value().shape(), checked.value().shape());
+        assert_eq!(planned.value().as_slice(), checked.value().as_slice());
+
+        let upstream = tensor(&[2, 2, 2], &[1.0, 2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0]);
+        checked
+            .backward_with_seed(&upstream.view(), GraphRetention::Retain)
+            .unwrap();
+        planned
+            .backward_with_seed(&upstream.view(), GraphRetention::Retain)
+            .unwrap();
+        assert_eq!(
+            planned_table.gradient().unwrap().as_slice(),
+            checked_table.gradient().unwrap().as_slice()
+        );
+        assert_eq!(
+            planned_table.gradient().unwrap().as_slice(),
+            &[13.0, 17.0, 3.0, 5.0, 8.0, 13.0]
+        );
+
+        for (edge_indices, edge_shape) in [(vec![1], vec![]), (vec![], vec![0])] {
+            let checked_edge = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0])
+                .gather_rows(&edge_indices, &edge_shape)
+                .unwrap();
+            let planned_edge = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0])
+                .gather_rows_with_plan(|table| {
+                    RowGatherPlan::from_validated_indices(
+                        table,
+                        edge_indices.clone(),
+                        edge_shape.clone(),
+                    )
+                })
+                .unwrap();
+            assert_eq!(planned_edge.value().shape(), checked_edge.value().shape());
+            assert_eq!(
+                planned_edge.value().as_slice(),
+                checked_edge.value().as_slice()
+            );
+        }
+    }
+
+    #[test]
     fn gather_rejects_rank_count_and_first_bad_id_in_order() {
         let rank_one = constant(&[2], &[1.0, 2.0]);
         assert_eq!(
-            rank_one.gather_rows(&[0], &[1]).unwrap_err(),
+            rank_one
+                .gather_rows(&[usize::MAX], &[usize::MAX, 2])
+                .unwrap_err(),
             TensorAutodiffError::Model(ModelOpError::GatherTableRank { rank: 1 })
         );
         let table = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0]);
         assert_eq!(
-            table.gather_rows(&[0], &[2]).unwrap_err(),
+            table
+                .gather_rows(&[usize::MAX], &[usize::MAX, 2])
+                .unwrap_err(),
+            TensorAutodiffError::Tensor(crate::tensor::storage::TensorError::ShapeOverflow)
+        );
+        assert_eq!(
+            table.gather_rows(&[usize::MAX], &[2]).unwrap_err(),
             TensorAutodiffError::Model(ModelOpError::GatherIndexCountMismatch {
                 expected: 2,
                 actual: 1,
             })
         );
         assert_eq!(
-            table.gather_rows(&[2, 9], &[2]).unwrap_err(),
+            table.gather_rows(&[0, 2, 9], &[3]).unwrap_err(),
             TensorAutodiffError::Model(ModelOpError::GatherIndexOutOfBounds {
-                position: 0,
+                position: 1,
                 index: 2,
                 rows: 2,
             })
+        );
+
+        let zero_rows_wide = constant(&[0, usize::MAX], &[]);
+        assert_eq!(
+            zero_rows_wide.gather_rows(&[0, 0], &[2]).unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::GatherIndexOutOfBounds {
+                position: 0,
+                index: 0,
+                rows: 0,
+            })
+        );
+        assert_eq!(
+            zero_rows_wide.gather_rows(&[], &[0, 2]).unwrap_err(),
+            TensorAutodiffError::Tensor(crate::tensor::storage::TensorError::ShapeOverflow)
         );
     }
 
@@ -1110,6 +1242,15 @@ mod tests {
                 operand: 0,
             }
         );
+        assert_eq!(
+            product
+                .gather_rows(&[usize::MAX], &[usize::MAX, 2])
+                .unwrap_err(),
+            TensorAutodiffError::ReleasedOperand {
+                operation: TensorOperation::GatherRows,
+                operand: 0,
+            }
+        );
     }
 
     #[test]
@@ -1146,12 +1287,25 @@ mod tests {
 
     #[test]
     fn backward_trace_exposes_typed_model_saved_context() {
-        let table = parameter(&[2, 2], &[1.0, 0.0, 0.0, 1.0]);
-        let loss = sum_to_scalar(table.gather_rows(&[1, 1], &[2]).unwrap());
+        let table = parameter(&[3, 2], &[1.0, 0.0, 0.0, 1.0, 2.0, 3.0]);
+        let loss = sum_to_scalar(table.gather_rows(&[2, 1], &[1, 2]).unwrap());
         let pass = loss.backward_with_trace().unwrap();
-        assert!(pass.edges.iter().any(|edge| matches!(
-            edge.saved,
-            TensorSavedContext::Model(ModelSavedContext::GatherRows { .. })
-        )));
+        let saved = pass
+            .edges
+            .iter()
+            .find_map(|edge| match &edge.saved {
+                TensorSavedContext::Model(ModelSavedContext::GatherRows {
+                    indices,
+                    index_shape,
+                    input_shape,
+                    output_shape,
+                }) => Some((indices, index_shape, input_shape, output_shape)),
+                _ => None,
+            })
+            .expect("the gather edge retains its validated plan facts");
+        assert_eq!(saved.0, &[2, 1]);
+        assert_eq!(saved.1, &[1, 2]);
+        assert_eq!(saved.2, &[3, 2]);
+        assert_eq!(saved.3, &[1, 2, 2]);
     }
 }

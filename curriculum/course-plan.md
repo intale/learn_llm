@@ -1222,16 +1222,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `16-model-autodiff-ops`
 - **Implementation step:** `implement-ch16-model-autodiff-ops`
-- **Revision status:** Content revision 3 corrects the compact operation chain, sampled-check scope, saved evidence, error nonmutation, LLM history, shared visualization, and direct Russian localization; revision 2's formula rendering repair remains recorded by `repair-formula-rendering-ch14-ch19`.
+- **Revision status:** Content revision 6 validates a raw row-gather request once, seals its selectors and shapes in a crate-private plan, and lets forward copying plus saved reverse context reuse those facts; it preserves the established error order and refreshes Russian directly from frozen English. Revision 5's borrowed `TensorValue` reads, revision 4's shared lean/traced reverse kernel, and revision 3's corrected operation lesson remain in force.
 - **Depends on:** `15-tensor-autodiff-core`.
 - **Outcome:** Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.
 - **Scope boundary:** Add matmul, gather/scatter-add, `exp`, `log`, SiLU, log-softmax, and indexed mean-NLL VJPs with explicit saved-state and stability choices; defer packaging them as neural layers.
 - **Formula:** `\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`.
 - **Historical contrast:** Model-specific next-word backward equations do not provide reusable operation rules, while a structural tensor tape still cannot differentiate embedding lookup, matrices, activations, normalization, and token loss; connect both limitations to a small composable VJP vocabulary reused throughout decoder training.
-- **Rust contribution:** Extend the tensor tape with the model-critical primitives, including duplicate-ID scatter-add and fused stable log-softmax/NLL behavior.
+- **Rust contribution:** Extend the tensor tape with the model-critical primitives, including a validated row-gather plan, duplicate-ID scatter-add, and fused stable log-softmax/NLL behavior.
 - **Visualization:** Useful — trace the compact forward branch, target and matrix gradients, then group every occurrence contribution inside its destination embedding row.
 - **Practice:** Predict the embedding gradient when one token ID appears three times and identify the target-logit gradient signs.
-- **Integration evidence:** Each new VJP passes sampled central differences; repeated IDs, batched matmul, extreme logits, target bounds, empty target sets, branches, and numerical stability pass.
+- **Integration evidence:** Each new VJP passes sampled central differences; checked and prevalidated gather paths agree exactly; error precedence, repeated IDs, batched matmul, extreme logits, target bounds, empty target sets, branches, and numerical stability pass.
 - **Handoff:** Chapter 17 creates reproducible trainable values before the first learned layer is assembled.
 
 ## 17. Parameters and deterministic initialization

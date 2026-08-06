@@ -2,7 +2,7 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "concept_id": "model-autodiff-ops",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 16,
   "objective": {
     "en": "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.",
@@ -10,7 +10,7 @@
   },
   "worked_inputs": {
     "en": "Set embedding table E[3,2]=[[2,2],[1,-1],[-1,1]], token IDs z=[1,1,1,2], projection W[2,2]=[[1,-1],[1,-1]], and targets [0,0,0,1]. Treat flat positions 0 through 3 as the row-major order of the formula's (b,t) occurrences. Predict four gathered rows, zero projection preactivations, SiLU outputs used as two-class loss logits, log-probabilities of -ln(2), mean loss ln(2), target-logit gradients of magnitude 1/8, and the three contributions accumulated into embedding row 1 before running Rust.",
-    "ru": "Задайте таблицу эмбеддингов E[3,2]=[[2,2],[1,-1],[-1,1]], ID токенов z=[1,1,1,2], матрицу проекции W[2,2]=[[1,-1],[1,-1]] и целевые классы [0,0,0,1]. Пусть плоские позиции 0–3 соответствуют парам (b,t) из формулы, перечисленным в порядке по строкам. До запуска Rust предскажите четыре выбранные строки, нулевые значения проекции до нелинейности, нулевые выходы SiLU, используемые как логиты двух классов, логарифмы вероятностей -ln(2), среднюю функцию потерь ln(2), градиенты по логитам целевых классов, модуль которых равен 1/8, и три вклада, накопленные в строке 1 таблицы эмбеддингов."
+    "ru": "Задайте таблицу эмбеддингов E[3,2]=[[2,2],[1,-1],[-1,1]], ID токенов z=[1,1,1,2], матрицу проекции W[2,2]=[[1,-1],[1,-1]] и целевые классы [0,0,0,1]. Пусть плоские позиции 0–3 соответствуют парам (b,t) из формулы, перечисленным в построчном порядке. До запуска Rust предскажите четыре выбранные строки, нулевые значения проекции до нелинейности, нулевые выходы SiLU, используемые как логиты двух классов, логарифмы вероятностей -ln(2), среднюю функцию потерь ln(2), компоненты градиента по логитам: -1/8 для целевого класса и +1/8 для другого, а также три вклада, накопленные в строке 1 таблицы эмбеддингов."
   },
   "formula": {
     "latex": "\\frac{\\partial L}{\\partial E_{i,:}}=\\sum_{(b,t):z_{b,t}=i}\\frac{\\partial L}{\\partial X_{b,t,:}}",
@@ -38,17 +38,17 @@
       {
         "symbol": "b",
         "en": "the batch index of one token occurrence",
-        "ru": "индекс элемента пакета для одного вхождения токена"
+        "ru": "индекс примера в пакете"
       },
       {
         "symbol": "t",
         "en": "the position index of one token occurrence",
-        "ru": "индекс позиции одного вхождения токена"
+        "ru": "позиция токена в этом примере"
       },
       {
         "symbol": "z_{b,t}",
         "en": "the integer token ID selected at batch b and position t",
-        "ru": "целочисленный ID токена в элементе пакета b и позиции t"
+        "ru": "ID токена в примере с индексом b на позиции t"
       },
       {
         "symbol": "X_{b,t,:}",
@@ -58,7 +58,7 @@
       {
         "symbol": "\\frac{\\partial L}{\\partial E_{i,:}}",
         "en": "the adjoint accumulated for every feature of embedding row i",
-        "ru": "сопряжённая величина, накопленная для всех признаков строки i таблицы эмбеддингов"
+        "ru": "накопленная сопряжённая величина для всех признаков строки i таблицы E"
       },
       {
         "symbol": "\\frac{\\partial L}{\\partial X_{b,t,:}}",
@@ -77,11 +77,11 @@
       "predecessor_kind": "language-model",
       "limitation": {
         "en": "Bengio et al. train a neural next-word model with a learned word-feature table, matrix transforms, a tanh hidden layer, output probabilities, and explicit model-specific backward/update equations. That presentation makes the full learning path inspectable, but Chapter 15's structural tensor tape still cannot express the lookup, matrix, activation, normalization, and token-loss derivatives needed to train even this small language-model path.",
-        "ru": "Bengio и соавторы обучают нейросетевую модель следующего слова с обучаемой таблицей признаков слов, матричными преобразованиями, скрытым слоем tanh, вероятностями на выходе и явными уравнениями обратного прохода и обновления, составленными специально для этой модели. Такой разбор позволяет проследить весь путь обучения, но структурной ленты тензорных операций из главы 15 ещё недостаточно: она не умеет дифференцировать выбор строки, матричное умножение, нелинейную функцию, нормализацию и функцию потерь по токенам, необходимые даже для такой небольшой цепочки языковой модели."
+        "ru": "В модели Bengio и соавторов обучаемая таблица признаков слов, матричные преобразования и скрытый слой tanh задают вероятности следующего слова. Авторы явно выписывают формулы обратного прохода и обновления параметров именно для этой архитектуры. Такой разбор позволяет проследить весь процесс обучения. Однако лента из главы 15 пока описывает только структуру графа: в ней нет VJP для выбора строк, матричного умножения, нелинейности, нормализации и функции потерь по токенам, без которых нельзя обучить даже эту небольшую языковую модель."
       },
       "later_advance": {
         "en": "Abadi et al. describe tensor operation graphs whose differentiation finds every path from a loss to parameters and sums partial-gradient contributions, including gathered embedding rows. Vaswani et al. place learned embeddings and the output projection at model boundaries while matrix projections, softmax attention, and nonlinear feed-forward sublayers repeat through the Transformer stack. Shazeer later evaluates Swish with beta one—the same function as SiLU—and SwiGLU variants inside Transformer feed-forward sublayers.",
-        "ru": "Abadi и соавторы описывают графы тензорных операций, при дифференцировании которых находятся все пути от функции потерь к параметрам и суммируются вклады этих путей в градиенты параметров, включая пути через выбранные строки эмбеддингов. В Transformer из работы Vaswani и соавторов обучаемые эмбеддинги и выходная проекция находятся на границах модели, а матричные проекции, softmax внимания и нелинейные сети прямого распространения повторяются в стеке слоёв. Позже Shazeer исследует в сетях прямого распространения Transformer функцию Swish при $\\beta=1$, то есть ту же функцию, что и SiLU, а также варианты SwiGLU."
+        "ru": "Abadi и соавторы описывают графы тензорных операций. При автоматическом дифференцировании система прослеживает все пути от функции потерь к каждому параметру и суммирует их вклады в градиент, в том числе для выбранных строк эмбеддингов. В Transformer Vaswani и соавторов обучаемые эмбеддинги находятся на входе, а выходная проекция — на выходе модели; матричные проекции, softmax внимания и нелинейные подсети прямого распространения повторяются в стеке слоёв. Позднее Shazeer исследует Swish при $\\beta=1$ — то есть SiLU — и варианты SwiGLU в подсетях прямого распространения Transformer."
       },
       "modern_llm_role": {
         "en": "This chapter supplies reusable local VJPs for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL. These operations form the local reverse rules later embedding, projection, SwiGLU, attention, and token-loss components need. Training retains operation-specific forward values and shape metadata for those rules; ordinary inference uses only the forward paths.",
@@ -125,18 +125,18 @@
           "source_url": "https://arxiv.org/pdf/2002.05202",
           "claim": {
             "en": "Shazeer defines Swish as its input multiplied by the sigmoid of beta times that input, so beta one gives the function also called SiLU; the paper uses it in SwiGLU Transformer feed-forward variants and reports improved held-out log-perplexity for gated variants over the studied baseline.",
-            "ru": "Shazeer определяет Swish как произведение входа и сигмоиды от входа, умноженного на $\\beta$, поэтому при $\\beta=1$ получается функция, также называемая SiLU; в работе она используется в вариантах SwiGLU для сетей прямого распространения Transformer, а для исследованных вентильных вариантов сообщается более низкий логарифм перплексии на отложенной выборке, чем у рассмотренной базовой модели."
+            "ru": "Shazeer определяет Swish как произведение входа на сигмоиду от $\\beta x$; при $\\beta=1$ получается функция SiLU. В работе она используется в вариантах SwiGLU для подсетей прямого распространения Transformer; для исследованных вариантов с вентильным механизмом автор сообщает меньший логарифм перплексии на отложенной выборке, чем у рассмотренной базовой модели."
           }
         }
       ]
     },
     "approach": {
       "en": "From model-specific next-word backward equations to composable operation VJPs reused throughout decoder training",
-      "ru": "От специальных уравнений обратного прохода для модели следующего слова к компонуемым VJP отдельных операций, переиспользуемым при обучении декодера"
+      "ru": "От специальных уравнений обратного прохода для одной модели следующего слова к VJP отдельных операций, которые можно сочетать и переиспользовать при обучении декодера"
     },
     "summary": {
       "en": "Bengio et al. expose a learned-row-to-next-word training path with model-specific equations. Operation-graph differentiation then makes path accumulation reusable. Transformer work places embeddings and vocabulary projection at the model boundaries and repeats projections, attention, and nonlinear feed-forward computation through the layer stack. The Rust contrast computes one compact operation chain by hand and through the shared tensor tape without attributing its implementation choices to those sources.",
-      "ru": "Bengio и соавторы показывают путь от обучаемых признаков слов до предсказания следующего слова с уравнениями, составленными специально для этой модели. Дифференцирование графа операций затем позволяет переиспользовать накопление вкладов по разным путям. В Transformer эмбеддинги и проекция в словарь находятся на границах модели, а проекции, внимание и нелинейные сети прямого распространения повторяются в стеке слоёв. Пример на Rust вычисляет одну компактную цепочку операций вручную и с помощью общей ленты тензорных операций, не приписывая источникам особенности этой реализации."
+      "ru": "Bengio и соавторы показывают путь от обучаемых признаков слов до предсказания следующего слова с уравнениями, заданными для одной архитектуры. Автоматическое дифференцирование графа операций превращает суммирование вкладов от разных путей в общее переиспользуемое правило. В Transformer эмбеддинги и проекция в словарь находятся на входе и выходе модели, а проекции, внимание и нелинейные подсети прямого распространения повторяются в стеке слоёв. Пример на Rust вычисляет компактную цепочку вручную и на общей ленте тензорных операций; особенности реализации курса не приписываются авторам этих работ."
     },
     "rust_contrast": "Compute the compact repeated-token projection and backward pass once with fixed Rust arrays, then build the same chain from TensorValue gather, matmul, SiLU, log-softmax, and indexed mean-NLL operations. Both paths must produce loss ln(2), dE=[[0,0],[-3/8,-3/8],[1/8,1/8]], and dW=[[-1/4,1/4],[1/4,-1/4]]."
   },
@@ -154,12 +154,12 @@
     "id": "model-autodiff-ops",
     "rationale": {
       "en": "A compact forward chain plus reverse target and matrix evidence can lead into three destination-row boxes that contain their own occurrence contributions. Grouping positions 0, 1, and 2 inside embedding row 1 makes the many-to-one accumulation visible; final dE alone hides that relationship.",
-      "ru": "За компактной цепочкой прямого прохода и обратным расчётом для целевых классов и матриц следуют три блока строк назначения, внутри которых находятся вклады соответствующих вхождений. Позиции 0, 1 и 2, показанные внутри строки 1 таблицы эмбеддингов, наглядно показывают накопление нескольких вкладов в одном родителе; по одному лишь итоговому dE эту связь не видно."
+      "ru": "За компактной цепочкой прямого прохода и обратным расчётом для целевых классов и матриц следуют три блока строк назначения, внутри которых находятся вклады соответствующих вхождений. Позиции 0, 1 и 2 внутри строки 1 таблицы эмбеддингов наглядно показывают, как несколько вкладов суммируются в одной строке родительской таблицы; по одному итоговому dE эту связь не видно."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative implementation can now differentiate a compact chain from selected embedding rows through a projection, nonlinearity, and stable mean token loss. This is an operation test, not the final decoder architecture: later feed-forward blocks use SiLU internally, and a separate vocabulary projection produces the decoder's loss logits. Correct gradients still do not choose useful parameter values, so Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP.",
-    "ru": "Теперь совокупная реализация умеет дифференцировать компактную цепочку от выбранных строк эмбеддингов через проекцию и нелинейную функцию до устойчивой средней функции потерь по токенам. Это проверка операций, а не архитектура итогового декодера: в последующих блоках SiLU находится внутри сети прямого распространения, а логиты для функции потерь создаёт отдельная проекция в словарь. Правильные градиенты ещё не задают полезные начальные значения параметров, поэтому в главе 17 появится детерминированная несимметричная и учитывающая масштаб инициализация без нового VJP."
+    "en": "The cumulative implementation can now differentiate a compact chain from selected embedding rows through a projection, nonlinearity, and stable mean token loss. This is an operation-level example, not the final decoder architecture: later feed-forward blocks use SiLU internally, and a separate vocabulary projection produces the decoder's loss logits. Correct gradients still do not choose useful parameter values, so Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP.",
+    "ru": "Теперь совокупная реализация умеет дифференцировать компактную цепочку от выбранных строк эмбеддингов через проекцию и нелинейную функцию до устойчивой средней функции потерь по токенам. Это пример на уровне отдельных операций, а не архитектура итогового декодера: в последующих блоках SiLU находится внутри сети прямого распространения, а логиты для функции потерь создаёт отдельная проекция в словарь. Правильные градиенты ещё не задают полезные начальные значения параметров, поэтому в главе 17 появится детерминированная несимметричная и учитывающая масштаб инициализация без нового VJP."
   },
   "terminology": [
     {
@@ -171,6 +171,16 @@
       "concept_id": "row-gather",
       "en": "row gather",
       "ru": "выбор строк по индексам"
+    },
+    {
+      "concept_id": "validated-row-gather-plan",
+      "en": "validated row-gather plan",
+      "ru": "проверенный план выбора строк по индексам"
+    },
+    {
+      "concept_id": "checked-public-entry",
+      "en": "checked public entry",
+      "ru": "публичная точка входа с проверкой аргументов"
     },
     {
       "concept_id": "scatter-add",
@@ -209,7 +219,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 16 has the exact active locale set {en,ru}. English revision 5 is the canonical semantic source, and Russian is translated directly from that revision.",
+    "Chapter 16 has the exact active locale set {en,ru}. English revision 6 is the canonical semantic source frozen at sha256:b5c1dc3532004f16d35a5d36e096d5b168d51878f7f09ea26574ef7119b0582a; Russian was refreshed directly from that snapshot and passed semantic plus native-language review at sha256:733f776fe33f94f2998aa43d0858818f429168ff3d8939d95be1309b863284a2.",
     "Keep E, X, L, V, d, i, b, t, z, the colon feature slice, conditioned summation, shapes, row-major IDs, targets, signs, gradients, Rust identifiers, trace keywords, formulas, and source URLs exact when another locale is activated later.",
     "Translate gather as selecting and materializing table rows and scatter-add as summing each occurrence's adjoint into its destination row. Do not imply that gathered output rows alias the parent table. Token IDs are integer selectors and receive no gradient.",
     "Use established Russian mathematical language: сопряжённая величина for adjoint, выбор строк по индексам for row gather, and накопление вкладов по индексам for scatter-add. Do not calque pullback or scatter-add as пулбэк or рассеянное сложение.",
@@ -217,6 +227,7 @@
     "Keep stable log-softmax and fused indexed mean NLL distinct: the lesson displays log-probabilities for prediction while the loss operation consumes logits and saves stable probabilities for its pullback.",
     "Vaswani et al. use ReLU in the cited feed-forward block. Attribute Swish and SwiGLU to Shazeer, state that Swish with beta one is SiLU, and do not imply that the original Transformer uses SiLU.",
     "Describe general derivative, saved-state, fusion, validation, visualization, and error behavior without assigning it to a programming language. Name Rust only for executable source, concrete types, and trace provenance.",
+    "Translate validated row-gather plan as a private value that carries facts already established at a checked boundary. Trusted consumption means that a kernel receives that privately constructed value; it never means that public callers may provide unchecked selectors.",
     "The sources support the LLM evolution and bounded operation claims, not this course's exact VJPs, f64 policy, eager tape, saved-context enum, trace grammar, API, fusion boundary, or error precedence."
   ],
   "acceptance_examples": [
@@ -231,6 +242,10 @@
     {
       "input": "reverse SiLU at zero, matmul, and gather for repeated ID 1",
       "expected": "SiLU scales by 1/2; dW=[[-1/4,1/4],[1/4,-1/4]]; occurrence gradients [-1/8,-1/8] add three times into dE row 1=[-3/8,-3/8], row 2 receives [1/8,1/8], and unused row 0 remains zero."
+    },
+    {
+      "input": "call the public row gather with a released operand or with conflicting rank, index-shape, count, and selector defects",
+      "expected": "Operand availability is checked first; an available operand then reports table rank, index-shape layout, ID-count mismatch, and the first invalid flat selector in that order. A successful request becomes one private validated plan whose selectors and shapes drive forward copying and the gather VJP without another raw-input scan."
     },
     {
       "input": "batched matmul with either parent broadcast across batch axes",
@@ -313,9 +328,11 @@ This chain is deliberately not a decoder architecture. In the later decoder,
 SiLU belongs inside a feed-forward block, while a separate vocabulary projection
 produces the logits consumed by token loss.
 
-For each position, the gradient of loss with respect to its two logits has
-magnitude $1/8$: subtract one at the target, then divide by four positions. SiLU
-at zero contributes $1/2$, so the matmul upstream rows have magnitude $1/16$.
+For each position, start from the saved probability row $[1/2,1/2]$, subtract
+one from the selected target component, and divide both components by the four
+positions in the mean. The resulting logit-gradient components have magnitude
+$1/8$. SiLU at zero contributes $1/2$, so the matmul upstream rows have
+magnitude $1/16$.
 Matmul gives occurrence gradients
 $[-1/8,-1/8]$ for the first three positions and $[1/8,1/8]$ for the last.
 Gather reversal sums by destination row:
@@ -385,20 +402,42 @@ the upstream tensor times the right operand with its final matrix axes
 transposed; its right VJP transposes the left operand before multiplication.
 Both results sum broadcast batch axes back to their exact parent shapes.
 
-`gather_rows` validates the rank-two table, logical ID count, then every ID in
-flat order. The forward result owns its selected row values; it does not alias
-the table. Its VJP allocates one zero table and adds every occurrence adjoint to
-the row named by that occurrence's selector. Repeated IDs add; unused rows stay
-zero. Scalar and empty logical ID shapes are valid when their element counts
-match the supplied IDs.
+`TensorValue::gather_rows` is the checked public entry. Tape operand availability
+is established before its closure runs. For an available operand, it checks that
+the table has rank two, validates the logical `index_shape`, compares that
+shape's element count with `indices.len()`, and then checks selectors in flat
+order so the first invalid position is reported. Only a successful request
+appends the table width to `index_shape` and validates the resulting output
+shape. For the worked table shape `[3,2]`, `index_shape=[4]` and selectors
+`[1,1,1,2]`, the resulting shape is `[4,2]`.
+
+Those facts and owned copies of the selectors and shapes form one crate-private
+`RowGatherPlan`. The forward kernel copies the selected rows from that plan and
+does not repeat the rank, count, or bounds scan. After copying succeeds, the
+plan's selectors and shapes become the saved gather context. The VJP reuses
+them to allocate one zero tensor with the parent-table shape and add every
+occurrence adjoint to its selected row. Repeated IDs add; unused rows stay zero;
+the forward rows are independent values rather than aliases into the table.
+Here “trusted” means that a kernel consumes a plan whose private construction
+established the facts. It does not permit a public caller to submit unchecked
+selectors. Scalar and empty logical ID shapes remain valid when their element
+counts match the supplied IDs.
 
 `exp` saves its output. `log` saves its positive input. SiLU computes a stable
 branchwise sigmoid and saves the input plus sigmoid. Log-softmax saves stable
 probabilities; its pullback subtracts probability times the upstream class-axis
 sum. Indexed mean NLL validates axis, class extent, target count, nonempty target
-set, and every target before calculating a stable scalar loss. Its pullback
-subtracts one at each target and scales the probability rows by the upstream
-scalar divided by the group count.
+set, and every target before calculating a stable scalar loss. For group $g$,
+class $c$, input logit $Z_{g,c}$, target $y_g$, $G$ groups, saved probability
+$P_{g,c}$, and incoming scalar adjoint $\bar L$, its logit adjoint is
+
+$$
+\bar Z_{g,c}=\frac{\bar L}{G}\left(P_{g,c}-\mathbf{1}[c=y_g]\right).
+$$
+
+At the selected target class, the parenthesized term subtracts one from the
+saved probability. Every component then receives the same upstream and mean
+scale $\bar L/G$.
 
 The Chapter 15 finite-primal and transactional-backward invariants still apply.
 Non-finite forward results such as `exp(f64::MAX)`, `log(0)`, or `log(-1)` are
@@ -443,7 +482,7 @@ rules rather than adding another spatial relationship to the figure.
 6. Explain why unused embedding row 0 receives an exact zero gradient.
 7. Predict the forward value and local gradient for `exp(0)`, `log(1)`, and `SiLU(0)`.
 8. Explain why probabilities computed after subtracting the maximum logit matter for logits near `+/-1000`.
-9. Identify where an invalid token ID, invalid target class, and empty target set are detected.
+9. Name the row-gather facts checked at the public entry, the work omitted after a validated plan exists, and where an invalid target class or empty target set is detected.
 10. Misconception check: because ID 1 occurs three times, should its already mean-scaled row gradient be divided by three again?
 
 The misconception answer is no. Each upstream row already contains the loss's
@@ -456,7 +495,7 @@ receive no gradient.
 
 The cumulative implementation can now differentiate a compact chain from
 selected embedding rows through a projection, nonlinearity, and stable mean
-token loss. This is an operation test, not the final decoder architecture:
+token loss. This is an operation-level example, not the final decoder architecture:
 later feed-forward blocks use SiLU internally, and a separate vocabulary
 projection produces the decoder's loss logits. Correct gradients still do not
 choose useful parameter values, so Chapter 17 adds deterministic, non-symmetric,
@@ -469,7 +508,7 @@ backward pass for each whole layer.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 5 is the canonical source for both active locales. Russian must
+English revision 6 is the canonical source for both active locales. Russian must
 translate the complete contract, lesson, diagram labels, accessible names,
 history claims, exercises, and answers directly from that revision.
 
@@ -479,7 +518,9 @@ divide a repeated row after the mean loss has already scaled each contribution.
 Keep displayed log-softmax distinct from the fused loss input. Attribute ReLU
 to the cited original Transformer and Swish/SwiGLU to Shazeer. Keep the history
 on the road to modern language models, not programming languages or frontend
-implementation details.
+implementation details. Describe a trusted gather kernel only as the consumer of
+a privately constructed validated plan; never imply that its public input is
+unchecked.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -492,9 +533,10 @@ and `dW=[[-1/4,1/4],[1/4,-1/4]]`. Fixed-array and tape paths must agree.
 
 Every named VJP must pass sampled central differences. Batched matmul must
 unbroadcast either parent; duplicate IDs, unused rows, scalar and empty ID
-shapes, arbitrary log-softmax axes, extreme finite logits, target count, empty
-targets, target bounds, forward overflow/domain failures, branches, repeated
-operands, retention, release, and transactional failures must pass. Contract,
+shapes, public gather error precedence, validated-plan reuse, arbitrary
+log-softmax axes, extreme finite logits, target count, empty targets, target
+bounds, forward overflow/domain failures, branches, repeated operands,
+retention, release, and transactional failures must pass. Contract,
 English lesson, parity, content, static build, links, SEO, focused browser, full
 browser, Rust formatting, Clippy, workspace tests, dependency policy, demo
 policy, the unchanged Chapter 15 trace, and both Chapter 16 exact-output gates
