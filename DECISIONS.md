@@ -15555,3 +15555,91 @@ repeated IDs remain unchanged. No unsafe API or new dependency is introduced.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `pass-validated-embedding-indices-to-row-gather`, and
 `20260806T005359Z-pass-validated-embedding-indices-to-row-gather-01`.
+
+## 2026-08-06 - Emit probability forward results from one checked group traversal
+
+**Status:** Accepted after numerical and invariant review, English-first content
+revision, direct Russian localization, exact Docker validation, and
+Chromium/Firefox rendered validation.
+
+**Context:** Chapter 12's public `softmax`, `log_softmax`, and indexed mean NLL
+operations already shared stable maximum-shift arithmetic, but each entry owned
+its complete traversal and exposed only its final result. Chapter 16 will need
+the exact probabilities produced while calculating log-softmax or indexed NLL
+for its backward pass. Calling public softmax separately would validate the axis,
+scan every group, and calculate each maximum and shifted-exponential sum again.
+A public multi-result API would expose training-only retained state to learners
+and callers that do not need it.
+
+**Decision:** Keep the four public Chapter 12 functions lean. Establish one
+private `AxisPlan` driver that visits checked normalization groups and calculates
+one reusable `RowStats` bundle—maximum, shifted-exponential sum, and its
+logarithm—for each visit. A single `NormalizedGroupOutput` writer may emit
+probabilities, log-probabilities, or both from that bundle. Crate-private
+`log_softmax_forward` and `indexed_mean_nll_forward` return their ordinary result
+plus optional probabilities for a later owned caller; public wrappers request no
+saved tensor and return only their documented value.
+
+When an optional probability buffer would otherwise be allocated before the
+first non-finite logit is known, first scan the immutable view in established
+group-major, class-minor order. A private non-constructible `FiniteLogits` marker
+records only that fact for the same view and plan. The following maximum scan may
+trust that marker instead of checking the same values again. Lean public paths
+continue to check logits during their normal statistics traversal, and the
+preliminary scan computes no maximum, exponential, sum, or output. Primary output
+layout/allocation, target count and bounds, and non-finite-error precedence stay
+in their established order.
+
+Chapter 12 revision 7 teaches the distinction between reusable group-wide facts
+and the remaining per-class output writes. Its rendered Rust region includes the
+shared writer itself, not only its call sites. English is the frozen semantic
+source; Russian is translated directly and reviewed independently for meaning,
+terminology, accessibility, and layout.
+
+**Consequences:** Each requested forward operation has one checked group driver
+and one row-statistics calculation per group. A saved-mode request can retain
+the exact probabilities without a parallel normalization algorithm, while two
+separate public calls remain two separate computations. Exact values and bits,
+positive zero, ordinary and scaled NLL accumulation, subnormal behavior,
+noncontiguous axes, error order, demo output, and diagram trace remain unchanged.
+Chapter 16 does not consume the new crate-private result in this checkpoint; that
+adoption remains the next independently validated and committed step.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`share-probability-forward-plan`, and
+`20260806T022518Z-share-probability-forward-plan-01`.
+
+## 2026-08-06 - Repair stale static evidence projections before the next runtime checkpoint
+
+**Status:** Scheduled from an exact full-suite control during the Chapter 12
+checkpoint.
+
+**Context:** The Chapter 12 focused static suite passes, but an additional run of
+all 981 static tests exposed seven assertions outside Chapter 12. Five
+cheat-sheet grounding probes still search for wording superseded by already
+published revisions of Chapters 11, 15, 18, 34, and 39. Two formula-source
+allowances omit literal program evidence already present in Chapters 11 and 15:
+recorded offset pairs and the concrete `keep_dim=false` API setting. The failures
+do not involve Chapter 12 product files, and changing those unrelated tests in
+the probability checkpoint would violate its declared output boundary.
+
+**Decision:** Insert `repair-stale-static-evidence-projections` immediately after
+the Chapter 12 checkpoint and make Chapter 16 probability adoption depend on it.
+That step may update only the two policy-test files and checkpoint records. It
+must point cheat-sheet probes at semantically equivalent current lesson evidence
+and document only genuine program-data or API-literal code spans; it must not
+alter lessons, contracts, cheat-sheet definitions, or weaken the rule that
+mathematical notation uses the math pipeline.
+
+**Consequences:** The current Chapter 12 commit remains independently reviewable,
+and the next small commit restores the complete static suite before another
+runtime or learner-content change begins. The active build now contains one
+additional corrective checkpoint, increasing its scheduled step total by one;
+the accepted order of the remaining Rust audit work is otherwise unchanged.
+
+**Affected build and steps:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`share-probability-forward-plan`,
+`repair-stale-static-evidence-projections`, and
+`reuse-probability-forward-state-in-autodiff`.

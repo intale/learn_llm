@@ -2,12 +2,12 @@
 {
   "chapter_id": "12-stable-softmax",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 12,
   "concept_id": "stable-softmax",
   "title": "Turn extreme logits into stable probabilities",
   "description": "Turn vocabulary and attention logits into stable probabilities, log-probabilities, log-sum-exp values, and indexed mean NLL with dependency-free Rust.",
-  "objective": "Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.",
+  "objective": "Convert finite logits into normalized probabilities and log-probabilities, and score indexed targets using maximum shifting and log-domain arithmetic that avoid failures from raw exponentiation.",
   "worked_inputs": "Normalize shape [3,2] logits with rows [0,1], [1000,1001], and [-1001,-1000] along axis 1. Predict that subtracting each row maximum produces [-1,0] every time, so all three rows have probabilities [0.268941421370,0.731058578630]. Then score targets [1,0,1].",
   "formula": {
     "latex": "p_i=\\frac{\\exp(\\ell_i-m)}{\\sum_j\\exp(\\ell_j-m)}, \\quad m=\\max_j\\ell_j",
@@ -39,7 +39,7 @@
       "predecessor_kind": "language-model",
       "limitation": "Bengio et al.'s neural language model uses an output softmax to turn vocabulary scores into positive next-word probabilities that sum to one. In finite precision, directly exponentiating unshifted large logits can overflow, while directly exponentiating sufficiently negative logits can round every term to zero.",
       "later_advance": "The Transformer reuses softmax for scaled query-key scores inside attention and for next-token predictions. OpenAI's published GPT-2 source shows a stable implementation for attention: subtract the maximum along the last axis before exponentiating, sum the shifted exponentials, and normalize before combining values.",
-      "modern_llm_role": "In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows; log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when an ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.",
+      "modern_llm_role": "In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows. Log-sum-exp supplies the stable log-normalizer; log-softmax retains class scores in the log domain, and fused indexed mean NLL retains a target loss when the corresponding ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.",
       "sources": [
         {
           "role": "earlier",
@@ -82,12 +82,12 @@
     {
       "path": "rust/crates/llm-from-scratch/src/nn/probability.rs",
       "region": "checked-probability-groups",
-      "purpose": "Plan one checked row-major cursor over group-base storage offsets, retain the input class stride, and reuse those offsets across the maximum, exponential-tail, output, and indexed-target reads."
+      "purpose": "Plan one checked row-major cursor over group-base storage offsets, compute one reusable row-statistics bundle per group, and retain the input class stride for class-wise source reads during result emission and for indexed-target reads."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/nn/probability.rs",
       "region": "stable-probability-operations",
-      "purpose": "Compute max-shifted log-sum-exp, probabilities, log-probabilities, and indexed mean NLL from the checked group plan while preserving the ordinary full-loss accumulator and scaled overflow fallback."
+      "purpose": "Emit max-shifted log-sum-exp, probabilities, log-probabilities, indexed mean NLL, and optional saved probabilities from the checked group plan while preserving the ordinary full-loss accumulator and scaled overflow fallback."
     },
     {
       "path": "rust/demos/ch12-stable-softmax/src/lib.rs",
@@ -246,6 +246,19 @@ shifted sum. Log-softmax keeps the safer shifted difference and subtracts that
 logarithm. Indexed NLL selects one target and evaluates its loss without first
 rounding through an ordinary probability.
 
+For one normalization group, define the shared shifted-exponential sum:
+
+$$
+S=\sum_j\exp(\ell_j-m)
+$$
+
+The maximum $m$, shifted-exponential sum $S$, and log-normalizer $\ln S$ are
+shared by every class in that group. Softmax uses $m$ and $S$; log-softmax uses
+$m$ and $\ln S$; indexed NLL uses $m$, the selected target logit $\ell_t$, and
+$\ln S$. A training operation that also needs probabilities for its future
+backward gradient calculation can emit them from the same three group facts
+instead of calculating the group statistics again.
+
 {/* chapter-section:symbol-glossary */}
 
 ## Name each probability quantity
@@ -290,7 +303,7 @@ and
 [OpenAI's published GPT-2 `model.py`](https://github.com/openai/gpt-2/blob/master/src/model.py).
 Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities. OpenAI's GPT-2 source implements last-axis softmax by subtracting the maximum with retained dimensions, exponentiating, and dividing by the sum with retained dimensions; its attention path applies that helper to scaled masked scores before combining values. The source names those reductions `reduce_max` and `reduce_sum`.
 
-In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows; log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when an ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.
+In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows. Log-sum-exp supplies the stable log-normalizer; log-softmax retains class scores in the log domain, and fused indexed mean NLL retains a target loss when the corresponding ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.
 
 The bounded Rust contrast starts with a literal formula translation. It succeeds
 for `[0,1]`; raw positive extremes become infinity divided by infinity, and raw
@@ -312,11 +325,11 @@ handling differ.
 ## Implement checked log-domain operations
 
 The error surface keeps rejected invariants visible. Axis bounds come first.
-Softmax, log-softmax, and indexed NLL then reject an empty class axis. Output
-layout and fallible reservation precede tensor reads. Indexed NLL additionally
-checks target count, a nonempty mean, and every target bound before reading any
-logit. Only then can the first NaN or signed infinity be reported in group-major,
-class-minor order.
+Softmax, log-softmax, and indexed NLL then reject an empty class axis.
+Tensor-returning operations check their output layout and reserve output storage
+before reading logits. Indexed NLL instead checks group layout, target count, a
+nonempty mean, and every target bound before reading any logit. Only then can the
+first NaN or signed infinity be reported in group-major, class-minor order.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/nn/probability.rs"
@@ -341,19 +354,47 @@ The three groups therefore read source offsets `[0,1]`, `[2,3]`, and `[4,5]`.
 Those offsets correspond to rows zero, one, and two in the same order as flat
 targets `[1,0,1]`.
 
-For each nonempty group, the maximum pass starts at its group base and visits
-classes in ascending order. The exponential-tail pass resets to the same base,
-visits the same class offsets in the same order, skips the first maximum term,
-sums the other shifted exponentials, and uses `ln_1p(tail)`. That last operation
-preserves a representable subnormal log-domain correction that ordinary
-$\ln(1+\mathrm{tail})$ could round away before the logarithm.
+For each nonempty normalization group, the first scan finds the maximum $m$.
+The second scan resets to the same group base, visits classes in ascending
+order, separates one $\exp(0)=1$ term, and accumulates the remaining shifted
+exponentials as `tail`. It then records both $S=1+\mathrm{tail}$ for probability
+division and $\ln S=\ln(1+\mathrm{tail})$, evaluated with `ln_1p`, for log-domain
+results. If several classes tie for the maximum, only one unit term is
+separated; the other tied classes remain in `tail`. Every class in the group
+uses these same three facts. `ln_1p` preserves a representable subnormal
+log-domain correction that ordinary $\ln(1+\mathrm{tail})$ could round away
+before the logarithm.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/nn/probability.rs"
   region="checked-probability-groups"
-  caption="Plan group-base offsets and reuse one class stride across every numerical pass"
-  label="Rust source implementing the checked Chapter 12 group-base cursor, class-stride traversal, and two-pass row statistics"
+  caption="Compute one reusable statistics bundle for each checked normalization group"
+  label="Rust source implementing the checked Chapter 12 group-base cursor, class-stride traversal, and one row-statistics calculation per group"
 />
+
+One forward request creates one checked axis-and-group plan and invokes the
+row-statistics calculation exactly once for each group. Its emitter then uses
+those facts to produce log-sum-exp, softmax, log-softmax, or indexed-NLL output.
+The crate-private `log_softmax_forward` and `indexed_mean_nll_forward` helpers
+may emit probabilities alongside their primary result so a later backward
+gradient calculation can reuse them without normalizing the logits again. The
+public functions do not expose the optional saved tensor; each returns only its
+documented result.
+
+When a helper requests the optional saved tensor, it first checks every logit for
+a non-finite value before reserving that tensor's storage. This preserves the
+same error order as computing the public result before a separate probability
+tensor. The one row-statistics calculation then performs its maximum and
+shifted-exponential scans. The preliminary finite-input scan does not calculate
+either group statistic. A successful preliminary scan returns a private
+`FiniteLogits` marker. Because the tensor view cannot mutate its values, the
+maximum scan trusts that marker instead of checking the same values again.
+
+"Once for each group" does not mean that each logit is read only once. Stable
+row statistics still require a maximum scan and a shifted-exponential scan, and
+producing class-wise output requires another class scan. It also does not combine
+separate public calls: calling `softmax` and then `log_softmax` remains two
+independent forward requests.
 
 A slice or transposed view supplies its own group strides, class stride, and base
 offset, so the same traversal reads its logical groups without copying them.
@@ -364,19 +405,19 @@ at its logical row-major output position. No numerical pass constructs a class
 coordinate vector or calls `TensorView::get` once per scalar. Scalar reads and
 writes still use ordinary safe bounds-checked indexing.
 
-Softmax divides shifted exponentials by $1+\mathrm{tail}$. Log-softmax computes the
-shifted logit minus `ln_1p(tail)`. For $T$ targets, fused indexed mean NLL keeps
-two accumulators. The ordinary `total` adds each complete nonnegative row loss.
-If every row loss and the running sum remain finite, the function divides
+Softmax divides shifted exponentials by $S$. Log-softmax computes the shifted
+logit minus $\ln S$. For $T$ targets, fused indexed mean NLL keeps two
+accumulators. The ordinary `total` adds each complete nonnegative group loss.
+If every group loss and the running sum remain finite, the function divides
 `total` by $T$ once and returns the mean in nats per target; this single final
 division preserves representable subnormal mean rounding.
 
 In parallel, the fallback `scaled_mean` adds the two nonnegative parts of each
-row loss after dividing each part by $T$: the target-logit gap
-$(m-\ell_{t_r})/T$, where $t_r$ is the target class for row $r$, and the
+group loss after dividing each part by $T$: the target-logit gap
+$(m-\ell_{t_r})/T$, where $t_r$ is the target class for group $r$, and the
 log-normalizer $\ln(1+\mathrm{tail})/T$. If $m-\ell_{t_r}$ itself overflows,
 the fallback computes $m/T-\ell_{t_r}/T$ instead. The function returns
-`scaled_mean` only when a complete row loss or the running value of `total`
+`scaled_mean` only when a complete group loss or the running value of `total`
 overflows; otherwise it divides `total` by $T$ and returns that quotient. After
 all target bounds pass, the selected target logit is read at the group's base
 plus the target index times the input class stride. That keeps target validation
@@ -385,8 +426,8 @@ ahead of every logit read and retains group-major error order.
 <RustSource
   path="rust/crates/llm-from-scratch/src/nn/probability.rs"
   region="stable-probability-operations"
-  caption="Normalize checked groups and score indexed targets without avoidable numerical overflow"
-  label="Rust source implementing arbitrary-axis log-sum-exp, softmax, log-softmax, and fused indexed mean negative log-likelihood"
+  caption="Emit requested probability results from one checked group traversal"
+  label="Rust source implementing arbitrary-axis log-sum-exp, softmax, log-softmax, fused indexed mean negative log-likelihood, and optional saved probabilities"
 />
 
 The example helper constructs all three constant-shift rows once and calls the
@@ -464,7 +505,8 @@ rejected states separate without relying on color.
 6. Predict log-sum-exp output shapes for input `[2,3,4]`, axis `1`, with and without `keep_dim`.
 7. Decide which empty-class operation has a defined identity.
 8. For shape `[3,2]`, source strides `[2,1]`, and class axis `1`, list the three group-base offsets and the two source offsets read in each group.
-9. Misconception check: does maximum shifting itself turn logits into probabilities?
+9. Suppose one training operation must return log-softmax values and retain softmax probabilities for its backward gradient calculation. Which group-wide facts can both results share, and which class-wise work still remains?
+10. Misconception check: does maximum shifting itself turn logits into probabilities?
 
 <details>
   <summary>Check the predictions</summary>
@@ -477,7 +519,8 @@ rejected states separate without relying on color.
 6. Removing axis one gives `[2,4]`; retaining it gives `[2,1,4]`.
 7. Log-sum-exp returns the log-additive identity negative infinity. A softmax distribution, log-softmax distribution, and indexed target loss need at least one class.
 8. Removing class axis `1` leaves group stride `[2]`, so the group bases are `[0,2,4]`. Class stride `1` gives source offsets `[0,1]`, `[2,3]`, and `[4,5]`.
-9. No. The shift only stabilizes relative logits. Exponentiation and division by the complete shifted sum produce probabilities.
+9. Both results share the already computed maximum $m$, shifted-exponential sum $S$, and log-normalizer $\ln S$. One class scan can emit both values from those facts. The operation does not repeat the maximum or shifted-sum calculation, but it still visits every class to write the requested outputs.
+10. No. The shift only stabilizes relative logits. Exponentiation and division by the complete shifted sum produce probabilities.
 
 </details>
 
@@ -494,9 +537,11 @@ Run the example after predicting:
 The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently.
 
 Inside those operations, one checked cursor identifies each normalization group
-and one class stride selects the group's logits. That traversal changes only how
-already validated tensor metadata reaches the same formulas; it does not change
-the probabilities or the loss that Chapter 13 treats as its numerical oracle.
+and one class stride selects the group's logits. One forward request computes
+the maximum, shifted-exponential sum, and log-normalizer once per group; a
+training request can retain probabilities emitted from those same facts for a
+future backward gradient calculation. This reuse does not change the
+probabilities or the loss that Chapter 13 treats as its numerical oracle.
 
 Forward values alone cannot prove a future backward implementation. Chapter 13
 therefore builds a slow finite-difference oracle, varies one scalar input at a

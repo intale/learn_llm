@@ -99,7 +99,7 @@ const labels: StableSoftmaxDiagramLabels = {
 describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
   it('names both accumulators, their scaling, and the fallback condition', () => {
     for (const source of [contract, englishLesson, russianLesson]) {
-      expect(source).toContain('"content_revision": 6');
+      expect(source).toContain('"content_revision": 7');
       expect(source).toContain('`total`');
       expect(source).toContain('`scaled_mean`');
       expect(source).toContain('$(m-\\ell_{t_r})/T$');
@@ -109,10 +109,10 @@ describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
     }
 
     expect(englishLesson).toMatch(
-      /The function returns\s+`scaled_mean` only when a complete row loss or the running value of `total`\s+overflows; otherwise it divides `total` by \$T\$ and returns that quotient\./,
+      /The function returns\s+`scaled_mean` only when a complete group loss or the running value of `total`\s+overflows; otherwise it divides `total` by \$T\$ and returns that quotient\./,
     );
     expect(russianLesson).toMatch(
-      /Функция возвращает `scaled_mean` только тогда, когда полная\s+потеря строки или текущее значение `total` переполняется; в остальных случаях\s+она делит `total` на \$T\$ и возвращает полученное частное\./,
+      /Функция возвращает `scaled_mean` только при переполнении\s+полной потери группы или текущего значения `total`; иначе она делит `total` на\s+\$T\$ и возвращает полученное частное\./,
     );
     expect(englishLesson).not.toContain('target-count-scaled nonnegative contributions');
     expect(englishLesson).not.toContain('`total / T`');
@@ -120,8 +120,8 @@ describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
   });
 });
 
-describe('Chapter 12 checked group traversal', () => {
-  it('reuses checked group bases and class strides without per-class coordinates', () => {
+describe('Chapter 12 checked probability forward plan', () => {
+  it('computes group statistics at one shared call site and keeps public APIs lean', () => {
     const groupPlan = readRustRegion(probabilitySource, 'checked-probability-groups');
     const operations = readRustRegion(probabilitySource, 'stable-probability-operations');
 
@@ -130,19 +130,89 @@ describe('Chapter 12 checked group traversal', () => {
     expect(groupPlan).toContain('.projected_offsets(&self.group_shape, &self.group_strides, self.groups)');
     expect(groupPlan).toContain('input.value_at_storage_offset(input_offset)');
     expect(groupPlan).toContain('for class in 0..plan.classes');
+    expect(groupPlan).toContain('fn for_each_group(');
+    expect(groupPlan).toContain('struct FiniteLogits;');
+    expect(groupPlan).toContain('Result<FiniteLogits, ProbabilityError>');
+    expect(groupPlan).toContain('LogitFiniteness::Validated(_) => value');
     expect(groupPlan).toContain('skipped_one_maximum');
     expect(groupPlan).toContain('exponential_tail.ln_1p()');
+    expect(groupPlan.match(/\brow_stats\(/g)).toHaveLength(2);
     expect(groupPlan).not.toContain('input_coordinate');
     expect(groupPlan).not.toContain('TensorView::get');
     expect(groupPlan).not.toMatch(/\.(?:get|storage_offset)\(/);
 
-    expect(operations).toContain('plan.group_offsets(input)');
+    expect(operations).not.toContain('row_stats(');
+    expect(operations.match(/\.for_each_group\(/g)).toHaveLength(3);
     expect(operations).toContain('plan.output_group_offsets(&output_strides, output_len)');
-    expect(operations).toContain('values[output_offset] = positive_zero(value)');
+    expect(probabilitySource).toContain('struct NormalizedGroupOutput');
+    expect(operations).toContain('pub(crate) fn log_softmax_forward(');
+    expect(operations).toContain('pub(crate) fn indexed_mean_nll_forward(');
+    expect(operations).toContain('emit_probabilities: bool');
+    expect(operations).toContain(
+      'LogitFiniteness::Validated(validate_finite_logits(input, &plan)?)',
+    );
+    expect(operations).toContain(
+      'LogitFiniteness::Validated(validate_finite_logits(logits, &plan)?)',
+    );
+    const logSoftmaxValidation = operations.indexOf(
+      'LogitFiniteness::Validated(validate_finite_logits(input, &plan)?)',
+    );
+    const logSoftmaxAllocation = operations.indexOf(
+      'let mut probability_values = emit_probabilities',
+    );
+    const nllValidation = operations.indexOf(
+      'LogitFiniteness::Validated(validate_finite_logits(logits, &plan)?)',
+    );
+    const nllAllocation = operations.indexOf('let output_layout = emit_probabilities');
+    for (const position of [
+      logSoftmaxValidation,
+      logSoftmaxAllocation,
+      nllValidation,
+      nllAllocation,
+    ]) {
+      expect(position).toBeGreaterThanOrEqual(0);
+    }
+    expect(logSoftmaxValidation).toBeLessThan(logSoftmaxAllocation);
+    expect(nllValidation).toBeLessThan(nllAllocation);
     expect(operations).toContain('plan.target_offset(group_base, target)');
     expect(operations).not.toContain('input_coordinate');
     expect(operations).not.toContain('TensorView::get');
     expect(operations).not.toMatch(/\.(?:get|storage_offset)\(/);
+
+    expect([...probabilitySource.matchAll(/^pub fn (\w+)/gm)].map((match) => match[1])).toEqual([
+      'log_sum_exp',
+      'softmax',
+      'log_softmax',
+      'indexed_mean_nll',
+    ]);
+  });
+
+  it('teaches reusable facts without claiming one scalar scan or fused public calls', () => {
+    for (const source of [contract, englishLesson, russianLesson]) {
+      expect(source).toContain('$S=1+\\mathrm{tail}$');
+      expect(source).toContain('$\\ln S=\\ln(1+\\mathrm{tail})$');
+      expect(source).toContain('`softmax`');
+      expect(source).toContain('`log_softmax`');
+    }
+    const normalizedEnglish = englishLesson.replace(/\s+/g, ' ');
+    expect(normalizedEnglish).toContain(
+      'One forward request creates one checked axis-and-group plan and invokes the row-statistics calculation exactly once for each group.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Stable row statistics still require a maximum scan and a shifted-exponential scan, and producing class-wise output requires another class scan.',
+    );
+    expect(normalizedEnglish).toContain(
+      'calling `softmax` and then `log_softmax` remains two independent forward requests.',
+    );
+    expect(normalizedEnglish).toContain(
+      'The public functions do not expose the optional saved tensor; each returns only its documented result.',
+    );
+    expect(normalizedEnglish).toContain(
+      'The preliminary finite-input scan does not calculate either group statistic.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Because the tensor view cannot mutate its values, the maximum scan trusts that marker instead of checking the same values again.',
+    );
   });
 });
 

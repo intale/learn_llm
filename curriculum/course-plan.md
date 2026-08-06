@@ -1158,7 +1158,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `12-stable-softmax`
 - **Implementation step:** `implement-ch12-stable-softmax`
-- **Revision status:** Content revision 6 explains checked group-base cursors, source and output class strides, target offsets, and preserved three-pass order, then refreshes Russian directly from frozen English during `iterate-probability-groups-by-offset`; revision 5 and its exact indexed-mean fallback explanation remain recorded by `clarify-ch12-indexed-nll-accumulators`.
+- **Revision status:** Content revision 7 defines the maximum, shifted-exponential sum, and log-normalizer as reusable group facts; one checked forward request computes those facts once per group and can emit its lean result plus crate-private saved probabilities without a second normalization during `share-probability-forward-plan`. Revision 6's checked group-base cursor, source and output class strides, target offsets, and exact indexed-mean fallback remain in force.
 - **Depends on:** `11-matrix-multiplication`.
 - **Outcome:** Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.
 - **Scope boundary:** Teach logits, max shifting, log-sum-exp, softmax, log-softmax, indexed mean NLL, and edge behavior; defer gradient propagation.

@@ -24,7 +24,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '12-stable-softmax';
-const contentRevision = 6;
+const contentRevision = 7;
 const formulaLatex = String.raw`p_i=\frac{\exp(\ell_i-m)}{\sum_j\exp(\ell_j-m)}, \quad m=\max_j\ell_j`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -76,31 +76,40 @@ const copy = {
       'Bengio et al. describe an output softmax whose values are positive and sum to one, interpreting its inputs as unnormalized log probabilities for the next word.',
       "The Transformer reuses softmax for scaled query-key scores inside attention and for next-token predictions. OpenAI's published GPT-2 source shows a stable implementation for attention: subtract the maximum along the last axis before exponentiating, sum the shifted exponentials, and normalize before combining values.",
       "Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities. OpenAI's GPT-2 source implements last-axis softmax by subtracting the maximum with retained dimensions, exponentiating, and dividing by the sum with retained dimensions; its attention path applies that helper to scaled masked scores before combining values. The source names those reductions reduce_max and reduce_sum.",
-      "In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows; log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when an ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.",
+      "In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows. Log-sum-exp supplies the stable log-normalizer; log-softmax retains class scores in the log domain, and fused indexed mean NLL retains a target loss when the corresponding ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.",
     ],
     implementationHeading: 'Implement checked log-domain operations',
     implementationClaims: [
+      'Tensor-returning operations check their output layout and reserve output storage before reading logits. Indexed NLL instead checks group layout, target count, a nonempty mean, and every target bound before reading any logit.',
       "Each value emitted by that cursor is the zero-based offset of class zero in one normalization group, measured in f64 elements from the start of the tensor owner's flat storage. This chapter calls that value the group-base offset.",
       'Removing that axis leaves group shape [3] and group stride [2], so the group-base cursor emits offsets [0,2,4].',
+      'One forward request creates one checked axis-and-group plan and invokes the row-statistics calculation exactly once for each group.',
+      'The crate-private log_softmax_forward and indexed_mean_nll_forward helpers may emit probabilities alongside their primary result so a later backward gradient calculation can reuse them without normalizing the logits again.',
+      'The public functions do not expose the optional saved tensor; each returns only its documented result.',
+      'The preliminary finite-input scan does not calculate either group statistic.',
+      'A successful preliminary scan returns a private FiniteLogits marker.',
+      'Because the tensor view cannot mutate its values, the maximum scan trusts that marker instead of checking the same values again.',
+      'Stable row statistics still require a maximum scan and a shifted-exponential scan, and producing class-wise output requires another class scan.',
+      'calling softmax and then log_softmax remains two independent forward requests.',
       'No numerical pass constructs a class coordinate vector or calls TensorView::get once per scalar.',
       'For T targets, fused indexed mean NLL keeps two accumulators.',
-      'If every row loss and the running sum remain finite, the function divides total by T once and returns the mean in nats per target; this single final division preserves representable subnormal mean rounding.',
-      'In parallel, the fallback scaled_mean adds the two nonnegative parts of each row loss after dividing each part by T:',
-      'The function returns scaled_mean only when a complete row loss or the running value of total overflows; otherwise it divides total by T and returns that quotient.',
+      'If every group loss and the running sum remain finite, the function divides total by T once and returns the mean in nats per target; this single final division preserves representable subnormal mean rounding.',
+      'In parallel, the fallback scaled_mean adds the two nonnegative parts of each group loss after dividing each part by T:',
+      'The function returns scaled_mean only when a complete group loss or the running value of total overflows; otherwise it divides total by T and returns that quotient.',
     ],
     rustCaptions: [
       'Expose raw-exponential normalization for one ordinary and two extreme finite rows',
       'Keep axes, empty classes, outputs, non-finite logits, and indexed targets distinct',
-      'Plan group-base offsets and reuse one class stride across every numerical pass',
-      'Normalize checked groups and score indexed targets without avoidable numerical overflow',
+      'Compute one reusable statistics bundle for each checked normalization group',
+      'Emit requested probability results from one checked group traversal',
       'Run every checked probability operation over the shared three-row example',
       'Prepare stable outputs, raw failure statuses, target loss, invariance, and typed errors',
     ],
     rustLabels: [
       'Rust source implementing the bounded direct softmax baseline used to reveal finite-precision overflow and underflow',
       'Rust source defining Chapter 12 stable probability and indexed negative-log-likelihood errors',
-      'Rust source implementing the checked Chapter 12 group-base cursor, class-stride traversal, and two-pass row statistics',
-      'Rust source implementing arbitrary-axis log-sum-exp, softmax, log-softmax, and fused indexed mean negative log-likelihood',
+      'Rust source implementing the checked Chapter 12 group-base cursor, class-stride traversal, and one row-statistics calculation per group',
+      'Rust source implementing arbitrary-axis log-sum-exp, softmax, log-softmax, fused indexed mean negative log-likelihood, and optional saved probabilities',
       'Rust source constructing the complete Chapter 12 stable softmax example',
       'Rust source running the Chapter 12 learner example before printing its exact deterministic output',
     ],
@@ -124,6 +133,7 @@ const copy = {
       'Predict log-sum-exp output shapes for input [2,3,4], axis 1, with and without keep_dim.',
       'Decide which empty-class operation has a defined identity.',
       'For shape [3,2], source strides [2,1], and class axis 1, list the three group-base offsets and the two source offsets read in each group.',
+      'Suppose one training operation must return log-softmax values and retain softmax probabilities for its backward gradient calculation. Which group-wide facts can both results share, and which class-wise work still remains?',
       'Misconception check: does maximum shifting itself turn logits into probabilities?',
     ],
     exerciseAnswers: [
@@ -135,14 +145,15 @@ const copy = {
       'Removing axis one gives [2,4]; retaining it gives [2,1,4].',
       'Log-sum-exp returns the log-additive identity negative infinity. A softmax distribution, log-softmax distribution, and indexed target loss need at least one class.',
       'Removing class axis 1 leaves group stride [2], so the group bases are [0,2,4]. Class stride 1 gives source offsets [0,1], [2,3], and [4,5].',
+      'Both results share the already computed maximum m, shifted-exponential sum S, and log-normalizer \\ln S. One class scan can emit both values from those facts. The operation does not repeat the maximum or shifted-sum calculation, but it still visits every class to write the requested outputs.',
       'No. The shift only stabilizes relative logits. Exponentiation and division by the complete shifted sum produce probabilities.',
     ],
   },
   ru: {
     revisionLabel: 'Версия материала',
-    chapterTitle: 'Преобразуйте экстремальные логиты в устойчивые вероятности',
+    chapterTitle: 'Преобразуйте большие по модулю логиты в устойчивые вероятности',
     chapterDescription:
-      'Преобразуйте логиты словаря и внимания в устойчивые вероятности, логарифмы вероятностей, значения log-sum-exp и среднее NLL по целевым индексам с помощью Rust без сторонних зависимостей.',
+      'Преобразуйте логиты словаря и внимания в устойчивые вероятности, логарифмы вероятностей, значения log-sum-exp и среднее NLL по целевым индексам на Rust без сторонних зависимостей.',
     headings: [
       'Предскажите результат сдвига трёх строк',
       'Нормируйте после вычитания максимума',
@@ -159,31 +170,40 @@ const copy = {
       'Бенжио и соавторы описывают softmax на выходе: его положительные значения в сумме дают единицу, а входные значения интерпретируются как ненормированные логарифмы вероятностей следующего слова.',
       'Transformer использует softmax и для масштабированных оценок «запрос — ключ» внутри механизма внимания, и для предсказания следующего токена. В опубликованном коде GPT-2 для внимания используется устойчивый вариант: перед экспоненцированием из оценок по последней оси вычитают максимум, затем складывают сдвинутые экспоненты и нормируют их, прежде чем взвешивать значения.',
       'Васвани и соавторы определяют внимание на основе масштабированного скалярного произведения: к масштабированным произведениям запросов и ключей применяют softmax, после чего полученными весами взвешивают значения. Для получения вероятностей следующего токена к выходам декодера применяют обучаемое линейное преобразование и softmax. В исходном коде GPT-2 от OpenAI softmax по последней оси вычисляется так: максимум вычитается с сохранением оси единичного размера, затем значения экспоненцируются и делятся на сумму, вычисленную с таким же сохранением оси. В механизме внимания эта функция применяется к масштабированным и замаскированным оценкам до объединения значений. В коде эти операции обозначены как reduce_max и reduce_sum.',
-      'В точной арифметике softmax не меняется, если прибавить одну и ту же константу ко всем логитам. Вычитание максимума сохраняет распределение и предотвращает сбои прямого экспоненцирования на строках примера. Log-sum-exp, log-softmax и совмещённое вычисление среднего NLL по индексам целевых классов сохраняют в логарифмической шкале сведения, необходимые для обучения, даже когда обычная вероятность округляется до нуля. Поддержка произвольной оси, требование конечных входов, расположение целей, правила выделения памяти и порядок ошибок — правила, выбранные для этой реализации.',
+      'В точной арифметике прибавление одной и той же константы ко всем логитам не меняет результат softmax. Вычитание максимума сохраняет это распределение и позволяет избежать сбоев прямого экспоненцирования для строк примера. Log-sum-exp даёт численно устойчивый логарифм нормирующей суммы; log-softmax сохраняет оценки классов в логарифмической шкале, а совмещённое вычисление среднего NLL по индексам позволяет вычислить потерю для целевого класса, даже если соответствующая обычная вероятность округляется до нуля. Интерфейс для произвольной оси, требование конечных входов, схема расположения целей, правила выделения памяти и порядок ошибок — решения о корректности, принятые в реализации курса.',
     ],
     implementationHeading: 'Реализуйте вычисления в логарифмической шкале с явными проверками',
     implementationClaims: [
+      'Операции, возвращающие тензор, до чтения логитов проверяют схему размещения результата и резервируют для него память. Операция среднего NLL по индексам вместо этого проверяет схему групп, соответствие числа целей числу групп, наличие хотя бы одной цели и границы всех целевых индексов до чтения любого логита.',
       'Каждое значение этого курсора — отсчитываемое от нуля смещение элемента класса 0 в одной группе нормализации относительно начала плоского буфера исходного тензора.',
       'После её удаления остаются форма групп [3] и шаг групп [2], поэтому курсор выдаёт базовые смещения [0,2,4].',
+      'Каждый вызов прямого прохода создаёт один проверенный план оси и групп и ровно один раз для каждой группы вычисляет её статистики.',
+      'Доступные только внутри крейта вспомогательные функции log_softmax_forward и indexed_mean_nll_forward могут вместе с основным результатом сформировать вероятности, чтобы последующее вычисление градиента при обратном проходе использовало их без повторной нормализации логитов.',
+      'Общедоступные функции не возвращают этот дополнительный тензор вероятностей; каждая из них возвращает только результат, указанный в её интерфейсе.',
+      'Предварительный проход проверяет только конечность входных значений и не вычисляет ни одну из этих статистик.',
+      'Успешная проверка возвращает служебный маркер FiniteLogits, который нельзя создать извне этого модуля.',
+      'Поскольку через представление тензора нельзя изменить значения, проход поиска максимума полагается на подтверждённую этим маркером конечность и не проверяет те же логиты повторно.',
+      'Для устойчивого вычисления статистик группы всё равно нужны проход поиска максимума и отдельный проход суммирования сдвинутых экспонент; для записи значений по классам нужен ещё один проход по классам.',
+      'softmax, а затем log_softmax — это два независимых вызова прямого прохода.',
       'Ни один численный проход не создаёт вектор координат класса и не вызывает TensorView::get для каждого скаляра.',
       'Для T целей совмещённое вычисление среднего NLL по индексам ведёт два накопителя.',
-      'Если каждая потеря и текущая сумма остаются конечными, функция один раз делит total на T и возвращает среднее в натах на одну цель. Благодаря единственному делению в конце представимое субнормальное значение среднего округляется корректно.',
-      'Параллельно запасной накопитель scaled_mean складывает две части каждой потери после того, как каждая часть поделена на T:',
-      'Функция возвращает scaled_mean только тогда, когда полная потеря строки или текущее значение total переполняется; в остальных случаях она делит total на T и возвращает полученное частное.',
+      'Если потери всех групп и текущая сумма остаются конечными, функция один раз делит total на T и возвращает среднее в натах на одну цель. Благодаря единственному делению в конце сохраняется корректное округление представимого субнормального среднего.',
+      'Параллельно запасной накопитель scaled_mean складывает две неотрицательные части потери каждой группы, предварительно разделив каждую часть на T:',
+      'Функция возвращает scaled_mean только при переполнении полной потери группы или текущего значения total; иначе она делит total на T и возвращает полученное частное.',
     ],
     rustCaptions: [
-      'Показать прямую нормализацию экспонент для одной обычной и двух экстремальных строк с конечными значениями',
+      'Показать прямую нормализацию экспонент для одной обычной строки и двух строк с большими по модулю конечными значениями',
       'Различать ошибки осей, пустых классов, результата, неконечных логитов и целевых индексов',
-      'Вычислить базовые смещения групп и использовать один шаг по оси классов во всех численных проходах',
-      'Нормировать проверенные группы и вычислять потери по индексам целей без устранимого численного переполнения',
+      'Один раз вычислить повторно используемый набор статистик для каждой проверенной группы нормализации',
+      'Сформировать запрошенные вероятностные результаты за один проверенный обход групп',
       'Выполнить все проверяемые вероятностные операции над общим примером из трёх строк',
       'Подготовить устойчивые результаты, признаки сбоев прямого вычисления, потерю цели, инвариантность и типизированные ошибки',
     ],
     rustLabels: [
       'Код на Rust с прямым вариантом softmax, который показывает переполнение и округление до нуля при вычислениях с конечной точностью',
       'Код на Rust, определяющий ошибки устойчивых вероятностных операций и отрицательного логарифмического правдоподобия по индексам в главе 12',
-      'Код на Rust, реализующий проверяемый курсор базовых смещений групп, обход с шагом по оси классов и два прохода для вычисления статистик группы в главе 12',
-      'Код на Rust, реализующий log-sum-exp, softmax, log-softmax и совмещённое вычисление среднего отрицательного логарифмического правдоподобия по целевым индексам вдоль произвольной оси',
+      'Код на Rust, реализующий курсор с проверенными границами для базовых смещений групп, обход с шагом по оси классов и однократное вычисление статистик каждой группы в главе 12',
+      'Код на Rust, реализующий log-sum-exp, softmax, log-softmax и совмещённое вычисление среднего отрицательного логарифмического правдоподобия по индексам вдоль произвольной оси, а также, при необходимости, дополнительный тензор вероятностей для обратного прохода',
       'Код на Rust, создающий полный пример устойчивого softmax для главы 12',
       'Код на Rust, запускающий учебный пример главы 12 перед выводом точного воспроизводимого результата',
     ],
@@ -207,6 +227,7 @@ const copy = {
       'Предскажите формы результата log-sum-exp для входа [2,3,4] и оси 1 при выключенном и включённом keep_dim.',
       'У какой операции над пустой осью классов определён нейтральный элемент?',
       'Для формы [3,2], шагов исходного тензора [2,1] и оси классов 1 перечислите три базовых смещения групп и два смещения в исходном хранилище, которые читаются для каждой группы.',
+      'Пусть во время обучения одна операция должна вернуть значения log-softmax и сохранить вероятности softmax для последующего вычисления градиента при обратном проходе. Какие величины, общие для всей группы, можно использовать для обоих результатов? Какую работу по каждому классу всё равно потребуется выполнить?',
       'Проверка заблуждения: превращает ли само вычитание максимума логиты в вероятности?',
     ],
     exerciseAnswers: [
@@ -214,11 +235,12 @@ const copy = {
       'Нет. Одна и та же прибавка изменяет максимум на такую же величину, поэтому обе разности после вычитания остаются прежними.',
       'Обе исходные экспоненты переполняются до бесконечности, поэтому каждая вероятность вычисляется как отношение бесконечности к бесконечности.',
       'У одинаковых сдвинутых логитов равны экспоненты, поэтому обе вероятности равны 0.5.',
-      'Логарифм вероятности класса ноль равен -1.313261687518, поэтому NLL равно 1.313261687518.',
+      'Логарифм вероятности класса ноль равен -1.313261687518, поэтому значение NLL равно 1.313261687518.',
       'После удаления оси с индексом 1 получается [2,4], а после её сохранения — [2,1,4].',
       'Log-sum-exp возвращает нейтральный элемент логарифмического сложения — отрицательную бесконечность. Для распределений softmax и log-softmax, а также для потери по целевому индексу нужен хотя бы один класс.',
       'После удаления оси классов 1 остаётся шаг групп [2], поэтому базовые смещения равны [0,2,4]. Шаг по оси классов равен 1, и три группы читают элементы со смещениями [0,1], [2,3] и [4,5].',
-      'Нет. Вычитание максимума лишь переводит логиты в численно безопасный диапазон, сохраняя разности между ними. Вероятности появляются после экспоненцирования и деления на полную сумму сдвинутых экспонент.',
+      'Для обоих результатов используются уже вычисленные максимум m, сумма сдвинутых экспонент S и логарифм нормирующей суммы \\ln S. За один проход по классам из этих величин можно сформировать оба запрошенных результата. Повторно искать максимум или сумму сдвинутых экспонент не нужно, но каждый класс всё равно требуется посетить, чтобы записать значения результатов.',
+      'Нет. Вычитание максимума лишь делает вычисление относительных различий между логитами численно устойчивее; само вычитание не превращает эти значения в вероятности. Вероятности получаются после экспоненцирования и деления на сумму всех сдвинутых экспонент.',
     ],
   },
 } satisfies Record<ChapterLocale, LocalizedCopy>;
@@ -489,7 +511,13 @@ async function expectChapterContent(
   await expect(exerciseDetails.locator('summary')).toHaveText(localized.exerciseSummary);
   await exerciseDetails.locator('summary').click();
   await expect(exerciseDetails).toHaveAttribute('open', '');
-  await expect(exerciseDetails.locator('ol > li')).toHaveText(localized.exerciseAnswers);
+  const exerciseAnswers = exerciseDetails.locator('ol > li');
+  await expect(exerciseAnswers).toHaveCount(localized.exerciseAnswers.length);
+  expect(
+    await Promise.all(
+      localized.exerciseAnswers.map((_, index) => readMathAwareText(exerciseAnswers.nth(index))),
+    ),
+  ).toEqual(localized.exerciseAnswers);
 
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);

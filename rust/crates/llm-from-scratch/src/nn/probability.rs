@@ -125,6 +125,15 @@ struct RowStats {
     log_shifted_exponential_sum: f64,
 }
 
+#[derive(Clone, Copy, Debug)]
+struct FiniteLogits;
+
+#[derive(Clone, Copy, Debug)]
+enum LogitFiniteness {
+    Check,
+    Validated(FiniteLogits),
+}
+
 impl AxisPlan {
     fn new(
         input: &TensorView<'_>,
@@ -185,6 +194,19 @@ impl AxisPlan {
             .checked_add(class_offset)
             .expect("a checked probability plan cannot overflow a target offset")
     }
+
+    fn for_each_group(
+        &self,
+        input: &TensorView<'_>,
+        finiteness: LogitFiniteness,
+        mut visit: impl FnMut(usize, usize, RowStats) -> Result<(), ProbabilityError>,
+    ) -> Result<(), ProbabilityError> {
+        for (group, group_base) in self.group_offsets(input).enumerate() {
+            let stats = row_stats(input, self, finiteness, group, group_base)?;
+            visit(group, group_base, stats)?;
+        }
+        Ok(())
+    }
 }
 
 fn checked_finite_logit(value: f64, group: usize, class: usize) -> Result<f64, ProbabilityError> {
@@ -199,9 +221,28 @@ fn checked_finite_logit(value: f64, group: usize, class: usize) -> Result<f64, P
     }
 }
 
+fn validate_finite_logits(
+    input: &TensorView<'_>,
+    plan: &AxisPlan,
+) -> Result<FiniteLogits, ProbabilityError> {
+    for (group, group_base) in plan.group_offsets(input).enumerate() {
+        let mut input_offset = group_base;
+        for class in 0..plan.classes {
+            checked_finite_logit(input.value_at_storage_offset(input_offset), group, class)?;
+            if class + 1 < plan.classes {
+                input_offset = input_offset
+                    .checked_add(plan.class_stride)
+                    .expect("a checked probability plan cannot overflow along the class axis");
+            }
+        }
+    }
+    Ok(FiniteLogits)
+}
+
 fn row_stats(
     input: &TensorView<'_>,
     plan: &AxisPlan,
+    finiteness: LogitFiniteness,
     group: usize,
     group_base: usize,
 ) -> Result<RowStats, ProbabilityError> {
@@ -209,8 +250,11 @@ fn row_stats(
     let mut maximum = f64::NEG_INFINITY;
     let mut input_offset = group_base;
     for class in 0..plan.classes {
-        let value =
-            checked_finite_logit(input.value_at_storage_offset(input_offset), group, class)?;
+        let value = input.value_at_storage_offset(input_offset);
+        let value = match finiteness {
+            LogitFiniteness::Check => checked_finite_logit(value, group, class)?,
+            LogitFiniteness::Validated(_) => value,
+        };
         maximum = maximum.max(value);
         if class + 1 < plan.classes {
             input_offset = input_offset
@@ -246,6 +290,7 @@ fn row_stats(
 }
 // endregion:checked-probability-groups
 
+// region:stable-probability-operations
 fn output_buffer(elements: usize) -> Result<Vec<f64>, ProbabilityError> {
     let mut values = Vec::new();
     values
@@ -259,7 +304,67 @@ fn positive_zero(value: f64) -> f64 {
     if value == 0.0 { 0.0 } else { value }
 }
 
-// region:stable-probability-operations
+/// Requested normalized values emitted by one checked forward traversal.
+#[derive(Debug)]
+struct NormalizedForward {
+    probabilities: Option<Tensor>,
+    log_probabilities: Option<Tensor>,
+}
+
+/// Log-softmax output and optional probabilities from the same forward traversal.
+#[derive(Debug)]
+pub(crate) struct LogSoftmaxForward {
+    pub(crate) value: Tensor,
+    pub(crate) probabilities: Option<Tensor>,
+}
+
+/// Indexed mean NLL and optional probabilities emitted by its forward traversal.
+#[derive(Debug)]
+pub(crate) struct IndexedMeanNllForward {
+    pub(crate) loss: f64,
+    pub(crate) probabilities: Option<Tensor>,
+}
+
+struct NormalizedGroupOutput<'a> {
+    output_group_base: usize,
+    output_class_stride: usize,
+    probabilities: Option<&'a mut [f64]>,
+    log_probabilities: Option<&'a mut [f64]>,
+}
+
+impl NormalizedGroupOutput<'_> {
+    fn emit(
+        mut self,
+        input: &TensorView<'_>,
+        plan: &AxisPlan,
+        input_group_base: usize,
+        stats: RowStats,
+    ) {
+        debug_assert!(self.probabilities.is_some() || self.log_probabilities.is_some());
+        let mut input_offset = input_group_base;
+        let mut output_offset = self.output_group_base;
+        for class in 0..plan.classes {
+            let shifted = input.value_at_storage_offset(input_offset) - stats.maximum;
+            if let Some(values) = self.probabilities.as_mut() {
+                values[output_offset] =
+                    positive_zero(shifted.exp() / stats.shifted_exponential_sum);
+            }
+            if let Some(values) = self.log_probabilities.as_mut() {
+                values[output_offset] = positive_zero(shifted - stats.log_shifted_exponential_sum);
+            }
+
+            if class + 1 < plan.classes {
+                input_offset = input_offset
+                    .checked_add(plan.class_stride)
+                    .expect("a checked probability plan cannot overflow along the class axis");
+                output_offset = output_offset
+                    .checked_add(self.output_class_stride)
+                    .expect("a checked probability output cannot overflow along the class axis");
+            }
+        }
+    }
+}
+
 /// Reduces one axis with max-shifted log-sum-exp.
 ///
 /// An empty selected axis returns the log-additive identity, negative infinity,
@@ -285,12 +390,14 @@ pub fn log_sum_exp(
     if plan.classes == 0 {
         values.fill(f64::NEG_INFINITY);
     } else {
-        for ((group, output), group_base) in
-            values.iter_mut().enumerate().zip(plan.group_offsets(input))
-        {
-            let stats = row_stats(input, &plan, group, group_base)?;
-            *output = stats.maximum + stats.log_shifted_exponential_sum;
-        }
+        plan.for_each_group(
+            input,
+            LogitFiniteness::Check,
+            |group, _group_base, stats| {
+                values[group] = stats.maximum + stats.log_shifted_exponential_sum;
+                Ok(())
+            },
+        )?;
     }
 
     Tensor::from_vec(output_shape, values).map_err(Into::into)
@@ -298,54 +405,81 @@ pub fn log_sum_exp(
 
 /// Converts finite logits to normalized probabilities along one explicit axis.
 pub fn softmax(input: &TensorView<'_>, axis: usize) -> Result<Tensor, ProbabilityError> {
-    normalized(input, axis, false)
+    let forward = normalized_forward(input, axis, true, false)?;
+    Ok(forward
+        .probabilities
+        .expect("softmax requests a probability output"))
 }
 
 /// Converts finite logits to normalized log-probabilities along one explicit axis.
 pub fn log_softmax(input: &TensorView<'_>, axis: usize) -> Result<Tensor, ProbabilityError> {
-    normalized(input, axis, true)
+    let forward = log_softmax_forward(input, axis, false)?;
+    debug_assert!(forward.probabilities.is_none());
+    Ok(forward.value)
 }
 
-fn normalized(
+pub(crate) fn log_softmax_forward(
     input: &TensorView<'_>,
     axis: usize,
-    logarithmic: bool,
-) -> Result<Tensor, ProbabilityError> {
+    emit_probabilities: bool,
+) -> Result<LogSoftmaxForward, ProbabilityError> {
+    let forward = normalized_forward(input, axis, emit_probabilities, true)?;
+    Ok(LogSoftmaxForward {
+        value: forward
+            .log_probabilities
+            .expect("log-softmax forward requests a log-probability output"),
+        probabilities: forward.probabilities,
+    })
+}
+
+fn normalized_forward(
+    input: &TensorView<'_>,
+    axis: usize,
+    emit_probabilities: bool,
+    emit_log_probabilities: bool,
+) -> Result<NormalizedForward, ProbabilityError> {
+    debug_assert!(emit_probabilities || emit_log_probabilities);
     let plan = AxisPlan::new(input, axis, false)?;
     let (output_strides, output_len) = checked_row_major_layout(input.shape())?;
-    let mut values = output_buffer(output_len)?;
+    let mut log_probability_values = emit_log_probabilities
+        .then(|| output_buffer(output_len))
+        .transpose()?;
+    let finiteness = if emit_probabilities && emit_log_probabilities {
+        LogitFiniteness::Validated(validate_finite_logits(input, &plan)?)
+    } else {
+        LogitFiniteness::Check
+    };
+    let mut probability_values = emit_probabilities
+        .then(|| output_buffer(output_len))
+        .transpose()?;
     let output_class_stride = output_strides[axis];
 
-    let input_group_offsets = plan.group_offsets(input);
-    let output_group_offsets = plan.output_group_offsets(&output_strides, output_len);
-    for (group, (input_group_base, output_group_base)) in
-        input_group_offsets.zip(output_group_offsets).enumerate()
-    {
-        let stats = row_stats(input, &plan, group, input_group_base)?;
-        let log_denominator = stats.log_shifted_exponential_sum;
-        let mut input_offset = input_group_base;
-        let mut output_offset = output_group_base;
-        for class in 0..plan.classes {
-            let shifted = input.value_at_storage_offset(input_offset) - stats.maximum;
-            let value = if logarithmic {
-                shifted - log_denominator
-            } else {
-                shifted.exp() / stats.shifted_exponential_sum
-            };
-            values[output_offset] = positive_zero(value);
-
-            if class + 1 < plan.classes {
-                input_offset = input_offset
-                    .checked_add(plan.class_stride)
-                    .expect("a checked probability plan cannot overflow along the class axis");
-                output_offset = output_offset
-                    .checked_add(output_class_stride)
-                    .expect("a checked probability output cannot overflow along the class axis");
-            }
+    let mut output_group_offsets = plan.output_group_offsets(&output_strides, output_len);
+    plan.for_each_group(input, finiteness, |_group, input_group_base, stats| {
+        let output_group_base = output_group_offsets
+            .next()
+            .expect("a checked probability output has one base per input group");
+        NormalizedGroupOutput {
+            output_group_base,
+            output_class_stride,
+            probabilities: probability_values.as_deref_mut(),
+            log_probabilities: log_probability_values.as_deref_mut(),
         }
-    }
+        .emit(input, &plan, input_group_base, stats);
+        Ok(())
+    })?;
+    debug_assert!(output_group_offsets.next().is_none());
 
-    Tensor::from_vec(input.shape().to_vec(), values).map_err(Into::into)
+    let log_probabilities = log_probability_values
+        .map(|values| Tensor::from_vec(input.shape().to_vec(), values))
+        .transpose()?;
+    let probabilities = probability_values
+        .map(|values| Tensor::from_vec(input.shape().to_vec(), values))
+        .transpose()?;
+    Ok(NormalizedForward {
+        probabilities,
+        log_probabilities,
+    })
 }
 
 /// Scores one class index per remaining-axis group with fused stable mean NLL.
@@ -357,6 +491,17 @@ pub fn indexed_mean_nll(
     axis: usize,
     targets: &[usize],
 ) -> Result<f64, ProbabilityError> {
+    let forward = indexed_mean_nll_forward(logits, axis, targets, false)?;
+    debug_assert!(forward.probabilities.is_none());
+    Ok(forward.loss)
+}
+
+pub(crate) fn indexed_mean_nll_forward(
+    logits: &TensorView<'_>,
+    axis: usize,
+    targets: &[usize],
+    emit_probabilities: bool,
+) -> Result<IndexedMeanNllForward, ProbabilityError> {
     let plan = AxisPlan::new(logits, axis, false)?;
     if targets.len() != plan.groups {
         return Err(ProbabilityError::TargetCountMismatch {
@@ -377,13 +522,32 @@ pub fn indexed_mean_nll(
         }
     }
 
+    let finiteness = if emit_probabilities {
+        LogitFiniteness::Validated(validate_finite_logits(logits, &plan)?)
+    } else {
+        LogitFiniteness::Check
+    };
+
+    let output_layout = emit_probabilities
+        .then(|| checked_row_major_layout(logits.shape()))
+        .transpose()?;
+    let mut probability_values = output_layout
+        .as_ref()
+        .map(|(_, output_len)| output_buffer(*output_len))
+        .transpose()?;
+    let mut output_group_offsets = output_layout
+        .as_ref()
+        .map(|(output_strides, output_len)| plan.output_group_offsets(output_strides, *output_len));
+    let output_class_stride = output_layout
+        .as_ref()
+        .map(|(output_strides, _)| output_strides[axis]);
+
     let mut total = 0.0;
     let mut scaled_mean = 0.0;
     let mut needs_scaled_fallback = false;
     let target_count = targets.len() as f64;
-    for ((group, &target), group_base) in targets.iter().enumerate().zip(plan.group_offsets(logits))
-    {
-        let stats = row_stats(logits, &plan, group, group_base)?;
+    plan.for_each_group(logits, finiteness, |group, group_base, stats| {
+        let target = targets[group];
         let target_logit = logits.value_at_storage_offset(plan.target_offset(group_base, target));
         let gap = stats.maximum - target_logit;
         let scaled_gap = if gap.is_finite() {
@@ -402,12 +566,41 @@ pub fn indexed_mean_nll(
         } else {
             needs_scaled_fallback = true;
         }
-    }
-    Ok(positive_zero(if needs_scaled_fallback {
+
+        if let Some(values) = probability_values.as_deref_mut() {
+            let output_group_base = output_group_offsets
+                .as_mut()
+                .and_then(Iterator::next)
+                .expect("a checked probability output has one base per input group");
+            NormalizedGroupOutput {
+                output_group_base,
+                output_class_stride: output_class_stride
+                    .expect("a requested probability output has a class stride"),
+                probabilities: Some(values),
+                log_probabilities: None,
+            }
+            .emit(logits, &plan, group_base, stats);
+        }
+        Ok(())
+    })?;
+    debug_assert!(
+        output_group_offsets
+            .as_mut()
+            .is_none_or(|offsets| offsets.next().is_none())
+    );
+
+    let loss = positive_zero(if needs_scaled_fallback {
         scaled_mean
     } else {
         total / target_count
-    }))
+    });
+    let probabilities = probability_values
+        .map(|values| Tensor::from_vec(logits.shape().to_vec(), values))
+        .transpose()?;
+    Ok(IndexedMeanNllForward {
+        loss,
+        probabilities,
+    })
 }
 // endregion:stable-probability-operations
 
@@ -425,11 +618,32 @@ mod tests {
         tensor(&[3, 2], &[0.0, 1.0, 1000.0, 1001.0, -1001.0, -1000.0])
     }
 
+    fn gapped_probability_source() -> Tensor {
+        tensor(
+            &[2, 3, 3],
+            &[
+                99.0, 0.0, 10.0, 99.0, 1.0, 11.0, 99.0, 2.0, 12.0, 99.0, 1000.0, -1001.0, 99.0,
+                1001.0, -1000.0, 99.0, 1002.0, -999.0,
+            ],
+        )
+    }
+
     fn assert_close(actual: f64, expected: f64) {
         assert!(
             (actual - expected).abs() <= TOLERANCE,
             "expected {expected:.15}, got {actual:.15}"
         );
+    }
+
+    fn assert_same_bits(actual: &[f64], expected: &[f64]) {
+        assert_eq!(actual.len(), expected.len());
+        for (position, (&actual, &expected)) in actual.iter().zip(expected).enumerate() {
+            assert_eq!(
+                actual.to_bits(),
+                expected.to_bits(),
+                "f64 bits differ at flat position {position}"
+            );
+        }
     }
 
     #[test]
@@ -593,14 +807,144 @@ mod tests {
     }
 
     #[test]
-    fn nonzero_gapped_group_bases_reuse_one_class_stride() {
-        let padded = tensor(
-            &[2, 3, 3],
-            &[
-                99.0, 0.0, 10.0, 99.0, 1.0, 11.0, 99.0, 2.0, 12.0, 99.0, 1000.0, -1001.0, 99.0,
-                1001.0, -1000.0, 99.0, 1002.0, -999.0,
-            ],
+    fn checked_group_driver_computes_one_statistics_bundle_per_group() {
+        let padded = gapped_probability_source();
+        let logits = padded.view().slice(2, 1..3).unwrap();
+        let plan = AxisPlan::new(&logits, 1, false).unwrap();
+        let mut visits = Vec::new();
+
+        plan.for_each_group(
+            &logits,
+            LogitFiniteness::Check,
+            |group, group_base, stats| {
+                visits.push((group, group_base, stats.maximum));
+                Ok(())
+            },
+        )
+        .unwrap();
+
+        assert_eq!(
+            visits,
+            [(0, 1, 2.0), (1, 2, 12.0), (2, 10, 1002.0), (3, 11, -999.0),]
         );
+    }
+
+    #[test]
+    fn one_normalized_forward_can_emit_log_values_and_saved_probabilities() {
+        let padded = gapped_probability_source();
+        let logits = padded.view().slice(2, 1..3).unwrap();
+        let combined = log_softmax_forward(&logits, 1, true).unwrap();
+        let probabilities = combined.probabilities.unwrap();
+        let log_probabilities = combined.value;
+        let separate_probabilities = softmax(&logits, 1).unwrap();
+        let separate_log_probabilities = log_softmax(&logits, 1).unwrap();
+
+        assert_eq!(probabilities.shape(), logits.shape());
+        assert_eq!(probabilities.strides(), [6, 2, 1]);
+        assert_eq!(log_probabilities.shape(), logits.shape());
+        assert_eq!(log_probabilities.strides(), [6, 2, 1]);
+        assert_same_bits(probabilities.as_slice(), separate_probabilities.as_slice());
+        assert_same_bits(
+            log_probabilities.as_slice(),
+            separate_log_probabilities.as_slice(),
+        );
+
+        for logits in [
+            tensor(&[1, 2], &[0.0, -1000.0]),
+            tensor(&[1, 2], &[f64::MAX, f64::MAX]),
+            tensor(&[2, 1], &[0.0, -0.0]),
+        ] {
+            let combined = log_softmax_forward(&logits.view(), 1, true).unwrap();
+            assert_same_bits(
+                combined.probabilities.unwrap().as_slice(),
+                softmax(&logits.view(), 1).unwrap().as_slice(),
+            );
+            assert_same_bits(
+                combined.value.as_slice(),
+                log_softmax(&logits.view(), 1).unwrap().as_slice(),
+            );
+        }
+    }
+
+    #[test]
+    fn indexed_nll_forward_can_emit_exact_saved_probabilities() {
+        let cases = [
+            (fixture(), 1, vec![1, 0, 1]),
+            (
+                tensor(&[2, 2], &[0.0, 1.0e308, 0.0, 1.0e308]),
+                1,
+                vec![0, 0],
+            ),
+            (
+                tensor(&[3, 2], &[-f64::MAX, f64::MAX, 0.0, 0.0, 0.0, 0.0]),
+                1,
+                vec![0, 0, 0],
+            ),
+            (tensor(&[2, 2], &[0.0, -745.0, 0.0, -745.0]), 1, vec![0, 0]),
+            (tensor(&[1, 2], &[0.0, -1000.0]), 1, vec![1]),
+            (tensor(&[2, 1], &[f64::MAX, -f64::MAX]), 1, vec![0, 0]),
+            (tensor(&[2, 1], &[0.0, -0.0]), 1, vec![0, 0]),
+        ];
+
+        for (logits, axis, targets) in cases {
+            let combined = indexed_mean_nll_forward(&logits.view(), axis, &targets, true).unwrap();
+            let separate_loss = indexed_mean_nll(&logits.view(), axis, &targets).unwrap();
+            let separate_probabilities = softmax(&logits.view(), axis).unwrap();
+            let saved_probabilities = combined.probabilities.unwrap();
+
+            assert_eq!(combined.loss.to_bits(), separate_loss.to_bits());
+            assert_same_bits(
+                saved_probabilities.as_slice(),
+                separate_probabilities.as_slice(),
+            );
+            assert_eq!(saved_probabilities.shape(), logits.shape());
+            assert!(saved_probabilities.view().is_contiguous());
+        }
+
+        let padded = gapped_probability_source();
+        let logits = padded.view().slice(2, 1..3).unwrap();
+        let targets = [2, 1, 0, 2];
+        let combined = indexed_mean_nll_forward(&logits, 1, &targets, true).unwrap();
+        let separate_loss = indexed_mean_nll(&logits, 1, &targets).unwrap();
+        let separate_probabilities = softmax(&logits, 1).unwrap();
+        assert_eq!(combined.loss.to_bits(), separate_loss.to_bits());
+        assert_same_bits(
+            combined.probabilities.unwrap().as_slice(),
+            separate_probabilities.as_slice(),
+        );
+    }
+
+    #[test]
+    fn saved_probability_mode_keeps_target_validation_before_logit_reads() {
+        let logits = tensor(&[1, 2], &[f64::NAN, 0.0]);
+        assert_eq!(
+            indexed_mean_nll_forward(&logits.view(), 1, &[2], true).unwrap_err(),
+            ProbabilityError::TargetOutOfBounds {
+                group: 0,
+                target: 2,
+                classes: 2,
+            }
+        );
+    }
+
+    #[test]
+    fn saved_probability_modes_keep_nonfinite_error_order() {
+        let logits = tensor(&[2, 2], &[0.0, f64::NAN, f64::INFINITY, 0.0]);
+        let expected = ProbabilityError::PositiveInfinityLogit { group: 0, class: 1 };
+
+        assert_eq!(
+            log_softmax_forward(&logits.view(), 0, true).unwrap_err(),
+            expected
+        );
+        assert_eq!(
+            indexed_mean_nll_forward(&logits.view(), 0, &[0, 0], true).unwrap_err(),
+            expected
+        );
+    }
+
+    #[test]
+    fn nonzero_gapped_group_bases_reuse_one_class_stride() {
+        let padded = gapped_probability_source();
         let logits = padded.view().slice(2, 1..3).unwrap();
         assert_eq!(logits.shape(), [2, 3, 2]);
         assert_eq!(logits.strides(), [9, 3, 1]);
@@ -632,10 +976,13 @@ mod tests {
             1.0 / denominator,
         ];
         for batch in 0..2 {
-            for class in 0..3 {
+            for (class, &expected_probability) in expected.iter().enumerate() {
                 for column in 0..2 {
                     let output_offset = batch * 6 + class * 2 + column;
-                    assert_close(probabilities.as_slice()[output_offset], expected[class]);
+                    assert_close(
+                        probabilities.as_slice()[output_offset],
+                        expected_probability,
+                    );
                 }
             }
         }
