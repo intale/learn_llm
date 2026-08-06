@@ -23,7 +23,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '16-model-autodiff-ops';
-const contentRevision = 6;
+const contentRevision = 7;
 const formulaLatex = String.raw`\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`;
 const indexedMeanNllLatex = String.raw`\bar Z_{g,c}=\frac{\bar L}{G}\left(P_{g,c}-\mathbf{1}[c=y_g]\right).`;
 const repositoryRoot = resolve(process.cwd(), '..');
@@ -45,6 +45,11 @@ interface LocalizedCopy {
   gatherPlanCaption: string;
   gatherPlanLabel: string;
   gatherOperationCaption: string;
+  probabilityEvidenceFragments: readonly string[];
+  logSoftmaxForwardCaption: string;
+  logSoftmaxForwardLabel: string;
+  indexedNllForwardCaption: string;
+  indexedNllForwardLabel: string;
   diagramTitle: string;
   diagramDescription: string;
   diagramSections: readonly string[];
@@ -90,6 +95,20 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     gatherPlanLabel: 'Rust source implementing the Chapter 16 validated row-gather plan',
     gatherOperationCaption:
       'Create the checked plan after operand validation, copy its rows, and retain its facts for reversal',
+    probabilityEvidenceFragments: [
+      '“One forward call” does not mean one read of each logit',
+      'The saved tensor contains the same emitted f64 values, bit for bit.',
+      'backward does not call softmax or normalize the logits again',
+      'The lesson’s two branches are separate operations with separate calls and saved tensors; they share only the input logits.',
+    ],
+    logSoftmaxForwardCaption:
+      'Return log-probabilities and retain probabilities from one checked forward call',
+    logSoftmaxForwardLabel:
+      'Rust source making one Chapter 16 log-softmax forward call for its value and VJP evidence',
+    indexedNllForwardCaption:
+      'Return mean NLL and retain probabilities from one checked forward call',
+    indexedNllForwardLabel:
+      'Rust source making one Chapter 16 indexed mean NLL forward call for its value and VJP evidence',
     diagramTitle: 'Follow a repeated token ID from lookup to loss and back',
     diagramDescription:
       'Inspect the compact forward chain, signed target gradients with zero class sums, both matrix VJPs, and four occurrence contributions grouped inside three destination embedding rows.',
@@ -99,7 +118,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Add each occurrence to its destination row',
     ],
     diagramFork:
-      'After SiLU, the graph forks: log-softmax displays log-probabilities, while combined mean NLL reads the same activated values as loss logits together with target classes. This compact chain tests operations; it is not the final decoder layout.',
+      'After SiLU, the graph forks into two separate operation calls over the same logits. Log-softmax returns log-probabilities; combined mean NLL computes and returns one scalar mean NLL from the logits and target classes. The calls do not share one forward result. This exercise is not the final decoder layout.',
     diagramTargetRule:
       'For every flat position in this equal-logit example, begin with the two saved class probabilities, each equal to one half. Subtract one from the target-class component, leave the competing component unchanged, then divide both components by the four positions in the mean.',
     diagramScatterRule:
@@ -118,12 +137,12 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
   ru: {
     revisionLabel: 'Версия материала',
     title:
-      'Проведите обратный проход по цепочке операций от ID токенов до значения функции потерь',
+      'Выполните обратный проход по операциям, преобразующим ID токенов в значение функции потерь',
     description:
-      'Реализуйте VJP для матричных произведений, выбора строк эмбеддингов по ID, среди которых есть повторы, SiLU, log-softmax и усреднённого по токенам NLL, а затем сравните каждое новое локальное правило с оценками производных, полученными методом центральных разностей в выбранных координатах.',
+      'Реализуйте VJP для матричных произведений, выбора строк эмбеддингов по повторяющимся ID, SiLU, log-softmax и средней функции потерь по токенам. Затем сравните каждое новое локальное правило с производными, оценёнными методом центральных разностей в выбранных координатах.',
     headings: [
       'Предскажите путь повторяющегося токена',
-      'Добавляйте вклад каждого вхождения в одну и ту же строку эмбеддингов',
+      'Суммируйте вклады всех вхождений в общей строке таблицы эмбеддингов',
       'Обозначьте функцию потерь, таблицу, ID токенов и сопряжённые величины',
       'От обратного прохода в нейросетевой модели следующего слова к переиспользуемым VJP декодера',
       'Сохраняйте данные прямого прохода, необходимые каждому локальному VJP',
@@ -137,7 +156,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'формулы обратного прохода и обновления параметров именно для этой архитектуры',
       'обучаемые эмбеддинги находятся на входе, а выходная проекция — на выходе модели',
       'получается функция SiLU',
-      'при обычном инференсе выполняется только прямой проход',
+      'При обычном инференсе выполняется только прямой проход',
       'Это новый пример на Rust, а не код, взятый из статьи или приписанный ей',
     ],
     gatherBoundaryFragments: [
@@ -154,16 +173,30 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     gatherPlanLabel: 'Исходный код на Rust с проверенным планом выбора строк из главы 16',
     gatherOperationCaption:
       'Создать проверенный план после проверки доступности операнда, скопировать строки и сохранить данные плана для обратного прохода',
+    probabilityEvidenceFragments: [
+      '«Один вызов прямого прохода» не означает, что каждый логит читается один раз',
+      'Сохранённый тензор содержит побитово те же значения f64, которые были сформированы при прямом проходе.',
+      'при обратном проходе softmax повторно не вызывается и логиты заново не нормализуются',
+      'Две ветви — отдельные операции с отдельными вызовами и сохранёнными тензорами; общими остаются только входные логиты.',
+    ],
+    logSoftmaxForwardCaption:
+      'Вернуть логарифмы вероятностей и сохранить вероятности из одного вызова прямого прохода с проверкой входных данных',
+    logSoftmaxForwardLabel:
+      'Исходный код на Rust с одним вызовом прямого прохода log-softmax для результата и данных VJP из главы 16',
+    indexedNllForwardCaption:
+      'Вернуть среднее NLL и сохранить вероятности из одного вызова прямого прохода с проверкой входных данных',
+    indexedNllForwardLabel:
+      'Исходный код на Rust с одним вызовом прямого прохода среднего NLL по индексам для результата и данных VJP из главы 16',
     diagramTitle: 'Проследите путь повторяющегося ID токена до функции потерь и обратно',
     diagramDescription:
-      'Проследите компактную цепочку прямого прохода, градиенты по логитам с указанием знаков и нулевой суммой по классам, VJP для обоих операндов матричного умножения и четыре вклада вхождений, сгруппированные внутри трёх строк таблицы эмбеддингов.',
+      'Проследите компактную цепочку прямого прохода, знаки градиентов по логитам, нулевую сумму компонент каждой строки градиентов по классам и VJP для обоих операндов матричного умножения. Затем рассмотрите четыре вклада вхождений, сгруппированные внутри трёх строк таблицы эмбеддингов.',
     diagramSections: [
       'Проследите прямой проход по компактной цепочке операций',
       'Проведите обратный проход через выбор целевого класса и проекцию',
       'Добавьте вклад каждого вхождения в строку назначения',
     ],
     diagramFork:
-      'После SiLU граф разветвляется: log-softmax показывает логарифмы вероятностей, а объединённое среднее NLL использует те же активированные значения в качестве логитов вместе с целевыми классами. Эта компактная цепочка предназначена для изучения отдельных операций и не изображает устройство итогового декодера.',
+      'После SiLU граф разветвляется на два отдельных вызова над одними и теми же логитами. Log-softmax возвращает логарифмы вероятностей, а совмещённая операция вычисляет по логитам и целевым классам скалярное среднее NLL. Вызовы не используют общий результат прямого прохода. Эта схема предназначена для изучения операций, а не устройства итогового декодера.',
     diagramTargetRule:
       'Для каждой плоской позиции в этом примере с равными логитами начните с двух сохранённых вероятностей классов: каждая равна одной второй. Вычтите единицу из компоненты целевого класса, оставьте компоненту другого класса без изменения, затем разделите обе компоненты на число усредняемых позиций — четыре.',
     diagramScatterRule:
@@ -196,6 +229,8 @@ const expectedRustRegions = [
   ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-row-gather-plan'],
   ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-row-gather-operation'],
   ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-row-gather-vjp'],
+  ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-log-softmax-saved-forward'],
+  ['rust/crates/llm-from-scratch/src/autograd/model_ops.rs', 'model-indexed-nll-saved-forward'],
   ['rust/demos/ch16-model-autodiff-ops/src/lib.rs', 'shared-model-vjp-fixture'],
   ['rust/demos/ch16-model-autodiff-ops/src/lib.rs', 'model-vjp-gradchecks'],
   ['rust/demos/ch16-model-autodiff-ops/src/lib.rs', 'model-op-errors-example'],
@@ -251,6 +286,9 @@ async function expectChapterContent(
   for (const fragment of localized.gatherBoundaryFragments) {
     await expect(page.locator('.lesson-body')).toContainText(fragment);
   }
+  for (const fragment of localized.probabilityEvidenceFragments) {
+    await expect(page.locator('.lesson-body')).toContainText(fragment);
+  }
 
   const formulae = page.locator('.katex-display');
   expect(await formulae.count()).toBeGreaterThan(0);
@@ -300,6 +338,26 @@ async function expectChapterContent(
   );
   await expect(gatherOperationSource.locator('figcaption > code')).toHaveText(
     'rust/crates/llm-from-scratch/src/autograd/model_ops.rs#model-row-gather-operation',
+  );
+  const logSoftmaxForwardSource = page.locator(
+    'figure.rust-source[data-source-region="model-log-softmax-saved-forward"]',
+  );
+  await expect(logSoftmaxForwardSource.locator('figcaption > span')).toHaveText(
+    localized.logSoftmaxForwardCaption,
+  );
+  await expect(logSoftmaxForwardSource.locator('pre')).toHaveAttribute(
+    'aria-label',
+    localized.logSoftmaxForwardLabel,
+  );
+  const indexedNllForwardSource = page.locator(
+    'figure.rust-source[data-source-region="model-indexed-nll-saved-forward"]',
+  );
+  await expect(indexedNllForwardSource.locator('figcaption > span')).toHaveText(
+    localized.indexedNllForwardCaption,
+  );
+  await expect(indexedNllForwardSource.locator('pre')).toHaveAttribute(
+    'aria-label',
+    localized.indexedNllForwardLabel,
   );
   for (const evidence of await highlighted.evaluateAll((blocks) =>
     blocks.map((block) => ({

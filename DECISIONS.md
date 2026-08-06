@@ -15679,3 +15679,133 @@ is made stale.
 `repair-stale-static-evidence-projections`, and
 `20260806T034602Z-repair-stale-static-evidence-projections-01` followed by
 `20260806T035438Z-repair-stale-static-evidence-projections-02`.
+
+## 2026-08-06 - Start Chapter 16 probability-state adoption as one bilingual checkpoint
+
+**Status:** Accepted at preflight.
+
+**Context:** Chapter 12 now exposes crate-private forward results that can retain
+the exact probabilities produced during one checked normalization traversal.
+Chapter 16 still needs a focused implementation, exact numerical and gradient
+controls, a second narrow learner-content revision, direct Russian refresh, and
+desktop/narrow Chromium and Firefox review. These validations make the step
+large, but they use pinned cached Docker inputs and the active build has no
+resource limit.
+
+**Decision:** Run `reuse-probability-forward-state-in-autodiff` as one atomic
+Chapter 16 checkpoint. Use no network, paid service, external data, model
+generation, new dependency, or host language toolchain. Freeze and review English
+first, then translate Russian directly from that revision with the project
+localization skill. Cost does not introduce an approval pause.
+
+**Consequences:** The runtime seam, lesson contract, both active locales, focused
+tests, full workspace gate, and browser matrix remain one independently
+verifiable and committed outcome. Any discovered scope outside the nine declared
+outputs is scheduled separately instead of being absorbed into this run.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`reuse-probability-forward-state-in-autodiff`, and
+`20260806T040332Z-reuse-probability-forward-state-in-autodiff-01`.
+
+## 2026-08-06 - Advance the locale projection with Chapter 16 revision 7
+
+**Status:** Accepted after the final scheduler-ledger check exposed projection
+drift.
+
+**Context:** The canonical course plan advanced from revision 65 to 66 for
+Chapter 16 revision 7, but `site/src/i18n/chapter-locales.json` still projected
+plan revision 65. Content, site, and browser gates do not consume that scheduler
+field, so they passed while the repository ledger correctly rejected the stale
+projection.
+
+**Decision:** Add `site/src/i18n/chapter-locales.json` as this checkpoint's
+eleventh declared output and change only its top-level `planRevision` from 65 to
+66. Keep every locale status, chapter revision, source revision, activation
+state, and translation-review record unchanged. Refresh the immutable publication
+manifest and rebuild the exact workspace after this metadata correction.
+
+**Consequences:** The locale registry again projects the canonical plan revision
+without changing learner content or making either frozen locale hash stale. The
+run preserves the failed first scheduler check as evidence and repeats the
+affected publication, full-workspace, static, and ledger gates before completion.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`reuse-probability-forward-state-in-autodiff`, and
+`20260806T040332Z-reuse-probability-forward-state-in-autodiff-01`.
+
+## 2026-08-06 - Retain each probability VJP's own emitted forward values
+
+**Status:** Accepted after independent Rust and bilingual content review, exact
+Docker validation, and Chromium/Firefox rendered validation.
+
+**Context:** Chapter 16's `TensorValue::log_softmax` and
+`TensorValue::indexed_mean_nll` first calculated their ordinary forward result
+and then called public `softmax` to reconstruct probabilities for the VJP. That
+second call repeated axis validation and stable normalization even though the
+Chapter 12 forward helper can now emit the probabilities alongside the requested
+result. Describing the replacement as “one pass” or “one read” would be
+incorrect: the retained-state path still performs the established preliminary
+finite-input scan, then scans each group for its maximum and shifted-exponential
+sum, and finally emits the requested values.
+
+**Decision:** Each Chapter 16 operation invokes its corresponding checked
+crate-private forward helper exactly once with probability retention enabled and
+saves the returned tensor directly in its existing VJP context. The helper owns
+one `RowStats` bundle per group; the saved probabilities contain the same emitted
+`f64` values, bit for bit, as the forward calculation. This promise is stored
+floating-point identity, not exact real arithmetic.
+
+Keep log-softmax and indexed NLL as separate graph operations. If one lesson
+example branches from the same logits, each operation makes its own forward call
+and owns its own saved tensor; there is no cross-operation cache or fusion. Keep
+the preliminary finiteness scan and all operand-availability, axis, target-count,
+target-bounds, allocation, and error-precedence behavior unchanged. Public
+probability APIs and saved-context topology remain unchanged.
+
+Chapter 16 revision 7 teaches this exact boundary in English and direct Russian.
+The contract and tests avoid claiming one physical scan and explicitly distinguish
+bit-identical stored values from mathematically exact real-number evaluation.
+
+**Consequences:** Backward no longer invokes `softmax` or normalizes logits again.
+Forward bits, gradients, graph retention, gradchecks, error precedence, and exact
+Chapters 12, 13, 16, 23, and 32 controls remain unchanged. Both locales pass
+desktop, narrow, no-JavaScript, forced-colors, formula-containment, diagram
+full-view, and accessibility review in the pinned Chromium and Firefox matrix.
+No dependency or public API is added.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`reuse-probability-forward-state-in-autodiff`, and
+`20260806T040332Z-reuse-probability-forward-state-in-autodiff-01`.
+
+## 2026-08-06 - Keep the course-plan mutation test synchronized with Chapter 16 revision 7
+
+**Status:** Accepted during complete static validation.
+
+**Context:** Chapter 16 revision 7 advances `curriculum/course-plan.md` from plan
+revision 65 to 66. The full Vitest suite then showed that the course-plan
+mutation test still searched for the unique literal `"plan_revision": 65`
+before replacing it with an intentionally stale value. Because the accepted
+plan now contains 66, the test fixture could no longer create the invalid plan
+whose rejection it is meant to verify. The same run exposed two Chapter 16
+assertions that were already inside the declared test output: one assumed a
+specific Rust line break, and one retained superseded Russian wording.
+
+**Decision:** Add `site/tests/content-contract.test.ts` to this checkpoint's
+declared outputs and change only its mutation source literal from 65 to 66. Keep
+the replacement value, rejection expectation, and validation policy unchanged.
+Make the Chapter 16 source assertion whitespace-tolerant and point its Russian
+probe at the current explicit occurrence definition; neither change weakens the
+runtime or content contract.
+
+**Consequences:** The complete static suite can exercise the same negative
+course-plan case against revision 66. This is a ten-file checkpoint rather than
+the nine-file preflight estimate, with no learner scope, dependency, acceptance
+criterion, or unrelated policy change.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`reuse-probability-forward-state-in-autodiff`, and
+`20260806T040332Z-reuse-probability-forward-state-in-autodiff-01`.

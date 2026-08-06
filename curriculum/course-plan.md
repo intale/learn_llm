@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 65,
+  "plan_revision": 66,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1158,7 +1158,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `12-stable-softmax`
 - **Implementation step:** `implement-ch12-stable-softmax`
-- **Revision status:** Content revision 7 defines the maximum, shifted-exponential sum, and log-normalizer as reusable group facts; one checked forward request computes those facts once per group and can emit its lean result plus crate-private saved probabilities without a second normalization during `share-probability-forward-plan`. Revision 6's checked group-base cursor, source and output class strides, target offsets, and exact indexed-mean fallback remain in force.
+- **Revision status:** Content revision 7 defines the maximum, shifted-exponential sum, and log-normalizer as reusable group facts; one checked forward call computes those facts once per group and can emit its lean result plus crate-private saved probabilities without a second normalization during `share-probability-forward-plan`. Revision 6's checked group-base cursor, source and output class strides, target offsets, and exact indexed-mean fallback remain in force.
 - **Depends on:** `11-matrix-multiplication`.
 - **Outcome:** Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.
 - **Scope boundary:** Teach logits, max shifting, log-sum-exp, softmax, log-softmax, indexed mean NLL, and edge behavior; defer gradient propagation.
@@ -1222,7 +1222,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `16-model-autodiff-ops`
 - **Implementation step:** `implement-ch16-model-autodiff-ops`
-- **Revision status:** Content revision 6 validates a raw row-gather request once, seals its selectors and shapes in a crate-private plan, and lets forward copying plus saved reverse context reuse those facts; it preserves the established error order and refreshes Russian directly from frozen English. Revision 5's borrowed `TensorValue` reads, revision 4's shared lean/traced reverse kernel, and revision 3's corrected operation lesson remain in force.
+- **Revision status:** Content revision 7 adopts Chapter 12's saved-output forwards: each autodiff log-softmax or indexed mean-NLL operation obtains its primary result and the same emitted `f64` probability values, bit for bit, from one checked helper invocation instead of starting a second normalization. The existing preliminary finiteness scan preserves error and allocation precedence, and the two explicit lesson branches remain separate operations. Russian is refreshed directly from frozen English during `reuse-probability-forward-state-in-autodiff`; revision 6's validated row-gather plan and earlier operation-tape guarantees remain in force.
 - **Depends on:** `15-tensor-autodiff-core`.
 - **Outcome:** Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.
 - **Scope boundary:** Add matmul, gather/scatter-add, `exp`, `log`, SiLU, log-softmax, and indexed mean-NLL VJPs with explicit saved-state and stability choices; defer packaging them as neural layers.

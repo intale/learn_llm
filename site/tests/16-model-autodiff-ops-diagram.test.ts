@@ -136,13 +136,73 @@ describe('Chapter 16 Rust trace parser', () => {
     expect(fixtureSource).not.toContain('loss.backward()?');
 
     for (const source of [chapter16Contract, chapter16English, chapter16Russian]) {
-      expect(source).toContain('"content_revision": 6');
+      expect(source).toContain('"content_revision": 7');
     }
     expect(chapter16English.replace(/\s+/g, ' ')).toContain(
       'Ordinary training uses a lean method: `backward` when implicit graph retention is appropriate, or `backward_with_seed` when the caller must choose retention or release.',
     );
     expect(chapter16Russian.replace(/\s+/g, ' ')).toContain(
       'При обычном обучении используется метод без трассировки',
+    );
+  });
+
+  it('retains each probability operation\'s emitted forward values bit for bit without a second normalization', () => {
+    const readRegion = (name: string) => {
+      const start = modelOpsSource.indexOf(`// region:${name}`);
+      const end = modelOpsSource.indexOf(`// endregion:${name}`);
+      expect(start).toBeGreaterThan(-1);
+      expect(end).toBeGreaterThan(start);
+      return modelOpsSource.slice(start, end);
+    };
+
+    const logSoftmax = readRegion('model-log-softmax-saved-forward');
+    expect(
+      logSoftmax.match(/log_softmax_forward\(&input\.view\(\), axis, true\)\?/g),
+    ).toHaveLength(1);
+    expect(logSoftmax.match(/forward\s*\.probabilities/g)).toHaveLength(1);
+    expect(logSoftmax).toContain('forward.value');
+    expect(logSoftmax).toContain('ModelSavedContext::LogSoftmax');
+    expect(logSoftmax).not.toContain('log_softmax(&input.view()');
+    expect(logSoftmax).not.toContain('softmax(&input.view()');
+
+    const indexedNll = readRegion('model-indexed-nll-saved-forward');
+    expect(
+      indexedNll.match(
+        /indexed_mean_nll_forward\(&logits\.view\(\), axis, targets, true\)\?/g,
+      ),
+    ).toHaveLength(1);
+    expect(indexedNll.match(/forward\s*\.probabilities/g)).toHaveLength(1);
+    expect(indexedNll).toContain('vec![forward.loss]');
+    expect(indexedNll).toContain('ModelSavedContext::IndexedMeanNll');
+    expect(indexedNll).not.toContain('indexed_mean_nll(&logits.view()');
+    expect(indexedNll).not.toContain('softmax(&logits.view()');
+
+    const english = chapter16English.replace(/\s+/g, ' ');
+    expect(english).toContain(
+      '“One forward call” does not mean one read of each logit',
+    );
+    expect(english).toContain(
+      'The saved tensor contains the same emitted `f64` values, bit for bit.',
+    );
+    expect(english).toContain(
+      'The lesson\'s two branches are separate operations with separate calls and saved tensors; they share only the input logits.',
+    );
+    expect(english).not.toContain(
+      'The resulting finite probabilities are saved for the log-softmax and indexed-mean-NLL VJPs.',
+    );
+
+    const russian = chapter16Russian.replace(/\s+/g, ' ');
+    expect(russian).toContain(
+      '«Один вызов прямого прохода» не означает, что каждый логит читается один раз.',
+    );
+    expect(russian).toContain(
+      'Сохранённый тензор содержит побитово те же значения `f64`, которые были сформированы при прямом проходе.',
+    );
+    expect(russian).toContain(
+      'Две ветви — отдельные операции с отдельными вызовами и сохранёнными тензорами; общими остаются только входные логиты.',
+    );
+    expect(russian).not.toContain(
+      'Полученные конечные вероятности сохраняются для VJP',
     );
   });
 
@@ -268,7 +328,7 @@ describe('Chapter 16 Rust trace parser', () => {
     );
     expect(russian).not.toContain('При двух равных классах');
     expect(russian).toContain(
-      'В формуле каждое вхождение токена обозначено парой $(b,t)$: $b$ — индекс примера в пакете, а $t$ — позиция токена в этом примере.',
+      'В формуле каждое вхождение токена обозначено парой $(b,t)$: $b$ — индекс элемента пакета, в котором находится это вхождение, а $t$ — его позиция внутри элемента.',
     );
     expect(russian).toContain(
       'В прямом проходе операция выбора создаёт четыре независимые строки.',

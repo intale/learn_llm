@@ -2,11 +2,11 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "concept_id": "model-autodiff-ops",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 16,
   "objective": {
     "en": "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.",
-    "ru": "Дифференцировать матричные произведения, выбор строк эмбеддингов по индексам с повторяющимися ID, нелинейные функции, log-softmax и среднее NLL по индексам целевых токенов."
+    "ru": "Дифференцировать матричные произведения, выбор строк эмбеддингов по повторяющимся ID, нелинейные функции, log-softmax и среднее NLL по индексам целевых классов."
   },
   "worked_inputs": {
     "en": "Set embedding table E[3,2]=[[2,2],[1,-1],[-1,1]], token IDs z=[1,1,1,2], projection W[2,2]=[[1,-1],[1,-1]], and targets [0,0,0,1]. Treat flat positions 0 through 3 as the row-major order of the formula's (b,t) occurrences. Predict four gathered rows, zero projection preactivations, SiLU outputs used as two-class loss logits, log-probabilities of -ln(2), mean loss ln(2), target-logit gradients of magnitude 1/8, and the three contributions accumulated into embedding row 1 before running Rust.",
@@ -38,12 +38,12 @@
       {
         "symbol": "b",
         "en": "the batch index of one token occurrence",
-        "ru": "индекс примера в пакете"
+        "ru": "индекс элемента пакета, в котором находится данное вхождение токена"
       },
       {
         "symbol": "t",
         "en": "the position index of one token occurrence",
-        "ru": "позиция токена в этом примере"
+        "ru": "позиция данного вхождения токена в элементе пакета"
       },
       {
         "symbol": "z_{b,t}",
@@ -84,8 +84,8 @@
         "ru": "Abadi и соавторы описывают графы тензорных операций. При автоматическом дифференцировании система прослеживает все пути от функции потерь к каждому параметру и суммирует их вклады в градиент, в том числе для выбранных строк эмбеддингов. В Transformer Vaswani и соавторов обучаемые эмбеддинги находятся на входе, а выходная проекция — на выходе модели; матричные проекции, softmax внимания и нелинейные подсети прямого распространения повторяются в стеке слоёв. Позднее Shazeer исследует Swish при $\\beta=1$ — то есть SiLU — и варианты SwiGLU в подсетях прямого распространения Transformer."
       },
       "modern_llm_role": {
-        "en": "This chapter supplies reusable local VJPs for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL. These operations form the local reverse rules later embedding, projection, SwiGLU, attention, and token-loss components need. Training retains operation-specific forward values and shape metadata for those rules; ordinary inference uses only the forward paths.",
-        "ru": "В этой главе добавляются переиспользуемые локальные VJP для пакетных матричных произведений, выбора строк по повторяющимся ID, exp, log, SiLU, устойчивого log-softmax и объединённого среднего NLL по индексам. Эти операции образуют набор локальных правил обратного прохода, необходимый последующим компонентам эмбеддингов, проекций, SwiGLU, внимания и функции потерь по токенам. Во время обучения для этих правил сохраняются данные прямого прохода и сведения о формах, относящиеся к конкретной операции; при обычном инференсе выполняется только прямой проход."
+        "en": "This chapter supplies reusable local VJPs for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL. Log-softmax and combined indexed mean NLL each retain the probability values emitted by their own forward call for their VJP instead of normalizing the logits again. These operations form the local reverse rules later embedding, projection, SwiGLU, attention, and token-loss components need; ordinary inference uses only the forward paths.",
+        "ru": "В этой главе добавляются переиспользуемые локальные VJP для пакетных матричных произведений, выбора строк по повторяющимся ID, exp, log, SiLU, устойчивого log-softmax и совмещённого вычисления среднего NLL по индексам целевых классов. Log-softmax и совмещённое вычисление среднего NLL по индексам целевых классов сохраняют для своих VJP значения вероятностей, полученные при собственном вызове прямого прохода, и не нормализуют логиты повторно. Эти операции образуют набор локальных правил обратного прохода для последующих компонентов эмбеддингов, проекций, SwiGLU, внимания и функции потерь по токенам. При обычном инференсе выполняется только прямой проход."
       },
       "sources": [
         {
@@ -154,12 +154,12 @@
     "id": "model-autodiff-ops",
     "rationale": {
       "en": "A compact forward chain plus reverse target and matrix evidence can lead into three destination-row boxes that contain their own occurrence contributions. Grouping positions 0, 1, and 2 inside embedding row 1 makes the many-to-one accumulation visible; final dE alone hides that relationship.",
-      "ru": "За компактной цепочкой прямого прохода и обратным расчётом для целевых классов и матриц следуют три блока строк назначения, внутри которых находятся вклады соответствующих вхождений. Позиции 0, 1 и 2 внутри строки 1 таблицы эмбеддингов наглядно показывают, как несколько вкладов суммируются в одной строке родительской таблицы; по одному итоговому dE эту связь не видно."
+      "ru": "Схема объединяет компактную цепочку прямого прохода, обратный расчёт для целевых классов и матриц и три блока строк назначения со вкладами соответствующих вхождений. Позиции 0, 1 и 2 внутри строки 1 таблицы эмбеддингов показывают, как несколько вкладов суммируются в одной строке родительской таблицы; по одному итоговому dE эту связь не видно."
     }
   },
   "decoder_connection": {
     "en": "The cumulative implementation can now differentiate a compact chain from selected embedding rows through a projection, nonlinearity, and stable mean token loss. This is an operation-level example, not the final decoder architecture: later feed-forward blocks use SiLU internally, and a separate vocabulary projection produces the decoder's loss logits. Correct gradients still do not choose useful parameter values, so Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP.",
-    "ru": "Теперь совокупная реализация умеет дифференцировать компактную цепочку от выбранных строк эмбеддингов через проекцию и нелинейную функцию до устойчивой средней функции потерь по токенам. Это пример на уровне отдельных операций, а не архитектура итогового декодера: в последующих блоках SiLU находится внутри сети прямого распространения, а логиты для функции потерь создаёт отдельная проекция в словарь. Правильные градиенты ещё не задают полезные начальные значения параметров, поэтому в главе 17 появится детерминированная несимметричная и учитывающая масштаб инициализация без нового VJP."
+    "ru": "К этому моменту реализация курса умеет дифференцировать компактную цепочку от выбранных строк эмбеддингов через проекцию и нелинейную функцию до устойчивой средней функции потерь по токенам. Это пример на уровне отдельных операций, а не архитектура итогового декодера: в последующих блоках SiLU находится внутри сети прямого распространения, а логиты для функции потерь создаёт отдельная проекция в словарь. Правильные градиенты ещё не задают полезные начальные значения параметров, поэтому в главе 17 появится детерминированная несимметричная и учитывающая масштаб инициализация без нового VJP."
   },
   "terminology": [
     {
@@ -215,16 +215,21 @@
     {
       "concept_id": "fused-loss",
       "en": "fused loss",
-      "ru": "объединённая функция потерь"
+      "ru": "совмещённое вычисление функции потерь"
+    },
+    {
+      "concept_id": "saved-forward-probabilities",
+      "en": "probabilities saved from the operation's forward normalization",
+      "ru": "значения вероятностей, сохранённые при нормализации во время прямого прохода операции"
     }
   ],
   "translation_notes": [
-    "Chapter 16 has the exact active locale set {en,ru}. English revision 6 is the canonical semantic source frozen at sha256:b5c1dc3532004f16d35a5d36e096d5b168d51878f7f09ea26574ef7119b0582a; Russian was refreshed directly from that snapshot and passed semantic plus native-language review at sha256:733f776fe33f94f2998aa43d0858818f429168ff3d8939d95be1309b863284a2.",
+    "Chapter 16 has the exact active locale set {en,ru}. English revision 7 is the canonical semantic source frozen at sha256:12c5a4460a40d2ca01c4e587acebd941999e9370ec3cfa1aeba7285e210bab01; Russian was refreshed directly from that snapshot and passed semantic plus native-language review at sha256:4e6a36e62e415b3bc477cf94b92da310448b95f84873a287c0aae16de553ba51.",
     "Keep E, X, L, V, d, i, b, t, z, the colon feature slice, conditioned summation, shapes, row-major IDs, targets, signs, gradients, Rust identifiers, trace keywords, formulas, and source URLs exact when another locale is activated later.",
     "Translate gather as selecting and materializing table rows and scatter-add as summing each occurrence's adjoint into its destination row. Do not imply that gathered output rows alias the parent table. Token IDs are integer selectors and receive no gradient.",
     "Use established Russian mathematical language: сопряжённая величина for adjoint, выбор строк по индексам for row gather, and накопление вкладов по индексам for scatter-add. Do not calque pullback or scatter-add as пулбэк or рассеянное сложение.",
     "The loss mean already places a factor of 1/4 in each occurrence contribution. Do not divide embedding row 1 by its three occurrences again.",
-    "Keep stable log-softmax and fused indexed mean NLL distinct: the lesson displays log-probabilities for prediction while the loss operation consumes logits and saves stable probabilities for its pullback.",
+    "Keep stable log-softmax and fused indexed mean NLL distinct: the lesson calls them as two independent operations over the same logits. Each operation saves the probabilities emitted by its own normalization traversal for its VJP; the two calls do not share one forward result.",
     "Vaswani et al. use ReLU in the cited feed-forward block. Attribute Swish and SwiGLU to Shazeer, state that Swish with beta one is SiLU, and do not imply that the original Transformer uses SiLU.",
     "Describe general derivative, saved-state, fusion, validation, visualization, and error behavior without assigning it to a programming language. Name Rust only for executable source, concrete types, and trace provenance.",
     "Translate validated row-gather plan as a private value that carries facts already established at a checked boundary. Trusted consumption means that a kernel receives that privately constructed value; it never means that public callers may provide unchecked selectors.",
@@ -257,7 +262,7 @@
     },
     {
       "input": "log-softmax on an arbitrary finite class axis and indexed mean NLL on logits near +/-1000",
-      "expected": "Max-shifted probability evidence remains finite, log-softmax pullback class-group sums are zero, and correctly classified extreme rows produce a representable zero mean loss."
+      "expected": "Each autodiff operation computes row statistics once per group, saves the same emitted f64 probability values bit for bit, and does not normalize again for its VJP. This is identity of stored floating-point values, not exact real arithmetic. A preliminary finiteness scan preserves established failures; log-softmax pullback class-group sums are zero, and correctly classified extreme rows produce a representable zero mean loss."
     },
     {
       "input": "an invalid gather ID, invalid target, empty target set, exp overflow, log domain failure, released operand, or non-finite backward contribution",
@@ -290,7 +295,10 @@ loss. This chapter adds checked matrix multiplication, rank-two row gather,
 elementwise `exp`, `log`, and SiLU, stable log-softmax, and combined indexed mean
 negative log-likelihood to the same operation tape. Each edge stores
 operation-specific forward values and shape metadata used to construct or check
-its local vector-Jacobian product; no full Jacobian is materialized.
+its local vector-Jacobian product; no full Jacobian is materialized. For
+log-softmax and indexed mean NLL, the edge stores the probability tensor emitted
+alongside that operation's primary output by the same checked forward call;
+constructing the edge does not launch a second normalization.
 
 Row gather accepts integer IDs plus their logical shape and returns that shape
 with the table width appended. IDs remain selectors, not differentiable tensor
@@ -328,8 +336,9 @@ This chain is deliberately not a decoder architecture. In the later decoder,
 SiLU belongs inside a feed-forward block, while a separate vocabulary projection
 produces the logits consumed by token loss.
 
-For each position, start from the saved probability row $[1/2,1/2]$, subtract
-one from the selected target component, and divide both components by the four
+For the loss branch, the indexed mean-NLL forward returns $\ln 2$ and also saves
+probability row $[1/2,1/2]$ for every position. Its VJP starts from those rows,
+subtracts one from the selected target component, and divides both components by the four
 positions in the mean. The resulting logit-gradient components have magnitude
 $1/8$. SiLU at zero contributes $1/2$, so the matmul upstream rows have
 magnitude $1/16$.
@@ -383,10 +392,12 @@ Abadi et al. describe tensor operation graphs whose differentiation finds every 
 
 This chapter supplies reusable local VJPs for batched matrix products, repeated
 row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL.
+Log-softmax and combined indexed mean NLL each retain the probability values
+emitted by their own forward call for their VJP instead of normalizing the
+logits again.
 These operations form the local reverse rules later embedding, projection,
-SwiGLU, attention, and token-loss components need. Training retains
-operation-specific forward values and shape metadata for those rules; ordinary
-inference uses only the forward paths.
+SwiGLU, attention, and token-loss components need; ordinary inference uses only
+the forward paths.
 
 The runnable Rust contrast computes this compact chain first with fixed arrays and
 handwritten backward loops, then from reusable `TensorValue` operations. The
@@ -424,12 +435,37 @@ selectors. Scalar and empty logical ID shapes remain valid when their element
 counts match the supplied IDs.
 
 `exp` saves its output. `log` saves its positive input. SiLU computes a stable
-branchwise sigmoid and saves the input plus sigmoid. Log-softmax saves stable
-probabilities; its pullback subtracts probability times the upstream class-axis
-sum. Indexed mean NLL validates axis, class extent, target count, nonempty target
-set, and every target before calculating a stable scalar loss. For group $g$,
-class $c$, input logit $Z_{g,c}$, target $y_g$, $G$ groups, saved probability
-$P_{g,c}$, and incoming scalar adjoint $\bar L$, its logit adjoint is
+branchwise sigmoid and saves the input plus sigmoid.
+
+`TensorValue::log_softmax` makes one checked forward call for two outputs: the
+log-probability tensor returned to the caller and the ordinary probability
+tensor needed by its VJP. After the probability module has checked the input,
+one invocation of the checked group driver computes one statistics bundle per
+group and emits both tensors from those shared statistics. The tape saves the emitted
+probabilities; backward does not call `softmax` or normalize the logits again.
+
+`TensorValue::indexed_mean_nll` independently makes one checked forward call for the
+scalar mean loss and the probabilities needed by its VJP. After the tape
+establishes operand availability, the operation validates the axis, class extent,
+target count, nonempty target set, and every target. The
+probability module checks every logit for finiteness before allocating the optional probability
+tensor so the established error order is preserved. “One forward call” does
+not mean one read of each logit: the validation scan computes no maximum,
+exponential, sum, or output. The checked group driver then computes one
+`RowStats` bundle per group with one class scan for the maximum and a separate
+class scan for the shifted-exponential sum. The group callback uses that bundle
+to accumulate the scalar loss, while the emitter scans the classes to write the
+probability tensor retained for the VJP. The saved tensor contains the same
+emitted `f64` values, bit for bit. This is identity of the stored floating-point
+values, not a claim of exact real-number arithmetic. These scans implement one
+normalization calculation rather than a second normalization call. The explicit
+log-softmax and NLL branches in the worked example are two
+separate operation calls over the same logits; each owns its forward result and
+saved context.
+
+For group $g$, class $c$, input logit $Z_{g,c}$, target $y_g$, $G$ groups, saved
+probability $P_{g,c}$, and incoming scalar adjoint $\bar L$, the indexed mean-NLL
+logit adjoint is
 
 $$
 \bar Z_{g,c}=\frac{\bar L}{G}\left(P_{g,c}-\mathbf{1}[c=y_g]\right).
@@ -481,7 +517,7 @@ rules rather than adding another spatial relationship to the figure.
 5. Write the three occurrence contributions destined for embedding row 1 before adding them.
 6. Explain why unused embedding row 0 receives an exact zero gradient.
 7. Predict the forward value and local gradient for `exp(0)`, `log(1)`, and `SiLU(0)`.
-8. Explain why probabilities computed after subtracting the maximum logit matter for logits near `+/-1000`.
+8. Explain why logits near `+/-1000` require maximum-shifted normalization and why each autodiff probability operation saves the probabilities emitted by its own checked forward call. Clarify why one call is not one read of each logit, why the saved `f64` values are bit-identical without being exact real arithmetic, and why the separate log-softmax and indexed-NLL branches do not share a result.
 9. Name the row-gather facts checked at the public entry, the work omitted after a validated plan exists, and where an invalid target class or empty target set is detected.
 10. Misconception check: because ID 1 occurs three times, should its already mean-scaled row gradient be divided by three again?
 
@@ -508,14 +544,17 @@ backward pass for each whole layer.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 6 is the canonical source for both active locales. Russian must
+English revision 7 is the canonical source for both active locales. Russian must
 translate the complete contract, lesson, diagram labels, accessible names,
 history claims, exercises, and answers directly from that revision.
 
 Keep the conditioned occurrence sum and feature slice explicit. Translate
 gather and scatter-add as selection followed by shared-row accumulation. Do not
 divide a repeated row after the mean loss has already scaled each contribution.
-Keep displayed log-softmax distinct from the fused loss input. Attribute ReLU
+Keep displayed log-softmax distinct from the fused loss input. State explicitly
+that each is a separate operation over the same logits and retains probabilities
+from its own normalization traversal; never imply cross-operation sharing.
+Attribute ReLU
 to the cited original Transformer and Swish/SwiGLU to Shazeer. Keep the history
 on the road to modern language models, not programming languages or frontend
 implementation details. Describe a trusted gather kernel only as the consumer of

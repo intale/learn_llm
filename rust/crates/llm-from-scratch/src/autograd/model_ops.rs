@@ -6,7 +6,7 @@ use std::fmt;
 use super::tensor_core::{
     TensorAutodiffError, TensorOperation, TensorValue, accumulate_unbroadcast,
 };
-use crate::nn::probability::{indexed_mean_nll, log_softmax, softmax};
+use crate::nn::probability::{indexed_mean_nll_forward, log_softmax_forward};
 use crate::tensor::matmul::{matmul, matmul_with_transpose};
 use crate::tensor::ops::{map_binary, map_unary, sum_axis as tensor_sum_axis};
 use crate::tensor::storage::{Tensor, checked_row_major_layout};
@@ -319,14 +319,17 @@ impl TensorValue {
         })
     }
 
+    // region:model-log-softmax-saved-forward
     /// Applies stable log-softmax along one explicit class axis.
     pub fn log_softmax(&self, axis: usize) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::LogSoftmax, [self], |primals| {
             let input = primals[0];
-            let value = log_softmax(&input.view(), axis)?;
-            let probabilities = softmax(&input.view(), axis)?;
+            let forward = log_softmax_forward(&input.view(), axis, true)?;
+            let probabilities = forward
+                .probabilities
+                .expect("the autodiff log-softmax forward requests saved probabilities");
             Ok((
-                value,
+                forward.value,
                 [ModelSavedContext::LogSoftmax {
                     probabilities,
                     axis,
@@ -335,6 +338,7 @@ impl TensorValue {
             ))
         })
     }
+    // endregion:model-log-softmax-saved-forward
 
     /// Normalizes each square score row over its inclusive prefix of keys.
     ///
@@ -383,6 +387,7 @@ impl TensorValue {
         })
     }
 
+    // region:model-indexed-nll-saved-forward
     /// Computes one stable rank-zero mean NLL from flat group-major targets.
     pub fn indexed_mean_nll(
         &self,
@@ -391,9 +396,11 @@ impl TensorValue {
     ) -> Result<Self, TensorAutodiffError> {
         Self::model_operation(TensorOperation::IndexedMeanNll, [self], |primals| {
             let logits = primals[0];
-            let loss = indexed_mean_nll(&logits.view(), axis, targets)?;
-            let probabilities = softmax(&logits.view(), axis)?;
-            let value = Tensor::from_vec(Vec::new(), vec![loss])?;
+            let forward = indexed_mean_nll_forward(&logits.view(), axis, targets, true)?;
+            let probabilities = forward
+                .probabilities
+                .expect("the autodiff indexed-NLL forward requests saved probabilities");
+            let value = Tensor::from_vec(Vec::new(), vec![forward.loss])?;
             Ok((
                 value,
                 [ModelSavedContext::IndexedMeanNll {
@@ -406,6 +413,7 @@ impl TensorValue {
             ))
         })
     }
+    // endregion:model-indexed-nll-saved-forward
 }
 // endregion:model-autodiff-operations
 
@@ -712,7 +720,7 @@ mod tests {
     use super::*;
     use crate::autograd::gradcheck::sampled_tensor_gradient_check;
     use crate::autograd::tensor_core::{GraphRetention, TensorSavedContext};
-    use crate::nn::probability::ProbabilityError;
+    use crate::nn::probability::{ProbabilityError, indexed_mean_nll, log_softmax, softmax};
     use crate::tensor::matmul::matmul as tensor_matmul;
 
     const STEP: f64 = 1e-6;
@@ -743,6 +751,19 @@ mod tests {
             assert!(
                 (actual - expected).abs() <= tolerance,
                 "index {index}: expected {expected:.12}, got {actual:.12}"
+            );
+        }
+    }
+
+    fn assert_same_bits(actual: &[f64], expected: &[f64]) {
+        assert_eq!(actual.len(), expected.len());
+        for (index, (&actual, &expected)) in actual.iter().zip(expected).enumerate() {
+            assert_eq!(
+                actual.to_bits(),
+                expected.to_bits(),
+                "index {index}: expected bits {:016x}, got {:016x}",
+                expected.to_bits(),
+                actual.to_bits()
             );
         }
     }
@@ -1140,6 +1161,63 @@ mod tests {
                 assert!(sum.abs() <= 1e-12, "gradient group sum was {sum}");
             }
         }
+    }
+
+    #[test]
+    fn probability_vjps_save_forward_emitted_probabilities_bit_for_bit() {
+        let values = [1000.0, -1000.0, 0.0, -3.0, -3.0, -3.0];
+        let expected_input = tensor(&[2, 3], &values);
+        let expected_probabilities = softmax(&expected_input.view(), 1).unwrap();
+        let expected_log_probabilities = log_softmax(&expected_input.view(), 1).unwrap();
+
+        let log_softmax_logits = parameter(&[2, 3], &values);
+        let log_probabilities = log_softmax_logits.log_softmax(1).unwrap();
+        assert_same_bits(
+            log_probabilities.value().as_slice(),
+            expected_log_probabilities.as_slice(),
+        );
+        let log_softmax_pass = sum_to_scalar(log_probabilities)
+            .backward_with_trace()
+            .unwrap();
+        let saved_log_softmax_probabilities = log_softmax_pass
+            .edges
+            .iter()
+            .find_map(|edge| match &edge.saved {
+                TensorSavedContext::Model(ModelSavedContext::LogSoftmax {
+                    probabilities, ..
+                }) => Some(probabilities),
+                _ => None,
+            })
+            .expect("log-softmax retains the probabilities emitted by its forward");
+        assert_same_bits(
+            saved_log_softmax_probabilities.as_slice(),
+            expected_probabilities.as_slice(),
+        );
+
+        let targets = [0, 2];
+        let expected_loss = indexed_mean_nll(&expected_input.view(), 1, &targets).unwrap();
+        let nll_logits = parameter(&[2, 3], &values);
+        let loss = nll_logits.indexed_mean_nll(1, &targets).unwrap();
+        assert_eq!(
+            loss.value().as_slice()[0].to_bits(),
+            expected_loss.to_bits()
+        );
+        let nll_pass = loss.backward_with_trace().unwrap();
+        let saved_nll_probabilities = nll_pass
+            .edges
+            .iter()
+            .find_map(|edge| match &edge.saved {
+                TensorSavedContext::Model(ModelSavedContext::IndexedMeanNll {
+                    probabilities,
+                    ..
+                }) => Some(probabilities),
+                _ => None,
+            })
+            .expect("indexed mean NLL retains the probabilities emitted by its forward");
+        assert_same_bits(
+            saved_nll_probabilities.as_slice(),
+            expected_probabilities.as_slice(),
+        );
     }
 
     #[test]

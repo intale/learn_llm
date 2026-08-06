@@ -2,7 +2,7 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 16,
   "concept_id": "model-autodiff-ops",
   "title": "Reverse the operations that turn token IDs into loss",
@@ -63,7 +63,7 @@
       "predecessor_kind": "language-model",
       "limitation": "Bengio et al. train a neural next-word model with a learned word-feature table, matrix transforms, a tanh hidden layer, output probabilities, and explicit model-specific backward/update equations. That presentation makes the full learning path inspectable, but Chapter 15's structural tensor tape still cannot express the lookup, matrix, activation, normalization, and token-loss derivatives needed to train even this small language-model path.",
       "later_advance": "Abadi et al. describe tensor operation graphs whose differentiation finds every path from a loss to parameters and sums partial-gradient contributions, including gathered embedding rows. Vaswani et al. place learned embeddings and the output projection at model boundaries while matrix projections, softmax attention, and nonlinear feed-forward sublayers repeat through the Transformer stack. Shazeer later evaluates Swish with beta one—the same function as SiLU—and SwiGLU variants inside Transformer feed-forward sublayers.",
-      "modern_llm_role": "This chapter supplies reusable local VJPs for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL. These operations form the local reverse rules later embedding, projection, SwiGLU, attention, and token-loss components need. Training retains operation-specific forward values and shape metadata for those rules; ordinary inference uses only the forward paths.",
+      "modern_llm_role": "This chapter supplies reusable local VJPs for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL. Log-softmax and combined indexed mean NLL each retain the probability values emitted by their own forward call for their VJP instead of normalizing the logits again. These operations form the local reverse rules later embedding, projection, SwiGLU, attention, and token-loss components need; ordinary inference uses only the forward paths.",
       "sources": [
         {
           "role": "earlier",
@@ -119,6 +119,16 @@
       "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
       "region": "model-row-gather-vjp",
       "purpose": "Accumulate every occurrence adjoint into the table row named by its saved selector."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
+      "region": "model-log-softmax-saved-forward",
+      "purpose": "Return log-probabilities and retain the probabilities emitted by the same checked forward call for the VJP."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
+      "region": "model-indexed-nll-saved-forward",
+      "purpose": "Return the indexed mean loss and retain the probabilities emitted by that operation's own checked forward call."
     },
     {
       "path": "rust/demos/ch16-model-autodiff-ops/src/lib.rs",
@@ -238,7 +248,7 @@ export const diagramLabels = {
     unused: '∅',
   },
   rules: {
-    forwardFork: 'After SiLU, the graph forks: log-softmax displays log-probabilities, while combined mean NLL reads the same activated values as loss logits together with target classes. This compact chain tests operations; it is not the final decoder layout.',
+    forwardFork: 'After SiLU, the graph forks into two separate operation calls over the same logits. Log-softmax returns log-probabilities; combined mean NLL computes and returns one scalar mean NLL from the logits and target classes. The calls do not share one forward result. This exercise is not the final decoder layout.',
     target: 'For every flat position in this equal-logit example, begin with the two saved class probabilities, each equal to one half. Subtract one from the target-class component, leave the competing component unchanged, then divide both components by the four positions in the mean.',
     matmul: 'Transpose the opposite matrix axes, multiply, and reduce broadcast batches to each parent shape.',
     scatter: 'Every gathered output row owns its values. In reverse, each occurrence keeps its own adjoint and the gather VJP adds it to the parent-table row named by that token ID.',
@@ -275,6 +285,10 @@ therefore has loss $\ln 2$, and their mean is also $\ln 2$.
 This chain is deliberately an operation exercise, not a decoder architecture.
 In the later decoder, SiLU belongs inside a feed-forward block; a separate
 vocabulary projection produces the logits consumed by token loss.
+
+The displayed log-softmax and the combined indexed mean NLL are two separate
+operation calls. They share the input logits, not a forward result. Each call
+saves its own forward evidence for its later VJP.
 
 Predict the reverse signs before calculating values. The correct-target logit
 must move up to reduce loss, so its loss gradient is negative; the competing
@@ -393,10 +407,12 @@ SiLU.
 
 This chapter supplies reusable local VJPs for batched matrix products, repeated
 row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL.
+Log-softmax and combined indexed mean NLL each retain the probability values
+emitted by their own forward call for their VJP instead of normalizing the
+logits again.
 These operations form the local reverse rules later embedding, projection,
-SwiGLU, attention, and token-loss components need. Training retains
-operation-specific forward values and shape metadata for those rules; ordinary
-inference uses only the forward paths.
+SwiGLU, attention, and token-loss components need; ordinary inference uses only
+the forward paths.
 
 {/* chapter-section:rust-implementation */}
 
@@ -460,10 +476,54 @@ are separate values, but their reverse contributions can share a destination.
 The other rules follow the same local pattern. Matrix VJPs transpose the final
 matrix axes and sum expanded batch contributions back to each parent shape.
 `exp` multiplies by its saved output; `log` divides by its saved positive input;
-SiLU uses its saved input and stable sigmoid. Log-softmax subtracts probability
-times the upstream class-axis sum. For group $g$, class $c$, input logit
-$Z_{g,c}$, target $y_g$, $G$ groups, saved probability $P_{g,c}$, and incoming
-scalar adjoint $\bar L$, the combined indexed mean NLL gives the logit adjoint
+SiLU uses its saved input and stable sigmoid.
+
+`TensorValue::log_softmax` makes one checked forward call for two outputs: the
+log-probability tensor returned to the caller and the ordinary probability
+tensor needed by its VJP. After input validation, one invocation of the checked
+group driver computes one statistics bundle per group and emits both tensors
+from those shared statistics. The operation saves the emitted probabilities;
+backward does not call `softmax` or normalize the logits again.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+  region="model-log-softmax-saved-forward"
+  caption="Return log-probabilities and retain probabilities from one checked forward call"
+  label="Rust source making one Chapter 16 log-softmax forward call for its value and VJP evidence"
+/>
+
+`TensorValue::indexed_mean_nll` independently makes one checked forward call for
+the scalar mean loss and the probabilities needed by its VJP. After the tape
+establishes operand availability, the operation validates the axis, class
+extent, target count, nonempty target set, and every target. The
+probability module checks every logit for finiteness before allocating the optional probability
+tensor so the established error order is preserved. “One forward call” does
+not mean one read of each logit: the validation scan computes no maximum,
+exponential, sum, or output. The checked group driver then calculates one
+`RowStats` bundle per group with one class scan for the maximum and a separate
+class scan for the shifted-exponential sum. The group callback uses that bundle
+to accumulate the scalar loss, while the emitter scans the classes to write the
+probability tensor retained for the VJP. The saved tensor contains the same
+emitted `f64` values, bit for bit. This is identity of the stored floating-point
+values, not a claim of exact real-number arithmetic. Those scans are the steps
+of one normalization calculation, not a second normalization call.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+  region="model-indexed-nll-saved-forward"
+  caption="Return mean NLL and retain probabilities from one checked forward call"
+  label="Rust source making one Chapter 16 indexed mean NLL forward call for its value and VJP evidence"
+/>
+
+The explicit log-softmax and indexed-NLL branches in this lesson remain two
+operation calls. Each owns its own returned value and saved context. The reuse is
+between one operation's forward calculation and its later VJP, not between the
+two calls.
+
+Log-softmax reversal subtracts probability times the upstream class-axis sum.
+For group $g$, class $c$, input logit $Z_{g,c}$, target $y_g$, $G$ groups, saved
+probability $P_{g,c}$, and incoming scalar adjoint $\bar L$, the combined indexed
+mean NLL gives the logit adjoint
 
 $$
 \bar Z_{g,c}=\frac{\bar L}{G}\left(P_{g,c}-\mathbf{1}[c=y_g]\right).
@@ -549,11 +609,11 @@ chapter 17 handoff: initialize trainable values reproducibly
 ## Follow four occurrence gradients into three parameter rows
 
 The figure separates the compact forward chain from reverse accumulation. The
-fork after SiLU is explicit: log-softmax displays log-probabilities, while the
-combined mean NLL reads the same activated values as loss logits together with
-the target classes. Target rows expose the negative and positive derivatives,
-their zero class sum, and the exact parent-gradient shapes through SiLU and both
-matrix operands.
+fork after SiLU is explicit: log-softmax and combined mean NLL are separate
+calls over the same activated logits, and each retains the probabilities from
+its own checked forward call. Target rows expose the negative and positive
+derivatives, their zero class sum, and the exact parent-gradient shapes through
+SiLU and both matrix operands.
 
 The destination-row boxes contain their own occurrence contributions. Row `1`
 contains positions `0`, `1`, and `2` before their sum; row `2` contains position
@@ -573,7 +633,7 @@ four materialized output rows produce only three parent-table gradient rows.
 5. Predict the shapes of both matmul parent gradients and calculate $dW$.
 6. List the three contributions to embedding row `1` before adding them. What reaches rows `0` and `2`?
 7. Predict both value and local derivative for $\exp(0)$, $\ln(1)$, and $\operatorname{SiLU}(0)$.
-8. Explain why logits near $\pm1000$ require probabilities computed after subtracting the group maximum.
+8. Explain why logits near $\pm1000$ require maximum-shifted normalization and why each autodiff probability operation saves the probabilities emitted by its own checked forward call. Does “one call” mean one read of each logit? In what sense are the saved `f64` values identical, and do the two probability branches share a result?
 9. Which row-gather facts are checked at the public entry, and which work may the validated plan omit? At what stage are an invalid target class and an empty target set detected?
 10. Misconception check: should row `1` be divided by three after its three occurrence gradients are added?
 
@@ -587,7 +647,7 @@ four materialized output rows produce only three parent-table gradient rows.
 5. The left-parent gradient has gathered shape `[4,2]`; the right-parent gradient has weight shape `[2,2]`. The value is $dW=[[-1/4,1/4],[1/4,-1/4]]$.
 6. Positions `0`, `1`, and `2` each contribute $[-1/8,-1/8]$ to row `1`, so it gets $[-3/8,-3/8]$. Row `2` gets $[1/8,1/8]$; unused row `0` gets `[0,0]`.
 7. $\exp(0)=1$ with derivative $1$; $\ln(1)=0$ with derivative $1$; $\operatorname{SiLU}(0)=0$ with derivative $1/2$.
-8. Exponentiating raw logits can overflow. Subtracting the group maximum keeps every exponential at most one without changing the softmax probabilities. The resulting finite probabilities are saved for the log-softmax and indexed-mean-NLL VJPs.
+8. Maximum shifting prevents avoidable overflow without changing the distribution. Each log-softmax or indexed-mean-NLL operation emits its primary result and the probability values needed by its VJP in one checked call. The saved tensor contains the same emitted `f64` values, bit for bit; this is identity of stored floating-point values, not exact real arithmetic. Backward uses those values without another `softmax` call. “One call” does not mean one logit read: the preliminary scan checks finiteness, `RowStats` uses separate class scans for the maximum and shifted-exponential sum, and the emitter writes the probability output. The lesson's two branches are separate operations with separate calls and saved tensors; they share only the input logits.
 9. The public row-gather entry first checks operand availability, table rank, the logical selector shape, the selector count, and then IDs in flat order. Its validated plan lets row copying and scatter-add reuse those facts without rescanning the raw request. The indexed-loss entry validates the class axis, checks that the target count equals the number of class-axis groups, rejects zero groups, and then checks targets in flat group order before computing the loss or saved probabilities.
 10. No. Every contribution already includes the loss's $1/4$ factor. Gather reversal sums the three contributions exactly once and does not apply another mean.
 
