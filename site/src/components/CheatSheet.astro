@@ -370,9 +370,14 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     gap: 1rem;
   }
 
+  .cheat-sheet-header > div {
+    min-inline-size: 0;
+  }
+
   .cheat-sheet-header h2,
   .cheat-sheet-fallback-content h2 {
     margin: 0;
+    overflow-wrap: anywhere;
     font-family: Georgia, "Times New Roman", serif;
     font-size: clamp(1.7rem, 5vw, 2.35rem);
     font-weight: 500;

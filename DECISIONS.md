@@ -15913,3 +15913,150 @@ review are required, not because it may use external generation or paid input.
 `score-final-test-after-one-inspection`,
 `rewrite-ch03-russian-localization-naturally`, and
 `share-bound-incremental-attention-kernel`.
+
+## 2026-08-06 - Rewrite Chapter 3 Russian from the frozen English meaning map
+
+**Status:** Accepted at preflight.
+
+**Context:** Chapter 3 English revision 7 remains the current canonical account
+of deterministic byte-level BPE merge learning, but the active Russian lesson
+reads as translated English rather than as a lesson authored in Russian. The
+defect spans paragraph structure, connective logic, technical phrasing, diagram
+copy, accessibility labels, exercises, answers, and the separate cheat sheet, so
+isolated sentence substitutions would leave an inconsistent learning surface.
+
+**Decision:** Freeze the current English lesson and cheat sheet byte for byte and
+derive a section-level semantic map before writing Russian. Rewrite the complete
+Russian lesson, localized contract fields and learner-visible contract prose,
+diagram and accessibility copy, and cheat sheet directly from that map. Preserve
+every formula, symbol, ID, count, rank, byte sequence, historical distinction,
+source link, code region, exercise, answer, and Chapter 4 boundary. Prefer natural
+Russian information order and explicit causal links over English sentence shape;
+use one consistent terminology set for candidate counting with overlaps,
+left-to-right replacement without overlaps, merge ranks, byte expansions, and
+document boundaries.
+
+Keep Chapter 3 at semantic revision 7 because the canonical English meaning and
+taught algorithm do not change. Refresh the Russian source hash and localization
+review record in the contract and locale projection instead of manufacturing an
+English revision. Do not change English, Rust, dependencies, active locales,
+routes, shared diagram presentation, or the diagram's evidence. Run independent
+semantic and anti-calque review before the two-engine rendered matrix.
+
+**Consequences:** The result is one Russian-localization checkpoint rather than a
+new lesson revision. Exact non-change checks protect the canonical lesson, Rust
+trainer and demo, dependency locks, diagram component, and shared styles. The
+large cost is cached Docker/browser validation and linguistic review only; there
+is no network, paid service, external data, dependency change, or model-generation
+input, and no approval pause is required.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`rewrite-ch03-russian-localization-naturally`, and
+`20260806T061240Z-rewrite-ch03-russian-localization-naturally-01`.
+
+## 2026-08-06 - Keep the locale projection out of the Russian prose checkpoint
+
+**Status:** Accepted after the Chapter 3 integration inventory.
+
+**Context:** Preflight assumed that `site/src/i18n/chapter-locales.json` stored a
+per-locale content hash. It does not: the file records the plan revision, locale
+policy, chapter order, and active locale sets only. Rewriting Russian at the same
+canonical Chapter 3 revision therefore gives that projection no truthful byte to
+change. The same inventory found an older, independent defect: the course plan's
+Chapter 3 prose still calls the chapter revision 5 although the contract and both
+lessons have long been revision 7.
+
+**Decision:** Remove `site/src/i18n/chapter-locales.json` from the running Russian
+localization step and retain it as an exact non-change control. Record the final
+Russian lesson and cheat-sheet hashes in the Chapter 3 contract and run ledger,
+where localization review provenance belongs.
+
+Schedule `synchronize-ch03-course-plan-revision` as the immediately following
+small checkpoint. That separate commit will update only the stale Chapter 3
+Revision status, advance the course plan and its locale projection together from
+67 to 68, and synchronize the negative revision-mutation fixture. Do not mix that
+metadata correction into the learner-prose commit or change any Chapter 3 lesson,
+contract, Rust evidence, locale set, route, or dependency in the correction.
+
+**Consequences:** The current localization checkpoint has six product/test
+outputs plus the two ledgers and can prove the projection stayed unchanged. The
+new small checkpoint makes the discovered source-of-truth repair explicit and
+independently reversible before runtime audit work resumes.
+
+**Affected build and steps:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`rewrite-ch03-russian-localization-naturally`,
+`synchronize-ch03-course-plan-revision`, and
+`share-bound-incremental-attention-kernel`.
+
+## 2026-08-06 - Reflow long localized cheat-sheet titles at the shared header boundary
+
+**Status:** Accepted after the first exact Chromium rendered review.
+
+**Context:** The corrected Chapter 3 Russian cheat sheet exposed a real narrow
+Chromium overflow: at a 360 px by 500 px viewport the dialog had 305 px of
+client width but 313 px of horizontal scroll. A read-only geometry probe located
+the overflow in the flex header. Its heading child retained its automatic
+minimum inline size, so the long Russian word in the title could not reflow next
+to the fixed close control. Firefox happened to fit the same bytes, but the
+localization contract requires containment in both engines and future languages
+must not depend on English-sized words.
+
+**Decision:** Treat `site/src/components/CheatSheet.astro` as one necessary shared
+integration output of `rewrite-ch03-russian-localization-naturally`. Let the
+heading column shrink within the flex row and permit natural emergency wrapping
+in the heading itself. Keep the close control at its existing size and do not
+clip, hide, truncate, scroll, or reduce the title text. Retain the existing
+course-wide narrow-dialog geometry assertion as the rendered regression test;
+do not add Chapter 3-specific presentation behavior.
+
+**Consequences:** The checkpoint now owns seven product/test outputs plus both
+ledgers. English content, Rust behavior, dependencies, locale activation, routes,
+diagram presentation, and deployment remain exact non-change controls. The final
+candidate and both browser engines must be rebuilt from the corrected shared
+component; the failed Chromium candidate remains recorded as an attempt and is
+not publishable.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`rewrite-ch03-russian-localization-naturally`, and
+`20260806T061240Z-rewrite-ch03-russian-localization-naturally-01`.
+
+## 2026-08-06 - Accept the meaning-first Chapter 3 Russian rewrite
+
+**Status:** Accepted after exact source, static, staged, and two-engine rendered
+review.
+
+**Context:** The previous Chapter 3 Russian lesson and cheat sheet preserved much
+of the English structure and contained literal constructions, ambiguous
+referents, and technically misleading collocations. The complete replacement was
+reviewed repeatedly against the immutable English revision 7 and Rust trace. The
+first exact Chromium pass also exposed the shared cheat-sheet header overflow
+recorded above; no candidate containing that defect was accepted.
+
+**Decision:** Publish Russian lesson SHA-256
+`3d88822c9d4049f65383ab2e7495c1f9f4c251a88d514a31c41d80f7c57e7022`
+and Russian cheat-sheet SHA-256
+`96d2de987c8886ced7df0cbc709725a943f503b35566df9c494ccde252bf91e7`
+as direct localizations of the matching immutable English sources. Keep semantic
+revision 7. Accept the locale-neutral cheat-sheet header reflow with component
+SHA-256
+`0ef8171a2ee63a218ad7e60a0f2239911dc73e894d985b1d9fa1311f110479aa`.
+Freeze the seven canonical product/test outputs under the run manifest and make
+this checkpoint one independent commit.
+
+**Consequences:** Independent semantic, native-Russian, and integration reviews
+find no remaining blocker. Formula and trace evidence, history, exercises,
+answers, diagram semantics, accessibility labels, and the Chapter 4 handoff are
+in parity. The complete Docker gate, checksum-aware staged review, and 33-case
+Chromium plus 33-case Firefox matrices pass, including narrow, full view, no
+JavaScript, forced colors, direction-sensitive technical lanes, formula
+containment, and the corrected long-title dialog. English, Rust, dependencies,
+active locales, routes, diagram presentation, course plan, locale projection,
+and deployment remain unchanged.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`rewrite-ch03-russian-localization-naturally`, and
+`20260806T061240Z-rewrite-ch03-russian-localization-naturally-01`.

@@ -6,11 +6,11 @@
   "order": 3,
   "objective": {
     "en": "Learn an ordered byte-pair merge table from the frozen training documents only, with overlapping candidate counts, an explicit numeric tie rule, and left-to-right non-overlapping replacement.",
-    "ru": "Сформировать упорядоченную таблицу правил слияния пар байтов только по зафиксированным обучающим документам: учитывать перекрытия при подсчёте пар-кандидатов, при равных частотах выбирать пару по числовым ID и выполнять замену слева направо без перекрытий."
+    "ru": "Построить по зафиксированным обучающим документам — и только по ним — упорядоченную таблицу слияний BPE: при выборе правила учитывать все вхождения пар-кандидатов, включая перекрывающиеся, при равной частоте сначала сравнивать левые числовые ID, затем правые, а выбранную пару заменять слева направо без перекрытий."
   },
   "worked_inputs": {
     "en": "Predict two merge rounds for separate training documents aaa and aba, then compare the tiny trace with the first eight ranks learned from the Chapter 2 training partition.",
-    "ru": "Предсказать два раунда слияния для отдельных обучающих документов aaa и aba, затем сверить небольшую трассировку с первыми восемью рангами, полученными на обучающей выборке из главы 2."
+    "ru": "Вручную рассчитать два раунда слияния для отдельных обучающих документов aaa и aba, а затем сопоставить эту короткую трассировку с первыми восемью правилами из таблицы, построенной по обучающей выборке из главы 2."
   },
   "formula": {
     "latex": "(a^{*},b^{*})=\\arg\\max_{(a,b)}\\bigl(C(a,b),-a,-b\\bigr),\\quad m^{*}=a^{*}\\Vert b^{*}",
@@ -18,53 +18,53 @@
       {
         "symbol": "a,b",
         "en": "numeric IDs of the left and right adjacent symbols in the current round",
-        "ru": "числовые ID двух соседних токенов в текущем раунде — левого и правого"
+        "ru": "числовые ID соседних токенов в текущем раунде: a — левого, b — правого"
       },
       {
         "symbol": "(a,b)",
         "en": "an ordered adjacent pair; reversing the IDs makes a different candidate",
-        "ru": "упорядоченная соседняя пара; если поменять ID местами, получится другая пара-кандидат"
+        "ru": "упорядоченная пара соседних токенов; пара с переставленными ID считается другим кандидатом"
       },
       {
         "symbol": "C(a,b)",
         "en": "the number of adjacent positions carrying this pair across training documents, with overlaps counted and document boundaries excluded",
-        "ru": "число вхождений этой пары в соседних позициях всех обучающих документов; перекрытия учитываются, а границы документов — нет"
+        "ru": "число соседних позиций с парой (a,b) во всех обучающих документах; перекрывающиеся позиции учитываются, а позиции по разные стороны границы документа не образуют пару"
       },
       {
         "symbol": "\\arg\\max",
         "en": "selection of the candidate with the lexicographically greatest three-part score",
-        "ru": "выбор кандидата с лексикографически наибольшей трёхкомпонентной оценкой"
+        "ru": "операция выбора пары с лексикографически наибольшей трёхкомпонентной оценкой"
       },
       {
         "symbol": "-a,-b",
         "en": "the course's deterministic tie rule: after count, smaller left and then smaller right numeric IDs win",
-        "ru": "детерминированное правило курса: при равных частотах выбирается пара с меньшим левым ID, а при его равенстве — с меньшим правым ID"
+        "ru": "принятое в курсе правило для равных частот: сначала выигрывает меньший левый числовой ID, затем — меньший правый"
       },
       {
         "symbol": "a^{*},b^{*}",
         "en": "the selected left and right IDs; the star marks the winner and is not multiplication",
-        "ru": "выбранные левый и правый ID; звёздочка отмечает победителя и не означает умножение"
+        "ru": "левый и правый ID выбранной пары; звёздочка отмечает результат выбора и не означает умножение"
       },
       {
         "symbol": "m^{*}",
         "en": "one fresh training-space symbol assigned ID 256 plus its zero-based rank",
-        "ru": "новый токен в пространстве ID обучения; его ID равен 256 плюс ранг при нумерации с нуля"
+        "ru": "новый токен; его ID равен 256 плюс его ранг при нумерации с нуля"
       },
       {
         "symbol": "\\Vert",
         "en": "concatenation of the byte expansions represented by the two IDs, not arithmetic on the IDs",
-        "ru": "конкатенация последовательностей байтов, соответствующих двум ID, а не арифметическая операция над ID"
+        "ru": "приписывание последовательности байтов правого токена к последовательности байтов левого; это не арифметическая операция над ID"
       }
     ]
   },
   "history": {
     "approach": {
       "en": "Fixed whole-word vocabularies and compression-era byte-pair substitution",
-      "ru": "Фиксированные словари целых слов и замена пар байтов в алгоритмах сжатия"
+      "ru": "Фиксированный словарь целых слов и исходный алгоритм сжатия BPE"
     },
     "summary": {
       "en": "A fitted whole-word table maps every unseen spelling to one unknown bucket. Gage's compression BPE repeatedly replaced frequent adjacent byte pairs with unused bytes, and Sennrich, Haddow, and Birch adapted repeated pair merging to character-sequence subwords. This course makes a separate reproducible byte-level variant: spaces may merge inside a document, document boundaries never do, and numeric-smallest ties are an explicit local policy rather than a historical invariant.",
-      "ru": "Таблица целых слов сопоставляет любому написанию, не встречавшемуся при обучении, единый ID неизвестного токена. В алгоритме сжатия BPE Гейджа частые соседние пары байтов многократно заменялись неиспользуемыми значениями байтов, а Сеннрих, Хэддоу и Бёрч перенесли повторное слияние пар на подсловные последовательности символов. В этом курсе используется отдельный воспроизводимый байтовый вариант: пробел может участвовать в слиянии внутри документа, а граница документа — нет. При равных частотах выбирается пара с наименьшими числовыми ID; это явное правило курса, а не общее свойство исторических вариантов BPE."
+      "ru": "Фиксированный словарь целых слов сопоставляет всем незнакомым написаниям один и тот же ID неизвестного токена. В алгоритме сжатия Гейджа частые соседние пары байтов многократно заменялись неиспользуемыми значениями байтов. Позже Сеннрих, Хэддоу и Бёрч применили повторное слияние пар символов для построения подсловных единиц. В курсе используется свой воспроизводимый вариант на уровне байтов UTF-8: пробел может войти в пару внутри документа, а токены из разных документов никогда не образуют пару. При равной частоте выбирается лексикографически наименьшая пара: сначала сравниваются левые числовые ID, затем правые. Это правило принято в курсе и не является общим свойством всех вариантов BPE."
     },
     "rust_contrast": "Fit a deterministic whole-word vocabulary on four observed words, show that lower has its own ID while unseen lowering collapses to ID 0, then contrast that closed table with the learned byte-pair ranks without applying them to arbitrary new text yet."
   },
@@ -82,12 +82,12 @@
     "id": "learn-bpe-merges",
     "rationale": {
       "en": "Three static token stages joined to two numeric candidate tables make overlap counting, one-pass replacement, document barriers, and deterministic ties visible without pretending that a client-side animation is required.",
-      "ru": "Три статических состояния токенов и две таблицы пар-кандидатов наглядно показывают подсчёт с перекрытиями, однопроходную замену, границы документов и детерминированный выбор при равных частотах; клиентская анимация для этого не нужна."
+      "ru": "Три последовательных состояния токенов и две числовые таблицы кандидатов одновременно показывают подсчёт с перекрытиями, замену без перекрытий, границы документов и выбор при равных частотах. Статической схемы достаточно, чтобы сопоставить эти операции."
     }
   },
   "decoder_connection": {
     "en": "The ordered rules and their byte expansions become frozen tokenizer data in Chapter 4. That chapter reserves BOS and EOS, shifts every Chapter 3 content ID by two, applies ranks to arbitrary UTF-8, and decodes exact bytes; validation and test still contribute no merge statistic.",
-    "ru": "Упорядоченные правила и соответствующие им последовательности байтов становятся зафиксированными данными токенизатора в главе 4. Там резервируются BOS и EOS, каждый ID содержимого из главы 3 сдвигается на два, а ранги применяются к произвольному тексту в UTF-8 или последовательности байтов. Исходные байты восстанавливаются без изменений; валидационные и тестовые документы по-прежнему не влияют на статистику слияний."
+    "ru": "В главе 4 упорядоченные правила и сохранённые для них последовательности байтов станут неизменяемыми данными токенизатора. После резервирования BOS и EOS каждый ID содержимого из главы 3 будет сдвинут на два. Затем правила будут применяться к произвольным байтам UTF-8 по возрастанию ранга, а декодирование восстановит точные исходные байты. Валидационные и тестовые документы по-прежнему не будут участвовать в обучении правил."
   },
   "terminology": [
     {
@@ -108,7 +108,7 @@
     {
       "concept_id": "overlapping-count",
       "en": "overlapping candidate count",
-      "ru": "подсчёт кандидатов с перекрытиями"
+      "ru": "подсчёт вхождений пары с учётом перекрытий"
     },
     {
       "concept_id": "non-overlapping-replacement",
@@ -123,7 +123,7 @@
     {
       "concept_id": "numeric-tie-break",
       "en": "numeric lexicographic tie-break",
-      "ru": "лексикографический выбор по числовым ID при равных частотах"
+      "ru": "лексикографический выбор меньшей пары числовых ID при равной частоте"
     },
     {
       "concept_id": "document-barrier",
@@ -132,14 +132,15 @@
     }
   ],
   "translation_notes": [
-    "Use «правило слияния BPE» and «ранг слияния» rather than treating the English word merge as an untranslated noun.",
-    "Translate overlapping count as «подсчёт с перекрытиями» and non-overlapping replacement as «замена без перекрытий»; these are different operations.",
-    "Translate byte expansion as «последовательность байтов токена» in prose and «байты токена» in compact labels; do not alternate between «развёртка» and «раскрытие».",
+    "Use «правило слияния BPE» and «ранг слияния» rather than treating the English word merge as an untranslated noun. Use «фиксированный словарь целых слов», not the calque «закрытая таблица слов».",
+    "Translate overlapping candidate count as «число вхождений с учётом перекрытий» or «подсчёт вхождений пары с учётом перекрытий», and non-overlapping replacement as «замена без перекрытий»; these are different operations and their units must remain explicit.",
+    "Translate byte expansion as «последовательность байтов токена» in prose and «байты токена» in compact labels; do not use the calques «развёртка» or «раскрытие».",
     "Keep token IDs, document IDs, byte hex, candidate order, rank numbers, arrays, Rust names, trace keywords, and stdout identical in every locale.",
-    "Do not call numeric-smallest tie-breaking standard BPE behavior. Both lessons identify it as this course's reproducibility policy.",
+    "Describe the tie rule as left-ID-first lexicographic comparison and call it «лексикографически наименьшая пара числовых ID». Do not imply that it is standard BPE behavior; it is this course's reproducibility policy.",
     "Do not render an isolated learned byte token as a Unicode character: rank 0 on the real corpus represents bytes 20 d0, which are not a standalone UTF-8 string.",
     "Chapter 3 learns rules only; reserve encode, decode, BOS, EOS, and the final shifted ID layout for Chapter 4.",
-    "English revision 7 is the canonical semantic source. Russian revision 7 is refreshed directly from it with source SHA-256 97a779ed23118eed4348c49f28135054bcbd0af2ed6dd84dea80afe809b8ceb3. The prose and checksum evidence are unchanged; the visible Rust loader call now receives the ordinary JSON corpus as &str."
+    "English revision 7 is the canonical semantic source with lesson SHA-256 97a779ed23118eed4348c49f28135054bcbd0af2ed6dd84dea80afe809b8ceb3. Russian revision 7 was rewritten directly from that exact source; its reviewed lesson SHA-256 is 3d88822c9d4049f65383ab2e7495c1f9f4c251a88d514a31c41d80f7c57e7022.",
+    "The separate cheat sheet was localized directly from English SHA-256 ffd9a6e461fb8fa428c4b37cce3e12e52bdb52459d1a3cb0a5c5c0adaab72437; the reviewed Russian sheet SHA-256 is 96d2de987c8886ced7df0cbc709725a943f503b35566df9c494ccde252bf91e7. Both surfaces preserve the same nine concepts in the same order."
   ],
   "acceptance_examples": [
     {
@@ -170,7 +171,7 @@
 }
 ---
 
-# Chapter 03: Learning deterministic BPE merges / Детерминированное обучение правилам слияния BPE
+# Chapter 03: Learning deterministic BPE merges / Детерминированное построение таблицы слияний BPE
 
 <!-- contract-section:scope -->
 ## Scope
@@ -180,11 +181,13 @@ from the current per-document token sequences, counts all adjacent candidate
 positions, chooses one winner with an explicit numeric rule, assigns one fresh
 trainer-local ID, and replaces the winner once from left to right without overlap.
 
-В этой главе по выборке `D_tr` обучается упорядоченная таблица правил слияния пар
-байтов. Каждый раунд начинается с текущих последовательностей токенов в отдельных
-документах: подсчитываются все соседние пары-кандидаты, по явному числовому правилу
-выбирается одна из них, ей назначается новый локальный ID, после чего выполняется
-один проход замены слева направо без перекрытий.
+Задача главы — построить упорядоченную таблицу слияний BPE только по выборке
+`D_tr`. В начале каждого раунда у каждого документа есть своя текущая
+последовательность токенов. Сначала внутри этих последовательностей подсчитываются
+все вхождения пар-кандидатов, включая перекрывающиеся. Затем по явному правилу выбирается
+одна пара, для неё создаётся новый локальный ID и выполняется один проход замены
+слева направо. Во время замены каждый исходный токен используется не более одного
+раза.
 
 Do not apply the learned table to arbitrary input, add control tokens, decode text,
 or tune merge count on validation yet. Those operations belong to Chapter 4.
@@ -196,9 +199,10 @@ Keep `aaa` and `aba` as two separate documents. At byte level both begin with
 `a=97`; `b=98`. Predict two rounds and separately test the barrier with `a | a`,
 where the vertical bar denotes a document boundary and is never inserted as a byte.
 
-Рассматривайте `aaa` и `aba` как два разных документа. На уровне байтов `a=97`,
-`b=98`. Предскажите два раунда и отдельно проверьте границу на `a | a`: вертикальная
-черта обозначает границу документов и не добавляется в данные.
+Не соединяйте `aaa` и `aba`: это два разных документа. В начальных
+последовательностях байту `a` соответствует ID `97`, а байту `b` — ID `98`.
+Рассчитайте два раунда, а затем отдельно проверьте пример `a | a`. Вертикальная
+черта обозначает границу документов и не является байтом входных данных.
 
 Then fit eight ranks on the exact eight Chapter 2 training documents. The first
 real winner is numeric pair `(32,208)` with count `81`; neither held-out role can
@@ -278,10 +282,11 @@ encodes arbitrary UTF-8, and reverses the result to exact bytes.
 <!-- contract-section:localization -->
 ## Localization notes
 
-Distinguish «подсчёт с перекрытиями» from «замена без перекрытий». Keep formula,
-numeric IDs, hex bytes, trace grammar, arrays, and Rust identifiers identical.
-Describe the tie policy as a course reproducibility decision in every locale and
-do not imply that byte tokens must align with characters, words, or morphemes.
+Distinguish «число вхождений с учётом перекрытий» from «число замен без
+перекрытий». Keep formula, numeric IDs, hex bytes, trace grammar, arrays, and Rust
+identifiers identical. Describe the tie policy as left-ID-first lexicographic
+comparison and as a course reproducibility decision in every locale. Do not imply
+that byte tokens must align with characters, words, or morphemes.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

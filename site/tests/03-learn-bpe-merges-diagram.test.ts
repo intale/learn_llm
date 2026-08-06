@@ -23,6 +23,13 @@ const fixture = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch03-learn-bpe-merges/expected.txt'),
   'utf8',
 );
+const russianLessonSource = readFileSync(
+  resolve(
+    repositoryRoot,
+    'site/src/content/chapters/ru/03-learn-bpe-merges.mdx',
+  ),
+  'utf8',
+);
 
 function contractVisualizationId(): string {
   const source = readFileSync(
@@ -69,35 +76,35 @@ const englishLabels: LearnBpeMergesDiagramLabels = {
 };
 
 const russianLabels: LearnBpeMergesDiagramLabels = {
-  title: 'Два раунда BPE с детерминированным выбором',
-  description: 'Проследите, как меняются последовательности токенов, сколько раз встречаются пары-кандидаты и какая пара выбирается.',
-  trainingSource: 'Только обучающие документы',
-  stagesLabel: 'Состояния последовательностей токенов',
-  roundsLabel: 'Раунды слияний',
-  documentBoundary: 'Граница документа: пары через неё не подсчитываются',
+  title: 'Два детерминированных раунда слияния BPE',
+  description: 'На схеме показана точная трассировка из программы на Rust: два отдельных документа проходят два раунда, в каждом из которых сначала считаются все вхождения пар-кандидатов с учётом перекрытий, а затем выбранная пара заменяется без перекрытий.',
+  trainingSource: 'Источник статистики: только обучающие документы',
+  stagesLabel: 'Последовательности токенов по этапам',
+  roundsLabel: 'Подсчёт и замена по раундам',
+  documentBoundary: 'Граница документа: токены по разные стороны не образуют пару',
   fields: {
-    stage: 'Состояние',
+    stage: 'Этап',
     document: 'Документ',
     tokens: 'ID токенов',
-    candidates: 'Соседние пары-кандидаты',
+    candidates: 'Пары-кандидаты в текущем раунде',
     pair: 'Пара',
-    count: 'Число перекрывающихся вхождений',
-    selected: 'Выбор',
+    count: 'Число вхождений с учётом перекрытий',
+    selected: 'Результат выбора',
     rank: 'Ранг слияния',
     newToken: 'ID нового токена',
-    bytesHex: 'Байты токена (hex)',
-    replacements: 'Неперекрывающиеся замены',
+    bytesHex: 'Байты токена в шестнадцатеричной записи',
+    replacements: 'Число замен без перекрытий',
   },
   values: {
-    winner: 'Выбранная пара',
-    notWinner: 'Не выбрана',
+    winner: 'Пара выбрана',
+    notWinner: 'Пара не выбрана',
   },
-  invariantsLabel: 'Что показывает трассировка',
+  invariantsLabel: 'Что подтверждает трассировка',
   invariants: {
-    overlap: 'При подсчёте учитываются перекрывающиеся позиции.',
-    replacement: 'Замена идёт слева направо без перекрытий.',
-    tie: 'При равной частоте выбирается численно наименьшая пара.',
-    barrier: 'Пара не пересекает границу документа.',
+    overlap: 'При выборе правила учитываются все вхождения пары, включая перекрывающиеся.',
+    replacement: 'При замене каждый входной токен используется не более одного раза.',
+    tie: 'При равной частоте выигрывает лексикографически наименьшая пара числовых ID.',
+    barrier: 'Токены из разных документов никогда не образуют пару-кандидат.',
   },
 };
 
@@ -351,6 +358,16 @@ describe('learn-BPE-merges trace parser', () => {
       expect(() =>
         assertLearnBpeMergesDiagramLabels(blankLabelAt(englishLabels, path)),
       ).toThrow(path.join('.'));
+    }
+  });
+
+  it('keeps every reviewed Russian label grounded in the lesson source', () => {
+    for (const path of stringLeafPaths(russianLabels)) {
+      let value: unknown = russianLabels;
+      for (const key of path) {
+        value = (value as Record<string, unknown>)[key];
+      }
+      expect(russianLessonSource).toContain(value as string);
     }
   });
 });
