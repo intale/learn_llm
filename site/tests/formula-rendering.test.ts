@@ -321,6 +321,10 @@ const documentedChapter08To13Code = [
     pattern: /^\[[^\r\n]*\]$/,
   },
   {
+    name: "literal storage-offset pairs",
+    pattern: /^\(\d+,\d+\)$/,
+  },
+  {
     name: "literal numeric fixture or tolerance values",
     pattern: /^[+-]?(?:\d+(?:\.\d+)?)(?:e[+-]?\d+)?$/i,
   },
@@ -730,6 +734,14 @@ const documentedChapter14To39Code = [
   {
     name: "literal tensor shapes, coordinates, vectors, and matrices",
     pattern: /^\[[^\r\n]*\]$/,
+  },
+  {
+    name: "concrete reduction API boolean settings",
+    pattern: /^keep_dim=(?:true|false)$/,
+  },
+  {
+    name: "literal tensor-shape trace fields",
+    pattern: /^[A-Za-z][A-Za-z0-9_]*_shape=\[(?:\d+(?:,\s*\d+)*)?\]$/,
   },
   {
     name: "literal numeric fixture, index, seed, or tolerance values",

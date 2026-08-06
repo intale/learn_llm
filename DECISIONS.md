@@ -15643,3 +15643,39 @@ the accepted order of the remaining Rust audit work is otherwise unchanged.
 `share-probability-forward-plan`,
 `repair-stale-static-evidence-projections`, and
 `reuse-probability-forward-state-in-autodiff`.
+
+## 2026-08-06 - Keep static evidence probes synchronized without rewriting lessons
+
+**Status:** Accepted after independent policy review and the complete static and
+workspace gates.
+
+**Context:** The stale-projection repair began with five missing cheat-sheet
+evidence phrases and two undocumented code-span categories. Advancing past those
+first failures exposed a second stale Chapter 18 scatter-add phrase and a literal
+`index_shape=[4]` trace field. Every matching term remains taught in the current
+canonical lesson, and the questioned code spans are concrete traversal, API, or
+trace records rather than mathematical notation. The first successful run used a
+general identifier-plus-array trace allowance; final policy review required a
+second immutable run that narrowed this category to numeric names ending in
+`_shape`.
+
+**Decision:** Change only the two policy tests. Point each cheat-sheet grounding
+probe at direct current English evidence for logical transpose, graph retention,
+gather row copying, reverse scatter-add, no-grad evaluation, and validation
+selection. Document three narrow literal-code categories: numeric
+storage-offset pairs, the actual `keep_dim=true|false` API setting, and numeric
+`*_shape=[...]` trace fields. Do not modify learner prose,
+localized content, contracts, cheat-sheet records, formula requirements, or the
+general code-span policy.
+
+**Consequences:** All 981 static tests pass. The formula audit still rejects
+ordinary mathematical notation in code spans, while concrete records used to
+inspect the implementation are classified explicitly. Canonical lesson and
+cheat-sheet bytes remain unchanged, so no localization or rendered-page review
+is made stale.
+
+**Affected build, step, and runs:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`repair-stale-static-evidence-projections`, and
+`20260806T034602Z-repair-stale-static-evidence-projections-01` followed by
+`20260806T035438Z-repair-stale-static-evidence-projections-02`.
