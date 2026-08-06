@@ -16060,3 +16060,33 @@ and deployment remain unchanged.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `rewrite-ch03-russian-localization-naturally`, and
 `20260806T061240Z-rewrite-ch03-russian-localization-naturally-01`.
+
+## 2026-08-06 - Synchronize Chapter 3 plan metadata with canonical revision 7
+
+**Status:** Accepted at preflight.
+
+**Context:** Chapter 3's contract and both active lessons are already canonical
+content revision 7, but the course plan still describes revision 5. The locale
+projection correctly carries no per-locale content hash, yet its plan revision
+must advance whenever the source plan changes. The negative history-policy test
+also names the current plan revision as the exact mutation source.
+
+**Decision:** Change only Chapter 3's Revision status in the course plan so it
+names content revision 7 and summarizes the preserved algorithm and evidence,
+the direct meaning-first Russian rewrite, and the clarified merge-table,
+vocabulary, tie, replacement, byte-expansion, and document-boundary language.
+Advance the course plan and locale projection together from revision 67 to 68,
+and synchronize the mutation fixture's source literal while retaining the same
+invalid replacement and rejection. Keep every other Chapter 3 plan field and all
+contracts, lessons, cheat sheets, Rust sources, dependencies, routes, and locale
+sets byte-identical.
+
+**Consequences:** The scheduler, plan, and locale projection agree with the
+already published Chapter 3 revision without manufacturing another content
+revision or reopening localization. This is a metadata-only checkpoint with no
+learner-visible, runtime, dependency, route, or locale-policy change.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`synchronize-ch03-course-plan-revision`, and
+`20260806T070955Z-synchronize-ch03-course-plan-revision-01`.

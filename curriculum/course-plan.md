@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 67,
+  "plan_revision": 68,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1014,7 +1014,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `03-learn-bpe-merges`
 - **Implementation step:** `implement-ch03-learn-bpe-merges`
-- **Revision status:** Content revision 5 preserves the learned ranks and Rust behavior while removing page/fixture machinery from learner prose, using a faithful Russian spelling of Sennrich, distinguishing tokenizer decoding from the LLM decoder, rendering explanatory tuples as mathematics, and retaining precise Russian BPE terminology.
+- **Revision status:** Content revision 7 preserves the deterministic merge-learning algorithm, exact Rust evidence, formulas, historical contrast, visualization, exercises, and Chapter 4 handoff while replacing the complete Russian lesson and cheat sheet with a direct meaning-first localization from the frozen English source; it distinguishes the learned merge-rule table from the resulting token vocabulary and makes tie-breaking, replacement order, byte expansion, and document boundaries explicit.
 - **Depends on:** `02-corpus-partitions`.
 - **Outcome:** Learn one deterministic sequence of byte-pair merges from training documents only.
 - **Scope boundary:** Teach overlapping adjacent-pair counting, numeric lexicographic tie-breaking, and left-to-right non-overlapping replacement within each document. Boundary markers are barriers; validation/test documents and arbitrary-input encoding are deferred.
