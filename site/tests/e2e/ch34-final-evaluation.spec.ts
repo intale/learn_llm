@@ -20,7 +20,7 @@ const copy = {
     revisionLabel: "Content revision",
     title: "Open test once, keep the report",
     description:
-      "Learn how to freeze validation-selected model decisions, score identical held-out targets once without a gradient graph, and publish a provenance-checked final LLM evaluation report.",
+      "Learn how to freeze validation-selected choices, validate and record the ordered test inputs and targets at one final-evaluation gate, aggregate every target token fairly, and publish graph-free decoder and bigram scores in a provenance-checked report.",
     headings: [
       "Freeze the comparison before opening test",
       "Average surprise over target tokens",
@@ -33,9 +33,9 @@ const copy = {
     ],
     diagramTitle: "Freeze choices before final evidence",
     diagramDescription:
-      "Follow training, validation selection, a sealed state, one test evaluation, and an immutable report; then compare two model losses over the same 24 target slots.",
+      "Follow training and validation to one test gate. At gate opening, the evaluator records 24 ordered, vocabulary-checked input/target pairs in one private inspected view. The decoder then scores the original epoch separately without a graph, while the bigram reuses those pairs; both results enter one immutable report.",
     cues: [
-      "≡ Equivalence sign: identical target slots",
+      "≡ Equivalence sign: same inspected target order",
       "║ Double border: lower loss in this fixture",
       "× Cross: selection rejected the test partition",
     ],
@@ -48,15 +48,18 @@ const copy = {
       "TrainingResult already owns two independent representations of the validation choice",
       "Immediately before the test gate opens, FinalEvaluator compares the decoder configuration",
       "A mismatch returns SelectedStateMismatch while the gate-opening count remains 0",
+      "InspectedTestEpoch and its fields are private to the evaluation module",
+      "one input-validation boundary for report evidence and later bigram scoring",
+      "does not promise one physical memory pass",
     ],
   },
   ru: {
     revisionLabel: "Версия материала",
-    title: "Откройте тестовую выборку один раз и сохраните отчёт",
+    title: "Откройте доступ к тестовой выборке один раз и сохраните отчёт",
     description:
-      "Разберитесь, как зафиксировать решения, принятые по валидации, один раз оценить одни и те же отложенные целевые позиции без записи графа вычислений и опубликовать итоговый отчёт об оценке LLM с проверенными сведениями о происхождении данных.",
+      "Разберитесь, как зафиксировать решения, принятые по валидации, при открытии итогового доступа проверить и сохранить упорядоченные пары входных и целевых токенов тестовой выборки, усреднить потери по всем целевым токенам и записать оценки декодера и биграммной модели без графа вычислений в отчёт с проверенными сведениями о происхождении данных и условиях оценки.",
     headings: [
-      "Зафиксируйте сравнение до открытия тестовой выборки",
+      "Зафиксируйте условия сравнения до открытия тестовой выборки",
       "Усредняйте неожиданность по целевым токенам",
       "Не смешивайте состояния, позиции и роли выборок",
       "От результатов обучения к управляемой итоговой оценке LLM",
@@ -67,11 +70,11 @@ const copy = {
     ],
     diagramTitle: "Зафиксируйте решения до итоговой оценки",
     diagramDescription:
-      "Проследите обучение, выбор по валидации, фиксацию состояния, однократную оценку на тестовой выборке и неизменяемый итоговый отчёт, а затем сопоставьте потери двух моделей на одних и тех же 24 целевых позициях.",
+      "Проследите путь от обучения и выбора по валидации к однократному открытию тестовой выборки. При открытии доступа оценщик создаёт проверенное внутреннее представление тестовой эпохи и сохраняет в нём 24 упорядоченные пары индексов входного и целевого токенов. Затем декодер отдельно оценивает исходную эпоху без записи графа вычислений, а биграммная модель использует сохранённые пары; результаты обеих моделей входят в один неизменяемый отчёт.",
     cues: [
-      "≡ Знак эквивалентности: одинаковые целевые позиции",
-      "║ Двойная граница: меньшие потери в этом примере",
-      "× Крест: при выборе обращение к тестовой выборке отклонено",
+      "≡ Знак эквивалентности: одна и та же последовательность проверенных пар «вход — цель»",
+      "║ Двойная рамка: меньшие потери в этом примере",
+      "× Знак ×: при выборе доступ к тестовой выборке был отклонён",
     ],
     detailsFragment: "контроля доступа к набору данных и общего журнала аудита",
     historyFragments: [
@@ -80,8 +83,11 @@ const copy = {
     ],
     ownershipFragments: [
       "TrainingResult хранит результат выбора по валидации в двух независимых формах",
-      "Непосредственно перед открытием доступа к тестовой выборке FinalEvaluator сверяет с сохранённым состоянием конфигурацию декодера",
+      "Непосредственно перед открытием доступа к тестовой выборке FinalEvaluator сверяет конфигурацию декодера",
       "При несовпадении возвращается SelectedStateMismatch, а счётчик открытий доступа остаётся равным 0",
+      "InspectedTestEpoch и его поля доступны только внутри модуля оценки",
+      "входные данные проверяются на одной границе — при открытии доступа к тестовой эпохе",
+      "не означает один физический проход по памяти",
     ],
   },
 } as const;
@@ -293,7 +299,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 34,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -349,7 +355,7 @@ async function expectChapterContent(
   await expect(
     page.locator('.lesson-body a[href^="https://proceedings.neurips.cc/"]'),
   ).toHaveCount(1);
-  await expect(page.locator("figure.rust-source")).toHaveCount(5);
+  await expect(page.locator("figure.rust-source")).toHaveCount(6);
   await expectVisualizationDecision(page, {
     decision: "useful",
     id: "final-evaluation-boundary",

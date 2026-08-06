@@ -2,13 +2,13 @@
 {
   "chapter_id": "34-final-evaluation",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 34,
   "concept_id": "final-evaluation",
   "title": "Open test once, keep the report",
-  "description": "Learn how to freeze validation-selected model decisions, score identical held-out targets once without a gradient graph, and publish a provenance-checked final LLM evaluation report.",
-  "objective": "Evaluate the frozen validation-selected decoder through one test-only gate, aggregate every target token fairly, and compare it with a frozen bigram fitted on the same training tokens.",
-  "worked_inputs": "Score two fixed reverse-cycle test documents of nine and seven token IDs with the Chapter 33 context-two decoder and an alpha-one bigram fitted on the exact same two training documents; compare all 24 aligned target slots once.",
+  "description": "Learn how to freeze validation-selected choices, validate and record the ordered test inputs and targets at one final-evaluation gate, aggregate every target token fairly, and publish graph-free decoder and bigram scores in a provenance-checked report.",
+  "objective": "Evaluate the frozen validation-selected decoder through one test-only gate, validate and record the ordered test input/target positions, aggregate every target token fairly, and compare the result with a frozen bigram fitted on the same training tokens.",
+  "worked_inputs": "Score two fixed reverse-cycle test documents of nine and seven token IDs with the Chapter 33 context-two decoder and an alpha-one bigram fitted on the exact same two training documents; in one immutable report compare both models over the same ordered 24 target-token positions, each paired with its aligned input token.",
   "formula": {
     "latex": "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
     "symbols": [
@@ -26,15 +26,15 @@
       },
       {
         "symbol": "N_{te}",
-        "meaning": "the number of aligned target-token slots scored in the complete test epoch"
+        "meaning": "the number of target-token positions scored in the complete test epoch; each target has one aligned input position"
       },
       {
         "symbol": "n",
-        "meaning": "one aligned test target slot in stable document, window, and position order"
+        "meaning": "one test input/target position in stable document, window, and within-window order"
       },
       {
         "symbol": "x_n",
-        "meaning": "the causal input available at test target slot n"
+        "meaning": "the input context available for the target at test position n"
       },
       {
         "symbol": "y_n",
@@ -87,8 +87,8 @@
   "rust_sources": [
     {
       "path": "rust/crates/llm-from-scratch/src/evaluation.rs",
-      "region": "evaluation-provenance",
-      "purpose": "Own and validate the corpus, split, tokenizer, and context identity shared by the selected decoder, frozen baseline, and test epoch."
+      "region": "inspected-test-epoch",
+      "purpose": "At gate opening, validate test alignment and token bounds and record the resulting ordered pairs beside the report evidence."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/evaluation.rs",
@@ -98,11 +98,16 @@
     {
       "path": "rust/demos/ch34-final-evaluation/src/lib.rs",
       "region": "learner-evidence",
-      "purpose": "Borrow the retained Chapter 33-selected state and matching model, and freeze the same-training-token bigram before opening the unequal two-document test epoch once."
+      "purpose": "Borrow the retained Chapter 33-selected state and matching model, and freeze the same-training-token bigram before opening the unequal two-document test epoch through one local gate."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/bigram.rs",
+      "region": "checked-bigram-probability",
+      "purpose": "Keep public raw-ID probability calls checked while letting final evaluation reuse the private view's already-checked indices."
     },
     {
       "path": "rust/demos/ch34-final-evaluation/src/main.rs",
-      "purpose": "Print only the frozen Chapter 34 learner report."
+      "purpose": "Run the fixed fixture through its local gate and print only its formatted immutable-report evidence."
     },
     {
       "path": "rust/demos/ch34-final-evaluation/src/diagram_trace.rs",
@@ -113,7 +118,7 @@
   "visualization": {
     "decision": "useful",
     "id": "final-evaluation-boundary",
-    "rationale": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and provenance cards show why the numeric comparison is like-for-like evidence rather than another model-selection step."
+    "rationale": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and provenance cards show that both models use the same inspected input/target order without turning the result into another model-selection step."
   },
   "decoder_connection": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance."
 }
@@ -125,17 +130,17 @@ import FinalEvaluationDiagram from "../../../components/chapters/FinalEvaluation
 export const diagramLabels = {
   title: "Freeze choices before final evidence",
   description:
-    "Follow training, validation selection, a sealed state, one test evaluation, and an immutable report; then compare two model losses over the same 24 target slots.",
+    "Follow training and validation to one test gate. At gate opening, the evaluator records 24 ordered, vocabulary-checked input/target pairs in one private inspected view. The decoder then scores the original epoch separately without a graph, while the bigram reuses those pairs; both results enter one immutable report.",
   sections: {
     boundary: "Give each partition one responsibility",
-    comparison: "Score identical target evidence",
+    comparison: "Score the same inspected target order",
     proof: "Audit provenance, access, and state",
   },
   stages: {
     train: "Train fits parameters",
     validation: "Validation selects the checkpoint",
     frozen: "Freeze every decision",
-    test: "Test evaluates once",
+    test: "Open one test gate",
     report: "Keep the report immutable",
   },
   models: {
@@ -159,28 +164,28 @@ export const diagramLabels = {
     fits: "May update parameters",
     selects: "May choose among planned states",
     sealed: "No choice may change now",
-    evaluatesOnce: "May supply evidence, never selection",
+    evaluatesOnce: "Validate and store ordered pairs for evidence, never selection",
     lowerLoss: "Double border: lower loss in this fixture",
-    sameTargets: "Equivalence sign: identical target slots",
+    sameTargets: "Equivalence sign: same inspected target order",
     rejectedBeforeFreeze: "Cross: selection rejected the test partition",
     verified: "Recorded in the final report",
   },
   proofs: {
     provenance: "Matching data provenance",
     selectionClosed: "Selection was already closed",
-    noGrad: "No graph or state mutation",
-    immutableState: "One versioned report",
+    noGrad: "Decoder scoring stays separate and graph-free",
+    immutableState: "One inspected test view and one report",
   },
   captions: {
     boundary:
-      "The numbered sequence assigns one responsibility to each stage: training fits, validation selects, and test becomes readable only after every choice is frozen.",
+      "The numbered sequence assigns one responsibility to each stage: training fits, validation selects, and the evaluator may inspect test IDs only after every choice is frozen.",
     comparison:
-      "Both rows score the same 24 target slots. Each total uses the probability that its row's model assigns to every target; the double border marks the lower recorded mean in this fixture.",
+      "The decoder evaluates the epoch separately without a graph, while the bigram reuses the same 24 checked input/target pairs. The double border marks the lower recorded mean in this fixture.",
     proof:
-      "The report binds the comparison to one corpus, split, literal-token mapping, context length, ordered target fingerprint, and one local gate opening.",
+      "One private inspected view binds the report to one corpus, split, literal-token mapping, context length, ordered target fingerprint, and local gate opening.",
   },
   scrollers: {
-    comparison: "Scrollable final decoder and bigram score comparison",
+    comparison: "Scrollable decoder and bigram scores over the same inspected target order",
   },
 };
 
@@ -189,10 +194,11 @@ export const diagramLabels = {
 ## Freeze the comparison before opening test
 
 Evaluate the frozen validation-selected decoder through one test-only gate,
-aggregate every target token fairly, and compare it with a frozen bigram fitted
-on the same training tokens. Chapter 33 already chose checkpoint $s^*=8$ with
-validation loss $1.595297$ and proved that an attempted test-partition probe was
-rejected during selection.
+validate and record the ordered test input/target positions, aggregate every
+target token fairly, and compare the result with a frozen bigram fitted on the
+same training tokens. Chapter 33 already chose checkpoint $s^*=8$ with validation
+loss $1.595297$ and proved that an attempted test-partition probe was rejected
+during selection.
 
 Before creating the test gate, the fixture freezes every remaining choice:
 
@@ -207,9 +213,13 @@ test-a = [4,3,2,1,0,4,3,2,1]
 test-b = [3,2,1,0,4,3,2]
 ```
 
-The first document contributes $14$ aligned target slots and the second
-contributes $10$, so predict $N_{te}=24$. The final report opens its local
-gate once, preserves every decoder parameter and gradient bit, and reports
+The first document contributes $14$ target-token positions and the second
+contributes $10$. Each target has one aligned input position, but the loss has
+one term per target; aligned inputs do not double the denominator. Therefore
+$N_{te}=14+10=24$, not $48$ scalar IDs.
+`FinalEvaluator::evaluate_once` opens its local gate, checks the ordered pairs,
+evaluates both models, verifies that every decoder parameter and gradient bit is
+unchanged, and only then returns the report containing
 
 $$
 \mathcal{L}_{te}^{\mathrm{decoder}}=1.607679,\qquad
@@ -249,12 +259,17 @@ would incorrectly give the shorter document the same weight as the longer one.
 
 ## Keep states, slots, and roles distinct
 
+The $N_{te}$ aligned target slots are not just a count. Each slot is one causal
+input $x_n$ paired with its observed next token $y_n$. Its document, window, and
+within-window position fix its identity, and overlapping windows can repeat one
+underlying document transition.
+
 - $\mathcal{L}_{te}$ is token-weighted mean negative log-likelihood on `Test`.
 - $\theta_{s^*}$ is the complete decoder state chosen before test opens.
 - $s^*$ is the validation-selected checkpoint index, here $s^*=8$.
 - $N_{te}$ is the complete test target count, here $N_{te}=24$.
-- $n$ indexes one stable document, window, and target position.
-- $x_n$ is the causal input available at slot $n$.
+- $n$ indexes one stable document, window, and within-window input/target position.
+- $x_n$ is the input context available for the target at position $n$.
 - $y_n$ is the observed next-token target at slot $n$.
 - $p_{\theta_{s^*}}(y_n\mid x_n)$ is the frozen decoder probability assigned
   to that target.
@@ -330,13 +345,6 @@ the local counter cannot replace organizational data governance.
 plus a positive context length. Equality is field-by-field, so a matching label
 cannot hide a changed tokenizer or context.
 
-<RustSource
-  path="rust/crates/llm-from-scratch/src/evaluation.rs"
-  region="evaluation-provenance"
-  caption="Bind every participant in the final comparison to one corpus, split, tokenizer, and context identity"
-  label="Rust source implementing Chapter 34 evaluation provenance"
-/>
-
 `TrainingResult` already owns two independent representations of the validation
 choice: a graph-free selected state and a decoder built from the same values.
 `SelectedDecoder` borrows both and accepts them only with a `Validation`
@@ -354,29 +362,70 @@ bigram algorithm before constructing the test evaluator.
 <RustSource
   path="rust/demos/ch34-final-evaluation/src/lib.rs"
   region="learner-evidence"
-  caption="Borrow the retained selected state and matching decoder, then freeze the same-training-token baseline before opening the unequal test documents once"
+  caption="Borrow the retained selected state and matching decoder, then freeze the same-training-token baseline before opening the unequal test documents through one local gate"
   label="Rust source assembling the Chapter 34 final comparison"
 />
 
 `FinalEvaluator` owns a nonempty `Test` epoch and is neither cloneable nor
 copyable. Role, provenance, selected-state/model, context, and vocabulary errors
 leave the gate-opening count at $0$. After those checks pass, the evaluator
-changes the count to $1$, records the borrowed decoder's parameter and gradient
-bits, scores it inside the no-grad boundary, and compares those bits afterward.
-The decoder is not consumed; the one-use resource is permission to inspect this
-test epoch. A later error still consumes that local permission.
+changes the count to $1$ before inspecting the first test ID. A later alignment,
+token-range, or numerical error therefore consumes that local permission. The
+decoder is not consumed; the one-use resource is permission to inspect this test
+epoch.
 
-The bigram visits the exact same flat input/target slots, including repetitions
-from overlapping decoder windows. A length check runs before `zip`, so future
-alignment drift cannot be silently truncated.
+`InspectedTestEpoch` and its fields are private to the evaluation module. The
+current module constructs the type only through `inspect`, exposes no mutation
+API, and keeps an immutable borrow of the original epoch. Its document IDs,
+ordered fingerprint, target count, and checked `[input_index, target_index]`
+pairs therefore remain coupled to that epoch. For each batch, input/target
+lengths must match before IDs are checked. Positions are then checked in flat
+order, with the input ID before the target ID at the same position. Because
+preflight already proved that decoder and bigram vocabulary sizes match, every
+stored index is valid for both models. The view stores two indices for each of
+the $N_{te}$ target positions, so this reusable order costs $O(N_{te})$ space.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/evaluation.rs"
+  region="inspected-test-epoch"
+  caption="At gate opening, validate test alignment and token bounds and record the resulting ordered pairs"
+  label="Rust source implementing the private inspected Chapter 34 test view"
+/>
+
+`evaluate_no_grad` still traverses the original epoch separately for decoder
+scoring. That call records no graph, and the evaluator compares parameter and
+gradient bits before and after it. Bigram scoring accepts only the private
+inspected view and uses its stored index pairs, including repetitions from
+overlapping decoder windows. Bigram scoring never revalidates the original token
+arrays.
+
+The crate-private bigram primitive trusts those stored indices and uses the same
+numerator and denominator arithmetic as the public probability method. The
+public `BigramModel::smoothed_probability` entry accepts two raw `u32` IDs and
+checks both; other public raw-ID entries retain their existing checks.
+
+This establishes one input-validation boundary for report evidence and later
+bigram scoring. It does not promise one physical memory pass or remove checks
+needed by decoder evaluation. Evidence collection, separate no-grad decoder
+scoring, and bigram scoring still traverse the information needed for their
+distinct jobs. Here “input validation” means checking lengths and token bounds;
+the `Validation` partition is the different, earlier stage that selected
+checkpoint $s^*$.
 
 The report has getters but no setters or selection operation. It owns schema
 version $1$, the selected step, provenance, ordered target fingerprint, counts,
 both model scores, one gate-opening count, and state-preservation checks.
 
 <RustSource
+  path="rust/crates/llm-from-scratch/src/bigram.rs"
+  region="checked-bigram-probability"
+  caption="Keep public raw-token calls checked while final evaluation reuses already-checked indices"
+  label="Rust source separating public bigram validation from the private checked-index path"
+/>
+
+<RustSource
   path="rust/demos/ch34-final-evaluation/src/main.rs"
-  caption="Print only the frozen Chapter 34 learner report"
+  caption="Run the fixed fixture through its local gate and print only its formatted immutable-report evidence"
   label="Rust entry point for the Chapter 34 learner report"
 />
 
@@ -388,8 +437,8 @@ evaluation, both token-weighted scores, and the state-preservation checks.
 
 ## Read one information boundary and one comparison
 
-The evidence record keeps the gate result, provenance, both scores, their shared
-target count, and the measured state-preservation facts together.
+The evidence record keeps the gate result, provenance, inspected target order,
+both scores, shared target count, and measured state-preservation facts together.
 
 <RustSource
   path="rust/demos/ch34-final-evaluation/src/diagram_trace.rs"
@@ -404,7 +453,7 @@ The five numbered cards show why test cannot appear before the frozen boundary.
 The table repeats $N_{te}=24$ for both rows and marks the lower fixture loss with
 text plus a double start border. The four check cards retain the rejected
 selection-time test probe, one gate opening, zero recorded graph nodes, unchanged
-state bits, and `fnv1a64:dac4bb4d76beeb59` target evidence.
+state bits, one inspected view, and `fnv1a64:dac4bb4d76beeb59` target evidence.
 
 {/* chapter-section:exercises */}
 
@@ -420,8 +469,8 @@ state bits, and `fnv1a64:dac4bb4d76beeb59` target evidence.
    each original transition once. Are the resulting means comparable?
 5. Change only the tokenizer fingerprint. Does the gate open, and does its
    gate-opening count change?
-6. Put token ID $5$ into this vocabulary-$5$ test epoch. What happens if the
-   error is discovered after test scoring begins?
+6. Put token ID $5$ into this vocabulary-$5$ test epoch. What happens when the
+   gate-opening inspection reaches it?
 7. From losses $1.607679$ and $2.236735$, state one justified conclusion and
    one unjustified universal conclusion.
 8. Two processes each build a fresh local evaluator over copied test data. What
@@ -437,7 +486,8 @@ state bits, and `fnv1a64:dac4bb4d76beeb59` target evidence.
      be needed after reselection.
   4. No. Both models must score the same ordered slots, including repetitions.
   5. Provenance preflight rejects it while the local gate-opening count remains $0$.
-  6. Scoring fails and the owner remains consumed, so retry is forbidden.
+  6. The inspector returns a token-range error. This `FinalEvaluator` has already
+     consumed its one-use permission, so a retry returns `AlreadyEvaluated`.
   7. The selected decoder is lower on this reversed synthetic fixture; the
      numbers do not show that decoders always beat bigrams.
   8. Dataset access control and a shared audit log are missing.

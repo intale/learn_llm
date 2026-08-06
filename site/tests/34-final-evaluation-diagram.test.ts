@@ -35,6 +35,7 @@ const coursePlanSource = read("curriculum/course-plan.md");
 const evaluationSource = read(
   "rust/crates/llm-from-scratch/src/evaluation.rs",
 );
+const bigramSource = read("rust/crates/llm-from-scratch/src/bigram.rs");
 const selectionSource = read(
   "rust/demos/ch33-training-selection/src/lib.rs",
 );
@@ -382,9 +383,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
     );
-    expect(contract.content_revision).toBe(3);
-    expect(lesson.content_revision).toBe(3);
-    expect(russianLesson.content_revision).toBe(3);
+    expect(contract.content_revision).toBe(4);
+    expect(lesson.content_revision).toBe(4);
+    expect(russianLesson.content_revision).toBe(4);
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
@@ -397,7 +398,7 @@ describe("Chapter 34 static diagram and content boundary", () => {
       expect(normalizedLesson).toContain(source.claim);
     }
     expect(lessonSource.match(/chapter-section:/g)).toHaveLength(8);
-    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(5);
+    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(6);
     expect(lessonSource).toContain(
       "<FinalEvaluationDiagram labels={diagramLabels} />",
     );
@@ -412,12 +413,13 @@ describe("Chapter 34 static diagram and content boundary", () => {
       ),
     ).toBe(true);
     expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
-    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(5);
+    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(6);
     expect(russianLessonSource).toContain(
       "<FinalEvaluationDiagram labels={diagramLabels} />",
     );
 
     expect(evaluationSource).toContain("region:evaluation-provenance");
+    expect(evaluationSource).toContain("region:inspected-test-epoch");
     expect(evaluationSource).toContain("region:once-only-final-evaluation");
     expect(evaluationSource).toContain("AlreadyEvaluated");
     expect(evaluationSource).toContain("Partition::Test");
@@ -432,8 +434,80 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(finalEvaluationSource!.indexOf("self.access_count = 1")).toBeGreaterThan(
       finalEvaluationSource!.indexOf("selected_state_matches_model("),
     );
+    expect(
+      finalEvaluationSource!.indexOf("InspectedTestEpoch::inspect("),
+    ).toBeGreaterThan(finalEvaluationSource!.indexOf("self.access_count = 1"));
+    expect(finalEvaluationSource!.indexOf("parameter_bits(model)")).toBeGreaterThan(
+      finalEvaluationSource!.indexOf("InspectedTestEpoch::inspect("),
+    );
+    expect(finalEvaluationSource!.indexOf("evaluate_no_grad(")).toBeGreaterThan(
+      finalEvaluationSource!.indexOf("parameter_bits(model)"),
+    );
+    expect(finalEvaluationSource!.indexOf("score_bigram(")).toBeGreaterThan(
+      finalEvaluationSource!.indexOf("evaluate_no_grad("),
+    );
     expect(finalEvaluationSource).not.toMatch(
       /restore_independent_model|into_model|\.restore\(\)/,
+    );
+
+    const inspectedSource = evaluationSource.match(
+      /\/\/ region:inspected-test-epoch([\s\S]*?)\/\/ endregion:inspected-test-epoch/,
+    )?.[1];
+    expect(inspectedSource).toBeDefined();
+    expect(inspectedSource).toMatch(
+      /struct InspectedTestEpoch<'a> \{[\s\S]*?epoch: &'a MiniBatchEpoch,[\s\S]*?evidence: TestEvidence,[\s\S]*?checked_pairs: Vec<CheckedTokenPair>,/,
+    );
+    expect(inspectedSource).toMatch(
+      /inputs\.len\(\) != targets\.len\(\)[\s\S]*?InputTokenOutOfRange[\s\S]*?TargetTokenOutOfRange/,
+    );
+    expect(inspectedSource).not.toMatch(
+      /pub(?:\([^)]*\))?\s+(?:struct|fn)\s+(?:InspectedTestEpoch|inspect)\b/,
+    );
+    expect(inspectedSource).not.toMatch(
+      /require_matching_provenance|selected_state_matches_model|gradient_bits|fn score_bigram/,
+    );
+
+    const scoreBigramSource = evaluationSource.match(
+      /fn score_bigram\([\s\S]*?\n\}\n\n\/\/ region:once-only-final-evaluation/,
+    )?.[0];
+    expect(scoreBigramSource).toBeDefined();
+    expect(scoreBigramSource).toContain("inspected: &InspectedTestEpoch<'_>");
+    expect(scoreBigramSource).toContain(
+      "smoothed_probability_for_checked_indices(pair.input, pair.target)",
+    );
+    expect(scoreBigramSource).not.toMatch(
+      /MiniBatchEpoch|append_checked_aligned_tokens|\.smoothed_probability\(/,
+    );
+
+    const checkedBigramSource = bigramSource.match(
+      /\/\/ region:checked-bigram-probability([\s\S]*?)\/\/ endregion:checked-bigram-probability/,
+    )?.[1];
+    expect(checkedBigramSource).toBeDefined();
+    expect(checkedBigramSource).toContain(
+      "pub(crate) fn smoothed_probability_for_checked_indices",
+    );
+    expect(checkedBigramSource).not.toContain("token_index(");
+    const publicProbabilitySource = bigramSource.match(
+      /pub fn smoothed_probability\([\s\S]*?\n    \}/,
+    )?.[0];
+    expect(publicProbabilitySource).toContain("self.count(from, to)?");
+    expect(publicProbabilitySource).toContain("self.smoothing_denominator(from)?");
+
+    expect(normalizedLesson).toContain(
+      "one input-validation boundary for report evidence and later bigram scoring",
+    );
+    expect(normalizedLesson).toContain(
+      "does not promise one physical memory pass or remove checks needed by decoder evaluation",
+    );
+    expect(normalizedLesson).toContain(
+      "other public raw-ID entries retain their existing checks",
+    );
+    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
+    expect(normalizedRussianLesson).toContain(
+      "входные данные проверяются на одной границе — при открытии доступа к тестовой эпохе",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Это не означает один физический проход по памяти",
     );
     expect(selectionSource).toContain("fixture_training_documents");
     expect(demoSource).not.toContain("region:historical-evaluation-contrast");

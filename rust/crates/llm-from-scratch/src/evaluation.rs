@@ -547,12 +547,150 @@ impl FinalEvaluationReport {
     }
 }
 
+// region:inspected-test-epoch
 #[derive(Debug)]
 struct TestEvidence {
     document_ids: Vec<String>,
     target_fingerprint: String,
     target_count: usize,
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct CheckedTokenPair {
+    input: usize,
+    target: usize,
+}
+
+/// One gate-opening inspection of a borrowed test epoch.
+///
+/// This type is private to the module. Current callers construct it only through
+/// `inspect`; it exposes no mutation API and retains an immutable epoch borrow.
+#[derive(Debug)]
+struct InspectedTestEpoch<'a> {
+    epoch: &'a MiniBatchEpoch,
+    evidence: TestEvidence,
+    checked_pairs: Vec<CheckedTokenPair>,
+}
+
+fn append_checked_aligned_tokens(
+    batch: usize,
+    inputs: &[u32],
+    targets: &[u32],
+    vocabulary_size: usize,
+    checked_pairs: &mut Vec<CheckedTokenPair>,
+) -> Result<(), EvaluationError> {
+    if inputs.len() != targets.len() {
+        return Err(EvaluationError::TargetAlignmentMismatch {
+            batch,
+            inputs: inputs.len(),
+            targets: targets.len(),
+        });
+    }
+    for (position, (&input, &target)) in inputs.iter().zip(targets).enumerate() {
+        let Some(input_index) = usize::try_from(input)
+            .ok()
+            .filter(|id| *id < vocabulary_size)
+        else {
+            return Err(EvaluationError::InputTokenOutOfRange {
+                batch,
+                position,
+                id: input,
+                vocabulary_size,
+            });
+        };
+        let Some(target_index) = usize::try_from(target)
+            .ok()
+            .filter(|id| *id < vocabulary_size)
+        else {
+            return Err(EvaluationError::TargetTokenOutOfRange {
+                batch,
+                position,
+                id: target,
+                vocabulary_size,
+            });
+        };
+        checked_pairs.push(CheckedTokenPair {
+            input: input_index,
+            target: target_index,
+        });
+    }
+    Ok(())
+}
+
+impl<'a> InspectedTestEpoch<'a> {
+    fn inspect(epoch: &'a MiniBatchEpoch, vocabulary_size: usize) -> Result<Self, EvaluationError> {
+        let mut document_ids = Vec::new();
+        let mut target_count = 0_usize;
+        let mut fingerprint = 14_695_981_039_346_656_037_u64;
+        let checked_pair_count = epoch
+            .batches()
+            .iter()
+            .map(|batch| batch.targets().len())
+            .sum();
+        let mut checked_pairs = Vec::with_capacity(checked_pair_count);
+
+        for (batch_index, batch) in epoch.batches().iter().enumerate() {
+            append_checked_aligned_tokens(
+                batch_index,
+                batch.inputs(),
+                batch.targets(),
+                vocabulary_size,
+                &mut checked_pairs,
+            )?;
+            for row in 0..batch.batch_width() {
+                let origin = &batch.provenance()[row];
+                if !document_ids
+                    .iter()
+                    .any(|existing| existing == origin.document_id())
+                {
+                    document_ids.push(origin.document_id().to_owned());
+                }
+                fnv1a_bytes(&mut fingerprint, origin.document_id().as_bytes());
+                fnv1a_byte(&mut fingerprint, 0xff);
+                fnv1a_bytes(&mut fingerprint, &(origin.start() as u64).to_le_bytes());
+                let inputs = batch
+                    .input_row(row)
+                    .expect("batch row is constructed from complete inputs");
+                let targets = batch
+                    .target_row(row)
+                    .expect("batch row is constructed from complete targets");
+                for (&input, &target) in inputs.iter().zip(targets) {
+                    fnv1a_bytes(&mut fingerprint, &input.to_le_bytes());
+                    fnv1a_bytes(&mut fingerprint, &target.to_le_bytes());
+                    target_count += 1;
+                }
+            }
+        }
+
+        debug_assert_eq!(target_count, checked_pairs.len());
+        Ok(Self {
+            epoch,
+            evidence: TestEvidence {
+                document_ids,
+                target_fingerprint: format!("fnv1a64:{fingerprint:016x}"),
+                target_count,
+            },
+            checked_pairs,
+        })
+    }
+
+    const fn epoch(&self) -> &'a MiniBatchEpoch {
+        self.epoch
+    }
+
+    const fn evidence(&self) -> &TestEvidence {
+        &self.evidence
+    }
+
+    fn checked_pairs(&self) -> &[CheckedTokenPair] {
+        &self.checked_pairs
+    }
+
+    fn into_evidence(self) -> TestEvidence {
+        self.evidence
+    }
+}
+// endregion:inspected-test-epoch
 
 fn require_matching_provenance(
     expected: &EvaluationProvenance,
@@ -658,113 +796,14 @@ fn fnv1a_bytes(hash: &mut u64, bytes: &[u8]) {
     }
 }
 
-fn validate_aligned_tokens(
-    batch: usize,
-    inputs: &[u32],
-    targets: &[u32],
-    vocabulary_size: usize,
-) -> Result<(), EvaluationError> {
-    if inputs.len() != targets.len() {
-        return Err(EvaluationError::TargetAlignmentMismatch {
-            batch,
-            inputs: inputs.len(),
-            targets: targets.len(),
-        });
-    }
-    for (position, (&input, &target)) in inputs.iter().zip(targets).enumerate() {
-        if usize::try_from(input)
-            .ok()
-            .is_none_or(|id| id >= vocabulary_size)
-        {
-            return Err(EvaluationError::InputTokenOutOfRange {
-                batch,
-                position,
-                id: input,
-                vocabulary_size,
-            });
-        }
-        if usize::try_from(target)
-            .ok()
-            .is_none_or(|id| id >= vocabulary_size)
-        {
-            return Err(EvaluationError::TargetTokenOutOfRange {
-                batch,
-                position,
-                id: target,
-                vocabulary_size,
-            });
-        }
-    }
-    Ok(())
-}
-
-fn inspect_test_epoch(
-    epoch: &MiniBatchEpoch,
-    vocabulary_size: usize,
-) -> Result<TestEvidence, EvaluationError> {
-    let mut document_ids = Vec::new();
-    let mut target_count = 0_usize;
-    let mut fingerprint = 14_695_981_039_346_656_037_u64;
-
-    for (batch_index, batch) in epoch.batches().iter().enumerate() {
-        validate_aligned_tokens(
-            batch_index,
-            batch.inputs(),
-            batch.targets(),
-            vocabulary_size,
-        )?;
-        for row in 0..batch.batch_width() {
-            let origin = &batch.provenance()[row];
-            if !document_ids
-                .iter()
-                .any(|existing| existing == origin.document_id())
-            {
-                document_ids.push(origin.document_id().to_owned());
-            }
-            fnv1a_bytes(&mut fingerprint, origin.document_id().as_bytes());
-            fnv1a_byte(&mut fingerprint, 0xff);
-            fnv1a_bytes(&mut fingerprint, &(origin.start() as u64).to_le_bytes());
-            let inputs = batch
-                .input_row(row)
-                .expect("batch row is constructed from complete inputs");
-            let targets = batch
-                .target_row(row)
-                .expect("batch row is constructed from complete targets");
-            for (&input, &target) in inputs.iter().zip(targets) {
-                fnv1a_bytes(&mut fingerprint, &input.to_le_bytes());
-                fnv1a_bytes(&mut fingerprint, &target.to_le_bytes());
-                target_count += 1;
-            }
-        }
-    }
-
-    Ok(TestEvidence {
-        document_ids,
-        target_fingerprint: format!("fnv1a64:{fingerprint:016x}"),
-        target_count,
-    })
-}
-
 fn score_bigram(
     model: &BigramModel,
-    epoch: &MiniBatchEpoch,
+    inspected: &InspectedTestEpoch<'_>,
 ) -> Result<ModelScore, EvaluationError> {
-    let capacity = epoch
-        .batches()
-        .iter()
-        .map(|batch| batch.targets().len())
-        .sum();
-    let mut probabilities = Vec::with_capacity(capacity);
-    for (batch_index, batch) in epoch.batches().iter().enumerate() {
-        validate_aligned_tokens(
-            batch_index,
-            batch.inputs(),
-            batch.targets(),
-            model.vocabulary_size(),
-        )?;
-        for (&input, &target) in batch.inputs().iter().zip(batch.targets()) {
-            probabilities.push(model.smoothed_probability(input, target)?);
-        }
+    let mut probabilities = Vec::with_capacity(inspected.checked_pairs().len());
+    for pair in inspected.checked_pairs() {
+        probabilities
+            .push(model.smoothed_probability_for_checked_indices(pair.input, pair.target)?);
     }
     let metrics = score_assigned_probabilities(&probabilities)?;
     ModelScore::new(
@@ -853,12 +892,12 @@ impl FinalEvaluator {
         // Every metadata error above leaves the test unopened. From this line on,
         // even an error burns the local gate because token evidence is inspected.
         self.access_count = 1;
-        let evidence = inspect_test_epoch(&self.test_epoch, decoder_vocabulary)?;
+        let inspected = InspectedTestEpoch::inspect(&self.test_epoch, decoder_vocabulary)?;
         let model = decoder.model();
         let parameters_before = parameter_bits(model);
         let gradients_before = gradient_bits(model)?;
 
-        let measured = evaluate_no_grad(model, &self.test_epoch)?;
+        let measured = evaluate_no_grad(model, inspected.epoch())?;
         if measured.recorded_graphs() != 0 {
             return Err(EvaluationError::GraphRecorded {
                 count: measured.recorded_graphs(),
@@ -880,16 +919,17 @@ impl FinalEvaluator {
             measured.mean_loss(),
             measured.mean_loss().exp(),
         )?;
-        let bigram_score = score_bigram(bigram.model(), &self.test_epoch)?;
-        if evidence.target_count != measured.token_count()
-            || evidence.target_count != bigram_score.target_count()
+        let bigram_score = score_bigram(bigram.model(), &inspected)?;
+        if inspected.evidence().target_count != measured.token_count()
+            || inspected.evidence().target_count != bigram_score.target_count()
         {
             return Err(EvaluationError::TargetCountMismatch {
-                expected: evidence.target_count,
+                expected: inspected.evidence().target_count,
                 decoder: measured.token_count(),
                 bigram: bigram_score.target_count(),
             });
         }
+        let evidence = inspected.into_evidence();
 
         Ok(FinalEvaluationReport {
             version: FINAL_EVALUATION_REPORT_VERSION,
@@ -1322,13 +1362,54 @@ mod tests {
 
     #[test]
     fn alignment_guard_rejects_length_drift_before_zip_can_truncate() {
+        let mut checked_pairs = Vec::new();
         assert_eq!(
-            validate_aligned_tokens(3, &[0, 1], &[1], 5),
+            append_checked_aligned_tokens(3, &[5, 1], &[1], 5, &mut checked_pairs),
             Err(EvaluationError::TargetAlignmentMismatch {
                 batch: 3,
                 inputs: 2,
                 targets: 1,
             })
+        );
+        assert!(checked_pairs.is_empty());
+    }
+
+    #[test]
+    fn checked_pair_validation_preserves_input_then_target_error_order() {
+        let mut checked_pairs = Vec::new();
+        assert_eq!(
+            append_checked_aligned_tokens(2, &[5], &[5], 5, &mut checked_pairs),
+            Err(EvaluationError::InputTokenOutOfRange {
+                batch: 2,
+                position: 0,
+                id: 5,
+                vocabulary_size: 5,
+            })
+        );
+        assert!(checked_pairs.is_empty());
+        assert_eq!(
+            append_checked_aligned_tokens(2, &[0, 5], &[5, 0], 5, &mut checked_pairs),
+            Err(EvaluationError::TargetTokenOutOfRange {
+                batch: 2,
+                position: 0,
+                id: 5,
+                vocabulary_size: 5,
+            })
+        );
+        assert!(checked_pairs.is_empty());
+        append_checked_aligned_tokens(2, &[4, 3], &[3, 2], 5, &mut checked_pairs).unwrap();
+        assert_eq!(
+            checked_pairs,
+            [
+                CheckedTokenPair {
+                    input: 4,
+                    target: 3,
+                },
+                CheckedTokenPair {
+                    input: 3,
+                    target: 2,
+                },
+            ]
         );
     }
 
@@ -1336,13 +1417,30 @@ mod tests {
     fn evidence_fingerprint_covers_ordered_origins_inputs_and_targets() {
         let first = epoch(Partition::Test, &[("test-a", &TEST_A), ("test-b", &TEST_B)]);
         let reversed = epoch(Partition::Test, &[("test-b", &TEST_B), ("test-a", &TEST_A)]);
-        let first_evidence = inspect_test_epoch(&first, 5).unwrap();
-        let repeated = inspect_test_epoch(&first, 5).unwrap();
-        let reversed_evidence = inspect_test_epoch(&reversed, 5).unwrap();
+        let first_inspection = InspectedTestEpoch::inspect(&first, 5).unwrap();
+        let repeated = InspectedTestEpoch::inspect(&first, 5).unwrap();
+        let reversed_inspection = InspectedTestEpoch::inspect(&reversed, 5).unwrap();
+        let first_evidence = first_inspection.evidence();
+        let reversed_evidence = reversed_inspection.evidence();
         assert_eq!(first_evidence.target_count, 14);
+        assert_eq!(first_inspection.checked_pairs().len(), 14);
+        assert_eq!(
+            first_inspection.checked_pairs().first(),
+            Some(&CheckedTokenPair {
+                input: 4,
+                target: 3,
+            })
+        );
+        assert_eq!(
+            first_inspection.checked_pairs().last(),
+            Some(&CheckedTokenPair {
+                input: 0,
+                target: 4,
+            })
+        );
         assert_eq!(
             first_evidence.target_fingerprint,
-            repeated.target_fingerprint
+            repeated.evidence().target_fingerprint
         );
         assert_ne!(
             first_evidence.target_fingerprint,

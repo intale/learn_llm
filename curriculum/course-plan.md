@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 66,
+  "plan_revision": 67,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1510,16 +1510,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `34-final-evaluation`
 - **Implementation step:** `implement-ch34-final-evaluation`
-- **Revision status:** Content revision 2 replaces inferred and hardcoded evaluation assertions with a rejected test-partition probe, derived gate openings, measured graph evidence, corrected formulas, shared diagram roles, and the direct meaning-first Russian localization through `activate-ch34-russian-localization`.
+- **Revision status:** Content revision 4 opens one local test gate, creates one private inspected view that owns report evidence and ordered checked input/target indices, reuses those indices through a crate-private bigram path, keeps public raw-ID calls checked, and explains that one input-validation boundary does not mean one physical memory pass. It retains revision 3's borrowed validation-selected state/model identity proof and requires a direct Russian refresh from the frozen revision-4 English source.
 - **Depends on:** `33-training-selection`.
 - **Outcome:** Evaluate the frozen selected decoder once on the previously unscored test partition and compare it fairly with the frozen bigram.
 - **Scope boundary:** Teach no-grad evaluation, token-weighted aggregation, separation of model selection from final evidence, and like-for-like tokenizer/corpus provenance. Do not tune, stop, or select on test results.
 - **Formula:** `\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}\sum_{n=1}^{N_{te}}\log p_{\theta_{s^*}}(y_n\mid x_n)`.
 - **Historical contrast:** Contrast training-set scores and repeatedly inspected holdouts with a three-way experimental protocol and a single final test comparison.
-- **Rust contribution:** Add a graph-free evaluator and immutable report schema that scores the selected decoder and frozen bigram on identical test targets.
+- **Rust contribution:** Add a private inspected test-epoch view that binds report evidence to ordered checked input/target indices, a crate-private bigram path that reuses those indices, retained public raw-ID checks, and a separate graph-free decoder path.
 - **Visualization:** Useful — show the train/validation/test information flow and a numeric two-model test-loss comparison with provenance, not a decorative chart.
 - **Practice:** Classify decisions as legal before or after opening the test result and compute a token-weighted loss from unequal documents.
-- **Integration evidence:** Evaluation creates no tape, parameters remain byte-identical, aggregation is token-weighted, training/selection traces contain no test access, provenance matches, and the frozen decoder beats the frozen bigram test loss.
+- **Integration evidence:** Gate opening preserves alignment-before-input-before-target error precedence, the private view and crate-private bigram path reuse one checked order, public raw-ID calls remain checked, decoder evaluation creates no tape, parameters remain byte-identical, aggregation is token-weighted, training/selection traces contain no test access, provenance matches, and the frozen decoder has lower loss on the fixed fixture.
 - **Handoff:** Chapter 35 serializes the exact selected and evaluated state for reproducible inference.
 
 ## 35. Parameter serialization and reproducible checkpoints

@@ -230,6 +230,29 @@ impl BigramModel {
             .collect()
     }
     // endregion:probability-rows
+
+    // region:checked-bigram-probability
+    /// Scores indices whose vocabulary bounds were established by a crate-owned boundary.
+    pub(crate) fn smoothed_probability_for_checked_indices(
+        &self,
+        from: usize,
+        to: usize,
+    ) -> Result<f64, BigramError> {
+        debug_assert!(from < self.vocabulary_size);
+        debug_assert!(to < self.vocabulary_size);
+        let row_start = from * self.vocabulary_size;
+        let numerator = self.counts[row_start + to] as f64 + self.alpha;
+        let row_total = self.counts[row_start..row_start + self.vocabulary_size]
+            .iter()
+            .try_fold(0_u64, |total, count| {
+                total
+                    .checked_add(*count)
+                    .ok_or(BigramError::TooManyTransitions)
+            })?;
+        let denominator = row_total as f64 + self.alpha * self.vocabulary_size as f64;
+        Ok(numerator / denominator)
+    }
+    // endregion:checked-bigram-probability
 }
 
 #[cfg(test)]
@@ -292,6 +315,36 @@ mod tests {
     }
 
     #[test]
+    fn checked_indices_reuse_public_probability_arithmetic_bit_for_bit() {
+        let model = model();
+        for from in 0..model.vocabulary_size() {
+            for to in 0..model.vocabulary_size() {
+                let from_token = u32::try_from(from).unwrap();
+                let to_token = u32::try_from(to).unwrap();
+                let expected = (model.count(from_token, to_token).unwrap() as f64 + model.alpha())
+                    / model.smoothing_denominator(from_token).unwrap();
+                assert_eq!(
+                    model
+                        .smoothed_probability_for_checked_indices(from, to)
+                        .unwrap()
+                        .to_bits(),
+                    expected.to_bits(),
+                );
+                assert_eq!(
+                    model
+                        .smoothed_probability(from_token, to_token)
+                        .unwrap()
+                        .to_bits(),
+                    model
+                        .smoothed_probability_for_checked_indices(from, to)
+                        .unwrap()
+                        .to_bits(),
+                );
+            }
+        }
+    }
+
+    #[test]
     fn reports_all_ties_in_stable_token_order() {
         let model = model();
 
@@ -318,6 +371,14 @@ mod tests {
             Err(BigramError::TokenOutOfRange)
         );
         assert_eq!(model().count(5, 0), Err(BigramError::TokenOutOfRange));
+        assert_eq!(
+            model().smoothed_probability(5, 0),
+            Err(BigramError::TokenOutOfRange)
+        );
+        assert_eq!(
+            model().smoothed_probability(0, 5),
+            Err(BigramError::TokenOutOfRange)
+        );
         assert_eq!(
             BigramModel::fit_training_documents(5, 1.0, [&[5][..]]),
             Err(BigramError::TokenOutOfRange)

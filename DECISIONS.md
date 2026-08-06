@@ -15809,3 +15809,107 @@ criterion, or unrelated policy change.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `reuse-probability-forward-state-in-autodiff`, and
 `20260806T040332Z-reuse-probability-forward-state-in-autodiff-01`.
+
+## 2026-08-06 - Start the Chapter 34 inspected-test-view checkpoint with its revision projections
+
+**Status:** Accepted at preflight.
+
+**Context:** Audit finding F06 remains live in final evaluation: the one-shot
+gate validates test inputs and targets while building evidence, then bigram
+scoring validates the same arrays again. Chapter 34 owns this boundary and needs
+a learner-content revision, direct Russian refresh, exact Chapter 34/39 controls,
+and both-browser review. Advancing the chapter will also advance the canonical
+course-plan revision. The previous checkpoint proved that the locale projection
+and the negative plan-revision fixture must move with that revision even though
+neither changes the lesson meaning.
+
+**Decision:** Run `score-final-test-after-one-inspection` as one atomic large
+cached-Docker checkpoint. Open the test gate once, construct one private sealed
+view that owns evidence plus aligned checked indices, and let only a crate-private
+bigram primitive trust those indices; keep every public bigram entry fully
+checked. Preserve the exact pre-open metadata order, the post-open burn point,
+the first alignment/input/target error, scoring arithmetic, and downstream
+report bytes.
+
+Freeze revised English before translating Russian directly with the localization
+skill. Add `site/src/i18n/chapter-locales.json` and
+`site/tests/content-contract.test.ts` to the declared integration outputs from
+the start, so plan revision 67 cannot leave a stale projection or mutation
+fixture. Use no new dependency, network input, paid service, model generation,
+or host language toolchain. Large cached CPU fits the unlimited build budget and
+does not require an approval pause.
+
+**Consequences:** The checkpoint has twelve tracked outputs: the two Rust modules,
+Chapter 34 contract/plan/locales/tests, both revision projections, and the two
+ledger files. It remains one chapter-sized commit because the shared files merely
+project the same Chapter 34 revision. Any unrelated finding is scheduled
+separately.
+
+**Affected build, step, and planned run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`score-final-test-after-one-inspection`, and
+`20260806T045822Z-score-final-test-after-one-inspection-01`.
+
+## 2026-08-06 - Preserve Chapter 34's reviewed outcome and retire an implicit evidence probe
+
+**Status:** Accepted after the complete static suite exposed both projection
+defects.
+
+**Context:** Chapter 34 revision 4 changes how already checked test indices are
+reused, but it does not change the chapter's original reviewed outcome. Updating
+the course-plan outcome text caused the scheduler validator to disagree with the
+immutable completed implementation checkpoint. The same static replay showed
+that the Chapter 34 cheat-sheet grounding test still required the old phrase
+“scores it inside the no-grad boundary.” The revised lesson deliberately names
+the decoder operation and traversal instead of relying on that ambiguous
+pronoun.
+
+**Decision:** Restore the course-plan outcome byte for byte to the objective of
+`implement-ch34-final-evaluation`; keep revision-specific behavior in Revision
+status, Rust contribution, and Integration evidence. Add
+`site/tests/cheat-sheets.test.ts` as this run's thirteenth tracked output and
+point its no-gradient evidence probe at the current explicit decoder-scoring
+explanation. Do not reintroduce the implicit phrase or alter the independently
+checkpointed cheat-sheet definitions.
+
+**Consequences:** Historical step identity remains stable while the plan still
+documents revision 4. The complete static suite can verify the same cheat-sheet
+concept against clearer learner prose. This is a discovered test projection,
+not a new learning objective, dependency, locale, or runtime feature.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`score-final-test-after-one-inspection`, and
+`20260806T045822Z-score-final-test-after-one-inspection-01`.
+
+## 2026-08-06 - Put a meaning-first Chapter 3 Russian rewrite before further runtime findings
+
+**Status:** Accepted from the user's localization-quality report.
+
+**Context:** The user reports that Chapter 3 Russian reads like a literal English
+translation or an otherwise poor translation. Content quality takes precedence
+over continuing the remaining runtime audit. A reliable correction must review
+the whole active Russian learning surface, not polish isolated sentences while
+leaving terminology, diagram copy, exercises, answers, or the cheat sheet out of
+sync.
+
+**Decision:** Insert `rewrite-ch03-russian-localization-naturally` immediately
+after the running Chapter 34 checkpoint and make the next runtime step depend on
+it. Keep current English as the canonical semantic source and use the repository
+localization skill for a direct meaning-first rewrite of the complete Russian
+lesson and cheat sheet. Require independent semantic, terminology, anti-calque,
+monolingual, accessibility, exact-byte, and Chromium/Firefox rendered review.
+Do not change the taught BPE algorithm, Rust evidence, English content, active
+locale set, route structure, dependencies, or shared presentation.
+
+**Consequences:** Chapter 3 localization is the first eligible step after the
+current checkpoint. The remaining trusted-boundary audit resumes only after the
+rewritten Russian surface is validated and committed independently. The
+checkpoint is classified large because linguistic quality and complete rendered
+review are required, not because it may use external generation or paid input.
+
+**Affected build and steps:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`score-final-test-after-one-inspection`,
+`rewrite-ch03-russian-localization-naturally`, and
+`share-bound-incremental-attention-kernel`.

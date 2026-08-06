@@ -599,7 +599,7 @@ const expectedSheets = {
       ['Perplexity', 'test perplexity'],
       ['Aligned target slot', 'aligned target slots'],
       ['Evaluation provenance', 'EvaluationProvenance'],
-      ['No-grad evaluation', 'scores it inside the no-grad boundary'],
+      ['No-grad evaluation', 'That call records no graph'],
       ['Frozen final evaluation report', 'immutable report'],
       ['Frozen bigram', 'Frozen bigram'],
       ['Like-for-like targets', 'like-for-like targets'],
