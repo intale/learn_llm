@@ -16090,3 +16090,44 @@ learner-visible, runtime, dependency, route, or locale-policy change.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `synchronize-ch03-course-plan-revision`, and
 `20260806T070955Z-synchronize-ch03-course-plan-revision-01`.
+
+## 2026-08-06 - Queue the Chapter 1 scalar-vocabulary handoff clarification
+
+**Status:** Accepted from the user's non-urgent queue request.
+
+**Context:** Repository inspection confirms that `Vocabulary` is intentionally
+owned only by the Chapter 1 demo and tests. It demonstrates a deterministic
+Unicode-scalar-to-ID table, known-unit round trips, and `<UNK>` loss, while the
+cumulative tokenizer begins with Chapter 3 byte-level merge training and Chapter
+4 tokenizer application. The current lesson explains the scalar implementation
+and later BPE sequence but does not say explicitly enough that the concrete
+`Vocabulary` type is a temporary comparison rather than a component students
+should carry into the final model.
+
+**Decision:** Do not interrupt the active F06/F09 remediation. Record the current
+queue update as `queue-ch01-scalar-vocabulary-handoff-clarification`, then add the
+separate build `clarify-ch01-scalar-vocabulary-handoff-20260806` after
+`remove-capstone-orchestration-copies`. Its one content checkpoint will revise
+English first and refresh Russian directly with the localization skill. It must
+state which concepts carry forward and why byte fallback, variable-length merged
+tokens, a different ID namespace, and removal of scalar-level `<UNK>` semantics
+mean Chapters 3–4 replace rather than reuse the demo type.
+
+Include the Chapter 1 contract, both lessons, both locale-aware cheat sheets,
+focused static/browser assertions, plan revision projections, and ledgers in the
+future scope. Keep Chapter 1 Rust and output, Chapters 3–4 implementation, all
+formulas and diagram evidence, dependencies, routes, and active locales exact.
+Advance the Chapter 1 content revision only when that future source and rendered
+review succeeds.
+
+**Consequences:** The clarification is durable but deliberately last in the
+current queue. No learner-visible byte changes now. When executed, it will be one
+independent bilingual content commit rather than an opportunistic edit inside a
+runtime-remediation checkpoint.
+
+**Affected builds, steps, and scheduling run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`queue-ch01-scalar-vocabulary-handoff-clarification`,
+`clarify-ch01-scalar-vocabulary-handoff-20260806`,
+`clarify-ch01-scalar-vocabulary-handoff`, and
+`20260806T122800Z-queue-ch01-scalar-vocabulary-handoff-clarification-01`.
