@@ -52,10 +52,17 @@ interface LocalizedCopy {
   };
   notes: readonly string[];
   scrollers: readonly string[];
+  boundaryFragments: readonly string[];
+  rustCards: readonly {
+    caption: string;
+    label: string;
+  }[];
+  boundaryAnswers: readonly [string, string];
+  cloneAnswer: string;
 }
 
 const chapterId = '18-token-embeddings';
-const contentRevision = 6;
+const contentRevision = 7;
 const formulaLatex = String.raw`X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}`;
 const upstreamAdjointLatex = String.raw`\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}`;
 const tableAdjointLatex = String.raw`\bar{E}_{i,:}=\partial L/\partial E_{i,:}`;
@@ -65,18 +72,21 @@ const historySources = [
   'https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf',
 ] as const;
 
+const normalizeRenderedTypography = (value: string) =>
+  value.replace(/[\u2018\u2019]/g, "'").replace(/\s+/g, ' ').trim();
+
 const copy: Record<ChapterLocale, LocalizedCopy> = {
   en: {
     revisionLabel: 'Content revision',
     title: 'Give token IDs trainable vectors',
     description:
-      'Build trainable token embeddings in Rust, gather table rows for token IDs, preserve batch and sequence shape, and scatter-add repeated-token gradients.',
+      'Build a trainable token table, validate public token IDs once, pass owned selectors through a private validated gather plan, and scatter-add repeated-token gradients.',
     headings: [
       'Predict three selected rows and one shared gradient',
       'Select forward, accumulate backward',
       'Keep vocabulary axes separate from feature axes',
       'From sparse identity to the vector entrance of a Transformer',
-      'Wrap one named table around the existing gather rule',
+      'Validate token IDs once, then reuse the gather rule',
       'Follow every selection back to its shared row',
       'Predict before checking the executable evidence',
       'Hand the final feature axis to a learned projection',
@@ -149,34 +159,95 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Scrollable one-hot and lookup evidence',
       'Scrollable table-gradient accumulation evidence',
     ],
+    boundaryFragments: [
+      'Public callers obtain an Embedding through new, from_parameter, or by cloning an already validated layer.',
+      'The constructors establish a nonempty rank-two table, cloning preserves it, and private fields prevent callers from replacing it.',
+      'Embedding::forward is the public boundary for token IDs supplied as u32.',
+      'compute the number of positions described by token_shape, rejecting an invalid or overflowing shape',
+      'require token_ids.len() to equal that position count',
+      'scan the IDs in flat order, rejecting the first u32 value that cannot name one of the table\'s',
+      'Only after all IDs pass does the method reserve an owned Vec<usize> and convert the selectors.',
+      'Its trusted constructor does not rescan table rank, selector count, or selector bounds',
+      'The constructor-or-clone invariant supplies the table rank, while this forward call has just established the selector shape, count, and bounds',
+      'The public TensorValue::gather_rows method still checks table rank, selector shape, selector count, and the first out-of-range selector',
+      'allocating the output buffer can still fail',
+      'Only ownership and reuse of checked facts change; output values and shapes, failure precedence, the lookup equation, saved VJP facts, and repeated-row gradient addition stay the same.',
+      'empty leading shapes append the width without producing values.',
+    ],
+    rustCards: [
+      {
+        caption: 'Multiply explicit one-hot rows by the tiny table as an algebraic baseline',
+        label: 'Rust source for the Chapter 18 one-hot multiplication contrast',
+      },
+      {
+        caption: 'Gather the repeated IDs and compare exact output values with the baseline',
+        label: 'Rust source running the Chapter 18 known token-embedding lookup',
+      },
+      {
+        caption: 'Keep embedding construction and selector failures typed and deterministic',
+        label: 'Rust source declaring Chapter 18 embedding errors',
+      },
+      {
+        caption: 'Construct one named rank-two table and retain its vocabulary and feature widths',
+        label: 'Rust source constructing the Chapter 18 token-embedding layer',
+      },
+      {
+        caption: 'Check each raw token-ID fact once and pass owned selectors through the validated plan',
+        label: 'Rust source implementing the Chapter 18 validated token-ID handoff',
+      },
+      {
+        caption: 'Reverse through the repeated lookup and read the stored table gradient',
+        label: 'Rust source proving repeated token-gradient accumulation',
+      },
+      {
+        caption: 'Initialize the table reproducibly and check clone identity',
+        label: 'Rust source connecting Chapter 17 initialization to Chapter 18 embeddings',
+      },
+      {
+        caption: 'Accept an empty token shape and reject the first out-of-range ID',
+        label: 'Rust source checking Chapter 18 empty input and bounds behavior',
+      },
+      {
+        caption: 'Print the selected vectors and the shared embedding-table gradient',
+        label: 'Rust source displaying the Chapter 18 learner evidence',
+      },
+      {
+        caption: "Collect the worked example's table rows, selections, and accumulated gradients",
+        label: 'Rust source assembling the Chapter 18 token-embedding evidence',
+      },
+    ],
+    boundaryAnswers: [
+      'The method checks the token shape first, the exact ID count second, and the IDs in flat order third.',
+      'The trusted plan owns those facts. A generic public caller has established none of them, so TensorValue::gather_rows must perform its complete validation. Allocating the output tensor\'s value buffer can still fail after the plan exists.',
+    ],
+    cloneAnswer: 'No. A clone is another handle to the same named table leaf.',
   },
   ru: {
     revisionLabel: 'Версия материала',
     title: 'Сопоставьте ID токенов с обучаемыми векторами',
     description:
-      'Реализуйте на Rust обучаемые эмбеддинги токенов: выбирайте строки таблицы по ID, сохраняйте форму пакета и последовательности и складывайте градиенты повторных обращений к одной строке.',
+      'Создайте обучаемую таблицу токенов, один раз проверьте ID токенов в публичной точке входа, передайте преобразованные селекторы во владение внутреннему проверенному плану выбора строк по индексам и сложите градиенты повторяющихся токенов.',
     headings: [
       'Предскажите три выбранные строки и один общий градиент',
       'Выбирайте строки в прямом проходе и накапливайте вклады в обратном',
       'Не смешивайте оси словаря и признаков',
-      'От разреженного кода принадлежности к векторному входу Transformer',
-      'Оберните существующее правило выбора строк одной именованной таблицей',
+      'От разреженного one-hot-кода к векторам на входе Transformer',
+      'Проверьте ID токенов один раз и повторно используйте правило выбора строк',
       'Проследите каждый выбор обратно до общей строки',
       'Сначала предскажите, затем сверьтесь с исполняемым примером',
-      'Передайте последнюю ось признаков обучаемой проекции',
+      'Используйте ширину последней оси как входную ширину обучаемой проекции',
     ],
-    historyHeading:
-      'От разреженного кода принадлежности к векторному входу Transformer',
+    historyHeading: 'От разреженного one-hot-кода к векторам на входе Transformer',
     historyFragments: [
-      'Разреженное one-hot-представление слова отводит одну координату каждому элементу словаря, но не выражает степень сходства между словами. Кроме того, явно переносить такой вектор размером со словарь расточительно, когда нужна только одна строка.',
-      'Bengio и соавторы обучают общую плотную таблицу признаков слов вместе с нейросетевой моделью следующего слова. В Transformer используются обучаемые эмбеддинги подсловных токенов, к которым перед стеком слоёв с механизмами внимания и сетями прямого распространения добавляется позиционная информация.',
-      'ID токенов поступают в численную часть декодера, выбирая строки одной обучаемой таблицы «словарь на признаки». Повторяющиеся ID используют одну строку параметров, поэтому их вклады при обратном проходе складываются; позиционная информация, масштабирование эмбеддингов в прямом проходе, внимание и совместное использование весов с выходной проекцией рассматриваются позже.',
-      'Bengio и соавторы задают обучаемое отображение индекса слова из словаря в распределённые признаки в виде матрицы с одной строкой на элемент словаря и одним столбцом на обучаемый признак, используют эту матрицу во всех позициях контекста и обучают её вместе с предсказанием следующего слова.',
-      'Vaswani и соавторы используют обучаемые эмбеддинги ширины модели для токенов BPE или word-piece и добавляют позиционное кодирование перед стеком Transformer; масштабирование эмбеддингов в прямом проходе не относится к инициализации параметров.',
+      'Разреженное one-hot-представление слова отводит одну координату каждому элементу словаря, но не выражает степень сходства между словами. Кроме того, явно создавать и обрабатывать такой вектор размером со словарь расточительно, когда нужна лишь одна строка.',
+      'Bengio и соавторы обучают общую плотную таблицу признаков слов вместе с нейросетевой моделью следующего слова. Transformer использует обучаемые эмбеддинги подсловных токенов: к ним добавляется позиционная информация, после чего результат поступает в стек слоёв внимания и сетей прямого распространения.',
+      'ID токенов поступают на числовой вход декодера: по ним выбираются строки одной обучаемой таблицы «словарь на признаки». Все вхождения повторяющегося ID используют одну и ту же строку параметров, поэтому их градиентные вклады при обратном проходе складываются. Позиционная информация, масштабирование эмбеддингов в прямом проходе, внимание и совместное использование весов с выходной проекцией рассматриваются позже.',
+      'Bengio и соавторы задают отображение индекса словарного слова в набор распределённых признаков с помощью обучаемой матрицы: каждому элементу словаря соответствует строка, а каждому обучаемому признаку — столбец. Одна и та же матрица используется для всех позиций контекста и обучается вместе с моделью предсказания следующего слова.',
+      'Vaswani и соавторы используют для токенов BPE или WordPiece обучаемые эмбеддинги, ширина которых совпадает с шириной модели, и перед стеком Transformer добавляют к ним позиционное кодирование. Масштабирование эмбеддингов в прямом проходе не относится к инициализации параметров.',
     ],
-    diagramTitle: 'Проследите повторяющиеся ID в общей таблице',
+    diagramTitle: 'Повторяющийся ID в общей таблице',
     diagramDescription:
-      'Проследите точные ID токенов, строки таблицы, равносильность one-hot-умножению, выходные векторы и обратные вклады из примера на Rust, которые накапливаются в общей таблице эмбеддингов.',
+      'Сопоставьте ID из примера на Rust со строками и выходами: one-hot-умножение даёт те же значения. Проследите сложение обратных вкладов в общих строках.',
     summaryLabels: [
       'Именованный параметр',
       'Строки словаря',
@@ -189,7 +260,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     stages: [
       'Целочисленные ID токенов',
       'Общая обучаемая таблица',
-      'Выбор строк без нулей',
+      'Выбор строк без хранения нулей',
       'Накопление в общих строках',
     ],
     tableHeaders: {
@@ -197,24 +268,24 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       table: [
         'Строка таблицы',
         'Обучаемый вектор',
-        'Выборов',
+        'Число выборов',
         'Статус',
       ],
       lookup: [
         'Позиция',
         'ID токена',
         'One-hot-индикатор',
-        'Произведение',
+        'Равносильное произведение',
         'Выбранная строка',
         'Выходной вектор',
         'Входящий градиент',
       ],
       gradients: [
         'Строка таблицы',
-        'Плоские позиции',
+        'Плоские позиции, давшие вклад',
         'Вклады по признакам',
         'Обратное правило',
-        'Итоговый градиент',
+        'Накопленный градиент строки',
       ],
     },
     states: {
@@ -224,14 +295,14 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       singleRow: 'Строка без повторов',
       repeatedRow: 'Общая с другой позицией',
       unusedZero: 'Нет выборов — ноль',
-      singleCopy: 'Один выбор — скопировать',
+      singleCopy: 'Один выбор — скопировать его вклад',
       repeatedSum: 'Повторы — сложить вклады',
       none: 'Нет',
     },
     notes: [
-      'ID задают строки вне ленты. Повторный ID обращается к той же строке параметров.',
-      'One-hot-индикатор показывает алгебру: одна активная координата выбирает строку. Реализация обращается к ней напрямую.',
-      'При обратном проходе каждый градиент возвращается в выбранную строку. Для повторной строки два вклада складываются.',
+      'ID указывают номера строк и не записываются на ленту дифференцирования. Повторяющийся ID снова выбирает ту же строку параметров.',
+      'Единица one-hot-индикатора выбирает одну строку таблицы; реализация получает эту строку напрямую.',
+      'В обратном проходе каждый входящий вектор поступает в выбранную строку. В повторно выбранной строке два вектора складываются.',
     ],
     scrollers: [
       'Прокручиваемые позиции ID токенов',
@@ -239,6 +310,68 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Прокручиваемое доказательство равносильности выбора строк и one-hot-умножения',
       'Прокручиваемое доказательство накопления градиентов строк',
     ],
+    boundaryFragments: [
+      'Из внешнего кода получить Embedding можно тремя способами: вызвать new, вызвать from_parameter или клонировать уже проверенный слой.',
+      'Оба конструктора гарантируют, что таблица имеет ранг два и ненулевые размеры, клон сохраняет эту таблицу, а закрытые поля не позволяют заменить её извне.',
+      'Embedding::forward — публичная точка входа для ID токенов, поступающих как значения типа u32.',
+      'вычисляет число позиций, заданное token_shape, и сообщает об ошибке формы или переполнении при вычислении',
+      'требует, чтобы длина token_ids в точности совпадала с этим числом',
+      'просматривает ID в плоском порядке и сообщает о первом значении u32',
+      'Только после успешной проверки всех ID метод резервирует Vec<usize> и преобразует селекторы. Затем лента проверяет, что операнд с таблицей ещё доступен. Если он доступен, метод создаёт значение закрытого типа RowGatherPlan из главы 16 и передаёт ему вектор селекторов во владение',
+      'Внутренний конструктор не проверяет повторно ранг таблицы, число селекторов и их границы.',
+      'Ранг таблицы гарантируют конструкторы Embedding; при клонировании этот инвариант сохраняется.',
+      'Публичный метод TensorValue::gather_rows по-прежнему принимает произвольные входные данные, поэтому сам проверяет ранг таблицы, форму и число селекторов, а также первый индекс за пределами таблицы.',
+      'создание буфера выходных значений всё равно может завершиться ошибкой',
+      'Изменились только владение проверенными данными и их повторное использование. Значения и формы выхода, порядок ошибок, формула выбора строк, данные, сохранённые для VJP, и накопление градиентов повторяющихся ID остались прежними.',
+      'к любой пустой ведущей форме добавляется ширина эмбеддинга, но значений не появляется.',
+    ],
+    rustCards: [
+      {
+        caption: 'Умножьте явные one-hot-строки на маленькую таблицу как алгебраический эталон',
+        label: 'Исходный код на Rust для сравнения с one-hot-умножением из главы 18',
+      },
+      {
+        caption: 'Выберите строки по повторяющимся ID и сравните точный результат с эталоном',
+        label: 'Исходный код на Rust для выбора эмбеддингов известных токенов из главы 18',
+      },
+      {
+        caption: 'Сделайте ошибки создания эмбеддинга и проверки селекторов типизированными и детерминированными',
+        label: 'Исходный код на Rust с ошибками эмбеддингов из главы 18',
+      },
+      {
+        caption: 'Создайте одну именованную таблицу ранга два и сохраните размер словаря и ширину признаков',
+        label: 'Исходный код на Rust, создающий слой эмбеддингов из главы 18',
+      },
+      {
+        caption: 'Один раз проверьте форму и ID токенов и передайте преобразованные селекторы во владение проверенному плану выбора строк по индексам',
+        label: 'Исходный код на Rust, реализующий проверенную передачу ID токенов в главе 18',
+      },
+      {
+        caption: 'Проведите обратный проход через повторяющийся выбор и прочитайте сохранённый градиент таблицы',
+        label: 'Исходный код на Rust, доказывающий накопление градиентов повторяющихся токенов',
+      },
+      {
+        caption: 'Инициализируйте таблицу воспроизводимым образом и проверьте сохранение идентичности параметра при клонировании',
+        label: 'Исходный код на Rust, связывающий инициализацию из главы 17 с эмбеддингами из главы 18',
+      },
+      {
+        caption: 'Примите пустую форму токенов и отклоните первый ID за пределами таблицы',
+        label: 'Исходный код на Rust, проверяющий пустой вход и границы в главе 18',
+      },
+      {
+        caption: 'Выведите выбранные векторы и градиент общей таблицы эмбеддингов',
+        label: 'Исходный код на Rust с учебными результатами главы 18',
+      },
+      {
+        caption: 'Соберите строки таблицы, выборы и накопленные градиенты разобранного примера',
+        label: 'Исходный код на Rust, собирающий данные об эмбеддингах из главы 18',
+      },
+    ],
+    boundaryAnswers: [
+      'Сначала метод проверяет форму токенов, затем точное число ID и только после этого просматривает ID в плоском порядке.',
+      'Проверенный план выбора строк по индексам владеет преобразованными селекторами и их логической формой. У публичного вызова TensorValue::gather_rows таких гарантий нет, поэтому он выполняет все проверки сам. Даже после создания плана при выделении буфера выходных значений всё ещё может возникнуть ошибка.',
+    ],
+    cloneAnswer: 'Нет. Клон — отдельный объект слоя, но он хранит тот же именованный листовой узел-параметр таблицы; нового обучаемого листа не возникает.',
   },
 };
 
@@ -247,6 +380,7 @@ const expectedRustRegions = [
   ['rust/demos/ch18-token-embeddings/src/lib.rs', 'known-token-lookup'],
   ['rust/crates/llm-from-scratch/src/nn/embedding.rs', 'embedding-errors'],
   ['rust/crates/llm-from-scratch/src/nn/embedding.rs', 'embedding-layer'],
+  ['rust/crates/llm-from-scratch/src/nn/embedding.rs', 'embedding-forward-boundary'],
   ['rust/demos/ch18-token-embeddings/src/lib.rs', 'repeated-token-gradient'],
   ['rust/demos/ch18-token-embeddings/src/lib.rs', 'initialized-token-embedding'],
   ['rust/demos/ch18-token-embeddings/src/lib.rs', 'embedding-edge-cases'],
@@ -271,6 +405,54 @@ function readRustRegion(path: string, region: string): string {
 const expectedRustSources = expectedRustRegions.map(([path, region]) =>
   readRustRegion(path, region),
 );
+
+async function expectRustCards(page: Page, locale: ChapterLocale) {
+  const rustSources = page.locator('figure.rust-source');
+  const localizedCards = copy[locale].rustCards;
+  expect(localizedCards).toHaveLength(expectedRustRegions.length);
+  await expect(rustSources).toHaveCount(expectedRustRegions.length);
+
+  for (const [index, [path, region]] of expectedRustRegions.entries()) {
+    const source = rustSources.nth(index);
+    const localized = localizedCards[index]!;
+    await expect(source).toHaveAttribute('data-source-path', path);
+    await expect(source).toHaveAttribute('data-source-region', region);
+    await expect(source.locator(':scope > figcaption > span')).toHaveText(
+      localized.caption,
+    );
+    await expect(source.locator(':scope > pre')).toHaveAttribute(
+      'aria-label',
+      localized.label,
+    );
+  }
+
+  const captionProblems = await rustSources.evaluateAll((sources) =>
+    sources.flatMap((source, index) => {
+      const frame = source.getBoundingClientRect();
+      const caption = source.querySelector('figcaption');
+      if (!(caption instanceof HTMLElement)) {
+        return [`source card ${index} has no caption`];
+      }
+      const captionRect = caption.getBoundingClientRect();
+      const captionStyle = getComputedStyle(caption);
+      const problems: string[] = [];
+      if (captionRect.left < frame.left - 1 || captionRect.right > frame.right + 1) {
+        problems.push(`source card ${index} caption crosses its frame`);
+      }
+      if (caption.scrollWidth > caption.clientWidth + 1) {
+        problems.push(`source card ${index} caption overflows horizontally`);
+      }
+      if (caption.scrollHeight > caption.clientHeight + 1) {
+        problems.push(`source card ${index} caption overflows vertically`);
+      }
+      if (['hidden', 'clip'].includes(captionStyle.overflow)) {
+        problems.push(`source card ${index} caption conceals overflow`);
+      }
+      return problems;
+    }),
+  );
+  expect(captionProblems, `${locale} Rust source captions`).toEqual([]);
+}
 
 async function settle(page: Page) {
   await page.evaluate(async () => {
@@ -626,6 +808,27 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
+  const learnerProse = normalizeRenderedTypography(
+    await page
+      .locator('.lesson-body > p, .lesson-body > ol, .lesson-body > ul')
+      .allInnerTexts()
+      .then((parts) => parts.join(' ')),
+  );
+  for (const fragment of localized.boundaryFragments) {
+    expect(learnerProse).toContain(fragment);
+  }
+  if (locale === 'en') {
+    const boundsParagraph = page
+      .locator('.lesson-body li')
+      .filter({ hasText: 'scan the IDs in flat order' });
+    await expect(boundsParagraph).toHaveCount(1);
+    await expect(boundsParagraph).toContainText('rows');
+    await expect(
+      boundsParagraph.locator(
+        '.katex annotation[encoding="application/x-tex"]',
+      ),
+    ).toHaveText('V');
+  }
 
   const historyNodes = page
     .getByRole('heading', {
@@ -670,7 +873,7 @@ async function expectChapterContent(
   await expectFormulaGeometry(page);
 
   const rustSources = page.locator('figure.rust-source');
-  await expect(rustSources).toHaveCount(expectedRustRegions.length);
+  await expectRustCards(page, locale);
   const highlighted = rustSources.locator(
     'pre.rust-source-code.astro-code.github-dark-high-contrast[data-language="rust"]',
   );
@@ -680,11 +883,6 @@ async function expectChapterContent(
       .locator('code')
       .evaluateAll((blocks) => blocks.map((block) => block.textContent)),
   ).toEqual(expectedRustSources);
-  expect(
-    await rustSources.evaluateAll((sources) =>
-      sources.map((source) => source.getAttribute('data-source-region')),
-    ),
-  ).toEqual(expectedRustRegions.map(([, region]) => region));
   for (const evidence of await highlighted.evaluateAll((blocks) =>
     blocks.map((block) => ({
       tabIndex: block.getAttribute('tabindex'),
@@ -892,7 +1090,17 @@ async function expectChapterContent(
   await expect(exerciseDetails).toHaveCount(1);
   await exerciseDetails.locator('summary').click();
   await expect(exerciseDetails).toHaveAttribute('open', '');
-  await expect(exerciseDetails.locator('ol > li')).toHaveCount(10);
+  const answers = exerciseDetails.locator('ol > li');
+  await expect(answers).toHaveCount(11);
+  expect(normalizeRenderedTypography(await answers.nth(5).innerText())).toContain(
+    normalizeRenderedTypography(localized.boundaryAnswers[0]),
+  );
+  expect(normalizeRenderedTypography(await answers.nth(6).innerText())).toContain(
+    normalizeRenderedTypography(localized.boundaryAnswers[1]),
+  );
+  expect(normalizeRenderedTypography(await answers.nth(7).innerText())).toContain(
+    normalizeRenderedTypography(localized.cloneAnswer),
+  );
 
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
@@ -1152,6 +1360,7 @@ test.describe('chapter 18 localized token-embeddings vertical slice', {
     const context = await browser.newContext({
       javaScriptEnabled: false,
       baseURL: String(testInfo.project.use.baseURL),
+      viewport: { width: 390, height: 844 },
     });
     const page = await context.newPage();
     for (const locale of chapterLocales) {
@@ -1169,6 +1378,7 @@ test.describe('chapter 18 localized token-embeddings vertical slice', {
       await expect(page.locator('.gradient-stage tbody tr')).toHaveCount(4);
       await expect(page.locator('[data-diagram-scroll]')).toHaveCount(4);
       await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+      await expectRustCards(page, locale);
       expect(
         await page
           .locator('.rule-repeated-sum')

@@ -3,6 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
+use crate::autograd::model_ops::RowGatherPlan;
 use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, SplitMix64};
 use crate::tensor::storage::{TensorError, checked_row_major_layout};
@@ -161,10 +162,16 @@ impl Embedding {
             embedding_width: shape[1],
         })
     }
+}
+// endregion:embedding-layer
 
+// region:embedding-forward-boundary
+impl Embedding {
     /// Selects one table row per `u32` token ID and appends the feature axis.
     ///
     /// Token IDs remain integer selectors rather than differentiable operands.
+    /// After this boundary validates and converts them, the shared gather kernel
+    /// consumes the sealed facts without scanning the selectors again.
     pub fn forward(
         &self,
         token_ids: &[u32],
@@ -201,10 +208,15 @@ impl Embedding {
         }
         self.table
             .tensor()
-            .gather_rows(&indices, token_shape)
+            .gather_rows_with_plan(move |table| {
+                RowGatherPlan::from_validated_indices(table, indices, token_shape.to_vec())
+            })
             .map_err(EmbeddingError::Autodiff)
     }
+}
+// endregion:embedding-forward-boundary
 
+impl Embedding {
     /// Returns the table with its stable external name and trainable leaf.
     pub const fn table(&self) -> &NamedParameter {
         &self.table
@@ -223,13 +235,13 @@ impl Embedding {
         self.embedding_width
     }
 }
-// endregion:embedding-layer
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::autograd::gradcheck::sampled_tensor_gradient_check;
-    use crate::autograd::tensor_core::GraphRetention;
+    use crate::autograd::model_ops::{ModelOpError, ModelSavedContext};
+    use crate::autograd::tensor_core::{GraphRetention, TensorSavedContext};
     use crate::tensor::storage::Tensor;
 
     const STEP: f64 = 1e-6;
@@ -268,6 +280,60 @@ mod tests {
             embedding.table().tensor().gradient().unwrap().as_slice(),
             &[0.0, 0.0, 0.0, 2.0, 4.0, 4.0, 0.0, 0.0]
         );
+    }
+
+    #[test]
+    fn validated_embedding_handoff_matches_the_checked_public_gather() {
+        let embedding = known_embedding();
+        let checked_table = TensorValue::parameter(tensor(
+            &[4, 2],
+            &[10.0, 11.0, 20.0, 21.0, 30.0, 31.0, 40.0, 41.0],
+        ))
+        .unwrap();
+        let embedding_output = embedding.forward(&[2, 1, 2], &[1, 3]).unwrap();
+        let checked_output = checked_table.gather_rows(&[2, 1, 2], &[1, 3]).unwrap();
+        assert_eq!(embedding_output.shape(), checked_output.shape());
+        assert_eq!(
+            embedding_output.value().as_slice(),
+            checked_output.value().as_slice()
+        );
+        assert_eq!(
+            checked_table.gather_rows(&[1, 4, 9], &[3]).unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::GatherIndexOutOfBounds {
+                position: 1,
+                index: 4,
+                rows: 4,
+            })
+        );
+
+        let upstream = tensor(&[1, 3, 2], &[1.0, -0.5, 0.25, 2.0, -1.5, 0.75]);
+        let pass = embedding_output
+            .backward_with_seed_and_trace(&upstream.view(), GraphRetention::Retain)
+            .unwrap();
+        checked_output
+            .backward_with_seed(&upstream.view(), GraphRetention::Retain)
+            .unwrap();
+        assert_eq!(
+            embedding.table().tensor().gradient().unwrap().as_slice(),
+            checked_table.gradient().unwrap().as_slice()
+        );
+        let saved = pass
+            .edges
+            .iter()
+            .find_map(|edge| match &edge.saved {
+                TensorSavedContext::Model(ModelSavedContext::GatherRows {
+                    indices,
+                    index_shape,
+                    input_shape,
+                    output_shape,
+                }) => Some((indices, index_shape, input_shape, output_shape)),
+                _ => None,
+            })
+            .expect("the embedding handoff saves the sealed gather-plan facts");
+        assert_eq!(saved.0, &[2, 1, 2]);
+        assert_eq!(saved.1, &[1, 3]);
+        assert_eq!(saved.2, &[4, 2]);
+        assert_eq!(saved.3, &[1, 3, 2]);
     }
 
     #[test]
@@ -339,23 +405,38 @@ mod tests {
     fn forward_validation_precedence_is_shape_count_then_first_bad_id() {
         let embedding = known_embedding();
         assert_eq!(
-            embedding.forward(&[], &[usize::MAX, 2]).unwrap_err(),
+            embedding
+                .forward(&[u32::MAX], &[usize::MAX, 2])
+                .unwrap_err(),
             EmbeddingError::TokenShape(TensorError::ShapeOverflow)
         );
         assert_eq!(
-            embedding.forward(&[4], &[2]).unwrap_err(),
+            embedding.forward(&[u32::MAX], &[2]).unwrap_err(),
             EmbeddingError::TokenCountMismatch {
                 expected: 2,
                 actual: 1,
             }
         );
         assert_eq!(
-            embedding.forward(&[1, 4, 9], &[3]).unwrap_err(),
+            embedding.forward(&[1, u32::MAX, 4], &[3]).unwrap_err(),
             EmbeddingError::TokenIdOutOfBounds {
                 position: 1,
-                id: 4,
+                id: u32::MAX,
                 vocabulary_size: 4,
             }
+        );
+        assert_eq!(
+            embedding
+                .forward(&[u32::MAX], &[0, usize::MAX])
+                .unwrap_err(),
+            EmbeddingError::TokenCountMismatch {
+                expected: 0,
+                actual: 1,
+            }
+        );
+        assert_eq!(
+            embedding.forward(&[], &[0, usize::MAX]).unwrap_err(),
+            EmbeddingError::Autodiff(TensorAutodiffError::Tensor(TensorError::ShapeOverflow))
         );
     }
 

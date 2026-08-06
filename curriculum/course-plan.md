@@ -1254,16 +1254,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `18-token-embeddings`
 - **Implementation step:** `implement-ch18-token-embeddings`
-- **Revision status:** Content revision 5 corrects the RoPE handoff, shape-based initialization wording, empty-tensor evidence, mathematical markup, learner-facing scope, and shared diagram presentation, and activates the direct Russian localization; revision 4's formula repair remains recorded by `repair-formula-rendering-ch14-ch19`.
+- **Revision status:** Content revision 7 makes the token-ID boundary validate shape, count, and the first bad `u32` ID once before handing owned converted selectors to Chapter 16's crate-private validated row-gather plan; it keeps the public generic gather checked and refreshes the direct Russian localization. Revision 6's borrowed `TensorValue` source projection remains in force, as do revision 5's formula, history, RoPE handoff, initialization, empty-tensor, and shared-diagram corrections.
 - **Depends on:** `17-parameter-initialization`.
 - **Outcome:** Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.
 - **Scope boundary:** Teach lookup as one-hot multiplication, table/vocabulary dimensions, repeated-token gradient accumulation, and bounds; defer the separate position signal applied inside later attention.
 - **Formula:** `X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}`.
 - **Historical contrast:** Contrast sparse one-hot representations with dense distributed embeddings and their compact lookup implementation.
-- **Rust contribution:** Add a differentiable embedding layer backed by the Chapter 16 gather VJP and reuse Chapter 17's sampler under an explicit token-table shape convention.
+- **Rust contribution:** Keep a differentiable embedding layer backed by Chapter 16's gather VJP, but let its checked `u32` token boundary move owned converted selectors into the crate-private validated gather plan; reuse Chapter 17's sampler under an explicit token-table shape convention.
 - **Visualization:** Useful — align token positions, one-hot identities, selected table rows, output vectors, and repeated-row gradient accumulation.
-- **Practice:** Predict output rows for repeated IDs and explain which table row an invalid ID would request.
-- **Integration evidence:** Forward lookup, repeated-ID scatter-add, bounds, empty shapes, stable parameter identity, and gradchecks pass.
+- **Practice:** Predict output rows for repeated IDs, order token-shape/count/first-bad-ID failures, and explain why only the already checked internal handoff may skip another selector scan.
+- **Integration evidence:** Trusted-versus-public gather equivalence, exact saved plan facts, forward lookup, repeated-ID scatter-add, bounds and derived-output overflow precedence, empty shapes, stable parameter identity, and gradchecks pass.
 - **Handoff:** Chapter 19 packages learned matrix multiplication as a reusable optional-bias projection.
 
 ## 19. Linear layers and affine projections

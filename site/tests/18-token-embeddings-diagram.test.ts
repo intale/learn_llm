@@ -39,6 +39,18 @@ const lessonSource = readFileSync(
   resolve(repositoryRoot, 'site/src/content/chapters/en/18-token-embeddings.mdx'),
   'utf8',
 );
+const russianLessonSource = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/ru/18-token-embeddings.mdx'),
+  'utf8',
+);
+const embeddingSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/nn/embedding.rs'),
+  'utf8',
+);
+const modelOperationsSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/autograd/model_ops.rs'),
+  'utf8',
+);
 const rustTraceSource = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch18-token-embeddings/src/diagram_trace.rs'),
   'utf8',
@@ -221,6 +233,48 @@ describe('Chapter 18 Rust trace parser', () => {
 });
 
 describe('Chapter 18 labels and static component', () => {
+  it('hands one validated selector vector to the sealed gather plan', () => {
+    const start = embeddingSource.indexOf('// region:embedding-forward-boundary');
+    const end = embeddingSource.indexOf('// endregion:embedding-forward-boundary');
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+    const forwardBoundary = embeddingSource.slice(start, end);
+    const ordered = [
+      'checked_row_major_layout(token_shape)',
+      'token_ids.len() != expected',
+      'token_ids.iter().enumerate()',
+      'EmbeddingError::TokenIdOutOfBounds',
+      'try_reserve_exact(expected)',
+      'for &id in token_ids',
+      '.gather_rows_with_plan(move |table|',
+      'RowGatherPlan::from_validated_indices',
+    ].map((fragment) => forwardBoundary.indexOf(fragment));
+    expect(ordered.every((position) => position >= 0)).toBe(true);
+    expect(ordered).toEqual([...ordered].sort((left, right) => left - right));
+    expect(forwardBoundary.match(/token_ids\.iter\(\)\.enumerate\(\)/g)).toHaveLength(1);
+    expect(forwardBoundary.match(/RowGatherPlan::from_validated_indices/g)).toHaveLength(1);
+    expect(forwardBoundary).toMatch(
+      /RowGatherPlan::from_validated_indices\(\s*table,\s*indices,\s*token_shape\.to_vec\(\),?\s*\)/s,
+    );
+    expect(forwardBoundary).not.toContain('.gather_rows(');
+    expect(forwardBoundary).not.toContain('RowGatherPlan::checked');
+    expect(forwardBoundary).not.toContain('indices.to_vec()');
+    expect(forwardBoundary).not.toMatch(
+      /GatherTableRank|GatherIndexCountMismatch|GatherIndexOutOfBounds/,
+    );
+
+    const publicGatherStart = modelOperationsSource.indexOf('pub fn gather_rows(');
+    const trustedGatherStart = modelOperationsSource.indexOf(
+      'pub(crate) fn gather_rows_with_plan(',
+      publicGatherStart,
+    );
+    expect(publicGatherStart).toBeGreaterThanOrEqual(0);
+    expect(trustedGatherStart).toBeGreaterThan(publicGatherStart);
+    expect(modelOperationsSource.slice(publicGatherStart, trustedGatherStart)).toContain(
+      'RowGatherPlan::checked(table, indices, index_shape)',
+    );
+  });
+
   it('accepts the complete label tree and rejects blank nested leaves', () => {
     expect(() => validateTokenEmbeddingsLabels(labels)).not.toThrow();
     expect(() => validateTokenEmbeddingsLabels({
@@ -320,8 +374,113 @@ describe('Chapter 18 labels and static component', () => {
       /#111827|#182235|#4b5563|#7dd3fc|#38bdf8|var\(--border/,
     );
 
-    expect(contractSource).toContain('"content_revision": 6');
-    expect(lessonSource).toContain('"content_revision": 6');
+    expect(contractSource).toContain('"content_revision": 7');
+    expect(lessonSource).toContain('"content_revision": 7');
+    expect(russianLessonSource).toContain('"content_revision": 7');
+    const normalizedContract = contractSource.replace(/\s+/g, ' ');
+    const normalizedEnglish = lessonSource.replace(/\s+/g, ' ');
+    const normalizedRussian = russianLessonSource.replace(/\s+/g, ' ');
+    expect(normalizedContract).toContain(
+      'validates `token_shape` and computes its checked position count, then requires the flat ID count to equal that count, then scans IDs in flat order',
+    );
+    expect(normalizedContract).toContain(
+      'Public callers obtain an `Embedding` through `new`, `from_parameter`, or by cloning an already validated layer.',
+    );
+    expect(normalizedContract).toContain(
+      'private fields prevent callers from replacing it with an unchecked shape',
+    );
+    expect(normalizedContract).toContain(
+      'without rescanning rank, count, or selector bounds',
+    );
+    expect(normalizedContract).toContain(
+      'The public `TensorValue::gather_rows` entry remains fully checked for arbitrary callers.',
+    );
+    expect(normalizedContract).toContain(
+      'After a plan exists, output-buffer allocation can still fail.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Public callers obtain an `Embedding` through `new`, `from_parameter`, or by cloning an already validated layer.',
+    );
+    expect(normalizedEnglish).toContain(
+      'The constructors establish a nonempty rank-two table, cloning preserves it, and private fields prevent callers from replacing it.',
+    );
+    expect(normalizedEnglish).toContain(
+      'compute the number of positions described by `token_shape`, rejecting an invalid or overflowing shape; 2. require `token_ids.len()` to equal that position count; and 3. scan the IDs in flat order',
+    );
+    expect(normalizedEnglish).toContain(
+      'Only after all IDs pass does the method reserve an owned `Vec<usize>` and convert the selectors.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Its trusted constructor does not rescan table rank, selector count, or selector bounds',
+    );
+    expect(normalizedEnglish).toContain(
+      'The constructor-or-clone invariant supplies the table rank, while this `forward` call has just established the selector shape, count, and bounds',
+    );
+    expect(normalizedEnglish).toContain(
+      'The public `TensorValue::gather_rows` method still checks table rank, selector shape, selector count, and the first out-of-range selector',
+    );
+    expect(normalizedEnglish).toContain(
+      'allocating the output buffer can still fail',
+    );
+    expect(normalizedRussian).toContain(
+      'проверенный план выбора строк по индексам',
+    );
+    expect(normalizedRussian).toContain(
+      'Из внешнего кода получить `Embedding` можно тремя способами: вызвать `new`, вызвать `from_parameter` или клонировать уже проверенный слой.',
+    );
+    expect(normalizedRussian).toContain(
+      'Оба конструктора гарантируют, что таблица имеет ранг два и ненулевые размеры, клон сохраняет эту таблицу, а закрытые поля не позволяют заменить её извне.',
+    );
+    const russianValidationOrder = [
+      'вычисляет число позиций, заданное `token_shape`',
+      'требует, чтобы длина `token_ids` в точности совпадала с этим числом',
+      'просматривает ID в плоском порядке и сообщает о первом значении `u32`',
+      'Только после успешной проверки всех ID метод резервирует `Vec<usize>`',
+    ].map((fragment) => normalizedRussian.indexOf(fragment));
+    expect(russianValidationOrder.every((position) => position >= 0)).toBe(true);
+    expect(russianValidationOrder).toEqual(
+      [...russianValidationOrder].sort((left, right) => left - right),
+    );
+    expect(normalizedRussian).toContain(
+      'Внутренний конструктор не проверяет повторно ранг таблицы, число селекторов и их границы.',
+    );
+    expect(normalizedRussian).toContain(
+      'Если он доступен, метод создаёт значение закрытого типа `RowGatherPlan` из главы 16 и передаёт ему вектор селекторов во владение; этот тип доступен только внутри крейта.',
+    );
+    expect(normalizedRussian).toContain(
+      'Публичный метод `TensorValue::gather_rows` по-прежнему принимает произвольные входные данные, поэтому сам проверяет ранг таблицы, форму и число селекторов, а также первый индекс за пределами таблицы.',
+    );
+    expect(normalizedRussian).toContain(
+      'создание буфера выходных значений всё равно может завершиться ошибкой',
+    );
+    expect(normalizedRussian).toContain(
+      'Изменились только владение проверенными данными и их повторное использование. Значения и формы выхода, порядок ошибок, формула выбора строк, данные, сохранённые для VJP, и накопление градиентов повторяющихся ID остались прежними.',
+    );
+    expect(normalizedRussian).toContain(
+      'Один раз проверить ID типа u32 при вызове публичного метода, преобразовать их в селекторы, передать селекторы во владение внутреннему проверенному плану выбора строк по индексам, а сам план — общему ядру.',
+    );
+    expect(normalizedRussian).toContain(
+      'к любой пустой ведущей форме добавляется ширина эмбеддинга, но значений не появляется',
+    );
+    expect(normalizedRussian).toContain(
+      'Клон — отдельный объект слоя, но он хранит тот же именованный листовой узел-параметр таблицы; нового обучаемого листа не возникает.',
+    );
+    expect(normalizedRussian).toContain(
+      'размер последней оси эмбеддинга станет входной шириной обучаемой проекции',
+    );
+    expect(normalizedRussian).toContain(
+      'Повторно использовать результаты этих проверок без новой проверки может только внутренний код, получивший проверенный план выбора строк по индексам.',
+    );
+    expect(normalizedRussian).toContain(
+      'Если несколько позиций выбрали одну строку, поступившие в эти позиции векторы градиента складываются по признакам в общей строке параметров.',
+    );
+    expect(normalizedRussian).not.toMatch(
+      /код(?:а|ов)? принадлежности|явно переносить|Клон — это другая ссылка|Ранг следует из инварианта|не может исходить из таких предпосылок/,
+    );
+    expect(lessonSource).not.toMatch(/cargo\s+(?:run|test)|\.\/course|npm\s+(?:run|test)/);
+    expect(russianLessonSource).not.toMatch(
+      /cargo\s+(?:run|test)|\.\/course|npm\s+(?:run|test)/,
+    );
     expect(contractSource).toContain(
       '`\\bar{X}_{b,t,:} = \\partial L / \\partial X_{b,t,:}`',
     );

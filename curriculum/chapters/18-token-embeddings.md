@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "concept_id": "token-embeddings",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 18,
   "objective": {
     "en": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.",
@@ -82,15 +82,15 @@
       "predecessor_kind": "language-model",
       "limitation": {
         "en": "A sparse one-hot word representation assigns one coordinate to each vocabulary item but expresses no graded similarity between words; explicitly carrying that vocabulary-wide vector also wastes work when only one row is needed.",
-        "ru": "Разреженное one-hot-представление слова отводит одну координату каждому элементу словаря, но не выражает степень сходства между словами. Кроме того, явно переносить такой вектор размером со словарь расточительно, когда нужна только одна строка."
+        "ru": "Разреженное one-hot-представление слова отводит одну координату каждому элементу словаря, но не выражает степень сходства между словами. Кроме того, явно создавать и обрабатывать такой вектор размером со словарь расточительно, когда нужна лишь одна строка."
       },
       "later_advance": {
         "en": "Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.",
-        "ru": "Bengio и соавторы обучают общую плотную таблицу признаков слов вместе с нейросетевой моделью следующего слова. В Transformer используются обучаемые эмбеддинги подсловных токенов, к которым перед стеком слоёв с механизмами внимания и сетями прямого распространения добавляется позиционная информация."
+        "ru": "Bengio и соавторы обучают общую плотную таблицу признаков слов вместе с нейросетевой моделью следующего слова. Transformer использует обучаемые эмбеддинги подсловных токенов: к ним добавляется позиционная информация, после чего результат поступает в стек слоёв внимания и сетей прямого распространения."
       },
       "modern_llm_role": {
         "en": "The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.",
-        "ru": "ID токенов поступают в численную часть декодера, выбирая строки одной обучаемой таблицы «словарь на признаки». Повторяющиеся ID используют одну строку параметров, поэтому их вклады при обратном проходе складываются; позиционная информация, масштабирование эмбеддингов в прямом проходе, внимание и совместное использование весов с выходной проекцией рассматриваются позже."
+        "ru": "ID токенов поступают на числовой вход декодера: по ним выбираются строки одной обучаемой таблицы «словарь на признаки». Все вхождения повторяющегося ID используют одну и ту же строку параметров, поэтому их градиентные вклады при обратном проходе складываются. Позиционная информация, масштабирование эмбеддингов в прямом проходе, внимание и совместное использование весов с выходной проекцией рассматриваются позже."
       },
       "sources": [
         {
@@ -100,7 +100,7 @@
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
             "en": "Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction.",
-            "ru": "Bengio и соавторы задают обучаемое отображение индекса слова из словаря в распределённые признаки в виде матрицы с одной строкой на элемент словаря и одним столбцом на обучаемый признак, используют эту матрицу во всех позициях контекста и обучают её вместе с предсказанием следующего слова."
+            "ru": "Bengio и соавторы задают отображение индекса словарного слова в набор распределённых признаков с помощью обучаемой матрицы: каждому элементу словаря соответствует строка, а каждому обучаемому признаку — столбец. Одна и та же матрица используется для всех позиций контекста и обучается вместе с моделью предсказания следующего слова."
           }
         },
         {
@@ -110,7 +110,7 @@
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
             "en": "Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.",
-            "ru": "Vaswani и соавторы используют обучаемые эмбеддинги ширины модели для токенов BPE или word-piece и добавляют позиционное кодирование перед стеком Transformer; масштабирование эмбеддингов в прямом проходе не относится к инициализации параметров."
+            "ru": "Vaswani и соавторы используют для токенов BPE или WordPiece обучаемые эмбеддинги, ширина которых совпадает с шириной модели, и перед стеком Transformer добавляют к ним позиционное кодирование. Масштабирование эмбеддингов в прямом проходе не относится к инициализации параметров."
           }
         }
       ]
@@ -121,7 +121,7 @@
     },
     "summary": {
       "en": "One-hot vectors make token identity explicit but carry a vocabulary-sized field of zeros. Learned dense word features let neural language models share statistical strength, and Transformers keep learned token embeddings as the numeric entrance to deeper sequence computation. The algebraic one-hot identity explains direct row lookup, while the shared trainable row explains why repeated-token gradients add.",
-      "ru": "One-hot-векторы явно указывают выбранный токен, но имеют размер словаря и почти целиком состоят из нулей. Плотные обучаемые признаки слов позволили нейросетевым языковым моделям переносить статистическую информацию между словами, а в Transformer обучаемые эмбеддинги служат численным входом в более глубокие вычисления над последовательностью. Алгебраическое тождество для one-hot-вектора объясняет прямой выбор строки, а общая обучаемая строка — сложение градиентов повторяющихся токенов."
+      "ru": "One-hot-векторы явно указывают выбранный токен, но имеют размер словаря и почти целиком состоят из нулей. Плотные обучаемые признаки позволяют нейросетевым языковым моделям использовать статистические сведения об одних словах при оценке других. В Transformer обучаемые эмбеддинги служат числовыми представлениями токенов на входе последующих слоёв обработки последовательности. Алгебраическое тождество для one-hot-вектора объясняет прямой выбор строки, а общая обучаемая строка — сложение градиентов повторяющихся токенов."
     },
     "rust_contrast": "Construct the tiny table and IDs, multiply explicit one-hot rows by the table as a historical algebraic baseline, compare that result with the differentiable lookup layer, and reverse a nonuniform seed to expose repeated-row accumulation."
   },
@@ -145,7 +145,7 @@
   },
   "decoder_connection": {
     "en": "The cumulative model can now turn token-ID tensors into differentiable feature tensors that append one embedding-width axis while keeping one shared named vocabulary-by-feature parameter. Chapter 19 treats that final embedding width as its input width and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates.",
-    "ru": "Теперь совокупная модель умеет превращать тензоры ID токенов в дифференцируемые тензоры признаков: к исходной форме добавляется ось ширины эмбеддинга, а параметром остаётся одна общая именованная таблица «словарь на признаки». В главе 19 последняя ось эмбеддинга станет входной шириной обучаемой проекции: выбор строки по индексу извлекает вектор токена, а линейный слой смешивает его координаты."
+    "ru": "Теперь совокупная модель умеет превращать тензоры ID токенов в дифференцируемые тензоры признаков: к исходной форме добавляется последняя ось, размер которой равен ширине эмбеддинга, а одна общая именованная таблица «словарь на признаки» остаётся параметром. В главе 19 размер последней оси эмбеддинга станет входной шириной обучаемой проекции: выбор строки по индексу извлекает вектор токена, а линейный слой смешивает его координаты."
   },
   "terminology": [
     {
@@ -182,13 +182,18 @@
       "concept_id": "repeated-token",
       "en": "repeated token",
       "ru": "повторяющийся токен"
+    },
+    {
+      "concept_id": "validated-row-gather-plan",
+      "en": "validated row-gather plan",
+      "ru": "проверенный план выбора строк по индексам"
     }
   ],
   "translation_notes": [
-    "Chapter 18 has the exact active locale set {en,ru}. Russian is translated directly from frozen English revision 6; its semantic, linguistic, accessibility, and rendered-layout review becomes stale whenever the English meaning or presentation changes.",
+    "Chapter 18 has the exact active locale set {en,ru}. Russian is translated directly from frozen English revision 7; its semantic, linguistic, accessibility, and rendered-layout review becomes stale whenever the English meaning or presentation changes.",
     "Keep E, X, z, V, d, b, t, i, overbars, the colon, shapes, IDs, values, parameter name, trace keywords, formula, and source URLs unchanged across locales.",
     "Distinguish a token ID, which is a non-differentiable integer selector, from its selected trainable vector. Numeric closeness between IDs says nothing about semantic closeness.",
-    "Use ID токена, таблица эмбеддингов, ширина эмбеддинга, one-hot-вектор, выбор строки по индексу, накопление вкладов по индексам, and повторяющийся токен in Russian. One-hot means exactly one active vocabulary coordinate; multiplication by it is an algebraic explanation, not a claim that Bengio et al. or this implementation materializes sparse vectors.",
+    "Use ID токена, таблица эмбеддингов, ширина эмбеддинга, one-hot-вектор, выбор строки по индексу, накопление вкладов по индексам, повторяющийся токен, and проверенный план выбора строк по индексам in Russian. One-hot means exactly one active vocabulary coordinate; multiplication by it is an algebraic explanation, not a claim that Bengio et al. or this implementation materializes sparse vectors.",
     "Repeated occurrences do not own separate embeddings. They select the same row, and reverse-mode contributions add feature by feature into that shared row; unused rows receive zero.",
     "Describe row-major layout, u32 IDs, initialization choice, parameter names, validation precedence, trace grammar, rounding, and accessibility projection as implementation policies, not paper claims.",
     "Vaswani et al.'s multiplication of embeddings by sqrt(d_model) is a forward scale, not the shape-based initialization convention connected from Chapter 17. Embedding lookup itself does not encode position; later RoPE rotates projected queries and keys without creating occurrence-specific embedding rows.",
@@ -218,6 +223,10 @@
     {
       "input": "Run the embedding finite-difference probe with repeated IDs",
       "expected": "Every sampled table coordinate agrees with the analytic gather VJP within the declared 2e-6 absolute tolerance. IDs receive no gradient because they are selectors rather than tape operands."
+    },
+    {
+      "input": "Compare Embedding::forward for u32 IDs [2,1,2] with TensorValue::gather_rows for matching usize selectors [2,1,2] on the same table, then give the public gather an invalid raw request",
+      "expected": "The trusted embedding handoff and checked public gather produce identical forward values, saved shapes and selectors, and table gradients for valid input; the invalid public request still receives the established typed rank, shape, count, or bounds rejection."
     },
     {
       "input": "cargo run --quiet --locked -p ch18-token-embeddings",
@@ -321,15 +330,30 @@ parameter slice without recreating the trainable leaf. Cloning the layer
 preserves tape identity; independently initialized equal values remain different
 leaves.
 
-`forward(token_ids,token_shape)` accepts the repository's `u32` token IDs and
-delegates to Chapter 16's `gather_rows` after checked conversion to indices. The
-flat ID count must equal the checked product of `token_shape`; validation then
-reports the first out-of-range ID in flat order before reserving the conversion
-buffer. A scalar shape `[]` consumes one ID and
+`forward(token_ids,token_shape)` is the public boundary for the repository's
+`u32` token IDs. It first validates `token_shape` and computes its checked
+position count, then requires the flat ID count to equal that count, then scans
+IDs in flat order and reports the first value that cannot name one of the
+table's `V` rows. Only after every ID is valid does it reserve the owned
+`Vec<usize>` and convert the selectors. A scalar shape `[]` consumes one ID and
 returns `[d]`. An empty shape such as `[0]` consumes no IDs and returns `[0,d]`.
-The existing gather operation allocates and validates before publishing a tape
-node, keeps IDs off the tape, and scatter-adds reverse contributions into the
-table gradient.
+
+Public callers obtain an `Embedding` through `new`, `from_parameter`, or by
+cloning an already validated layer. The constructors establish a rank-two
+table; cloning preserves that table and its recorded dimensions; and private
+fields prevent callers from replacing it with an unchecked shape. The layer
+therefore hands its owned converted IDs
+to Chapter 16's crate-private `RowGatherPlan::from_validated_indices` inside the
+operand-availability boundary. That trusted constructor derives and owns the
+input and output shapes without rescanning rank, count, or selector bounds; it
+does not make unvalidated input acceptable. The public
+`TensorValue::gather_rows` entry remains fully checked for arbitrary callers.
+After a plan exists, output-buffer allocation can still fail. On success the
+shared gather kernel copies rows, keeps IDs off the tape, and saves the plan's
+facts so its VJP can scatter-add reverse contributions into the table gradient.
+Only ownership and reuse of validated facts change: lookup values, shapes, error
+precedence, the chapter formula, the saved VJP facts, and repeated-row
+scatter-add remain unchanged.
 
 The core tests cover construction precedence, exact forward values, scalar and
 empty shapes, count and bounds errors, clone identity, reproducible initialization,
@@ -365,11 +389,12 @@ complete.
 3. Predict the complete table gradient for the declared nonuniform upstream seed.
 4. Explain why row 2 receives a sum while its two occurrences do not own separate vectors.
 5. Predict the output shape for ID shape `[2,3]`, scalar shape `[]`, and empty shape `[0]` when `d=2`.
-6. Identify the first invalid ID in `[1,4,9]` for a four-row table.
-7. Predict whether cloning a layer creates another trainable leaf.
-8. Explain why IDs receive no gradient and why nearby integer IDs need not have nearby vectors.
-9. Source check: do Bengio et al. require an explicitly materialized one-hot implementation?
-10. Misconception check: does repeating a token create a new embedding parameter for that occurrence?
+6. Put token-shape failure, ID-count mismatch, and the first out-of-range ID in reporting order, then identify the first invalid ID in `[1,4,9]` for a four-row table.
+7. Explain why the embedding layer may use a trusted row-gather plan after its checks, while the public generic gather entry must still validate raw selectors; name the allocation that may still fail after the plan exists.
+8. Predict whether cloning a layer creates another trainable leaf.
+9. Explain why IDs receive no gradient and why nearby integer IDs need not have nearby vectors.
+10. Source check: do Bengio et al. require an explicitly materialized one-hot implementation?
+11. Misconception check: does repeating a token create a new embedding parameter for that occurrence?
 
 The misconception answer is no. Every occurrence selects the same named table
 row. Forward values can repeat, and reverse contributions add into that shared
@@ -388,7 +413,7 @@ one embedding-table row.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English and Russian form the exact active locale set for Chapter 18 revision 6.
+English and Russian form the exact active locale set for Chapter 18 revision 7.
 Russian is translated directly from the frozen English revision and covers the
 complete contract, lesson, history, diagram labels, accessible names, exercises,
 and answers. Any later English change that affects meaning or presentation makes
@@ -413,6 +438,15 @@ Scalar and empty ID shapes must preserve the final feature axis. Count mismatch,
 first out-of-range ID, invalid manual table rank, zero vocabulary, and zero width
 must return deterministic typed errors. Same-seed initialization reproduces
 values, clones preserve leaf identity, and independent construction does not.
+
+The embedding boundary must report token-shape failure, count mismatch, then the
+first bad `u32` ID before conversion allocation. `Embedding::forward` on the
+`u32` IDs `[2,1,2]` must match the fully checked public
+`TensorValue::gather_rows` call on the corresponding `usize` selectors
+`[2,1,2]` in forward values, saved shapes and selectors, and reverse gradients.
+A separate invalid raw public-gather request must still return its established
+typed rejection. Derived output-shape or output-buffer failure must remain
+possible after the embedding boundary validates the raw IDs.
 
 Contract, English lesson, parity, content, static build, links, SEO, focused
 browser, full browser, Rust formatting, Clippy, workspace tests, dependency and

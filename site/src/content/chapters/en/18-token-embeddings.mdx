@@ -2,11 +2,11 @@
 {
   "chapter_id": "18-token-embeddings",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 18,
   "concept_id": "token-embeddings",
   "title": "Give token IDs trainable vectors",
-  "description": "Build trainable token embeddings in Rust, gather table rows for token IDs, preserve batch and sequence shape, and scatter-add repeated-token gradients.",
+  "description": "Build a trainable token table, validate public token IDs once, pass owned selectors through a private validated gather plan, and scatter-add repeated-token gradients.",
   "objective": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.",
   "worked_inputs": "Use the [4,2] table [[10,11],[20,21],[30,31],[40,41]] and token IDs [[2,1,2]]. Predict the [1,3,2] output, then seed its reverse pass with [[[1,0],[0,2],[3,4]]] and predict which table rows receive gradients.",
   "formula": {
@@ -108,7 +108,12 @@
     {
       "path": "rust/crates/llm-from-scratch/src/nn/embedding.rs",
       "region": "embedding-layer",
-      "purpose": "Own one named trainable table, validate u32 selectors, and delegate differentiable row gathering."
+      "purpose": "Construct one named trainable table whose private shape invariants support embedding lookup."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/embedding.rs",
+      "region": "embedding-forward-boundary",
+      "purpose": "Validate the public u32 token boundary once, convert selectors, and hand an owned sealed plan to the shared gather kernel."
     },
     {
       "path": "rust/demos/ch18-token-embeddings/src/lib.rs",
@@ -332,7 +337,7 @@ vectors.
 
 {/* chapter-section:rust-implementation */}
 
-## Wrap one named table around the existing gather rule
+## Validate token IDs once, then reuse the gather rule
 
 The layer reports table, token-shape, count, bounds, conversion-allocation, and
 delegated autodiff failures without partial output:
@@ -344,17 +349,54 @@ delegated autodiff failures without partial output:
   label="Rust source declaring Chapter 18 embedding errors"
 />
 
-The layer accepts token IDs as `u32` values. It checks the leading
-shape, exact count, and first invalid ID before reserving converted indices, then
-calls the Chapter 16 gather operation. No lookup or scatter-add algorithm is
-duplicated in the layer:
+Public callers obtain an `Embedding` through `new`, `from_parameter`, or by
+cloning an already validated layer. The constructors establish a nonempty
+rank-two table, cloning preserves it, and private fields prevent callers from
+replacing it. The construction code records the table's vocabulary size $V$
+and embedding width $d$ once:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/nn/embedding.rs"
   region="embedding-layer"
-  caption="Own one named table and delegate differentiable row selection"
-  label="Rust source implementing the Chapter 18 token-embedding layer"
+  caption="Construct one named rank-two table and retain its vocabulary and feature widths"
+  label="Rust source constructing the Chapter 18 token-embedding layer"
 />
+
+`Embedding::forward` is the public boundary for token IDs supplied as `u32`.
+Because construction has already established the table shape $[V,d]$, the
+method performs these checks in a fixed order:
+
+1. compute the number of positions described by `token_shape`, rejecting an
+   invalid or overflowing shape;
+2. require `token_ids.len()` to equal that position count; and
+3. scan the IDs in flat order, rejecting the first `u32` value that cannot name
+   one of the table's $V$ rows.
+
+Only after all IDs pass does the method reserve an owned `Vec<usize>` and convert
+the selectors. After the tape establishes that the table operand is available,
+the method creates Chapter 16's crate-private `RowGatherPlan`. The plan owns the
+converted selectors and their logical shape and derives the output shape. Its
+trusted constructor does not rescan table rank, selector count, or selector
+bounds. The constructor-or-clone invariant supplies the table rank, while this
+`forward` call has just established the selector shape, count, and bounds:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/embedding.rs"
+  region="embedding-forward-boundary"
+  caption="Check each raw token-ID fact once and pass owned selectors through the validated plan"
+  label="Rust source implementing the Chapter 18 validated token-ID handoff"
+/>
+
+This trust is narrow. The public `TensorValue::gather_rows` method still checks
+table rank, selector shape, selector count, and the first out-of-range selector
+for callers that supply raw inputs. A valid plan also does not promise that
+memory is already available: allocating the output buffer can still fail. Once
+allocation succeeds, the shared kernel performs the row copies and saves the
+same plan facts for reverse scatter-add. The embedding layer therefore avoids a
+second selector-validation scan without duplicating either the lookup or the VJP.
+Only ownership and reuse of checked facts change; output values and shapes,
+failure precedence, the lookup equation, saved VJP facts, and repeated-row
+gradient addition stay the same.
 
 The exact nonuniform reverse seed makes repeated accumulation observable:
 
@@ -380,7 +422,7 @@ leaves. Cloning one layer deliberately preserves its parameter identity:
   label="Rust source connecting Chapter 17 initialization to Chapter 18 embeddings"
 />
 
-The learner command also checks an empty ID shape and the first out-of-bounds ID:
+The executable example also checks an empty ID shape and the first out-of-bounds ID:
 
 <RustSource
   path="rust/demos/ch18-token-embeddings/src/lib.rs"
@@ -389,12 +431,12 @@ The learner command also checks an empty ID shape and the first out-of-bounds ID
   label="Rust source checking Chapter 18 empty input and bounds behavior"
 />
 
-Run `cargo run --quiet --locked -p ch18-token-embeddings` to inspect the selected
-rows and the accumulated table gradient. A scalar ID shape $[]$ produces shape
-$[2]$; empty leading shapes append the width without producing values. Shape and
-count errors are reported before the first invalid selector. An all-coordinate
-finite-difference probe with step $10^{-6}$ agrees with the analytic table
-gradient within absolute tolerance $2\times10^{-6}$.
+Its printed evidence contains the selected rows and accumulated table gradient.
+A scalar ID shape $[]$ produces shape $[2]$; empty leading shapes append the
+width without producing values. Shape and count errors are reported before the
+first invalid selector. An all-coordinate finite-difference probe with step
+$10^{-6}$ agrees with the analytic table gradient within absolute tolerance
+$2\times10^{-6}$.
 
 <RustSource
   path="rust/demos/ch18-token-embeddings/src/main.rs"
@@ -436,11 +478,12 @@ visible independently of the color scheme.
 3. Predict every table-gradient value for the declared upstream seed.
 4. Explain why row $2$ receives a sum rather than two independent parameter gradients.
 5. Predict the output shapes for ID shapes $[2,3]$, $[]$, and $[0]$ when $d=2$.
-6. Find the first invalid ID in $[1,4,9]$ for a four-row table.
-7. Predict whether cloning an embedding layer creates a new trainable leaf.
-8. Explain why IDs receive no gradient and why adjacent ID numbers imply no semantic similarity.
-9. Decide whether Bengio et al. require an explicitly materialized one-hot implementation.
-10. Decide whether a repeated occurrence owns a new embedding parameter.
+6. Put an invalid token shape, an ID-count mismatch, and an out-of-range ID in reporting order; then find the first invalid ID in $[1,4,9]$ for a four-row table.
+7. Explain why `Embedding::forward` may hand its checked IDs to a trusted plan while the public generic gather method must validate raw selectors. What allocation can still fail after the plan exists?
+8. Predict whether cloning an embedding layer creates a new trainable leaf.
+9. Explain why IDs receive no gradient and why adjacent ID numbers imply no semantic similarity.
+10. Decide whether Bengio et al. require an explicitly materialized one-hot implementation.
+11. Decide whether a repeated occurrence owns a new embedding parameter.
 
 <details>
   <summary>Check the predictions</summary>
@@ -450,11 +493,12 @@ visible independently of the color scheme.
   3. The table gradient is $[[0,0],[0,2],[4,4],[0,0]]$.
   4. Both occurrences selected the same row-$2$ leaf, so $[1,0]$ and $[3,4]$ add into it.
   5. The output shapes are $[2,3,2]$, $[2]$, and $[0,2]$.
-  6. ID $4$ at flat position $1$ is the first invalid selector; valid rows are $0$ through $3$.
-  7. No. A clone is another handle to the same named table leaf.
-  8. IDs are discrete selectors outside the tape, and their numeric assignment carries no geometry.
-  9. No. One-hot multiplication is used here only as an algebraic explanation.
-  10. No. Repetition reuses one table row; later position handling distinguishes occurrences without creating occurrence-specific embedding parameters.
+  6. The method checks the token shape first, the exact ID count second, and the IDs in flat order third. ID $4$ at flat position $1$ is the first invalid selector because valid rows are $0$ through $3$.
+  7. Every `Embedding` value contains the rank-two table established by its public constructors, and `forward` has just checked shape, count, and bounds before converting the IDs. The trusted plan owns those facts. A generic public caller has established none of them, so `TensorValue::gather_rows` must perform its complete validation. Allocating the output tensor's value buffer can still fail after the plan exists.
+  8. No. A clone is another handle to the same named table leaf.
+  9. IDs are discrete selectors outside the tape, and their numeric assignment carries no geometry.
+  10. No. One-hot multiplication is used here only as an algebraic explanation.
+  11. No. Repetition reuses one table row; later position handling distinguishes occurrences without creating occurrence-specific embedding parameters.
 </details>
 
 {/* chapter-section:decoder-connection */}

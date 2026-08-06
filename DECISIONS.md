@@ -15507,3 +15507,51 @@ same sealed representation without reopening Chapter 16's implementation.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `share-validated-row-gather-plan`, and
 `20260805T234249Z-share-validated-row-gather-plan-01`.
+
+## 2026-08-06 - Pass Chapter 18's validated token selectors through the sealed gather plan
+
+**Status:** Accepted after implementation, invariant review, English-first
+content revision, direct Russian localization, exact Docker validation, and
+Chromium/Firefox rendered validation.
+
+**Context:** `Embedding::forward` already establishes its token-shape product,
+exact ID count, and first invalid `u32` ID in a fixed public error order. It then
+converted the IDs to `usize` selectors and invoked the fully checked public
+row-gather entry, which repeated rank, shape, count, and bounds work that the
+embedding boundary had just completed. Bypassing those checks with raw fields
+would be unsafe, while moving embedding-specific validation into the generic
+gather boundary would change public precedence and obscure ownership.
+
+**Decision:** Keep `Embedding::forward` as the sole public boundary for raw token
+IDs. It validates token shape, count, and the first invalid ID once, reserves and
+owns the converted selector vector, and only after the tape confirms that the
+table operand is available constructs Chapter 16's crate-private
+`RowGatherPlan`. The plan takes ownership of the selectors and logical shape,
+derives the output shape with checked arithmetic, and enters the existing shared
+forward row-copy and saved reverse scatter-add kernel. Construction or cloning
+of `Embedding` continues to own the rank-two table invariant.
+
+Keep `TensorValue::gather_rows` fully checked for arbitrary public `usize`
+selectors. A trusted plan does not promise successful output allocation, and it
+does not change operand-availability behavior, validation precedence, saved VJP
+facts, output values, or repeated-row accumulation. Tests compare the trusted
+embedding route with the checked public route in forward and reverse mode and
+retain explicit public rejection of an invalid raw selector.
+
+Chapter 18 revision 7 teaches that exact ownership boundary in frozen English
+and direct Russian. Rendered review preserves the full Russian meaning while
+using the concise title `Повторяющийся ID в общей таблице` and shorter explicit
+lookup/reverse notes; measured fullscreen travel passes unchanged proportional
+budgets in both Chromium and Firefox without smaller text, clipping, hidden
+overflow, abbreviated table headers, or relaxed tests.
+
+**Consequences:** Chapter 18 performs no second selector-validation scan, while
+all public checks and errors remain defensive and exact. Initialization,
+parameter identity, scalar and empty token shapes, exact demo output and trace,
+finite-difference agreement, decoder behavior, and gradient addition for
+repeated IDs remain unchanged. No unsafe API or new dependency is introduced.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`pass-validated-embedding-indices-to-row-gather`, and
+`20260806T005359Z-pass-validated-embedding-indices-to-row-gather-01`.
