@@ -29,6 +29,7 @@ interface LocalizedCopy {
   headings: readonly string[];
   historyHeading: string;
   historyFragments: readonly string[];
+  implementationFragments: readonly string[];
   diagramTitle: string;
   diagramDescription: string;
   summaryLabels: readonly string[];
@@ -46,7 +47,7 @@ interface LocalizedCopy {
 }
 
 const chapterId = "21-mini-batches";
-const contentRevision = 2;
+const contentRevision = 3;
 const repositoryRoot = resolve(process.cwd(), "..");
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 const historySources = [
@@ -76,6 +77,12 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       "token volume an explicit unit of work",
       "road from stochastic neural-language-model examples to modern LLM token batches",
       "not a programming-language history",
+    ],
+    implementationFragments: [
+      "records each complete window as a WindowDescriptor",
+      "copies the selected input and target occurrences directly from the borrowed document",
+      "first check the prospective token count, loss sum, and every gradient coordinate",
+      "update the existing gradient-sum vector in place",
     ],
     diagramTitle:
       "Follow five complete windows into two token-normalized batches",
@@ -117,7 +124,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       "Different-seed order",
       "Raw accumulation",
     ],
-    unused: "Unused — contributes nothing",
+    unused: "Not created — contributes nothing",
     equal: "Equal",
     same: "Same",
     changed: "Changed",
@@ -128,13 +135,13 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     revisionLabel: "Версия материала",
     title: "Считайте только токены, действительно вошедшие в мини-пакет",
     description:
-      "Воспроизводимо перемешайте полные каузальные окна и соберите их в мини-пакеты из строк фиксированной длины, сохраните меньший последний пакет и усредните функцию потерь и градиенты по фактическим целевым токенам.",
+      "Перемешайте полные каузальные окна и объедините их в мини-пакеты из строк фиксированной длины. Сохраните неполный последний мини-пакет и усредните функцию потерь и градиенты по фактически вошедшим в него целевым токенам.",
     headings: [
       "Предскажите форму меньшего последнего мини-пакета",
       "Делите на фактическое число целевых токенов",
       "Не смешивайте оси пакета и последовательности",
       "От обновления по одному слову к пакетам LLM, измеряемым в токенах",
-      "Перемешайте окна, затем объедините суммы до усреднения",
+      "Перемешайте дескрипторы окон, затем объедините суммы до деления",
       "Проследите каждое перемешанное окно и каждый знаменатель",
       "Сначала предскажите точную эпоху",
       "Передайте усреднённые по токенам градиенты в AdamW",
@@ -142,56 +149,62 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     historyHeading:
       "От обновления по одному слову к пакетам LLM, измеряемым в токенах",
     historyFragments: [
-      "объём работы начали явно измерять в токенах",
-      "к пакетам современных LLM, размер которых измеряют в",
+      "Число токенов стало явной мерой объёма мини-пакета",
+      "к пакетам современных LLM, размер которых измеряется в",
       "Это не история языков программирования",
     ],
+    implementationFragments: [
+      "Дескриптор содержит только индекс исходного документа и начальную позицию окна",
+      "копирует вхождения входных и целевых токенов непосредственно",
+      "проверяют новое число целевых вхождений, новую сумму потерь и результат сложения каждой координаты градиента",
+      "обновляют уже выделенный вектор сумм градиента на месте",
+    ],
     diagramTitle:
-      "Пять полных окон в двух мини-пакетах с нормировкой по токенам",
+      "Проследите, как пять полных окон образуют два мини-пакета",
     diagramDescription:
-      "Порядок после перемешивания, построчные ID входных и целевых токенов, потери по целевым токенам, фактические знаменатели, средние градиенты и инварианты воспроизводимой эпохи.",
+      "Сверьте порядок окон после перемешивания, построчные ID входных и целевых токенов, потери по целевым токенам, фактические знаменатели, средние градиенты и проверки одной воспроизводимой эпохи.",
     summaryLabels: [
       "Длина контекста",
-      "Заданная ёмкость",
+      "Максимальная ширина",
       "Начальное значение генератора",
       "Полные окна",
-      "Мини-пакеты",
+      "Число мини-пакетов",
     ],
     stageLabels: [
-      "Перемешайте полные окна",
-      "Сборка строк и подсчёт целевых токенов",
-      "Не считайте свободное место",
-      "Проверьте инварианты эпохи",
+      "Перемешайте пары «документ, начало окна»",
+      "Соберите строки и посчитайте целевые токены",
+      "Не учитывайте отсутствующую строку в среднем",
+      "Покрытие окон, границы документов и частей корпуса, повтор запуска, накопление сумм",
     ],
-    originLabel: "Происхождение окна",
+    originLabel: "Документ и начало окна",
     windowLabel: "Окно",
     tableLabels: [
       "Входные ID",
       "Целевые ID",
-      "Потери по целевым токенам",
-      "Форма",
+      "Потери по целевым позициям",
+      "Форма мини-пакета",
       "Целевые токены",
       "Сумма потерь",
-      "Фактический знаменатель по токенам",
-      "Средняя потеря",
+      "Фактический знаменатель",
+      "Среднее значение потерь",
       "Средний градиент",
-      "Сумма до деления",
+      "Суммы до деления",
     ],
     proofLabels: [
       "Полные окна",
-      "Повторы",
+      "Повторяющиеся окна",
       "ID токенов дополнения",
       "Окна из другой части корпуса",
-      "Порядок при том же начальном значении",
-      "Порядок при другом начальном значении",
-      "Сумма до деления",
+      "Повтор: то же начальное значение",
+      "Порядок: другое начальное значение",
+      "Суммы до деления",
     ],
-    unused: "Свободно — вклада нет",
-    equal: "Равно",
+    unused: "Строка не создана — вклада нет",
+    equal: "Совпадает",
     same: "Совпадает",
-    changed: "Отличается",
-    batchRowsCaption: "Перемешанные окна и точные вклады целевых токенов",
-    batchRowsScroller: "Прокручиваемые данные о токенах мини-пакета",
+    changed: "Изменён",
+    batchRowsCaption: "Окна после перемешивания и точные вклады целевых токенов",
+    batchRowsScroller: "Таблица токенов и вкладов для мини-пакета",
   },
 };
 
@@ -832,6 +845,13 @@ async function expectChapterContent(
     expect(evidence.tabIndex).toBe("0");
     expect(evidence.label).toBeTruthy();
     expect(evidence.direction).toBe("ltr");
+  }
+
+  const normalizedLessonText = (await page.locator(".lesson-body").innerText())
+    .replace(/\s+/g, " ")
+    .trim();
+  for (const fragment of localized.implementationFragments) {
+    expect(normalizedLessonText).toContain(fragment);
   }
 
   await expectVisualizationDecision(page, {

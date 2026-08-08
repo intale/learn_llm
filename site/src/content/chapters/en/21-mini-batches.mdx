@@ -2,13 +2,13 @@
 {
   "chapter_id": "21-mini-batches",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 21,
   "concept_id": "mini-batches",
   "title": "Count only the tokens that are really in the batch",
   "description": "Shuffle complete causal windows into mini-batches of fixed-length rows, keep the smaller final batch, and average loss and gradients over its actual target tokens.",
   "objective": "Shuffle complete causal windows reproducibly, stack fixed-size token rows without crossing boundaries, and average loss plus gradients over the target tokens actually present.",
-  "worked_inputs": "Use context length T=2, requested batch capacity 3, seed 7, and five complete windows from two separate training documents. Predict the two batch shapes after shuffling and decide whether the smaller final batch divides by 6 capacity slots or its 4 real target tokens.",
+  "worked_inputs": "Use context length T=2, maximum batch width 3, seed 7, and five complete windows from two separate training documents. Predict the two batch shapes after shuffling and decide whether the smaller final batch divides by the 6 target positions that a width-three batch could hold or by its 4 actual target-token occurrences.",
   "formula": {
     "latex": "\\mathcal{L}_B=\\frac{1}{|B|T}\\sum_{b\\in B}\\sum_{t=1}^{T}\\mathcal{L}_{b,t}",
     "symbols": [
@@ -54,7 +54,7 @@
       },
       {
         "symbol": "g_{j,i}",
-        "meaning": "the parameter-gradient vector contributed by token i in piece j"
+        "meaning": "the parameter-gradient vector contributed by target occurrence i in piece j"
       },
       {
         "symbol": "S_j",
@@ -118,12 +118,12 @@
     {
       "path": "rust/crates/llm-from-scratch/src/training/batch.rs",
       "region": "mini-batch-epoch",
-      "purpose": "Collect only complete windows, shuffle their identities, and stack actual row-major batches."
+      "purpose": "Enumerate lightweight window descriptors, shuffle them, and copy selected source slices directly into final row-major batches."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/batch.rs",
       "region": "token-gradient-averaging",
-      "purpose": "Validate finite token contributions and merge raw loss and gradient sums before one division."
+      "purpose": "Preflight finite raw totals before committing loss, count, and gradient sums into the existing accumulator allocation."
     },
     {
       "path": "rust/demos/ch21-mini-batches/src/lib.rs",
@@ -188,7 +188,7 @@ export const diagramLabels = {
     denominator: 'Actual denominator',
     meanLoss: 'Mean loss',
     meanGradient: 'Mean gradient',
-    capacitySlot: 'Third capacity slot',
+    capacitySlot: 'Possible third row',
     duplicates: 'Duplicate windows',
     padding: 'Padding IDs',
     crossPartition: 'Cross-partition windows',
@@ -198,18 +198,18 @@ export const diagramLabels = {
   },
   notes: {
     shuffle:
-      'The seed permutes already-complete window records. It never shuffles a flattened stream of document tokens.',
+      'The seed permutes complete-window identities, each named by a document and start offset. It never shuffles a flattened stream of document tokens.',
     tokenMean:
       'Each row contributes exactly two target losses and two gradient vectors. The example supplies every value shown below.',
     finalBatch:
-      'Capacity reserves three rows, but the final batch contains two. Its denominator is four target tokens, not six slots.',
+      'The requested capacity permits three rows, but the final batch creates only two. Its denominator is four target tokens, not six possible positions.',
     proof:
       'Changing the seed may change order, never membership. Merging raw sums before division reproduces one-pass averaging.',
   },
   symbols: {
     batch: 'Batch',
     window: 'Window',
-    unused: 'Unused — contributes nothing',
+    unused: 'Not created — contributes nothing',
     equal: 'Equal',
     same: 'Same',
     changed: 'Changed',
@@ -235,20 +235,21 @@ train-a = [0, 10, 11, 12, 1]  ->  train-a@0, train-a@1, train-a@2
 train-b = [0, 20, 21, 1]      ->  train-b@0, train-b@1
 ```
 
-Seed `7` orders those five owned window records as:
+Seed `7` orders those five window identities as:
 
 ```text
 train-b@1, train-a@1, train-b@0, train-a@0, train-a@2
 ```
 
 With requested capacity $3$, predict the two stacked shapes. The first three
-records form $\left[3,2\right]$; the remaining two form
+windows form $\left[3,2\right]$; the remaining two form
 $\left[2,2\right]$. The final batch stays smaller. It is neither padded to
 width $3$ nor dropped.
 
 Now count targets. The first batch has $3\cdot2=6$ target occurrences. The
-final batch has $2\cdot2=4$. The reserved third row contains no example, so it
-cannot contribute a token, loss, or gradient.
+final batch has $2\cdot2=4$. The requested capacity would permit a third row,
+but the final batch does not create one. Therefore no third-row token, loss, or
+gradient exists to include in the mean.
 
 The worked example constructs that epoch from separate documents and preserves the
 same provenance shown above:
@@ -318,9 +319,9 @@ piece must not receive the same weight as a full piece.
 - $t$ identifies one target position from $1$ through $T$.
 - $\mathcal{L}_{b,t}$ is one target occurrence's negative log-likelihood.
 - $\mathcal{L}_B$ is the mean after every admitted occurrence is counted once.
-- $|B|T$ is the actual token denominator; unused slots and padding contribute zero because they do not exist.
+- $|B|T$ is the actual token denominator; absent rows and padding are excluded because they do not exist in the batch.
 - $j$ identifies one independently accumulated piece, and $i$ identifies one target contribution within it.
-- $g_{j,i}$ is that token's gradient vector, $S_j$ is the piece's raw vector sum, and $N_j$ is its actual token count.
+- $g_{j,i}$ is target occurrence $i$'s gradient vector, $S_j$ is the piece's raw vector sum, and $N_j$ is its actual target-occurrence count.
 - $\bar g$ is the token-weighted mean gradient after every piece is merged.
 
 An overlapping corpus token may appear as a target in more than one causal
@@ -386,24 +387,34 @@ and sequential or seeded order:
   label="Rust source declaring Chapter 21 batching inputs"
 />
 
-The epoch builder validates one partition, collects complete windows per
-document, applies deterministic Fisher-Yates to those records, and stacks only
-the rows that exist:
+The epoch builder validates one partition, then records each complete window as
+a `WindowDescriptor`. It contains only the source document index and start
+offset, stored in `document_index` and `start`. Because the source documents
+stay borrowed during construction, those two values are enough to find the
+window's $T+1$ source tokens later. Fisher-Yates shuffles only these lightweight
+descriptors.
+For each final batch, the builder creates input and target buffers for that
+batch's actual logical shape, then copies the selected input and target
+occurrences directly from the borrowed document into their final row-major
+destinations. No token-owning staging window is created:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/batch.rs"
   region="mini-batch-epoch"
-  caption="Shuffle owned window records and keep the smaller final chunk"
+  caption="Shuffle window descriptors and write final batch rows directly"
   label="Rust source implementing the Chapter 21 mini-batch epoch"
 />
 
-Loss and gradient accumulation share one transactional boundary. A failed
-width or finite-value check leaves the stored raw sums unchanged:
+Loss and gradient accumulation use an all-or-nothing preflight. `add_token` and
+`merge` first check the prospective token count, loss sum, and every gradient
+coordinate. Only after every check succeeds do they update the existing
+gradient-sum vector in place, retaining its allocation. A failure at a later
+coordinate therefore cannot leave an earlier coordinate changed:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/batch.rs"
   region="token-gradient-averaging"
-  caption="Merge raw token sums before one final division"
+  caption="Preflight raw totals before updating gradient storage in place"
   label="Rust source implementing Chapter 21 token-mean gradients"
 />
 
@@ -440,7 +451,7 @@ report.
 ## Trace every shuffled window and denominator
 
 The figure follows five shuffled windows into two batch summaries, then compares
-the final batch's reserved capacity with its actual denominator:
+the final batch's requested capacity with its actual denominator:
 
 <RustSource
   path="rust/demos/ch21-mini-batches/src/diagram_trace.rs"
@@ -454,7 +465,8 @@ the final batch's reserved capacity with its actual denominator:
 Read the shuffled origins in order, then inspect the input IDs, target IDs, and
 two loss contributions in every admitted row. The first batch contains three
 rows and divides by six targets. The second contains two rows and divides by
-four; its reserved third slot is explicitly empty and contributes nothing. The
+four; a dashed hypothetical third row shows what the requested capacity would
+permit, but that row is not stored and contributes nothing. The
 final proof records complete coverage, no duplicates, no padding, no partition
 crossing, reproducible same-seed order, changed order for the other seed, and
 equivalence with merging raw accumulators before division.

@@ -433,7 +433,7 @@ const compactDecimal = (value: string) =>
 
   @media (min-width: 64rem) and (min-height: 36rem) {
     .mini-batches-diagram:fullscreen {
-      grid-template-columns: minmax(17rem, 0.85fr) minmax(21rem, 1.05fr) minmax(20rem, 1.1fr);
+      grid-template-columns: minmax(17rem, 0.7fr) minmax(21rem, 1.05fr) minmax(20rem, 1.25fr);
       grid-template-areas:
         'caption caption caption'
         'summary summary summary'
@@ -459,6 +459,17 @@ const compactDecimal = (value: string) =>
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
+    .mini-batches-diagram:fullscreen > .shape-summary > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mini-batches-diagram:fullscreen > .shape-summary > div > dd {
+      margin: 0;
+    }
+
     .mini-batches-diagram:fullscreen > :global(.diagram-full-view-actions) {
       grid-column: 3;
       grid-row: 1;
@@ -481,10 +492,11 @@ const compactDecimal = (value: string) =>
     .mini-batches-diagram:fullscreen > .proof-stage {
       grid-area: proof;
       gap: 0.25rem;
-      grid-template-columns: minmax(8rem, 0.45fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       grid-template-areas:
-        'heading note'
-        'evidence evidence';
+        'heading'
+        'note'
+        'evidence';
       align-items: start;
     }
 
@@ -537,9 +549,9 @@ const compactDecimal = (value: string) =>
     }
 
     .mini-batches-diagram:fullscreen .batch-comparison {
-      grid-template-columns: repeat(10, minmax(0, 1fr));
+      grid-template-columns: repeat(11, minmax(0, 1fr));
       grid-template-areas:
-        'shape shape target sum denominator mean mean gradient gradient accumulation';
+        'shape shape target sum denominator mean mean gradient gradient accumulation accumulation';
       gap: 0.25rem var(--diagram-gap);
     }
 

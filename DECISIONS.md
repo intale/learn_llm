@@ -16490,3 +16490,117 @@ unchanged.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `bind-decoder-cache-session-once`, and
 `20260808T080548Z-bind-decoder-cache-session-once-01`.
+
+## 2026-08-08 - Remove Chapter 21 staging copies at the learner-owned batch boundary
+
+**Status:** Accepted before Chapter 21 product edits in
+`write-mini-batches-directly-from-window-descriptors` run 01.
+
+**Context:** Audit finding F09 remains open after the trusted-boundary work. The
+current epoch builder materializes every training window as an owned token vector,
+then copies those tokens again into the final mini-batch buffers. The token-gradient
+accumulator also prepares a replacement sum vector before assigning it, even when
+the existing allocation can safely be updated. These are ordinary staging copies,
+not LLM mathematics, yet Chapter 21 teaches the batch layout and accumulation
+invariants that must remain observable. Exact sequential and shuffled order,
+provenance, RNG state, tensor shapes, final short batches, typed errors, rollback,
+and Chapter 21/39 output and trace evidence are frozen controls.
+
+**Decision:** Represent each candidate training window with a lightweight copyable
+descriptor containing its document index and start offset. Shuffle only those
+descriptors, create each final input/target batch at its actual logical shape,
+and copy each selected input and target occurrence directly into that final
+storage once for its window. Overlapping windows intentionally repeat corpus
+positions as separate training examples, so this is not a claim that each
+corpus token is copied only once across the epoch. Do not retain an owned-window
+token payload or add a second batching algorithm.
+
+For token-gradient addition and merge, preflight every prospective scalar result
+and checked count before mutating existing sums. On success, update the existing
+allocation in place; on any late non-finite or arithmetic failure, preserve all
+previous sums and counts byte-for-byte. Tests must prove allocation identity on
+success and rollback after failures that occur beyond the first coordinate.
+
+Advance Chapter 21 English first, explaining the data movement and transaction
+boundary only where they help the learner understand batching and gradient
+accumulation. Refresh Russian directly from the frozen English revision with the
+localization skill and complete semantic, terminology, anti-calque, monolingual,
+accessibility, Chromium, and Firefox review. Preserve formulas, history, diagram
+meaning, exercises, dependencies, exact demo/trace output, and Chapter 39 controls.
+
+**Consequences:** Epoch construction holds descriptor metadata plus final batch
+storage instead of a second copy of all window token payloads. Successful gradient
+updates reuse their allocation without exposing partial state on failure. The step
+is large only because exact Rust, bilingual content, static, downstream, and
+two-engine rendered evidence must be replayed; it uses cached Docker CPU under the
+active build's unlimited budget and introduces no dependency, network data, paid
+service, model generation, or host Rust/Node/Python artifact.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`write-mini-batches-directly-from-window-descriptors`, and
+`20260808T091428Z-write-mini-batches-directly-from-window-descriptors-01`.
+
+## 2026-08-08 - Reflow Chapter 21 full-view evidence after direct Russian review
+
+**Status:** Accepted during rendered validation for
+`write-mini-batches-directly-from-window-descriptors` run 01.
+
+**Context:** The direct Russian revision remains semantically complete and every
+bounded diagram box and named scroll region contains its content. Firefox at
+1280 by 900 pixels nevertheless measured 212 pixels of whole-figure vertical
+travel against the established 194-pixel budget. The remaining height came from
+the equal-width comparison tracks and vertically stacked summary labels, not
+from text crossing a border. Shortening more learner copy would remove useful
+referents, while relaxing the test or hiding overflow would violate the diagram
+contract.
+
+**Decision:** Add `site/src/components/chapters/MiniBatchesDiagram.astro` to the
+active step's outputs. Only inside the existing desktop-fullscreen media query,
+give the long raw-accumulation metric two comparison tracks and arrange each
+summary label beside its value. Keep the shared diagram typography, caption
+width, borders, scroll ownership, mobile and inline fallback, and all evidence
+unchanged. Retain the independently naturalized Russian wording and validate the
+exact final figure in Chromium and Firefox.
+
+**Consequences:** Full view uses available horizontal space to reduce unnecessary
+vertical travel in both locales. Inline, narrow, no-JavaScript, forced-color,
+and direction-sensitive layouts remain governed by the existing shared module
+and Chapter 21 geometry. No test budget, font size, clipping rule, or semantic
+claim is weakened.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`write-mini-batches-directly-from-window-descriptors`, and
+`20260808T091428Z-write-mini-batches-directly-from-window-descriptors-01`.
+
+## 2026-08-08 - Preserve the explicit Chapter 21 proof heading through Firefox reflow
+
+**Status:** Accepted during final rendered validation for
+`write-mini-batches-directly-from-window-descriptors` run 01.
+
+**Context:** The final direct Russian review made the proof-stage heading
+self-contained by naming window coverage, document and partition boundaries,
+replay, and accumulation. That wording is intentionally longer than the earlier
+draft. All bounded boxes and named scroll regions still passed containment, but
+Firefox placed the heading beside the proof note in a narrow third column and the
+whole figure exceeded the unchanged full-view travel budget. Shortening the
+heading would restore the implicit wording that the localization review had just
+corrected.
+
+**Decision:** Keep the complete Russian heading. In desktop full view only,
+rebalance the three lower columns to give the proof stage more room and stack its
+heading, explanatory note, and evidence grid in reading order. Preserve the
+existing inline and mobile geometry, shared diagram styles, font sizes, evidence,
+and proportional travel threshold.
+
+**Consequences:** The exact final Russian Firefox figure measures 177 pixels of
+vertical travel against the unchanged 194-pixel budget, with no inline, bounded-
+box, or named-region overflow. Both seven-case Chromium and Firefox Chapter 21
+matrices pass, including both locales, narrow fallback, native full view, focus
+restoration, forced colors, synthetic RTL, and disabled JavaScript.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`write-mini-batches-directly-from-window-descriptors`, and
+`20260808T091428Z-write-mini-batches-directly-from-window-descriptors-01`.

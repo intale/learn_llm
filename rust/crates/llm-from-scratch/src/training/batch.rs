@@ -1,9 +1,10 @@
 //! Deterministic mini-batches of complete causal windows.
 //!
 //! Documents remain separate until [`CausalWindowConfig`] has selected every
-//! complete shifted pair. An epoch shuffles those owned window records, never
-//! raw token streams, so neither document nor partition boundaries can be
-//! crossed by batching.
+//! complete shifted pair. An epoch shuffles lightweight window descriptors,
+//! never raw token streams, so neither document nor partition boundaries can
+//! be crossed by batching. Each selected input and target occurrence is copied
+//! directly from its document into its final batch storage.
 
 use std::error::Error;
 use std::fmt;
@@ -241,11 +242,10 @@ impl WindowProvenance {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct OwnedWindow {
-    provenance: WindowProvenance,
-    input: Vec<u32>,
-    target: Vec<u32>,
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct WindowDescriptor {
+    document_index: usize,
+    start: usize,
 }
 
 /// One row-major `[batch, sequence]` stack with no padding rows or token IDs.
@@ -354,33 +354,27 @@ impl MiniBatchEpoch {
                 .ok_or(BatchError::WindowCountOverflow)?;
         }
 
-        let mut windows = Vec::new();
-        windows
+        let mut descriptors = Vec::new();
+        descriptors
             .try_reserve_exact(window_count)
             .map_err(|_| BatchError::AllocationFailed {
                 elements: window_count,
             })?;
         for (document_index, document) in documents.iter().copied().enumerate() {
             for window in window_config.windows(document.token_ids()) {
-                windows.push(OwnedWindow {
-                    provenance: WindowProvenance {
-                        partition,
-                        document_index,
-                        document_id: document.id().to_owned(),
-                        start: window.start(),
-                    },
-                    input: copy_ids(window.input())?,
-                    target: copy_ids(window.target())?,
+                descriptors.push(WindowDescriptor {
+                    document_index,
+                    start: window.start(),
                 });
             }
         }
-        debug_assert_eq!(windows.len(), window_count);
+        debug_assert_eq!(descriptors.len(), window_count);
 
         let shuffle_state_after = match config.order() {
             BatchOrder::Sequential => None,
             BatchOrder::Shuffled { seed } => {
                 let mut rng = SplitMix64::from_seed(seed);
-                fisher_yates(&mut windows, &mut rng);
+                fisher_yates(&mut descriptors, &mut rng);
                 Some(rng.state())
             }
         };
@@ -398,7 +392,8 @@ impl MiniBatchEpoch {
             })?;
 
         let context_length = window_config.context_length();
-        let mut windows = windows.into_iter();
+        let required_source_tokens = window_config.required_source_tokens();
+        let mut descriptors = descriptors.into_iter();
         let mut remaining = window_count;
         while remaining > 0 {
             let width = remaining.min(config.batch_size());
@@ -423,12 +418,24 @@ impl MiniBatchEpoch {
                 .map_err(|_| BatchError::AllocationFailed { elements: width })?;
 
             for _ in 0..width {
-                let window = windows
+                let descriptor = descriptors
                     .next()
-                    .expect("pre-counted window must exist while batching");
-                inputs.extend_from_slice(&window.input);
-                targets.extend_from_slice(&window.target);
-                provenance.push(window.provenance);
+                    .expect("pre-counted descriptor must exist while batching");
+                let document = documents[descriptor.document_index];
+                let source_end = descriptor.start + required_source_tokens;
+                let source = document
+                    .token_ids()
+                    .get(descriptor.start..source_end)
+                    .expect("descriptor must name one complete causal window");
+
+                inputs.extend_from_slice(&source[..context_length]);
+                targets.extend_from_slice(&source[1..]);
+                provenance.push(WindowProvenance {
+                    partition,
+                    document_index: descriptor.document_index,
+                    document_id: document.id().to_owned(),
+                    start: descriptor.start,
+                });
             }
             batches.push(MiniBatch {
                 partition,
@@ -505,17 +512,6 @@ fn validate_documents(
     Ok(())
 }
 
-fn copy_ids(ids: &[u32]) -> Result<Vec<u32>, BatchError> {
-    let mut owned = Vec::new();
-    owned
-        .try_reserve_exact(ids.len())
-        .map_err(|_| BatchError::AllocationFailed {
-            elements: ids.len(),
-        })?;
-    owned.extend_from_slice(ids);
-    Ok(owned)
-}
-
 fn fisher_yates<T>(values: &mut [T], rng: &mut SplitMix64) {
     for upper_index in (1..values.len()).rev() {
         let selected = sample_below(rng, upper_index + 1);
@@ -537,7 +533,7 @@ fn sample_below(rng: &mut SplitMix64, exclusive_upper: usize) -> usize {
 // endregion:mini-batch-epoch
 
 // region:token-gradient-averaging
-/// One target token's scalar loss and gradient with respect to named parameters.
+/// One target token's scalar loss and parameter-gradient coordinates.
 #[derive(Clone, Debug, PartialEq)]
 pub struct TokenContribution {
     loss: f64,
@@ -633,10 +629,12 @@ impl TokenMeanAccumulator {
                 value: next_loss,
             });
         }
-        let next_gradients = checked_gradient_sum(&self.gradient_sums, contribution.gradient())?;
+        validate_gradient_sum(&self.gradient_sums, contribution.gradient())?;
 
         self.loss_sum = next_loss;
-        self.gradient_sums = next_gradients;
+        for (sum, &value) in self.gradient_sums.iter_mut().zip(contribution.gradient()) {
+            *sum += value;
+        }
         self.token_count = next_count;
         Ok(())
     }
@@ -661,10 +659,12 @@ impl TokenMeanAccumulator {
                 value: next_loss,
             });
         }
-        let next_gradients = checked_gradient_sum(&self.gradient_sums, &other.gradient_sums)?;
+        validate_gradient_sum(&self.gradient_sums, &other.gradient_sums)?;
 
         self.loss_sum = next_loss;
-        self.gradient_sums = next_gradients;
+        for (sum, &value) in self.gradient_sums.iter_mut().zip(&other.gradient_sums) {
+            *sum += value;
+        }
         self.token_count = next_count;
         Ok(())
     }
@@ -687,13 +687,8 @@ impl TokenMeanAccumulator {
     }
 }
 
-fn checked_gradient_sum(left: &[f64], right: &[f64]) -> Result<Vec<f64>, BatchError> {
+fn validate_gradient_sum(left: &[f64], right: &[f64]) -> Result<(), BatchError> {
     debug_assert_eq!(left.len(), right.len());
-    let mut sum = Vec::new();
-    sum.try_reserve_exact(left.len())
-        .map_err(|_| BatchError::AllocationFailed {
-            elements: left.len(),
-        })?;
     for (coordinate, (&left, &right)) in left.iter().zip(right).enumerate() {
         let value = left + right;
         if !value.is_finite() {
@@ -703,9 +698,8 @@ fn checked_gradient_sum(left: &[f64], right: &[f64]) -> Result<Vec<f64>, BatchEr
                 value,
             });
         }
-        sum.push(value);
     }
-    Ok(sum)
+    Ok(())
 }
 
 /// One scalar mean loss and one equally normalized parameter-gradient vector.
@@ -825,6 +819,26 @@ mod tests {
     }
 
     #[test]
+    fn descriptors_reconstruct_stride_two_rows_at_their_exact_starts() {
+        let document =
+            BatchDocument::new("stride-two", Partition::Train, &[0, 10, 11, 12, 13, 14, 1])
+                .unwrap();
+        let epoch = MiniBatchEpoch::build(
+            Partition::Train,
+            &[document],
+            CausalWindowConfig::new(2, 2).unwrap(),
+            config(2, BatchOrder::Sequential),
+        )
+        .unwrap();
+
+        assert_eq!(origins(&epoch), [(0, 0), (0, 2), (0, 4)]);
+        assert_eq!(epoch.batches()[0].inputs(), [0, 10, 11, 12]);
+        assert_eq!(epoch.batches()[0].targets(), [10, 11, 12, 13]);
+        assert_eq!(epoch.batches()[1].inputs(), [13, 14]);
+        assert_eq!(epoch.batches()[1].targets(), [14, 1]);
+    }
+
+    #[test]
     fn empty_epoch_is_valid_and_never_invents_padding() {
         let short = BatchDocument::new("short", Partition::Train, &[0, 1]).unwrap();
         let epoch = MiniBatchEpoch::build(
@@ -936,6 +950,21 @@ mod tests {
     }
 
     #[test]
+    fn successful_accumulation_reuses_gradient_storage() {
+        let mut accumulator = TokenMeanAccumulator::new(2).unwrap();
+        let storage = accumulator.gradient_sums().as_ptr();
+        accumulator.add_token(&contribution(0.25)).unwrap();
+        assert_eq!(accumulator.gradient_sums().as_ptr(), storage);
+
+        let mut other = TokenMeanAccumulator::new(2).unwrap();
+        other.add_token(&contribution(0.5)).unwrap();
+        accumulator.merge(&other).unwrap();
+        assert_eq!(accumulator.gradient_sums().as_ptr(), storage);
+        assert_eq!(accumulator.token_count(), 2);
+        assert_eq!(accumulator.gradient_sums(), [1.5, 3.25]);
+    }
+
+    #[test]
     fn contribution_and_accumulator_failures_are_transactional() {
         assert!(matches!(
             TokenContribution::new(f64::NAN, vec![1.0]),
@@ -976,6 +1005,69 @@ mod tests {
             }) if value.is_infinite()
         ));
         assert_eq!(overflowing, before_overflow);
+
+        let first = TokenContribution::new(0.25, vec![1.0, f64::MAX]).unwrap();
+        let second = TokenContribution::new(0.5, vec![2.0, f64::MAX]).unwrap();
+        let mut late_add = TokenMeanAccumulator::new(2).unwrap();
+        late_add.add_token(&first).unwrap();
+        let late_add_storage = late_add.gradient_sums().as_ptr();
+        let before_late_add = late_add.clone();
+        assert!(matches!(
+            late_add.add_token(&second),
+            Err(BatchError::NonFiniteAccumulation {
+                quantity: "gradient",
+                coordinate: Some(1),
+                value,
+            }) if value.is_infinite()
+        ));
+        assert_eq!(late_add, before_late_add);
+        assert_eq!(late_add.gradient_sums().as_ptr(), late_add_storage);
+
+        let mut late_merge = TokenMeanAccumulator::new(2).unwrap();
+        late_merge.add_token(&first).unwrap();
+        let mut other = TokenMeanAccumulator::new(2).unwrap();
+        other.add_token(&second).unwrap();
+        let late_merge_storage = late_merge.gradient_sums().as_ptr();
+        let before_late_merge = late_merge.clone();
+        assert!(matches!(
+            late_merge.merge(&other),
+            Err(BatchError::NonFiniteAccumulation {
+                quantity: "gradient",
+                coordinate: Some(1),
+                value,
+            }) if value.is_infinite()
+        ));
+        assert_eq!(late_merge, before_late_merge);
+        assert_eq!(late_merge.gradient_sums().as_ptr(), late_merge_storage);
+
+        let mut count_overflow = TokenMeanAccumulator {
+            loss_sum: f64::MAX,
+            gradient_sums: vec![f64::MAX, f64::MAX],
+            token_count: usize::MAX,
+        };
+        let before_count_overflow = count_overflow.clone();
+        assert_eq!(
+            count_overflow.add_token(&second),
+            Err(BatchError::TokenCountOverflow)
+        );
+        assert_eq!(count_overflow, before_count_overflow);
+
+        let mut merge_count_overflow = TokenMeanAccumulator {
+            loss_sum: f64::MAX,
+            gradient_sums: vec![f64::MAX, f64::MAX],
+            token_count: usize::MAX,
+        };
+        let overflowing_other = TokenMeanAccumulator {
+            loss_sum: f64::MAX,
+            gradient_sums: vec![f64::MAX, f64::MAX],
+            token_count: 1,
+        };
+        let before_merge_count_overflow = merge_count_overflow.clone();
+        assert_eq!(
+            merge_count_overflow.merge(&overflowing_other),
+            Err(BatchError::TokenCountOverflow)
+        );
+        assert_eq!(merge_count_overflow, before_merge_count_overflow);
         assert_eq!(
             TokenMeanAccumulator::new(1).unwrap().finish(),
             Err(BatchError::EmptyAccumulator)

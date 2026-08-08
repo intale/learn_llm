@@ -2,15 +2,15 @@
 {
   "chapter_id": "21-mini-batches",
   "concept_id": "mini-batches",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 21,
   "objective": {
     "en": "Shuffle complete causal windows reproducibly, stack fixed-size token rows without crossing boundaries, and average loss plus gradients over the target tokens actually present.",
-    "ru": "Воспроизводимо перемешать полные каузальные окна, сложить токеновые строки фиксированного размера вдоль оси пакета без пересечения границ документов и усреднить функцию потерь и градиенты по фактически присутствующим целевым токенам."
+    "ru": "Воспроизводимо перемешать полные каузальные окна, объединить строки токенов фиксированной длины в мини-пакеты, не пересекая границы документов и частей корпуса, и усреднить функцию потерь и градиенты по фактически вошедшим целевым токенам."
   },
   "worked_inputs": {
-    "en": "Use context length T=2, requested batch capacity 3, seed 7, and five complete windows from two separate training documents. Predict the two batch shapes after shuffling and decide whether the smaller final batch divides by 6 capacity slots or its 4 real target tokens.",
-    "ru": "Возьмите длину контекста T=2, заданную ёмкость мини-пакета 3, начальное значение генератора 7 и пять полных окон из двух отдельных обучающих документов. Предскажите формы двух мини-пакетов после перемешивания и определите, следует ли для меньшего последнего пакета делить на 6 зарезервированных мест или на 4 фактически присутствующих целевых токена."
+    "en": "Use context length T=2, maximum batch width 3, seed 7, and five complete windows from two separate training documents. Predict the two batch shapes after shuffling and decide whether the smaller final batch divides by the 6 target positions that a width-three batch could hold or by its 4 actual target-token occurrences.",
+    "ru": "Возьмите длину контекста T=2, максимальную ширину мини-пакета 3, начальное значение генератора 7 и пять полных окон из двух отдельных обучающих документов. Предскажите формы двух мини-пакетов после перемешивания и определите знаменатель для неполного последнего мини-пакета: 6 целевых позиций, которые поместились бы при ширине 3, или 4 фактически присутствующих вхождения целевых токенов."
   },
   "formula": {
     "latex": "\\mathcal{L}_B=\\frac{1}{|B|T}\\sum_{b\\in B}\\sum_{t=1}^{T}\\mathcal{L}_{b,t}",
@@ -23,12 +23,12 @@
       {
         "symbol": "|B|",
         "en": "the current batch width, which may be smaller than the requested capacity in the final batch",
-        "ru": "фактическая ширина текущего мини-пакета; у последнего пакета она может быть меньше заданной ёмкости"
+        "ru": "фактическая ширина текущего мини-пакета; у последнего пакета она может быть меньше максимально разрешённой ширины"
       },
       {
         "symbol": "T",
         "en": "the fixed number of input positions and shifted target positions in every admitted window",
-        "ru": "фиксированное число входных и сдвинутых целевых позиций в каждом принятом окне"
+        "ru": "фиксированное число входных и сдвинутых целевых позиций в каждом окне, включённом в мини-пакет"
       },
       {
         "symbol": "b",
@@ -48,32 +48,32 @@
       {
         "symbol": "\\mathcal{L}_B",
         "en": "the mini-batch mean loss after every admitted target-token contribution is counted once",
-        "ru": "средняя функция потерь мини-пакета, в которой вклад каждого принятого целевого токена учтён один раз"
+        "ru": "среднее значение функции потерь по мини-пакету после однократного учёта каждого целевого вхождения"
       },
       {
         "symbol": "|B|T",
         "en": "the actual target-token denominator; no padding token or unused capacity slot is counted",
-        "ru": "фактический знаменатель по целевым токенам; токены дополнения и свободные места ёмкости не учитываются"
+        "ru": "фактическое число целевых вхождений и знаменатель среднего; отсутствующие строки и токены дополнения не учитываются"
       },
       {
         "symbol": "j",
         "en": "one independently accumulated piece of the current batch",
-        "ru": "одна независимо накопленная часть текущего мини-пакета"
+        "ru": "одна часть текущего мини-пакета, для которой вклады накапливаются отдельно"
       },
       {
         "symbol": "i",
         "en": "one target-token contribution within piece j",
-        "ru": "один вклад целевого токена внутри части j"
+        "ru": "индекс одного целевого вхождения внутри части j"
       },
       {
         "symbol": "g_{j,i}",
-        "en": "the parameter-gradient vector contributed by token i in piece j",
-        "ru": "вектор градиента по параметрам, внесённый токеном i в части j"
+        "en": "the parameter-gradient vector contributed by target occurrence i in piece j",
+        "ru": "векторный вклад целевого вхождения i из части j в градиент по параметрам"
       },
       {
         "symbol": "S_j",
         "en": "the raw sum of gradient vectors in piece j before division",
-        "ru": "сумма векторов градиента в части j до деления"
+        "ru": "ненормированная сумма векторов градиента в части j до деления"
       },
       {
         "symbol": "N_j",
@@ -92,15 +92,15 @@
       "predecessor_kind": "training-practice",
       "limitation": {
         "en": "Bengio et al.'s early neural language model describes a stochastic parameter update after each training-corpus word-context example. That online endpoint exposes every example directly but offers no shared update across several examples; full-batch training moves to the opposite endpoint by waiting for the entire training set.",
-        "ru": "В ранней нейронной языковой модели Бенжио и соавторов параметры стохастически обновляются после каждого примера «слово из обучающего корпуса — его контекст». При таком онлайн-обучении каждый пример обрабатывается отдельно, но совместного обновления по нескольким примерам нет; на противоположном полюсе обучение по полному пакету откладывает обновление до обработки всего набора данных."
+        "ru": "В ранней нейронной языковой модели Бенжио и соавторов стохастическое обновление параметров выполняется после каждого примера, состоящего из слова обучающего корпуса и его контекста. При таком онлайн-обучении каждое обновление использует один пример и не объединяет несколько примеров; обучение по всему набору, напротив, откладывает обновление до обработки всей обучающей выборки."
       },
       "later_advance": {
         "en": "The same paper discusses communicating every $K$ language-model examples as a mini-batch. Transformer training later grouped sentence pairs by approximate length and reported about $25{,}000$ source plus $25{,}000$ target tokens per batch, making token volume an explicit batching quantity.",
-        "ru": "В той же статье обсуждается обмен между вычислительными узлами после обработки каждого мини-пакета из $K$ примеров языковой модели. Позднее при обучении Transformer пары предложений группировали по приблизительной длине и использовали около $25{,}000$ исходных и $25{,}000$ целевых токенов в одном пакете: объём в токенах стал явной характеристикой пакетной обработки."
+        "ru": "В той же статье обсуждается обмен между вычислительными узлами после каждого мини-пакета из $K$ примеров языковой модели. Позднее при обучении Transformer пары предложений группировали по приблизительной длине и использовали около $25{,}000$ исходных и $25{,}000$ целевых токенов в одном пакете. Число токенов стало явной мерой объёма мини-пакета."
       },
       "modern_llm_role": {
         "en": "GPT-3 reports batch size directly in tokens, from $0.5$ million to $3.2$ million across its model scales, with a $2{,}048$-token context. This course's decoder training preserves a smaller implementation invariant: each admitted target token contributes once, and loss plus gradients use the actual token count.",
-        "ru": "В GPT-3 размер пакета указывается непосредственно в токенах: от $0.5$ миллиона до $3.2$ миллиона для моделей разных масштабов при контексте длиной $2{,}048$ токенов. При обучении декодера в этом курсе действует более узкий, но важный инвариант реализации: каждый принятый целевой токен вносит один вклад, а функция потерь и градиенты делятся на фактическое число токенов."
+        "ru": "В GPT-3 размер пакета указывается непосредственно в токенах: от $0.5$ миллиона до $3.2$ миллиона для моделей разных масштабов при контексте длиной $2{,}048$ токенов. В учебной реализации декодера сохраняется более узкий инвариант: каждое целевое вхождение учитывается один раз, а функция потерь и градиенты нормируются по фактическому числу таких вхождений."
       },
       "sources": [
         {
@@ -110,7 +110,7 @@
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
             "en": "Bengio et al. define a stochastic update after presenting one training-corpus word and later discuss grouping $K$ examples before communication as a mini-batch.",
-            "ru": "Бенжио и соавторы задают стохастическое обновление после предъявления одного слова из обучающего корпуса, а затем рассматривают объединение $K$ примеров в мини-пакет перед обменом между вычислительными узлами."
+            "ru": "Бенжио и соавторы задают стохастическое обновление после предъявления одного слова из обучающего корпуса, а позже рассматривают объединение $K$ примеров в мини-пакет перед обменом между вычислительными узлами."
           }
         },
         {
@@ -137,13 +137,13 @@
     },
     "approach": {
       "en": "From one-example stochastic neural-language-model updates, through grouped language-model and Transformer token batches, to large autoregressive language-model batches measured directly in tokens",
-      "ru": "От стохастических обновлений нейронной языковой модели по одному примеру — через объединение примеров языковых моделей и Transformer в пакеты — к большим пакетам авторегрессионных языковых моделей, размер которых измеряют непосредственно в токенах"
+      "ru": "От стохастических обновлений нейронной языковой модели по одному примеру — через мини-пакеты примеров и пакеты токенов при обучении Transformer — к большим пакетам авторегрессионных языковых моделей, размер которых измеряется непосредственно в токенах"
     },
     "summary": {
       "en": "Mini-batching is part of the road to modern LLM training because it combines multiple next-token examples into one update while keeping token accounting explicit. The papers establish that progression; this chapter's fixed windows, no-padding policy, shuffle, seed, exact widths, gradient fixture, and errors remain course choices.",
-      "ru": "Мини-пакеты — часть пути к обучению современных LLM: они объединяют несколько примеров предсказания следующего токена в одно обновление и при этом сохраняют явный учёт токенов. Статьи подтверждают эту эволюцию, а фиксированные окна, отсутствие дополнения, перемешивание, начальное значение генератора, точные ширины, контрольные значения градиентов и обработка ошибок остаются решениями этого курса."
+      "ru": "Мини-пакеты стали одним из этапов на пути к обучению современных LLM: несколько примеров предсказания следующего токена участвуют в одном обновлении, а число токенов учитывается явно. Статьи подтверждают эту эволюцию; окна фиксированной длины, отсутствие дополнения, порядок перемешивания, начальное значение генератора, точная ширина каждого мини-пакета, контрольные значения градиентов и правила обработки ошибок выбраны для этого курса."
     },
-    "rust_contrast": "Implement one deterministic epoch by shuffling identities of already-complete causal windows, stacking token IDs row-major, and merging raw finite token-loss and gradient sums before one final division; do not flatten documents, invent padding, or build another autodiff engine."
+    "rust_contrast": "Implement one deterministic epoch by shuffling lightweight window descriptors, copying selected input and target slices directly into final row-major batches, and preflighting raw finite token-loss and gradient totals before an in-place commit and one final division; do not flatten documents, invent padding, or build another autodiff engine."
   },
   "rust": {
     "package": "ch21-mini-batches",
@@ -160,12 +160,12 @@
     "id": "mini-batches",
     "rationale": {
       "en": "Two batch cards make shuffled provenance, row-major token axes, per-token loss contributions, and the smaller final denominator visible together; a capacity outline shows why unused slots must not enter the mean.",
-      "ru": "Две карточки мини-пакетов одновременно показывают происхождение перемешанных окон, построчную раскладку входных и целевых токенов, вклад каждого токена в функцию потерь и меньший знаменатель последнего пакета; контур ёмкости объясняет, почему свободные места нельзя включать в среднее."
+      "ru": "Две карточки одновременно показывают происхождение перемешанных окон, построчное расположение входных и целевых токенов, вклад каждой целевой позиции в функцию потерь и фактический знаменатель неполного последнего мини-пакета. Пунктирная строка, допустимая при максимальной ширине, показывает, почему отсутствующая строка не входит в среднее."
     }
   },
   "decoder_connection": {
     "en": "The cumulative training path can now turn separate causal windows into reproducible mini-batches of fixed-length rows and produce token-mean loss plus gradient coordinates. Chapter 22 maps those averaged coordinates to stable named parameters and applies AdamW.",
-    "ru": "Теперь совокупный путь обучения умеет превращать отдельные каузальные окна в воспроизводимые мини-пакеты из строк фиксированной длины и получать среднюю по токенам функцию потерь и усреднённые по токенам координаты градиента, которые пока не связаны с именами параметров. В главе 22 эти координаты будут сопоставлены параметрам со стабильными именами, после чего к ним будет применён AdamW."
+    "ru": "Теперь в учебной реализации отдельные каузальные окна можно превращать в воспроизводимые мини-пакеты из строк фиксированной длины и вычислять среднее значение функции потерь и координаты градиента по фактическим целевым вхождениям. В главе 22 эти усреднённые координаты будут сопоставлены параметрам со стабильными именами, после чего AdamW обновит значения этих параметров."
   },
   "terminology": [
     {
@@ -196,7 +196,7 @@
     {
       "concept_id": "deterministic-shuffle",
       "en": "deterministic shuffle",
-      "ru": "детерминированное перемешивание"
+      "ru": "воспроизводимое перемешивание"
     },
     {
       "concept_id": "gradient-accumulation",
@@ -210,14 +210,17 @@
     }
   ],
   "translation_notes": [
-    "Chapter 21 has the exact active locale set {en, ru}. Russian is translated directly from frozen English content revision 2 and becomes stale whenever that English source changes.",
+    "Chapter 21 has the exact active locale set {en, ru}. Russian is translated directly from frozen English content revision 3 and becomes stale whenever that English source changes.",
+    "Russian revision 3 is translated directly from frozen canonical English SHA-256 50a65ce005ae01e4d7eef80632e98dddd1067f984bc11ffbd9f2751d202e0769. No pivot locale or external translation service was used. Final Russian lesson SHA-256: bf204fcf92c0c7a3a4650df45a676ebf8fb489c6a705c91a134c04158b7576df.",
     "Keep B, |B|, T, b, t, loss and gradient symbols, shapes, token IDs, losses, seed, document IDs, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
-    "Distinguish requested batch capacity from the number of windows actually present. The final denominator is actual width times fixed context length; it never counts an unused slot or padding token.",
+    "Treat maximum batch width as the maximum permitted number of windows, never as reserved physical storage. The final denominator is actual width times fixed context length: width 3 with T=2 could hold 6 target positions, while actual final width 2 contains 4 target occurrences.",
     "A target token means one target occurrence inside an admitted causal window. Overlapping windows may contain the same corpus token at different example positions, and each occurrence contributes once.",
+    "A window descriptor stores only the source document index and window start. It owns no token vector. Each selected input and target occurrence is copied once into its own final batch destination; overlapping windows may intentionally copy the same corpus position into different training examples.",
+    "Accumulator updates preflight the prospective count, loss, and every gradient coordinate before mutating state. A successful call reuses the existing gradient allocation; any failure leaves the complete prior accumulator unchanged.",
     "Bengio supports the one-example language-model update and K-example mini-batch discussion, Vaswani the Transformer token-batch evidence, and Brown the later large language-model token batch scale. None defines this implementation's seed, shuffle, widths, no-padding policy, gradients, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and program data. Batch axes, token means, gradients, and the historical progression are language-independent.",
     "Render every learner-facing expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
-    "Use Russian «мини-пакет», «ось пакета», «ось последовательности», «ёмкость мини-пакета», «фактическая ширина», «фактический знаменатель по токенам», «накопление градиентов» and «происхождение окна» consistently.",
+    "Use Russian «мини-пакет», «ось пакета», «ось последовательности», «максимальная ширина мини-пакета», «фактическая ширина», «фактический знаменатель по токенам», «накопление градиентов» and «происхождение окна» consistently. Define «дескриптор окна» as the document index plus window start, describe direct writes as «записать непосредственно в итоговый буфер», and explain an in-place transactional update as complete validation before changing the existing buffer.",
     "Russian prose must state that the worked numeric loss and gradient contributions are deterministic stand-ins, not model-computed negative log-likelihood or autograd results, and that Chapter 22 maps anonymous averaged coordinates to stable named parameters."
   ],
   "acceptance_examples": [
@@ -247,7 +250,7 @@
     },
     {
       "input": "Supply zero batch size, mixed partitions, duplicate document IDs, a wrong contribution count, mismatched gradient width, or non-finite values",
-      "expected": "Each request returns its typed deterministic error; failed contribution or merge operations leave existing raw sums unchanged."
+      "expected": "Each request returns its typed deterministic error; add and merge validate every prospective result before mutating, successful calls retain the existing gradient allocation, and a failure at a later coordinate leaves every raw sum and count unchanged."
     },
     {
       "input": "cargo run --quiet --locked -p ch21-mini-batches",
@@ -374,22 +377,33 @@ The history is about neural language-model batching, not programming languages.
 
 `MiniBatchEpoch::build` accepts separately borrowed `BatchDocument` values and
 one expected `Partition`. It rejects the first mismatched partition or duplicate
-document ID before collecting examples. `CausalWindowConfig` opens each
-document independently; only then does the builder own and shuffle complete
-window records.
+document ID before enumerating windows. For each complete window, the builder
+stores only a `WindowDescriptor` containing its source document index and start
+offset. Because context length $T$ is fixed, those two values identify the
+window's $T+1$ source tokens: the first $T$ form the input and the last $T$ form
+the shifted target. The shuffled staging list therefore owns no input or target
+token vectors.
 
 `BatchOrder::Shuffled` initializes `SplitMix64` from the supplied seed and uses
-it for one Fisher-Yates permutation. A fixed seed and unchanged inputs replay
-the same order, while `shuffle_state_after` records the state after that
-permutation. The builder chunks that order by requested capacity, stacks input
-and target IDs row-major, and keeps the final nonempty chunk at its actual
-width. Short documents may produce an empty epoch, but no path invents padding.
+it for one Fisher-Yates permutation of those descriptors. A fixed seed and
+unchanged inputs replay the same order, while `shuffle_state_after` records the
+state after that permutation. For each resulting batch, the builder reserves
+final input, target, and provenance storage for that batch's actual logical
+width, then copies each selected input and target occurrence directly from its
+borrowed document into the final row-major buffers. The final batch still owns
+its token rows; this removes only the extra token-owning staging copy. Short
+documents may produce an empty epoch, but no path invents padding.
 
 `TokenContribution` validates one finite loss and one finite, nonempty gradient
-vector. `TokenMeanAccumulator` stores raw loss and gradient sums plus token
-count; `merge` combines raw accumulators transactionally, and `finish` divides
-every quantity once. `MiniBatch::average_token_contributions` additionally
-requires exactly one contribution per flattened target ID.
+vector. Before `TokenMeanAccumulator::add_token` or `merge` changes state, it
+checks the prospective token count, loss sum, and every gradient-sum coordinate.
+Only after the complete preflight succeeds does it update the existing gradient
+storage in place and commit the checked count and loss. A failure at a later
+coordinate therefore leaves every earlier coordinate, the loss sum, and the
+token count unchanged. `finish` performs the one final division.
+
+`MiniBatch::average_token_contributions` additionally requires exactly one
+contribution per flattened target ID.
 
 The frozen fixture checks exact order, shapes, target IDs, provenance, token
 counts, means, gradient coordinates, replay, changed-seed behavior, complete
@@ -409,8 +423,9 @@ values into width-three and width-two cards. Each target position has one loss
 marker, and each card displays its Rust-authored loss sum, actual denominator,
 mean loss, and mean gradient.
 
-The final card includes one dashed capacity slot labeled unused. That slot has
-no token, loss, or gradient and stays outside the double-bordered actual mean.
+A dashed hypothetical third row shows what the requested capacity would permit,
+but the final batch does not store that row. It has no token, loss, or gradient
+and stays outside the double-bordered actual mean.
 A proof panel preserves exact coverage, no duplicates, no padding, no partition
 crossing, same-seed replay, changed-seed order, and raw-accumulation equivalence.
 
@@ -454,18 +469,21 @@ applies AdamW.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English and Russian form the active locale set for content revision 2. The
+English and Russian form the active locale set for content revision 3. The
 Russian lesson is translated directly from the frozen English source and must
 preserve symbols, formulas, shapes, token IDs, losses, document IDs, seed,
 trace keywords, source roles, and URLs.
 
-Translate “batch capacity” as reserved room and “batch width” as windows
-actually present. A target token is one occurrence inside one admitted window;
-overlapping windows can therefore contribute separate occurrences of the same
-corpus token. Do not rewrite the history as a progression of Rust or another
-programming language. Every learner-facing expression uses the math pipeline;
-code styling is reserved for concrete APIs, commands, paths, trace tokens, and
-literal program data.
+Translate “batch capacity” as the maximum permitted number of windows in one
+batch and “batch width” as the number of windows actually present. In the
+worked example, maximum width $3$ would permit $6$ target positions because
+$T=2$, while final width $2$ actually contains $4$ target occurrences. A target
+token means one occurrence inside one admitted window; overlapping windows can
+therefore contribute separate occurrences of the same corpus token. Do not
+rewrite the history as a progression of Rust or another programming language.
+Every learner-facing expression uses the math pipeline; code styling is
+reserved for concrete APIs, commands, paths, trace tokens, and literal program
+data.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

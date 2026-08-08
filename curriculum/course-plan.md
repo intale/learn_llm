@@ -1302,16 +1302,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `21-mini-batches`
 - **Implementation step:** `implement-ch21-mini-batches`
-- **Revision status:** Content revision 2 corrects normalization, evidence, history, handoff, and learner-facing language, migrates the figure to the shared presentation system, and publishes the direct meaning-first Russian translation through `activate-ch21-russian-localization`.
+- **Revision status:** Content revision 3 teaches lightweight window-descriptor shuffling, direct final-buffer writes, and fully preflighted allocation-preserving accumulator commits while preserving the formula, history, diagram, exercises, and exact learner evidence; Russian is refreshed directly from this English revision.
 - **Depends on:** `20-swiglu-feed-forward`.
 - **Outcome:** Build deterministic shuffled mini-batches of fixed-length windows and average per-token loss and gradients correctly.
 - **Scope boundary:** Teach deterministic window shuffling, batch/sequence axes, a possibly smaller final batch, token-loss averaging, and gradient scale. Every admitted window has length `T`; no padding or variable valid length exists.
 - **Formula:** `\mathcal{L}_B=\frac{1}{|B|T}\sum_{b\in B}\sum_{t=1}^{T}\mathcal{L}_{b,t}`.
 - **Historical contrast:** Contrast full-batch and online stochastic updates with mini-batches that balance noise and throughput.
-- **Rust contribution:** Add deterministic batch iteration, fixed-shape tensor stacking, final-batch accounting, and accumulation-equivalence tests.
+- **Rust contribution:** Shuffle lightweight document-index/start descriptors, copy selected input and target occurrences directly into the final buffers for each batch's actual logical shape, and preflight count, loss, and every gradient coordinate before an in-place accumulator commit.
 - **Visualization:** Useful — group windows into batches and show how token losses contribute once to the normalized batch mean.
 - **Practice:** Predict batch counts and the correct denominator when the final batch contains fewer windows than the requested batch size.
-- **Integration evidence:** Fixed seeds, no document/split crossing, no padding, fixed window shapes, smaller final batch, sample coverage, exact mean loss/gradients, and invalid sizes pass.
+- **Integration evidence:** Fixed seeds, sequential stride-greater-than-one reconstruction, no document/split crossing, no padding, fixed window shapes, smaller final batch, sample coverage, exact mean loss/gradients, allocation identity on successful add/merge, late-coordinate rollback, count/error precedence, and invalid sizes pass.
 - **Handoff:** Chapter 22 uses the averaged gradients to update named parameters with AdamW.
 
 ## 22. From SGD to AdamW

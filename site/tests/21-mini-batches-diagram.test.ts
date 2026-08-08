@@ -22,12 +22,23 @@ const componentSource = read('site/src/components/chapters/MiniBatchesDiagram.as
 const contractSource = read('curriculum/chapters/21-mini-batches.md');
 const lessonSource = read('site/src/content/chapters/en/21-mini-batches.mdx');
 const lessonBody = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+const normalizedLessonBody = lessonBody.replace(/\s+/g, ' ');
+const batchSource = read('rust/crates/llm-from-scratch/src/training/batch.rs');
 const rustTraceSource = read('rust/demos/ch21-mini-batches/src/diagram_trace.rs');
 
 function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error('missing JSON frontmatter');
   return JSON.parse(match[1]);
+}
+
+function sourceSlice(source: string, start: string, end: string): string {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  if (startIndex < 0 || endIndex < 0) {
+    throw new Error(`missing ordered source boundary ${start} -> ${end}`);
+  }
+  return source.slice(startIndex, endIndex);
 }
 
 const labels: MiniBatchesDiagramLabels = {
@@ -250,6 +261,7 @@ describe('Chapter 21 contract and lesson projection', () => {
   const lesson = frontmatter(lessonSource);
 
   it('keeps metadata, formula, LLM history, visualization, and handoff aligned', () => {
+    expect(contract.content_revision).toBe(3);
     expect(lesson).toMatchObject({
       chapter_id: contract.chapter_id,
       concept_id: contract.concept_id,
@@ -319,6 +331,62 @@ describe('Chapter 21 contract and lesson projection', () => {
     for (const source of contract.history.llm_evolution.sources) {
       expect(lessonBody).toContain(`](${source.source_url})`);
       expect(lessonBody).toContain(source.claim.en);
+    }
+  });
+
+  it('teaches and enforces descriptor-only staging plus preflighted in-place commits', () => {
+    expect(batchSource).toContain(
+      'struct WindowDescriptor {\n    document_index: usize,\n    start: usize,\n}',
+    );
+    expect(batchSource).toContain(
+      '#[derive(Clone, Copy, Debug, PartialEq, Eq)]\nstruct WindowDescriptor',
+    );
+    for (const removed of ['OwnedWindow', 'copy_ids', 'checked_gradient_sum']) {
+      expect(batchSource).not.toContain(removed);
+    }
+
+    const build = sourceSlice(
+      batchSource,
+      'pub fn build(',
+      '    pub const fn partition(&self)',
+    );
+    const descriptorCollection = build.indexOf('descriptors.push(WindowDescriptor');
+    const shuffle = build.indexOf('fisher_yates(&mut descriptors');
+    const inputWrite = build.indexOf(
+      'inputs.extend_from_slice(&source[..context_length])',
+    );
+    const targetWrite = build.indexOf('targets.extend_from_slice(&source[1..])');
+    expect(descriptorCollection).toBeGreaterThanOrEqual(0);
+    expect(shuffle).toBeGreaterThan(descriptorCollection);
+    expect(inputWrite).toBeGreaterThan(shuffle);
+    expect(targetWrite).toBeGreaterThan(inputWrite);
+
+    const add = sourceSlice(
+      batchSource,
+      'pub fn add_token(',
+      '    /// Merges raw sums without averaging either side first.',
+    );
+    const merge = sourceSlice(batchSource, 'pub fn merge(', '    pub fn finish(');
+    for (const operation of [add, merge]) {
+      expect(operation.indexOf('validate_gradient_sum(')).toBeGreaterThanOrEqual(0);
+      expect(operation.indexOf('.iter_mut()')).toBeGreaterThan(
+        operation.indexOf('validate_gradient_sum('),
+      );
+      expect(operation).not.toContain('self.gradient_sums =');
+    }
+    expect(batchSource).not.toContain('self.gradient_sums =');
+    expect(batchSource).toContain('successful_accumulation_reuses_gradient_storage');
+    expect(batchSource.match(/gradient_sums\(\)\.as_ptr\(\)/g)?.length ?? 0).toBeGreaterThanOrEqual(6);
+    expect(batchSource.match(/coordinate: Some\(1\)/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+    expect(batchSource).toContain('descriptors_reconstruct_stride_two_rows_at_their_exact_starts');
+
+    for (const teaching of [
+      'source document index and start offset',
+      'directly from the borrowed document',
+      'prospective token count, loss sum, and every gradient coordinate',
+      'existing gradient-sum vector in place',
+    ]) {
+      expect(normalizedLessonBody).toContain(teaching);
     }
   });
 });
