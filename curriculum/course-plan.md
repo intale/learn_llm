@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 69,
+  "plan_revision": 70,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1047,7 +1047,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `05-autoregressive-examples`
 - **Implementation step:** `implement-ch05-autoregressive-examples`
-- **Revision status:** Content revision 5 preserves the autoregressive-window and exact Rust behavior, removes curriculum mechanics from the experiment, fixes structural diagram rows constrained by prose-list sizing, and validates the complete English/Russian figure inline, narrow, and in full view.
+- **Revision status:** Content revision 8 preserves the autoregressive-window and exact Rust behavior, states each shared shift, boundary, control-token, complete-span, and too-short-tail rule once, and validates the complete English/Russian figure inline, narrow, and in full view.
 - **Depends on:** `04-apply-bpe-tokenizer`.
 - **Outcome:** Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries.
 - **Scope boundary:** Teach context length, stride, shifted targets, and the policy for documents or suffixes that are too short to form a pair; consume the already frozen splits and tokenizer. Defer probability estimation and neural mini-batch sampling.

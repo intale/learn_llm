@@ -23,6 +23,15 @@ const fixtureUrl = new URL(
 const trace = parseAutoregressiveExamplesTrace(readFileSync(fixtureUrl, 'utf8'));
 const titleId = `${instanceId}-title`;
 const descriptionId = `${instanceId}-description`;
+const rulesTitleId = `${instanceId}-rules-title`;
+const inputLabelId = `${instanceId}-input-label`;
+const shiftRuleId = `${instanceId}-shift-rule`;
+const targetLabelId = `${instanceId}-target-label`;
+const bosDefinitionId = `${instanceId}-bos-definition`;
+const eosDefinitionId = `${instanceId}-eos-definition`;
+const completeRuleId = `${instanceId}-complete-rule`;
+const boundaryRuleId = `${instanceId}-boundary-rule`;
+const tailPolicyId = `${instanceId}-tail-policy`;
 ---
 
 <figure
@@ -52,19 +61,46 @@ const descriptionId = `${instanceId}-description`;
     </dl>
   </figcaption>
 
-  <ol class="partition-list course-diagram__grid">
-    {
-      trace.partitions.map((partition) => {
+  <section
+    class="consolidated-rule-key course-diagram__card-stack"
+    data-diagram-card
+    data-diagram-box
+    data-consolidated-rule-key
+    aria-labelledby={rulesTitleId}
+  >
+    <h4 id={rulesTitleId} class="visually-hidden">{labels.invariantsLabel}</h4>
+    <div class="global-window-legend" data-global-window-legend>
+      <strong id={inputLabelId}>{labels.lanes.input}</strong>
+      <span aria-hidden="true">→</span>
+      <span id={shiftRuleId}>{labels.shiftLabel}</span>
+      <span aria-hidden="true">→</span>
+      <strong id={targetLabelId}>{labels.lanes.target}</strong>
+    </div>
+    <span class="rule-separator" aria-hidden="true"> · </span>
+    <p id={completeRuleId} class="complete-rule"><span aria-hidden="true">✓</span> {labels.invariants.complete}</p>
+    <span class="rule-separator" aria-hidden="true"> · </span>
+    <p id={boundaryRuleId} class="boundary-note"><span aria-hidden="true">║</span> {labels.boundaryNote}</p>
+    <span class="rule-separator" aria-hidden="true"> · </span>
+    <p id={tailPolicyId} class="tail-policy">{labels.tailNote}</p>
+    <span class="rule-separator" aria-hidden="true"> · </span>
+    <p class="control-key">
+      <span id={bosDefinitionId}><bdi dir="ltr">BOS</bdi> — {labels.fields.bos}</span>
+      <span class="rule-separator" aria-hidden="true"> · </span>
+      <span id={eosDefinitionId}><bdi dir="ltr">EOS</bdi> — {labels.fields.eos}</span>
+    </p>
+  </section>
+
+  {
+    trace.partitions.map((partition) => {
         const partitionId = `${instanceId}-${partition.name}`;
         return (
-          <li>
-            <section
-              class="partition course-diagram__card-stack"
-              data-diagram-card
-              data-diagram-box
-              data-partition={partition.name}
-              aria-labelledby={`${partitionId}-title`}
-            >
+          <section
+            class="partition course-diagram__card-stack"
+            data-diagram-card
+            data-diagram-box
+            data-partition={partition.name}
+            aria-labelledby={`${partitionId}-title`}
+          >
               <header class="partition-header">
                 <span class="boundary-symbol" aria-hidden="true">║</span>
                 <div>
@@ -111,7 +147,7 @@ const descriptionId = `${instanceId}-description`;
                             dir="ltr"
                             style={`--token-count: ${document.tokens.length}`}
                             aria-labelledby={`${documentId}-source ${documentId}-source-sequence`}
-                            data-diagram-box
+                            aria-describedby={`${bosDefinitionId} ${eosDefinitionId}`}
                             data-diagram-scroll>
                             {document.tokens.map((token, position) => {
                               const isBos = position === 0;
@@ -133,7 +169,7 @@ const descriptionId = `${instanceId}-description`;
 
                         <ol class="window-list course-diagram__grid">
                           {document.windows.map((window) => (
-                            <li data-diagram-card data-diagram-box
+                            <li
                               class="window course-diagram__card-stack"
                               data-window-index={window.index}
                               data-window-start={window.start}
@@ -152,9 +188,6 @@ const descriptionId = `${instanceId}-description`;
                                 class="aligned-window"
                                 style={`--token-count: ${document.tokens.length}`}
                               >
-                                <p id={`${documentId}-window-${window.index}-input`} class="lane-label">
-                                  {labels.lanes.input}
-                                </p>
                                 <span
                                   id={`${documentId}-window-${window.index}-input-sequence`}
                                   class="visually-hidden"
@@ -166,9 +199,8 @@ const descriptionId = `${instanceId}-description`;
                                   role="region"
                                   tabindex="0"
                                   dir="ltr"
-                                  aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-input ${documentId}-window-${window.index}-input-sequence`}
-                                 data-diagram-box
-                                 data-diagram-scroll>
+                                  aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${inputLabelId} ${documentId}-window-${window.index}-input-sequence`}
+                                  data-diagram-scroll>
                                   {document.tokens.map((_, position) => {
                                     const offset = position - window.start;
                                     const token = window.input[offset];
@@ -186,12 +218,6 @@ const descriptionId = `${instanceId}-description`;
                                     );
                                   })}
                                 </p>
-                                <p class="shift-cue">
-                                  <span aria-hidden="true">↳</span> {labels.shiftLabel}
-                                </p>
-                                <p id={`${documentId}-window-${window.index}-target`} class="lane-label">
-                                  {labels.lanes.target}
-                                </p>
                                 <span
                                   id={`${documentId}-window-${window.index}-target-sequence`}
                                   class="visually-hidden"
@@ -203,9 +229,9 @@ const descriptionId = `${instanceId}-description`;
                                   role="region"
                                   tabindex="0"
                                   dir="ltr"
-                                  aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-target ${documentId}-window-${window.index}-target-sequence`}
-                                 data-diagram-box
-                                 data-diagram-scroll>
+                                  aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${targetLabelId} ${documentId}-window-${window.index}-target-sequence`}
+                                  aria-describedby={shiftRuleId}
+                                  data-diagram-scroll>
                                   {document.tokens.map((_, position) => {
                                     const offset = position - window.start - 1;
                                     const token = window.target[offset];
@@ -235,11 +261,11 @@ const descriptionId = `${instanceId}-description`;
                             data-diagram-box
                             data-tail-start={incompleteTail.start}
                             data-status="not-emitted"
-                            aria-labelledby={`${documentId}-tail`}
+                            aria-labelledby={`${documentId}-tail ${documentId}-tail-status`}
                           >
                             <header>
                               <h6 id={`${documentId}-tail`}>{labels.lanes.incompleteTail}</h6>
-                              <span class="not-emitted">
+                              <span id={`${documentId}-tail-status`} class="not-emitted">
                                 <span aria-hidden="true">×</span> {labels.values.notEmitted}
                               </span>
                             </header>
@@ -258,9 +284,9 @@ const descriptionId = `${instanceId}-description`;
                               tabindex="0"
                               dir="ltr"
                               style={`--token-count: ${document.tokens.length}`}
-                              aria-labelledby={`${documentId}-tail ${documentId}-tail-facts ${documentId}-tail-sequence`}
-                             data-diagram-box
-                             data-diagram-scroll>
+                              aria-labelledby={`${documentId}-tail ${documentId}-tail-status ${documentId}-tail-facts ${documentId}-tail-sequence`}
+                              aria-describedby={tailPolicyId}
+                              data-diagram-scroll>
                               {document.tokens.map((_, position) => {
                                 const offset = position - incompleteTail.start;
                                 const token = incompleteTail.tokens[offset];
@@ -278,36 +304,18 @@ const descriptionId = `${instanceId}-description`;
                                 );
                               })}
                             </p>
-                            <p class="tail-note">{labels.tailNote}</p>
                           </section>
                         )}
-
-                        <p class="control-key">
-                          <span><bdi dir="ltr">BOS</bdi> — {labels.fields.bos}</span>
-                          <span><bdi dir="ltr">EOS</bdi> — {labels.fields.eos}</span>
-                        </p>
                       </article>
                     </li>
                   );
                 })}
               </ol>
-            </section>
-          </li>
+          </section>
         );
-      })
-    }
-  </ol>
+    })
+  }
 
-  <p class="boundary-note" data-diagram-card data-diagram-box><span aria-hidden="true">║</span> {labels.boundaryNote}</p>
-  <section class="invariants" aria-labelledby={`${instanceId}-invariants`}>
-    <h4 id={`${instanceId}-invariants`}>{labels.invariantsLabel}</h4>
-    <ul class="course-diagram__grid">
-      <li data-diagram-card data-diagram-box><span aria-hidden="true">→</span> {labels.invariants.shift}</li>
-      <li data-diagram-card data-diagram-box><span aria-hidden="true">✓</span> {labels.invariants.complete}</li>
-      <li data-diagram-card data-diagram-box><span aria-hidden="true">║</span> {labels.invariants.boundaries}</li>
-      <li data-diagram-card data-diagram-box><span aria-hidden="true">↔</span> {labels.invariants.overlap}</li>
-    </ul>
-  </section>
 </figure>
 
 <style>
@@ -324,15 +332,13 @@ const descriptionId = `${instanceId}-description`;
     white-space: nowrap;
   }
 
-  .tail-note,
-  .boundary-note {
-    max-inline-size: 72ch;
-  }
-
+  .global-window-legend,
   .control-key {
     display: flex;
+    align-items: baseline;
     flex-wrap: wrap;
     gap: 0.6rem 1rem;
+    margin: 0;
   }
 
   .config-facts > div {
@@ -346,12 +352,6 @@ const descriptionId = `${instanceId}-description`;
     margin: 0;
   }
 
-  .partition-list {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-  }
-
-  .partition-list > li,
   .document-list > li,
   .window-list > li {
     min-inline-size: 0;
@@ -409,23 +409,17 @@ const descriptionId = `${instanceId}-description`;
   .token-tape,
   .aligned-tape,
   .tail-tape {
+    --token-track-min: calc(5ch + 0.7rem + 6px);
     display: grid;
-    grid-template-columns: repeat(var(--token-count), minmax(2.25rem, 1fr));
+    grid-template-columns: repeat(var(--token-count), minmax(var(--token-track-min), 1fr));
     gap: 0.3rem;
     white-space: nowrap;
   }
 
   /*
-   * Window and tail cards keep the shared card padding and borders. Extend only
-   * their shared scroll regions back to the source tape's token-column origin.
+   * The tail card keeps shared padding and borders. Extend its scroll region
+   * back to the source tape's token-column origin.
    */
-  .aligned-tape {
-    --diagram-scroll-inline-size: calc(
-      100% + var(--diagram-card-padding) + var(--diagram-card-padding) + 2px
-    );
-    margin-inline: calc(0px - var(--diagram-card-padding) - 1px);
-  }
-
   .autoregressive-diagram .incomplete-tail > .tail-tape {
     --diagram-scroll-inline-size: calc(
       100% + var(--diagram-card-padding) + var(--diagram-card-padding) + 2px
@@ -433,9 +427,6 @@ const descriptionId = `${instanceId}-description`;
     margin-inline: calc(0px - var(--diagram-card-padding) - 1px);
   }
 
-  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
-    .document
-    .aligned-tape.course-diagram__scroll,
   figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
     .incomplete-tail
     > .tail-tape.course-diagram__scroll {
@@ -491,31 +482,249 @@ const descriptionId = `${instanceId}-description`;
     border-block-end-width: 3px;
   }
 
-  .lane-label,
-  .shift-cue {
-    margin-block: 0.25rem;
-  }
-
   .incomplete-tail {
     border-style: dotted;
   }
 
-  .control-key {
-    margin-block: 0.75rem 0;
-  }
-
-  .invariants {
+  .consolidated-rule-key {
     margin-block-start: 1rem;
   }
 
-  .invariants ul {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem;
+  .consolidated-rule-key > :is(p, h4) {
+    margin: 0;
+  }
+
+  .rule-separator {
+    display: none;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+    grid-template-columns: minmax(0, 5.72fr) minmax(0, 3fr) minmax(0, 3.58fr);
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    align-items: start;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .consolidated-rule-key {
+    display: block;
+    grid-column: 1 / 3;
+    grid-row: 1;
+    align-self: start;
+    min-inline-size: 0;
+    margin: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > :global(.diagram-full-view-actions) {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .partition {
+    grid-row: 2 / span 2;
+    align-self: start;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .partition[data-partition='train'] {
+    grid-column: 1;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .partition[data-partition='validation'] {
+    grid-column: 2;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .partition[data-partition='test'] {
+    grid-column: 3;
+    grid-row: 3;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > figcaption {
+    grid-column: 3;
+    grid-row: 2;
+    align-self: start;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .partition[data-partition='train']
+    .document-list {
+    grid-template-columns: minmax(0, 2.99fr) minmax(0, 2.12fr);
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .partition:is([data-partition='validation'], [data-partition='test'])
+    .document-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .consolidated-rule-key
+    > :not(.visually-hidden),
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .global-window-legend,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .global-window-legend
+    > *,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .control-key,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .control-key
+    > span,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .complete-rule,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .boundary-note,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .tail-policy,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .rule-separator {
+    display: inline;
+    min-inline-size: 0;
+    max-inline-size: none;
+    margin: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .document {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    align-items: start;
+    gap: 0.35rem;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .document
+    > :is(.document-header, .source-lane, .window-list, .incomplete-tail) {
+    grid-column: 1;
+    min-inline-size: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .document
+    > .source-lane {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .document
+    > .source-lane
+    > :is(h6, .token-tape) {
+    margin-block: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .document
+    > .window-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+    margin-block: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .window {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    row-gap: 0.25rem;
+    min-inline-size: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .window
+    + .window {
+    padding-block-start: 0.35rem;
+    border-block-start: 1px dashed var(--line);
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .window
+    > header {
+    grid-column: 1;
+    grid-row: 1;
+    flex-flow: row wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.15rem 0.5rem;
+    margin: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .window
+    > .aligned-window {
+    display: contents;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .window
+    .aligned-tape:not(.target) {
+    grid-column: 1;
+    grid-row: 2;
+    --diagram-scroll-inline-size: 100%;
+    margin: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .window
+    .aligned-tape.target {
+    grid-column: 1;
+    grid-row: 3;
+    --diagram-scroll-inline-size: 100%;
+    margin: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .incomplete-tail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    row-gap: 0.25rem;
+    min-inline-size: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .incomplete-tail
+    > header {
+    grid-column: 1;
+    grid-row: 1;
+    flex-flow: row wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.15rem 0.5rem;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .incomplete-tail
+    > header
+    + p {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .document
+    > .incomplete-tail
+    > .tail-tape.course-diagram__scroll {
+    grid-column: 1;
+    grid-row: 3;
+    margin-block: 0;
   }
 
   @container course-diagram (max-width: 48rem) {
-    .document-list,
-    .invariants ul {
+    .document-list {
       grid-template-columns: minmax(0, 1fr);
     }
 

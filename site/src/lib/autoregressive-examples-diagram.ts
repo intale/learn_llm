@@ -68,10 +68,7 @@ export interface AutoregressiveExamplesDiagramLabels {
   tailNote: string;
   invariantsLabel: string;
   invariants: Readonly<{
-    shift: string;
     complete: string;
-    boundaries: string;
-    overlap: string;
   }>;
 }
 
@@ -332,7 +329,7 @@ const requiredLabelShape: RequiredLabelShape = {
   boundaryNote: true,
   tailNote: true,
   invariantsLabel: true,
-  invariants: { shift: true, complete: true, boundaries: true, overlap: true },
+  invariants: { complete: true },
 };
 
 function assertLabelShape(value: unknown, shape: RequiredLabelShape, path: string): void {
@@ -346,6 +343,11 @@ function assertLabelShape(value: unknown, shape: RequiredLabelShape, path: strin
     throw new Error(`Diagram label group ${path} must be an object.`);
   }
   const actual = value as Record<string, unknown>;
+  for (const key of Object.keys(actual)) {
+    if (!Object.prototype.hasOwnProperty.call(shape, key)) {
+      throw new Error(`Diagram label ${path}.${key} is unexpected.`);
+    }
+  }
   for (const [key, childShape] of Object.entries(shape)) {
     const childPath = `${path}.${key}`;
     if (!Object.prototype.hasOwnProperty.call(actual, key)) {

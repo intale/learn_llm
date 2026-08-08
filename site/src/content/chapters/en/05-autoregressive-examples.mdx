@@ -2,7 +2,7 @@
 {
   "chapter_id": "05-autoregressive-examples",
   "locale": "en",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 5,
   "concept_id": "boundary-safe-causal-windows",
   "title": "Building autoregressive input–target pairs",
@@ -111,15 +111,13 @@ export const diagramLabels = {
   },
   shiftLabel: 'Each target lies one source position to the right',
   boundaryLabel: 'Hard boundary',
-  boundaryNote: 'Pair construction restarts at every document and partition boundary; no arrow joins two tapes.',
+  boundaryNote:
+    'Pair construction restarts at every document or partition boundary: no pair crosses the boundary, and no shift arrow joins separate tapes.',
   tailNote:
-    'This start cannot form a new pair, although these tokens may already occur in earlier complete pairs.',
+    'At each shown start, too few tokens remain for a new pair, although those tokens may already occur in earlier complete pairs.',
   invariantsLabel: 'Rules shown in the diagram',
   invariants: {
-    shift: 'Every target is the matching input shifted by exactly one token.',
     complete: 'Only spans containing all required source tokens become pairs.',
-    boundaries: 'No pair joins documents or data partitions.',
-    overlap: 'A suffix that is too short for a new pair may overlap earlier complete pairs.',
   },
 };
 

@@ -51,15 +51,13 @@ const englishLabels: AutoregressiveExamplesDiagramLabels = {
   values: { emitted: 'Complete pair', notEmitted: 'No new pair' },
   shiftLabel: 'Each target lies one source position to the right',
   boundaryLabel: 'Hard boundary',
-  boundaryNote: 'Pair construction restarts at every document and partition boundary; no arrow joins two tapes.',
+  boundaryNote:
+    'Pair construction restarts at every document or partition boundary: no pair crosses the boundary, and no shift arrow joins separate tapes.',
   tailNote:
-    'This start cannot form a new pair, although these tokens may already occur in earlier complete pairs.',
+    'At each shown start, too few tokens remain for a new pair, although those tokens may already occur in earlier complete pairs.',
   invariantsLabel: 'Rules shown in the diagram',
   invariants: {
-    shift: 'Every target is the matching input shifted by exactly one token.',
     complete: 'Only spans containing all required source tokens become pairs.',
-    boundaries: 'No pair joins documents or data partitions.',
-    overlap: 'A suffix that is too short for a new pair may overlap earlier complete pairs.',
   },
 };
 
@@ -87,15 +85,12 @@ const russianLabels: AutoregressiveExamplesDiagramLabels = {
   shiftLabel: 'Цель сдвинута относительно входа на один токен',
   boundaryLabel: 'Граница документа или части корпуса',
   boundaryNote:
-    'На каждой границе документа или части корпуса обход начинается заново; стрелки не соединяют разные ленты.',
+    'На каждой границе документа или части корпуса построение пар начинается заново: ни одна пара не пересекает границу, а стрелки сдвига не соединяют разные ленты.',
   tailNote:
-    'В этой позиции токенов уже не хватает на новую пару, но они могли войти в пары, начавшиеся раньше.',
+    'В каждой показанной позиции токенов уже не хватает на новую пару, но они могли войти в пары, начавшиеся раньше.',
   invariantsLabel: 'Что показывает схема',
   invariants: {
-    shift: 'Для каждого элемента входа целью служит следующий токен документа.',
-    complete: 'Пара строится только при наличии всех T+1 токенов документа.',
-    boundaries: 'Пара не соединяет разные документы или части корпуса.',
-    overlap: 'Токены из остатка могут уже входить в ранее построенные пары.',
+    complete: 'Пара строится только при наличии всех необходимых исходных токенов.',
   },
 };
 
@@ -227,7 +222,7 @@ describe('autoregressive-examples Rust trace parser', () => {
     expect(() => assertAutoregressiveExamplesDiagramLabels(englishLabels)).not.toThrow();
     expect(() => assertAutoregressiveExamplesDiagramLabels(russianLabels)).not.toThrow();
     const paths = stringLeafPaths(englishLabels);
-    expect(paths).toHaveLength(27);
+    expect(paths).toHaveLength(24);
     for (const path of paths) {
       expect(() => assertAutoregressiveExamplesDiagramLabels(blankLabelAt(englishLabels, path))).toThrow(path.join('.'));
     }
@@ -247,6 +242,15 @@ describe('autoregressive-examples Rust trace parser', () => {
         missingFields as unknown as AutoregressiveExamplesDiagramLabels,
       ),
     ).toThrow(/labels\.fields is missing/);
+
+    const repeatedInvariant = structuredClone(englishLabels) as unknown as Record<string, unknown>;
+    (repeatedInvariant.invariants as Record<string, unknown>).shift =
+      'A repeated shift rule.';
+    expect(() =>
+      assertAutoregressiveExamplesDiagramLabels(
+        repeatedInvariant as unknown as AutoregressiveExamplesDiagramLabels,
+      ),
+    ).toThrow(/labels\.invariants\.shift is unexpected/);
   });
 });
 
@@ -256,12 +260,18 @@ describe('autoregressive-examples diagram component contract', () => {
       resolve(process.cwd(), 'src/components/chapters/AutoregressiveExamplesDiagram.astro'),
       'utf8',
     );
-    expect(source).toContain('<figure');
+    expect(source.match(/<figure\b/g)).toHaveLength(1);
     expect(source).toContain('<figcaption class="course-diagram__caption">');
+    const captionIndex = source.indexOf('<figcaption class="course-diagram__caption">');
+    const ruleKeyIndex = source.indexOf('class="consolidated-rule-key course-diagram__card-stack"');
+    const partitionMapIndex = source.indexOf('trace.partitions.map((partition) =>');
+    expect(captionIndex).toBeGreaterThan(-1);
+    expect(ruleKeyIndex).toBeGreaterThan(captionIndex);
+    expect(partitionMapIndex).toBeGreaterThan(ruleKeyIndex);
     expect(source).toMatch(
       /\.config-facts > div\s*\{\s*display: flex;\s*align-items: baseline;\s*gap: 0\.4rem;\s*\}/,
     );
-    expect(source).toContain('<ol class="partition-list course-diagram__grid">');
+    expect(source).not.toContain('class="partition-list');
     expect(source).toContain('class="partition course-diagram__card-stack"');
     expect(source).toContain('<ol class="document-list course-diagram__grid">');
     expect(source).toContain(
@@ -282,11 +292,87 @@ describe('autoregressive-examples diagram component contract', () => {
     expect(source).toContain('class="visually-hidden"');
     expect(source).toContain('dir="ltr"');
     expect(source).toContain('data-diagram-scroll');
+    expect(source).toContain('data-global-window-legend');
+    expect(source).toContain('data-consolidated-rule-key');
+    const ruleKeySource = source.slice(ruleKeyIndex, partitionMapIndex);
+    expect(ruleKeySource).toContain('class="visually-hidden">{labels.invariantsLabel}</h4>');
+    expect(ruleKeySource).toContain('class="complete-rule"');
+    expect(ruleKeySource).toContain('class="boundary-note"');
+    expect(ruleKeySource).toContain('class="tail-policy"');
+    expect(ruleKeySource).toContain('class="control-key"');
+    expect(ruleKeySource.match(/class="rule-separator" aria-hidden="true"/g)).toHaveLength(5);
+    expect(ruleKeySource).not.toContain('<ol');
+    expect(ruleKeySource).not.toContain('<ul');
+    expect(ruleKeySource).not.toContain('<li');
+    for (const stableId of [
+      '-rules-title`',
+      '-input-label`',
+      '-shift-rule`',
+      '-target-label`',
+      '-bos-definition`',
+      '-eos-definition`',
+      '-complete-rule`',
+      '-boundary-rule`',
+      '-tail-policy`',
+      '-tail-status`',
+    ]) {
+      expect(source).toContain(stableId);
+    }
+    expect(source).not.toContain('class="lane-label"');
+    expect(source).not.toContain('class="shift-cue"');
+    expect(source).not.toContain('class="tail-note"');
+    expect(source).not.toContain('class="invariants"');
+    expect(source).not.toMatch(/\.rule-separator\s*::(?:before|after)/);
+    expect(source).toMatch(/\.rule-separator\s*\{\s*display: none;\s*\}/);
+    expect(source).toContain('--token-track-min: calc(5ch + 0.7rem + 6px)');
+    expect(source).not.toContain('minmax(2.25rem, 1fr)');
+    const tapeTags =
+      source.match(/<p\n\s+class="(?:token|aligned|tail)-tape[^"]*"[\s\S]*?>/g) ?? [];
+    expect(tapeTags).toHaveLength(4);
+    for (const tag of tapeTags) {
+      expect(tag).toContain('course-diagram__scroll');
+      expect(tag).toContain('role="region"');
+      expect(tag).toContain('tabindex="0"');
+      expect(tag).toContain('data-diagram-scroll');
+      expect(tag).not.toContain('data-diagram-box');
+    }
     expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain('border-inline-start');
     expect(sharedStyles).toContain(':focus-visible');
     expect(source).toContain('@container course-diagram (max-width: 48rem)');
     expect(source).toContain('@media (forced-colors: active)');
+    const fullscreenStart = source.indexOf(
+      "figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen",
+    );
+    const fullscreenEnd = source.indexOf('@container course-diagram (max-width: 48rem)');
+    expect(fullscreenStart).toBeGreaterThan(-1);
+    expect(fullscreenEnd).toBeGreaterThan(fullscreenStart);
+    const fullscreenStyles = source.slice(fullscreenStart, fullscreenEnd);
+    expect(fullscreenStyles).toContain(
+      'grid-template-columns: minmax(0, 5.72fr) minmax(0, 3fr) minmax(0, 3.58fr)',
+    );
+    expect(fullscreenStyles).toMatch(
+      /> \.consolidated-rule-key\s*\{[\s\S]*?grid-column: 1 \/ 3;[\s\S]*?grid-row: 1;/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> :global\(\.diagram-full-view-actions\)\s*\{[\s\S]*?grid-column: 3;[\s\S]*?grid-row: 1;/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> figcaption\s*\{[\s\S]*?grid-column: 3;[\s\S]*?grid-row: 2;/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> \.partition\[data-partition='test'\]\s*\{[\s\S]*?grid-column: 3;[\s\S]*?grid-row: 3;/,
+    );
+    const captionRule = fullscreenStyles.match(
+      /> figcaption\s*\{(?<body>[\s\S]*?)\}/,
+    )?.groups?.body;
+    expect(captionRule).toBeDefined();
+    expect(captionRule).not.toMatch(/display\s*:|grid-template|grid-auto-flow|flex-direction/);
+    expect(fullscreenStyles).not.toMatch(/font-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\bzoom\s*:/);
+    expect(fullscreenStyles).not.toMatch(/transform\s*:\s*scale/);
+    expect(fullscreenStyles).not.toMatch(/overflow\s*:\s*(?:hidden|clip)/);
+    expect(fullscreenStyles).toMatch(/\.rule-separator\s*\{[\s\S]*?display: inline;/);
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseAutoregressiveExamplesTrace');
     expect(source).not.toContain('Math.random');

@@ -2,7 +2,7 @@
 {
   "chapter_id": "05-autoregressive-examples",
   "concept_id": "boundary-safe-causal-windows",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 5,
   "objective": {
     "en": "Turn each encoded document into fixed-length input–target pairs for next-token prediction without joining documents or data partitions.",
@@ -124,7 +124,7 @@
     "Translate visible partition, document, input, target, candidate-start, pair, and suffix labels outside technical trace islands. Do not translate source URLs or paper titles.",
     "Reject literal calques in the Russian projection: use «позиция начала окна», not «позиция, выбранная шагом»; name the concrete corpus-processing call instead of «основной путь»; and describe a pair that crosses a document boundary rather than calling it a «склеенный срез».",
     "The cited papers support next-symbol factorization and the contrast with task-specific labeled supervision. Present document boundaries, fixed partitions, stride, and the complete-pair-only policy as course decisions, not as claims sourced from those papers.",
-    "English revision 7 is the canonical semantic source. Russian revision 7 is refreshed directly from it with source SHA-256 33e8b002759e93dd619862fb97b91740e083c3b58a55c1f923a49a60a7a09878. The prose and causal-window evidence are unchanged; the visible Rust fixture and loader call now receive Chapter 2's ordinary JSON corpus as &str."
+    "English revision 8 is the canonical semantic source with lesson SHA-256 6a568c80aaa02ca69dbf43aec7eff1c7c4236197525a3cce435e41f960ec6659. Russian revision 8 was translated directly from that exact source; its reviewed lesson SHA-256 is 13bf00a4e7d12451e1a80b3139ffbd93d016863532c54d6fb5e578e5f5a85fca. Both locales state the shared input–shift–target relation, BOS/EOS meanings, complete-span requirement, boundary rule, and too-short-tail policy once while retaining every local start, status, count, and token sequence."
   ],
   "acceptance_examples": [
     {

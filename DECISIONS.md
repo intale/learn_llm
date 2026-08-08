@@ -17308,3 +17308,251 @@ publication acceptance without discarding either artifact.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch04-full-view-composition`, and
 `20260808T183914Z-repair-ch04-full-view-composition-01`.
+
+## 2026-08-08 - State Chapter 5's repeated window and suffix rules once
+
+**Status:** Accepted after exact unchanged-copy layout feasibility probes and a
+direct English/Russian semantic and accessibility review, before canonical
+Chapter 5 edits.
+
+**Context:** Chapter 5 renders six complete window cards and four incomplete
+tails. Every window repeated the same Input → one-token shift → Target legend,
+every document repeated the same BOS/EOS definitions, and every tail repeated
+the same suffix-overlap policy. The first two statements are universal by
+construction. The third was also intended as one rule, but its English wording
+“This start” and Russian wording «В этой позиции» made each copy depend on a
+nearby singular referent.
+
+Exact Chromium and Firefox probes first repaired token-track ownership and then
+tested proportional columns, side rails, neutral subgrids, compact rows, overview
+bands, and invariant mosaics. Keeping all repeated explanations left the best
+semantically valid candidates hundreds of pixels over the standard full-view
+budget. Narrowing their cards instead produced excessive local tape travel or
+broke the exact source/input/target/tail column origin. Hiding, clipping,
+shrinking, abbreviating, or duplicating a mode-specific presentation would
+violate the diagram contract rather than solve the lesson.
+
+**Decision:** Teach the three relationships at their actual scope. Render one
+figure-level Input → one-token shift → Target key before every emitted window,
+and let each window retain its ordered-list item, complete-pair number, candidate
+start, exact input tape, and exact target tape. Render one BOS/EOS definition key
+before every source tape; each source region refers to both definitions.
+
+Revise the canonical English suffix sentence to: “At each shown start, too few
+tokens remain for a new pair, although those tokens may already occur in earlier
+complete pairs.” Translate that frozen meaning directly into Russian as: «В
+каждой показанной позиции токенов уже не хватает на новую пару, но они могли
+войти в пары, начавшиеся раньше.» Render this one universal policy after the
+partition evidence. Every incomplete-tail card still owns its local heading,
+not-emitted status, candidate start, required source-token count, and exact token
+tape; each tail region refers directly to the shared policy.
+
+Advance the bilingual lesson/contract to content revision 8 and the course-plan
+projection to revision 70. Preserve formulas, values, IDs, history, Rust sources,
+trace bytes, partition/document/window order, target styling, and all other
+learner prose. Keep all keys and policies as complete static HTML in ordinary,
+narrow, no-JavaScript, forced-color, RTL, and full-view rendering. Use stable
+instance-prefixed IDs and direct `aria-labelledby`/`aria-describedby`
+relationships; do not rely on visual proximity alone.
+
+**Consequences:** The diagram states each invariant once instead of making
+localized card height depend on redundant prose, while every concrete row keeps
+the evidence a learner must compare. The Russian sentence is a direct
+meaning-first translation, not a layout-driven abbreviation or English-shaped
+calque. Exact final geometry, hashes, and two-engine acceptance remain properties
+of the running Chapter 5 checkpoint and will be recorded only after the selected
+composition passes.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch05-token-boxes-and-full-view`, and
+`20260808T195229Z-repair-ch05-token-boxes-and-full-view-01`.
+
+## 2026-08-08 - Consolidate Chapter 5's rule paraphrases at their shared scope
+
+**Status:** Accepted after a direct English/Russian meaning and accessibility
+audit and exact two-engine layout-boundary probes, before canonical revision-8
+edits.
+
+**Context:** The preceding Chapter 5 decision moved repeated window labels,
+control-token definitions, and the singular tail explanation to their true
+figure-wide scope. Follow-up aligned-layout probes retained the separate four-card
+invariant list and proved a second redundancy: three of its sentences paraphrased
+the global shift relation, boundary rule, and tail policy. Chromium could fit one
+candidate only after turning those cards into a narrow plain list; Firefox still
+measured English/Russian block debt of 187/298 pixels against 154. Horizontal
+document layouts reduced height only by forfeiting physical source/input/target
+alignment or adding excessive local tape travel. Keeping duplicate claims in
+progressively narrower boxes is not a meaningful presentation choice.
+
+The diagnostic run
+`20260808T195229Z-repair-ch05-token-boxes-and-full-view-01` originally fingerprinted
+no learner-copy or translation input. Once this semantic boundary became
+necessary, that attempt could no longer publish safely under its original
+fingerprint.
+
+**Decision:** Preserve each taught fact once. Keep one visible global sequence in
+DOM and visual order: Input context, the one-token shift statement, then
+Next-token targets. Keep one visible BOS/EOS definition key. After the concrete
+document evidence, keep one labeled three-rule section containing:
+
+1. the existing complete-span rule;
+2. the strengthened canonical English boundary rule, “Pair construction restarts
+   at every document or partition boundary: no pair crosses the boundary, and no
+   shift arrow joins separate tapes.”; and
+3. the already accepted universal too-short-tail policy.
+
+Translate the boundary rule directly into Russian as: «На каждой границе
+документа или части корпуса построение пар начинается заново: ни одна пара не
+пересекает границу, а стрелки сдвига не соединяют разные ленты.» Keep the direct
+Russian complete-span and universal-tail rules recorded by the semantic review.
+Retire the redundant `invariants.shift`, `invariants.boundaries`, and
+`invariants.overlap` label leaves instead of leaving dead localized strings. The
+label contract retains only `invariants.complete`. Every window keeps its ordered
+item, index, candidate start, exact input and target sequences, and direct global
+label references. Every tail keeps its local heading, not-emitted status, start,
+required-token count, exact sequence, and direct shared-policy reference.
+
+Mark the diagnostic run interrupted without changing its artifacts. Start
+`20260808T213626Z-repair-ch05-bilingual-rules-and-full-view-01` with the complete
+contract, English/Russian lessons, localization skill, plan, curriculum revision
+index, locale projection, label library, component, tests, trace, and reused
+diagnostic checksums. Add `site/src/lib/autoregressive-examples-diagram.ts` and
+`curriculum/README.md` to declared outputs before editing. Freeze English revision
+8 first, translate Russian directly, and advance the course-plan projection to
+70.
+
+**Consequences:** No formula, value, trace token, history claim, Rust evidence,
+partition/document/window order, local status, or causal relationship disappears.
+The figure no longer asks learners or translators to reconcile multiple
+sentences for the same rule. Its accessible references name the same visible
+global statements, and ordinary, narrow, no-JavaScript, forced-color, RTL, and
+full-view modes all use one static semantic tree. Exact final geometry remains a
+property of the new run and must pass both engines before publication.
+
+**Affected build, step, and runs:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch05-token-boxes-and-full-view`,
+`20260808T195229Z-repair-ch05-token-boxes-and-full-view-01`, and
+`20260808T213626Z-repair-ch05-bilingual-rules-and-full-view-01`.
+
+## 2026-08-09 - Introduce Chapter 5's shared rules before the concrete tapes
+
+**Status:** Accepted after the final bilingual Chromium and Firefox composition
+probe, superseding only the presentation-order clause in the two preceding
+Chapter 5 decisions.
+
+**Context:** The earlier rule-consolidation decisions correctly fixed the scope
+and wording of every retained fact, but provisionally placed the shared rule key
+after the partition evidence. The final exact two-engine probe found a clearer
+and smaller semantic composition when the figure first names the common
+input–shift–target relation, complete-span condition, hard-boundary rule,
+too-short-tail policy, and BOS/EOS meanings, then presents the three peer
+partition sections. This is also the natural reading order: orient the learner
+once, then let every concrete tape refer back to that stable key.
+
+**Decision:** Keep the direct source order as caption, one consolidated shared
+rule key, then the training, validation, and test partition sections. The shared
+full-view controller remains an injected sibling after the caption and is not
+part of the lesson evidence. In full view, place the key across the first two
+columns in row one, the controller in the third column in row one, the caption in
+the third column in row two, and the test partition beneath it in row three;
+training and validation occupy the first two peer columns across those evidence
+rows. Preserve this one semantic tree in inline, narrow, no-JavaScript,
+forced-color, RTL, and native full-view modes.
+
+The key is one labelled section with direct flow children and explicit
+aria-hidden separator spans. It is not a list and uses no generated punctuation.
+Every document ordered list and every emitted-window ordered-list item remains
+unchanged. This decision changes only the shared-key presentation order; it does
+not alter the frozen revision-8 wording, formulas, values, trace data, local
+window/tail facts, or the consolidation scope chosen earlier.
+
+**Consequences:** The canonical tree now matches the final probed candidate and
+its accessible references. Standard Chromium English/Russian block debt measures
+0/79 pixels against 180; Firefox measures 102/150 against 154. Maximum local tape
+travel is 154 pixels in Chromium and 108 in Firefox, with zero source-to-row
+alignment drift, unresolved references, inline debt, or containment failures.
+The exact 1024 by 576 eligibility boundary remains a separate pending browser
+validation and is not implied by these standard-surface measurements.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch05-token-boxes-and-full-view`, and
+`20260808T213626Z-repair-ch05-bilingual-rules-and-full-view-01`.
+
+## 2026-08-09 - Keep Chapter 5's minimum fullscreen limit separate from its standard budget
+
+**Status:** Accepted after the exact frozen-copy split browser probe and before
+the canonical browser matrix.
+
+**Context:** The current explicit revision-8 boundary sentences pass the standard
+20% full-view budget in both locales and engines. At Chromium's exact supported
+1024 by 576 threshold, however, the complete three-peer composition necessarily
+wraps more: English/Russian root debt is 438/521 pixels in a 574-pixel client,
+and the narrowest tape reaches 221 pixels of local travel with a ratio of 1.20.
+The content, text size, physical token alignment, and bounded containment remain
+intact. Firefox's native fullscreen implementation ignores the requested context
+size in this container and exposes 1366 by 768, so presenting it as an exact
+1024 by 576 measurement would be false.
+
+**Decision:** Preserve the unchanged standard contract: both locales in Chromium
+and Firefox must remain within 20% of the actual figure client height, 154 pixels
+of local tape travel, a 0.60 travel ratio, two pixels of inline debt, and the full
+containment/no-shrink checks. Add a separate exact Chromium 1024 by 576 guard:
+the atomic three-column composition must remain unchanged, root debt may not
+exceed one actual client height, local tape travel may not exceed 234 pixels, and
+its ratio may not exceed 1.25. These caps retain measured headroom while matching
+the established Chapter 4 minimum-boundary limitation.
+
+For Firefox, assert and record the actual fullscreen surface. When it exposes the
+larger native surface, enforce the standard budget and standard travel limits;
+do not label that result as an exact 1024 by 576 boundary. Keep the later shared
+hardening step responsible for deciding whether the global 64rem by 36rem
+eligibility threshold itself should change.
+
+**Consequences:** The exact boundary remains complete, coherent, keyboard
+reachable, aligned, and readable without smaller text; its additional travel is
+owned only by the existing smallest named tape regions. This is not a claim that
+the boundary satisfies the standard 20% budget. No copy, evidence, styling
+primitive, breakpoint, or controller behavior changes.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch05-token-boxes-and-full-view`, and
+`20260808T213626Z-repair-ch05-bilingual-rules-and-full-view-01`.
+
+## 2026-08-09 - Distinguish Chapter 5 layout selection from revision-8 acceptance
+
+**Status:** Accepted immediately after a checksum and rendered-copy provenance
+re-audit, before canonical browser acceptance.
+
+**Context:** The preceding Chapter 5 ordering decision correctly records the
+selected semantic tree and CSS composition. Its numeric consequences were taken
+from the checksummed consolidated-layout probe. A later source-to-render audit
+proved that those JSON files still rendered revision 7's shorter boundary labels,
+not the frozen explicit revision-8 English and Russian boundary sentences. The
+probe therefore cannot prove final localized fit, especially because its Firefox
+Russian result had only four pixels of headroom.
+
+**Decision:** Retain the probe, JSON, and report unchanged as layout-selection
+evidence for the semantic tree, token alignment, scroll ownership, and candidate
+geometry. Do not call their 0/79 and 102/150 block-debt measurements final-copy
+acceptance. The exact canonical revision-8 tree must be rebuilt and replayed in
+Chromium and Firefox for English and Russian at desktop, narrow, standard native
+full view, the supported minimum boundary, forced colors and synthetic RTL, and
+no JavaScript. Only those current-copy results may complete the step.
+
+**Consequences:** No product, content, translation, or selected source order is
+changed by this clarification. The frozen lesson hashes remain
+`6a568c80aaa02ca69dbf43aec7eff1c7c4236197525a3cce435e41f960ec6659`
+for English and
+`13bf00a4e7d12451e1a80b3139ffbd93d016863532c54d6fb5e578e5f5a85fca`
+for Russian. If the explicit copy exceeds the geometric budget, the component
+must reflow without shortening meaning, reducing text, clipping, or hiding
+evidence; the provisional numbers may not be used to waive that failure.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch05-token-boxes-and-full-view`, and
+`20260808T213626Z-repair-ch05-bilingual-rules-and-full-view-01`.
