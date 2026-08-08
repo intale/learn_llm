@@ -17041,3 +17041,60 @@ diagram audit remains responsible for unrelated concept-geometry defects.
 `repair-and-audit-diagram-rendering-20260808`,
 `stack-full-view-diagram-title-and-subtitle`, and
 `20260808T135546Z-stack-full-view-diagram-title-and-subtitle-01`.
+
+## 2026-08-08 - Repair audited full-view composition per chapter, then harden the shared gate
+
+**Status:** Accepted after the complete read-only Chromium/Firefox audit and
+before any audit-discovered product correction.
+
+**Context:** The exact post-caption candidate contains 42 registered figures on
+84 English/Russian routes. Desktop, narrow, caption separation, forced colors,
+progressive full-view behavior, root horizontal containment, and text size all
+pass, but the existing all-figure test does not limit root vertical travel. The
+supplemental audit applies the already established focused-figure allowance of
+`ceil(clientHeight × 0.20)` to every full view. Thirty-one figure IDs across 30
+chapters exceed it; the largest require several additional viewports. A second
+axis-aware structural probe also finds seven genuine defects in Chapters 3, 5,
+7, 18, 28, and 36: false bounded-box markers, token ink crossing its cell,
+non-native table cells, and private KaTeX scroll owners. Both engines reproduce
+the same structural findings. These are not learner-copy or localization
+defects.
+
+**Decision:** Keep the 20% block-travel limit, 2 px root-inline limit, original
+or larger full-view text, complete four-sided box borders, native row-filling
+table cells, and axis-aware sanctioned scrolling as course-wide invariants. Do
+not solve the travel failures with global automatic grids, smaller typography,
+compressed learner text, clipping, hidden paint, or a relaxed threshold. The
+figures encode different dependency orders, so create one independently
+validated correction step per affected chapter, in course order; keep both
+Chapter 22 figures in one chapter-sized step. Fold each structural correction
+into its chapter's travel correction so the same component is not edited in two
+future checkpoints. Every chapter result must receive its own completed commit.
+
+After all 30 chapter corrections, add one shared test-hardening step. It must
+audit every registered English/Russian figure at desktop, 390 px narrow,
+no-JavaScript desktop/narrow, forced colors, configured direction, and native
+full view in Chromium and Firefox. It must discover actual scroll owners, retain
+dual scroll/box roles, treat sanctioned scrolling as horizontal permission only,
+check visible `aria-hidden` ink, table-cell layout and all four borders, reject
+clipping/truncation/paint containment, cap vertical travel, and reject full-view
+text reduction. Make that final gate unconditional with no debt or defect
+exception registry. Place it after product repairs so no intermediate committed
+checkpoint intentionally leaves the canonical suite red. Diagram closure now
+depends on this gate rather than directly on the audit.
+
+**Consequences:** The low-priority diagram build expands by 31 exact corrective
+steps before closure, delaying later keyboard, Chapter 2 cheat-sheet, and ledger-
+compaction work as required by their existing dependency order. The audit itself
+changes only its findings inventory and ledgers. Learner content, formulas,
+diagram data, Rust, dependencies, routes, locale policy, and shared control
+implementation remain byte-stable until a declared chapter-local geometry step
+starts. The recorded findings remain an immutable snapshot; final closure will
+reconcile every item against its independently committed correction.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`audit-all-diagrams-inline-and-full-view`,
+`repair-ch02-full-view-composition` through
+`harden-course-wide-diagram-rendering-gates`, and
+`20260808T145537Z-audit-all-diagrams-inline-and-full-view-01`.
