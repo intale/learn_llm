@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -203,6 +203,237 @@ const copy = {
     handoff: 'правило с меньшим рангом может создать токен, который понадобится правилу с большим рангом',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
+
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolveFrame) =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => resolveFrame()),
+      ),
+    );
+  });
+}
+
+async function readBpeGeometry(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const tolerance = 2;
+    const problems: string[] = [];
+    const boxes = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-diagram-box]'),
+    );
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('table tr'));
+    const cells = Array.from(
+      root.querySelectorAll<HTMLElement>('table :is(th, td)'),
+    );
+    const scrollers = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+    );
+
+    const border = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return {
+        colors: [
+          style.borderTopColor,
+          style.borderRightColor,
+          style.borderBottomColor,
+          style.borderLeftColor,
+        ],
+        styles: [
+          style.borderTopStyle,
+          style.borderRightStyle,
+          style.borderBottomStyle,
+          style.borderLeftStyle,
+        ],
+        widths: [
+          Number.parseFloat(style.borderTopWidth),
+          Number.parseFloat(style.borderRightWidth),
+          Number.parseFloat(style.borderBottomWidth),
+          Number.parseFloat(style.borderLeftWidth),
+        ],
+      };
+    };
+    const colorIsTransparent = (value: string) =>
+      value === 'transparent' ||
+      /^rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(value) ||
+      /\/\s*0(?:\.0+)?\s*\)$/.test(value);
+    const completeBorder = (element: HTMLElement) => {
+      const evidence = border(element);
+      return (
+        evidence.widths.every(
+          (width) => Number.isFinite(width) && width > 0,
+        ) &&
+        evidence.styles.every(
+          (value) => value !== 'none' && value !== 'hidden',
+        ) &&
+        evidence.colors.every((value) => !colorIsTransparent(value))
+      );
+    };
+    const clipped = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return [style.overflowX, style.overflowY].some(
+        (value) => value === 'hidden' || value === 'clip',
+      );
+    };
+
+    for (const [index, box] of boxes.entries()) {
+      if (!completeBorder(box)) problems.push(`box-${index}: incomplete border`);
+      if (clipped(box)) problems.push(`box-${index}: clips overflow`);
+      if (box.tagName !== 'TR') {
+        const inlineDebt = Math.max(0, box.scrollWidth - box.clientWidth);
+        const blockDebt = Math.max(0, box.scrollHeight - box.clientHeight);
+        if (inlineDebt > tolerance || blockDebt > tolerance) {
+          problems.push(`box-${index}: scroll debt ${inlineDebt}/${blockDebt}`);
+        }
+      }
+    }
+
+    for (const [index, row] of rows.entries()) {
+      if (getComputedStyle(row).display !== 'table-row') {
+        problems.push(`row-${index}: not a native table row`);
+      }
+    }
+    for (const [index, cell] of cells.entries()) {
+      const style = getComputedStyle(cell);
+      if (style.display !== 'table-cell') {
+        problems.push(`cell-${index}: not a native table cell`);
+      }
+      if (!completeBorder(cell)) problems.push(`cell-${index}: incomplete border`);
+      if (clipped(cell)) problems.push(`cell-${index}: clips overflow`);
+      const row = cell.parentElement;
+      if (!row) {
+        problems.push(`cell-${index}: missing row`);
+        continue;
+      }
+      const cellRect = cell.getBoundingClientRect();
+      const rowRect = row.getBoundingClientRect();
+      if (
+        Math.abs(cellRect.top - rowRect.top) > tolerance ||
+        Math.abs(cellRect.bottom - rowRect.bottom) > tolerance
+      ) {
+        problems.push(`cell-${index}: does not fill its row`);
+      }
+    }
+
+    for (const [index, scroller] of scrollers.entries()) {
+      const labelled =
+        Boolean(scroller.getAttribute('aria-label')?.trim()) ||
+        Boolean(scroller.getAttribute('aria-labelledby')?.trim());
+      if (
+        scroller.getAttribute('role') !== 'region' ||
+        scroller.getAttribute('tabindex') !== '0' ||
+        !labelled
+      ) {
+        problems.push(`scroller-${index}: incomplete accessible region`);
+      }
+      if (Math.max(0, scroller.scrollHeight - scroller.clientHeight) > tolerance) {
+        problems.push(`scroller-${index}: unexpected vertical travel`);
+      }
+      if (clipped(scroller)) problems.push(`scroller-${index}: clips overflow`);
+    }
+
+    const ownerSelector = '[data-diagram-box], th, td';
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      if (!textNode.textContent?.trim()) continue;
+      const parent = textNode.parentElement;
+      if (
+        !parent ||
+        parent.closest(
+          '.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]',
+        )
+      ) {
+        continue;
+      }
+      const style = getComputedStyle(parent);
+      if (style.display === 'none' || style.visibility === 'hidden') continue;
+      const owner = parent.closest<HTMLElement>(ownerSelector);
+      if (!owner || !root.contains(owner)) continue;
+      const scroller = parent.closest<HTMLElement>('[data-diagram-scroll]');
+      if (scroller && !scroller.contains(owner)) continue;
+
+      const ownerBorder = border(owner);
+      const ownerRect = owner.getBoundingClientRect();
+      const inner = {
+        left: ownerRect.left + ownerBorder.widths[3]!,
+        right: ownerRect.right - ownerBorder.widths[1]!,
+        top: ownerRect.top + ownerBorder.widths[0]!,
+        bottom: ownerRect.bottom - ownerBorder.widths[2]!,
+      };
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      for (const paint of Array.from(range.getClientRects())) {
+        if (paint.width <= 0 || paint.height <= 0) continue;
+        if (
+          paint.left < inner.left - tolerance ||
+          paint.right > inner.right + tolerance ||
+          paint.top < inner.top - tolerance ||
+          paint.bottom > inner.bottom + tolerance
+        ) {
+          problems.push(
+            `${owner.tagName.toLowerCase()}: painted text crossed its border`,
+          );
+          break;
+        }
+      }
+    }
+
+    const allElements = [root, ...root.querySelectorAll<HTMLElement>('*')];
+    const fontSizes = allElements.flatMap((element, index) => {
+      if (
+        element.closest('[data-diagram-full-view-controls]') ||
+        element.closest('.visually-hidden, .katex-mathml')
+      ) {
+        return [];
+      }
+      const style = getComputedStyle(element);
+      if (style.display === 'none' || style.visibility === 'hidden') return [];
+      const hasDirectText = [...element.childNodes].some(
+        (child) =>
+          child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      if (!hasDirectText) return [];
+      return [{ index, pixels: Number.parseFloat(style.fontSize) }];
+    });
+
+    return {
+      blockBudget: Math.ceil(root.clientHeight * 0.2),
+      blockDebt: Math.max(0, root.scrollHeight - root.clientHeight),
+      blockViewport: root.clientHeight,
+      boxCount: boxes.length,
+      cellCount: cells.length,
+      fontSizes,
+      inlineDebt: Math.max(0, root.scrollWidth - root.clientWidth),
+      markedLoserCount: root.querySelectorAll(
+        'tbody tr[data-winner="false"][data-diagram-box]',
+      ).length,
+      markedWinnerCount: root.querySelectorAll(
+        'tbody tr[data-winner="true"][data-diagram-box]',
+      ).length,
+      problems,
+      rowCount: rows.length,
+      scrollerCount: scrollers.length,
+      unmarkedLoserCount: root.querySelectorAll(
+        'tbody tr[data-winner="false"]:not([data-diagram-box])',
+      ).length,
+    };
+  });
+}
+
+function expectCompleteBpeGeometry(
+  geometry: Awaited<ReturnType<typeof readBpeGeometry>>,
+) {
+  expect(geometry.boxCount).toBe(31);
+  expect(geometry.markedWinnerCount).toBe(2);
+  expect(geometry.markedLoserCount).toBe(0);
+  expect(geometry.unmarkedLoserCount).toBe(4);
+  expect(geometry.rowCount).toBe(8);
+  expect(geometry.cellCount).toBe(24);
+  expect(geometry.scrollerCount).toBe(8);
+  expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+  expect(geometry.problems).toEqual([]);
+}
 
 async function expectChapterContent(
   page: Page,
@@ -419,10 +650,24 @@ async function expectChapterContent(
     await expect(rounds.locator('.merge-facts dt').filter({ hasText: field })).toHaveCount(2);
   }
 
+  const invariants = diagram.locator('.bpe-invariants');
   await expect(
-    diagram.getByRole('heading', { level: 4, name: localized.invariantsLabel }),
+    invariants.getByRole('heading', { level: 4, name: localized.invariantsLabel }),
   ).toBeVisible();
-  await expect(diagram.locator('.bpe-invariants li')).toContainText([
+  await expect(invariants).toHaveAttribute('data-diagram-card', '');
+  await expect(invariants).toHaveAttribute('data-diagram-box', '');
+  const invariantPresentation = await invariants.evaluate((section) => {
+    const style = getComputedStyle(section);
+    return {
+      borderRadius: Number.parseFloat(style.borderTopLeftRadius),
+      marginBlockStart: Number.parseFloat(style.marginBlockStart),
+      paddingBlockStart: Number.parseFloat(style.paddingBlockStart),
+    };
+  });
+  expect(invariantPresentation.borderRadius).toBeGreaterThan(0);
+  expect(invariantPresentation.marginBlockStart).toBeGreaterThan(0);
+  expect(invariantPresentation.paddingBlockStart).toBeGreaterThan(0);
+  await expect(invariants.locator('li')).toContainText([
     ...localized.invariants,
   ]);
   expect(
@@ -445,8 +690,10 @@ async function expectChapterContent(
             .gridTemplateColumns.split(/\s+/)
             .filter(Boolean).length,
       ),
-    );
+  );
   expect(timelineColumns).toEqual(expectedTimelineColumns);
+  await settle(page);
+  expectCompleteBpeGeometry(await readBpeGeometry(diagram));
 
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
@@ -468,6 +715,8 @@ test.describe(
   'chapter 3 localized vertical slice',
   { tag: chapterTag(chapterId) },
   () => {
+    test.describe.configure({ mode: 'serial' });
+
     test('chapter 3 is third on every course index and preserves locale switching', async ({
       page,
     }) => {
@@ -547,38 +796,259 @@ test.describe(
       });
     }
 
-    test('the complete Russian figure expands in place and restores focus', async ({
+    test('both localized figures recompose in place for readable full view', async ({
       page,
     }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await page.goto(chapterPath('ru', chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="learn-bpe-merges"]',
-      );
-      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
-      await expect(toggle).toHaveCount(1);
-      expect((await toggle.getAttribute('aria-label'))?.trim()).toBeTruthy();
-      await toggle.click();
-      await page.waitForFunction(
-        () =>
-          document.fullscreenElement?.getAttribute('data-visualization-id') ===
-          'learn-bpe-merges',
-      );
-      await expect(
-        diagram.getByRole('heading', {
-          level: 3,
-          name: copy.ru.diagramTitle,
-        }),
-      ).toBeVisible();
-      await expect(diagram.locator('[data-stage]')).toHaveCount(3);
-      await expect(diagram.locator('[data-round]')).toHaveCount(2);
-      await expect(diagram.locator('.bpe-invariants li')).toContainText([
-        ...copy.ru.invariants,
-      ]);
-      await expectNoOverflowOrClientScripts(page);
-      await page.keyboard.press('Escape');
-      await page.waitForFunction(() => document.fullscreenElement === null);
-      await expect(toggle).toBeFocused();
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="learn-bpe-merges"]',
+        );
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        await expect(toggle).toHaveCount(1);
+        expect((await toggle.getAttribute('aria-label'))?.trim()).toBeTruthy();
+        await settle(page);
+        const inlineGeometry = await readBpeGeometry(diagram);
+        expectCompleteBpeGeometry(inlineGeometry);
+        const staticMarkup = await diagram.evaluate((node) => {
+          const clone = node.cloneNode(true) as HTMLElement;
+          clone
+            .querySelectorAll('[data-diagram-full-view-controls]')
+            .forEach((control) => control.remove());
+          return clone.innerHTML;
+        });
+        await diagram.evaluate((node) => {
+          (window as unknown as { __chapter03Figure?: Element }).__chapter03Figure =
+            node;
+        });
+
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            'learn-bpe-merges',
+        );
+        await settle(page);
+        await expect(
+          diagram.getByRole('heading', {
+            level: 3,
+            name: copy[locale].diagramTitle,
+          }),
+        ).toBeVisible();
+        expect(
+          await diagram.evaluate(
+            (node) =>
+              (window as unknown as { __chapter03Figure?: Element })
+                .__chapter03Figure === node,
+          ),
+        ).toBe(true);
+        expect(
+          await diagram.evaluate((node) => {
+            const clone = node.cloneNode(true) as HTMLElement;
+            clone
+              .querySelectorAll('[data-diagram-full-view-controls]')
+              .forEach((control) => control.remove());
+            return clone.innerHTML;
+          }),
+        ).toBe(staticMarkup);
+        expect(
+          await diagram.locator('.bpe-timeline-step').evaluateAll((steps) =>
+            steps.map((step) => ({
+              round:
+                step.querySelector<HTMLElement>('[data-round]')?.dataset.round ??
+                null,
+              stage: (step as HTMLElement).dataset.stage ?? null,
+            })),
+          ),
+        ).toEqual([
+          { round: '0', stage: '0' },
+          { round: '1', stage: '1' },
+          { round: null, stage: '2' },
+        ]);
+        const composition = await diagram.evaluate((node) => ({
+          compositionColumns: getComputedStyle(
+            node.querySelector<HTMLElement>('.bpe-composition')!,
+          )
+            .gridTemplateColumns.split(/\s+/)
+            .filter(Boolean).length,
+          rootColumns: getComputedStyle(node)
+            .gridTemplateColumns.split(/\s+/)
+            .filter(Boolean).length,
+          stepColumns: Array.from(
+            node.querySelectorAll<HTMLElement>('.bpe-timeline-step'),
+          ).map(
+            (step) =>
+              getComputedStyle(step)
+                .gridTemplateColumns.split(/\s+/)
+                .filter(Boolean).length,
+          ),
+          timelineUsesSubgrid: getComputedStyle(
+            node.querySelector<HTMLElement>('.bpe-timeline')!,
+          ).gridTemplateColumns.startsWith('subgrid'),
+        }));
+        expect(composition).toEqual({
+          compositionColumns: 3,
+          rootColumns: 2,
+          stepColumns: [1, 1, 1],
+          timelineUsesSubgrid: true,
+        });
+        const fullGeometry = await readBpeGeometry(diagram);
+        expectCompleteBpeGeometry(fullGeometry);
+        expect(fullGeometry.blockDebt).toBeLessThanOrEqual(
+          fullGeometry.blockBudget,
+        );
+        expect(fullGeometry.fontSizes.map(({ index }) => index)).toEqual(
+          inlineGeometry.fontSizes.map(({ index }) => index),
+        );
+        for (let index = 0; index < fullGeometry.fontSizes.length; index += 1) {
+          expect(fullGeometry.fontSizes[index]!.pixels + 0.01).toBeGreaterThanOrEqual(
+            inlineGeometry.fontSizes[index]!.pixels,
+          );
+        }
+        await expect(diagram.locator('[data-stage]')).toHaveCount(3);
+        await expect(diagram.locator('[data-round]')).toHaveCount(2);
+        await expect(diagram.locator('.bpe-invariants li')).toContainText([
+          ...copy[locale].invariants,
+        ]);
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+        await expectNoOverflowOrClientScripts(page);
+      }
+    });
+
+    test('chapter 3 keeps one coherent composition at the minimum requested full-view size', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1024, height: 576 });
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        await page.waitForFunction(
+          () =>
+            document.documentElement.dataset.diagramFullViewReady === 'true',
+        );
+        await settle(page);
+
+        const diagram = page.locator(
+          'figure[data-visualization-id="learn-bpe-merges"]',
+        );
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        await expect(toggle).toBeVisible();
+        const inlineGeometry = await readBpeGeometry(diagram);
+        expectCompleteBpeGeometry(inlineGeometry);
+        await diagram.evaluate((node) => {
+          (window as unknown as { __chapter03BoundaryFigure?: Element })
+            .__chapter03BoundaryFigure = node;
+        });
+
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            'learn-bpe-merges',
+        );
+        await settle(page);
+
+        expect(
+          await diagram.evaluate(
+            (node) =>
+              (window as unknown as { __chapter03BoundaryFigure?: Element })
+                .__chapter03BoundaryFigure === node,
+          ),
+        ).toBe(true);
+        const fullGeometry = await readBpeGeometry(diagram);
+        expectCompleteBpeGeometry(fullGeometry);
+        expect(fullGeometry.fontSizes.map(({ index }) => index)).toEqual(
+          inlineGeometry.fontSizes.map(({ index }) => index),
+        );
+        for (let index = 0; index < fullGeometry.fontSizes.length; index += 1) {
+          expect(fullGeometry.fontSizes[index]!.pixels + 0.01).toBeGreaterThanOrEqual(
+            inlineGeometry.fontSizes[index]!.pixels,
+          );
+        }
+
+        const composition = await diagram.evaluate((root) => {
+          const trackCount = (element: Element) =>
+            getComputedStyle(element)
+              .gridTemplateColumns.split(/\s+/)
+              .filter(Boolean).length;
+          const steps = Array.from(
+            root.querySelectorAll<HTMLElement>('.bpe-timeline-step'),
+          ).map((step) => step.getBoundingClientRect());
+          const invariants = root
+            .querySelector<HTMLElement>('.bpe-invariants')!
+            .getBoundingClientRect();
+          const candidateRegions = Array.from(
+            root.querySelectorAll<HTMLElement>('.candidate-scroll'),
+          );
+          const tokenRegions = Array.from(
+            root.querySelectorAll<HTMLElement>('.token-tape'),
+          );
+          const wrapper = root.querySelector<HTMLElement>('.bpe-composition')!;
+          return {
+            candidateTravel: Math.max(
+              ...candidateRegions.map((region) =>
+                Math.max(0, region.scrollWidth - region.clientWidth),
+              ),
+            ),
+            columns: trackCount(wrapper),
+            invariants: { left: invariants.left, top: invariants.top },
+            stepPositions: steps.map((step) => ({
+              left: step.left,
+              top: step.top,
+            })),
+            timelineUsesSubgrid: getComputedStyle(
+              root.querySelector<HTMLElement>('.bpe-timeline')!,
+            ).gridTemplateColumns.startsWith('subgrid'),
+            tokenMinWidth: Math.min(
+              ...tokenRegions.map((region) => region.clientWidth),
+            ),
+            tokenTravel: Math.max(
+              ...tokenRegions.map((region) =>
+                Math.max(0, region.scrollWidth - region.clientWidth),
+              ),
+            ),
+            wrapperWidth: wrapper.clientWidth,
+          };
+        });
+        expect(composition.timelineUsesSubgrid).toBe(true);
+        expect(composition.tokenMinWidth).toBeGreaterThan(0);
+        expect(composition.tokenTravel).toBeLessThanOrEqual(120);
+        expect(composition.candidateTravel).toBeLessThanOrEqual(120);
+
+        const [first, second, final] = composition.stepPositions;
+        expect(first).toBeDefined();
+        expect(second).toBeDefined();
+        expect(final).toBeDefined();
+        if (composition.wrapperWidth <= 70 * 16) {
+          expect(composition.columns).toBe(2);
+          expect(Math.abs(first!.top - second!.top)).toBeLessThanOrEqual(2);
+          expect(Math.abs(first!.left - final!.left)).toBeLessThanOrEqual(2);
+          expect(Math.abs(second!.left - composition.invariants.left)).toBeLessThanOrEqual(
+            2,
+          );
+          expect(Math.abs(final!.top - composition.invariants.top)).toBeLessThanOrEqual(
+            2,
+          );
+          expect(fullGeometry.blockDebt).toBeLessThanOrEqual(
+            fullGeometry.blockViewport,
+          );
+        } else {
+          expect(composition.columns).toBe(3);
+          expect(Math.abs(first!.top - second!.top)).toBeLessThanOrEqual(2);
+          expect(Math.abs(first!.top - final!.top)).toBeLessThanOrEqual(2);
+          expect(composition.invariants.top).toBeGreaterThan(final!.top + 2);
+          expect(fullGeometry.blockDebt).toBeLessThanOrEqual(
+            fullGeometry.blockBudget,
+          );
+        }
+
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test('Russian evidence remains explicit in forced colors and keeps technical values left-to-right', async ({
@@ -609,12 +1079,15 @@ test.describe(
       await expect(diagram.locator('.bpe-invariants li')).toContainText([
         ...copy.ru.invariants,
       ]);
+      await settle(page);
+      expectCompleteBpeGeometry(await readBpeGeometry(diagram));
       await expectNoOverflowOrClientScripts(page);
     });
 
     test('the complete Russian lesson remains available without JavaScript at desktop and narrow widths', async ({
       browser,
     }, testInfo) => {
+      test.setTimeout(60_000);
       const context = await browser.newContext({
         javaScriptEnabled: false,
         baseURL: String(testInfo.project.use.baseURL),
@@ -626,6 +1099,7 @@ test.describe(
       ]) {
         await page.setViewportSize(viewport);
         await page.goto(chapterPath('ru', chapterId));
+        await page.waitForLoadState('networkidle');
         await expect(
           page.getByRole('heading', {
             level: 1,
@@ -639,6 +1113,10 @@ test.describe(
         await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(
           0,
         );
+        const diagram = page.locator(
+          'figure[data-visualization-id="learn-bpe-merges"]',
+        );
+        expectCompleteBpeGeometry(await readBpeGeometry(diagram));
         await expectNoOverflowOrClientScripts(page);
       }
       await context.close();

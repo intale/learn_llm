@@ -17153,3 +17153,68 @@ the normal desktop acceptance result.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch02-full-view-composition`, and
 `20260808T162039Z-repair-ch02-full-view-composition-01`.
+
+## 2026-08-08 - Keep Chapter 3's ordered rounds semantic while reflowing their evidence
+
+**Status:** Accepted after exact English/Russian Chromium and Firefox probes and
+before the Chapter 3 completion checkpoint.
+
+**Context:** Chapter 3 originally marked every candidate table row as a bounded
+diagram box, although only the two selected rows own a complete four-sided
+double border. The four unselected rows therefore produced genuine structural
+audit failures even though their native bordered cells remained valid. In full
+view, the three stage/round pairs also stayed in one long vertical timeline and
+exceeded the shared travel allowance by 695 to 914 pixels, depending on locale
+and engine.
+
+The exact 1024 by 576 eligibility boundary needs a different composition from
+the audited desktop surface. A three-column layout left token regions with no
+usable width. A two-column fallback kept every token region usable, but the
+first compact variants either exceeded one additional viewport or shifted more
+than 200 pixels of travel into each candidate table. The final measured variant
+uses a 33rem candidate table only at this boundary: this is the first width that
+removes the extra Russian table row, while the named local region travels only
+94 pixels.
+
+**Decision:** Mark only selected candidate rows with `data-diagram-box`; retain
+`data-winner` on every row and keep all rows and cells in native table layout.
+Wrap the existing ordered list and invariant section in one neutral composition
+container. In ordinary view the wrapper uses `display: contents`, so the
+existing semantic list, list items, and stage/round layout remain unchanged.
+Nesting removes the direct-child panel role from the invariant section, so make
+that evidence an explicit shared card in every mode rather than reproducing
+generic panel chrome in component CSS. This intentionally changes only that
+block's shared presentation role and keeps its content, order, and heading
+relationship. In full view, keep the ordered list as a real grid and use
+row-and-column subgrid placement: the first two complete stage/round pairs
+occupy peer columns, while the final stage and invariant evidence use the third
+column's two rows.
+
+At container widths no greater than 70rem, switch the same complete composition
+to two columns: the first two stage/round pairs share the first row, and the
+final stage and invariants share the second. Keep merge facts in two columns,
+flow the four invariant statements down two columns in their original DOM
+order, and use the smallest measured boundary-only candidate-table width that
+meets the fallback travel cap. Do not change learner copy, translations,
+formulas, trace values, candidate order, or shared full-view code; outside the
+intentional invariant panel-to-card role change, keep the existing type and
+spacing. Do not clip, hide, scale, duplicate, or replace the semantic
+list/table tree.
+
+**Consequences:** At the standard audited full-view size, Chromium measures
+English/Russian debt of 0/64 pixels against 180 and Firefox measures 0/129
+against 154. The exact Chromium eligibility boundary measures 373/570 pixels of
+travel in a 574-pixel client height, with zero root inline debt, 94 pixels of
+candidate-table travel, usable token strips, no full-view text reduction, and
+no box or paint escape. A supplemental boundary assertion records this one-viewport
+limit without claiming it satisfies the standard 20% rule. Both engines and
+locales preserve 31 genuine bounded boxes, two marked winner rows, four
+unmarked loser rows, eight native table rows, 24 bordered row-filling cells,
+and eight accessible sanctioned scrollers. The later shared-gate step remains
+responsible for deciding whether the minimum global full-view eligibility
+height should change.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch03-bpe-rows-and-full-view`, and
+`20260808T172645Z-repair-ch03-bpe-rows-and-full-view-01`.

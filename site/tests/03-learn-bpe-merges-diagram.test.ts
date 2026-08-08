@@ -384,6 +384,7 @@ describe('learn-BPE-merges diagram component contract', () => {
 
     expect(source).toContain('<figure');
     expect(source).toContain('<figcaption');
+    expect(source).toContain('<div class="bpe-composition">');
     expect(source).toContain('<ol class="bpe-timeline">');
     expect(source).toContain('<table data-diagram-table>');
     expect(source).toContain('<caption>{labels.fields.candidates}</caption>');
@@ -393,7 +394,11 @@ describe('learn-BPE-merges diagram component contract', () => {
     expect(source).toContain('data-stage={stage.index}');
     expect(source).toContain('data-document={document.id}');
     expect(source).toContain('data-round={round.rank}');
+    expect(source).toContain(
+      "data-diagram-box={candidate.winner ? '' : undefined}",
+    );
     expect(source).toContain("data-winner={candidate.winner ? 'true' : 'false'}");
+    expect(source).not.toMatch(/<tr\s+data-diagram-box(?:\s|>)/);
     expect(source).toContain('<code dir="ltr">{document.id}</code>');
     expect(source).toContain('class="token-tape course-diagram__scroll"');
     expect(source).toContain('role="region"');
@@ -401,19 +406,40 @@ describe('learn-BPE-merges diagram component contract', () => {
     expect(source).toContain('aria-label={labels.fields.candidates}');
     expect(source).toContain('<code dir="ltr">{round.merge.bytesHex.join');
     expect(source).toContain('grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.9fr)');
+    expect(source).toContain('.bpe-merge-diagram:fullscreen {');
+    expect(source).toContain('minmax(24rem, 0.8fr);');
+    expect(source).toContain('grid-template-columns: subgrid;');
+    expect(source).toContain('grid-template-rows: subgrid;');
+    expect(source).toContain('@container course-diagram (max-width: 70rem)');
+    expect(source).toContain(
+      'grid-template-columns: repeat(2, minmax(0, 1fr));',
+    );
+    expect(source).toContain('grid-template-rows: repeat(2, auto);');
+    expect(source).toContain('grid-auto-flow: column;');
+    expect(source).toContain(
+      '.bpe-merge-diagram:fullscreen .bpe-timeline-step:nth-child(3)',
+    );
+    expect(source).toContain('min-inline-size: 30rem;');
+    expect(source).toContain('min-inline-size: 33rem;');
+    expect(source).toContain('.bpe-composition {\n    display: contents;');
+    expect(source).not.toMatch(
+      /\.bpe-(?:timeline|timeline-step)[^{]*\{[^{}]*display:\s*contents/,
+    );
     expect(source).toContain('@container course-diagram (max-width: 48rem)');
     expect(source).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(source).toContain('data-diagram-scroll');
     expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain('unicode-bidi: isolate');
+    expect(source).toContain("tr[data-winner='true'] {");
+    expect(source).toContain('border: 0.18rem double currentColor;');
+    expect(source).not.toMatch(
+      /(?:^|})\s*[^{}]*\b(?:tr|th|td)\b[^{}]*\{[^{}]*\bdisplay\s*:/m,
+    );
     expect(sharedStyles).toContain(':focus-visible');
     expect(sharedStyles).toContain('@media (forced-colors: active)');
     expect(source).toContain('data-diagram-box');
     expect(source).toMatch(
-      /<section\s+class="bpe-invariants"\s+data-diagram-box\s+aria-labelledby=/,
-    );
-    expect(source).not.toMatch(
-      /<section\s+class="bpe-invariants"\s+data-diagram-card/,
+      /<section\s+class="bpe-invariants"\s+data-diagram-card\s+data-diagram-box\s+aria-labelledby=/,
     );
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseLearnBpeMergesTrace');
@@ -422,6 +448,17 @@ describe('learn-BPE-merges diagram component contract', () => {
     expect(source).not.toContain('Math.random');
     expect(source).not.toContain('<script');
     expect(source).not.toContain('client:');
+
+    const fullscreenStart = source.indexOf('.bpe-merge-diagram:fullscreen {');
+    const narrowStart = source.indexOf(
+      '@container course-diagram (max-width: 48rem)',
+    );
+    expect(fullscreenStart).toBeGreaterThan(-1);
+    expect(narrowStart).toBeGreaterThan(fullscreenStart);
+    const fullscreenStyles = source.slice(fullscreenStart, narrowStart);
+    expect(fullscreenStyles).not.toMatch(
+      /font-size\s*:|zoom\s*:|transform\s*:\s*scale|overflow\s*:\s*(?:hidden|clip)/,
+    );
 
     for (const localizedText of [
       englishLabels.title,
