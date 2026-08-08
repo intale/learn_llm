@@ -16250,6 +16250,51 @@ changes only the ledgers and does not delay Chapter 38.
 `add-arrow-key-chapter-navigation`, and
 `20260808T075840Z-queue-low-priority-keyboard-chapter-navigation-01`.
 
+## 2026-08-08 - Queue the missing Chapter 2 BPE cheat-sheet definition at the new tail
+
+**Status:** Accepted from the user's explicit low-priority queue request.
+
+**Context:** Chapter 2 names BPE in its decoder handoff, exercises, checked
+answers, and final training-only boundary. It refers concretely to adjacent-pair
+counts, learned merges, merge ranks, and vocabulary effects. The separate Chapter
+2 cheat sheet currently defines corpus partitioning terms but gives no meaning
+for BPE, so a learner opening the reference at the point of use cannot recover
+what operation the acronym names. Chapter 3 owns the full merge-training lesson;
+Chapter 2 needs only the minimum local definition required to understand which
+data may influence that future training.
+
+**Decision:** Append `explain-ch02-bpe-in-cheat-sheet-20260808` after the keyboard
+navigation build, which is the current queue tail. Add one concise English term,
+“Byte-pair encoding (BPE),” defining the course-specific chain: begin with byte
+tokens, count adjacent token pairs inside each training document, learn an ordered
+list of pair-merging rules, and call a rule's position its merge rank. State in
+the same definition that validation and test documents contribute no counts and
+that document boundaries break adjacency. Do not retell Chapter 3's algorithm or
+add unrelated tokenizer vocabulary.
+
+Freeze that English definition first. Translate the Russian term and definition
+directly from the exact English source with the localization skill's semantic,
+terminology, anti-calque, monolingual, accessibility, and rendered passes. Keep
+all existing sheet terms and all Chapter 2 lesson, contract, formula, Rust,
+diagram, output, routes, and locale metadata unchanged. Validate the shared
+progressive cheat-sheet modal in Chromium and Firefox at desktop and narrow
+widths, including keyboard/dialog behavior and the no-JavaScript disclosure.
+
+**Consequences:** Chapter 2's quick reference will explain the BPE vocabulary it
+already uses while preserving Chapter 3 as the place where students learn and
+implement merge training. The correction remains the true low-priority tail, is
+reviewed independently in both active locales, and receives its own commit. This
+scheduling checkpoint changes no learner-visible byte and does not delay Chapter
+38.
+
+**Affected builds, steps, and scheduling run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`queue-ch02-bpe-cheat-sheet-term`,
+`add-keyboard-chapter-navigation-20260808`,
+`explain-ch02-bpe-in-cheat-sheet-20260808`,
+`add-ch02-bpe-cheat-sheet-term`, and
+`20260808T080224Z-queue-ch02-bpe-cheat-sheet-term-01`.
+
 ## 2026-08-08 - Share one incremental-attention calculation behind checked and already-bound entries
 
 **Status:** Accepted after exact Rust, content, localization, static, staged, and
