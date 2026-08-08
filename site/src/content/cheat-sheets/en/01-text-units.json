@@ -14,7 +14,7 @@
     },
     {
       "term": "Vocabulary",
-      "definition": "A fixed lookup table that assigns known text units deterministic integer IDs."
+      "definition": "In this chapter, a demo-only fixed table from known Unicode scalar values to deterministic IDs; later tokenizers keep the mapping concept but replace its units and IDs."
     },
     {
       "term": "Token ID",
@@ -22,7 +22,7 @@
     },
     {
       "term": "Unknown token",
-      "definition": "A reserved marker used when a text unit is absent from the vocabulary, losing the original unit's identity."
+      "definition": "Chapter 1's reserved marker for an unknown scalar value; replacing that value with the marker loses its identity, while the later byte-level tokenizer covers every input byte instead."
     },
     {
       "term": "Reversible round trip",
@@ -34,7 +34,7 @@
     },
     {
       "term": "Subword tokenizer",
-      "definition": "A tokenizer using units between whole words and individual characters to balance vocabulary size and sequence length."
+      "definition": "A tokenizer whose learned units can represent several adjacent bytes to balance vocabulary size and sequence length; Chapters 3 and 4 build a new byte-level vocabulary rather than extending this scalar table."
     }
   ]
 }

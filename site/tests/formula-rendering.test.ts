@@ -222,10 +222,6 @@ const documentedLiteralData = [
     name: "literal input-target records",
     pattern: /^\[[^\]]+\]\s*->\s*\[[^\]]+\]$/,
   },
-  {
-    name: "concrete Rust type signatures",
-    pattern: /^[A-Za-z][\w:<>]*(?:\s*->\s*[A-Za-z][\w:<>, ]*)$/,
-  },
 ] as const;
 
 const requiredChapter08To13Math: Record<string, readonly string[]> = {

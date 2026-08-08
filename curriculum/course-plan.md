@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 68,
+  "plan_revision": 69,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -30,7 +30,7 @@
   "chapter_1_disposition": {
     "status": "complete",
     "step_id": "revise-ch01-language-neutral-formula",
-    "reason": "Content revision 5 retains the reviewed natural-Russian localization, the shared math-pipeline repair, and learner-facing prose that stays focused on the LLM concept rather than presentation machinery."
+    "reason": "Content revision 6 makes the demo-only scalar Vocabulary, the transferable mapping contract, and its replacement by the byte-level BPE tokenizer explicit while retaining the reviewed localization, formula, Rust evidence, and diagram."
   },
   "target": {
     "data_protocol": "document-level train/validation/test partition frozen before tokenizer learning",
@@ -985,14 +985,15 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Implementation step:** `revise-ch01-language-neutral-formula`
 - **Depends on:** the completed chapter-1 foundation.
 - **Outcome:** Distinguish UTF-8 bytes, Unicode scalar values, and vocabulary IDs, then round-trip known English and Cyrillic text.
-- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it. Revision 3 replaced literal Russian phrasing with a reviewed meaning-first localization, revision 4 rendered every learner-facing expression through the shared math pipeline, and revision 5 removes presentation machinery from the diagram explanation without changing the concept.
+- **Revision status:** Content revision 6 identifies the scalar `Vocabulary` as a Chapter 1 demo type, preserves its transferable fixed-mapping contract, and explains exactly why Chapters 3 and 4 replace its units, IDs, and `<UNK>` rule with byte-level BPE. Revisions 3–5 retain the reviewed Russian, shared math pipeline, and concept-focused diagram prose.
+- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it.
 - **Formula:** `z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`.
 - **Historical contrast:** Contrast whitespace-delimited whole-word vocabularies with scalar-level splitting and their respective unknown-word and sequence-length costs.
-- **Rust contribution:** Retain the dependency-free chapter-1 demo and exact output; the revision step changes contract/lesson metadata and strengthens the language-neutral formula gate.
+- **Rust contribution:** Retain the dependency-free Chapter 1 demo and exact output as a self-contained scalar-vocabulary comparison; no scalar `Vocabulary` API enters the cumulative crate.
 - **Visualization:** Useful — retain the aligned text → UTF-8 bytes → scalar values → IDs pipeline and its localized accessible labels.
 - **Practice:** Predict byte, scalar, and ID counts for `cat`, `кот`, and an unseen scalar before running the demo.
-- **Integration evidence:** Revision-5 contract and lessons agree; existing six Rust tests, exact stdout, bilingual parity, seven routes, and desktop/narrow browser checks pass.
-- **Handoff:** Chapter 2 preserves documents and partitions the corpus before any vocabulary is learned.
+- **Integration evidence:** Revision-6 contract, lessons, and locale-aware cheat sheets distinguish the demo type from the transferable mapping contract; existing six Rust tests, exact stdout, bilingual parity, routes, and desktop/narrow/full-view browser checks remain unchanged.
+- **Handoff:** Chapter 2 preserves documents and partitions the corpus; Chapters 3 and 4 then replace the scalar table with a byte-level BPE vocabulary while preserving the integer-sequence interface.
 
 ## 02. Corpus documents, boundaries, and data partitions
 

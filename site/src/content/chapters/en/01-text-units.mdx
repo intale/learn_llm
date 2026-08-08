@@ -2,11 +2,11 @@
 {
   "chapter_id": "01-text-units",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 1,
   "concept_id": "text-units-vocabulary-ids",
   "title": "Text units and vocabulary IDs",
-  "description": "Follow English and Cyrillic text from UTF-8 bytes to Unicode scalar values and deterministic integer IDs.",
+  "description": "Compare UTF-8 bytes, Unicode scalar values, and a demo-only scalar vocabulary before byte-level BPE replaces it.",
   "objective": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",
   "worked_inputs": "Use cat as the ASCII input and кот as the paired Cyrillic input.",
   "formula": {
@@ -43,7 +43,7 @@
     "summary": "Early pipelines often split on whitespace into whole words; character-level models instead used much smaller symbol inventories. Whole-word vocabularies make unseen forms unknown, while scalar-level sequences are longer and still do not represent user-perceived grapheme clusters.",
     "rust_source": "rust/demos/ch01-text-units/src/lib.rs"
   },
-  "decoder_connection": "The resulting Vec<usize> is the discrete sequence that will index embedding rows and enter the decoder; generated IDs travel through the inverse vocabulary mapping to become text.",
+  "decoder_connection": "The Chapter 1 demo establishes the conceptual boundary from text to a deterministic token-ID sequence that later feeds embedding lookup. Its scalar Vocabulary, concrete Vec<usize>, and ID assignments stay in the demo; Chapters 3 and 4 build a byte-level BPE tokenizer with a new ID namespace, whose inverse mapping turns generated IDs back into text.",
   "rust_sources": [
     {
       "path": "rust/demos/ch01-text-units/src/lib.rs",
@@ -58,7 +58,7 @@
     {
       "path": "rust/demos/ch01-text-units/src/lib.rs",
       "region": "vocabulary",
-      "purpose": "Implement deterministic vocabulary construction, encoding, and decoding."
+      "purpose": "Implement the demo-only scalar vocabulary's deterministic construction, encoding, and decoding."
     },
     {
       "path": "rust/demos/ch01-text-units/src/main.rs",
@@ -136,7 +136,12 @@ round trip is reversible for known units. For the unseen input `?`, byte `63` an
 scalar `U+003F` are observable before lookup, but encoding produces `[0]` and
 decoding returns `<UNK>` rather than the original question mark.
 
-> **Key idea:** UTF-8 byte length, Unicode-scalar length, and vocabulary length are different measurements; this chapter deliberately preserves only known scalar values.
+The concrete `Vocabulary` type is a deliberately small Chapter 1 comparison, not
+the tokenizer used by later chapters. It assigns a distinct ID to each known
+Unicode scalar value. Its fixed table therefore makes the mapping easy to inspect,
+while its single `<UNK>` ID also exposes the cost of incomplete coverage.
+
+> **Key idea:** UTF-8 byte count and token-sequence length measure different units. This demo emits one ID per Unicode scalar, so its token-sequence length equals its scalar count, while only scalars present in the fixed vocabulary survive a round trip.
 
 {/* chapter-section:formula */}
 
@@ -223,6 +228,13 @@ can travel in either direction without a tokenization library:
   label="Rust implementation of vocabulary construction, encoding, and decoding"
 />
 
+This `Vocabulary` is defined only in the `ch01-text-units` demo; the cumulative
+`llm-from-scratch` crate neither imports nor extends it. Four ideas do carry
+forward: freeze one mapping between token IDs and represented units, make encoding
+deterministic, decode represented units exactly, and choose the coverage versus
+sequence-length tradeoff deliberately. The scalar entries, their numeric IDs, and
+the scalar-level `<UNK>` rule are not part of the later BPE tokenizer.
+
 The executable fixes the inputs and prints every intermediate representation:
 
 <RustSource
@@ -290,14 +302,22 @@ is absent from `cat кот`, predict `0` before confirming it with `encode`.
 
 ## The boundary the decoder will consume
 
-This chapter contributes a deterministic `String -> Vec<usize>` boundary. In the
-cumulative model, each `usize` will select one row from an embedding table before
-the sequence enters the decoder. The decoder will eventually predict another ID,
-and the inverse vocabulary will turn generated IDs back into text.
+This chapter demonstrates a deterministic text-to-token-ID-sequence boundary; it
+does not contribute the concrete Rust ID type or token table used by the
+cumulative model. In that model, each ID selects one row from an embedding table
+before the sequence enters the decoder. The decoder eventually predicts another
+ID, and the inverse mapping for that same vocabulary turns generated IDs back into
+text.
 
 Chapter 2 first preserves document boundaries and freezes the data partitions.
-Chapter 3 learns BPE merge rules over UTF-8 bytes, and Chapter 4 applies those
-frozen rules to byte sequences while preserving this integer-sequence interface.
-Everything that follows—
-embeddings, attention, and next-token prediction—can therefore operate on IDs
-without needing to know how many UTF-8 bytes produced each one.
+Chapter 3 then creates a separate vocabulary for BPE training: it begins with one
+token for each of the 256 possible byte values and appends learned merge tokens
+that may represent several bytes. Chapter 4 reserves BOS and EOS, shifts those
+content IDs into a new token-ID namespace, and applies the frozen byte-level tokenizer. Every UTF-8 byte
+has a base token, so this tokenizer does not reuse Chapter 1's rule that an unseen
+scalar becomes `<UNK>`.
+
+The concrete scalar `Vocabulary` is therefore replaced, not extended. The
+requirement to freeze a mapping and the integer-sequence boundary remain:
+embeddings, attention, and next-token prediction can operate on IDs without
+needing to know which text unit each vocabulary chose.

@@ -2,7 +2,7 @@
 {
   "chapter_id": "01-text-units",
   "concept_id": "text-units-vocabulary-ids",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 1,
   "objective": {
     "en": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",
@@ -75,8 +75,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The resulting Vec<usize> is the discrete sequence that will index embedding rows and enter the decoder; generated IDs travel through the inverse vocabulary mapping to become text.",
-    "ru": "Полученный Vec<usize> — дискретная последовательность: её элементы выбирают строки таблицы эмбеддингов, а сама она поступает в декодер; сгенерированные ID преобразуются обратно в текст с помощью обратной таблицы словаря."
+    "en": "The Chapter 1 demo establishes the conceptual boundary from text to a deterministic token-ID sequence that later feeds embedding lookup. Its scalar Vocabulary, concrete Vec<usize>, and ID assignments stay in the demo; Chapters 3 and 4 build a byte-level BPE tokenizer with a new ID namespace, whose inverse mapping turns generated IDs back into text.",
+    "ru": "Учебный пример главы 1 показывает общий интерфейс: текст однозначно преобразуется в последовательность ID токенов, которая позднее используется для выбора строк таблицы эмбеддингов. Реализация Vocabulary для скалярных значений, конкретный тип Vec<usize> и назначенные в примере ID остаются только в этой демонстрации. В главах 3 и 4 строится BPE-токенизатор на уровне байтов с новым пространством ID; обратное сопоставление в его словаре преобразует сгенерированные ID в текст."
   },
   "terminology": [
     {
@@ -121,7 +121,9 @@
     "Count labels must remain grammatical beyond the current fixture values. Use a target-language-neutral pattern such as «Число байтов: {count}» when the component does not expose every plural category required by that locale.",
     "Keep UTF-8, Vec<usize>, <UNK>, Rust identifiers, Unicode notation, byte arrays, token-ID arrays, and deterministic stdout identical in both lessons.",
     "The historical phrase character-level means Unicode-scalar splitting in this chapter; both locales must state the grapheme-cluster limitation.",
-    "The examples cat and кот are a translation pair, but remain literal code inputs rather than localized substitutions."
+    "The examples cat and кот are a translation pair, but remain literal code inputs rather than localized substitutions.",
+    "Distinguish the demo-only scalar Vocabulary from the transferable fixed unit-to-ID mapping concept. Translate byte fallback as complete byte-level coverage, not as a recovery action, and state that Chapters 3 and 4 construct a new token-ID namespace rather than extending the scalar IDs.",
+    "In Russian, call the demo type «учебный словарь скалярных значений» and describe the persistent ideas as «зафиксированное соответствие», «однозначно заданное кодирование» and exact recovery of represented units. Explain byte coverage concretely as «каждому возможному значению байта соответствует базовый токен»; do not translate fallback with «восстановление». Use «новое пространство ID» for the replacement namespace and state explicitly that the BPE tokenizer does not inherit the rule «незнакомое скалярное значение → <UNK>»."
   ],
   "acceptance_examples": [
     {
@@ -173,6 +175,24 @@ The vocabulary is built only from the fixed training text `cat кот`. ID `0` i
 reserved for `<UNK>`; the remaining unique scalar values are sorted by numeric
 Unicode value and assigned IDs from `1`. This rule is independent of hash-map
 iteration and therefore reproducible.
+
+The concrete `Vocabulary` type belongs only to the Chapter 1 comparison demo. It
+assigns a distinct ID to each known Unicode scalar value and is not imported into
+or extended by the cumulative `llm-from-scratch` crate. What later tokenizers
+retain is the design contract: freeze one mapping between token IDs and the units
+they represent, make encoding deterministic, decode represented units exactly,
+and choose a deliberate tradeoff between text coverage, vocabulary size, and
+sequence length.
+
+Конкретный тип `Vocabulary` используется только в учебном примере главы 1. Он
+назначает отдельный ID каждому известному скалярному значению Unicode; основная
+библиотека `llm-from-scratch` не импортирует и не расширяет этот тип. В следующих
+токенизаторах сохраняются общие требования: зафиксировать соответствие между ID
+токенов и представляемыми ими единицами, однозначно кодировать входные данные,
+точно восстанавливать при декодировании все единицы, которые представлены в
+словаре, и осознанно
+выбирать компромисс между охватом текста, размером словаря и длиной
+последовательности.
 
 This chapter does not teach grapheme segmentation, byte-pair encoding, learned
 tokenization, embeddings, or neural prediction. In particular, Rust `char` means
@@ -275,6 +295,19 @@ The `ch01-text-units` package uses only the Rust standard library. Its library
 source owns the behavior; `main.rs` only constructs the fixed example and formats
 deterministic output.
 
+`Vocabulary` is intentionally defined in that demo package rather than the
+cumulative crate. Its sorted forward table, inverse lookup, deterministic
+encoding, and exact decoding of known units demonstrate responsibilities that a
+later vocabulary must also satisfy. Its scalar entries, numeric IDs, and `<UNK>`
+policy are example-specific and do not become BPE state.
+
+Тип `Vocabulary` намеренно определён в демонстрационном пакете, а не в основной
+библиотеке. Отсортированная таблица прямого сопоставления, обратное сопоставление,
+однозначно заданное кодирование и точное декодирование известных единиц
+показывают требования, которым должен отвечать и следующий словарь. Записи для
+скалярных значений, их числовые ID и правило `<UNK>` относятся только к этому
+примеру и не становятся состоянием BPE-токенизатора.
+
 Planned public behavior:
 
 | Operation | Contract |
@@ -355,19 +388,40 @@ reading the explanation.
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-The chapter contributes a deterministic `String -> Vec<usize>` boundary. Later,
-each token ID selects one embedding row before entering the decoder-only model;
-the model predicts another ID, and the inverse vocabulary turns generated IDs
-back into text. Chapter 2 preserves the documents and data partitions, chapter 3
-learns BPE merge rules, and chapter 4 changes how text units are chosen while
-preserving this integer-sequence interface for every later model component.
+This chapter demonstrates a deterministic text-to-token-ID-sequence boundary; it
+does not contribute the concrete Rust ID type or token table used by the
+cumulative model. Later, each token ID selects one embedding row before entering
+the decoder-only model; the model predicts another ID, and the inverse mapping for
+that same vocabulary turns generated IDs back into text.
 
-Глава задаёт однозначное преобразование `String -> Vec<usize>`. В следующих
-главах каждый ID токена выбирает строку таблицы эмбеддингов, а предсказанный
-декодером ID преобразуется обратно в текст по обратной таблице словаря. Во второй
-главе сохраняются границы документов и фиксируется разбиение корпуса на выборки,
-в третьей строятся правила слияния BPE, а в четвёртой зафиксированные правила
-применяются с сохранением интерфейса целочисленной последовательности.
+Chapter 2 preserves the documents and data partitions. Chapter 3 does not extend
+the scalar `Vocabulary`: it creates a separate vocabulary for BPE training, with
+one token for each of the 256 possible byte values, and appends learned merge
+tokens whose stored units can span several bytes. Chapter 4 reserves BOS and EOS,
+shifts the content IDs into its own token-ID namespace, and applies the frozen byte-level
+tokenizer. Because every UTF-8 byte has a base token, that tokenizer does not reuse
+Chapter 1's rule that an unseen scalar becomes `<UNK>`. The requirement to freeze
+a mapping and the integer-sequence boundary carry forward; the concrete scalar
+units and their IDs do not.
+
+В этой главе показан общий интерфейс: текст однозначно преобразуется в
+последовательность ID токенов. Конкретный тип ID в Rust и таблица токенов из
+учебного примера не переходят в основную реализацию модели. В ней каждый ID
+выбирает строку таблицы эмбеддингов перед поступлением последовательности в
+декодер. Затем модель предсказывает новый ID, а обратное сопоставление того же
+словаря преобразует его в текст.
+
+В главе 2 сохраняются границы документов и фиксируется разбиение корпуса на
+выборки. Глава 3 не расширяет словарь скалярных значений `Vocabulary`: для
+обучения BPE создаётся отдельный словарь, в котором каждому из 256 возможных
+значений байта соответствует отдельный токен, а обученные токены слияний могут
+представлять последовательности из нескольких байтов. В главе 4
+резервируются BOS и EOS, а ID содержимого переносятся в собственное пространство
+ID токенизатора; затем применяются зафиксированные правила BPE. Каждому байту
+UTF-8 соответствует базовый токен, поэтому новый токенизатор не наследует правило
+главы 1, по которому незнакомое скалярное значение превращается в `<UNK>`. В следующие главы переходят
+требование зафиксировать соответствие и интерфейс последовательности
+целочисленных ID, но не конкретные скалярные единицы и их ID.
 
 <!-- contract-section:localization -->
 ## Localization notes
@@ -416,7 +470,7 @@ npm --prefix site run test:e2e -- --grep 'chapter 1'
 
 The Rust gates must establish the exact vocabulary, English/Cyrillic rows,
 round-trip behavior, `<UNK>` behavior, historical contrast, and committed stdout.
-The site gates must establish paired revision-5 lessons, shared formula/source/
+The site gates must establish paired revision-6 lessons, shared formula/source/
 visualization metadata, both locale routes, responsive diagram semantics,
 localized accessible labels, working hreflang links, and static output without a
 runtime server.

@@ -16689,3 +16689,75 @@ low-priority diagram audit already queued after the current chapter sequence.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `remove-capstone-orchestration-copies`, and
 `20260808T103634Z-remove-capstone-orchestration-copies-01`.
+
+## 2026-08-08 - Clarify Chapter 1's scalar vocabulary as a temporary baseline
+
+**Status:** Accepted before learner-content edits in
+`clarify-ch01-scalar-vocabulary-handoff` run 01.
+
+**Context:** The Chapter 1 demo owns a deterministic `Vocabulary` whose entries
+are individual Unicode scalar values and whose unknown-unit policy collapses an
+unseen scalar to `<UNK>`. That implementation is useful evidence for stable
+unit-to-ID and ID-to-unit mappings, but it is not the cumulative tokenizer used
+by the final model. Chapter 3 instead begins from all 256 byte values and learns
+variable-length merge tokens; Chapter 4 freezes those tokens into a different ID
+namespace and applies the learned tokenizer. The current lesson names the later
+BPE sequence but leaves the concrete type's one-chapter lifetime implicit.
+
+**Decision:** Advance Chapter 1 by one content revision. Freeze canonical English
+first and explain, next to the `Vocabulary` implementation and final handoff,
+that the type is a Chapter 1 comparison baseline rather than a cumulative API.
+Name the concepts that do persist: one frozen token-ID-to-unit mapping,
+deterministic encoding, reversible decoding for represented units, and the
+coverage-versus-sequence-length tradeoff. State explicitly that Chapters 3 and 4
+replace the scalar table because byte fallback covers arbitrary UTF-8 input,
+learned entries may represent multiple bytes, the token IDs belong to a newly
+constructed namespace, and scalar-level `<UNK>` behavior no longer defines that
+tokenizer.
+
+Refresh Russian directly from the frozen English revision under the localization
+skill, including the locale-aware cheat sheet. Preserve the formula, fixed
+examples, Rust sources and output, diagram data, exercises, dependencies, routes,
+and active locale set. The queued output path
+`site/tests/01-text-units-diagram.test.ts` does not exist. The established
+`site/tests/text-units-diagram.test.ts` covers unchanged diagram behavior, so keep
+it byte-stable as a validation input rather than turning content assertions into
+diagram-test responsibilities.
+
+**Consequences:** Students can distinguish a transferable interface and design
+tradeoff from a disposable teaching implementation before they reach BPE. The
+change is content-only but retains the complete Docker static and two-engine
+bilingual rendered gates. It introduces no dependency, Rust behavior, external
+data, model generation, paid service, or route change.
+
+**Affected build, step, and run:**
+`clarify-ch01-scalar-vocabulary-handoff-20260806`,
+`clarify-ch01-scalar-vocabulary-handoff`, and
+`20260808T120205Z-clarify-ch01-scalar-vocabulary-handoff-01`.
+
+## 2026-08-08 - Retire Chapter 1's stale Rust-signature formula allowance
+
+**Status:** Accepted during complete static validation for
+`clarify-ch01-scalar-vocabulary-handoff` run 01.
+
+**Context:** The corrected handoff no longer presents `String -> Vec<usize>` as
+the cumulative tokenizer interface because Chapters 3 and 4 use a new byte-level
+token namespace and a different concrete ID type. That removed the only
+Chapter 1-7 source span classified as a concrete Rust type signature. The full
+formula suite consequently rejected its now-unused allowlist category while all
+actual formula-markup checks passed.
+
+**Decision:** Add `site/tests/formula-rendering.test.ts` to this step's declared
+integration outputs and remove only the unused concrete-Rust-signature allowance.
+Do not reintroduce a misleading signature merely to satisfy the fixture, and do
+not relax the rejection of undocumented math-like code spans.
+
+**Consequences:** The formula contract continues to require every remaining
+allowance to be exercised and every learner-facing mathematical expression to use
+the math pipeline. No formula, Rust API, executable behavior, or unrelated lesson
+changes.
+
+**Affected build, step, and run:**
+`clarify-ch01-scalar-vocabulary-handoff-20260806`,
+`clarify-ch01-scalar-vocabulary-handoff`, and
+`20260808T120205Z-clarify-ch01-scalar-vocabulary-handoff-01`.

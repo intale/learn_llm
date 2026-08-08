@@ -28,12 +28,12 @@ const expectedSheets = {
     entries: [
       ['UTF-8 byte', 'scalar occupies two UTF-8 bytes here'],
       ['Unicode scalar value', 'Unicode scalar values'],
-      ['Vocabulary', 'A deterministic scalar vocabulary'],
+      ['Vocabulary', 'The concrete `Vocabulary` type is a deliberately small Chapter 1 comparison'],
       ['Token ID', 'the token ID at sequence position'],
-      ['Unknown token', 'unknown token <UNK>'],
+      ['Unknown token', "this tokenizer does not reuse Chapter 1's rule"],
       ['Reversible round trip', 'round trip is reversible for known units'],
       ['Grapheme cluster', 'user-perceived grapheme clusters'],
-      ['Subword tokenizer', 'Modern subword methods'],
+      ['Subword tokenizer', 'appends learned merge tokens'],
     ],
   },
   '02-corpus-partitions': {
@@ -717,6 +717,11 @@ const expectedRussianChapterIds = Object.keys(expectedSheets).slice(
 );
 
 const exactDefinitions = {
+  '01-text-units': {
+    Vocabulary: 'In this chapter, a demo-only fixed table from known Unicode scalar values to deterministic IDs; later tokenizers keep the mapping concept but replace its units and IDs.',
+    'Unknown token': "Chapter 1's reserved marker for an unknown scalar value; replacing that value with the marker loses its identity, while the later byte-level tokenizer covers every input byte instead.",
+    'Subword tokenizer': 'A tokenizer whose learned units can represent several adjacent bytes to balance vocabulary size and sequence length; Chapters 3 and 4 build a new byte-level vocabulary rather than extending this scalar table.',
+  },
   '12-stable-softmax': {
     Underflow: 'A finite-precision effect where a tiny magnitude becomes subnormal or rounds to zero.',
   },
@@ -1097,6 +1102,44 @@ describe('Russian chapter cheat-sheet localization', () => {
       });
     });
   }
+
+  it('grounds the reviewed Chapter 1 Russian handoff terms in the natural lesson explanations', () => {
+    const sheet = readLocalizedSheet('ru', '01-text-units.json');
+    const lesson = readFileSync(
+      resolve(root, 'src/content/chapters/ru/01-text-units.mdx'),
+      'utf8',
+    ).replace(/\s+/g, ' ');
+    const expected = [
+      {
+        term: 'Словарь',
+        definition:
+          'В этой главе — фиксированная учебная таблица, которая сопоставляет известным скалярным значениям Unicode однозначно заданные ID. В следующих главах сохраняется сам принцип соответствия, но единицы и ID будут другими.',
+        lessonEvidence:
+          '`Vocabulary` здесь — небольшая учебная реализация для сравнения, а не токенизатор из следующих глав.',
+      },
+      {
+        term: 'Неизвестный токен',
+        definition:
+          'В главе 1 — зарезервированный маркер для незнакомого скалярного значения. После замены на этот маркер исходное значение теряется. В BPE-токенизаторе следующих глав каждому возможному байту соответствует базовый токен, поэтому такой маркер для скалярных значений не используется.',
+        lessonEvidence:
+          'Каждому байту UTF-8 соответствует базовый токен, поэтому новый токенизатор не наследует правило главы 1',
+      },
+      {
+        term: 'Субсловный токенизатор',
+        definition:
+          'Токенизатор, обученные единицы которого могут представлять несколько соседних байтов. Это позволяет выбирать компромисс между размером словаря и длиной последовательности. В главах 3 и 4 для этого строится новый словарь на уровне байтов, а не расширяется таблица скалярных значений.',
+        lessonEvidence:
+          'обученные токены слияний смогут представлять последовательности из нескольких байтов',
+      },
+    ];
+
+    for (const { term, definition, lessonEvidence } of expected) {
+      expect(sheet.terms.find((entry) => entry.term === term)?.definition).toBe(
+        definition,
+      );
+      expect(lesson).toContain(lessonEvidence);
+    }
+  });
 
   it('grounds the reviewed Chapter 3 Russian terms in the natural lesson explanations', () => {
     const sheet = readLocalizedSheet('ru', '03-learn-bpe-merges.json');

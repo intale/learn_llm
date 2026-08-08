@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '01-text-units';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`;
 const rustDemoDirectory = resolve(
   process.cwd(),
@@ -47,6 +47,48 @@ const expectedRustSources = [
   readRustRegion('lib.rs', 'vocabulary'),
   readRustRegion('main.rs', 'chapter-output'),
 ];
+
+async function readDiagramGeometry(diagram: Locator) {
+  return diagram.evaluate((node) => {
+    const root = node as HTMLElement;
+    const rootDebt = (element: HTMLElement) => ({
+      inline: Math.max(0, element.scrollWidth - element.clientWidth),
+      block: Math.max(0, element.scrollHeight - element.clientHeight),
+    });
+    const paintedDebt = (box: HTMLElement) => {
+      const bounds = box.getBoundingClientRect();
+      const style = getComputedStyle(box);
+      const inner = {
+        left: bounds.left + Number.parseFloat(style.borderLeftWidth),
+        right: bounds.right - Number.parseFloat(style.borderRightWidth),
+        top: bounds.top + Number.parseFloat(style.borderTopWidth),
+        bottom: bounds.bottom - Number.parseFloat(style.borderBottomWidth),
+      };
+      let inline = 0;
+      let block = 0;
+      const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+      for (let text = walker.nextNode(); text; text = walker.nextNode()) {
+        if (!text.textContent?.trim()) continue;
+        const parent = text.parentElement;
+        if (parent?.closest('[data-diagram-box]') !== box) continue;
+        const range = document.createRange();
+        range.selectNodeContents(text);
+        for (const ink of range.getClientRects()) {
+          inline = Math.max(inline, inner.left - ink.left, ink.right - inner.right);
+          block = Math.max(block, inner.top - ink.top, ink.bottom - inner.bottom);
+        }
+      }
+      return { inline: Math.max(0, inline), block: Math.max(0, block) };
+    };
+    return {
+      root: rootDebt(root),
+      boxes: Array.from(
+        root.querySelectorAll<HTMLElement>('[data-diagram-box]'),
+        paintedDebt,
+      ),
+    };
+  });
+}
 
 const copy = {
   en: {
@@ -78,6 +120,15 @@ const copy = {
       'Vocabulary IDs',
     ],
     byteCounts: ['1 byte', '1 byte', '1 byte', '2 bytes', '2 bytes', '2 bytes'],
+    handoffEvidence: [
+      'deliberately small Chapter 1 comparison',
+      'cumulative llm-from-scratch crate neither imports nor extends it',
+      'one token for each of the 256 possible byte values',
+      'learned merge tokens that may represent several bytes',
+      'new token-ID namespace',
+      'an unseen scalar becomes <UNK>',
+      'replaced, not extended',
+    ],
     exerciseSummary: 'Check your predictions',
     exerciseAnswer: 'The ID sequences are [3, 2, 4] and [5, 6, 7].',
   },
@@ -116,6 +167,15 @@ const copy = {
       'Число байтов: 2',
       'Число байтов: 2',
       'Число байтов: 2',
+    ],
+    handoffEvidence: [
+      'небольшая учебная реализация для сравнения',
+      'основная библиотека llm-from-scratch его не импортирует и не расширяет',
+      'каждому из 256 возможных значений байта будет соответствовать отдельный токен',
+      'токены слияний смогут представлять последовательности из нескольких байтов',
+      'собственное пространство ID токенизатора',
+      'не наследует правило главы 1',
+      'будет заменён, а не расширен',
     ],
     exerciseSummary: 'Проверьте ответы',
     exerciseAnswer:
@@ -322,6 +382,13 @@ async function expectChapterContent(
   await expect(
     page.getByRole('heading', { level: 2, name: localized.headings.decoder }),
   ).toBeVisible();
+  const normalizedLesson = (await page.locator('.lesson-body').innerText()).replace(
+    /\s+/g,
+    ' ',
+  );
+  for (const evidence of localized.handoffEvidence) {
+    expect(normalizedLesson).toContain(evidence);
+  }
 
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
@@ -454,7 +521,130 @@ test.describe(
         await page.setViewportSize({ width: 390, height: 844 });
         await page.reload();
         await expectChapterContent(page, locale, 1, chapters);
+        await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
       });
     }
+
+    test('both localized figures fit full view and restore focus', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="text-units-pipeline"]',
+        );
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        await expect(toggle).toHaveCount(1);
+        expect((await toggle.getAttribute('aria-label'))?.trim()).toBeTruthy();
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            'text-units-pipeline',
+        );
+
+        await expect(diagram.locator('.pipeline-stage')).toHaveCount(8);
+        await expect(diagram.locator('[data-diagram-box]')).toHaveCount(32);
+        const geometry = await readDiagramGeometry(diagram);
+        expect(geometry.root.inline, `${locale} full-view inline travel`).toBeLessThanOrEqual(
+          2,
+        );
+        expect(geometry.root.block, `${locale} full-view block travel`).toBeLessThanOrEqual(
+          Math.floor(900 * 0.25),
+        );
+        for (const [index, box] of geometry.boxes.entries()) {
+          expect(box.inline, `${locale} full-view box ${index} inline debt`).toBeLessThanOrEqual(
+            2,
+          );
+          expect(box.block, `${locale} full-view box ${index} block debt`).toBeLessThanOrEqual(
+            2,
+          );
+        }
+
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+        await expectNoOverflowOrClientScripts(page);
+      }
+    });
+
+    test('both localized diagrams retain complete boxes in forced colors', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.emulateMedia({ forcedColors: 'active' });
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="text-units-pipeline"]',
+        );
+        await expect(diagram.locator('.stage-number')).toHaveCount(8);
+        const borders = await diagram
+          .locator('[data-diagram-box]')
+          .evaluateAll((boxes) =>
+            boxes.map((box) => {
+              const style = getComputedStyle(box);
+              return [
+                style.borderTopWidth,
+                style.borderRightWidth,
+                style.borderBottomWidth,
+                style.borderLeftWidth,
+              ].map(Number.parseFloat);
+            }),
+          );
+        expect(borders).toHaveLength(32);
+        expect(borders.every((widths) => widths.every((width) => width > 0))).toBe(
+          true,
+        );
+        const geometry = await readDiagramGeometry(diagram);
+        expect(geometry.root.inline, `${locale} forced-color inline travel`).toBeLessThanOrEqual(
+          2,
+        );
+        for (const [index, box] of geometry.boxes.entries()) {
+          expect(box.inline, `${locale} forced-color box ${index} inline debt`).toBeLessThanOrEqual(
+            2,
+          );
+          expect(box.block, `${locale} forced-color box ${index} block debt`).toBeLessThanOrEqual(
+            2,
+          );
+        }
+        await expectNoOverflowOrClientScripts(page);
+      }
+    });
+
+    test('both localized lessons retain static evidence without JavaScript', async ({
+      browser,
+    }, testInfo) => {
+      const context = await browser.newContext({
+        javaScriptEnabled: false,
+        baseURL: String(testInfo.project.use.baseURL),
+      });
+      const page = await context.newPage();
+      for (const locale of chapterLocales) {
+        for (const viewport of [
+          { width: 1440, height: 1000 },
+          { width: 390, height: 844 },
+        ]) {
+          await page.setViewportSize(viewport);
+          await page.goto(chapterPath(locale, chapterId));
+          await expect(
+            page.getByRole('heading', {
+              level: 1,
+              name: copy[locale].chapterTitle,
+            }),
+          ).toBeVisible();
+          await expect(page.locator('.katex-display')).toHaveCount(1);
+          await expect(page.locator('.pipeline-stage')).toHaveCount(8);
+          await expect(page.locator('[data-diagram-box]')).toHaveCount(32);
+          await expect(page.locator('.lesson-body details')).toHaveCount(1);
+          await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(
+            0,
+          );
+          await expectNoOverflowOrClientScripts(page);
+        }
+      }
+      await context.close();
+    });
   },
 );
