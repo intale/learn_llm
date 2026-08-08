@@ -43,6 +43,10 @@ const russianChapterSource = readFileSync(
   resolve(process.cwd(), 'src/content/chapters/ru/04-apply-bpe-tokenizer.mdx'),
   'utf8',
 );
+const componentSource = readFileSync(
+  resolve(process.cwd(), 'src/components/chapters/ApplyBpeTokenizerDiagram.astro'),
+  'utf8',
+);
 
 function frontmatter(source: string): Record<string, unknown> {
   const match = source.match(/^---\n(.*?)\n---\n/s);
@@ -155,6 +159,24 @@ function blankLabelAt(
   for (const key of path.slice(0, -1)) cursor = cursor[key] as Record<string, unknown>;
   cursor[path.at(-1) ?? ''] = '  ';
   return copy as unknown as ApplyBpeTokenizerDiagramLabels;
+}
+
+function normalizeCss(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function cssRuleBody(styles: string, ...selectorFragments: string[]): string {
+  const normalizedFragments = selectorFragments.map(normalizeCss);
+  const rule = [...styles.matchAll(/([^{}]+)\{([^{}]*)\}/gs)].find((match) => {
+    const selector = normalizeCss(match[1]);
+    return normalizedFragments.every((fragment) => selector.includes(fragment));
+  });
+  if (!rule) {
+    throw new Error(
+      `Missing CSS rule containing: ${normalizedFragments.join(' and ')}`,
+    );
+  }
+  return normalizeCss(rule[2]);
 }
 
 describe('apply-BPE-tokenizer trace parser', () => {
@@ -427,15 +449,13 @@ describe('apply-BPE-tokenizer trace parser', () => {
 
 describe('apply-BPE-tokenizer diagram component contract', () => {
   it('stays semantic, static, responsive, keyboard-readable, and locale-neutral', () => {
-    const source = readFileSync(
-      resolve(process.cwd(), 'src/components/chapters/ApplyBpeTokenizerDiagram.astro'),
-      'utf8',
-    );
+    const source = componentSource;
     expect(source).toContain('<figure');
     expect(source).toContain('<figcaption class="course-diagram__caption">');
     expect(source).toContain('<ol class="example-list course-diagram__grid">');
     expect(source).toContain('<section class="example"');
     expect(source).toContain('<ol class="pipeline course-diagram__grid">');
+    expect(source).toContain('class="piece-scroll course-diagram__scroll"');
     expect(source).toContain('<ol class="piece-list course-diagram__grid">');
     expect(source).toContain('data-case={sample.id}');
     expect(source).toContain('data-lane="grouped"');
@@ -468,5 +488,164 @@ describe('apply-BPE-tokenizer diagram component contract', () => {
     ]) {
       expect(source).not.toContain(localized);
     }
+  });
+
+  it('keeps one static figure and delegates scrolling and expansion to shared presentation', () => {
+    expect(componentSource.match(/<figure\b/g) ?? []).toHaveLength(1);
+    expect(componentSource.match(/<\/figure>/g) ?? []).toHaveLength(1);
+    expect(componentSource).toContain(
+      'data-visualization-id={applyBpeTokenizerDiagramId}',
+    );
+    expect(componentSource).not.toMatch(/<script\b/i);
+    expect(componentSource).not.toMatch(/\b(?:client:[\w-]+|server:defer)\b/);
+    expect(componentSource).not.toMatch(/<(?:dialog|button)\b/i);
+
+    const styleStart = componentSource.indexOf('<style>');
+    const styleEnd = componentSource.lastIndexOf('</style>');
+    expect(styleStart).toBeGreaterThan(-1);
+    expect(styleEnd).toBeGreaterThan(styleStart);
+    const localStyles = componentSource.slice(styleStart, styleEnd);
+    expect(localStyles).not.toMatch(/\boverflow(?:-[\w-]+)?\s*:/i);
+  });
+
+  it('keeps each grouped-piece list inside the smallest neutral named scroll region', () => {
+    expect(componentSource).toContain(
+      '<h5 id={`${caseId}-grouped-label`}>{labels.lanes.grouped}</h5>',
+    );
+
+    const pieceScrollTags = (componentSource.match(/<div\b[^>]*>/gs) ?? []).filter(
+      (tag: string) => /\bclass="[^"]*\bpiece-scroll\b[^"]*"/.test(tag),
+    );
+    expect(pieceScrollTags).toHaveLength(1);
+    const pieceScrollTag = pieceScrollTags[0] ?? '';
+    const classNames = pieceScrollTag
+      .match(/\bclass="([^"]+)"/)?.[1]
+      .split(/\s+/);
+    expect(classNames).toEqual(['piece-scroll', 'course-diagram__scroll']);
+    expect(pieceScrollTag).toMatch(/\brole="region"/);
+    expect(pieceScrollTag).toMatch(/\btabindex="0"/);
+    expect(pieceScrollTag).toContain(
+      'aria-labelledby={`${caseId}-grouped-label`}',
+    );
+    expect(pieceScrollTag).toMatch(/\bdata-diagram-scroll(?:\s|>)/);
+    expect(pieceScrollTag).not.toMatch(/\bdata-diagram-box(?:\s|>)/);
+
+    const pieceListTags = (componentSource.match(/<ol\b[^>]*>/gs) ?? []).filter(
+      (tag: string) => /\bclass="[^"]*\bpiece-list\b[^"]*"/.test(tag),
+    );
+    expect(pieceListTags).toEqual([
+      '<ol class="piece-list course-diagram__grid">',
+    ]);
+    expect(pieceListTags[0]).not.toMatch(
+      /\b(?:role|tabindex|data-diagram-scroll|data-diagram-box)=?/,
+    );
+    expect(componentSource).toContain('.piece-scroll {\n    direction: ltr;');
+    expect(componentSource).toContain(
+      '.apply-bpe-diagram:dir(rtl) .piece-list > li {\n    direction: rtl;',
+    );
+  });
+
+  it('composes a side rail, peer examples, and compact vertical lanes in full view', () => {
+    const fullscreenStart = componentSource.indexOf(
+      "figure.apply-bpe-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {",
+    );
+    const fullscreenEnd = componentSource.indexOf(
+      '@container course-diagram',
+      fullscreenStart,
+    );
+    expect(fullscreenStart).toBeGreaterThan(-1);
+    expect(fullscreenEnd).toBeGreaterThan(fullscreenStart);
+    const fullscreenStyles = componentSource.slice(fullscreenStart, fullscreenEnd);
+
+    const root = cssRuleBody(
+      fullscreenStyles,
+      "figure.apply-bpe-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen",
+    );
+    expect(root).toMatch(/grid-template-columns: [^;]*repeat\(2,/);
+    expect(root).toContain('align-items: start;');
+
+    const caption = cssRuleBody(
+      fullscreenStyles,
+      '.apply-bpe-diagram:fullscreen > figcaption',
+    );
+    expect(caption).toContain('grid-column: 1;');
+    expect(caption).toContain('grid-row: 2;');
+
+    const controls = cssRuleBody(
+      fullscreenStyles,
+      '.apply-bpe-diagram:fullscreen > :global(.diagram-full-view-actions)',
+    );
+    expect(controls).toContain('grid-column: 1;');
+    expect(controls).toContain('grid-row: 1;');
+
+    const examples = cssRuleBody(
+      fullscreenStyles,
+      '.apply-bpe-diagram:fullscreen > .example-list',
+    );
+    expect(examples).toContain('grid-column: 2 / -1;');
+    expect(examples).toContain('grid-row: 1 / span 3;');
+    expect(examples).toMatch(/grid-template-columns: repeat\(2,/);
+
+    const invariants = cssRuleBody(
+      fullscreenStyles,
+      '.apply-bpe-diagram:fullscreen > .invariants',
+    );
+    expect(invariants).toContain('grid-column: 1;');
+    expect(invariants).toContain('grid-row: 3;');
+
+    const lane = cssRuleBody(
+      fullscreenStyles,
+      '.apply-bpe-diagram:fullscreen .pipeline > [data-lane]',
+    );
+    expect(lane).toMatch(/grid-template-columns: [^;]+ [^;]+;/);
+    expect(lane).toContain('column-gap:');
+    expect(lane).toContain('align-items: start;');
+
+    const groupedPieces = cssRuleBody(
+      fullscreenStyles,
+      ".pipeline > [data-lane='grouped'] > .piece-scroll",
+    );
+    expect(groupedPieces).toContain('grid-column: 1 / -1;');
+    expect(groupedPieces).toContain('grid-row: 2;');
+
+    const groupedPieceList = cssRuleBody(
+      fullscreenStyles,
+      ".pipeline > [data-lane='grouped']",
+      '> .piece-scroll',
+      '> .piece-list',
+    );
+    expect(groupedPieceList).toContain('grid-auto-flow: column;');
+    expect(groupedPieceList).toContain('grid-auto-columns: minmax(');
+
+    const documentAndDecodedHeadings = cssRuleBody(
+      fullscreenStyles,
+      "> :is([data-lane='document'], [data-lane='decoded'])",
+      '> h5',
+    );
+    expect(documentAndDecodedHeadings).toContain('grid-column: 1 / -1;');
+    expect(documentAndDecodedHeadings).toContain('grid-row: 1;');
+
+    const documentAndDecodedTapes = cssRuleBody(
+      fullscreenStyles,
+      "> :is([data-lane='document'], [data-lane='decoded'])",
+      '> .token-tape',
+    );
+    expect(documentAndDecodedTapes).toContain('grid-column: 1;');
+    expect(documentAndDecodedTapes).toContain('grid-row: 2;');
+
+    const outcomeEvidence = cssRuleBody(
+      fullscreenStyles,
+      "[data-lane='document'] > .control-key",
+      "[data-lane='decoded'] > .exact-cue",
+    );
+    expect(outcomeEvidence).toContain('grid-column: 2;');
+    expect(outcomeEvidence).toContain('grid-row: 2;');
+
+    expect(fullscreenStyles).not.toMatch(/\bfont-size\s*:/i);
+    expect(fullscreenStyles).not.toMatch(/\bzoom\s*:/i);
+    expect(fullscreenStyles).not.toMatch(/\b(?:transform\s*:[^;{}]*scale\s*\(|scale\s*:)/i);
+    expect(fullscreenStyles).not.toMatch(
+      /\boverflow(?:-[\w-]+)?\s*:\s*(?:hidden|clip)\b/i,
+    );
   });
 });

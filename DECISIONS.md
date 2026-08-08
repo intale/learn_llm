@@ -17218,3 +17218,93 @@ height should change.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch03-bpe-rows-and-full-view`, and
 `20260808T172645Z-repair-ch03-bpe-rows-and-full-view-01`.
+
+## 2026-08-08 - Keep Chapter 4's tokenizer pipelines vertical and give grouped pieces local travel
+
+**Status:** Accepted after exact standard English/Russian Chromium and Firefox
+probes plus an exact Chromium eligibility-boundary probe, and before the Chapter
+4 completion checkpoint.
+
+**Context:** Chapter 4 explicitly tells learners to read each tokenizer pipeline
+downward, from UTF-8 bytes through initial IDs, ranked groups, document IDs, and
+recovered bytes. The original full view retained that correct order but stacked
+both complete examples and the invariant evidence into a composition that
+exceeded the shared travel allowance by 536 to 767 pixels. A horizontal or
+snake-like pipeline reduced some height but contradicted both the English and
+Russian reading instruction and changed the established process grammar.
+
+The limiting evidence is the ranked-piece list. Letting its real cards wrap into
+one narrow column makes a pipeline tall, while compressing or abbreviating those
+cards would remove the token ID, stored-byte expansion, and applied-rank evidence
+the diagram exists to compare. Exact probes found that the piece list itself is
+the smallest meaningful owner of this horizontal relationship.
+
+**Decision:** Preserve the existing semantic ordered list, every downward arrow,
+and the complete stage order within each example. In standard full view, use one
+left rail for the shared control, caption facts, and concluding invariants, and
+place the two complete example pipelines in equal peer columns beside that rail.
+Reflow only the internal geometry of each existing lane: pair headings with token
+tapes where useful, keep the grouped heading and applied rank together, and place
+document and decoded evidence in two local tracks beneath their spanning headings.
+
+Wrap each existing grouped-piece list in a neutral, keyboard-reachable,
+case-labelled shared scroll region. The unchanged `<ol>` retains its accessible
+list semantics, and neither the wrapper nor the list claims bounded-box ownership.
+Keep the technical sequence physically left to right even in an RTL page, while
+each localized card follows the figure's text direction. Keep the eight token
+tapes as the other smallest named regions, so the figure has ten sanctioned
+regions and 67 genuine bounded boxes.
+Do not change learner copy, translations, formulas, values, IDs, arrows, DOM stage
+order, typography, shared controller, or ordinary wrapping behavior; do not clip,
+hide, scale, duplicate, or introduce private scrolling code.
+
+Continue to enforce the unchanged 20% block-travel limit at the standard audited
+desktop full-view surface in both locales and engines. At the exact 1024 by 576
+eligibility boundary, record the same separate limitation used for Chapters 2 and
+3: the complete vertical pipelines, containment, text size, focus behavior, and
+atomic composition must remain valid, while root debt may not exceed one client
+height. This supplemental case is not a 20% success. The later shared-gate step
+may reconsider whether a 36rem-high screen should remain eligible globally.
+
+**Consequences:** Standard Chromium measures English/Russian block debt of 0/114
+pixels against 180; Firefox measures 1/139 against 154. Root inline debt is zero,
+no box or text escapes, no font shrinks, and standard local travel is at most 112
+pixels. Exact Chromium 1024 by 576 measures 276/499 pixels of debt in a 574-pixel
+client. Its grouped-piece travel reaches 234 pixels, an explicit minimum-viewport
+limitation retained inside the named local region rather than moved to the page or
+hidden. The two examples remain directly comparable without making their taught
+top-to-bottom order false.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch04-full-view-composition`, and
+`20260808T183914Z-repair-ch04-full-view-composition-01`.
+
+## 2026-08-08 - Distinguish Chapter 4 layout-selection metrics from final-wrapper acceptance
+
+**Status:** Accepted as a provenance clarification before the Chapter 4
+completion checkpoint.
+
+**Context:** The checksummed numeric probe artifacts were produced after the
+full-view geometry was selected but before the grouped-piece list received its
+final neutral scroll wrapper. That wrapper preserves the selected geometry while
+fixing ordered-list and RTL semantics, but the earlier JSON must not be described
+as output captured from the final wrapper.
+
+**Decision:** Retain those numeric artifacts as layout-selection evidence. Treat
+the final immutable Chromium and Firefox seven-case matrices as the acceptance
+evidence for the neutral-wrapper candidate: their assertions enforce the same
+standard 20% limit, the separate exact Chromium 1024 by 576 one-client-height
+limit, unchanged text size, local travel, and complete containment. Do not attach
+the pre-wrapper numeric measurements to the final wrapper as if they were a new
+measurement.
+
+**Consequences:** The geometry decision and its limits are unchanged, while the
+ledger now names the probe phase explicitly and records the final two-engine
+replay separately. Future audits can distinguish candidate-selection metrics from
+publication acceptance without discarding either artifact.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch04-full-view-composition`, and
+`20260808T183914Z-repair-ch04-full-view-composition-01`.

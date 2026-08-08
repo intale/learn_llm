@@ -109,33 +109,41 @@ const caseTitles = {
                 </li>
                 <li class="flow-arrow" aria-hidden="true">↓</li>
                 <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-lane="grouped">
-                  <h5>{labels.lanes.grouped}</h5>
+                  <h5 id={`${caseId}-grouped-label`}>{labels.lanes.grouped}</h5>
                   <p class="applied-ranks">
                     {labels.fields.appliedRank}:{' '}
                     <bdi dir="ltr">{sample.appliedRanks.join(', ')}</bdi>
                   </p>
-                  <ol class="piece-list course-diagram__grid">
-                    {sample.pieces.map((piece) => (
-                      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-piece-index={piece.index} data-merge-rank={piece.mergeRank ?? 'byte'}>
-                        <dl>
-                          <div>
-                            <dt>{labels.fields.tokenId}</dt>
-                            <dd><code dir="ltr" data-token-id={piece.token}>{piece.token}</code></dd>
-                          </div>
-                          <div>
-                            <dt>{labels.fields.byteExpansion}</dt>
-                            <dd><code dir="ltr">{piece.bytesHex.join(' ')}</code></dd>
-                          </div>
-                        </dl>
-                        <p class="piece-kind">
-                          <span aria-hidden="true">{piece.mergeRank === null ? '◇' : '◆'}</span>{' '}
-                          {piece.mergeRank === null
-                            ? labels.fields.byteFallback
-                            : <>{labels.fields.appliedRank}{' '}<bdi dir="ltr">{piece.mergeRank}</bdi></>}
-                        </p>
-                      </li>
-                    ))}
-                  </ol>
+                  <div
+                    class="piece-scroll course-diagram__scroll"
+                    role="region"
+                    tabindex="0"
+                    aria-labelledby={`${caseId}-grouped-label`}
+                    data-diagram-scroll
+                  >
+                    <ol class="piece-list course-diagram__grid">
+                      {sample.pieces.map((piece) => (
+                        <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-piece-index={piece.index} data-merge-rank={piece.mergeRank ?? 'byte'}>
+                          <dl>
+                            <div>
+                              <dt>{labels.fields.tokenId}</dt>
+                              <dd><code dir="ltr" data-token-id={piece.token}>{piece.token}</code></dd>
+                            </div>
+                            <div>
+                              <dt>{labels.fields.byteExpansion}</dt>
+                              <dd><code dir="ltr">{piece.bytesHex.join(' ')}</code></dd>
+                            </div>
+                          </dl>
+                          <p class="piece-kind">
+                            <span aria-hidden="true">{piece.mergeRank === null ? '◇' : '◆'}</span>{' '}
+                            {piece.mergeRank === null
+                              ? labels.fields.byteFallback
+                              : <>{labels.fields.appliedRank}{' '}<bdi dir="ltr">{piece.mergeRank}</bdi></>}
+                          </p>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 </li>
                 <li class="flow-arrow" aria-hidden="true">↓</li>
                 <li class="course-diagram__card-stack" data-diagram-card data-diagram-box data-lane="document">
@@ -285,6 +293,14 @@ const caseTitles = {
     margin-block-start: 0.65rem;
   }
 
+  .piece-scroll {
+    direction: ltr;
+  }
+
+  .apply-bpe-diagram:dir(rtl) .piece-list > li {
+    direction: rtl;
+  }
+
   .piece-list dl {
     display: grid;
     gap: 0.35rem;
@@ -324,6 +340,143 @@ const caseTitles = {
     flex: 0 0 auto;
     min-inline-size: 2rem;
     font-weight: 900;
+  }
+
+  figure.apply-bpe-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+    grid-template-columns: minmax(20rem, 0.75fr) repeat(2, minmax(19rem, 1fr));
+    align-items: start;
+    row-gap: 0.25rem;
+  }
+
+  .apply-bpe-diagram:fullscreen > figcaption {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .apply-bpe-diagram:fullscreen > :global(.diagram-full-view-actions) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .apply-bpe-diagram:fullscreen > .example-list {
+    grid-column: 2 / -1;
+    grid-row: 1 / span 3;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-block-start: 0;
+  }
+
+  .apply-bpe-diagram:fullscreen > .invariants {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  figure.apply-bpe-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .layout-facts.course-diagram__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+  }
+
+  figure.apply-bpe-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .invariants
+    > ul.course-diagram__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+
+  .apply-bpe-diagram:fullscreen .example > header > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 0.35rem;
+  }
+
+  .apply-bpe-diagram:fullscreen .example > header :is(h4, .input-text) {
+    margin: 0;
+  }
+
+  figure.apply-bpe-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .pipeline.course-diagram__grid {
+    gap: 0.25rem;
+  }
+
+  .apply-bpe-diagram:fullscreen .flow-arrow {
+    justify-self: center;
+    padding-inline-start: 0;
+    line-height: 1;
+  }
+
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane] {
+    grid-template-columns: minmax(11rem, 0.6fr) minmax(0, 1fr);
+    column-gap: 0.55rem;
+    row-gap: 0.35rem;
+    align-items: start;
+  }
+
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane] > h5 {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane] > .token-tape {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane='grouped'] {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane='grouped'] > .applied-ranks {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane='grouped'] > .piece-scroll {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .apply-bpe-diagram:fullscreen
+    .pipeline
+    > [data-lane='grouped']
+    > .piece-scroll
+    > .piece-list {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(9.5rem, 1fr);
+    margin: 0;
+  }
+
+  .apply-bpe-diagram:fullscreen
+    .pipeline
+    > :is([data-lane='document'], [data-lane='decoded']) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .apply-bpe-diagram:fullscreen
+    .pipeline
+    > :is([data-lane='document'], [data-lane='decoded'])
+    > h5 {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .apply-bpe-diagram:fullscreen
+    .pipeline
+    > :is([data-lane='document'], [data-lane='decoded'])
+    > .token-tape {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane='document'] > .control-key,
+  .apply-bpe-diagram:fullscreen .pipeline > [data-lane='decoded'] > .exact-cue {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
   }
 
   @container course-diagram (max-width: 48rem) {
