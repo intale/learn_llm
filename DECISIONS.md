@@ -16207,6 +16207,49 @@ commit.
 `repair-and-audit-diagram-rendering-20260808`, its six planned steps, and
 `20260808T075104Z-queue-low-priority-diagram-rendering-repairs-01`.
 
+## 2026-08-08 - Queue progressive arrow-key chapter navigation at the new tail
+
+**Status:** Accepted from the user's explicit low-priority queue request.
+
+**Context:** Every published chapter already renders semantic previous and next
+links derived from locale-specific publication order. The user wants the left
+and right arrow keys to invoke those adjacent-chapter links. The course also has
+keyboard-reachable horizontal diagram scrollers, native full-view figures,
+dialogs, theme and locale controls, and an extensible locale direction model, so
+a global key listener must not steal arrows from an active interaction or assume
+that every future locale is left-to-right. The user explicitly placed the feature
+after every task already scheduled.
+
+**Decision:** Append `add-keyboard-chapter-navigation-20260808` after the complete
+diagram repair, audit, and closure build. Enhance the existing static chapter
+links instead of creating a second navigation source. On left-to-right pages,
+unmodified Left follows the rendered previous link and unmodified Right follows
+the rendered next link; on right-to-left pages, follow the visible spatial
+direction and reverse that mapping. Expose the applicable shortcut on the link,
+initialize at most once, and use ordinary link activation so routing, locale,
+base path, and browser history remain native.
+
+Ignore an already handled key event, modified or repeating input, editable and
+interactive controls, sanctioned diagram scrollers, open dialogs, and fullscreen
+content. When the requested neighbor does not exist, leave the event and current
+URL untouched. Retain the visible links as the complete no-JavaScript fallback;
+do not add query parameters, change chapter content, or introduce localized prose.
+
+**Consequences:** Keyboard navigation is a progressive visual-site enhancement,
+not a parallel chapter-order model. It remains safe for text entry, controls,
+diagram inspection, first/last chapters, both current locales, and a future RTL
+locale. Its implementation and two-engine validation will be one independent
+low-priority commit after all previously queued work; this scheduling checkpoint
+changes only the ledgers and does not delay Chapter 38.
+
+**Affected builds, steps, and scheduling run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`queue-low-priority-keyboard-chapter-navigation`,
+`repair-and-audit-diagram-rendering-20260808`,
+`add-keyboard-chapter-navigation-20260808`,
+`add-arrow-key-chapter-navigation`, and
+`20260808T075840Z-queue-low-priority-keyboard-chapter-navigation-01`.
+
 ## 2026-08-08 - Share one incremental-attention calculation behind checked and already-bound entries
 
 **Status:** Accepted after exact Rust, content, localization, static, staged, and
