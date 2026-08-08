@@ -1563,12 +1563,12 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Scope boundary:** Teach cache tensor shapes, capacity, append offsets, RoPE absolute positions, reset, and incremental multi-head attention. Defer threading independent caches through a decoder stack and generation API.
 - **Formula:** `K^{(\ell)}_{1:t}=[K^{(\ell)}_{1:t-1};k^{(\ell)}_t],\quad V^{(\ell)}_{1:t}=[V^{(\ell)}_{1:t-1};v^{(\ell)}_t]`.
 - **Historical contrast:** Contrast recomputing every earlier key/value projection for a new token with retaining layer-local inference state.
-- **Rust contribution:** Add a validated per-layer cache and incremental multi-head attention entry point while retaining the simple full-prefix reference.
+- **Rust contribution:** Keep the standalone incremental entry fully checked, then route it through one crate-private preparation calculation that a model-wide cache session may reuse only after establishing the same layer/cache relationships.
 - **Visualization:** Useful — show one layer's retained K/V rows, absolute RoPE positions, the single new query, and the appended row at each step.
 - **Practice:** Predict cache shapes and RoPE position after three appends, then count which projections are avoided.
 - **Integration evidence:** Per-step last-position outputs match full-prefix attention within tolerance; append, reset, overflow, model/head mismatch, RoPE offsets, and operation counts pass.
 - **Handoff:** Chapter 38 gives every decoder block its own cache and separates prompt prefill from one-token decode.
-- **Revision status:** Content revision 4 binds a layer cache to both parameter-node identity and the captured parameter-value revision, so an in-place weight update makes existing cache state stale and `reset()` does not silently rebind it; the Russian lesson is refreshed directly from this English revision.
+- **Revision status:** Content revision 5 preserves the parameter-node and value-revision binding, separates the fully checked standalone boundary from one crate-private already-bound preparation path, proves that both paths prepare and commit identical state through one attention calculation, and refreshes the Russian lesson directly from this English revision.
 
 ## 38. Model-wide prefill and cached generation
 

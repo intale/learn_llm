@@ -45,7 +45,11 @@ const copy = {
       "An in-place AdamW update preserves the parameter nodes but advances their value revisions",
     resetBindingFragment:
       "It does not refresh the captured parameter identities or value revisions, and it does not rebind the cache",
-    historyFragment: "local correctness policies",
+    historyFragment: "old cache length as the RoPE offset",
+    checkedBoundaryFragment:
+      "forward_incremental is the checked standalone entry",
+    sharedCalculationFragment:
+      "The crate-private entry is not an unchecked public shortcut and does not contain a second attention algorithm",
     noSpeedupFragment:
       "does not claim constant-time attention or a measured speedup",
     fullViewOpenLabel: "View diagram full screen",
@@ -55,25 +59,25 @@ const copy = {
     revisionLabel: "Версия материала",
     title: "Сохраняйте префикс, проецируйте только новую строку",
     description:
-      "Разберитесь, как привязанный к слою KV-кэш (кэш ключей и значений) добавляет повёрнутые ключи и значения без поворота, сохраняя для новой позиции результат расчёта внимания по полному префиксу.",
+      "Разберитесь, как привязанный к слою KV-кэш добавляет по одной строке повёрнутого ключа и значения без поворота и даёт для новой позиции тот же результат внимания, что и расчёт по всему префиксу.",
     diagramTitle:
-      "Сохранять предыдущие строки ключей и значений; добавлять ровно одну новую пару",
+      "Сохраняйте предыдущие строки ключей и значений и добавляйте ровно одну новую пару",
     diagramDescription:
-      "Точная трассировка программы на Rust охватывает три абсолютные позиции, показывает кэши обеих голов внимания и веса, сопоставляет выход последней позиции на каждом шаге с эталонным расчётом по полному префиксу и подтверждает сохранность хранилища после сброса и отклонённых вызовов.",
+      "Точная трассировка программы на Rust охватывает три абсолютные позиции, показывает кэши обеих голов и веса внимания, сопоставляет выход новой позиции на каждом шаге с эталонным расчётом по полному префиксу и подтверждает сохранность хранилища после сброса и отклонённых вызовов.",
     headings: [
       "Предскажите результат третьего вызова до запуска примера",
       "Добавляйте строки вдоль оси позиций",
       "Различайте слой, логическую длину и ёмкость",
       "От каузального внимания к управлению состоянием LLM при генерации",
-      "Привяжите состояние к слою, полностью вычислите результат и лишь затем обновите кэш",
-      "Проследите путь сохранённых строк к последнему запросу",
+      "Привяжите кэш к слою и записывайте строку только после полного расчёта",
+      "Проследите путь сохранённых строк к запросу новой позиции",
       "Сначала предскажите, затем сверьтесь с трассировкой",
-      "В следующей главе дайте каждому блоку декодера собственное состояние",
+      "Следующий шаг — отдельный кэш для каждого блока декодера",
     ],
     cues: [
       "| сохранённая строка — сплошная рамка",
       "|| добавленная строка — двойная рамка",
-      "= последние выходы совпадают в пределах допуска",
+      "= выходы для новой позиции совпадают в пределах допуска",
     ],
     detailsFragment:
       "В заново созданном слое не совпадут идентичности узлов параметров, даже если формы и числовые значения весов те же",
@@ -81,9 +85,13 @@ const copy = {
       "Обновление AdamW на месте сохраняет узлы параметров, но увеличивает версии их значений",
     resetBindingFragment:
       "Он не обновляет зафиксированные идентичности узлов и версии значений параметров и не меняет привязку кэша",
-    historyFragment: "локальные правила корректности этой главы",
+    historyFragment: "использование старой длины кэша как смещения RoPE",
+    checkedBoundaryFragment:
+      "forward_incremental — самостоятельный публичный вызов, который выполняет полный набор проверок",
+    sharedCalculationFragment:
+      "Внутренняя функция не является ни вторым алгоритмом внимания, ни публичным способом обойти проверки",
     noSpeedupFragment:
-      "не доказывают ни постоянного времени внимания, ни измеренного ускорения",
+      "сами по себе не доказывают ускорение",
     fullViewOpenLabel: "Развернуть схему на весь экран",
     fullViewCloseLabel: "Выйти из полноэкранного режима",
   },
@@ -263,7 +271,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 37,
-    revision: 4,
+    revision: 5,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -308,6 +316,8 @@ async function expectChapterContent(
   );
   expect(lessonText).toContain(localized.noSpeedupFragment);
   expect(lessonText).toContain(localized.historyFragment);
+  expect(lessonText).toContain(localized.checkedBoundaryFragment);
+  expect(lessonText).toContain(localized.sharedCalculationFragment);
   for (const href of [
     "https://arxiv.org/pdf/1706.03762",
     "https://arxiv.org/pdf/1911.02150",

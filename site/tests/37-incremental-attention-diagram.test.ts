@@ -306,14 +306,14 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
     );
-    expect(contract.content_revision).toBe(4);
-    expect(lesson.content_revision).toBe(4);
-    expect(russianLesson.content_revision).toBe(4);
+    expect(contract.content_revision).toBe(5);
+    expect(lesson.content_revision).toBe(5);
+    expect(russianLesson.content_revision).toBe(5);
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set {en, ru}",
     );
     const canonicalEnglishHash =
-      "633f51e0083d1e3d82e7cd6489e55965876802b8c569ca7e1cb1ad708aa22721";
+      "fd7e7fa58d9601eb3e383a78ae1f63a737fcc3e9450cdc585307a3a966cabcdd";
     expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
       canonicalEnglishHash,
     );
@@ -379,6 +379,12 @@ describe("Chapter 37 static diagram and content boundary", () => {
       "reset clears logical length but does not refresh the captured revisions or bind the cache to another layer",
     );
     expect(lessonSource).toContain("CacheLayerRevisionMismatch");
+    expect(normalizedLesson).toContain(
+      "`forward_incremental` is the checked standalone entry",
+    );
+    expect(normalizedLesson).toContain(
+      "The crate-private entry is not an unchecked public shortcut and does not contain a second attention algorithm",
+    );
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
     expect(lessonSource).not.toMatch(/refer(?:s|ring) to (?:the )?build instructions/i);
     expect(lessonSource).not.toMatch(/Ã|â|�/);
@@ -403,6 +409,12 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(russianLessonSource).toContain(
       "сброс очищает логическую длину, но не обновляет",
     );
+    expect(normalizedRussianLesson).toContain(
+      "`forward_incremental` — самостоятельный публичный вызов, который выполняет полный набор проверок",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Внутренняя функция не является ни вторым алгоритмом внимания, ни публичным способом обойти проверки",
+    );
     expect(russianLessonSource).not.toMatch(
       /полно-префикс|инференс-состояни|безграфов|транзакционн|фикстур|репле|поинт|кей[- ]?велью|исполняем\w* пример|свидетельств/i,
     );
@@ -413,6 +425,42 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(incrementalSource).toContain("forward_incremental");
     expect(incrementalSource).toContain("CacheLayerRevisionMismatch");
     expect(incrementalSource).toContain("revision_matches");
+    expect(incrementalSource).toContain(
+      "pub(crate) fn prepare_incremental_bound",
+    );
+    expect(incrementalSource).not.toMatch(/\bpub fn prepare_incremental_bound\b/);
+    expect(incrementalSource.match(/fn prepare_incremental_bound\b/g)).toHaveLength(1);
+    expect(incrementalSource.match(/fn incremental_mixture\b/g)).toHaveLength(1);
+    const checkedEntry = incrementalSource
+      .split("pub(crate) fn prepare_incremental(")[1]
+      .split("fn validate_incremental_request(")[0];
+    expect(checkedEntry).toContain(
+      "self.validate_incremental_request(input, cache)?;",
+    );
+    expect(checkedEntry).toContain("self.prepare_incremental_bound(input, cache)");
+    const requestValidation = incrementalSource
+      .split("fn validate_incremental_request(")[1]
+      .split("/// Prepares one row after an owning cache session")[0];
+    let previousCheck = -1;
+    for (const check of [
+      "if shape.len() != 3",
+      "if shape[1] != 1",
+      "if shape[0] != cache.batch_size()",
+      "if shape[2] != self.model_width()",
+      "if cache.model_width() != self.model_width()",
+      "if cache.heads() != self.heads()",
+      "if cache.head_width() != self.head_width()",
+      "cached.node_matches(parameter.tensor())",
+      "!cached.revision_matches(parameter.tensor())",
+      "if cache.rope_feature_width != self.rope().feature_width()",
+      "if cache.is_full()",
+    ]) {
+      const currentCheck = requestValidation.indexOf(check);
+      expect(currentCheck, `missing or reordered check: ${check}`).toBeGreaterThan(
+        previousCheck,
+      );
+      previousCheck = currentCheck;
+    }
     expect(incrementalSource).not.toContain("pub fn append");
     expect(demoSource).toContain("region:historical-kv-contrast");
     expect(demoSource).toContain("region:cache-errors");

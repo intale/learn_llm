@@ -16131,3 +16131,136 @@ runtime-remediation checkpoint.
 `clarify-ch01-scalar-vocabulary-handoff-20260806`,
 `clarify-ch01-scalar-vocabulary-handoff`, and
 `20260806T122800Z-queue-ch01-scalar-vocabulary-handoff-clarification-01`.
+## 2026-08-08 - Rehydrate only pinned Docker inputs for the Chapter 37 baseline
+
+**Status:** Accepted during
+`share-bound-incremental-attention-kernel` run 01 after the first focused
+network-disabled retry established that the local Docker cache was empty.
+
+**Context:** The run preflight expected previously cached Docker inputs, but this
+host retained no course image other than the newly built source stage. That
+stage contained Rust 1.93.1 and the site packages but not Cargo's registry or
+crate cache. A network-disabled focused test therefore failed before compiling
+because it could not resolve the already-locked `serde` package. The repository
+lockfiles and dependency policy were unchanged.
+
+**Decision:** Permit the standard repository Docker build to fetch its pinned
+base-image metadata, Debian packages, Rust 1.93.1 components, npm lockfile graph,
+and Cargo lockfile graph inside Docker. Record the fetch as an explicit run
+command and reuse the resulting validated workspace image for subsequent local
+checks. Do not add, update, or unlock a dependency, and do not install a Rust,
+Node.js, or Python toolchain or create their build artifacts on the host.
+
+**Consequences:** The recovered image passes the complete 442-test Rust library
+suite, all demo and compile-fail tests, static analysis, localized content gates,
+the 85-page site build, and link validation before the focused Chapter 37 tests
+run. This is cache rehydration, not a product or dependency decision; later
+validation should use network-disabled containers wherever the validated image
+contains every required input.
+
+**Affected step and run:** `share-bound-incremental-attention-kernel`, run
+`20260808T065628Z-share-bound-incremental-attention-kernel-01`.
+
+## 2026-08-08 - Share one incremental-attention calculation behind checked and already-bound entries
+
+**Status:** Accepted after exact Rust, content, localization, static, staged, and
+two-engine rendered validation.
+
+**Context:** Chapter 37's standalone incremental-attention API accepts an
+arbitrary input row and cache together with one attention layer, so it must prove
+shape, geometry, parameter identity and revision, RoPE, phase, and capacity on
+each call. Chapter 38 will instead create a model-wide cache session that proves
+the persistent layer/cache relationships once. Reusing the checked entry at every
+layer and token would repeat those proofs; copying the attention calculation into
+a second path would risk mathematical drift and different error or commit
+behavior.
+
+**Decision:** Keep `forward_incremental` and `prepare_incremental` as the fully
+checked standalone boundary. Extract their existing checks without reordering
+them, then delegate to one `pub(crate)` `prepare_incremental_bound` calculation
+whose precondition requires the caller to have established the same facts and to
+retain the exact layer/cache pairing. Keep projection, head split, RoPE,
+attention mixture, head merge, output projection, candidate preparation, and the
+later cache commit as one implementation; preparation remains mutation-free and
+only commit copies K/V rows and increments logical length. Do not add a
+cache-borrowing witness in Chapter 37: it would obstruct Chapter 38's planned
+all-layer prepare-then-commit transaction, while an owned witness without live
+parameter borrows would not prove stable values.
+
+Advance Chapter 37 to content revision 5. Freeze canonical English at SHA-256
+`fd7e7fa58d9601eb3e383a78ae1f63a737fcc3e9450cdc585307a3a966cabcdd`
+and publish the direct-English, independently reviewed Russian projection at
+SHA-256
+`6b821faac0567a135c530266b4558b6cc07c4355401e06d4307a6caf8c20a754`.
+Teach the checked standalone boundary, the same-crate already-proved path, the
+single shared calculation, and prepare/commit order without introducing Chapter
+38's model-wide session ownership early.
+
+**Consequences:** Public API visibility and behavior, validation and error
+precedence, rollback, exact Chapter 37/38 stdout and traces, formulas, fixture
+values, history evidence, diagram data, dependencies, and lockfiles remain
+unchanged. Independent checked and already-bound preparations produce identical
+outputs, weights, work evidence, candidates, and committed caches. Chapter 38
+may become the sole non-test caller of the crate-private entry after its session
+establishes and retains the preconditions; external callers receive no unchecked
+shortcut.
+
+**Affected step and run:** `share-bound-incremental-attention-kernel`, run
+`20260808T065628Z-share-bound-incremental-attention-kernel-01`.
+
+## 2026-08-08 - Restore only the recorded Playwright 1.61.1 Noble browser runtime
+
+**Status:** Accepted during browser preflight for
+`share-bound-incremental-attention-kernel` run 01.
+
+**Context:** The complete Docker workspace and static gates pass, but this host's
+Docker cache does not contain any browser binary or the official Playwright
+acceptance image. The repository's established geometry runtime is
+`mcr.microsoft.com/playwright:v1.61.1-noble` at immutable digest
+`sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48`;
+substituting another browser distribution would invalidate Firefox and Chromium
+layout evidence.
+
+**Decision:** Perform one bounded pull of the exact recorded image tag, reject it
+unless its repository digest matches the accepted SHA-256 and its Playwright
+package reports 1.61.1, then run both focused Chapter 37 engines with networking
+disabled from an immutable Docker volume copied from the validated workspace.
+Publish no browser port to the host and do not install browser, Node, Rust, or
+Python artifacts on the host.
+
+**Consequences:** The rendered acceptance runtime is reproducible and identical
+to earlier chapter reviews. The pull changes only Docker's external image cache;
+repository dependencies, lockfiles, build definitions, product output, and host
+toolchain boundaries remain unchanged.
+
+**Affected step and run:** `share-bound-incremental-attention-kernel`, run
+`20260808T065628Z-share-bound-incremental-attention-kernel-01`.
+
+## 2026-08-08 - Keep Chapter 37's shared cheat-sheet evidence on the explicit commit boundary
+
+**Status:** Accepted during the complete static validation of
+`share-bound-incremental-attention-kernel` run 01.
+
+**Context:** Chapter 37 revision 5 replaces the vague sentence “Only a fully
+assembled result permits…” with the concrete sequence: the method prepares the
+complete output and candidate rows, then a later commit copies the rows and
+increments logical length. The locale-aware cheat-sheet content remains correct,
+but its English grounding test still searched for the retired sentence. The
+Russian review also introduced the exact crate name solely to explain
+`pub(crate)` visibility, which created an unrelated formula-audit allowance for
+one programming identifier.
+
+**Decision:** Add only `site/tests/cheat-sheets.test.ts` to this step's shared
+integration outputs and point its existing “Transactional cache update” evidence
+at the new explicit commit sentence. Do not change either cheat sheet or add a
+Chapter 37 programming term to it. In Russian learner prose, say that the bound
+entry is available to code in the same crate; this preserves the visibility
+boundary without naming the crate or widening the formula-audit exception list.
+
+**Consequences:** The cheat sheet stays an LLM-concept summary, its source
+evidence follows the canonical revision-5 lesson, and the formula gate remains
+strict. No formula, output, trace, dependency, route, cheat-sheet term, or Rust
+API changes as a result of this validation repair.
+
+**Affected step and run:** `share-bound-incremental-attention-kernel`, run
+`20260808T065628Z-share-bound-incremental-attention-kernel-01`.

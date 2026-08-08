@@ -2,28 +2,28 @@
 {
   "chapter_id": "37-incremental-attention",
   "concept_id": "incremental-attention",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 37,
   "objective": {
     "en": "Append one position's rotated keys and unrotated values to one attention-layer cache and reproduce the full-prefix attention result at that newest position.",
-    "ru": "Добавьте в кэш одного слоя внимания повёрнутый ключ и значение без поворота для новой позиции и получите в этой позиции тот же результат, что и при расчёте внимания по полному префиксу."
+    "ru": "Добавьте в кэш одного слоя внимания повёрнутый ключ и значение без поворота для новой позиции и убедитесь, что результат внимания в этой позиции совпадает с расчётом по полному префиксу."
   },
   "worked_inputs": {
     "en": "Feed three model-width-four rows into a two-head attention layer one row at a time, use cache lengths 0, 1, and 2 as the absolute RoPE positions, and compare each cached output with the corresponding full-prefix last row within 1e-12.",
-    "ru": "Поочерёдно подайте три строки ширины модели 4 в слой внимания с двумя головами, используйте длины кэша 0, 1 и 2 как абсолютные позиции RoPE и после каждого шага убедитесь с допуском 1e-12, что выход с кэшем совпадает с последней строкой результата для соответствующего полного префикса."
+    "ru": "Поочерёдно подайте в слой внимания с двумя головами три строки по 4 значения, используйте длины кэша 0, 1 и 2 как абсолютные позиции RoPE и после каждого шага убедитесь с допуском 1e-12, что выход с кэшем совпадает с последней строкой расчёта по соответствующему полному префиксу."
   },
   "formula": {
     "latex": "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
     "symbols": [
       {
         "symbol": "K^{(\\ell)}_{1:t}",
-        "en": "the rotated key cache for attention layer ell after position t is appended",
-        "ru": "кэш повёрнутых ключей слоя внимания ell после добавления позиции t"
+        "en": "the rotated key cache for the attention layer denoted by ell after position t is appended",
+        "ru": "кэш повёрнутых ключей слоя внимания ℓ после добавления позиции t"
       },
       {
         "symbol": "V^{(\\ell)}_{1:t}",
-        "en": "the value cache for attention layer ell after position t is appended",
-        "ru": "кэш значений слоя внимания ell после добавления позиции t"
+        "en": "the value cache for the attention layer denoted by ell after position t is appended",
+        "ru": "кэш значений слоя внимания ℓ после добавления позиции t"
       },
       {
         "symbol": "\\ell",
@@ -33,7 +33,7 @@
       {
         "symbol": "t",
         "en": "the newest one-based position in this formula; the implementation uses zero-based RoPE position t-1",
-        "ru": "номер последней позиции с единицы в этой формуле; соответствующая позиция RoPE с нумерацией от нуля равна t-1"
+        "ru": "номер последней позиции при нумерации с единицы; соответствующая позиция RoPE при нумерации с нуля равна t-1"
       },
       {
         "symbol": "1:t",
@@ -42,13 +42,13 @@
       },
       {
         "symbol": "K^{(\\ell)}_{1:t-1}",
-        "en": "the keys already retained for earlier positions in layer ell",
-        "ru": "ключи предыдущих позиций, уже сохранённые в слое ell"
+        "en": "the keys already retained for earlier positions in the layer denoted by ell",
+        "ru": "ключи предыдущих позиций, уже сохранённые в слое ℓ"
       },
       {
         "symbol": "V^{(\\ell)}_{1:t-1}",
-        "en": "the values already retained for earlier positions in layer ell",
-        "ru": "значения предыдущих позиций, уже сохранённые в слое ell"
+        "en": "the values already retained for earlier positions in the layer denoted by ell",
+        "ru": "значения предыдущих позиций, уже сохранённые в слое ℓ"
       },
       {
         "symbol": "k^{(\\ell)}_t",
@@ -63,7 +63,7 @@
       {
         "symbol": "[A;B]",
         "en": "concatenation along the sequence-position axis, with B appended after A",
-        "ru": "конкатенация по оси позиций последовательности, при которой B добавляется после A"
+        "ru": "конкатенация вдоль оси позиций последовательности, при которой B добавляется после A"
       }
     ]
   },
@@ -80,7 +80,7 @@
       },
       "modern_llm_role": {
         "en": "Modern cached generation keeps one compatible cache per decoder block: each new query reads the retained prefix while only the newest key and value are projected.",
-        "ru": "При современной генерации с кэшированием каждый блок декодера хранит собственный совместимый кэш: новый запрос обращается к сохранённому префиксу, а проецируются только последние ключ и значение."
+        "ru": "При современной генерации с кэшированием каждый блок декодера хранит собственный совместимый кэш: вектор запроса для новой позиции использует сохранённые ключи и значения префикса, а заново проецируются только ключ и значение этой позиции."
       },
       "sources": [
         {
@@ -117,11 +117,11 @@
     },
     "approach": {
       "en": "The transition is from recomputing every complete prefix to appending one layer-local key/value pair per step.",
-      "ru": "Переход от повторного вычисления каждого полного префикса к добавлению на каждом шаге одной локальной для слоя пары ключа и значения."
+      "ru": "Вместо повторного вычисления всего префикса на каждом шаге к кэшу конкретного слоя добавляется одна новая пара ключа и значения."
     },
     "summary": {
-      "en": "The historical thread runs from causal masked attention, through explicit incremental KV reuse, to serving systems designed around a dynamically growing cache. Fixed capacity, exact layout, the RoPE offset rule, parameter-node and value-revision binding, reset behavior, and typed errors are this lesson's local correctness policies.",
-      "ru": "Исторический путь идёт от каузального внимания с маской через явное инкрементальное повторное использование тензоров K/V к системам обслуживания, рассчитанным на динамически растущий кэш. Фиксированная ёмкость, точное расположение данных, правило смещения RoPE, привязка к идентичностям узлов параметров и версиям их значений, поведение при сбросе и типизированные ошибки — локальные правила корректности этой главы."
+      "en": "The approach developed from causal masked attention, through explicit incremental KV reuse, to serving systems organized around dynamically growing caches. This implementation additionally requires fixed capacity, exact tensor layout, the old cache length as the RoPE offset, unchanged bound parameters, allocation-preserving reset, and typed errors.",
+      "ru": "Подход развивался от каузального внимания с маской через явное повторное использование K/V при инкрементальном декодировании к системам обслуживания, построенным вокруг растущих кэшей. Для корректности реализации из этой главы также необходимы фиксированная ёмкость, заданное расположение осей и данных в тензорах, использование старой длины кэша как смещения RoPE, неизменность идентичностей узлов параметров и зафиксированных версий их значений, сброс без повторного выделения памяти и типизированные ошибки."
     },
     "rust_contrast": "Measure newest-query key spans [1,2,3] and projected rows for those same calls: complete-prefix references visit six rows per query, key, or value projection, while incremental calls visit three and reuse three earlier rows in each key and value projection."
   },
@@ -138,13 +138,13 @@
     "decision": "useful",
     "id": "incremental-attention",
     "rationale": {
-      "en": "A three-step cache timeline makes the retained rows, one appended row, absolute RoPE position, growing attention span, full-prefix match, and avoided repeated projections visible together.",
-      "ru": "Временная шкала из трёх шагов одновременно показывает сохранённые строки, одну добавленную строку, абсолютную позицию RoPE, растущий охват внимания, совпадение с эталоном по полному префиксу и исключённые повторные проекции."
+      "en": "A three-step cache timeline shows the retained rows, one appended row, absolute RoPE position, increasing number of positions available to the query, full-prefix match, and rows that no longer need to be projected again.",
+      "ru": "Временная шкала из трёх шагов одновременно показывает сохранённые строки, одну добавленную строку, абсолютную позицию RoPE, увеличивающееся число позиций, доступных запросу, совпадение с расчётом по полному префиксу и строки, которые больше не нужно проецировать повторно."
     }
   },
   "decoder_connection": {
-    "en": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps and reproduce its full-prefix newest-position output. It rejects a different parameter-node identity, a changed parameter-value revision, or an incompatible configuration; reset clears logical state without reallocating or rebinding. Chapter 38 will compose one such cache per decoder block.",
-    "ru": "Теперь один слой внимания может сохранять между шагами декодирования повёрнутые ключи и значения без поворота вне графа вычислений и воспроизводить для новой позиции результат расчёта по полному префиксу. Слой отклоняет вызов, если изменилась идентичность узла параметра, версия его значения или конфигурация; сброс очищает логическое состояние без нового выделения памяти и без изменения привязки. В главе 38 такой кэш появится в каждом блоке декодера."
+    "en": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps and reproduce its full-prefix newest-position output. Its standalone public call checks the supplied input, layer, and cache before using the shared attention calculation; the crate-private path may use that calculation only after its caller has established the same facts. Reset clears logical state without reallocating or rebinding. Chapter 38 will establish those relationships for one cache per decoder block.",
+    "ru": "Теперь один слой внимания может хранить между шагами декодирования повёрнутые ключи и значения без поворота вне графа вычислений и получать для новой позиции тот же результат внимания, что и при расчёте по полному префиксу. Самостоятельный публичный вызов проверяет вход, слой и кэш, прежде чем использовать общую реализацию вычисления внимания; внутренний путь может обратиться к ней только после того, как вызывающий код подтвердил те же условия. Сброс очищает логическое состояние без нового выделения памяти и без изменения привязки. В главе 38 эти условия будут подтверждены для отдельного кэша каждого блока декодера."
   },
   "terminology": [
     {
@@ -189,11 +189,13 @@
     }
   ],
   "translation_notes": [
-    "Chapter 37 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 633f51e0083d1e3d82e7cd6489e55965876802b8c569ca7e1cb1ad708aa22721 and becomes stale whenever that source changes.",
+    "Chapter 37 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 5 with SHA-256 fd7e7fa58d9601eb3e383a78ae1f63a737fcc3e9450cdc585307a3a966cabcdd and becomes stale whenever that source changes.",
     "Preserve the exact formula, K, V, k, v, ell, t, B, H, C, d_h, RoPE, KV, tensor shapes, tolerances, code identifiers, trace tokens and values, source names, URLs, and source-specific evidence across both locales.",
     "The cache stores rotated keys and unrotated values; it does not retain queries.",
     "Cache compatibility captures both parameter-node identity and the current parameter-value revision. Rebuilt parameters fail the identity check; an in-place AdamW update preserves node identity but advances the value revision, so both cases require a new cache.",
     "Reset clears logical length but neither changes the captured identity and revision bindings nor makes a stale cache compatible.",
+    "The standalone public call repeats the complete ordered validation because its caller may supply an arbitrary input, layer, and cache. The crate-private entry uses the one shared calculation only after its caller has established the same preconditions and retained the exact pairing.",
+    "In translation, describe the shared internal calculation without a bare hardware-kernel calque, and never imply that crate-private visibility alone makes an unchecked call safe.",
     "Caching avoids repeated earlier projections but does not make attention over a growing prefix constant-time.",
     "The history must remain about causal Transformer and LLM inference state, not programming languages or implementation tooling.",
     "Any English change affecting meaning or presentation makes the Russian review stale until it is refreshed directly from the new English revision and reviewed again."
@@ -224,6 +226,10 @@
       "expected": "CacheLayerRevisionMismatch is returned before any append because reset did not refresh the captured revision; constructing a new cache from the updated layer restores compatibility."
     },
     {
+      "input": "Prepare the same valid second row through the checked standalone boundary and through the crate-private already-bound entry",
+      "expected": "Both paths produce identical prepared keys, values, attention evidence, output, work counts, and committed cache state because they execute one shared attention calculation; the crate-private entry is callable only after its caller has established the checked boundary's preconditions."
+    },
+    {
       "input": "cargo run --quiet --locked -p ch37-incremental-attention",
       "expected": "stdout equals rust/demos/ch37-incremental-attention/expected.txt byte for byte, including the final newline."
     }
@@ -248,10 +254,12 @@ fails. A successful in-place AdamW step keeps those nodes but advances their
 value revisions, so the old cache is stale even though its parameter identities
 still match. In either case, construct a new cache from the current layer.
 `reset` clears logical rows but does not rebind the cache or refresh its captured
-revisions. The cache does not cache queries, train through retained state, own
-prompt prefill, manage paged memory, or coordinate multiple decoder blocks.
-Chapter 38 composes one independent cache per block and uses them during
-generation.
+revisions. A direct standalone call validates this layer/cache relationship for
+itself. A crate-private entry performs the same attention calculation only after
+its caller has established the same facts and retained the exact pairing. The
+cache does not cache queries, train through retained state, own prompt prefill,
+manage paged memory, or coordinate multiple decoder blocks. Chapter 38 composes
+one independent cache per block and owns that model-wide proof.
 
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
@@ -335,23 +343,33 @@ changes only logical length: it neither reallocates storage nor changes the
 captured parameter binding. Logical snapshots expose $[B,H,t,d_h]$ prefixes
 without changing physical capacity.
 
-`forward_incremental` requires one input shaped $[B,1,D]$. Under an internal
-no-gradient scope it projects only that row, splits heads, rotates the query and key at the
-old cache length, computes stable softmax weights shaped $[B,H,1,t+1]$, mixes
-all retained and candidate values, merges heads, and applies the existing output
-projection. Only then does it copy the rotated $K$ and unrotated $V$ into the next
-slot and advance length.
+`forward_incremental` is the checked standalone entry: its caller supplies one
+attention layer, one input row, and one cache directly. Before calculating
+attention, it checks input rank and one-token shape, input batch and width, cache
+model width and head geometry, parameter-node identities and value revisions,
+the exact RoPE configuration, and remaining capacity, in that order. This is
+necessary because an arbitrary caller can supply an unrelated layer/cache pair.
 
-Rank, token count, batch, width, capacity, head layout, parameter-node identity,
-parameter-value revision, RoPE, finite values, allocation, and downstream tensor
-operations all fail before the commit. Raw key/value append is private to this
-bound operation, so callers cannot bypass those checks. The deterministic demo
-proves unchanged state for two-token input, a full cache, incompatible model
-width, head count, parameter-node identity, and RoPE configuration, and finite
-input whose projection becomes nonfinite. Separately, `forward_incremental`
-checks captured value revisions before projection or append; after `reset`, an
-in-place update therefore returns `CacheLayerRevisionMismatch` without changing
-the cache.
+After those checks, the crate-private `prepare_incremental_bound` function runs
+the one shared calculation. Under `no_grad`, it projects the new row, splits
+heads, rotates $Q$ and $K$ at the old cache length, computes numerically stable
+weights shaped $[B,H,1,t+1]$, mixes all retained and candidate values, merges
+heads, and applies the existing output projection. It returns the complete
+output together with the candidate rotated key and unrotated value; only a later
+commit copies those rows into the next cache slot and advances logical length.
+
+The crate-private entry is not an unchecked public shortcut and does not contain
+a second attention algorithm. Its caller must first establish every condition
+listed above and preserve that exact layer/cache pairing until the prepared row
+is either committed or discarded. Chapter 38 will establish those persistent
+relationships at its model-wide session boundary. Projection, finite-value,
+allocation, head-layout, and downstream tensor failures still occur before
+commit. Raw key/value append remains private, so external callers cannot bypass
+the checked standalone boundary. The deterministic demo proves unchanged state
+for two-token input, a full cache, incompatible model width, head count,
+parameter-node identity, and RoPE configuration, and finite input whose
+projection becomes nonfinite. After `reset`, an in-place parameter update still
+returns `CacheLayerRevisionMismatch` without changing the cache.
 
 <!-- contract-section:visualization -->
 ## Visualization
@@ -396,15 +414,18 @@ neither stored values nor logical length.
 One attention layer now carries compatible, graph-free key/value state between
 decode steps and reproduces its full-prefix newest-position result. Compatibility
 means the same parameter nodes at the same captured value revisions plus the same
-RoPE configuration; reset does not change that binding. The remaining model
-still runs uncached. Chapter 38 will give every decoder block its own cache,
-thread those caches through prefill and one-token decode, and compare complete
-cached generation with the existing reference loop.
+geometry and RoPE configuration; reset does not change that binding. The checked
+standalone call proves those facts for each direct request, while the
+crate-private path requires an owning caller to have proved them already. The
+remaining model still runs uncached. Chapter 38 will bind every decoder-block
+cache to one model-wide session, thread those caches through prefill and
+one-token decode, and compare complete cached generation with the existing
+reference loop.
 
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 4 is the canonical source, and English and Russian are the exact
+English revision 5 is the canonical source, and English and Russian are the exact
 active locale set. Keep tensor-axis letters, shapes, source names, trace values,
 and formula symbols language-neutral. Translate cache as retained inference
 state, not as a claim about a particular hardware cache. Preserve the distinction
@@ -412,7 +433,11 @@ between logical length and physical capacity, rotated keys and unrotated values,
 and reuse of projections versus the still-growing attention read. Preserve the
 separate identity and value-revision checks: rebuilding changes parameter nodes,
 an in-place AdamW update preserves nodes but advances revisions, and reset does
-not rebind either case.
+not rebind either case. Translate the checked standalone call as a direct call
+that performs the complete validation sequence. Describe the crate-private path
+as one shared internal attention calculation for a layer/cache pair whose
+compatibility the caller has already established; do not imply a GPU kernel, a
+second algorithm, or an operation that is safe without those preconditions.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -420,5 +445,6 @@ not rebind either case.
 The acceptance examples in frontmatter freeze all three outputs, cache shapes,
 absolute offsets, the $10^{-12}$ comparison tolerance, row counts, reset replay,
 parameter identity, captured value revision, layer/RoPE binding, and transactional
-failures. The declared Rust, content, static-build, link, Chromium, and Firefox
+failures, together with identical checked and already-bound preparation and
+commit. The declared Rust, content, static-build, link, Chromium, and Firefox
 commands must pass before publication.

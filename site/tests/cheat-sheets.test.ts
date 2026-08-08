@@ -660,7 +660,7 @@ const expectedSheets = {
       ['Candidate key/value pair', 'one-row candidate pair'],
       ['Full-prefix reference', 'full-prefix reference'],
       ['Projection reuse', 'reuses $3$ earlier key rows'],
-      ['Transactional cache update', 'Only a fully assembled result permits the key/value copy and length increment'],
+      ['Transactional cache update', 'commit copies those rows into the next cache slot and increments logical length.'],
     ],
   },
   '38-cached-generation': {

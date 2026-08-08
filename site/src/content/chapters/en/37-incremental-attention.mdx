@@ -2,7 +2,7 @@
 {
   "chapter_id": "37-incremental-attention",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 37,
   "concept_id": "incremental-attention",
   "title": "Keep the prefix, project only the new row",
@@ -14,11 +14,11 @@
     "symbols": [
       {
         "symbol": "K^{(\\ell)}_{1:t}",
-        "meaning": "the rotated key cache for attention layer ell after position t is appended"
+        "meaning": "the rotated key cache for the attention layer denoted by ell after position t is appended"
       },
       {
         "symbol": "V^{(\\ell)}_{1:t}",
-        "meaning": "the value cache for attention layer ell after position t is appended"
+        "meaning": "the value cache for the attention layer denoted by ell after position t is appended"
       },
       {
         "symbol": "\\ell",
@@ -34,11 +34,11 @@
       },
       {
         "symbol": "K^{(\\ell)}_{1:t-1}",
-        "meaning": "the keys already retained for earlier positions in layer ell"
+        "meaning": "the keys already retained for earlier positions in the layer denoted by ell"
       },
       {
         "symbol": "V^{(\\ell)}_{1:t-1}",
-        "meaning": "the values already retained for earlier positions in layer ell"
+        "meaning": "the values already retained for earlier positions in the layer denoted by ell"
       },
       {
         "symbol": "k^{(\\ell)}_t",
@@ -85,7 +85,7 @@
       ]
     },
     "approach": "The transition is from recomputing every complete prefix to appending one layer-local key/value pair per step.",
-    "summary": "The historical thread runs from causal masked attention, through explicit incremental KV reuse, to serving systems designed around a dynamically growing cache. Fixed capacity, exact layout, the RoPE offset rule, parameter-node and value-revision binding, reset behavior, and typed errors are this lesson's local correctness policies.",
+    "summary": "The approach developed from causal masked attention, through explicit incremental KV reuse, to serving systems organized around dynamically growing caches. This implementation additionally requires fixed capacity, exact tensor layout, the old cache length as the RoPE offset, unchanged bound parameters, allocation-preserving reset, and typed errors.",
     "rust_source": "rust/demos/ch37-incremental-attention/src/lib.rs"
   },
   "rust_sources": [
@@ -97,7 +97,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/attention/incremental.rs",
       "region": "incremental-attention",
-      "purpose": "Project one row under no-gradient inference, apply absolute-position RoPE, attend across retained and candidate rows, and commit only after output projection succeeds."
+      "purpose": "Check a standalone input/layer/cache request, reuse one crate-private attention calculation after the same facts are already established, and commit only after output projection succeeds."
     },
     {
       "path": "rust/demos/ch37-incremental-attention/src/lib.rs",
@@ -122,9 +122,9 @@
   "visualization": {
     "decision": "useful",
     "id": "incremental-attention",
-    "rationale": "A three-step cache timeline makes the retained rows, one appended row, absolute RoPE position, growing attention span, full-prefix match, and avoided repeated projections visible together."
+    "rationale": "A three-step cache timeline shows the retained rows, one appended row, absolute RoPE position, increasing number of positions available to the query, full-prefix match, and rows that no longer need to be projected again."
   },
-  "decoder_connection": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps and reproduce its full-prefix newest-position output. It rejects a different parameter-node identity, a changed parameter-value revision, or an incompatible configuration; reset clears logical state without reallocating or rebinding. Chapter 38 will compose one such cache per decoder block."
+  "decoder_connection": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps and reproduce its full-prefix newest-position output. Its standalone public call checks the supplied input, layer, and cache before using the shared attention calculation; the crate-private path may use that calculation only after its caller has established the same facts. Reset clears logical state without reallocating or rebinding. Chapter 38 will establish those relationships for one cache per decoder block."
 }
 ---
 
@@ -188,7 +188,8 @@ $[0.213809009,0.786190991,0.770151153,-0.420735492]$. Before revealing the
 third output, predict three facts:
 
 1. The old length is $2$, so the new $Q$ and $K$ use absolute RoPE position $2$.
-2. Each head's newest query receives $3$ key rows and $3$ value rows.
+2. Each head scores its newest query against $3$ keys, then forms its output from
+   the corresponding $3$ values.
 3. The cache appends one rotated key row and one unrotated value row; it does not
    retain the query.
 
@@ -254,11 +255,11 @@ Incremental decoding made one-step reuse explicit by retaining per-layer key/val
 
 Modern cached generation keeps one compatible cache per decoder block: each new query reads the retained prefix while only the newest key and value are projected.
 
-The historical thread runs from causal masked attention, through explicit
-incremental KV reuse, to serving systems designed around a dynamically growing
-cache. Fixed capacity, exact layout, the RoPE offset rule, parameter-node and
-value-revision binding, reset behavior, and typed errors are this lesson's local
-correctness policies.
+The approach developed from causal masked attention, through explicit
+incremental KV reuse, to serving systems organized around dynamically growing
+caches. This implementation additionally requires fixed capacity, exact tensor
+layout, the old cache length as the RoPE offset, unchanged bound parameters,
+allocation-preserving reset, and typed errors.
 
 <RustSource
   path="rust/demos/ch37-incremental-attention/src/lib.rs"
@@ -294,11 +295,27 @@ does not refresh the captured revisions or bind the cache to another layer.
   label="Rust source implementing the Chapter 37 layer-local KV cache"
 />
 
-`forward_incremental` accepts exactly $[B,1,D]$. Inside its own no-gradient
-scope it projects the new row, splits heads, rotates $Q$ and $K$ at the old cache
-length, computes stable weights shaped $[B,H,1,t+1]$, mixes the retained and
-candidate values, merges heads, and applies the existing output projection.
-Only a fully assembled result permits the key/value copy and length increment.
+`forward_incremental` is the checked standalone entry: its caller supplies one
+attention layer, one input row, and one cache directly. Before calculating
+attention, it checks input rank and one-token shape, input batch and width, cache
+model width and head geometry, parameter-node identities and value revisions,
+the exact RoPE configuration, and remaining capacity, in that order. An
+arbitrary standalone caller could otherwise pair a valid input with an unrelated
+layer or cache.
+
+After those checks, the crate-private `prepare_incremental_bound` function runs
+the one shared calculation. Inside `no_grad`, it projects the new row, splits
+heads, rotates $Q$ and $K$ at the old cache length, computes numerically stable
+weights shaped $[B,H,1,t+1]$, mixes the retained and candidate values, merges
+heads, and applies the existing output projection. It returns the complete
+output together with the candidate rotated key and unrotated value. Only a later
+commit copies those rows into the next cache slot and increments logical length.
+
+The crate-private entry is not an unchecked public shortcut and does not contain
+a second attention algorithm. Its caller must first establish every condition
+listed above and preserve that exact layer/cache pairing until the prepared row
+is committed or discarded. Chapter 38 will establish those persistent
+relationships at its model-wide session boundary.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/incremental.rs"
@@ -315,15 +332,17 @@ and $3$ earlier value rows. The newest query still reads the resulting prefix of
 $t$ positions: $t-1$ retained positions plus the current candidate position.
 This count therefore does not claim constant-time attention or a measured speedup.
 
-Errors are transactional. The deterministic demo exercises two-token input, a
+Errors remain transactional on both sides of the shared calculation. Projection,
+finite-value, allocation, head-layout, and downstream tensor failures all occur
+before commit. The deterministic demo exercises two-token input, a
 full cache, model or head mismatch, same-shaped rebuilt weights, a changed RoPE
 base, the same base with a different position capacity, and finite input whose
 projection becomes nonfinite. Every one of those calls returns before cached
 values or logical length change. Separately, the revision comparison at the
 start of `forward_incremental` rejects a layer updated in place before projection
 or append. That mismatch remains an error after `reset`, because reset does not
-rebind the cache. Raw key/value append is private to the bound attention
-operation, so public callers cannot bypass those compatibility checks.
+rebind the cache. Raw key/value append is private, so external callers cannot
+bypass the checked standalone boundary.
 
 <RustSource
   path="rust/demos/ch37-incremental-attention/src/lib.rs"
@@ -369,9 +388,9 @@ errors=two_tokens:true full_cache:true model_mismatch:true head_mismatch:true la
 
 The figure follows the exact values produced by the three Rust calls. Read from
 absolute position $0$ through position $2$. Solid-border boxes are retained rows;
-the double box is the one new key/value pair. Each row includes its newest-query weight,
-and each step ends with cached and full-prefix output values beside the recorded
-maximum difference.
+the double box is the one new key/value pair. Each row includes its newest-query
+weight, and each step ends with cached and full-prefix output values beside the
+recorded maximum difference.
 
 The work cards compare projection-row counts, not elapsed time. The final cards
 show that reset reuses allocation and that rejected calls preserve state. A solid
@@ -421,12 +440,12 @@ border marks a retained row; a double border marks the newly appended pair.
 
 One attention layer can now preserve graph-free rotated keys and unrotated values
 across decode steps and reproduce its full-prefix newest-position output. It
-rejects a different parameter-node identity, a changed parameter-value revision,
-or an incompatible configuration. Reset clears logical state without
-reallocating or rebinding. Chapter 38 will compose one such cache per decoder
-block.
+uses one attention calculation behind two trust boundaries: the standalone
+public call proves that its input, layer, and cache belong together, while the
+crate-private path requires an owning caller to have proved the same facts
+already. Reset clears logical state without reallocating or rebinding.
 
 The current cumulative decoder still evaluates full prefixes. Chapter 38 will
-create one cache from each block's actual attention layer, thread those caches
-through prefill and one-token decode, and compare complete cached generation with
-the uncached reference from Chapter 36.
+bind one cache from each block's actual attention layer to a model-wide session,
+thread those caches through prefill and one-token decode, and compare complete
+cached generation with the uncached reference from Chapter 36.

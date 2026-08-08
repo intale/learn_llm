@@ -731,6 +731,15 @@ impl MultiHeadAttention {
         input: &TensorValue,
         cache: &LayerKvCache,
     ) -> Result<PreparedIncrementalAttention, IncrementalAttentionError> {
+        self.validate_incremental_request(input, cache)?;
+        self.prepare_incremental_bound(input, cache)
+    }
+
+    fn validate_incremental_request(
+        &self,
+        input: &TensorValue,
+        cache: &LayerKvCache,
+    ) -> Result<(), IncrementalAttentionError> {
         let shape = input.shape();
         if shape.len() != 3 {
             return Err(IncrementalAttentionError::InputRank { rank: shape.len() });
@@ -808,7 +817,23 @@ impl MultiHeadAttention {
             }
             .into());
         }
+        Ok(())
+    }
 
+    /// Prepares one row after an owning cache session has proved the full request.
+    ///
+    /// The caller must already have established the same input shape, cache
+    /// geometry, parameter identity and revision, RoPE configuration, and
+    /// remaining-capacity facts checked by `prepare_incremental`. It must also
+    /// preserve that exact layer/cache pairing until every prepared row either
+    /// commits or is discarded. Keeping this entry crate-private lets Chapter 38
+    /// reuse the one attention implementation after its model-wide bind without
+    /// creating an unchecked public path.
+    pub(crate) fn prepare_incremental_bound(
+        &self,
+        input: &TensorValue,
+        cache: &LayerKvCache,
+    ) -> Result<PreparedIncrementalAttention, IncrementalAttentionError> {
         no_grad(|| {
             let position = cache.len();
             let projected = self
@@ -1104,6 +1129,33 @@ mod tests {
         }
     }
 
+    fn assert_tensor_value_equal(left: &TensorValue, right: &TensorValue) {
+        assert_eq!(left.shape(), right.shape());
+        assert_eq!(left.value().as_slice(), right.value().as_slice());
+        assert_eq!(left.tracks_gradient(), right.tracks_gradient());
+    }
+
+    fn assert_forward_equal(
+        left: &IncrementalAttentionForward,
+        right: &IncrementalAttentionForward,
+    ) {
+        for (left, right) in [
+            (left.projected_query_heads(), right.projected_query_heads()),
+            (left.projected_key_heads(), right.projected_key_heads()),
+            (left.projected_value_heads(), right.projected_value_heads()),
+            (left.rotated_query_heads(), right.rotated_query_heads()),
+            (left.rotated_key_heads(), right.rotated_key_heads()),
+            (left.head_outputs(), right.head_outputs()),
+            (left.merged(), right.merged()),
+            (left.output(), right.output()),
+        ] {
+            assert_tensor_value_equal(left, right);
+        }
+        assert_eq!(left.attention_weights(), right.attention_weights());
+        assert_eq!(left.work(), right.work());
+        assert_eq!(left.cache_len(), right.cache_len());
+    }
+
     fn sum_to_scalar(mut value: TensorValue) -> TensorValue {
         for axis in (0..value.shape().len()).rev() {
             value = value.sum_axis(axis, false).unwrap();
@@ -1278,6 +1330,43 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn checked_and_already_bound_entries_share_one_prepared_transaction() {
+        let layer = fixture_layer(4);
+        let values = fixture_values();
+        let first = constant(&[1, 1, MODEL_WIDTH], &values[..MODEL_WIDTH]);
+        let second = constant(&[1, 1, MODEL_WIDTH], &values[MODEL_WIDTH..2 * MODEL_WIDTH]);
+        let mut checked_cache = LayerKvCache::new(&layer, 1, 4).unwrap();
+        let mut bound_cache = LayerKvCache::new(&layer, 1, 4).unwrap();
+
+        layer
+            .forward_incremental(&first, &mut checked_cache)
+            .unwrap();
+        layer.forward_incremental(&first, &mut bound_cache).unwrap();
+        assert_eq!(checked_cache, bound_cache);
+        let checked_before = checked_cache.clone();
+        let bound_before = bound_cache.clone();
+
+        let checked = layer.prepare_incremental(&second, &checked_cache).unwrap();
+        // A model-wide session may use this entry only after proving the same
+        // facts that the checked call above establishes for itself.
+        let bound = layer
+            .prepare_incremental_bound(&second, &bound_cache)
+            .unwrap();
+
+        assert_eq!(checked_cache, checked_before);
+        assert_eq!(bound_cache, bound_before);
+        assert_eq!(&checked.candidate_key, &bound.candidate_key);
+        assert_eq!(&checked.candidate_value, &bound.candidate_value);
+        assert_eq!(checked.expected_len, bound.expected_len);
+        assert_forward_equal(&checked.forward, &bound.forward);
+
+        let checked = checked.commit(&mut checked_cache);
+        let bound = bound.commit(&mut bound_cache);
+        assert_forward_equal(&checked, &bound);
+        assert_eq!(checked_cache, bound_cache);
     }
 
     #[test]
