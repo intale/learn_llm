@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -72,6 +72,7 @@ const copy = {
     emptyMaxReason: 'An empty selected axis has no maximum value.',
     rejected: 'Rejected operation',
     notApplicable: 'Not applicable',
+    rejectionLabels: ['Request:', 'Checked evidence:', 'Rejected because:'],
     traversalEvidence: [
       'token strides [3,1] yield source offsets [0,1,2,3,4,5], while bias effective strides [0,1] yield source offsets [0,1,2,0,1,2].',
       'axis 0 uses bases [0,1,2] and stride 3, producing source-offset groups [0,3], [1,4], and [2,5].',
@@ -117,6 +118,7 @@ const copy = {
     emptyMaxReason: 'Для выбранной пустой оси максимум не определён.',
     rejected: 'Операция отклонена',
     notApplicable: 'Не применяется',
+    rejectionLabels: ['Запрос:', 'Данные проверки:', 'Причина отклонения:'],
     traversalEvidence: [
       'шаги тензора токенов [3,1] задают смещения в исходном хранилище [0,1,2,3,4,5], а эффективные шаги вектора смещения [0,1] задают [0,1,2,0,1,2].',
       'редукция по оси 0 использует базовые смещения [0,1,2] и шаг 3, поэтому получает группы смещений [0,3], [1,4] и [2,5].',
@@ -150,6 +152,174 @@ async function settle(page: Page) {
       requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame())),
     );
   });
+}
+
+async function expectRejectionFieldRows(
+  diagram: Locator,
+  expectedLabels: readonly string[],
+  context: string,
+) {
+  const card = diagram.locator('[data-error-kind="incompatible-broadcast"]');
+  const summary = card.locator(':scope > .rejection-summary');
+  const fields = summary.locator(':scope > [data-rejection-field]');
+
+  await expect(summary, `${context}: rejection summary`).toHaveCount(1);
+  await expect(fields, `${context}: rejection fields`).toHaveCount(3);
+  expect(
+    await fields.evaluateAll((nodes) =>
+      nodes.map((node) => node.getAttribute('data-rejection-field')),
+    ),
+  ).toEqual(['request', 'evidence', 'reason']);
+  await expect(fields.locator(':scope > [data-rejection-label]')).toHaveText([...expectedLabels]);
+
+  const diagnostics = await fields.evaluateAll((nodes) => {
+    const paintedTextRects = (root: Element) => {
+      const rects: Array<{ top: number; right: number; bottom: number; left: number }> = [];
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let textNode = walker.nextNode();
+      while (textNode) {
+        const parent = textNode.parentElement;
+        const text = textNode.textContent ?? '';
+        if (
+          parent &&
+          text.trim() &&
+          !parent.closest('.visually-hidden, .katex-mathml')
+        ) {
+          const style = window.getComputedStyle(parent);
+          if (style.display !== 'none' && style.visibility !== 'hidden') {
+            const range = document.createRange();
+            range.selectNodeContents(textNode);
+            for (const rect of Array.from(range.getClientRects())) {
+              if (rect.width > 0 && rect.height > 0) {
+                rects.push({
+                  top: rect.top,
+                  right: rect.right,
+                  bottom: rect.bottom,
+                  left: rect.left,
+                });
+              }
+            }
+          }
+        }
+        textNode = walker.nextNode();
+      }
+      return rects;
+    };
+
+    return nodes.map((node) => {
+      const label = node.querySelector(':scope > [data-rejection-label]');
+      const value = node.querySelector(':scope > [data-rejection-value]');
+      const summaryNode = node.parentElement;
+      const cardNode = node.closest('[data-error-kind="incompatible-broadcast"]');
+      if (!(label instanceof HTMLElement) || !(value instanceof HTMLElement)) {
+        throw new Error('Missing direct rejection label or value');
+      }
+      if (!(summaryNode instanceof HTMLElement) || !(cardNode instanceof HTMLElement)) {
+        throw new Error('Missing rejection summary or card');
+      }
+
+      const labelRects = paintedTextRects(label);
+      const valueRects = paintedTextRects(value);
+      if (labelRects.length === 0 || valueRects.length === 0) {
+        throw new Error('Missing painted rejection label or value text');
+      }
+      const cardRect = cardNode.getBoundingClientRect();
+      const cardStyle = window.getComputedStyle(cardNode);
+      const inner = {
+        top: cardRect.top + Number.parseFloat(cardStyle.borderTopWidth),
+        right: cardRect.right - Number.parseFloat(cardStyle.borderRightWidth),
+        bottom: cardRect.bottom - Number.parseFloat(cardStyle.borderBottomWidth),
+        left: cardRect.left + Number.parseFloat(cardStyle.borderLeftWidth),
+      };
+      const paintRects = [...labelRects, ...valueRects];
+      const styles = [node, label, value].map((element) => window.getComputedStyle(element));
+
+      return {
+        field: node.getAttribute('data-rejection-field'),
+        labelTag: label.tagName,
+        valueTag: value.tagName,
+        labelBeforeValue: Boolean(label.compareDocumentPosition(value) & Node.DOCUMENT_POSITION_FOLLOWING),
+        summaryDisplay: window.getComputedStyle(summaryNode).display,
+        fieldDisplay: window.getComputedStyle(node).display,
+        separation:
+          Math.min(...valueRects.map(({ top }) => top)) -
+          Math.max(...labelRects.map(({ bottom }) => bottom)),
+        inlineDebt: (node as HTMLElement).scrollWidth - (node as HTMLElement).clientWidth,
+        blockDebt: (node as HTMLElement).scrollHeight - (node as HTMLElement).clientHeight,
+        clipped: styles.some(({ overflowX, overflowY }) =>
+          [overflowX, overflowY].some((overflow) => overflow === 'hidden' || overflow === 'clip'),
+        ),
+        paintOverhang: Math.max(
+          0,
+          ...paintRects.flatMap((rect) => [
+            inner.left - rect.left,
+            rect.right - inner.right,
+            inner.top - rect.top,
+            rect.bottom - inner.bottom,
+          ]),
+        ),
+      };
+    });
+  });
+
+  expect(
+    diagnostics.map(({
+      field,
+      labelTag,
+      valueTag,
+      labelBeforeValue,
+      summaryDisplay,
+      fieldDisplay,
+      clipped,
+    }) => ({
+      field,
+      labelTag,
+      valueTag,
+      labelBeforeValue,
+      summaryDisplay,
+      fieldDisplay,
+      clipped,
+    })),
+    context,
+  ).toEqual([
+    {
+      field: 'request',
+      labelTag: 'DT',
+      valueTag: 'DD',
+      labelBeforeValue: true,
+      summaryDisplay: 'grid',
+      fieldDisplay: 'grid',
+      clipped: false,
+    },
+    {
+      field: 'evidence',
+      labelTag: 'DT',
+      valueTag: 'DD',
+      labelBeforeValue: true,
+      summaryDisplay: 'grid',
+      fieldDisplay: 'grid',
+      clipped: false,
+    },
+    {
+      field: 'reason',
+      labelTag: 'DT',
+      valueTag: 'DD',
+      labelBeforeValue: true,
+      summaryDisplay: 'grid',
+      fieldDisplay: 'grid',
+      clipped: false,
+    },
+  ]);
+  for (const diagnostic of diagnostics) {
+    expect(diagnostic.separation, `${context}: ${diagnostic.field} label/value separation`)
+      .toBeGreaterThanOrEqual(1);
+    expect(diagnostic.inlineDebt, `${context}: ${diagnostic.field} inline debt`)
+      .toBeLessThanOrEqual(1);
+    expect(diagnostic.blockDebt, `${context}: ${diagnostic.field} block debt`)
+      .toBeLessThanOrEqual(1);
+    expect(diagnostic.paintOverhang, `${context}: ${diagnostic.field} paint overhang`)
+      .toBeLessThanOrEqual(1);
+  }
 }
 
 async function expectChapterContent(
@@ -305,6 +475,12 @@ async function expectChapterContent(
       '[data-error-kind="incompatible-broadcast"] annotation[encoding="application/x-tex"]',
     ),
   ).toHaveText(String.raw`3\ne2`);
+  await settle(page);
+  await expectRejectionFieldRows(
+    diagram,
+    localized.rejectionLabels,
+    `${locale} ${narrow ? 'narrow' : 'desktop'}`,
+  );
 
   expect(
     await diagram.locator('code, bdi').evaluateAll((nodes) =>
@@ -410,6 +586,7 @@ test.describe('chapter 10 localized broadcasting-reductions vertical slice', {
         () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'broadcasting-reductions',
       );
       await settle(page);
+      await expectRejectionFieldRows(diagram, copy[locale].rejectionLabels, `${locale} full view`);
       const geometry = await diagram.evaluate((node) => ({
         blockDebt: node.scrollHeight - node.clientHeight,
         blockBudget: Math.ceil(node.clientHeight * 0.2),

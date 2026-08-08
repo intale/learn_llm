@@ -16864,3 +16864,41 @@ continues to work when localized content changes a sibling cell's row height.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch09-table-row-label-borders`, and
 `20260808T131624Z-repair-ch09-table-row-label-borders-01`.
+
+## 2026-08-08 - Give Chapter 10 rejection fields explicit label rows
+
+**Status:** Accepted before product edits in
+`repair-ch10-broadcast-rejection-label-layout` run 01.
+
+**Context:** Chapter 10's incompatible-broadcast card presents three distinct
+facts: the requested shapes, the axis/extents checked by the planner, and the
+reason for rejection. Its current paragraph separates the facts with bullets,
+but each label remains inline with its value. In ordinary and full view this can
+make `Request`, `Checked evidence`, and `Rejected because` read like fragments
+inside one unstructured sentence, contrary to the intended inspect-one-field-at-
+a-time diagram.
+
+**Decision:** Preserve the existing semantic field order and exact values, but
+render the three facts as explicit records. Each localized label occupies its
+own block line before the corresponding shape, axis/formula, or reason. Keep the
+label/value pair in one wrapper so assistive reading order remains label then
+value, and express only this relationship in component-local geometry. Do not
+change learner-facing strings, add forced line breaks to localized content,
+alter the three typed errors, or move generic card/table styling out of the
+shared diagram module. Add static and Chromium/Firefox assertions that discover
+the three records, require label-before-value order and distinct painted label
+lines, and retain complete box/text containment in ordinary and full view.
+
+The separate shared full-view title/subtitle collision remains owned by
+`stack-full-view-diagram-title-and-subtitle`; this step must not add a Chapter 10
+caption workaround.
+
+**Consequences:** The rejection evidence becomes scannable and remains
+localization-extensible without encoding English-sized text assumptions. The
+mathematical evidence, error precedence, output trace, accessibility semantics,
+shared presentation skin, and reduction table remain unchanged.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch10-broadcast-rejection-label-layout`, and
+`20260808T133123Z-repair-ch10-broadcast-rejection-label-layout-01`.

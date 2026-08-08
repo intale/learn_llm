@@ -122,21 +122,28 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <h5><code dir="ltr">{trace.errors[0].operation}</code></h5>
       </div>
-      <p class="rejection-summary">
-        <span>
-          <strong>{labels.fields.request}:</strong>{' '}
-          <code dir="ltr">{tuple(trace.errors[0].leftShape)}</code>{' / '}
-          <code dir="ltr">{tuple(trace.errors[0].rightShape)}</code>
-        </span>
-        <span aria-hidden="true"> • </span>
-        <span>
-          <strong>{labels.fields.evidence}:</strong>{' '}
-          {labels.fields.axis} <bdi dir="ltr">{trace.errors[0].axis.lexeme}</bdi>,{' '}
-          <InlineMath latex={String.raw`${trace.errors[0].leftSize.lexeme}\ne${trace.errors[0].rightSize.lexeme}`} />
-        </span>
-        <span aria-hidden="true"> • </span>
-        <span><strong>{labels.fields.reason}:</strong> {labels.reasons.incompatible}</span>
-      </p>
+      <dl class="rejection-summary">
+        <div data-rejection-field="request">
+          <dt data-rejection-label>{labels.fields.request}:</dt>
+          <dd data-rejection-value>
+            <span dir="ltr">
+              <code dir="ltr">{tuple(trace.errors[0].leftShape)}</code>{' / '}
+              <code dir="ltr">{tuple(trace.errors[0].rightShape)}</code>
+            </span>
+          </dd>
+        </div>
+        <div data-rejection-field="evidence">
+          <dt data-rejection-label>{labels.fields.evidence}:</dt>
+          <dd data-rejection-value>
+            {labels.fields.axis} <bdi dir="ltr">{trace.errors[0].axis.lexeme}</bdi>,{' '}
+            <InlineMath latex={String.raw`${trace.errors[0].leftSize.lexeme}\ne${trace.errors[0].rightSize.lexeme}`} />
+          </dd>
+        </div>
+        <div data-rejection-field="reason">
+          <dt data-rejection-label>{labels.fields.reason}:</dt>
+          <dd data-rejection-value>{labels.reasons.incompatible}</dd>
+        </div>
+      </dl>
     </article>
   </section>
 
@@ -280,6 +287,18 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
     gap: 0.25rem;
   }
 
+  .rejection-summary,
+  .rejection-summary > div {
+    display: grid;
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .rejection-summary {
+    gap: 0.5rem;
+    margin: 0;
+  }
+
   .broadcast-error { margin-block-start: 0.75rem; }
 
   .visually-hidden {
@@ -327,7 +346,18 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
 
   .broadcasting-reductions-diagram:fullscreen > .broadcast-panel > .mapping-scroll {
     grid-column: 2;
-    grid-row: 1 / span 4;
+    grid-row: 1 / span 3;
+  }
+
+  .broadcasting-reductions-diagram:fullscreen > .broadcast-panel > .broadcast-error {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-block-start: 0.25rem;
+  }
+
+  .broadcasting-reductions-diagram:fullscreen .rejection-summary {
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.9fr) minmax(0, 1.6fr);
+    column-gap: 0.75rem;
   }
 
 </style>

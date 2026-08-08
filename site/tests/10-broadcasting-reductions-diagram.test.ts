@@ -49,6 +49,15 @@ function readRustRegion(source: string, name: string): string {
   return source.slice(start + startMarker.length, end);
 }
 
+function readSourceSlice(source: string, startMarker: string, endMarker: string): string {
+  const start = source.indexOf(startMarker);
+  const end = source.indexOf(endMarker, start + startMarker.length);
+  if (start === -1 || end <= start) {
+    throw new Error(`Missing ordered source slice ${startMarker} -> ${endMarker}`);
+  }
+  return source.slice(start, end);
+}
+
 const labels: BroadcastingReductionsDiagramLabels = {
   title: 'title',
   description: 'description',
@@ -223,6 +232,53 @@ describe('Chapter 10 static diagram component', () => {
     expect(component).toContain('data-error-kind=');
   });
 
+  it('presents incompatible-broadcast evidence as three ordered label-value rows', () => {
+    const summary = readSourceSlice(
+      component,
+      '<dl class="rejection-summary">',
+      '</article>',
+    );
+    const styles = readSourceSlice(component, '<style>', '</style>');
+    const fields = [
+      ['request', 'request'],
+      ['evidence', 'evidence'],
+      ['reason', 'reason'],
+    ] as const;
+
+    expect(summary.match(/data-rejection-field=/g)).toHaveLength(3);
+    expect(summary.match(/data-rejection-label/g)).toHaveLength(3);
+    expect(summary.match(/data-rejection-value/g)).toHaveLength(3);
+    for (const [field, label] of fields) {
+      expect(summary).toMatch(
+        new RegExp(
+          `<div data-rejection-field="${field}">\\s*` +
+            `<dt data-rejection-label>\\{labels\\.fields\\.${label}\\}:</dt>\\s*` +
+            '<dd data-rejection-value>',
+        ),
+      );
+    }
+    const positions = fields.map(([field]) =>
+      summary.indexOf(`data-rejection-field="${field}"`),
+    );
+    expect(positions.every((position) => position >= 0)).toBe(true);
+    expect(positions).toEqual([...positions].sort((left, right) => left - right));
+    expect(summary).not.toContain('aria-hidden="true"> •');
+    expect(styles).toMatch(
+      /\.rejection-summary,\s*\.rejection-summary > div\s*\{[^}]*display:\s*grid/is,
+    );
+    expect(styles).toMatch(
+      /\.rejection-summary,\s*\.rejection-summary > div\s*\{[^}]*align-content:\s*start/is,
+    );
+    expect(styles).toMatch(/\.rejection-summary\s*\{[^}]*margin:\s*0/is);
+    expect(styles).toMatch(
+      /:fullscreen > \.broadcast-panel > \.broadcast-error\s*\{[^}]*grid-column:\s*1 \/ -1[^}]*margin-block-start:\s*0\.25rem/is,
+    );
+    expect(styles).toMatch(
+      /:fullscreen \.rejection-summary\s*\{[^}]*grid-template-columns:\s*minmax\(0, 0\.7fr\) minmax\(0, 0\.9fr\) minmax\(0, 1\.6fr\)/is,
+    );
+    expect(styles).not.toMatch(/\.rejection-summary[^}]*overflow:\s*(?:hidden|clip)/is);
+  });
+
   it('uses keyboard-reachable local overflow and non-color state cues', () => {
     expect(component).toContain('data-visualization-id={broadcastingReductionsDiagramId}');
     expect(component).toContain('class="mapping-scroll course-diagram__scroll"');
@@ -241,7 +297,7 @@ describe('Chapter 10 static diagram component', () => {
       '.broadcasting-reductions-diagram:fullscreen > .broadcast-panel',
     );
     expect(component).toContain('grid-template-columns: minmax(18rem, 1fr) minmax(0, 1fr)');
-    expect(component).toContain('grid-row: 1 / span 4');
+    expect(component).toContain('grid-row: 1 / span 3');
     expect(component).toContain('↻');
     expect(component).toContain('↓');
     expect(component).not.toContain('Σ');
