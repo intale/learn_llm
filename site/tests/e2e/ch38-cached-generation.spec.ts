@@ -20,7 +20,7 @@ const copy = {
     revisionLabel: "Content revision",
     title: "Prefill once, then advance one token",
     description:
-      "Learn how one KV cache per decoder block supports one prompt prefill followed by coherent one-token decoding, then compare newest-position logits and generation decisions with complete-prefix references.",
+      "Learn how one KV cache per decoder block and one checked model/cache session support prompt prefill followed by coherent one-token decoding, then compare newest-position logits and generation decisions with complete-prefix references.",
     diagramTitle: "Prefill every layer for the prompt; decode every layer together",
     diagramDescription:
       "The exact Rust trace follows a two-token prompt and one later token through two distinct decoder-block caches, checks newest-position logits within tolerance, and compares measured attention-score work plus stopping and reset behavior.",
@@ -40,14 +40,22 @@ const copy = {
       "= newest logits match within tolerance",
     ],
     detailsFragment:
-      "Even when values, shapes, and decoder configuration agree, rebuilding creates different parameter nodes, so the identity check fails",
+      "rebuilding creates different parameter nodes, so the cache cannot open a session with that rebuilt model",
+    sessionBindFragment:
+      "returns a DecoderKvSession for one exact model/cache pair",
+    noModelArgumentFragment:
+      "do not accept a model argument because the session already holds the model they must use",
+    liveBorrowFragment:
+      "retains live read-only borrows of every parameter value",
+    dynamicChecksFragment:
+      "Each operation still checks the facts that can change from call to call",
     revisionMismatchFragment:
-      "An in-place AdamW update preserves the parameter nodes but advances their value revisions",
+      "A later attempt to bind the old cache returns ModelParameterRevisionMismatch",
     resetBindingFragment:
-      "It does not rebind the cache",
+      "retaining the same model/cache relationship",
     constantTimeFragment: "Cached attention is not constant-time",
     historyPolicyFragment:
-      "local correctness choices rather than policies defined by the cited papers",
+      "requirements of this implementation, not policies stated by the cited papers",
     historyCountFragment: "this exact schedule avoids",
     contextBoundaryFragment:
       "selected from those logits and returned, then context-limit stops before decoding it",
@@ -58,9 +66,9 @@ const copy = {
     revisionLabel: "Версия материала",
     title: "Один раз заполните кэши, затем декодируйте по одному токену",
     description:
-      "Разберитесь, как отдельный KV-кэш (кэш ключей и значений) для каждого блока декодера позволяет один раз обработать промпт, затем согласованно декодировать по одному токену и сравнивать логиты последней позиции и решения при генерации с эталонным расчётом по полному префиксу.",
+      "Разберитесь, как отдельный KV-кэш (кэш ключей и значений) для каждого блока и один проверенный сеанс для модели и кэша позволяют один раз обработать промпт, затем согласованно декодировать по одному токену, а затем сравнить логиты последней позиции и решения при генерации с эталонными расчётами по полному префиксу.",
     diagramTitle:
-      "Заполните кэш каждого слоя по промпту; затем декодируйте все слои согласованно",
+      "Заполните кэши всех блоков по промпту, затем обновляйте их согласованно",
     diagramDescription:
       "Точная трассировка программы на Rust проводит промпт из двух токенов и один следующий токен через два отдельных кэша блоков декодера, проверяет логиты последней позиции в пределах допуска и сравнивает измеренное число оценок внимания, причины остановки и поведение при сбросе.",
     headings: [
@@ -68,10 +76,10 @@ const copy = {
       "Считайте значения оценок внимания, а не полное время работы",
       "Не смешивайте сохранённую и конечную длины",
       "От стека каузальных слоёв к обработке промпта и последовательному декодированию",
-      "Подготовьте каждый блок, затем одновременно обновите все кэши",
+      "Подготовьте каждый блок, затем согласованно запишите изменения во все кэши",
       "Проследите путь от промпта до декодирования одного токена",
       "Сначала предскажите, затем сверьтесь с результатами",
-      "Соедините вывод со всем процессом",
+      "Соедините генерацию со всем процессом",
     ],
     cues: [
       "| заполнение по промпту — сплошная рамка",
@@ -79,14 +87,22 @@ const copy = {
       "= логиты последней позиции совпадают в пределах допуска",
     ],
     detailsFragment:
-      "Даже при тех же значениях, формах и конфигурации заново построенная модель содержит другие узлы параметров, поэтому проверка идентичности завершается ошибкой",
+      "заново построенная модель содержит другие узлы параметров, поэтому создать для неё сеанс со старым кэшем нельзя",
+    sessionBindFragment:
+      "создаёт DecoderKvSession для одной конкретной пары модели и кэша",
+    noModelArgumentFragment:
+      "не принимают модель отдельным аргументом, потому что используют модель, уже связанную с сеансом",
+    liveBorrowFragment:
+      "сохраняет активные неизменяемые заимствования значений всех параметров",
+    dynamicChecksFragment:
+      "При каждом вызове по-прежнему проверяются условия, которые могут измениться",
     revisionMismatchFragment:
-      "Обновление AdamW на месте сохраняет узлы параметров, но увеличивает версии их значений",
+      "Следующая попытка связать старый кэш с этой моделью возвращает ModelParameterRevisionMismatch",
     resetBindingFragment:
-      "Он не меняет привязку кэша",
-    constantTimeFragment: "Внимание с KV-кэшем не работает за постоянное время",
+      "сохраняя ту же связь модели и кэша",
+    constantTimeFragment: "Время расчёта внимания не становится постоянным",
     historyPolicyFragment:
-      "локальные правила корректности, а не требования цитируемых статей",
+      "требования данной реализации, а не правила, установленные цитируемыми статьями",
     historyCountFragment:
       "в этой заданной последовательности вызовов не вычисляются",
     contextBoundaryFragment:
@@ -292,7 +308,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 38,
-    revision: 4,
+    revision: 5,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -340,6 +356,11 @@ async function expectChapterContent(
   expect(lessonText).toContain(localized.historyPolicyFragment);
   expect(lessonText).toContain(localized.historyCountFragment);
   expect(lessonText).toContain(localized.contextBoundaryFragment);
+  expect(lessonText).toContain(localized.sessionBindFragment);
+  expect(lessonText).toContain(localized.noModelArgumentFragment);
+  expect(lessonText).toContain(localized.liveBorrowFragment);
+  expect(lessonText).toContain(localized.dynamicChecksFragment);
+  expect(lessonText).toContain(localized.revisionMismatchFragment);
   for (const href of [
     "https://arxiv.org/pdf/1706.03762",
     "https://arxiv.org/pdf/1911.02150",
@@ -467,7 +488,6 @@ async function expectChapterContent(
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(10);
   await expect(details).toContainText(localized.detailsFragment);
-  await expect(details).toContainText(localized.revisionMismatchFragment);
   await expect(details).toContainText(localized.resetBindingFragment);
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(

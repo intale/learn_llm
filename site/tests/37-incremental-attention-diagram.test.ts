@@ -431,6 +431,11 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(incrementalSource).not.toMatch(/\bpub fn prepare_incremental_bound\b/);
     expect(incrementalSource.match(/fn prepare_incremental_bound\b/g)).toHaveLength(1);
     expect(incrementalSource.match(/fn incremental_mixture\b/g)).toHaveLength(1);
+    const publicForward = incrementalSource
+      .split("pub fn forward_incremental(")[1]
+      .split("pub(crate) fn prepare_incremental(")[0];
+    expect(publicForward).toContain("self.prepare_incremental(input, cache)?");
+    expect(publicForward).toContain("prepared.commit(cache)");
     const checkedEntry = incrementalSource
       .split("pub(crate) fn prepare_incremental(")[1]
       .split("fn validate_incremental_request(")[0];
@@ -440,22 +445,35 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(checkedEntry).toContain("self.prepare_incremental_bound(input, cache)");
     const requestValidation = incrementalSource
       .split("fn validate_incremental_request(")[1]
-      .split("/// Prepares one row after an owning cache session")[0];
+      .split("pub(crate) fn validate_incremental_cache_binding(")[0];
     let previousCheck = -1;
     for (const check of [
       "if shape.len() != 3",
       "if shape[1] != 1",
       "if shape[0] != cache.batch_size()",
       "if shape[2] != self.model_width()",
+      "self.validate_incremental_cache_binding(cache)?",
+      "if cache.is_full()",
+    ]) {
+      const currentCheck = requestValidation.indexOf(check);
+      expect(currentCheck, `missing or reordered check: ${check}`).toBeGreaterThan(
+        previousCheck,
+      );
+      previousCheck = currentCheck;
+    }
+    const bindingValidation = incrementalSource
+      .split("pub(crate) fn validate_incremental_cache_binding(")[1]
+      .split("pub(crate) fn prepare_incremental_bound(")[0];
+    previousCheck = -1;
+    for (const check of [
       "if cache.model_width() != self.model_width()",
       "if cache.heads() != self.heads()",
       "if cache.head_width() != self.head_width()",
       "cached.node_matches(parameter.tensor())",
       "!cached.revision_matches(parameter.tensor())",
       "if cache.rope_feature_width != self.rope().feature_width()",
-      "if cache.is_full()",
     ]) {
-      const currentCheck = requestValidation.indexOf(check);
+      const currentCheck = bindingValidation.indexOf(check);
       expect(currentCheck, `missing or reordered check: ${check}`).toBeGreaterThan(
         previousCheck,
       );

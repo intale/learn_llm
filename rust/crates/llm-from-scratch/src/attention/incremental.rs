@@ -759,6 +759,24 @@ impl MultiHeadAttention {
                 actual: shape[2],
             });
         }
+        self.validate_incremental_cache_binding(cache)?;
+        if cache.is_full() {
+            return Err(LayerKvCacheError::Full {
+                capacity: cache.capacity(),
+            }
+            .into());
+        }
+        Ok(())
+    }
+
+    /// Checks the persistent relationship between one layer and one cache.
+    ///
+    /// A model-wide session calls this once while binding its complete cache.
+    /// The standalone entry calls it for every arbitrary layer/cache pairing.
+    pub(crate) fn validate_incremental_cache_binding(
+        &self,
+        cache: &LayerKvCache,
+    ) -> Result<(), IncrementalAttentionError> {
         if cache.model_width() != self.model_width() {
             return Err(IncrementalAttentionError::CacheModelWidthMismatch {
                 layer: self.model_width(),
@@ -811,24 +829,17 @@ impl MultiHeadAttention {
                 layer_base: self.rope().base(),
             });
         }
-        if cache.is_full() {
-            return Err(LayerKvCacheError::Full {
-                capacity: cache.capacity(),
-            }
-            .into());
-        }
         Ok(())
     }
 
-    /// Prepares one row after an owning cache session has proved the full request.
+    /// Prepares one row after its crate-private caller establishes every precondition.
     ///
-    /// The caller must already have established the same input shape, cache
-    /// geometry, parameter identity and revision, RoPE configuration, and
-    /// remaining-capacity facts checked by `prepare_incremental`. It must also
-    /// preserve that exact layer/cache pairing until every prepared row either
-    /// commits or is discarded. Keeping this entry crate-private lets Chapter 38
-    /// reuse the one attention implementation after its model-wide bind without
-    /// creating an unchecked public path.
+    /// A model-wide bind establishes the persistent layer/cache relationship.
+    /// The current session operation separately guarantees the one-row input
+    /// shape and remaining capacity. The caller must preserve that exact
+    /// layer/cache pairing until every prepared row either commits or is
+    /// discarded. Keeping this entry crate-private lets Chapter 38 reuse the one
+    /// attention implementation without creating an unchecked public path.
     pub(crate) fn prepare_incremental_bound(
         &self,
         input: &TensorValue,

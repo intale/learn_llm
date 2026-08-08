@@ -7,7 +7,7 @@ use llm_from_scratch::autograd::tensor_core::no_grad;
 use llm_from_scratch::checkpoint::{Checkpoint, CheckpointError, CheckpointTokenizer};
 use llm_from_scratch::generation::kv_cache::{
     CachedDecoderOutput, CachedGenerationError, CachedGenerationResult, DecoderKvCache,
-    DecoderKvCacheError, DecoderKvCacheWork, generate_cached,
+    DecoderKvCacheError, DecoderKvCacheWork, DecoderKvSession, generate_cached,
 };
 use llm_from_scratch::generation::sampling::{
     GenerationConfig, GenerationError, GenerationResult, GenerationStop, SamplingMode,
@@ -475,37 +475,48 @@ fn loaded_generation_evidence() -> Result<LoadedGenerationEvidence, FixtureError
 }
 
 fn reset_evidence(
-    model: &DecoderModel,
-    cache: &mut DecoderKvCache,
+    session: &mut DecoderKvSession<'_, '_>,
     expected_decode: &PhaseEvidence,
 ) -> Result<ResetEvidence, FixtureError> {
-    let before = cache.len();
-    let pointers = (0..cache.layer_count())
+    let before = session.cache().len();
+    let pointers = (0..session.cache().layer_count())
         .map(|layer| {
-            let cache = cache.layer_cache(layer).expect("fixture layer exists");
+            let cache = session
+                .cache()
+                .layer_cache(layer)
+                .expect("fixture layer exists");
             (cache.key_storage().as_ptr(), cache.value_storage().as_ptr())
         })
         .collect::<Vec<_>>();
-    let storage = (0..cache.layer_count())
+    let storage = (0..session.cache().layer_count())
         .map(|layer| {
-            let cache = cache.layer_cache(layer).expect("fixture layer exists");
+            let cache = session
+                .cache()
+                .layer_cache(layer)
+                .expect("fixture layer exists");
             (cache.key_storage().to_vec(), cache.value_storage().to_vec())
         })
         .collect::<Vec<_>>();
-    cache.reset();
-    let after = cache.len();
-    let allocation_reused = (0..cache.layer_count()).all(|layer| {
-        let cache = cache.layer_cache(layer).expect("fixture layer exists");
+    session.reset();
+    let after = session.cache().len();
+    let allocation_reused = (0..session.cache().layer_count()).all(|layer| {
+        let cache = session
+            .cache()
+            .layer_cache(layer)
+            .expect("fixture layer exists");
         cache.key_storage().as_ptr() == pointers[layer].0
             && cache.value_storage().as_ptr() == pointers[layer].1
     });
-    let storage_unchanged = (0..cache.layer_count()).all(|layer| {
-        let cache = cache.layer_cache(layer).expect("fixture layer exists");
+    let storage_unchanged = (0..session.cache().layer_count()).all(|layer| {
+        let cache = session
+            .cache()
+            .layer_cache(layer)
+            .expect("fixture layer exists");
         cache.key_storage() == storage[layer].0 && cache.value_storage() == storage[layer].1
     });
-    let work_zeroed = cache.work() == DecoderKvCacheWork::default();
-    cache.prefill(model, &PROMPT)?;
-    let replay = cache.decode(model, DECODE_TOKEN)?;
+    let work_zeroed = session.cache().work() == DecoderKvCacheWork::default();
+    session.prefill(&PROMPT)?;
+    let replay = session.decode(DECODE_TOKEN)?;
     let replay_identical = replay.logits().value().as_slice() == expected_decode.cached_logits;
     Ok(ResetEvidence {
         before,
@@ -520,36 +531,37 @@ fn reset_evidence(
 fn error_evidence(model: &DecoderModel) -> Result<ErrorEvidence, FixtureError> {
     let mut fresh = DecoderKvCache::new(model)?;
     let fresh_before = fresh.clone();
-    let decode_before_prefill_rejected = matches!(
-        fresh.decode(model, 0),
-        Err(DecoderKvCacheError::DecodeRequiresPrefill)
-    ) && fresh == fresh_before;
-
-    fresh.prefill(model, &PROMPT)?;
-    let populated = fresh.clone();
-    let prefill_nonempty_rejected = matches!(
-        fresh.prefill(model, &[0]),
-        Err(DecoderKvCacheError::PrefillRequiresEmpty { len: 2 })
-    ) && fresh == populated;
-
     let rebuilt = DecoderModel::from_parameters(model.config(), copied_parameters(model))?;
     let rebuilt_model_rejected = matches!(
-        fresh.decode(&rebuilt, 2),
+        fresh.bind(&rebuilt),
         Err(DecoderKvCacheError::ModelParameterMismatch { index: 0 })
-    ) && fresh == populated;
+    ) && fresh == fresh_before;
     let changed = DecoderModel::from_parameters(fixture_config(2e-6), model.parameters().to_vec())?;
     let changed_config_rejected = matches!(
-        fresh.decode(&changed, 2),
+        fresh.bind(&changed),
         Err(DecoderKvCacheError::ModelConfigMismatch)
-    ) && fresh == populated;
+    ) && fresh == fresh_before;
 
-    fresh.decode(model, 2)?;
-    fresh.decode(model, 3)?;
-    let full = fresh.clone();
+    let mut session = fresh.bind(model)?;
+    let decode_before_prefill_rejected = matches!(
+        session.decode(0),
+        Err(DecoderKvCacheError::DecodeRequiresPrefill)
+    ) && session.cache() == &fresh_before;
+
+    session.prefill(&PROMPT)?;
+    let populated = session.cache().clone();
+    let prefill_nonempty_rejected = matches!(
+        session.prefill(&[0]),
+        Err(DecoderKvCacheError::PrefillRequiresEmpty { len: 2 })
+    ) && session.cache() == &populated;
+
+    session.decode(2)?;
+    session.decode(3)?;
+    let full = session.cache().clone();
     let overflow_rejected = matches!(
-        fresh.decode(model, 4),
+        session.decode(4),
         Err(DecoderKvCacheError::Full { capacity: 4 })
-    ) && fresh == full;
+    ) && session.cache() == &full;
     let unchanged = decode_before_prefill_rejected
         && prefill_nonempty_rejected
         && overflow_rejected
@@ -571,28 +583,29 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let model = fixture_model()?;
     let config = model.config();
     let mut cache = DecoderKvCache::new(&model)?;
-    let prefill_output = cache.prefill(&model, &PROMPT)?;
-    let prefill = phase_evidence(&model, &cache, &prefill_output, &PROMPT, 0, 0)?;
-    let cached_scores_after_prefill = cache.work().attention_score_values();
-    let decode_output = cache.decode(&model, DECODE_TOKEN)?;
+    let mut session = cache.bind(&model)?;
+    let prefill_output = session.prefill(&PROMPT)?;
+    let prefill = phase_evidence(&model, session.cache(), &prefill_output, &PROMPT, 0, 0)?;
+    let cached_scores_after_prefill = session.cache().work().attention_score_values();
+    let decode_output = session.decode(DECODE_TOKEN)?;
     let decode_prefix = [PROMPT[0], PROMPT[1], DECODE_TOKEN];
     let decode = phase_evidence(
         &model,
-        &cache,
+        session.cache(),
         &decode_output,
         &decode_prefix,
         PROMPT.len(),
         cached_scores_after_prefill,
     )?;
-    let layer_storage_distinct =
-        cache
-            .layer_cache(0)
-            .zip(cache.layer_cache(1))
-            .is_some_and(|(left, right)| {
-                left.key_storage().as_ptr() != right.key_storage().as_ptr()
-                    && left.value_storage().as_ptr() != right.value_storage().as_ptr()
-            });
-    let work = cache.work();
+    let layer_storage_distinct = session
+        .cache()
+        .layer_cache(0)
+        .zip(session.cache().layer_cache(1))
+        .is_some_and(|(left, right)| {
+            left.key_storage().as_ptr() != right.key_storage().as_ptr()
+                && left.value_storage().as_ptr() != right.value_storage().as_ptr()
+        });
+    let work = session.cache().work();
     let complete_prefix_attention_score_values = prefill
         .complete_prefix_attention_score_values
         .checked_add(decode.complete_prefix_attention_score_values)
@@ -600,7 +613,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
             "measured complete-prefix score total overflowed",
         ))?;
     let loaded = loaded_generation_evidence()?;
-    let reset = reset_evidence(&model, &mut cache, &decode)?;
+    let reset = reset_evidence(&mut session, &decode)?;
     let errors = error_evidence(&model)?;
     let cached_retained_lengths = [1, prefill.cache_after, decode.cache_after];
     let complete_prefix_lengths = [prefill.cache_after, decode.cache_after];
@@ -1066,14 +1079,16 @@ mod tests {
         let config = DecoderModelConfig::new(5, 4, 2, 4, 1, 5, 10_000.0, 1e-6);
         let model = DecoderModel::new(config, &mut SplitMix64::from_seed(138)).unwrap();
         let mut cache = DecoderKvCache::new(&model).unwrap();
+        let mut session = cache.bind(&model).unwrap();
         let prompt = [0, 1, 2];
-        let prefill_output = cache.prefill(&model, &prompt).unwrap();
-        let prefill = phase_evidence(&model, &cache, &prefill_output, &prompt, 0, 0).unwrap();
-        let cached_scores_after_prefill = cache.work().attention_score_values();
-        let decode_output = cache.decode(&model, 3).unwrap();
+        let prefill_output = session.prefill(&prompt).unwrap();
+        let prefill =
+            phase_evidence(&model, session.cache(), &prefill_output, &prompt, 0, 0).unwrap();
+        let cached_scores_after_prefill = session.cache().work().attention_score_values();
+        let decode_output = session.decode(3).unwrap();
         let decode = phase_evidence(
             &model,
-            &cache,
+            session.cache(),
             &decode_output,
             &[0, 1, 2, 3],
             3,

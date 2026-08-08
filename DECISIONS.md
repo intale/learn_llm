@@ -16295,6 +16295,61 @@ scheduling checkpoint changes no learner-visible byte and does not delay Chapter
 `add-ch02-bpe-cheat-sheet-term`, and
 `20260808T080224Z-queue-ch02-bpe-cheat-sheet-term-01`.
 
+## 2026-08-08 - Make the Chapter 38 cache session the owner of established model compatibility
+
+**Status:** Accepted before Chapter 38 product edits in
+`bind-decoder-cache-session-once` run 01.
+
+**Context:** Chapter 37 now exposes one crate-private incremental-attention
+calculation for a caller that has already established the same layer/cache facts
+as the checked standalone entry. Chapter 38's current `DecoderKvCache::prefill`
+and `decode` still accept a model on every call, rescan configuration, every
+parameter identity and revision, and every layer length, then call the checked
+per-layer preparation path again. Merely storing captured revisions does not
+prevent an in-place optimizer write between those repeated calls. The current
+Chapter 38 demo calls the old API directly, and its cheat sheet describes
+model-wide ownership without the session that will now enforce it.
+
+**Decision:** Introduce a public `DecoderKvSession` that independently borrows
+one `DecoderModel` and one mutable `DecoderKvCache`. Its bind boundary validates
+the model configuration, stable parameter-node list and captured revisions,
+coherent layer lengths, and each layer cache's geometry, attention-parameter
+binding, and exact RoPE configuration. It then retains one live immutable primal
+borrow for every model parameter until the session is dropped. An AdamW update
+during that lifetime must therefore fail through the existing fallible parameter
+write boundary; after the session is dropped, updates are permitted and the old
+cache remains stale by revision.
+
+Move prefill, decode, reset, and their private one-row transition under the
+session. Those operations accept no model argument. They retain dynamic prompt,
+phase, token, capacity, prepared-ticket, and checked-counter validation, but do
+not rescan persistent model, parameter, RoPE, geometry, or cross-layer-length
+facts. Route every block through Chapter 37's single already-bound attention
+calculation; do not copy the mathematics or weaken the checked standalone API.
+Keep the all-layer prepare-then-commit transaction and exact error/stop behavior.
+
+Broaden this step's declared outputs before product edits to the crate-private
+Chapter 37 cache-binding validator needed at session construction, the Chapter
+38 demo library that consumes the changed API, and both Chapter 38 cheat sheets
+plus their shared grounding test. The cheat sheet may clarify the existing
+model-wide-cache entry rather than add programming vocabulary. No Chapter 37
+learner prose, demo evidence, formula, or expected output changes.
+
+**Consequences:** One lifetime-bound value represents the relationship that
+cached inference previously re-proved on every token. Safe public callers cannot
+pair a session operation with another model or mutate cache state outside the
+session, and parameter updates cannot coexist with retained K/V use. Bind errors
+remain typed at the boundary; operation errors retain their phase/token/full/
+counter scope; reset preserves allocation and the same binding. Chapter 38 will
+advance English first, Russian will be refreshed directly under the localization
+skill, and exact Chapter 37/38/39 outputs, traces, RNG, stop, work, and parity
+evidence remain controls.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`bind-decoder-cache-session-once`, and
+`20260808T080548Z-bind-decoder-cache-session-once-01`.
+
 ## 2026-08-08 - Share one incremental-attention calculation behind checked and already-bound entries
 
 **Status:** Accepted after exact Rust, content, localization, static, staged, and
@@ -16398,3 +16453,40 @@ API changes as a result of this validation repair.
 
 **Affected step and run:** `share-bound-incremental-attention-kernel`, run
 `20260808T065628Z-share-bound-incremental-attention-kernel-01`.
+
+## 2026-08-08 - Follow the extracted Chapter 37 bind validator in the Chapter 38 regression scope
+
+**Status:** Accepted during independent Rust review of
+`bind-decoder-cache-session-once` run 01, before changing the affected test.
+
+**Context:** Chapter 38 now calls the crate-private persistent layer/cache
+validator once while creating a model-wide session. The Chapter 37 checked entry
+still preserves its original error order, but the implementation expresses that
+order as input-shape checks, one validator call, then the capacity check. Chapter
+37's static test still searched for the validator's individual geometry,
+identity, revision, and RoPE statements inside the checked wrapper, so it would
+misread the valid extraction as an ordering failure. Independent review also
+found that counting retained guards plus observing AdamW fail at parameter zero
+would not detect an implementation that accidentally retained parameter zero
+multiple times.
+
+**Decision:** Add `site/tests/37-incremental-attention-diagram.test.ts` to the
+active Chapter 38 step's integration outputs. Assert the checked wrapper's order
+as input rank, token count, batch, width, persistent-validator call, then full;
+assert geometry, identity, revision, and RoPE order within the validator itself.
+Do not change Chapter 37 learner content or behavior. In the Chapter 38 Rust
+test, attempt the existing fallible value-write acquisition for every model
+parameter while the session lives, in addition to retaining the full AdamW
+rollback and post-drop update evidence.
+
+**Consequences:** Static source evidence now follows the same factored boundary
+that the runtime uses, without weakening or duplicating any check. Runtime tests
+prove that embedding, all block, final-normalization, and every other parameter
+value remains read-borrowed for the whole session. Exact output, traces,
+attention mathematics, public API visibility, and Chapter 37 prose remain
+unchanged.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`bind-decoder-cache-session-once`, and
+`20260808T080548Z-bind-decoder-cache-session-once-01`.

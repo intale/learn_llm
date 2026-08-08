@@ -34,6 +34,9 @@ const russianLessonSource = read(
 const decoderCacheSource = read(
   "rust/crates/llm-from-scratch/src/generation/kv_cache.rs",
 );
+const incrementalAttentionSource = read(
+  "rust/crates/llm-from-scratch/src/attention/incremental.rs",
+);
 const chapterLocaleConfiguration = JSON.parse(
   read("site/src/i18n/chapter-locales.json"),
 );
@@ -42,6 +45,15 @@ function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error("missing JSON frontmatter");
   return JSON.parse(match[1]);
+}
+
+function sourceSlice(source: string, start: string, end: string) {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  if (startIndex === -1 || endIndex === -1) {
+    throw new Error(`missing source boundary: ${start} -> ${end}`);
+  }
+  return source.slice(startIndex, endIndex);
 }
 
 const labels: CachedGenerationDiagramLabels = {
@@ -410,7 +422,7 @@ describe("Chapter 38 diagram label contract", () => {
 });
 
 describe("Chapter 38 lesson localization contract", () => {
-  it("keeps both active lessons semantically aligned with revision 4", () => {
+  it("keeps both active lessons semantically aligned with revision 5", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(lessonSource),
@@ -430,13 +442,13 @@ describe("Chapter 38 lesson localization contract", () => {
       order: 38,
       activeLocales: ["en", "ru"],
     });
-    expect(contract.content_revision).toBe(4);
+    expect(contract.content_revision).toBe(5);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set {en, ru}",
     );
     const canonicalEnglishHash =
-      "3d1127d01c57cb14b342b38350031268bd6d30fa841acb9c59ae0e1df1fc26b2";
+      "3ce2cc099cad761c1b5bf1b53bf3fd4ac176af2ed27a95ea298f673602a025a2";
     expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
       canonicalEnglishHash,
     );
@@ -477,7 +489,7 @@ describe("Chapter 38 lesson localization contract", () => {
       expect(lesson).toMatchObject({
         chapter_id: contract.chapter_id,
         locale,
-        content_revision: 4,
+        content_revision: 5,
         order: contract.order,
         concept_id: contract.concept_id,
         objective: localized(contract.objective),
@@ -561,20 +573,141 @@ describe("Chapter 38 lesson localization contract", () => {
     expect(russianLessonSource).not.toMatch(
       /инструкц\w* по сборк|авторск\w* контракт|требовани\w* тест|ограничени\w* фреймворк|механик\w* презентац/i,
     );
-    expect(lessonSource).toContain("ModelParameterRevisionMismatch");
-    expect(lessonSource.replace(/\s+/g, " ")).toContain(
-      "A successful in-place AdamW step writes new values into the same nodes, so their identities still match but their revisions advance",
+    const normalizedEnglish = lessonSource.replace(/\s+/g, " ");
+    const normalizedRussian = russianLessonSource.replace(/\s+/g, " ");
+    expect(normalizedEnglish).toContain(
+      "Before inference, `cache.bind(&model)` checks that evidence and returns a `DecoderKvSession` for one exact model/cache pair",
     );
-    expect(lessonSource.replace(/\s+/g, " ")).toContain(
-      "Reset does not refresh the captured parameter revisions and does not bind the cache to a different model",
+    expect(normalizedEnglish).toContain(
+      "do not accept a model argument because the session already holds the model they must use",
     );
-    expect(russianLessonSource).toContain(
-      "Старый кэш в этом случае возвращает `ModelParameterRevisionMismatch`",
+    expect(normalizedEnglish).toContain(
+      "retains live read-only borrows of every parameter value",
     );
-    expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "Сброс не обновляет зафиксированные версии параметров",
+    expect(normalizedEnglish).toContain(
+      "Each operation still checks the facts that can change from call to call",
     );
-    expect(decoderCacheSource).toContain("ModelParameterRevisionMismatch");
-    expect(decoderCacheSource).toContain("revision_matches");
+    expect(normalizedEnglish).toContain(
+      "returns `ParameterValueBorrowed`",
+    );
+    expect(normalizedEnglish).toContain(
+      "A later attempt to bind the old cache returns `ModelParameterRevisionMismatch`",
+    );
+    expect(normalizedEnglish).toContain(
+      "the current session's model/cache relationship",
+    );
+    expect(normalizedRussian).toContain(
+      "создаёт `DecoderKvSession` для одной конкретной пары модели и кэша",
+    );
+    expect(normalizedRussian).toContain(
+      "не принимают модель отдельным аргументом, потому что используют модель, уже связанную с сеансом",
+    );
+    expect(normalizedRussian).toContain(
+      "сохраняет активные неизменяемые заимствования значений всех параметров",
+    );
+    expect(normalizedRussian).toContain(
+      "При каждом вызове по-прежнему проверяются условия, которые могут измениться",
+    );
+    expect(normalizedRussian).toContain(
+      "возвращает `ParameterValueBorrowed`",
+    );
+    expect(normalizedRussian).toContain(
+      "Следующая попытка связать старый кэш с этой моделью возвращает `ModelParameterRevisionMismatch`",
+    );
+    expect(normalizedRussian).toContain(
+      "текущая связь между моделью и кэшем",
+    );
+  });
+
+  it("keeps persistent bind checks out of the model-bound row path", () => {
+    expect(decoderCacheSource).toContain(
+      "pub struct DecoderKvSession<'model, 'cache>",
+    );
+    expect(decoderCacheSource).toContain(
+      "_parameter_value_guards: Vec<Ref<'model, Tensor>>",
+    );
+    expect(decoderCacheSource).toContain("model: &'model DecoderModel");
+    expect(decoderCacheSource).toContain(
+      "cache: &'cache mut DecoderKvCache",
+    );
+
+    const cacheApi = sourceSlice(
+      decoderCacheSource,
+      "impl DecoderKvCache {",
+      "impl DecoderKvSession<'_, '_> {",
+    );
+    expect(cacheApi).toContain("pub fn bind<'model, 'cache>(");
+    expect(cacheApi).not.toMatch(/pub fn (?:prefill|decode|reset)\b/);
+
+    const bind = sourceSlice(
+      decoderCacheSource,
+      "pub fn bind<'model, 'cache>(",
+      "    fn next_work(",
+    );
+    expect(bind).toContain("self.validate_binding(model)?;");
+    expect(bind).toContain("parameter.tensor().value()");
+    expect(bind.indexOf("self.validate_binding(model)?;")).toBeLessThan(
+      bind.indexOf("parameter.tensor().value()"),
+    );
+
+    const validation = sourceSlice(
+      decoderCacheSource,
+      "fn validate_binding(&self, model: &DecoderModel)",
+      "    fn validate_layer_lengths(",
+    );
+    const validationOrder = [
+      "same_config(self.config, model.config())",
+      "self.parameter_bindings.len() != model.parameters().len()",
+      "!cached.node_matches(parameter.tensor())",
+      "!cached.revision_matches(parameter.tensor())",
+      "self.layers.len() != model.blocks().len()",
+      "self.validate_layer_lengths()?",
+      "cache.batch_size() != 1",
+      "cache.capacity() != self.capacity()",
+      ".validate_incremental_cache_binding(cache)",
+    ].map((fragment) => validation.indexOf(fragment));
+    expect(validationOrder.every((index) => index >= 0)).toBe(true);
+    expect(validationOrder).toEqual([...validationOrder].sort((a, b) => a - b));
+
+    const sessionApi = sourceSlice(
+      decoderCacheSource,
+      "impl DecoderKvSession<'_, '_> {",
+      "\nfn valid_token(",
+    );
+    expect(sessionApi).toContain(
+      "pub fn prefill(&mut self, prompt: &[u32])",
+    );
+    expect(sessionApi).toContain(
+      "pub fn decode(&mut self, token_id: u32)",
+    );
+    expect(sessionApi).toContain("pub fn reset(&mut self)");
+    expect(sessionApi).toContain("pub fn cache(&self) -> &DecoderKvCache");
+    expect(sessionApi).not.toContain("DecoderModel");
+    expect(sessionApi).not.toMatch(
+      /validate_binding|validate_layer_lengths|validate_incremental_cache_binding|\.prepare_incremental\(/,
+    );
+    expect(sessionApi.match(/prepare_incremental_bound/g)).toHaveLength(1);
+
+    const forwardToken = sourceSlice(
+      sessionApi,
+      "fn forward_token(",
+      "pub fn reset(&mut self)",
+    );
+    expect(forwardToken.match(/prepare_incremental_bound/g)).toHaveLength(1);
+    expect(forwardToken).toContain("ticket.cache_len() != position + 1");
+    expect(forwardToken).toContain("!ticket.matches_cache(cache)");
+    expect(forwardToken.indexOf("let next_len = checked_add")).toBeLessThan(
+      forwardToken.indexOf("ticket.commit(cache)"),
+    );
+    expect(forwardToken.indexOf("let next_work = self.cache.next_work")).toBeLessThan(
+      forwardToken.indexOf("ticket.commit(cache)"),
+    );
+
+    expect(incrementalAttentionSource).toContain(
+      "pub(crate) fn prepare_incremental_bound",
+    );
+    expect(incrementalAttentionSource).not.toMatch(
+      /\bpub fn prepare_incremental_bound\b/,
+    );
   });
 });

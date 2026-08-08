@@ -1,5 +1,6 @@
 //! Model-wide KV state, prompt prefill, one-token decode, and cached generation.
 
+use std::cell::Ref;
 use std::error::Error;
 use std::fmt;
 
@@ -11,6 +12,7 @@ use crate::nn::init::SplitMix64;
 use crate::nn::residual::{ResidualError, residual_add};
 use crate::nn::rmsnorm::RmsNormError;
 use crate::nn::swiglu::SwiGluError;
+use crate::tensor::storage::Tensor;
 
 use super::sampling::{
     GenerationConfig, GenerationStop, SamplingError, SamplingMode, sample_next_token,
@@ -85,6 +87,20 @@ pub enum DecoderKvCacheError {
         cache: u64,
         model: u64,
     },
+    LayerCountMismatch {
+        cache: usize,
+        model: usize,
+    },
+    LayerBatchSizeMismatch {
+        layer: usize,
+        expected: usize,
+        actual: usize,
+    },
+    LayerCapacityMismatch {
+        layer: usize,
+        expected: usize,
+        actual: usize,
+    },
     EmptyPrompt,
     PromptTooLong {
         tokens: usize,
@@ -157,7 +173,7 @@ impl fmt::Display for DecoderKvCacheError {
             }
             Self::ParameterAllocationFailed { parameters } => write!(
                 formatter,
-                "cannot retain {parameters} decoder parameter identities"
+                "cannot retain {parameters} decoder parameter bindings"
             ),
             Self::LayerCache { layer, source } => {
                 write!(formatter, "decoder layer {layer} cache: {source}")
@@ -179,6 +195,26 @@ impl fmt::Display for DecoderKvCacheError {
             } => write!(
                 formatter,
                 "decoder cache parameter revision {cache} at stable index {index} differs from model revision {model}"
+            ),
+            Self::LayerCountMismatch { cache, model } => write!(
+                formatter,
+                "decoder cache owns {cache} layer caches, but the model exposes {model} blocks"
+            ),
+            Self::LayerBatchSizeMismatch {
+                layer,
+                expected,
+                actual,
+            } => write!(
+                formatter,
+                "decoder layer {layer} cache batch size must be {expected}, got {actual}"
+            ),
+            Self::LayerCapacityMismatch {
+                layer,
+                expected,
+                actual,
+            } => write!(
+                formatter,
+                "decoder layer {layer} cache capacity must be {expected}, got {actual}"
             ),
             Self::EmptyPrompt => formatter.write_str("cached prefill needs a nonempty prompt"),
             Self::PromptTooLong { tokens, capacity } => write!(
@@ -348,7 +384,7 @@ enum CachedPhase {
     Decode,
 }
 
-/// One exact-model cache per decoder block plus coherent model-wide phase state.
+/// Reusable per-block cache storage plus coherent model-wide sequence state.
 #[derive(Clone, Debug)]
 pub struct DecoderKvCache {
     config: DecoderModelConfig,
@@ -357,6 +393,16 @@ pub struct DecoderKvCache {
     len: usize,
     prefill_complete: bool,
     work: DecoderKvCacheWork,
+}
+
+/// One decoder and one mutable model-wide cache bound for one checked session.
+///
+/// The retained parameter-value borrows prevent an optimizer from changing the
+/// decoder while any K/V rows from that decoder may still be used.
+pub struct DecoderKvSession<'model, 'cache> {
+    model: &'model DecoderModel,
+    cache: &'cache mut DecoderKvCache,
+    _parameter_value_guards: Vec<Ref<'model, Tensor>>,
 }
 
 impl PartialEq for DecoderKvCache {
@@ -376,7 +422,7 @@ impl PartialEq for DecoderKvCache {
 }
 
 impl DecoderKvCache {
-    /// Allocates one fixed-capacity layer cache and binds every model parameter.
+    /// Allocates one fixed-capacity cache per block and captures compatibility evidence.
     pub fn new(model: &DecoderModel) -> Result<Self, DecoderKvCacheError> {
         let config = model.config();
         let mut parameter_bindings = Vec::new();
@@ -414,175 +460,28 @@ impl DecoderKvCache {
         })
     }
 
-    /// Fills every block cache from one validated, nonempty prompt.
-    ///
-    /// This teaching implementation advances prompt rows serially through the
-    /// verified one-row primitive. A later internal failure restores empty
-    /// logical state while retaining the fixed allocations.
-    pub fn prefill(
-        &mut self,
-        model: &DecoderModel,
-        prompt: &[u32],
-    ) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
-        self.validate_model(model)?;
-        if prompt.is_empty() {
-            return Err(DecoderKvCacheError::EmptyPrompt);
-        }
-        if self.len != 0 || self.prefill_complete {
-            return Err(DecoderKvCacheError::PrefillRequiresEmpty { len: self.len });
-        }
-        if prompt.len() > self.capacity() {
-            return Err(DecoderKvCacheError::PromptTooLong {
-                tokens: prompt.len(),
-                capacity: self.capacity(),
-            });
-        }
-        for (position, &token_id) in prompt.iter().enumerate() {
-            if !valid_token(token_id, self.config.vocabulary_size()) {
-                return Err(DecoderKvCacheError::PromptTokenOutOfBounds {
-                    position,
-                    token_id,
-                    vocabulary_size: self.config.vocabulary_size(),
-                });
-            }
-        }
-
-        let mut final_output = None;
-        for &token_id in prompt {
-            match self.forward_token(model, token_id, CachedPhase::Prefill) {
-                Ok(output) => final_output = Some(output),
-                Err(error) => {
-                    self.reset();
-                    return Err(error);
-                }
-            }
-        }
-        self.prefill_complete = true;
-        Ok(final_output.expect("a validated prompt has at least one token"))
-    }
-
-    /// Appends one selected token and returns logits for the following choice.
-    pub fn decode(
-        &mut self,
-        model: &DecoderModel,
-        token_id: u32,
-    ) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
-        self.validate_model(model)?;
-        if !self.prefill_complete || self.len == 0 {
-            return Err(DecoderKvCacheError::DecodeRequiresPrefill);
-        }
-        if !valid_token(token_id, self.config.vocabulary_size()) {
-            return Err(DecoderKvCacheError::DecodeTokenOutOfBounds {
-                token_id,
-                vocabulary_size: self.config.vocabulary_size(),
-            });
-        }
-        if self.is_full() {
-            return Err(DecoderKvCacheError::Full {
-                capacity: self.capacity(),
-            });
-        }
-        self.forward_token(model, token_id, CachedPhase::Decode)
-    }
-
-    fn forward_token(
-        &mut self,
-        model: &DecoderModel,
-        token_id: u32,
-        phase: CachedPhase,
-    ) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
-        self.validate_layer_lengths()?;
-        if self.is_full() {
-            return Err(DecoderKvCacheError::Full {
-                capacity: self.capacity(),
-            });
-        }
-        let position = self.len;
-        let layer_count = self.layers.len();
-        let (logits, prepared, score_values) = no_grad(|| {
-            let embedding = model
-                .embedding()
-                .forward(&[token_id], &[1, 1])
-                .map_err(DecoderKvCacheError::Embedding)?;
-            let mut current = embedding;
-            let mut prepared = Vec::new();
-            prepared.try_reserve_exact(layer_count).map_err(|_| {
-                DecoderKvCacheError::LayerAllocationFailed {
-                    layers: layer_count,
-                }
+    /// Validates one exact pairing and retains read borrows of the model's parameter values.
+    pub fn bind<'model, 'cache>(
+        &'cache mut self,
+        model: &'model DecoderModel,
+    ) -> Result<DecoderKvSession<'model, 'cache>, DecoderKvCacheError> {
+        self.validate_binding(model)?;
+        let mut parameter_value_guards: Vec<Ref<'model, Tensor>> = Vec::new();
+        parameter_value_guards
+            .try_reserve_exact(model.parameters().len())
+            .map_err(|_| DecoderKvCacheError::ParameterAllocationFailed {
+                parameters: model.parameters().len(),
             })?;
-            let mut score_values = 0usize;
-            for (layer, (block, cache)) in model.blocks().iter().zip(&self.layers).enumerate() {
-                let attention_norm = block
-                    .attention_norm()
-                    .forward(&current)
-                    .map_err(|source| DecoderKvCacheError::AttentionNorm { layer, source })?;
-                let ticket = block
-                    .attention()
-                    .prepare_incremental(&attention_norm, cache)
-                    .map_err(|source| DecoderKvCacheError::IncrementalAttention {
-                        layer,
-                        source,
-                    })?;
-                score_values = checked_add(
-                    score_values,
-                    ticket.attention_score_values(),
-                    DecoderKvCacheCounter::AttentionScoreValues,
-                )?;
-                let after_attention = residual_add(&current, ticket.output())
-                    .map_err(|source| DecoderKvCacheError::AttentionResidual { layer, source })?;
-                let feed_forward_norm = block
-                    .feed_forward_norm()
-                    .forward(&after_attention)
-                    .map_err(|source| DecoderKvCacheError::FeedForwardNorm { layer, source })?;
-                let feed_forward = block
-                    .feed_forward()
-                    .forward(&feed_forward_norm)
-                    .map_err(|source| DecoderKvCacheError::FeedForward { layer, source })?;
-                current = residual_add(&after_attention, &feed_forward)
-                    .map_err(|source| DecoderKvCacheError::FeedForwardResidual { layer, source })?;
-                prepared.push(ticket);
-            }
-            let final_norm = model
-                .final_norm()
-                .forward(&current)
-                .map_err(DecoderKvCacheError::FinalNorm)?;
-            let tied_weight =
-                model
-                    .tied_embedding()
-                    .tensor()
-                    .transpose(0, 1)
-                    .map_err(|source| DecoderKvCacheError::Autodiff {
-                        stage: CachedDecoderStage::TiedWeightTranspose,
-                        source,
-                    })?;
-            let logits = final_norm.matmul(&tied_weight).map_err(|source| {
-                DecoderKvCacheError::Autodiff {
-                    stage: CachedDecoderStage::TiedVocabularyProjection,
-                    source,
-                }
-            })?;
-            Ok::<_, DecoderKvCacheError>((logits, prepared, score_values))
-        })?;
-
-        for (layer, (ticket, cache)) in prepared.iter().zip(&self.layers).enumerate() {
-            if ticket.cache_len() != position + 1 || !ticket.matches_cache(cache) {
-                return Err(DecoderKvCacheError::PreparedCacheChanged { layer });
-            }
-        }
-        let next_len = checked_add(position, 1, DecoderKvCacheCounter::TokenForwards)?;
-        let next_work = self.next_work(phase, score_values)?;
-
-        for (ticket, cache) in prepared.into_iter().zip(&mut self.layers) {
-            let _ = ticket.commit(cache);
-        }
-        self.len = next_len;
-        self.work = next_work;
-        Ok(CachedDecoderOutput {
-            logits,
-            position,
-            cache_len: next_len,
-            attention_score_values: score_values,
+        parameter_value_guards.extend(
+            model
+                .parameters()
+                .iter()
+                .map(|parameter| parameter.tensor().value()),
+        );
+        Ok(DecoderKvSession {
+            model,
+            cache: self,
+            _parameter_value_guards: parameter_value_guards,
         })
     }
 
@@ -627,7 +526,7 @@ impl DecoderKvCache {
         })
     }
 
-    fn validate_model(&self, model: &DecoderModel) -> Result<(), DecoderKvCacheError> {
+    fn validate_binding(&self, model: &DecoderModel) -> Result<(), DecoderKvCacheError> {
         if !same_config(self.config, model.config()) {
             return Err(DecoderKvCacheError::ModelConfigMismatch);
         }
@@ -658,7 +557,34 @@ impl DecoderKvCache {
                 model: parameter.tensor().value_revision(),
             });
         }
-        self.validate_layer_lengths()
+        if self.layers.len() != model.blocks().len() {
+            return Err(DecoderKvCacheError::LayerCountMismatch {
+                cache: self.layers.len(),
+                model: model.blocks().len(),
+            });
+        }
+        self.validate_layer_lengths()?;
+        for (layer, (block, cache)) in model.blocks().iter().zip(&self.layers).enumerate() {
+            if cache.batch_size() != 1 {
+                return Err(DecoderKvCacheError::LayerBatchSizeMismatch {
+                    layer,
+                    expected: 1,
+                    actual: cache.batch_size(),
+                });
+            }
+            if cache.capacity() != self.capacity() {
+                return Err(DecoderKvCacheError::LayerCapacityMismatch {
+                    layer,
+                    expected: self.capacity(),
+                    actual: cache.capacity(),
+                });
+            }
+            block
+                .attention()
+                .validate_incremental_cache_binding(cache)
+                .map_err(|source| DecoderKvCacheError::IncrementalAttention { layer, source })?;
+        }
+        Ok(())
     }
 
     fn validate_layer_lengths(&self) -> Result<(), DecoderKvCacheError> {
@@ -674,8 +600,7 @@ impl DecoderKvCache {
         Ok(())
     }
 
-    /// Clears logical state and work without reallocating any layer buffer.
-    pub fn reset(&mut self) {
+    fn reset(&mut self) {
         for cache in &mut self.layers {
             cache.reset();
         }
@@ -714,6 +639,183 @@ impl DecoderKvCache {
 
     pub const fn work(&self) -> DecoderKvCacheWork {
         self.work
+    }
+}
+
+impl DecoderKvSession<'_, '_> {
+    /// Fills every block cache from one validated, nonempty prompt.
+    ///
+    /// Prompt rows advance serially through the shared one-row path. A later
+    /// internal failure restores empty logical state while retaining allocation
+    /// and the session's exact-model binding.
+    pub fn prefill(&mut self, prompt: &[u32]) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
+        if prompt.is_empty() {
+            return Err(DecoderKvCacheError::EmptyPrompt);
+        }
+        if self.cache.len != 0 || self.cache.prefill_complete {
+            return Err(DecoderKvCacheError::PrefillRequiresEmpty {
+                len: self.cache.len,
+            });
+        }
+        if prompt.len() > self.cache.capacity() {
+            return Err(DecoderKvCacheError::PromptTooLong {
+                tokens: prompt.len(),
+                capacity: self.cache.capacity(),
+            });
+        }
+        for (position, &token_id) in prompt.iter().enumerate() {
+            if !valid_token(token_id, self.cache.config.vocabulary_size()) {
+                return Err(DecoderKvCacheError::PromptTokenOutOfBounds {
+                    position,
+                    token_id,
+                    vocabulary_size: self.cache.config.vocabulary_size(),
+                });
+            }
+        }
+
+        let mut final_output = None;
+        for &token_id in prompt {
+            match self.forward_token(token_id, CachedPhase::Prefill) {
+                Ok(output) => final_output = Some(output),
+                Err(error) => {
+                    self.cache.reset();
+                    return Err(error);
+                }
+            }
+        }
+        self.cache.prefill_complete = true;
+        Ok(final_output.expect("a validated prompt has at least one token"))
+    }
+
+    /// Appends one selected token and returns logits for the following choice.
+    pub fn decode(&mut self, token_id: u32) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
+        if !self.cache.prefill_complete || self.cache.len == 0 {
+            return Err(DecoderKvCacheError::DecodeRequiresPrefill);
+        }
+        if !valid_token(token_id, self.cache.config.vocabulary_size()) {
+            return Err(DecoderKvCacheError::DecodeTokenOutOfBounds {
+                token_id,
+                vocabulary_size: self.cache.config.vocabulary_size(),
+            });
+        }
+        if self.cache.is_full() {
+            return Err(DecoderKvCacheError::Full {
+                capacity: self.cache.capacity(),
+            });
+        }
+        self.forward_token(token_id, CachedPhase::Decode)
+    }
+
+    fn forward_token(
+        &mut self,
+        token_id: u32,
+        phase: CachedPhase,
+    ) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
+        let position = self.cache.len;
+        let layer_count = self.cache.layers.len();
+        let (logits, prepared, score_values) = no_grad(|| {
+            let embedding = self
+                .model
+                .embedding()
+                .forward(&[token_id], &[1, 1])
+                .map_err(DecoderKvCacheError::Embedding)?;
+            let mut current = embedding;
+            let mut prepared = Vec::new();
+            prepared.try_reserve_exact(layer_count).map_err(|_| {
+                DecoderKvCacheError::LayerAllocationFailed {
+                    layers: layer_count,
+                }
+            })?;
+            let mut score_values = 0usize;
+            for (layer, (block, cache)) in self
+                .model
+                .blocks()
+                .iter()
+                .zip(&self.cache.layers)
+                .enumerate()
+            {
+                let attention_norm = block
+                    .attention_norm()
+                    .forward(&current)
+                    .map_err(|source| DecoderKvCacheError::AttentionNorm { layer, source })?;
+                let ticket = block
+                    .attention()
+                    .prepare_incremental_bound(&attention_norm, cache)
+                    .map_err(|source| DecoderKvCacheError::IncrementalAttention {
+                        layer,
+                        source,
+                    })?;
+                score_values = checked_add(
+                    score_values,
+                    ticket.attention_score_values(),
+                    DecoderKvCacheCounter::AttentionScoreValues,
+                )?;
+                let after_attention = residual_add(&current, ticket.output())
+                    .map_err(|source| DecoderKvCacheError::AttentionResidual { layer, source })?;
+                let feed_forward_norm = block
+                    .feed_forward_norm()
+                    .forward(&after_attention)
+                    .map_err(|source| DecoderKvCacheError::FeedForwardNorm { layer, source })?;
+                let feed_forward = block
+                    .feed_forward()
+                    .forward(&feed_forward_norm)
+                    .map_err(|source| DecoderKvCacheError::FeedForward { layer, source })?;
+                current = residual_add(&after_attention, &feed_forward)
+                    .map_err(|source| DecoderKvCacheError::FeedForwardResidual { layer, source })?;
+                prepared.push(ticket);
+            }
+            let final_norm = self
+                .model
+                .final_norm()
+                .forward(&current)
+                .map_err(DecoderKvCacheError::FinalNorm)?;
+            let tied_weight = self
+                .model
+                .tied_embedding()
+                .tensor()
+                .transpose(0, 1)
+                .map_err(|source| DecoderKvCacheError::Autodiff {
+                    stage: CachedDecoderStage::TiedWeightTranspose,
+                    source,
+                })?;
+            let logits = final_norm.matmul(&tied_weight).map_err(|source| {
+                DecoderKvCacheError::Autodiff {
+                    stage: CachedDecoderStage::TiedVocabularyProjection,
+                    source,
+                }
+            })?;
+            Ok::<_, DecoderKvCacheError>((logits, prepared, score_values))
+        })?;
+
+        for (layer, (ticket, cache)) in prepared.iter().zip(&self.cache.layers).enumerate() {
+            if ticket.cache_len() != position + 1 || !ticket.matches_cache(cache) {
+                return Err(DecoderKvCacheError::PreparedCacheChanged { layer });
+            }
+        }
+        let next_len = checked_add(position, 1, DecoderKvCacheCounter::TokenForwards)?;
+        let next_work = self.cache.next_work(phase, score_values)?;
+
+        for (ticket, cache) in prepared.into_iter().zip(&mut self.cache.layers) {
+            let _ = ticket.commit(cache);
+        }
+        self.cache.len = next_len;
+        self.cache.work = next_work;
+        Ok(CachedDecoderOutput {
+            logits,
+            position,
+            cache_len: next_len,
+            attention_score_values: score_values,
+        })
+    }
+
+    /// Clears sequence state while retaining this session's exact model binding.
+    pub fn reset(&mut self) {
+        self.cache.reset();
+    }
+
+    /// Exposes the bound cache for deterministic state and work inspection.
+    pub fn cache(&self) -> &DecoderKvCache {
+        self.cache
     }
 }
 
@@ -1014,7 +1116,8 @@ pub fn generate_cached(
     }
 
     let mut cache = DecoderKvCache::new(model)?;
-    let mut current = cache.prefill(model, prompt)?;
+    let mut session = cache.bind(model)?;
+    let mut current = session.prefill(prompt)?;
     let mut prefix_length = prompt.len();
     let mut complete_prefix_attention_score_values = 0usize;
 
@@ -1060,20 +1163,20 @@ pub fn generate_cached(
         if prefix_length > max_positions {
             break GenerationStop::ContextLimit;
         }
-        current = cache.decode(model, token_id)?;
+        current = session.decode(token_id)?;
     };
 
-    let cache_work = cache.work();
+    let cache_work = session.cache().work();
     Ok(CachedGenerationResult {
         prompt: prompt_copy,
         generated,
         steps,
         stop,
-        final_cache_len: cache.len(),
+        final_cache_len: session.cache().len(),
         work: CachedGenerationWork {
             prefill_tokens: cache_work.prefill_tokens(),
             decode_tokens: cache_work.decode_tokens(),
-            layer_cache_count: cache.layer_count(),
+            layer_cache_count: session.cache().layer_count(),
             cache_appends: cache_work.cache_appends(),
             qkv_projection_rows: cache_work.qkv_projection_rows(),
             cached_attention_score_values: cache_work.attention_score_values(),
@@ -1206,32 +1309,47 @@ mod tests {
     fn two_layer_prefill_and_decode_match_complete_prefix_logits() {
         let model = model(2, 4, 38);
         let mut cache = DecoderKvCache::new(&model).unwrap();
-        let prefill = cache.prefill(&model, &[0, 1]).unwrap();
+        let mut session = cache.bind(&model).unwrap();
+        assert_eq!(
+            session._parameter_value_guards.len(),
+            model.parameters().len()
+        );
+        let prefill = session.prefill(&[0, 1]).unwrap();
         assert_close(
             prefill.logits().value().as_slice(),
             &final_logits(&model, &[0, 1]),
         );
         assert_eq!(prefill.position(), 1);
         assert_eq!(prefill.cache_len(), 2);
-        let decoded = cache.decode(&model, 2).unwrap();
+        let decoded = session.decode(2).unwrap();
         assert_close(
             decoded.logits().value().as_slice(),
             &final_logits(&model, &[0, 1, 2]),
         );
         assert_eq!(decoded.position(), 2);
-        assert_eq!(cache.len(), 3);
-        assert_eq!(cache.layer_len(0), Some(3));
-        assert_eq!(cache.layer_len(1), Some(3));
+        assert_eq!(session.cache().len(), 3);
+        assert_eq!(session.cache().layer_len(0), Some(3));
+        assert_eq!(session.cache().layer_len(1), Some(3));
         assert_ne!(
-            cache.layer_cache(0).unwrap().key_storage().as_ptr(),
-            cache.layer_cache(1).unwrap().key_storage().as_ptr()
+            session
+                .cache()
+                .layer_cache(0)
+                .unwrap()
+                .key_storage()
+                .as_ptr(),
+            session
+                .cache()
+                .layer_cache(1)
+                .unwrap()
+                .key_storage()
+                .as_ptr()
         );
-        assert_eq!(cache.work().token_forwards(), 3);
-        assert_eq!(cache.work().prefill_tokens(), 2);
-        assert_eq!(cache.work().decode_tokens(), 1);
-        assert_eq!(cache.work().cache_appends(), 6);
-        assert_eq!(cache.work().qkv_projection_rows(), 18);
-        assert_eq!(cache.work().attention_score_values(), 24);
+        assert_eq!(session.cache().work().token_forwards(), 3);
+        assert_eq!(session.cache().work().prefill_tokens(), 2);
+        assert_eq!(session.cache().work().decode_tokens(), 1);
+        assert_eq!(session.cache().work().cache_appends(), 6);
+        assert_eq!(session.cache().work().qkv_projection_rows(), 18);
+        assert_eq!(session.cache().work().attention_score_values(), 24);
         assert!(!decoded.logits().tracks_gradient());
     }
 
@@ -1244,7 +1362,7 @@ mod tests {
         let changed_epsilon =
             DecoderModel::from_parameters(config(2, 4, 2e-6), model.parameters().to_vec()).unwrap();
         let mut cache = DecoderKvCache::new(&model).unwrap();
-        cache.prefill(&shared, &[0, 1]).unwrap();
+        cache.bind(&shared).unwrap().prefill(&[0, 1]).unwrap();
         let pointers = cache
             .layers
             .iter()
@@ -1252,23 +1370,23 @@ mod tests {
             .collect::<Vec<_>>();
         let before = cache.clone();
         assert!(matches!(
-            cache.decode(&rebuilt, 2),
+            cache.bind(&rebuilt),
             Err(DecoderKvCacheError::ModelParameterMismatch { .. })
         ));
         assert_eq!(cache, before);
-        assert_eq!(
-            cache.decode(&changed_epsilon, 2).unwrap_err(),
-            DecoderKvCacheError::ModelConfigMismatch
-        );
+        assert!(matches!(
+            cache.bind(&changed_epsilon),
+            Err(DecoderKvCacheError::ModelConfigMismatch)
+        ));
         assert_eq!(cache, before);
-        cache.reset();
+        cache.bind(&model).unwrap().reset();
         assert!(cache.is_empty());
         assert_eq!(cache.work(), DecoderKvCacheWork::default());
         assert!(cache.layers.iter().zip(pointers).all(|(layer, pointers)| {
             layer.key_storage().as_ptr() == pointers.0
                 && layer.value_storage().as_ptr() == pointers.1
         }));
-        let replay = cache.prefill(&model, &[0, 1]).unwrap();
+        let replay = cache.bind(&model).unwrap().prefill(&[0, 1]).unwrap();
         assert_close(
             replay.logits().value().as_slice(),
             &final_logits(&model, &[0, 1]),
@@ -1279,33 +1397,106 @@ mod tests {
     fn reset_does_not_rebind_a_cache_after_an_in_place_model_update() {
         let model = model(2, 4, 239);
         let mut cache = DecoderKvCache::new(&model).unwrap();
-        cache.prefill(&model, &[0, 1]).unwrap();
-        cache.reset();
+        {
+            let mut session = cache.bind(&model).unwrap();
+            session.prefill(&[0, 1]).unwrap();
+            session.reset();
+        }
         let before = cache.clone();
         let mut optimizer = AdamW::new(AdamWConfig::new(0.01, 0.9, 0.999, 1e-8, 0.1).unwrap());
 
         optimizer.step(model.parameters()).unwrap();
 
-        assert_eq!(
-            cache.prefill(&model, &[0, 1]).unwrap_err(),
-            DecoderKvCacheError::ModelParameterRevisionMismatch {
+        assert!(matches!(
+            cache.bind(&model),
+            Err(DecoderKvCacheError::ModelParameterRevisionMismatch {
                 index: 0,
                 cache: 0,
                 model: 1,
-            }
-        );
+            })
+        ));
         assert_eq!(cache, before);
 
         let mut fresh_cache = DecoderKvCache::new(&model).unwrap();
-        fresh_cache.prefill(&model, &[0, 1]).unwrap();
+        fresh_cache.bind(&model).unwrap().prefill(&[0, 1]).unwrap();
         assert_eq!(fresh_cache.len(), 2);
+    }
+
+    #[test]
+    fn live_session_prevents_parameter_updates_until_drop() {
+        let model = model(2, 4, 240);
+        let mut cache = DecoderKvCache::new(&model).unwrap();
+        let mut session = cache.bind(&model).unwrap();
+        let mut optimizer = AdamW::new(AdamWConfig::new(0.01, 0.9, 0.999, 1e-8, 0.1).unwrap());
+        session.prefill(&[0, 1]).unwrap();
+        let values_before = model
+            .parameters()
+            .iter()
+            .map(|parameter| parameter.tensor().value_snapshot())
+            .collect::<Vec<_>>();
+        let revisions_before = model
+            .parameters()
+            .iter()
+            .map(|parameter| parameter.tensor().value_revision())
+            .collect::<Vec<_>>();
+        let optimizer_before = optimizer.clone();
+        let cache_before = session.cache().clone();
+
+        for parameter in model.parameters() {
+            assert!(
+                parameter.tensor().try_value_write().is_err(),
+                "session did not retain the value borrow for {}",
+                parameter.name()
+            );
+        }
+        assert!(matches!(
+            optimizer.step(model.parameters()),
+            Err(crate::training::adamw::AdamWError::ParameterValueBorrowed { ref name })
+                if name == model.parameters()[0].name()
+        ));
+        assert_eq!(
+            session._parameter_value_guards.len(),
+            model.parameters().len()
+        );
+        assert_eq!(optimizer, optimizer_before);
+        assert_eq!(session.cache(), &cache_before);
+        assert_eq!(
+            model
+                .parameters()
+                .iter()
+                .map(|parameter| parameter.tensor().value_snapshot())
+                .collect::<Vec<_>>(),
+            values_before
+        );
+        assert_eq!(
+            model
+                .parameters()
+                .iter()
+                .map(|parameter| parameter.tensor().value_revision())
+                .collect::<Vec<_>>(),
+            revisions_before
+        );
+        session.decode(2).unwrap();
+
+        drop(session);
+        optimizer.step(model.parameters()).unwrap();
+        assert!(matches!(
+            cache.bind(&model),
+            Err(DecoderKvCacheError::ModelParameterRevisionMismatch {
+                index: 0,
+                cache: 0,
+                model: 1,
+            })
+        ));
+        let mut fresh_cache = DecoderKvCache::new(&model).unwrap();
+        fresh_cache.bind(&model).unwrap().prefill(&[0]).unwrap();
     }
 
     #[test]
     fn embedding_feed_forward_and_final_norm_identity_are_independently_bound() {
         let model = model(2, 4, 139);
         let mut cache = DecoderKvCache::new(&model).unwrap();
-        cache.prefill(&model, &[0]).unwrap();
+        cache.bind(&model).unwrap().prefill(&[0]).unwrap();
         let before = cache.clone();
         let feed_forward = model
             .parameters()
@@ -1321,7 +1512,7 @@ mod tests {
             parameters[index] = NamedParameter::from_tensor(name, value).unwrap();
             let rebuilt = DecoderModel::from_parameters(model.config(), parameters).unwrap();
             assert!(matches!(
-                cache.decode(&rebuilt, 1),
+                cache.bind(&rebuilt),
                 Err(DecoderKvCacheError::ModelParameterMismatch {
                     index: actual
                 }) if actual == index
@@ -1334,36 +1525,59 @@ mod tests {
     fn request_errors_and_late_prompt_error_preserve_logical_state() {
         let model = model(2, 3, 40);
         let mut cache = DecoderKvCache::new(&model).unwrap();
+        let mut session = cache.bind(&model).unwrap();
         assert!(matches!(
-            cache.decode(&model, 0),
+            session.decode(5),
             Err(DecoderKvCacheError::DecodeRequiresPrefill)
         ));
         assert!(matches!(
-            cache.prefill(&model, &[]),
+            session.prefill(&[]),
             Err(DecoderKvCacheError::EmptyPrompt)
         ));
         assert!(matches!(
-            cache.prefill(&model, &[0, 5]),
+            session.prefill(&[5, 0, 0, 0]),
+            Err(DecoderKvCacheError::PromptTooLong {
+                tokens: 4,
+                capacity: 3,
+            })
+        ));
+        assert!(matches!(
+            session.prefill(&[0, 5]),
             Err(DecoderKvCacheError::PromptTokenOutOfBounds { position: 1, .. })
         ));
-        assert!(cache.is_empty());
-        assert_eq!(cache.work(), DecoderKvCacheWork::default());
-        cache.prefill(&model, &[0, 1, 2]).unwrap();
-        let before = cache.clone();
+        assert!(session.cache().is_empty());
+        assert_eq!(session.cache().work(), DecoderKvCacheWork::default());
+        session.prefill(&[0, 1, 2]).unwrap();
+        let before = session.cache().clone();
         assert!(matches!(
-            cache.decode(&model, 3),
+            session.decode(5),
+            Err(DecoderKvCacheError::DecodeTokenOutOfBounds { token_id: 5, .. })
+        ));
+        assert_eq!(session.cache(), &before);
+        assert!(matches!(
+            session.decode(3),
             Err(DecoderKvCacheError::Full { capacity: 3 })
         ));
-        assert_eq!(cache, before);
+        assert_eq!(session.cache(), &before);
         assert!(matches!(
-            cache.prefill(&model, &[0]),
+            session.prefill(&[]),
+            Err(DecoderKvCacheError::EmptyPrompt)
+        ));
+        assert_eq!(session.cache(), &before);
+        assert!(matches!(
+            session.prefill(&[5, 0, 0, 0]),
             Err(DecoderKvCacheError::PrefillRequiresEmpty { len: 3 })
         ));
-        assert_eq!(cache, before);
+        assert_eq!(session.cache(), &before);
+        assert!(matches!(
+            session.prefill(&[0]),
+            Err(DecoderKvCacheError::PrefillRequiresEmpty { len: 3 })
+        ));
+        assert_eq!(session.cache(), &before);
     }
 
     #[test]
-    fn a_late_layer_failure_commits_no_layer() {
+    fn bind_rejects_an_incompatible_layer_cache_before_state_operations() {
         let decoder = model(2, 3, 140);
         let other = model(2, 3, 141);
         let mut cache = DecoderKvCache::new(&decoder).unwrap();
@@ -1373,14 +1587,16 @@ mod tests {
             .iter()
             .map(|layer| (layer.key_storage().as_ptr(), layer.value_storage().as_ptr()))
             .collect::<Vec<_>>();
+        let before = cache.clone();
 
         assert!(matches!(
-            cache.prefill(&decoder, &[0]),
+            cache.bind(&decoder),
             Err(DecoderKvCacheError::IncrementalAttention {
                 layer: 1,
                 source: IncrementalAttentionError::CacheLayerMismatch,
             })
         ));
+        assert_eq!(cache, before);
         assert!(cache.is_empty());
         assert_eq!(cache.work(), DecoderKvCacheWork::default());
         assert!(cache.layers.iter().all(LayerKvCache::is_empty));
@@ -1388,6 +1604,101 @@ mod tests {
             layer.key_storage().as_ptr() == pointers.0
                 && layer.value_storage().as_ptr() == pointers.1
         }));
+    }
+
+    #[test]
+    fn bind_checks_model_wide_state_and_each_layer_before_retaining_values() {
+        let decoder = model(2, 4, 241);
+
+        let mut parameter_count = DecoderKvCache::new(&decoder).unwrap();
+        parameter_count.parameter_bindings.pop();
+        parameter_count.layers.pop();
+        let before = parameter_count.clone();
+        assert!(matches!(
+            parameter_count.bind(&decoder),
+            Err(DecoderKvCacheError::ModelParameterCountMismatch { .. })
+        ));
+        assert_eq!(parameter_count, before);
+
+        let mut layer_count = DecoderKvCache::new(&decoder).unwrap();
+        layer_count.layers.pop();
+        let before = layer_count.clone();
+        assert!(matches!(
+            layer_count.bind(&decoder),
+            Err(DecoderKvCacheError::LayerCountMismatch { cache: 1, model: 2 })
+        ));
+        assert_eq!(layer_count, before);
+
+        let mut layer_length = DecoderKvCache::new(&decoder).unwrap();
+        layer_length.bind(&decoder).unwrap().prefill(&[0]).unwrap();
+        layer_length.layers[0].reset();
+        let before = layer_length.clone();
+        assert!(matches!(
+            layer_length.bind(&decoder),
+            Err(DecoderKvCacheError::LayerLengthInvariant {
+                layer: 0,
+                expected: 1,
+                actual: 0,
+            })
+        ));
+        assert_eq!(layer_length, before);
+
+        let mut batch = DecoderKvCache::new(&decoder).unwrap();
+        batch.layers[0] = LayerKvCache::new(decoder.blocks()[0].attention(), 2, 4).unwrap();
+        let before = batch.clone();
+        assert!(matches!(
+            batch.bind(&decoder),
+            Err(DecoderKvCacheError::LayerBatchSizeMismatch {
+                layer: 0,
+                expected: 1,
+                actual: 2,
+            })
+        ));
+        assert_eq!(batch, before);
+
+        let mut capacity = DecoderKvCache::new(&decoder).unwrap();
+        capacity.layers[0] = LayerKvCache::new(decoder.blocks()[0].attention(), 1, 3).unwrap();
+        let before = capacity.clone();
+        assert!(matches!(
+            capacity.bind(&decoder),
+            Err(DecoderKvCacheError::LayerCapacityMismatch {
+                layer: 0,
+                expected: 4,
+                actual: 3,
+            })
+        ));
+        assert_eq!(capacity, before);
+
+        let one_head_config = DecoderModelConfig::new(5, 4, 1, 4, 2, 4, 10_000.0, 1e-6);
+        let one_head =
+            DecoderModel::from_parameters(one_head_config, decoder.parameters().to_vec()).unwrap();
+        let mut heads = DecoderKvCache::new(&decoder).unwrap();
+        heads.layers[0] = LayerKvCache::new(one_head.blocks()[0].attention(), 1, 4).unwrap();
+        let before = heads.clone();
+        assert!(matches!(
+            heads.bind(&decoder),
+            Err(DecoderKvCacheError::IncrementalAttention {
+                layer: 0,
+                source: IncrementalAttentionError::CacheHeadCountMismatch { layer: 2, cache: 1 },
+            })
+        ));
+        assert_eq!(heads, before);
+
+        let other_rope_config = DecoderModelConfig::new(5, 4, 2, 4, 2, 4, 20_000.0, 1e-6);
+        let other_rope =
+            DecoderModel::from_parameters(other_rope_config, decoder.parameters().to_vec())
+                .unwrap();
+        let mut rope = DecoderKvCache::new(&decoder).unwrap();
+        rope.layers[0] = LayerKvCache::new(other_rope.blocks()[0].attention(), 1, 4).unwrap();
+        let before = rope.clone();
+        assert!(matches!(
+            rope.bind(&decoder),
+            Err(DecoderKvCacheError::IncrementalAttention {
+                layer: 0,
+                source: IncrementalAttentionError::CacheRopeMismatch { .. },
+            })
+        ));
+        assert_eq!(rope, before);
     }
 
     #[test]
@@ -1406,26 +1717,29 @@ mod tests {
             .iter()
             .map(|layer| (layer.key_storage().as_ptr(), layer.value_storage().as_ptr()))
             .collect::<Vec<_>>();
+        let mut session = cache.bind(&decoder).unwrap();
 
         assert!(matches!(
-            cache.prefill(&decoder, &[0, 1]),
+            session.prefill(&[0, 1]),
             Err(DecoderKvCacheError::AttentionNorm { layer: 0, .. })
         ));
-        assert!(cache.is_empty());
-        assert!(!cache.prefill_complete);
-        assert_eq!(cache.work(), DecoderKvCacheWork::default());
-        assert!(cache.layers.iter().all(LayerKvCache::is_empty));
-        assert!(cache.layers.iter().zip(pointers).all(|(layer, pointers)| {
-            layer.key_storage().as_ptr() == pointers.0
-                && layer.value_storage().as_ptr() == pointers.1
-        }));
+        assert!(session.cache().is_empty());
+        assert!(!session.cache().prefill_complete);
+        assert_eq!(session.cache().work(), DecoderKvCacheWork::default());
+        assert!(session.cache().layers.iter().all(LayerKvCache::is_empty));
+        assert!(
+            session
+                .cache()
+                .layers
+                .iter()
+                .zip(pointers)
+                .all(|(layer, pointers)| {
+                    layer.key_storage().as_ptr() == pointers.0
+                        && layer.value_storage().as_ptr() == pointers.1
+                })
+        );
         assert_close(
-            cache
-                .prefill(&decoder, &[0])
-                .unwrap()
-                .logits()
-                .value()
-                .as_slice(),
+            session.prefill(&[0]).unwrap().logits().value().as_slice(),
             &final_logits(&decoder, &[0]),
         );
     }
@@ -1444,13 +1758,14 @@ mod tests {
         let decoder = DecoderModel::from_parameters(base.config(), parameters).unwrap();
         let mut cache = DecoderKvCache::new(&decoder).unwrap();
         let before = cache.clone();
+        let mut session = cache.bind(&decoder).unwrap();
 
         assert!(matches!(
-            cache.prefill(&decoder, &[0]),
+            session.prefill(&[0]),
             Err(DecoderKvCacheError::FinalNorm(_))
         ));
-        assert_eq!(cache, before);
-        assert!(cache.layers.iter().all(LayerKvCache::is_empty));
+        assert_eq!(session.cache(), &before);
+        assert!(session.cache().layers.iter().all(LayerKvCache::is_empty));
     }
 
     #[test]
@@ -1620,10 +1935,11 @@ mod tests {
 
         let zero_layer = model(0, 2, 45);
         let mut cache = DecoderKvCache::new(&zero_layer).unwrap();
-        let output = cache.prefill(&zero_layer, &[0]).unwrap();
+        let mut session = cache.bind(&zero_layer).unwrap();
+        let output = session.prefill(&[0]).unwrap();
         assert_eq!(output.logits().shape(), [1, 1, 5]);
-        assert_eq!(cache.layer_count(), 0);
-        assert_eq!(cache.work().attention_score_values(), 0);
+        assert_eq!(session.cache().layer_count(), 0);
+        assert_eq!(session.cache().work().attention_score_values(), 0);
     }
 
     #[test]
@@ -1730,9 +2046,10 @@ mod tests {
             })
             .collect::<Vec<_>>();
         let mut cache = DecoderKvCache::new(&model).unwrap();
-        let output = cache.prefill(&model, &[0, 1]).unwrap();
+        let mut session = cache.bind(&model).unwrap();
+        let output = session.prefill(&[0, 1]).unwrap();
         assert!(!output.logits().tracks_gradient());
-        let decoded = cache.decode(&model, 2).unwrap();
+        let decoded = session.decode(2).unwrap();
         assert!(!decoded.logits().tracks_gradient());
         let mut rng = SplitMix64::from_seed(47);
         let generated = generate_cached(

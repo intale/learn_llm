@@ -668,7 +668,7 @@ const expectedSheets = {
     lesson: '38-cached-generation.mdx',
     title: 'Prefill once, then decode one token at a time',
     entries: [
-      ['Model-wide KV cache', 'Model-wide cached generation prefills one independent cache per decoder block'],
+      ['Model-wide KV cache', 'bind that model-wide state to one exact decoder for a session'],
       ['Per-layer KV cache', 'one logical K/V prefix per block'],
       ['Prompt prefill', 'Prefill sends both prompt positions through both blocks'],
       ['One-token decode', 'one-token decoder calls'],
@@ -678,9 +678,9 @@ const expectedSheets = {
       ['Attention-score work', 'attention-score work'],
       ['Context-limit stop', 'context-limit stops before decoding it'],
       ['EOS stop', 'EOS is returned as the selected token, and no later logits are needed.'],
-      ['Coherent cache commit', 'vocabulary projection succeed do the layer caches, common\nlength, phase counts, and score-cell counts advance together.'],
+      ['Coherent cache commit', 'commits them only after every block'],
       ['Cached-generation replay', 'resets and replays'],
-      ['Cache reset', 'it zeroes the work counters.'],
+      ['Cache reset', '`DecoderKvSession::reset` clears logical length, phase, and work'],
     ],
   },
   '39-end-to-end-llm': {
@@ -854,8 +854,8 @@ const exactDefinitions = {
     'Transactional cache update': 'A rule that copies the candidate key/value rows and increments logical length only after the complete incremental output, including output projection, succeeds.',
   },
   '38-cached-generation': {
-    'Model-wide KV cache': 'The decoder-level state that owns one compatible per-layer KV cache and advances every block’s logical length, phase, and work counters coherently.',
-    'Per-layer KV cache': 'One decoder block’s independent, fixed-capacity store for that block’s K/V prefix, bound to its attention-layer identity and therefore not interchangeable with an equal-shaped cache from another depth.',
+    'Model-wide KV cache': 'Mutable decoder-level state containing one per-layer KV cache plus the common length, phase, and work counters. A bound session proves which exact decoder may advance it, keeps that decoder’s parameter values borrowed for reading, and commits every block coherently.',
+    'Per-layer KV cache': 'One decoder block’s independent fixed-capacity K/V store, tied to that block’s attention geometry, RoPE configuration, parameter nodes, and captured value revisions; an equal-shaped cache from another block is not interchangeable.',
     'Prompt prefill': "The initial complete-prompt phase that fills every layer's cache and produces the logits used for the first generation decision.",
     'One-token decode': "A later generation phase that feeds only the newly selected token while reusing every layer's retained key/value prefix to produce later logits.",
     'Complete-prefix reference': 'An uncached computation that reruns the entire known prefix and provides the correctness baseline for cached generation.',
@@ -866,7 +866,7 @@ const exactDefinitions = {
     'EOS stop': 'A stop that keeps the selected end-of-sequence token in the output and ends before decoding it because no later logits are needed.',
     'Coherent cache commit': 'A transaction that advances every block cache, common length, phase, and work counters only after the full decoder row and vocabulary logits succeed, leaving committed state unchanged on error.',
     'Cached-generation replay': 'Repeating cached generation from reset state with the same exact model, prompt, policy, and RNG state to reproduce selected tokens, draws, final RNG state, and stopping reason.',
-    'Cache reset': 'Clearing logical length, phase, and work counters for a fresh sequence while retaining backing allocations, capacity, and stored values outside the now-empty logical prefix.',
+    'Cache reset': 'Within a live session, reset clears logical length, phase, and work counters for a fresh sequence while retaining backing allocations, capacity, stored values outside the empty logical prefix, and that session’s model/cache relationship. It does not refresh the cache’s recorded compatibility evidence; after the session ends and weights change, the old cache still cannot bind.',
   },
   '39-end-to-end-llm': {
     'End-to-end LLM pipeline': 'The one-way course path that turns frozen documents into BPE tokens and causal batches, trains and selects a decoder, evaluates the selected decoder once on held-out test targets, restores it, and generates text.',

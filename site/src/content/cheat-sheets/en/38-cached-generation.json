@@ -2,10 +2,10 @@
   "chapter_id": "38-cached-generation",
   "locale": "en",
   "title": "Prefill once, then decode one token at a time",
-  "description": "A quick reference for model-wide cache ownership, prompt prefill, one-token decoding, reference equivalence, coherent commits, replay, and reset.",
+  "description": "A quick reference for model-wide cache state, checked session binding, prompt prefill, one-token decoding, reference equivalence, coherent commits, replay, and reset.",
   "terms": [
-    { "term": "Model-wide KV cache", "definition": "The decoder-level state that owns one compatible per-layer KV cache and advances every block’s logical length, phase, and work counters coherently." },
-    { "term": "Per-layer KV cache", "definition": "One decoder block’s independent, fixed-capacity store for that block’s K/V prefix, bound to its attention-layer identity and therefore not interchangeable with an equal-shaped cache from another depth." },
+    { "term": "Model-wide KV cache", "definition": "Mutable decoder-level state containing one per-layer KV cache plus the common length, phase, and work counters. A bound session proves which exact decoder may advance it, keeps that decoder’s parameter values borrowed for reading, and commits every block coherently." },
+    { "term": "Per-layer KV cache", "definition": "One decoder block’s independent fixed-capacity K/V store, tied to that block’s attention geometry, RoPE configuration, parameter nodes, and captured value revisions; an equal-shaped cache from another block is not interchangeable." },
     { "term": "Prompt prefill", "definition": "The initial complete-prompt phase that fills every layer's cache and produces the logits used for the first generation decision." },
     { "term": "One-token decode", "definition": "A later generation phase that feeds only the newly selected token while reusing every layer's retained key/value prefix to produce later logits." },
     { "term": "Complete-prefix reference", "definition": "An uncached computation that reruns the entire known prefix and provides the correctness baseline for cached generation." },
@@ -16,6 +16,6 @@
     { "term": "EOS stop", "definition": "A stop that keeps the selected end-of-sequence token in the output and ends before decoding it because no later logits are needed." },
     { "term": "Coherent cache commit", "definition": "A transaction that advances every block cache, common length, phase, and work counters only after the full decoder row and vocabulary logits succeed, leaving committed state unchanged on error." },
     { "term": "Cached-generation replay", "definition": "Repeating cached generation from reset state with the same exact model, prompt, policy, and RNG state to reproduce selected tokens, draws, final RNG state, and stopping reason." },
-    { "term": "Cache reset", "definition": "Clearing logical length, phase, and work counters for a fresh sequence while retaining backing allocations, capacity, and stored values outside the now-empty logical prefix." }
+    { "term": "Cache reset", "definition": "Within a live session, reset clears logical length, phase, and work counters for a fresh sequence while retaining backing allocations, capacity, stored values outside the empty logical prefix, and that session’s model/cache relationship. It does not refresh the cache’s recorded compatibility evidence; after the session ends and weights change, the old cache still cannot bind." }
   ]
 }

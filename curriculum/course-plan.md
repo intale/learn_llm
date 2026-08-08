@@ -1579,12 +1579,12 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Scope boundary:** Teach one cache per block, prompt prefill, decode state, context limits, reset, and cached generation API ownership; introduce no paged attention, batching, eviction, or production memory kernels.
 - **Formula:** `\sum_{t=1}^{T}t^2\in\Theta(T^3),\quad \sum_{t=1}^{T}t\in\Theta(T^2)\,.`.
 - **Historical contrast:** Contrast complete-prefix decoder recomputation at every generated token with a stateful prefill/decode interface.
-- **Rust contribution:** Add model-wide cache state plus prefill and decode APIs, update every block coherently, and integrate them with the Chapter 36 sampler.
+- **Rust contribution:** Keep reusable model-wide cache storage separate from a `DecoderKvSession` that validates one exact decoder/cache pair, retains live read-only parameter-value borrows, exposes model-argument-free prefill/decode/reset methods, reuses Chapter 37's crate-private already-bound attention calculation, updates every block coherently, and integrates with the Chapter 36 sampler.
 - **Visualization:** Useful — separate one-time prompt prefill from repeated single-token decode across a stack of distinct layer caches.
 - **Practice:** Assign cache ownership for a three-block model and compare uncached versus cached attention-score counts.
-- **Integration evidence:** Fixture newest-position logits match complete-prefix references within tolerance; restored cached and complete-prefix paths match selected tokens, sampling draws, final RNG state, and stops; measured score tensors, multi-layer isolation, prefill, append, reset, overflow, and exact model errors pass.
+- **Integration evidence:** Fixture newest-position logits match complete-prefix references within tolerance; restored cached and complete-prefix paths match selected tokens, sampling draws, final RNG state, and stops; bind-time configuration/parameter/layer checks, retained read guards, AdamW write exclusion and rollback, post-drop stale-cache rejection, dynamic operation checks, measured score tensors, multi-layer isolation, prefill, append, reset, and overflow pass.
 - **Handoff:** Chapter 39 proves the complete course as one train/evaluate/save/load/cached-generate program.
-- **Revision status:** Content revision 4 binds the model-wide decoder cache to parameter-node identities and captured value revisions, requires a new cache after an in-place model update, and explains that `reset()` clears sequence state without rebinding parameters; the Russian lesson is refreshed directly from this English revision.
+- **Revision status:** Content revision 5 separates reusable `DecoderKvCache` storage and captured compatibility evidence from a live `DecoderKvSession`; checks stable model/cache relationships once per session; retains read-only borrows that block AdamW without partial updates; keeps prompt, phase, token, capacity, counter, and prepared-ticket checks per operation; and requires a fresh cache after a post-session parameter update. Russian is refreshed directly from the frozen English revision.
 
 ## 39. Capstone: an end-to-end tiny LLM
 
