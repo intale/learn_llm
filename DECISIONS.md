@@ -16161,6 +16161,52 @@ contains every required input.
 **Affected step and run:** `share-bound-incremental-attention-kernel`, run
 `20260808T065628Z-share-bound-incremental-attention-kernel-01`.
 
+## 2026-08-08 - Queue reported diagram repairs and a complete rendered audit at the low-priority tail
+
+**Status:** Accepted from the user's explicit low-priority queue requests.
+
+**Context:** The user reported five groups of rendered defects: Chapter 5's
+summary values drop below their labels in current Firefox; Chapter 9's first
+table has row-label borders shorter than their cells and its rejected-request
+subtitle crowds the title in full view; Chapter 10's broadcast evidence labels
+do not form separate lines; Chapters 11 and 12 also place full-view subtitles
+beside their titles. Because full view was introduced after some early chapter
+figures, these examples may be instances of a course-wide adaptation gap rather
+than isolated content defects. The user explicitly placed all of this work after
+every task already in the queue and classified it as low priority.
+
+**Decision:** Keep Chapter 38 and the rest of the current remediation chain
+unchanged, retain the queued Chapter 1 clarification as the existing tail, and
+append `repair-and-audit-diagram-rendering-20260808` after it. Give the known
+Chapter 5, Chapter 9, Chapter 10, and systemic full-view heading corrections
+separate implementation checkpoints and commits. Treat the Chapter 9, 11, and
+12 title/subtitle collision as a shared presentation problem, while retaining
+component-local changes only for concept-specific geometry.
+
+After the known repairs, inventory every registered course figure and validate
+its ordinary and full-view presentation in both Chromium and Firefox, for both
+active locales and the required narrow, no-JavaScript, forced-color, direction,
+scroll, border, and painted-content cases that apply. Record every additional
+finding as an exact corrective checkpoint before the closure step. The closure
+step must depend on the last correction and cannot complete while any finding is
+open. Preserve each diagram's meaning, values, formulas, labels, routes, and
+localization; this queue checkpoint itself changes no product byte.
+
+**Consequences:** The active product sequence is not delayed: Chapter 38 remains
+the first eligible product step and depends directly on the completed Chapter 37
+boundary. The reported defects are durable at the true queue tail, systemic
+rules are repaired in the shared diagram module where appropriate, and the final
+two-engine audit prevents an unreported early-chapter full-view defect from being
+treated as out of scope. Each future completed checkpoint is persisted in its own
+commit.
+
+**Affected builds, steps, and scheduling run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`queue-low-priority-diagram-rendering-repairs`,
+`clarify-ch01-scalar-vocabulary-handoff-20260806`,
+`repair-and-audit-diagram-rendering-20260808`, its six planned steps, and
+`20260808T075104Z-queue-low-priority-diagram-rendering-repairs-01`.
+
 ## 2026-08-08 - Share one incremental-attention calculation behind checked and already-bound entries
 
 **Status:** Accepted after exact Rust, content, localization, static, staged, and
