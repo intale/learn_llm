@@ -14,6 +14,7 @@ import {
   expectNoOverflowOrClientScripts,
   expectOrderedChapterNavigation,
   expectSeoDescription,
+  expectStackedDiagramText,
   expectVisualizationDecision,
   readMathAwareText,
   readOrderedCourseChapters,
@@ -521,6 +522,21 @@ test.describe('chapter 9 localized tensor-views vertical slice', { tag: chapterT
       await toggle.click();
       await page.waitForFunction(
         () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'tensor-views',
+      );
+      await expectStackedDiagramText(
+        diagram,
+        ':scope > figcaption > h3',
+        ':scope > figcaption > .course-diagram__description',
+      );
+      await expectStackedDiagramText(
+        diagram.locator(':scope > .views-panel'),
+        ':scope > h4',
+        ':scope > p:first-of-type',
+      );
+      await expectStackedDiagramText(
+        diagram.locator(':scope > .errors-panel'),
+        ':scope > h4',
+        ':scope > p:first-of-type',
       );
       await expectCompleteViewRowHeaders(diagram, copy[locale].viewLabels, 'flex');
       const geometry = await diagram.evaluate((node) => ({

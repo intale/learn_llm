@@ -357,6 +357,12 @@ describe('Chapter 9 diagram labels and static component contract', () => {
     expect(style).toMatch(
       /\.tensor-views-diagram:fullscreen \.views-table \.operation-content\s*\{\s*display: flex;/,
     );
+    expect(style).toMatch(
+      /\.tensor-views-diagram:fullscreen > :is\(\.views-panel, \.errors-panel\)\s*\{[^}]*display: grid;[^}]*grid-template-columns: minmax\(0, 1fr\);[^}]*row-gap: 0\.25rem;/s,
+    );
+    expect(style).toMatch(
+      /> :is\(\.views-panel, \.errors-panel\)\s*> :is\(h4, p:first-of-type\)\s*\{\s*margin-block: 0;/s,
+    );
     expect(style).not.toMatch(/th\[scope=['"]row['"]\]\s*\{[^}]*display\s*:/s);
   });
 });

@@ -14,6 +14,7 @@ import {
   expectNoOverflowOrClientScripts,
   expectOrderedChapterNavigation,
   expectSeoDescription,
+  expectStackedDiagramText,
   expectVisualizationDecision,
   readMathAwareText,
   readOrderedCourseChapters,
@@ -396,6 +397,11 @@ test.describe('chapter 11 localized matrix-multiplication vertical slice', {
         () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'matrix-multiplication',
       );
       await settle(page);
+      await expectStackedDiagramText(
+        diagram,
+        ':scope > figcaption > h3',
+        ':scope > figcaption > .course-diagram__description',
+      );
       const geometry = await diagram.evaluate((node) => ({
         blockDebt: node.scrollHeight - node.clientHeight,
         blockBudget: Math.ceil(node.clientHeight * 0.2),

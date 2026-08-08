@@ -553,6 +553,35 @@
 .host
   :global(
     figure.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .course-diagram__caption
+  ) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: row;
+  align-items: start;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .course-diagram__caption
+      > *
+  ) {
+  grid-column: 1;
+  min-inline-size: 0;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .course-diagram__caption
+      > h3
+  ) {
+  max-inline-size: 75ch;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']:fullscreen
       .course-diagram__card-stack
   ) {
   gap: 0.45rem;

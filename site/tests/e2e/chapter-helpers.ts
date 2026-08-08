@@ -77,6 +77,130 @@ export async function readMathAwareText(locator: Locator) {
   );
 }
 
+export async function expectStackedDiagramText(
+  container: Locator,
+  headingSelector: string,
+  descriptionSelector: string,
+) {
+  await container.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolveFrame) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame())),
+    );
+  });
+  const problems = await container.evaluate(
+    (root, selectors) => {
+      const allowedError = 2;
+      const heading = root.querySelector<HTMLElement>(selectors.heading);
+      const description = root.querySelector<HTMLElement>(selectors.description);
+      if (!heading || !description) {
+        return [
+          `missing heading (${selectors.heading}) or description (${selectors.description})`,
+        ];
+      }
+
+      const errors: string[] = [];
+      const rootRect = root.getBoundingClientRect();
+      const headingRect = heading.getBoundingClientRect();
+      const descriptionRect = description.getBoundingClientRect();
+      const headingStyle = getComputedStyle(heading);
+      const descriptionStyle = getComputedStyle(description);
+      if (heading.parentElement !== description.parentElement) {
+        errors.push('heading and description do not share one container');
+      }
+      if (
+        !(heading.compareDocumentPosition(description) &
+          Node.DOCUMENT_POSITION_FOLLOWING)
+      ) {
+        errors.push('description does not follow heading in document order');
+      }
+      for (const [kind, style] of [
+        ['heading', headingStyle],
+        ['description', descriptionStyle],
+      ] as const) {
+        if (['absolute', 'fixed'].includes(style.position)) {
+          errors.push(`${kind} is positioned ${style.position}`);
+        }
+        if (style.cssFloat !== 'none') errors.push(`${kind} floats ${style.cssFloat}`);
+        if (
+          [style.overflowX, style.overflowY].some((overflow) =>
+            ['hidden', 'clip'].includes(overflow),
+          )
+        ) {
+          errors.push(`${kind} hides or clips overflow`);
+        }
+      }
+      const boxGap = descriptionRect.top - headingRect.bottom;
+      if (boxGap < 1) {
+        errors.push(`description box starts only ${boxGap.toFixed(1)}px after heading`);
+      }
+
+      const paintBounds = (element: HTMLElement) => {
+        const rects: DOMRect[] = [];
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        let node = walker.nextNode();
+        while (node) {
+          const parent = node.parentElement;
+          const style = parent ? getComputedStyle(parent) : null;
+          if (
+            parent &&
+            node.textContent?.trim() &&
+            style?.display !== 'none' &&
+            style?.visibility !== 'hidden' &&
+            !parent.closest(
+              '.visually-hidden, .katex-mathml, [aria-hidden="true"]',
+            )
+          ) {
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            rects.push(
+              ...[...range.getClientRects()].filter(
+                (rect) => rect.width > 0 && rect.height > 0,
+              ),
+            );
+          }
+          node = walker.nextNode();
+        }
+        return rects.length
+          ? {
+              bottom: Math.max(...rects.map((rect) => rect.bottom)),
+              top: Math.min(...rects.map((rect) => rect.top)),
+            }
+          : null;
+      };
+      const headingPaint = paintBounds(heading);
+      const descriptionPaint = paintBounds(description);
+      if (!headingPaint || !descriptionPaint) {
+        errors.push('heading or description paints no readable text');
+      } else {
+        const paintGap = descriptionPaint.top - headingPaint.bottom;
+        if (paintGap < 1) {
+          errors.push(
+            `description ink starts only ${paintGap.toFixed(1)}px after heading ink`,
+          );
+        }
+      }
+
+      for (const [kind, rect] of [
+        ['heading', headingRect],
+        ['description', descriptionRect],
+      ] as const) {
+        if (
+          rect.left < rootRect.left - allowedError ||
+          rect.right > rootRect.right + allowedError ||
+          rect.top < rootRect.top - allowedError ||
+          rect.bottom > rootRect.bottom + allowedError
+        ) {
+          errors.push(`${kind} escapes its containing diagram region`);
+        }
+      }
+      return errors;
+    },
+    { heading: headingSelector, description: descriptionSelector },
+  );
+  expect(problems).toEqual([]);
+}
+
 export async function expectSeoDescription(page: Page, expected: string) {
   expect(expected).toBe(expected.trim());
   expect(expected.length, 'SEO description must not be empty').toBeGreaterThan(0);

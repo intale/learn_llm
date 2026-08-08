@@ -211,11 +211,6 @@ const nodeClass = (node: ScalarNodeEvidence): 'leaf' | 'shared' | 'output' => {
     align-content: start;
   }
 
-  .scalar-autodiff-diagram:fullscreen > figcaption {
-    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
-    align-items: start;
-  }
-
   .scalar-autodiff-diagram:fullscreen .node-card dl,
   .scalar-autodiff-diagram:fullscreen .parent-edge-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));

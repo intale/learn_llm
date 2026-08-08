@@ -274,19 +274,32 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
       align-content: start;
     }
 
-    figure.softmax-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+    figure.softmax-diagram.course-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+      --diagram-cell-padding-block: 0.45rem;
       row-gap: 0.1rem;
+    }
+
+    figure.softmax-diagram.course-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > section {
+      row-gap: 0.25rem;
+    }
+
+    figure.softmax-diagram.course-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > section:nth-of-type(n + 2) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    figure.softmax-diagram.course-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > section
+      > :is(h4, p) {
+      margin-block: 0;
     }
 
     .softmax-diagram:fullscreen > figcaption {
       grid-column: 1 / -1;
       grid-row: 1;
-      grid-template-columns: minmax(25rem, 0.62fr) minmax(0, 1.38fr);
-      align-items: start;
-      column-gap: 1rem;
     }
-
-    .softmax-diagram:fullscreen > figcaption > :is(h3, p) { max-inline-size: none; }
 
     .softmax-diagram:fullscreen > .summary-grid {
       grid-column: 1 / 10;

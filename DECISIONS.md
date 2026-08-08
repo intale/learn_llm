@@ -16902,3 +16902,142 @@ shared presentation skin, and reduction table remain unchanged.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch10-broadcast-rejection-label-layout`, and
 `20260808T133123Z-repair-ch10-broadcast-rejection-label-layout-01`.
+
+## 2026-08-08 - Make the shared diagram module own full-view caption rows
+
+**Status:** Accepted after preflight inventory and before product edits in
+`stack-full-view-diagram-title-and-subtitle` run 01.
+
+**Context:** The reported Chapter 9, 11, and 12 full-view captions place a long
+description beside the title, so their painted lines can crowd or nearly share
+one row. A complete source inventory found the same private two- or three-column
+caption presentation in thirteen chapter components. Those rules were added as
+individual full-view layouts even though title/description order, spacing, and
+readable measures are presentation-system responsibilities shared by every
+registered figure. Fixing only the three reports would leave the same defect
+latent elsewhere and would not establish an extensible rule for future locales.
+
+**Decision:** The shared `diagram.module.css` contract owns the internal layout
+of a figure's direct `course-diagram__caption` in full view. Every direct caption
+child occupies the single caption column in document order, so the title is one
+row, the localized description follows on another row, and any caption-owned
+facts follow without sharing a track. The existing shared gap, zero margins,
+typography, and readable line measures remain authoritative. Component-local
+fullscreen CSS may retain only the caption's outer placement within the
+concept-specific figure grid (`grid-area`, `grid-column`, or `grid-row`); it may
+not define internal columns, alignment, gaps, margins, or line measures. Remove
+all thirteen conflicting overrides in this checkpoint and enforce the boundary
+with a source-wide static assertion plus rendered all-figure geometry. Reuse the
+one existing semantic `figcaption`; do not add duplicated markup, a private
+script, clipping, smaller type, or chapter-specific full-view behavior.
+
+**Consequences:** The checkpoint's declared output scope expands from the three
+reported components to every component that currently overrides internal
+full-view caption presentation. This is a shared presentation correction, not a
+learner-content or localization revision, so English and Russian strings remain
+byte-stable. The following course-wide diagram audit still owns unrelated box,
+table, scroller, or concept-layout findings.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`stack-full-view-diagram-title-and-subtitle`, and
+`20260808T135546Z-stack-full-view-diagram-title-and-subtitle-01`.
+
+## 2026-08-08 - Keep stacked captions while recovering full-view travel
+
+**Status:** Accepted after the first two-engine rendered candidate failed only
+the existing vertical-travel budget; no failed candidate is published.
+
+**Context:** The first shared one-column caption rule gives every figure a
+positive box and painted-text gap between title and description and removes all
+reported collisions. Its course-wide containment and progressive-enhancement
+checks pass. The old component columns, however, also allowed long titles to use
+more horizontal space than the base inline `34ch` title measure. Reusing that
+narrow inline measure in full view adds avoidable title lines. Chapter 9 also
+loses height when its views and rejected-request headings are correctly stacked
+above their descriptions because their ordinary block margins remain in
+addition to the figure gaps.
+
+**Decision:** Preserve the single-column caption invariant. In full view only,
+let the shared title use the same bounded `72ch` readable measure already owned
+by the shared description; this uses available width without putting the two
+elements on one row or making prose edge-to-edge. For Chapter 9's views and
+rejected-request sections, use a one-column grid with a modest shared row gap
+and reset only the direct heading/description block margins. The heading,
+description, and table scroller remain three ordered rows. Do not relax the
+existing travel threshold, hide overflow, shrink type, shorten localized copy,
+or restore side-by-side heading/description tracks.
+
+**Consequences:** Full view remains visibly stacked and localized text retains
+its natural wording, while wide screens reduce unnecessary wrapping and margin
+debt. Inline and narrow presentation are untouched. The refined exact candidate
+must rerun both engines because Firefox exposed the tighter Chapter 11 and 12
+budgets that Chromium did not.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`stack-full-view-diagram-title-and-subtitle`, and
+`20260808T135546Z-stack-full-view-diagram-title-and-subtitle-01`.
+
+## 2026-08-08 - Refine the shared full-view title measure to 75ch
+
+**Status:** Supersedes only the `72ch` numeric title measure in the immediately
+preceding travel-recovery decision; the single-column caption and all other
+constraints remain accepted.
+
+**Context:** Exact per-locale Firefox measurement showed that Chapter 11's
+Russian title remains on two lines at both `73ch` and `74ch`, leaving the figure
+one pixel beyond its unchanged travel budget. At `75ch` the complete title fits
+one line and leaves 29 pixels of Firefox headroom. Chromium also gains headroom,
+while English is unchanged. The description remains a distinct later row and
+the painted gap remains about seven to eight pixels.
+
+**Decision:** Use `75ch`, the first measured whole-character passing threshold,
+as the shared full-view title maximum. Keep the inline title at `34ch`, keep the
+description at `72ch`, and retain the same font size, single-column flow, and
+shared gap. Do not add a Chapter 11 override or weaken its travel assertion.
+
+**Consequences:** Long localized headings can use the width offered by full view
+without sharing a row with their descriptions. The value has measured tolerance
+beyond the failing `74ch` width and remains a bounded readable heading measure.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`stack-full-view-diagram-title-and-subtitle`, and
+`20260808T135546Z-stack-full-view-diagram-title-and-subtitle-01`.
+
+## 2026-08-08 - Reflow Chapter 12 sections instead of compressing its caption
+
+**Status:** Accepted after exact Firefox diagnosis and before the final Chapter
+12 product edit in `stack-full-view-diagram-title-and-subtitle` run 01.
+
+**Context:** After the shared caption is correctly stacked, Chapter 12's Russian
+Firefox full view exceeds the existing vertical-travel allowance by 39 pixels.
+The title and description themselves are separated and contained. The excess is
+inside the concept layout: default direct-child margins enlarge all three
+sections, the first section's evidence table and explanatory column independently
+set nearly equal intrinsic heights, and the two lower sections retain ordinary
+block flow around their one-column content. Widening only the first sidebar,
+shortening its localized text, or changing only one table dimension does not
+solve both height constraints.
+
+**Decision:** Keep the shared `75ch` full-view title and every localized string.
+For Chapter 12 full view only, make each section an explicit one-column row flow,
+use a `0.25rem` row gap with zero direct heading/paragraph block margins, and set
+the shared table cell block-padding token locally to `0.45rem`. Preserve the
+existing two-column first-section relationship between its explanation and the
+table, all table rows and values, the lower target/error cards, type sizes,
+four-sided borders, and sanctioned scroller. Protect the exact reflow with a
+component source assertion and the existing English/Russian Chromium/Firefox
+containment and travel checks.
+
+**Consequences:** The measured Russian Firefox layout falls from 193 pixels of
+travel debt to 138 before final cross-engine replay, leaving 16 pixels of
+headroom without clipping, smaller text, shortened translation, or relaxed
+acceptance. Inline and narrow layouts are untouched. The subsequent course-wide
+diagram audit remains responsible for unrelated concept-geometry defects.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`stack-full-view-diagram-title-and-subtitle`, and
+`20260808T135546Z-stack-full-view-diagram-title-and-subtitle-01`.

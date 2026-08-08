@@ -250,11 +250,120 @@ async function auditFigure(
     if (!caption?.classList.contains("course-diagram__caption")) {
       errors.push("caption does not use the shared role");
     }
-    if (!caption?.querySelector("h3, .visually-hidden + h3")) {
-      errors.push("caption has no title heading");
+    const directTitles = caption
+      ? [...caption.children].filter((child) => child.tagName === "H3")
+      : [];
+    const directDescriptions = caption
+      ? [...caption.children].filter((child) =>
+          child.classList.contains("course-diagram__description"),
+        )
+      : [];
+    if (directTitles.length !== 1) {
+      errors.push(`caption has ${directTitles.length} direct title headings`);
     }
-    if (!caption?.querySelector(".course-diagram__description")) {
-      errors.push("caption has no shared learner description");
+    if (directDescriptions.length !== 1) {
+      errors.push(
+        `caption has ${directDescriptions.length} direct learner descriptions`,
+      );
+    }
+    const title = directTitles[0] as HTMLElement | undefined;
+    const description = directDescriptions[0] as HTMLElement | undefined;
+    if (
+      caption &&
+      title &&
+      description &&
+      title.compareDocumentPosition(description) & Node.DOCUMENT_POSITION_PRECEDING
+    ) {
+      errors.push("caption description precedes its title");
+    }
+    if (caption && title && description) {
+      const captionStyle = getComputedStyle(caption);
+      const titleStyle = getComputedStyle(title);
+      const descriptionStyle = getComputedStyle(description);
+      if (captionStyle.display !== "grid") {
+        errors.push(`caption display is ${captionStyle.display}, not grid`);
+      }
+      for (const [kind, style] of [
+        ["title", titleStyle],
+        ["description", descriptionStyle],
+      ] as const) {
+        if (["absolute", "fixed"].includes(style.position)) {
+          errors.push(`caption ${kind} is positioned ${style.position}`);
+        }
+        if (style.cssFloat !== "none") {
+          errors.push(`caption ${kind} floats ${style.cssFloat}`);
+        }
+      }
+
+      const titleRect = title.getBoundingClientRect();
+      const descriptionRect = description.getBoundingClientRect();
+      const captionRect = caption.getBoundingClientRect();
+      const boxGap = descriptionRect.top - titleRect.bottom;
+      if (boxGap < 1) {
+        errors.push(
+          `caption description box starts ${boxGap.toFixed(1)}px after the title box`,
+        );
+      }
+      for (const [kind, rect] of [
+        ["title", titleRect],
+        ["description", descriptionRect],
+      ] as const) {
+        if (
+          rect.left < captionRect.left - allowedError ||
+          rect.right > captionRect.right + allowedError ||
+          rect.top < captionRect.top - allowedError ||
+          rect.bottom > captionRect.bottom + allowedError
+        ) {
+          errors.push(`caption ${kind} escapes the caption box`);
+        }
+      }
+
+      const paintedTextBounds = (container: HTMLElement) => {
+        const rects: DOMRect[] = [];
+        const walker = document.createTreeWalker(
+          container,
+          NodeFilter.SHOW_TEXT,
+        );
+        let node = walker.nextNode();
+        while (node) {
+          const parent = node.parentElement;
+          if (
+            parent &&
+            node.textContent?.trim() &&
+            visible(parent) &&
+            !parent.closest(
+              '.visually-hidden, .katex-mathml, [aria-hidden="true"]',
+            )
+          ) {
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            rects.push(
+              ...[...range.getClientRects()].filter(
+                (rect) => rect.width > 0 && rect.height > 0,
+              ),
+            );
+          }
+          node = walker.nextNode();
+        }
+        return rects.length
+          ? {
+              bottom: Math.max(...rects.map((rect) => rect.bottom)),
+              top: Math.min(...rects.map((rect) => rect.top)),
+            }
+          : null;
+      };
+      const titlePaint = paintedTextBounds(title);
+      const descriptionPaint = paintedTextBounds(description);
+      if (!titlePaint || !descriptionPaint) {
+        errors.push("caption title or description paints no readable text");
+      } else {
+        const paintGap = descriptionPaint.top - titlePaint.bottom;
+        if (paintGap < 1) {
+          errors.push(
+            `caption description ink starts ${paintGap.toFixed(1)}px after title ink`,
+          );
+        }
+      }
     }
     if (
       getComputedStyle(root)

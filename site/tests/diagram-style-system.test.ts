@@ -20,6 +20,77 @@ const components = (readdirSync(componentDirectory) as string[])
   .filter((name) => name.endsWith("Diagram.astro"))
   .sort();
 
+const fullscreenCaptionInternalProperties = new Set([
+  "align-items",
+  "column-count",
+  "column-gap",
+  "column-width",
+  "columns",
+  "display",
+  "flex",
+  "flex-direction",
+  "flex-flow",
+  "gap",
+  "grid",
+  "grid-auto-columns",
+  "grid-auto-flow",
+  "grid-auto-rows",
+  "grid-template",
+  "grid-template-areas",
+  "grid-template-columns",
+  "grid-template-rows",
+  "margin",
+  "margin-block",
+  "margin-block-end",
+  "margin-block-start",
+  "margin-inline",
+  "margin-inline-end",
+  "margin-inline-start",
+  "max-inline-size",
+  "row-gap",
+]);
+
+function cssRules(source: string) {
+  return [...source.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(
+    ([, selector, body]) => ({ selector: selector.trim(), body }),
+  );
+}
+
+function fullscreenCaptionPresentationViolations(source: string) {
+  return [...source.matchAll(/<style(?:\s[^>]*)?>([\s\S]*?)<\/style>/g)]
+    .flatMap(([, style]) => cssRules(style))
+    .flatMap(({ selector, body }) => {
+      if (
+        !selector.includes(":fullscreen") ||
+        !/(?:figcaption|\.course-diagram__caption)/.test(selector)
+      ) {
+        return [];
+      }
+      const properties = [...body.matchAll(/(?:^|;)\s*([a-z-]+)\s*:/g)].map(
+        ([, property]) => property,
+      );
+      const targetsCaptionChild = selector.split(",").some((target) => {
+        const match = /(?:figcaption|\.course-diagram__caption)/g;
+        let last: RegExpExecArray | null = null;
+        let current: RegExpExecArray | null;
+        while ((current = match.exec(target)) !== null) last = current;
+        return last
+          ? target.slice(last.index + last[0].length).trim().length > 0
+          : false;
+      });
+      return properties
+        .filter(
+          (property) =>
+            fullscreenCaptionInternalProperties.has(property) ||
+            (targetsCaptionChild &&
+              ["float", "grid-area", "grid-column", "grid-row", "position"].includes(
+                property,
+              )),
+        )
+        .map((property) => `${selector} declares ${property}`);
+    });
+}
+
 const fixture = `
   <figure class="course-diagram fixture-diagram" data-diagram-style="course-v1"
     data-visualization-id="fixture" tabindex="0"
@@ -51,6 +122,10 @@ describe("course diagram design system", () => {
       expect(source).not.toMatch(/@media\s*\(\s*max-width\s*:/);
       expect(source).not.toMatch(/contain\s*:\s*paint\b/);
       expect(source).not.toMatch(/overflow-x\s*:\s*(?:auto|scroll)\b/);
+      expect(
+        fullscreenCaptionPresentationViolations(source),
+        `${component} must leave full-view caption flow to diagram.module.css`,
+      ).toEqual([]);
     }
   });
 
@@ -87,6 +162,29 @@ describe("course diagram design system", () => {
     expect(module).toMatch(
       /\.course-diagram__scroll\[data-diagram-scroll\][\s\S]*position:\s*relative/,
     );
+    const fullscreenCaptionRules = cssRules(module).filter(
+      ({ selector, body }) =>
+        selector.includes(":fullscreen") &&
+        selector.includes("> .course-diagram__caption") &&
+        /grid-auto-flow:\s*row/.test(body),
+    );
+    expect(fullscreenCaptionRules).toHaveLength(1);
+    expect(fullscreenCaptionRules[0]?.body).toMatch(
+      /grid-template-columns:\s*minmax\(0,\s*1fr\)/,
+    );
+    expect(fullscreenCaptionRules[0]?.body).toMatch(/grid-auto-flow:\s*row/);
+    expect(fullscreenCaptionRules[0]?.body).not.toMatch(
+      /(?:grid-area|grid-column|grid-row|!important)\s*:/,
+    );
+    const fullscreenTitleRules = cssRules(module).filter(
+      ({ selector, body }) =>
+        selector.includes(":fullscreen") &&
+        selector.includes("> .course-diagram__caption") &&
+        selector.includes("> h3") &&
+        /max-inline-size:\s*75ch/.test(body),
+    );
+    expect(fullscreenTitleRules).toHaveLength(1);
+    expect(fullscreenTitleRules[0]?.body).toMatch(/max-inline-size:\s*75ch/);
     expect(global).not.toMatch(
       /data-diagram-full-view|figure\[data-visualization-id\]/,
     );
@@ -127,6 +225,26 @@ describe("course diagram design system", () => {
         `${fixture}<style>@media (max-width: 40rem) {}</style>`,
       ),
     ).toThrow(/viewport-width diagram breakpoint/);
+
+    expect(
+      fullscreenCaptionPresentationViolations(
+        `${fixture}<style>.fixture:fullscreen > figcaption { grid-column: 1 / -1; grid-row: 1; }</style>`,
+      ),
+    ).toEqual([]);
+    expect(
+      fullscreenCaptionPresentationViolations(
+        `${fixture}<style>.fixture:fullscreen > figcaption { grid-template-columns: repeat(2, 1fr); }</style>`,
+      ),
+    ).toEqual([
+      ".fixture:fullscreen > figcaption declares grid-template-columns",
+    ]);
+    expect(
+      fullscreenCaptionPresentationViolations(
+        `${fixture}<style>.fixture:fullscreen > figcaption > p { grid-column: 2; }</style>`,
+      ),
+    ).toEqual([
+      ".fixture:fullscreen > figcaption > p declares grid-column",
+    ]);
   });
 
   it("keeps the permanent rules in both authoring sources of truth", () => {

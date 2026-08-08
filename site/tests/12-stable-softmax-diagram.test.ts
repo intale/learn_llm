@@ -383,5 +383,20 @@ describe('Chapter 12 static diagram component', () => {
     expect(component).not.toMatch(/\.(?:target-card|error-card)\s*\{[^}]*(?:padding|border-radius|background)\s*:/s);
     expect(component).not.toContain('@media (forced-colors: active)');
     expect(component).toContain('.softmax-diagram:fullscreen');
+    expect(component).toMatch(
+      /figure\.softmax-diagram\.course-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*\{[^}]*--diagram-cell-padding-block:\s*0\.45rem;[^}]*row-gap:\s*0\.1rem;/s,
+    );
+    expect(component).toMatch(
+      /figure\.softmax-diagram\.course-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*>\s*section\s*\{[^}]*row-gap:\s*0\.25rem;/s,
+    );
+    expect(component).toMatch(
+      /figure\.softmax-diagram\.course-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*>\s*section:nth-of-type\(n \+ 2\)\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0, 1fr\);/s,
+    );
+    expect(component).toMatch(
+      /figure\.softmax-diagram\.course-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*>\s*section\s*>\s*:is\(h4, p\)\s*\{[^}]*margin-block:\s*0;/s,
+    );
+    expect(component).not.toMatch(
+      /\.softmax-diagram:fullscreen[^}]*overflow:\s*(?:hidden|clip)/s,
+    );
   });
 });
