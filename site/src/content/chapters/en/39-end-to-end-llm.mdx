@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 39,
   "concept_id": "end-to-end-llm",
   "title": "Run the whole tiny LLM",
@@ -84,7 +84,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/pipeline.rs",
       "region": "end-to-end-capstone",
-      "purpose": "Borrow the retained selected state and matching model for final evaluation, snapshot selected state for durable storage, record loaded continuation metadata, and consume the loaded checkpoint before the logit probe and generation."
+      "purpose": "Record test-epoch counts before moving the epoch into final evaluation, derive parameter evidence from the selected state, borrow that state and its matching model, and retain loaded checkpoint metadata before consuming the checkpoint and moving its model buffers."
     },
     {
       "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
@@ -316,22 +316,33 @@ not establish a universal architecture ranking or useful generation quality.
 <code>run_capstone</code> starts by parsing the checked corpus and split. It
 learns BPE from the training partition, encodes each document without joining
 boundaries, fits the alpha-one bigram from the same training tokens, and builds
-separate causal epochs for update, validation, and final evaluation.
+separate causal epochs for training updates and validation. It does not build
+the test epoch at this stage.
 
 Two decoder runs receive the same initialization and batch-order seed. Each
 executes all $32$ updates. The implementation compares every training event,
 loss checkpoint, optimizer moment, selected step, and model value by bit pattern.
-Only after replay agrees and validation fixes the selection does the run
-materialize test mini-batches. `TrainingResult` owns both the retained selected
-state and an independent decoder with the same values. `SelectedDecoder` borrows
-both. Immediately before opening the local test gate, `FinalEvaluator` verifies
-that the decoder's configuration, ordered names and shapes, and every parameter
-bit still match the retained state; this prevents a changed decoder from being
-evaluated under stale selection metadata without making another model copy. The
-evaluator then scores the borrowed model and consumes its local test permission
-once. The permission, not either borrowed object, is the one-use resource. This
-is an executable boundary inside this run, not a claim that the repository
-globally prevents other code from reading the corpus.
+Only after replay agrees and validation fixes the selection does the run prepare
+final evaluation. `TrainingResult` owns both the retained selected state and an
+independent decoder with the same values. `SelectedDecoder` borrows both. The run
+then materializes the test epoch, records two facts—$436$ windows
+and $4$ mini-batches—and moves the epoch into `FinalEvaluator`. The evaluator
+owns the epoch and the local permission to evaluate it once. Immediately before
+opening that local test gate, it verifies that the decoder's configuration,
+ordered names and shapes, and every parameter bit still match the retained
+state; this prevents a changed decoder from being evaluated under stale
+selection metadata without making another model copy. The evaluator then scores
+the borrowed model and consumes its permission. The permission, not either
+borrowed object, is the one-use resource. This is an executable boundary inside
+this run, not a claim that the repository globally prevents other code from
+reading the corpus. Later report assembly retains only the two counts, not a
+cloned epoch.
+
+The report derives the displayed count of $1188$ learned scalars by calling
+`primary.selected_state().scalar_count()`. That method computes the count by
+summing the lengths of the parameter tensors in the retained graph-free state
+selected by validation; it neither reads a stored count nor initializes another
+decoder.
 
 Final evaluation and durable checkpoint storage have different ownership needs.
 Evaluation only borrows the retained selected state and matching decoder. After
@@ -348,12 +359,17 @@ optimizer state, and saved RNG value needed by later evidence. It then calls
 separate <code>At</code> probe compares that decoder with
 `primary.selected_model()` and must match bit for bit. Only then does the loaded
 model run cached and complete-prefix generation from prompt <code>A</code> and
-the saved RNG state.
+the saved RNG state. `generation_evidence` encodes the prompt once into one
+`prompt_ids` vector. Both generation paths temporarily read that vector through
+immutable references. After both calls finish and the local vector is no longer
+needed for calculation, `GenerationEvidence` takes ownership of the same vector;
+moving the `Vec` transfers its existing buffer instead of cloning the prompt IDs
+for the report.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/pipeline.rs"
   region="end-to-end-capstone"
-  caption="Borrow selected state and model, snapshot state for durable storage, then consume owned loaded state in one-way order"
+  caption="Record test counts before moving the epoch, derive parameter evidence from selected state, and preserve the checkpoint's one-way ownership order"
   label="Rust source implementing the Chapter 39 end-to-end capstone"
 />
 

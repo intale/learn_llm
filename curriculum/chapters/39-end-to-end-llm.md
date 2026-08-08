@@ -2,15 +2,15 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 39,
   "objective": {
     "en": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
-    "ru": "Запустить одну детерминированную двуязычную декодерную LLM: пройти от зафиксированных ролей документов через обучение BPE только по обучающей выборке, выбор состояния по валидации, одну локальную итоговую оценку на тестовой выборке, точное восстановление из контрольной точки и генерацию текста с кэшем."
+    "ru": "Запустить одну детерминированную двуязычную декодерную LLM и проследить весь путь: от заранее закреплённых ролей документов через обучение BPE только по обучающей выборке и выбор состояния по валидации до одной локальной итоговой оценки на тестовой выборке, точного восстановления из контрольной точки и генерации текста с кэшем."
   },
   "worked_inputs": {
     "en": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, compare the decoder and frozen bigram on the same 1,744 test targets, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
-    "ru": "Использовать сохранённое в репозитории разбиение двуязычного корпуса на восемь, два и два документа; обучить восемь BPE-слияний только по обучающей выборке; выполнить 32 обновления одноблочного декодера с 1188 параметрами; выбрать состояние со значением функции потерь на валидации 3.889531885; сопоставить декодер и зафиксированную биграммную модель на одних и тех же 1744 тестовых целевых позициях; точно восстановить состояние из контрольной точки и логиты для пробы At; продолжить промпт A идентификаторами токенов 260, 34 и 34 — кириллической буквой т и двумя пробелами."
+    "ru": "Использовать сохранённое в репозитории разбиение двуязычного корпуса на восемь, два и два документа; получить восемь правил BPE-слияния только по обучающей выборке; выполнить 32 обновления одноблочного декодера с 1188 параметрами; выбрать состояние со значением функции потерь на валидации 3.889531885; сопоставить декодер и зафиксированную биграммную модель на одних и тех же 1744 тестовых целевых позициях; точно восстановить состояние из контрольной точки и логиты для пробы At; продолжить промпт A идентификаторами токенов 260, 34 и 34, которые декодируются в кириллическую букву т и два пробела."
   },
   "formula": {
     "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
@@ -53,7 +53,7 @@
       {
         "symbol": "z_{<t}",
           "en": "the earlier prefix in the general factorization; this bounded fixture presents at most the last four earlier tokens to the decoder",
-          "ru": "предшествующий префикс в общей факторизации; в этом ограниченном примере декодеру передаются не более четырёх последних предшествующих токенов"
+          "ru": "предшествующий префикс в общей факторизации; в этом ограниченном примере декодеру передаются не более четырёх ближайших предыдущих токенов"
       }
     ]
   },
@@ -62,15 +62,15 @@
       "predecessor_kind": "language-model",
       "limitation": {
           "en": "A count-based bigram estimates the next token from one preceding token and cannot share statistical strength through learned features or use the longer causal prefix.",
-          "ru": "Биграммная модель на основе частот оценивает следующий токен по одному предшествующему токену: она не переносит статистические закономерности через обученные признаки и не использует более длинный каузальный префикс."
+          "ru": "Частотная биграммная модель оценивает следующий токен только по одному предыдущему токену; у неё нет обучаемых признаков, которые позволяли бы совместно использовать закономерности из разных контекстов, и она не учитывает более длинный каузальный префикс."
       },
       "later_advance": {
           "en": "Neural language models learned distributed token features and longer-context probability functions; the Transformer supplied masked self-attention, and later autoregressive Transformer language models scaled that training objective.",
-          "ru": "Нейронные языковые модели научились распределённым признакам токенов и вероятностным функциям, использующим более длинный контекст; Transformer добавил маскированное самовнимание, а более поздние авторегрессионные языковые модели на основе Transformer масштабировали ту же цель обучения."
+          "ru": "В нейронных языковых моделях начали совместно обучать распределённые представления токенов и функции вероятности, учитывающие более длинный контекст; Transformer ввёл маскированное самовнимание, а последующие авторегрессионные языковые модели на основе Transformer масштабировали эту цель обучения."
       },
       "modern_llm_role": {
           "en": "This course capstone combines training-only tokenizer learning, causal next-token updates, validation-selected state, selection-isolated final evaluation, exact checkpoint round-trip, and stateful generation; these are local evidence rules, not requirements of the cited papers.",
-          "ru": "В завершающем примере курса объединены обучение токенизатора только по обучающей выборке, каузальные обновления по следующему токену, выбор состояния по валидации, итоговая оценка после выбора, точное сохранение и восстановление контрольной точки и генерация с явным состоянием. Это локальные правила проверки, а не требования цитируемых статей."
+          "ru": "Завершающий пример курса объединяет обучение токенизатора только по обучающей выборке, обучение декодера предсказывать следующий токен в каузальном порядке, выбор состояния по валидации, итоговую оценку после выбора, точное сохранение и восстановление контрольной точки и генерацию, которая сохраняет состояние между шагами. Это правила проверки внутри данной программы, а не требования цитируемых статей."
       },
       "sources": [
         {
@@ -80,7 +80,7 @@
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
               "en": "Bengio and colleagues describe traditional n-gram generalization through short overlapping sequences and show a neural probability function that learns distributed word representations and benefits from longer contexts; their model is not a Transformer or this course pipeline.",
-              "ru": "Бенжио и соавторы описывают, как традиционные n-граммные модели обобщают по коротким перекрывающимся последовательностям, и показывают нейронную вероятностную функцию с обучаемыми распределёнными представлениями слов, результаты которой улучшаются при увеличении контекста; их модель не является ни Transformer, ни полным процессом из этого курса."
+              "ru": "Бенжио и соавторы описывают, как традиционные n-граммные модели обобщают наблюдения, опираясь на короткие перекрывающиеся фрагменты, и показывают нейронную вероятностную функцию, которая совместно обучается с распределёнными представлениями слов и даёт лучший результат при более длинном контексте; их модель не является Transformer и не охватывает все этапы программы из этого курса."
           }
         },
         {
@@ -107,11 +107,11 @@
     },
     "approach": {
       "en": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the measured gap as fixture evidence rather than causal attribution.",
-      "ru": "Сопоставить биграммную модель со сглаживанием α=1, обученную только по обучающей выборке, и каузальный декодер с контекстом из четырёх токенов, выбранный по валидации, на одних и тех же целевых позициях из тестовой выборки; измеренную разницу считать результатом этого примера, а не доказательством причинного влияния архитектуры."
+      "ru": "Сопоставить биграммную модель со сглаживанием α=1, обученную только по обучающей выборке, и каузальный декодер с контекстом из четырёх токенов, выбранный по валидации, на одних и тех же целевых позициях из тестовой выборки; измеренную разницу считать наблюдением для этого примера, а не доказательством причинного влияния архитектуры."
     },
     "summary": {
       "en": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local end-to-end responsibility boundaries at inspectable scale without treating one tiny loss win as a general quality claim.",
-      "ru": "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обученные распределённые признаки и маскированное самовнимание сделали возможной обучаемую обработку более длинного контекста, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает границы ответственности полного процесса в масштабе, позволяющем проследить каждую деталь, и не превращает один небольшой выигрыш по функции потерь во всеобщий вывод о качестве."
+      "ru": "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые представления и маскированное самовнимание позволили моделям обрабатывать более длинный контекст, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. В завершающем примере можно проследить, какие данные доступны каждому этапу и за какое решение он отвечает; один небольшой выигрыш по функции потерь не превращается в общий вывод о качестве."
     },
     "rust_contrast": "Derive the one-token bigram context, four-token decoder context, 1,744 shared targets, losses 3.981342714 and 3.866087547, and gap 0.115255167 from the final run evidence; the comparison describes this fixture rather than isolating a causal effect."
   },
@@ -129,12 +129,12 @@
     "id": "end-to-end-llm",
     "rationale": {
       "en": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation. Local labels state training/validation/test order for every partition count and separately bind the reload-probe text, its token IDs, retained prefix lengths, the prompt-token cache-prefill count, and the one-token decode input count to their values.",
-      "ru": "Один нумерованный процесс слева направо делает информационную границу явной: тестовые мини-пакеты формируются только после обучения и выбора по валидации, затем точное восстановление из контрольной точки предшествует генерации с кэшем. Каждая подпись объясняет стоящее рядом число или список. Для данных по выборкам она указывает порядок «обучение / валидация / тест». Отдельные строки связывают со значениями текст пробы для проверки восстановления, ID токенов, которыми он закодирован, длины сохранённых префиксов, число токенов промпта при заполнении KV-кэша и число сгенерированных токенов, по одному поданных декодеру."
+      "ru": "Один нумерованный процесс слева направо делает информационную границу явной: тестовые мини-пакеты формируются только после обучения и выбора по валидации, затем точное восстановление из контрольной точки предшествует генерации с кэшем. Каждая подпись связывает стоящее рядом число или список с его смыслом. Для данных по выборкам она указывает порядок «обучение / валидация / тест». Отдельные строки связывают со значениями текст пробы для проверки восстановления, ID токенов этой пробы, длины сохранённых префиксов, число токенов промпта при заполнении KV-кэша и число ранее сгенерированных токенов, которые затем по одному подаются декодеру."
     }
   },
   "decoder_connection": {
     "en": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local final evaluator receives test batches, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text.",
-    "ru": "Теперь все части курса участвуют в одной работающей программе: зафиксированный двуязычный корпус превращается в BPE-токены и каузальные пакеты; валидационная выборка определяет состояние декодера до передачи тестовых пакетов локальному объекту итоговой оценки; байты контрольной точки и состояние точно восстанавливаются; отдельная проба At побитово воспроизводит логиты; генерация с кэшем из A возвращает декодированный текст."
+    "ru": "Теперь все части курса участвуют в одной работающей программе: зафиксированный двуязычный корпус превращается в BPE-токены и каузальные пакеты; валидационная выборка определяет состояние декодера до передачи тестовых пакетов объекту FinalEvaluator; байты контрольной точки и сохранённое состояние точно восстанавливаются; отдельная проба At побитово воспроизводит логиты; генерация с кэшем из A возвращает декодированный текст."
   },
   "terminology": [
     {
@@ -174,16 +174,16 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 6 is a direct, meaning-first translation of frozen English revision 6 with SHA-256 2aeb17e824344972a0d62ef0b4cbf488c86475850cd77c76807db67d3b7cce4d; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
+    "Russian revision 7 is a direct, meaning-first translation of frozen English revision 7 with SHA-256 e8a4aa5312332e3ec56c9f02fd147d0b2aa099bd70882d9c367a67f681505c39; the Russian lesson SHA-256 is e8f9a0604756b0132101890e9126b33ca7ab247c88383c5c7c4d20dc5fbcb07b; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
     "Preserve BPE, LLM, AdamW, BOS, EOS, KV, RNG, token IDs, hashes, tensor shapes, exact losses, source titles, formulas, links, and trace grammar.",
     "Keep the general autoregressive factorization distinct from this retained four-token context C=4 and keep the local selection-isolated test boundary distinct from a global claim that test data has never been read anywhere.",
     "The checkpoint claim covers byte-for-byte re-encoding and exact model, optimizer, tokenizer, step, and RNG state; the separate At probe must not be confused with generation from prompt A.",
-    "Preserve the ownership order: final evaluation borrows and verifies the retained selected state plus matching selected model; checkpoint creation copies selected model and optimizer persistence state because the training result remains available; loaded metadata is recorded before into_model consumes the checkpoint and moves model buffers into the probe and generation decoder.",
+    "Preserve the ownership order: record the test-epoch counts before moving the epoch into FinalEvaluator; derive the parameter count from the validation-selected graph-free state; final evaluation borrows and verifies the retained selected state plus matching selected model; checkpoint creation deliberately copies selected model and optimizer persistence state because the training result remains available; record loaded metadata before into_model consumes the checkpoint and moves model buffers; let both generation paths borrow one prompt-ID vector before moving that vector into GenerationEvidence.",
     "For Russian, render borrowing as получение неизменяемых ссылок, graph-free state as состояние без графа вычислений, optimizer persistence state as состояние оптимизатора, необходимое для продолжения обучения, and consuming into_model as передача контрольной точки по значению followed by перемещение её буферов; avoid заимствовать объект, потреблять контрольную точку, граф-свободное состояние, персистентное состояние, совпадающая модель, and метаданные продолжения.",
     "The generated learner-visible output is Cyrillic т followed by two spaces, rendered as т␠␠ where the spaces must be visible; it demonstrates shared byte-tokenizer decoding, not translation quality.",
     "Keep the history on the path from count n-gram language models through learned distributed representations and masked self-attention to scaled autoregressive LLMs; scope paper claims to their sources and local evidence policies to this implementation.",
     "Prefer natural Russian mathematical and technical prose, including полный цикл работы LLM, состояние, выбранное по валидации, зафиксированная биграммная базовая модель, and продолжение с KV-кэшем; reject literal calques and mixed-language learner prose.",
-    "Any later semantic or presentation change to English revision 6 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Any later semantic or presentation change to English revision 7 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
   ],
   "acceptance_examples": [
     {
@@ -196,11 +196,11 @@
     },
     {
       "input": "Run both seed-39 training replays",
-      "expected": "Both execute 32 updates and reproduce every recorded step, checkpoint, optimizer moment, selected state, and final state bit; validation selects step 32 at loss 3.889531885."
+      "expected": "Both execute 32 updates and reproduce every recorded step, checkpoint, optimizer moment, selected state, and final state bit; validation selects step 32 at loss 3.889531885. The report derives the displayed count of 1,188 learned scalars by calling scalar_count on that selected state; the method computes the count by summing its parameter-tensor lengths rather than reading a stored count or constructing another decoder."
     },
     {
       "input": "Materialize context-four test batches and open the local final evaluator after selection",
-      "expected": "The evaluator first verifies that the retained selected state and matching selected model agree exactly. Four evaluation mini-batches then contain 436 windows and 1,744 target slots; one local access scores identical decoder and bigram targets, with losses 3.866087547 and 3.981342714 and gap 0.115255167."
+      "expected": "Before moving the complete test epoch into FinalEvaluator, the capstone records its 436-window and four-mini-batch counts. The evaluator then owns that epoch and first verifies that the retained selected state and matching selected model agree exactly. One local access scores 1,744 identical decoder and bigram target slots, with losses 3.866087547 and 3.981342714 and gap 0.115255167."
     },
     {
       "input": "Save and reload the selected state",
@@ -208,7 +208,7 @@
     },
     {
       "input": "Generate three tokens from prompt A with temperature 0.8, top-k four, and seed 38",
-      "expected": "Both paths make the three choices from prefixes of lengths [1,2,3]. Cache prefill processes the one-token prompt to obtain logits for the first choice; two one-token decode calls process the first two generated tokens to obtain logits for the second and third choices. Both paths select [260,34,34], decode т followed by two spaces, stop at the token limit, and finish with equal decisions and RNG state; cached work records 6 attention-score cells and the calculated complete-prefix reference records 14."
+      "expected": "Both paths borrow one local prompt-ID vector and make the three choices from prefixes of lengths [1,2,3]. Cache prefill processes the one-token prompt to obtain logits for the first choice; two one-token decode calls process the first two generated tokens to obtain logits for the second and third choices. Both paths select [260,34,34], decode т followed by two spaces, stop at the token limit, and finish with equal decisions and RNG state; cached work records 6 attention-score cells and the calculated complete-prefix reference records 14. After both borrows end, GenerationEvidence takes ownership of the original prompt-ID vector."
     },
     {
       "input": "cargo run --quiet --locked -p ch39-end-to-end-llm",
@@ -314,18 +314,28 @@ isolating a causal effect or establishing universal Transformer superiority.
 
 CapstoneConfig freezes every bounded choice before test evaluation. run_capstone
 parses and verifies the corpus split, learns BPE from training only, encodes
-documents separately, fits the alpha-one bigram, and constructs deterministic
-causal mini-batches. It trains the one-block decoder twice from the same seed and
+documents separately, fits the alpha-one bigram, and constructs the training and
+validation epochs. It trains the one-block decoder twice from the same seed and
 requires identical step metadata and every floating-point bit in losses,
-gradients, checkpoints, optimizer moments, and model state.
+gradients, checkpoints, optimizer moments, and model state. The test epoch does
+not exist until both replays agree and validation fixes the selected state.
 
-After both replays complete and validation fixes the state, the run materializes
-test mini-batches. `SelectedDecoder` receives both `primary.selected_state()` and
-`primary.selected_model()`. Before the gate opens, `FinalEvaluator` verifies the
-bit-exact configuration, ordered names and shapes, and every parameter bit, then
-consumes its local permission once and scores the borrowed decoder and frozen
-bigram on identical targets without a graph or mutation. This is a boundary
-owned by the capstone run, not global access control over repository data.
+After both replays complete and validation fixes the state, `SelectedDecoder`
+receives both `primary.selected_state()` and `primary.selected_model()`. The run
+then materializes the test epoch, records its window and mini-batch counts, and
+moves the epoch into `FinalEvaluator`. The evaluator owns the epoch and the
+local permission to evaluate it once. Before the gate opens,
+it verifies the bit-exact configuration, ordered names and shapes, and every
+parameter bit, then consumes its permission and scores the borrowed decoder and
+frozen bigram on identical targets without a graph or mutation. This is a
+boundary owned by the capstone run, not global access control over repository
+data. Later report assembly retains only the two counts, not a cloned epoch.
+
+The report derives the displayed count of 1,188 learned scalars by calling
+`primary.selected_state().scalar_count()`. That method computes the count by
+summing the lengths of the parameter tensors in the retained graph-free state
+selected by validation; it neither reads a stored count nor initializes another
+decoder.
 
 After final evaluation, `Checkpoint::from_snapshot` receives
 `primary.selected_state()` and the final optimizer. It copies their persistence
@@ -339,8 +349,11 @@ and moves its model buffers into the loaded decoder. Logits for the explicit
 `At` probe compare `primary.selected_model()` with that moved decoder bit for
 bit. Cached generation from `A` and the complete-prefix reference then consume
 identical sampling draws and must agree on tokens, prefix schedule, intervals,
-stopping, and final RNG state. Invalid corpus input fails before training or file
-creation.
+stopping, and final RNG state. Both calls borrow one local prompt-ID vector.
+After they finish, and after no calculation needs that local vector,
+`GenerationEvidence` takes ownership of it without cloning its buffer. These
+three orchestration cleanups do not change the deliberate checkpoint snapshots
+described above. Invalid corpus input fails before training or file creation.
 
 <!-- contract-section:visualization -->
 ## Visualization
@@ -404,7 +417,7 @@ contract changed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 6 is the canonical semantic source; Russian revision 6 is
+English revision 7 is the canonical semantic source; Russian revision 7 is
 published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
 links, and trace grammar. Keep probe `At` distinct from generation prompt `A`.

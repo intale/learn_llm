@@ -399,6 +399,35 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .stage-card[data-stage='test'] {
+      flex: 1 0 23%;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .stage-card[data-stage='generation'] {
+      flex: 1 0 49%;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .stage-card[data-stage='generation']
+      > :is(header, .cue) {
+      grid-column: span 3;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .stage-card[data-stage='generation']
+      > :is(p:nth-of-type(3), p:nth-of-type(5)) {
+      grid-column: span 2;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .selection-card
+      > dl {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
       :is([data-stage='batches'], [data-stage='checkpoint'])
       .stage-facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -406,7 +435,8 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
       .generation-facts {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
@@ -414,7 +444,7 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
       > :is(
         [data-evidence='retained-prefix-lengths'],
         [data-evidence='cache-prefill-prompt-tokens'],
-        [data-evidence='one-token-decode-input-tokens']
+        [data-evidence='cached-attention-score-cells']
       ) {
       grid-column: span 2;
     }
@@ -422,10 +452,18 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
       .generation-facts
       > :is(
-        [data-evidence='cached-attention-score-cells'],
+        [data-evidence='one-token-decode-input-tokens'],
         [data-evidence='complete-prefix-attention-score-cells']
       ) {
       grid-column: span 3;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .generation-facts
+      > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
     }
 
   }

@@ -50,9 +50,15 @@ const copy = {
     spaceMarker: "Each ␠ marks one generated space.",
     ownershipFragments: [
       "SelectedDecoder borrows both",
-      "FinalEvaluator verifies that the decoder’s configuration, ordered names and shapes, and every parameter bit still match the retained state",
+      "records two facts",
+      "moves the epoch into FinalEvaluator",
+      "it verifies that the decoder’s configuration, ordered names and shapes, and every parameter bit still match the retained state",
+      "The report derives the displayed count",
+      "primary.selected_state().scalar_count()",
       "Checkpoint::from_snapshot deliberately copies the selected graph-free state and optimizer persistence state",
       "It then calls loaded.into_model(), which moves the owned model buffers into a decoder",
+      "Both generation paths temporarily read that vector through immutable references",
+      "GenerationEvidence takes ownership of the same vector",
     ],
     fullViewOpenLabel: "View diagram full screen",
     fullViewCloseLabel: "Exit full screen",
@@ -61,40 +67,45 @@ const copy = {
     revisionLabel: "Версия материала",
     title: "Запустите небольшую LLM целиком",
     description:
-      "Проследите полный процесс работы небольшой декодерной языковой модели на Rust: от зафиксированного разбиения двуязычного корпуса и обучения BPE только по обучающей выборке до выбора состояния по валидации, последующей итоговой оценки выбранного состояния, точного восстановления из контрольной точки и генерации с KV-кэшем.",
+      "Проследите полный цикл небольшой декодерной языковой модели на Rust: от зафиксированного разбиения двуязычного корпуса и обучения BPE только по обучающей выборке до выбора состояния по валидации, последующей итоговой оценки выбранного состояния, точного восстановления из контрольной точки и генерации с KV-кэшем.",
     diagramTitle: "Поздние результаты не меняют ранние этапы",
     diagramDescription:
-      "Проследите в программе на Rust обучение BPE только по обучающей выборке, выбор состояния, итоговую оценку, точное восстановление и генерацию с кэшем.",
+      "Этапы на Rust: обучение BPE только по обучающим данным, выбор состояния, итоговая оценка, точное восстановление и генерация с кэшем.",
     headings: [
       "Сначала предскажите границы доступа, затем результат",
       "Одно произведение связывает все решения о следующем токене",
       "Не смешивайте позицию в последовательности с этапом процесса",
       "От короткого частотного контекста к авторегрессионным LLM на основе Transformer",
-      "Соберите готовые API, не копируя алгоритмы",
+      "Соедините уже реализованные API, не дублируя алгоритмы",
       "Проследите процесс: поздние результаты не влияют на ранние этапы",
       "Сначала предскажите, затем проверьте итоговую трассировку",
       "Теперь весь декодер в ваших руках",
     ],
     historyLimitation:
-      "Биграммная модель на основе частот оценивает следующий токен по одному предшествующему токену",
+      "Частотная биграммная модель оценивает следующий токен только по одному предыдущему токену",
     scaleBoundary:
       "Результаты по масштабу и возможностям этой модели нельзя переносить на небольшой учебный запуск",
     qualityBoundary: "не подтверждает полезное качество генерации",
     detailsFragment: "Точные сгенерированные ID: [260,34,34]",
-    selectedCue: "выбрано по валидации",
-    testCue:
-      "|| тестовая выборка открывается один раз после выбора состояния",
+    selectedCue: "состояние выбрано по валидации",
+    testCue: "|| одна итоговая оценка за запуск",
     checkpointCue:
-      "= байты и всё состояние восстанавливаются точно; логиты пробы совпадают",
-    generationCue:
-      "= решения с кэшем и полным пересчётом префикса совпадают",
+      "= байты и состояния модели, оптимизатора и токенизатора совпадают; логиты пробы — тоже",
+    generationCue: "= решения с KV-кэшем и полным префиксом совпадают",
     decodedTextLabel: "кириллическая т и два сгенерированных пробела",
     spaceMarker: "␠ — сгенерированный пробел.",
     ownershipFragments: [
       "SelectedDecoder получает неизменяемые ссылки на оба объекта",
-      "FinalEvaluator проверяет точное совпадение конфигурации декодера",
+      "отдельно сохраняет два нужных для отчёта числа",
+      "передаёт владение всем набором объекту FinalEvaluator",
+      "При последующей сборке отчёта используются только заранее сохранённые два числа, поэтому копия всего набора тестовых мини-пакетов не нужна",
+      "primary.selected_state().scalar_count()",
+      "Метод не читает заранее сохранённый счётчик и не создаёт ещё один декодер только ради подсчёта",
       "Checkpoint::from_snapshot намеренно копирует выбранное состояние без графа вычислений и состояние оптимизатора",
-      "loaded.into_model() принимает контрольную точку по значению и перемещает принадлежащие ей буферы модели в декодер",
+      "loaded.into_model() передаёт методу владение контрольной точкой",
+      "Генерация с KV-кэшем и эталонный расчёт по полному префиксу временно читают один и тот же вектор по неизменяемым ссылкам",
+      "GenerationEvidence получает его во владение",
+      "Перемещение Vec передаёт уже существующий буфер вместо создания копии ID токенов промпта для отчёта",
     ],
     fullViewOpenLabel: "Развернуть схему на весь экран",
     fullViewCloseLabel: "Выйти из полноэкранного режима",
@@ -121,9 +132,9 @@ const evidenceCopy = {
     { id: "reload-probe-token-ids", label: "ID токенов, которыми закодирована проба At", value: "[67,118]" },
     { id: "retained-prefix-lengths", label: "Длины сохранённых префиксов перед каждым выбором токена (в токенах)", value: "[1,2,3]" },
     { id: "cache-prefill-prompt-tokens", label: "Число токенов промпта, обработанных при заполнении KV-кэша", value: "1" },
-    { id: "one-token-decode-input-tokens", label: "Число сгенерированных токенов, по одному поданных декодеру для следующих логитов", value: "2" },
-    { id: "cached-attention-score-cells", label: "Число оценок внимания при работе с KV-кэшем", value: "1+2+3=6", formula: true },
-    { id: "complete-prefix-attention-score-cells", label: "Число оценок внимания при эталонном расчёте по полному префиксу", value: "1^2+2^2+3^2=14", formula: true },
+    { id: "one-token-decode-input-tokens", label: "Число ранее сгенерированных токенов, которые по одному подаются декодеру для вычисления следующих логитов", value: "2" },
+    { id: "cached-attention-score-cells", label: "Число элементов матриц оценок внимания при работе с KV-кэшем", value: "1+2+3=6", formula: true },
+    { id: "complete-prefix-attention-score-cells", label: "Число элементов матриц оценок внимания при эталонном расчёте по полному префиксу", value: "1^2+2^2+3^2=14", formula: true },
   ],
 } as const;
 const stageOrder = [
@@ -388,7 +399,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 39,
-    revision: 6,
+    revision: 7,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -673,9 +684,42 @@ test.describe(
           horizontal: node.scrollWidth - node.clientWidth,
           vertical: node.scrollHeight - node.clientHeight,
           verticalLimit: Math.ceil(node.clientHeight * 0.12),
+          caption: Math.ceil(
+            node.querySelector("figcaption")?.getBoundingClientRect().height ?? 0,
+          ),
+          sectionHeading: Math.ceil(
+            node.querySelector("section > h4")?.getBoundingClientRect().height ??
+              0,
+          ),
+          sectionDescription: Math.ceil(
+            node
+              .querySelector("section > .course-diagram__card-stack > p")
+              ?.getBoundingClientRect().height ?? 0,
+          ),
+          pipeline: Math.ceil(
+            node.querySelector(".pipeline")?.getBoundingClientRect().height ?? 0,
+          ),
+          stages: Array.from(node.querySelectorAll<HTMLElement>("[data-stage]"))
+            .map((stage) => ({
+              id: stage.dataset.stage,
+              width: Math.ceil(stage.getBoundingClientRect().width),
+              height: Math.ceil(stage.getBoundingClientRect().height),
+              header: Math.ceil(
+                stage.querySelector("header")?.getBoundingClientRect().height ??
+                  0,
+              ),
+              facts: Math.ceil(
+                stage
+                  .querySelector(".stage-facts")
+                  ?.getBoundingClientRect().height ?? 0,
+              ),
+            })),
         }));
         expect(travel.horizontal).toBe(0);
-        expect(travel.vertical).toBeLessThanOrEqual(travel.verticalLimit);
+        expect(
+          travel.vertical,
+          `${locale} full-view vertical travel must stay within its proportional budget: ${JSON.stringify(travel)}`,
+        ).toBeLessThanOrEqual(travel.verticalLimit);
         await page.keyboard.press("Escape");
         await page.waitForFunction(() => document.fullscreenElement === null);
         await expect(toggle).toBeFocused();

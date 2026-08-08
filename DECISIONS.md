@@ -16604,3 +16604,88 @@ restoration, forced colors, synthetic RTL, and disabled JavaScript.
 `remediate-trusted-boundaries-and-staging-copies-20260805`,
 `write-mini-batches-directly-from-window-descriptors`, and
 `20260808T091428Z-write-mini-batches-directly-from-window-descriptors-01`.
+
+## 2026-08-08 - Move Chapter 39 values at their final ownership boundary
+
+**Status:** Accepted before Chapter 39 product edits in
+`remove-capstone-orchestration-copies` run 01.
+
+**Context:** Audit finding F09 has three remaining capstone-only staging
+operations.
+The pipeline clones a complete test epoch before transferring it to the one-shot
+final evaluator, constructs a decoder solely to recount the already selected
+checkpoint's scalars, and clones prompt token IDs even though both generation
+paths finish before the final evidence value is assembled. None of these copies
+teaches or protects LLM behavior. The two deterministic training replays,
+selection-before-test boundary, one-shot evaluation gate, checkpoint bytes,
+logits, cached and uncached generation decisions, RNG state, stdout, and trace are
+frozen controls.
+
+**Decision:** Read and retain the final test window and batch counts before moving
+the epoch into `FinalEvaluator`. Use the selected checkpoint state's
+`scalar_count()` method—which sums its parameter-tensor lengths—for
+parameter-count evidence instead of constructing another decoder. Borrow prompt
+IDs for both generation paths and move the original vector
+into final evidence only at its last use. Do not add a second execution path,
+change evaluation ownership, recompute evidence from a different source, or alter
+error precedence.
+
+Advance Chapter 39 English first and explain the ownership flow only where it
+clarifies which exact trained state, held-out epoch, and prompt produce the final
+evidence. Refresh Russian directly from frozen English with the localization
+skill. Preserve formulas, history, diagram data, exercises, dependencies, exact
+output, and exact trace unless the ownership explanation makes a stale phrase
+explicitly inaccurate.
+
+**Consequences:** The capstone stops duplicating final-use containers and avoids
+one throwaway model construction while retaining the same observable values and
+ordering. The large cost is cached Docker Rust, bilingual content, static, and
+two-engine rendered validation; no dependency change, external data, paid
+service, or model generation is introduced. A Docker cache miss may fetch only
+the already locked crate graph or pinned base-image metadata and must be recorded
+in the run.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`remove-capstone-orchestration-copies`, and
+`20260808T103634Z-remove-capstone-orchestration-copies-01`.
+
+## 2026-08-08 - Reflow Chapter 39 comparisons in desktop full view
+
+**Status:** Accepted during rendered validation for
+`remove-capstone-orchestration-copies` run 01.
+
+**Context:** The direct Russian Chapter 39 revision is semantically complete, and
+every diagram box contains its painted text in both engines. Chromium fits within
+the established full-view travel budget. At the same 1280 by 900 acceptance size,
+Firefox nevertheless measures 198 pixels of whole-figure vertical travel against
+a 92-pixel proportional budget. The first probe finds an unnecessarily narrow
+generation heading and a two-row generation-evidence grid; later probes show that
+the validation states also remain vertically stacked even though they are a
+direct comparison. A meaning-first Russian review removes only wording that had
+expanded beyond the canonical English claims and keeps the long labels whose
+units and operation order are necessary. Clipping, smaller type, or a larger test
+allowance would conceal the remaining geometry defect.
+
+**Decision:** Add `site/src/components/chapters/EndToEndLlmDiagram.astro` to the
+active step's outputs. Change only the component's existing desktop-fullscreen
+geometry: rebalance the test/checkpoint/generation row to 23/22/49 percent bases,
+place the four generation fields across six tracks, arrange its five evidence
+groups across twelve weighted tracks, and place the two validation states in a
+0.9/1.1 comparison row. Preserve every value and semantic element, the shared
+diagram style, bounded-box rule, inline and narrow fallback, font size, focus
+behavior, and proportional travel threshold. Validate the exact bilingual result
+in Chromium and Firefox.
+
+**Consequences:** Both pinned engines pass the complete six-case bilingual matrix,
+including desktop and narrow layout, exact bounded-box containment, native full
+view, focus restoration, forced colors, synthetic direction, and the no-JavaScript
+fallback. The layout correction belongs to the diagram whose intrinsic full-view
+geometry caused the failure. It does not create a chapter-specific fullscreen
+control or private presentation skin, and it does not affect the course-wide
+low-priority diagram audit already queued after the current chapter sequence.
+
+**Affected build, step, and run:**
+`remediate-trusted-boundaries-and-staging-copies-20260805`,
+`remove-capstone-orchestration-copies`, and
+`20260808T103634Z-remove-capstone-orchestration-copies-01`.

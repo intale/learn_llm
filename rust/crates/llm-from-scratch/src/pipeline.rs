@@ -970,7 +970,7 @@ fn generation_evidence(
     )?;
     Ok(GenerationEvidence {
         prompt_text: prompt_text.to_owned(),
-        prompt_ids: prompt_ids.clone(),
+        prompt_ids,
         generated_ids: cached.generated().to_vec(),
         decoded_text,
         stop: cached.stop(),
@@ -1057,9 +1057,11 @@ pub fn run_capstone(
         config.evaluation_batch_size(),
         BatchOrder::Sequential,
     )?;
+    let test_window_count = test_epoch.window_count();
+    let test_batch_count = test_epoch.batch_count();
     let mut evaluator = map(
         PipelineStage::FinalEvaluation,
-        FinalEvaluator::new(test_epoch.clone(), provenance.clone()),
+        FinalEvaluator::new(test_epoch, provenance.clone()),
     )?;
     require(
         evaluator.access_count() == 0,
@@ -1123,13 +1125,6 @@ pub fn run_capstone(
     let generation =
         generation_evidence(&loaded_model, &loaded_tokenizer, loaded_rng_state, config)?;
 
-    let model = map(
-        PipelineStage::Model,
-        DecoderModel::new(
-            prepared.model_config,
-            &mut SplitMix64::from_seed(config.seed()),
-        ),
-    )?;
     let checkpoints = primary
         .checkpoints()
         .iter()
@@ -1142,16 +1137,16 @@ pub fn run_capstone(
         .collect();
     let training = TrainingEvidence {
         model_config: prepared.model_config,
-        parameter_count: model.parameter_count(),
+        parameter_count: primary.selected_state().scalar_count(),
         window_counts: [
             prepared.train.window_count(),
             prepared.validation.window_count(),
-            test_epoch.window_count(),
+            test_window_count,
         ],
         batch_counts: [
             prepared.train.batch_count(),
             prepared.validation.batch_count(),
-            test_epoch.batch_count(),
+            test_batch_count,
         ],
         checkpoints,
         selected_step,

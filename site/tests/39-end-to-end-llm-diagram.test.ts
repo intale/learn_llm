@@ -379,7 +379,7 @@ describe("Chapter 39 diagram labels and component contract", () => {
 });
 
 describe("Chapter 39 bilingual lesson and evidence contract", () => {
-  it("publishes one exact revision-6 English/Russian lesson set", () => {
+  it("publishes one exact revision-7 English/Russian lesson set", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(englishLessonSource),
@@ -402,17 +402,20 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract).toMatchObject({
       chapter_id: "39-end-to-end-llm",
       concept_id: "end-to-end-llm",
-      content_revision: 6,
+      content_revision: 7,
       order: 39,
     });
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      "direct, meaning-first translation of frozen English revision 6",
+      "direct, meaning-first translation of frozen English revision 7",
     );
     expect(contract.translation_notes.join(" ")).toContain(
       `SHA-256 ${createHash("sha256").update(englishLessonSource).digest("hex")}`,
+    );
+    expect(contract.translation_notes.join(" ")).toContain(
+      `Russian lesson SHA-256 is ${createHash("sha256").update(russianLessonSource).digest("hex")}`,
     );
 
     const localizedRecords = [
@@ -477,7 +480,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.en).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "en",
-      content_revision: 6,
+      content_revision: 7,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Run the whole tiny LLM",
@@ -487,12 +490,12 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.ru).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "ru",
-      content_revision: 6,
+      content_revision: 7,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Запустите небольшую LLM целиком",
       description:
-        "Проследите полный процесс работы небольшой декодерной языковой модели на Rust: от зафиксированного разбиения двуязычного корпуса и обучения BPE только по обучающей выборке до выбора состояния по валидации, последующей итоговой оценки выбранного состояния, точного восстановления из контрольной точки и генерации с KV-кэшем.",
+        "Проследите полный цикл небольшой декодерной языковой модели на Rust: от зафиксированного разбиения двуязычного корпуса и обучения BPE только по обучающей выборке до выбора состояния по валидации, последующей итоговой оценки выбранного состояния, точного восстановления из контрольной точки и генерации с KV-кэшем.",
     });
 
     for (const locale of ["en", "ru"] as const) {
@@ -634,6 +637,49 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     );
   });
 
+  it("moves final-use containers after retaining their report evidence", () => {
+    const capstoneSource = pipelineSource.match(
+      /\/\/ region:end-to-end-capstone([\s\S]*?)\/\/ endregion:end-to-end-capstone/,
+    )?.[1];
+    expect(capstoneSource).toBeDefined();
+
+    const testEpochIndex = capstoneSource!.indexOf("let test_epoch = epoch(");
+    const testWindowCountIndex = capstoneSource!.indexOf(
+      "let test_window_count = test_epoch.window_count();",
+    );
+    const testBatchCountIndex = capstoneSource!.indexOf(
+      "let test_batch_count = test_epoch.batch_count();",
+    );
+    const evaluatorIndex = capstoneSource!.indexOf("FinalEvaluator::new(");
+    expect(testEpochIndex).toBeGreaterThan(-1);
+    expect(testWindowCountIndex).toBeGreaterThan(testEpochIndex);
+    expect(testBatchCountIndex).toBeGreaterThan(testWindowCountIndex);
+    expect(evaluatorIndex).toBeGreaterThan(testBatchCountIndex);
+    expect(capstoneSource).toMatch(
+      /FinalEvaluator::new\(\s*test_epoch,\s*provenance\.clone\(\)\s*,?\s*\)/,
+    );
+    expect(capstoneSource).not.toContain("test_epoch.clone()");
+    expect(capstoneSource).toContain("test_window_count,");
+    expect(capstoneSource).toContain("test_batch_count,");
+
+    expect(capstoneSource).toContain(
+      "parameter_count: primary.selected_state().scalar_count(),",
+    );
+    expect(capstoneSource).not.toContain("DecoderModel::new(");
+
+    const generationSource = pipelineSource.match(
+      /fn generation_evidence\([\s\S]*?\n}\n\n\/\/\/ Runs data partitioning/,
+    )?.[0];
+    expect(generationSource).toBeDefined();
+    const cachedIndex = generationSource!.indexOf("generate_cached(");
+    const uncachedIndex = generationSource!.indexOf("generate_uncached(");
+    const promptMoveIndex = generationSource!.indexOf("        prompt_ids,\n");
+    expect(cachedIndex).toBeGreaterThan(-1);
+    expect(uncachedIndex).toBeGreaterThan(cachedIndex);
+    expect(promptMoveIndex).toBeGreaterThan(uncachedIndex);
+    expect(generationSource).not.toContain("prompt_ids.clone()");
+  });
+
   it("keeps the contract report and raw diagram trace on the same Rust evidence", () => {
     const contract = frontmatter(contractSource);
     const trace = parseEndToEndLlmTrace(fixture);
@@ -688,7 +734,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       ],
       ru: [
         'title: "Поздние результаты не меняют ранние этапы"',
-        'description: "Проследите в программе на Rust обучение BPE только по обучающей выборке, выбор состояния, итоговую оценку, точное восстановление и генерацию с кэшем."',
+        'description: "Этапы на Rust: обучение BPE только по обучающим данным, выбор состояния, итоговая оценка, точное восстановление и генерация с кэшем."',
         'decodedText: "кириллическая т и два сгенерированных пробела"',
         'spaceMarker: "␠ — сгенерированный пробел."',
         'encodedTokens: "Число токенов после кодирования — обучение / валидация / тест"',
@@ -698,11 +744,11 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'logitProbeTokenIds: "ID токенов, которыми закодирована проба"',
         'retainedPrefixLengths: "Длины сохранённых префиксов перед каждым выбором токена (в токенах)"',
         'cachePrefillPromptTokens: "Число токенов промпта, обработанных при заполнении KV-кэша"',
-        'oneTokenDecodeInputTokens: "Число сгенерированных токенов, по одному поданных декодеру для следующих логитов"',
-        'cachedAttentionScoreCells: "Число оценок внимания при работе с KV-кэшем"',
-        'completePrefixAttentionScoreCells: "Число оценок внимания при эталонном расчёте по полному префиксу"',
-        'cachedMatch: "решения с кэшем и полным пересчётом префикса совпадают"',
-        'pipeline: "Числа задают порядок; двойные рамки — обучение без контрольных выборок, выбор по валидации, однократная оценка и точное воспроизведение."',
+        'oneTokenDecodeInputTokens: "Число ранее сгенерированных токенов, которые по одному подаются декодеру для вычисления следующих логитов"',
+        'cachedAttentionScoreCells: "Число элементов матриц оценок внимания при работе с KV-кэшем"',
+        'completePrefixAttentionScoreCells: "Число элементов матриц оценок внимания при эталонном расчёте по полному префиксу"',
+        'cachedMatch: "решения с KV-кэшем и полным префиксом совпадают"',
+        'pipeline: "Номера задают порядок. Двойные рамки отмечают BPE только по обучающим данным, выбор по валидации, одну итоговую оценку за запуск и точное воспроизведение."',
       ],
     };
 
