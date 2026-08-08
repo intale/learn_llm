@@ -16761,3 +16761,69 @@ changes.
 `clarify-ch01-scalar-vocabulary-handoff-20260806`,
 `clarify-ch01-scalar-vocabulary-handoff`, and
 `20260808T120205Z-clarify-ch01-scalar-vocabulary-handoff-01`.
+
+## 2026-08-08 - Keep Chapter 5 summary labels and values in one metric unit
+
+**Status:** Accepted before product edits in
+`repair-ch05-summary-metric-layout` run 01.
+
+**Context:** In current Firefox, the Chapter 5 summary facts can lay out the
+values `3`, `1`, and `4` below their labels rather than as three compact,
+self-contained label/value units. The same semantic figure is reused inline and
+in native full view, and both English and Russian must remain readable without
+depending on an English-sized box.
+
+**Decision:** Measure the current rendered geometry in the pinned Chromium and
+Firefox environments, then change only Chapter 5's component-local concept
+geometry needed to keep each `dt` and `dd` in one complete metric box. Preserve
+the exact labels, values, DOM reading order, shared diagram module, inline and
+narrow fallbacks, and universal full-view enhancement. Add fail-loud static and
+browser assertions for label/value alignment, painted-text and bounded-box
+containment, and complete computed borders in both locales and both engines.
+Do not hide overflow, reduce type, loosen containment tolerances, or change
+learner-facing content to force the layout to pass.
+
+**Consequences:** The correction remains local to the Chapter 5 relationship
+geometry and cannot become a private diagram skin or fullscreen implementation.
+The later course-wide diagram audit remains responsible for identifying any
+similar defects outside this reported figure.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch05-summary-metric-layout`, and
+`20260808T125343Z-repair-ch05-summary-metric-layout-01`.
+
+## 2026-08-08 - Queue lossless operational-ledger compaction after all current work
+
+**Status:** Accepted as a low-priority queue addition; no ledger rotation or
+migration is performed by the active Chapter 5 step.
+
+**Context:** `BUILD_STATE.yaml` and `DECISIONS.md` now preserve a valuable but
+large operational history. Reading both files completely at every startup makes
+the common path increasingly expensive, yet deleting or loosely summarizing old
+records would compromise reproducibility, scheduling evidence, cross-references,
+and the append-only decision trail. The proposed log-rotation-style numbered
+files are a strong candidate, but naming alone does not solve indexing,
+dependency lookup, integrity, atomic publication, or recovery from interruption.
+
+**Decision:** Add a separate final low-priority build after the Chapter 2 BPE
+cheat-sheet checkpoint. Its first step is design-only: inventory every ledger
+consumer, compare immutable numbered partitions plus an index with per-build and
+Git-only alternatives, specify bounded live files and a compact human/machine
+summary, and prove a lossless dry-run migration. Only after that proof may the
+step insert exact implementation and migration checkpoints before a guarded
+closure step. The chosen system must preserve stable IDs and full offline
+history, hash and index immutable partitions, resolve dependencies across the
+archive, publish atomically or recoverably, refuse unsafe rotation, and keep the
+normal startup path bounded. Existing archive bytes may never be rewritten.
+
+**Consequences:** The current ledgers remain unchanged in structure during the
+active diagram work. Future compaction will be an independently designed,
+validated, and committed migration rather than an ad hoc truncation. The user's
+`DECISIONS.md.0`, `.1`, and `.2` pattern remains an eligible implementation, but
+the design step may choose a cleaner directory/index form if it gives stronger
+lookup, integrity, and maintenance properties without losing provenance.
+
+**Affected build and steps:**
+`compact-operational-ledgers-20260808`,
+`design-ledger-compaction-strategy`, and `close-ledger-compaction`.

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -69,6 +69,11 @@ const copy = {
     policyRustLabel:
       'Rust configuration that validates context and stride, counts complete pairs, and reports a suffix that is too short for another pair',
     diagramTitle: 'Build aligned next-token pairs one document at a time',
+    summaryFacts: [
+      ['Context length', '3'],
+      ['Stride', '1'],
+      ['Source tokens required', '4'],
+    ],
     partitionTitles: ['Training partition', 'Validation partition', 'Test partition'],
     sourceLane: 'Wrapped source tokens',
     inputLane: 'Input context',
@@ -106,6 +111,11 @@ const copy = {
     policyRustLabel:
       'Фрагмент кода Rust: конфигурация проверяет длину контекста и шаг, считает полные пары и находит остаток, которого недостаточно для новой пары',
     diagramTitle: 'Пары для следующего токена внутри каждого документа',
+    summaryFacts: [
+      ['Длина контекста', '3'],
+      ['Шаг', '1'],
+      ['Токенов нужно для пары', '4'],
+    ],
     partitionTitles: ['Обучающая выборка', 'Валидационная выборка', 'Тестовая выборка'],
     sourceLane: 'Токены документа, включая BOS и EOS',
     inputLane: 'Входная последовательность',
@@ -123,6 +133,80 @@ const copy = {
     exerciseAnswer: 'Из двух токенов получается полная пара [0] -> [1].',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
+
+async function expectSummaryFacts(
+  diagram: Locator,
+  expectedFacts: readonly (readonly [string, string])[],
+) {
+  const facts = diagram.locator('.config-facts > [data-diagram-box]');
+  await expect(facts).toHaveCount(expectedFacts.length);
+  await expect(facts.locator('dt')).toHaveText(expectedFacts.map(([label]) => label));
+  await expect(facts.locator('dd')).toHaveText(expectedFacts.map(([, value]) => value));
+
+  const problems = await facts.evaluateAll((items) => {
+    const epsilon = 2;
+    const completeBorder = (style: CSSStyleDeclaration) =>
+      [
+        [style.borderTopStyle, style.borderTopWidth],
+        [style.borderRightStyle, style.borderRightWidth],
+        [style.borderBottomStyle, style.borderBottomWidth],
+        [style.borderLeftStyle, style.borderLeftWidth],
+      ].every(
+        ([borderStyle, borderWidth]) =>
+          borderStyle !== 'none' && Number.parseFloat(borderWidth) > 0,
+      );
+    const textRect = (node: Node) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return range.getBoundingClientRect();
+    };
+
+    return items.flatMap((item, index) => {
+      const issues: string[] = [];
+      const style = getComputedStyle(item);
+      const box = item.getBoundingClientRect();
+      const label = item.querySelector('dt');
+      const value = item.querySelector('dd');
+      if (!label || !value) return [`fact ${index} lacks its dt or dd`];
+      const labelInk = textRect(label);
+      const valueInk = textRect(value);
+      const inner = {
+        top: box.top + Number.parseFloat(style.borderTopWidth),
+        right: box.right - Number.parseFloat(style.borderRightWidth),
+        bottom: box.bottom - Number.parseFloat(style.borderBottomWidth),
+        left: box.left + Number.parseFloat(style.borderLeftWidth),
+      };
+
+      if (style.display !== 'flex' || style.alignItems !== 'baseline') {
+        issues.push(`fact ${index} is not a baseline-aligned flex unit`);
+      }
+      if (!completeBorder(style)) issues.push(`fact ${index} lacks a complete border`);
+      if (
+        labelInk.top < inner.top - epsilon ||
+        labelInk.right > inner.right + epsilon ||
+        labelInk.bottom > inner.bottom + epsilon ||
+        labelInk.left < inner.left - epsilon ||
+        valueInk.top < inner.top - epsilon ||
+        valueInk.right > inner.right + epsilon ||
+        valueInk.bottom > inner.bottom + epsilon ||
+        valueInk.left < inner.left - epsilon
+      ) {
+        issues.push(`fact ${index} text crosses its box border`);
+      }
+      if (Math.abs(labelInk.bottom - valueInk.bottom) > epsilon) {
+        issues.push(`fact ${index} label and value do not share a text baseline`);
+      }
+      if (
+        (item as HTMLElement).scrollWidth - (item as HTMLElement).clientWidth > epsilon ||
+        (item as HTMLElement).scrollHeight - (item as HTMLElement).clientHeight > epsilon
+      ) {
+        issues.push(`fact ${index} has hidden layout debt`);
+      }
+      return issues;
+    });
+  });
+  expect(problems).toEqual([]);
+}
 
 async function expectChapterContent(
   page: Page,
@@ -196,6 +280,7 @@ async function expectChapterContent(
   await expectVisualizationDecision(page, { decision: 'useful', id: 'autoregressive-examples' });
   const diagram = page.locator('figure[data-visualization-id="autoregressive-examples"]');
   await expect(diagram.getByRole('heading', { level: 3, name: localized.diagramTitle })).toBeVisible();
+  await expectSummaryFacts(diagram, localized.summaryFacts);
   const partitions = diagram.locator('[data-partition].partition');
   await expect(partitions).toHaveCount(3);
   await expect(partitions.getByRole('heading', { level: 4 })).toHaveText([...localized.partitionTitles]);
@@ -424,6 +509,7 @@ test.describe('chapter 5 localized vertical slice', { tag: chapterTag(chapterId)
       await page.waitForFunction(
         () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'autoregressive-examples',
       );
+      await expectSummaryFacts(diagram, copy[locale].summaryFacts);
       await expectPartitionsUseFigureWidth(page, 96);
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => document.fullscreenElement === null);

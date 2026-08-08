@@ -258,6 +258,9 @@ describe('autoregressive-examples diagram component contract', () => {
     );
     expect(source).toContain('<figure');
     expect(source).toContain('<figcaption class="course-diagram__caption">');
+    expect(source).toMatch(
+      /\.config-facts > div\s*\{\s*display: flex;\s*align-items: baseline;\s*gap: 0\.4rem;\s*\}/,
+    );
     expect(source).toContain('<ol class="partition-list course-diagram__grid">');
     expect(source).toContain('class="partition course-diagram__card-stack"');
     expect(source).toContain('<ol class="document-list course-diagram__grid">');
