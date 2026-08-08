@@ -120,8 +120,10 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
               data-contiguous={view.contiguousLexeme}
             >
               <th scope="row">
-                <span>{operationLabel(view)}</span>
-                {requestLabel(view) && <code dir="ltr">{requestLabel(view)}</code>}
+                <span class="operation-content">
+                  <span>{operationLabel(view)}</span>
+                  {requestLabel(view) && <code dir="ltr">{requestLabel(view)}</code>}
+                </span>
               </th>
               <td>
                 <span class="storage-state">
@@ -237,8 +239,9 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
   .offsets-column { inline-size: 12rem; }
   .values-column { inline-size: 19rem; }
 
-  .views-table th[scope='row'] {
+  .views-table .operation-content {
     display: grid;
+    min-inline-size: 0;
     gap: 0.25rem;
   }
 
@@ -319,11 +322,12 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
       grid-column: 1 / -1;
     }
 
-    .tensor-views-diagram:fullscreen .views-table th[scope='row'] {
+    .tensor-views-diagram:fullscreen .views-table .operation-content {
       display: flex;
       align-items: baseline;
       flex-wrap: wrap;
       column-gap: 0.4rem;
+      row-gap: 0.25rem;
     }
   }
 </style>

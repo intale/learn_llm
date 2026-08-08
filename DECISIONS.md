@@ -16827,3 +16827,40 @@ lookup, integrity, and maintenance properties without losing provenance.
 **Affected build and steps:**
 `compact-operational-ledgers-20260808`,
 `design-ledger-compaction-strategy`, and `close-ledger-compaction`.
+
+## 2026-08-08 - Preserve Chapter 9 row headers as table cells
+
+**Status:** Accepted before product edits in
+`repair-ch09-table-row-label-borders` run 01.
+
+**Context:** The Chapter 9 comparison uses semantic row-header cells whose
+borders should fill the complete height of their table rows. Component-local CSS
+currently changes those `th[scope="row"]` elements themselves to grid inline and
+flex in full view. That removes their table-cell formatting role, so their border
+height follows only the operation-label content instead of the taller sibling
+cells. Firefox exposes the underfill on the first and last inline rows and on all
+five full-view rows.
+
+**Decision:** Keep every `th[scope="row"]` as a native table cell and move only
+the operation label plus optional request metadata into one child wrapper. Apply
+the existing stacked inline and wrapped full-view geometry to that wrapper, not
+to the cell that owns the border. Preserve the table, row-header semantics, row
+order, exact values, shared table chrome, sanctioned scroller, and both localized
+label sets. Add relationship-specific browser checks comparing each row header's
+four-sided border box with its complete table-row height in ordinary and full
+view. Do not use an explicit height, clipping, a pseudo-border, or a tolerance
+large enough to conceal a non-table-cell header.
+
+The reported Chapter 9 full-view title/subtitle collision remains owned by
+`stack-full-view-diagram-title-and-subtitle`; this narrow step must not introduce
+a chapter-specific header workaround.
+
+**Consequences:** Row labels retain their internal concept geometry while the
+browser's table layout once again determines the complete bordered cell height.
+The fix is structural rather than dependent on Firefox-specific pixel values and
+continues to work when localized content changes a sibling cell's row height.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch09-table-row-label-borders`, and
+`20260808T131624Z-repair-ch09-table-row-label-borders-01`.

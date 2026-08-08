@@ -332,6 +332,8 @@ describe('Chapter 9 diagram labels and static component contract', () => {
     expect(component).toContain('class="course-diagram tensor-views-diagram"');
     expect(component).toContain('class="views-scroll course-diagram__scroll"');
     expect(component).toContain('class="errors-scroll course-diagram__scroll"');
+    expect(component).toContain('<span class="operation-content">');
+    expect(component.match(/<th scope="row">\s*<span class="operation-content">/g)).toHaveLength(1);
     expect(component.match(/data-diagram-box/g)).toHaveLength(3);
     expect(component.match(/data-diagram-table/g)).toHaveLength(3);
     expect(component.match(/tabindex="0"/g)).toHaveLength(3);
@@ -351,5 +353,10 @@ describe('Chapter 9 diagram labels and static component contract', () => {
     expect(style).toContain('min-inline-size: 78rem');
     expect(style).toContain('min-inline-size: 46rem');
     expect(style).toContain('grid-template-columns: repeat(6, minmax(0, 1fr))');
+    expect(style).toMatch(/\.views-table \.operation-content\s*\{\s*display: grid;/);
+    expect(style).toMatch(
+      /\.tensor-views-diagram:fullscreen \.views-table \.operation-content\s*\{\s*display: flex;/,
+    );
+    expect(style).not.toMatch(/th\[scope=['"]row['"]\]\s*\{[^}]*display\s*:/s);
   });
 });

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -67,6 +67,7 @@ const copy = {
       'Follow values into new storage',
       'Inspect three rejected requests',
     ],
+    viewLabels: ['Identity view', 'Reshape', 'Transpose', 'Slice', 'Materialized slice'],
     sharedState: 'Shared base storage',
     copiedState: 'New materialized storage',
     rejectedState: 'Rejected operation',
@@ -111,6 +112,13 @@ const copy = {
       'Копирование в новое хранилище',
       'Три отклонённых запроса',
     ],
+    viewLabels: [
+      'Исходное представление',
+      'Изменение формы',
+      'Транспонирование',
+      'Срез',
+      'Материализованный срез',
+    ],
     sharedState: 'То же исходное хранилище',
     copiedState: 'Новое хранилище после материализации',
     rejectedState: 'Операция отклонена',
@@ -143,6 +151,97 @@ const expectedRustRegions = [
   ['rust/demos/ch09-tensor-views/src/main.rs', 'learner-view-output'],
 ] as const;
 const expectedRustSources = expectedRustRegions.map(([path, region]) => readRustRegion(path, region));
+
+async function expectCompleteViewRowHeaders(
+  diagram: Locator,
+  expectedLabels: readonly string[],
+  contentDisplay: 'grid' | 'flex',
+) {
+  const rows = diagram.locator('.views-table tbody tr[data-view-id]');
+  const headers = rows.locator('th[scope="row"]');
+  await expect(rows).toHaveCount(expectedLabels.length);
+  await expect(headers).toHaveCount(expectedLabels.length);
+  await expect(headers.locator('.operation-content > span:first-child')).toHaveText([...expectedLabels]);
+
+  const problems = await rows.evaluateAll((items, expectedWrapperDisplay) => {
+    const epsilon = 1;
+    const hiddenOverflow = new Set(['hidden', 'clip']);
+    return items.flatMap((row, index) => {
+      const issues: string[] = [];
+      const header = row.querySelector<HTMLElement>('th[scope="row"]');
+      const content = header?.querySelector<HTMLElement>('.operation-content');
+      if (!header || !content) return [`row ${index} lacks its row header or operation wrapper`];
+
+      const rowRect = row.getBoundingClientRect();
+      const headerRect = header.getBoundingClientRect();
+      const headerStyle = getComputedStyle(header);
+      const contentStyle = getComputedStyle(content);
+      const borderPairs = [
+        [headerStyle.borderTopStyle, headerStyle.borderTopWidth],
+        [headerStyle.borderRightStyle, headerStyle.borderRightWidth],
+        [headerStyle.borderBottomStyle, headerStyle.borderBottomWidth],
+        [headerStyle.borderLeftStyle, headerStyle.borderLeftWidth],
+      ];
+
+      if (headerStyle.display !== 'table-cell') {
+        issues.push(`row ${index} header display is ${headerStyle.display}`);
+      }
+      if (contentStyle.display !== expectedWrapperDisplay) {
+        issues.push(`row ${index} operation wrapper display is ${contentStyle.display}`);
+      }
+      if (
+        borderPairs.some(
+          ([style, width]) => style === 'none' || Number.parseFloat(width) <= 0,
+        )
+      ) {
+        issues.push(`row ${index} header lacks a complete border`);
+      }
+      if (
+        Math.abs(headerRect.top - rowRect.top) > epsilon ||
+        Math.abs(headerRect.bottom - rowRect.bottom) > epsilon ||
+        Math.abs(headerRect.height - rowRect.height) > epsilon
+      ) {
+        issues.push(`row ${index} header border does not fill its table row`);
+      }
+      if (
+        hiddenOverflow.has(headerStyle.overflowX) ||
+        hiddenOverflow.has(headerStyle.overflowY)
+      ) {
+        issues.push(`row ${index} header conceals overflow`);
+      }
+      if (
+        header.scrollWidth - header.clientWidth > epsilon ||
+        header.scrollHeight - header.clientHeight > epsilon
+      ) {
+        issues.push(`row ${index} header has layout debt`);
+      }
+
+      const inner = {
+        top: headerRect.top + Number.parseFloat(headerStyle.borderTopWidth),
+        right: headerRect.right - Number.parseFloat(headerStyle.borderRightWidth),
+        bottom: headerRect.bottom - Number.parseFloat(headerStyle.borderBottomWidth),
+        left: headerRect.left + Number.parseFloat(headerStyle.borderLeftWidth),
+      };
+      const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+      for (let text = walker.nextNode(); text; text = walker.nextNode()) {
+        if (!text.textContent?.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(text);
+        const ink = range.getBoundingClientRect();
+        if (
+          ink.top < inner.top - epsilon ||
+          ink.right > inner.right + epsilon ||
+          ink.bottom > inner.bottom + epsilon ||
+          ink.left < inner.left - epsilon
+        ) {
+          issues.push(`row ${index} painted text crosses its header border`);
+        }
+      }
+      return issues;
+    });
+  }, contentDisplay);
+  expect(problems).toEqual([]);
+}
 
 async function expectViewRow(
   page: Page,
@@ -258,6 +357,7 @@ async function expectChapterContent(
   }
   await expect(diagram.locator('table[data-diagram-table]')).toHaveCount(3);
   await expect(diagram.locator('[data-diagram-box]')).toHaveCount(3);
+  await expectCompleteViewRowHeaders(diagram, localized.viewLabels, 'grid');
 
   await expectViewRow(page, 'base', {
     storage: 'base', contiguous: 'yes', shape: '[2,3]', strides: '[3,1]',
@@ -422,6 +522,7 @@ test.describe('chapter 9 localized tensor-views vertical slice', { tag: chapterT
       await page.waitForFunction(
         () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'tensor-views',
       );
+      await expectCompleteViewRowHeaders(diagram, copy[locale].viewLabels, 'flex');
       const geometry = await diagram.evaluate((node) => ({
         blockDebt: node.scrollHeight - node.clientHeight,
         blockBudget: Math.ceil(node.clientHeight * 0.2),
