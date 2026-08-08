@@ -226,4 +226,82 @@ const descriptionId = `${id}-description`;
     }
   }
 
+  .corpus-partitions-diagram:fullscreen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .corpus-partitions-diagram:fullscreen > figcaption {
+    grid-column: 1 / -1;
+  }
+
+  .corpus-partitions-diagram:fullscreen > .partition-grid {
+    grid-column: 1 / -1;
+  }
+
+  .corpus-partitions-diagram:fullscreen .partition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .corpus-partitions-diagram:fullscreen
+    .partition-card[data-partition='train'] {
+    grid-column: 1 / -1;
+  }
+
+  .corpus-partitions-diagram:fullscreen
+    .partition-card
+    > .course-diagram__card-stack {
+    grid-template-columns: 8rem minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: var(--diagram-gap);
+  }
+
+  .corpus-partitions-diagram:fullscreen
+    .partition-card
+    .course-diagram__card-heading {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .corpus-partitions-diagram:fullscreen .partition-purpose {
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 0;
+  }
+
+  .corpus-partitions-diagram:fullscreen .document-count {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .corpus-partitions-diagram:fullscreen .document-list {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    margin-block-start: 0;
+  }
+
+  .corpus-partitions-diagram:fullscreen
+    .partition-card[data-partition='train']
+    .document-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .corpus-partitions-diagram:fullscreen
+    .partition-card:not([data-partition='train'])
+    .document-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .corpus-partitions-diagram:fullscreen > .partition-summary {
+    grid-column: 1;
+    align-self: start;
+    margin-block-start: 0;
+  }
+
+  .corpus-partitions-diagram:fullscreen > .partition-invariants {
+    grid-column: 2;
+    align-self: start;
+    margin-block-start: 0;
+  }
 </style>

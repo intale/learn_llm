@@ -17098,3 +17098,58 @@ reconcile every item against its independently committed correction.
 `repair-ch02-full-view-composition` through
 `harden-course-wide-diagram-rendering-gates`, and
 `20260808T145537Z-audit-all-diagrams-inline-and-full-view-01`.
+
+## 2026-08-08 - Recompose Chapter 2 without compressing its document evidence
+
+**Status:** Accepted after exact English/Russian Chromium and Firefox probes and
+before the Chapter 2 completion checkpoint.
+
+**Context:** Chapter 2's three partition cards originally retained the inline
+three-column relationship in full view. Their twelve complete document cards
+therefore formed long vertical lists and exceeded the audited full-view travel
+allowance. The first corrected candidate placed the training partition across a
+complete row, placed validation and test beside each other, used four, two, and
+two document tracks respectively, and paired the summary with the invariant
+list. It passed the standard full-view matrix, but an independent review found
+that the root grid switched outside a `64rem` self-container query while its
+child placements remained inside that query. At the shared controller's exact
+1024 by 576 eligibility boundary, only half of that composition could therefore
+activate.
+
+Exact boundary probes also established a separate physical limit. With all
+twelve localized cards, labels, values, four-sided boxes, shared padding, and
+unchanged type retained, no tested compact composition met the 20% travel limit
+in 574 pixels of usable height. Variants included a shared caption/control row,
+horizontal invariants, eight training tracks, proportional 4:1:1 and 3:1:1 peer
+rows, top header strips, and inline metadata. The latter variants changed the
+cards' reading grammar and still failed the threshold, so publishing them would
+trade clarity for an unmet target.
+
+**Decision:** Keep the clearer field layout and activate the complete Chapter 2
+composition through one unconditional `:fullscreen` state: the caption and
+partition grid span the figure, training spans the first partition row,
+validation and test share the next row, document tracks remain 4/2/2, and the
+summary and invariants occupy peer footer columns. Do not change the semantic
+tree, document order, formulas, localized strings, typography, shared chrome, or
+bounded-card presentation.
+
+Continue to enforce the unchanged 20% travel limit at the standard audited
+desktop full-view surface in both locales and both engines. Add a distinct
+supplemental 1024 by 576 boundary guard that proves the same composition activates
+as one unit, every box and formula remains contained, inline debt stays within
+two pixels, focus is restored, and vertical debt is no greater than one client
+height. Do not describe that supplemental result as satisfying the 20% invariant.
+The later shared-gate hardening step may reconsider whether a `36rem`-high screen
+should remain eligible for full view; changing the global controller threshold is
+outside this chapter-local correction.
+
+**Consequences:** Standard full view now exposes all twelve assignments with at
+most the accepted travel and no smaller text. Inline and 390-pixel layouts are
+unchanged. The minimum eligible viewport cannot enter a partially activated
+half-width state, and its explicitly recorded limitation cannot be mistaken for
+the normal desktop acceptance result.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch02-full-view-composition`, and
+`20260808T162039Z-repair-ch02-full-view-composition-01`.

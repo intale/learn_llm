@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -159,6 +159,145 @@ const copy = {
       'Сначала будет обнаружено несовпадение контрольной суммы, поскольку байты корпуса изменились. Если обновить только записанную контрольную сумму, проверка полноты затем сообщит, что в манифесте нет doc-07.',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
+
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolveFrame) =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => resolveFrame()),
+      ),
+    );
+  });
+}
+
+async function readDiagramGeometry(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const tolerance = 2;
+    const problems: string[] = [];
+    const boxes = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-diagram-box]'),
+    );
+    const allElements = [root, ...root.querySelectorAll<HTMLElement>('*')];
+    const fontSizes = allElements.flatMap((element, index) => {
+      if (
+        element.closest('[data-diagram-full-view-controls]') ||
+        element.closest('.visually-hidden, .katex-mathml')
+      ) {
+        return [];
+      }
+      const style = getComputedStyle(element);
+      if (style.display === 'none' || style.visibility === 'hidden') return [];
+      const hasDirectText = [...element.childNodes].some(
+        (child) =>
+          child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      if (!hasDirectText && !element.classList.contains('katex')) return [];
+      return [{ index, pixels: Number.parseFloat(style.fontSize) }];
+    });
+
+    const visibleTextRectangles = (owner: HTMLElement) => {
+      const rectangles: DOMRect[] = [];
+      const walker = document.createTreeWalker(owner, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const textNode = walker.currentNode as Text;
+        if (!textNode.textContent?.trim()) continue;
+        const parent = textNode.parentElement;
+        if (!parent || parent.closest('.visually-hidden, .katex-mathml')) continue;
+        const style = getComputedStyle(parent);
+        if (style.display === 'none' || style.visibility === 'hidden') continue;
+        const range = document.createRange();
+        range.selectNodeContents(textNode);
+        rectangles.push(
+          ...Array.from(range.getClientRects()).filter(
+            (rectangle) => rectangle.width > 0 && rectangle.height > 0,
+          ),
+        );
+      }
+      return rectangles;
+    };
+
+    for (const [index, box] of boxes.entries()) {
+      const style = getComputedStyle(box);
+      const borderWidths = [
+        Number.parseFloat(style.borderTopWidth),
+        Number.parseFloat(style.borderRightWidth),
+        Number.parseFloat(style.borderBottomWidth),
+        Number.parseFloat(style.borderLeftWidth),
+      ];
+      const borderStyles = [
+        style.borderTopStyle,
+        style.borderRightStyle,
+        style.borderBottomStyle,
+        style.borderLeftStyle,
+      ];
+      if (
+        borderWidths.some((width) => !Number.isFinite(width) || width <= 0) ||
+        borderStyles.some((value) => value === 'none' || value === 'hidden')
+      ) {
+        problems.push(`box-${index}: incomplete border`);
+      }
+      const inlineDebt = Math.max(0, box.scrollWidth - box.clientWidth);
+      const blockDebt = Math.max(0, box.scrollHeight - box.clientHeight);
+      if (inlineDebt > tolerance || blockDebt > tolerance) {
+        problems.push(`box-${index}: scroll debt ${inlineDebt}/${blockDebt}`);
+      }
+      if (style.overflowX === 'hidden' || style.overflowX === 'clip') {
+        problems.push(`box-${index}: clipped inline overflow`);
+      }
+      if (style.overflowY === 'hidden' || style.overflowY === 'clip') {
+        problems.push(`box-${index}: clipped block overflow`);
+      }
+
+      const rectangle = box.getBoundingClientRect();
+      const inner = {
+        left: rectangle.left + borderWidths[3]!,
+        right: rectangle.right - borderWidths[1]!,
+        top: rectangle.top + borderWidths[0]!,
+        bottom: rectangle.bottom - borderWidths[2]!,
+      };
+      for (const paint of visibleTextRectangles(box)) {
+        if (
+          paint.left < inner.left - tolerance ||
+          paint.right > inner.right + tolerance ||
+          paint.top < inner.top - tolerance ||
+          paint.bottom > inner.bottom + tolerance
+        ) {
+          problems.push(`box-${index}: painted text crossed its border`);
+          break;
+        }
+      }
+    }
+
+    for (const formula of root.querySelectorAll<HTMLElement>('.katex')) {
+      const owner = formula.closest<HTMLElement>('[data-diagram-box]');
+      if (!owner) {
+        problems.push('formula has no bounded owner');
+        continue;
+      }
+      const formulaRect = formula.getBoundingClientRect();
+      const ownerRect = owner.getBoundingClientRect();
+      if (
+        formulaRect.left < ownerRect.left - tolerance ||
+        formulaRect.right > ownerRect.right + tolerance ||
+        formulaRect.top < ownerRect.top - tolerance ||
+        formulaRect.bottom > ownerRect.bottom + tolerance
+      ) {
+        problems.push('formula crossed its bounded owner');
+      }
+    }
+
+    return {
+      blockBudget: Math.ceil(root.clientHeight * 0.2),
+      blockDebt: Math.max(0, root.scrollHeight - root.clientHeight),
+      blockViewport: root.clientHeight,
+      boxCount: boxes.length,
+      fontSizes,
+      inlineDebt: Math.max(0, root.scrollWidth - root.clientWidth),
+      problems,
+    };
+  });
+}
 
 async function expectChapterContent(
   page: Page,
@@ -340,6 +479,11 @@ async function expectChapterContent(
       .filter(Boolean).length,
   );
   expect(columnCount).toBe(expectedColumns);
+  await settle(page);
+  const geometry = await readDiagramGeometry(diagram);
+  expect(geometry.boxCount).toBe(16);
+  expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+  expect(geometry.problems).toEqual([]);
 
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
@@ -438,5 +582,195 @@ test.describe(
         await expectChapterContent(page, locale, 1, chapters);
       });
     }
+
+    test('chapter 2 full view keeps all partition evidence readable without substantial travel', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      for (const locale of chapterLocales) {
+        const localized = copy[locale];
+        await page.goto(chapterPath(locale, chapterId));
+        await page.waitForFunction(
+          () =>
+            document.documentElement.dataset.diagramFullViewReady === 'true',
+        );
+        await settle(page);
+
+        const diagram = page.locator(
+          'figure[data-visualization-id="corpus-partitions"]',
+        );
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        await expect(toggle).toBeVisible();
+        const inlineGeometry = await readDiagramGeometry(diagram);
+        const inlineMarkup = await diagram.evaluate((root) => {
+          const clone = root.cloneNode(true) as HTMLElement;
+          clone.querySelector('[data-diagram-full-view-controls]')?.remove();
+          return clone.innerHTML;
+        });
+
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            'corpus-partitions',
+        );
+        await settle(page);
+
+        const fullGeometry = await readDiagramGeometry(diagram);
+        expect(fullGeometry.blockDebt).toBeLessThanOrEqual(
+          fullGeometry.blockBudget,
+        );
+        expect(fullGeometry.inlineDebt).toBeLessThanOrEqual(2);
+        expect(fullGeometry.boxCount).toBe(16);
+        expect(fullGeometry.problems).toEqual([]);
+        expect(fullGeometry.fontSizes).toHaveLength(
+          inlineGeometry.fontSizes.length,
+        );
+        for (const [index, full] of fullGeometry.fontSizes.entries()) {
+          const inline = inlineGeometry.fontSizes[index];
+          expect(full?.index).toBe(inline?.index);
+          expect((full?.pixels ?? 0) + 0.01).toBeGreaterThanOrEqual(
+            inline?.pixels ?? Number.POSITIVE_INFINITY,
+          );
+        }
+
+        expect(
+          await diagram.evaluate((root) => {
+            const clone = root.cloneNode(true) as HTMLElement;
+            clone.querySelector('[data-diagram-full-view-controls]')?.remove();
+            return clone.innerHTML;
+          }),
+        ).toBe(inlineMarkup);
+        expect(
+          await diagram.locator('[data-partition]').evaluateAll((partitions) =>
+            partitions.map((partition) =>
+              partition.getAttribute('data-partition'),
+            ),
+          ),
+        ).toEqual(['train', 'validation', 'test']);
+        expect(
+          await diagram.locator('[data-document-id]').evaluateAll((cards) =>
+            cards.map((card) => card.getAttribute('data-document-id')),
+          ),
+        ).toEqual([...manifest.train, ...manifest.validation, ...manifest.test]);
+        await expect(
+          diagram.locator(
+            '[data-assigned-count] annotation[encoding="application/x-tex"]',
+          ),
+        ).toHaveText(String.raw`\frac{12}{12}`);
+        await expect(diagram.locator('[data-repeated-count]')).toHaveText('0');
+        await expect(diagram.locator('.partition-invariants li')).toHaveText([
+          ...localized.invariants,
+        ]);
+
+        const composition = await diagram.evaluate((root) => {
+          const train = root
+            .querySelector<HTMLElement>('[data-partition="train"]')!
+            .getBoundingClientRect();
+          const validation = root
+            .querySelector<HTMLElement>('[data-partition="validation"]')!
+            .getBoundingClientRect();
+          const test = root
+            .querySelector<HTMLElement>('[data-partition="test"]')!
+            .getBoundingClientRect();
+          const trackCount = (selector: string) =>
+            getComputedStyle(root.querySelector<HTMLElement>(selector)!)
+              .gridTemplateColumns.split(/\s+/)
+              .filter(Boolean).length;
+          return {
+            holdoutTopDelta: Math.abs(validation.top - test.top),
+            trainBeforeHoldouts:
+              train.bottom <= Math.min(validation.top, test.top) + 2,
+            trainTracks: trackCount(
+              '[data-partition="train"] .document-list',
+            ),
+            validationTracks: trackCount(
+              '[data-partition="validation"] .document-list',
+            ),
+            testTracks: trackCount(
+              '[data-partition="test"] .document-list',
+            ),
+          };
+        });
+        expect(composition.trainBeforeHoldouts).toBe(true);
+        expect(composition.holdoutTopDelta).toBeLessThanOrEqual(2);
+        expect(composition.trainTracks).toBe(4);
+        expect(composition.validationTracks).toBe(2);
+        expect(composition.testTracks).toBe(2);
+
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+        await expectNoOverflowOrClientScripts(page);
+      }
+    });
+
+    test('chapter 2 keeps one coherent full-view composition at the minimum supported viewport', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1024, height: 576 });
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        await page.waitForFunction(
+          () =>
+            document.documentElement.dataset.diagramFullViewReady === 'true',
+        );
+        await settle(page);
+
+        const diagram = page.locator(
+          'figure[data-visualization-id="corpus-partitions"]',
+        );
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        await expect(toggle).toBeVisible();
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            'corpus-partitions',
+        );
+        await settle(page);
+
+        const geometry = await readDiagramGeometry(diagram);
+        expect(geometry.blockDebt).toBeLessThanOrEqual(
+          geometry.blockViewport,
+        );
+        expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+        expect(geometry.boxCount).toBe(16);
+        expect(geometry.problems).toEqual([]);
+        const tracks = await diagram.evaluate((root) => {
+          const trackCount = (element: Element) =>
+            getComputedStyle(element)
+              .gridTemplateColumns.split(/\s+/)
+              .filter(Boolean).length;
+          return {
+            figure: trackCount(root),
+            partitions: trackCount(root.querySelector('.partition-grid')!),
+            train: trackCount(
+              root.querySelector('[data-partition="train"] .document-list')!,
+            ),
+            validation: trackCount(
+              root.querySelector(
+                '[data-partition="validation"] .document-list',
+              )!,
+            ),
+            test: trackCount(
+              root.querySelector('[data-partition="test"] .document-list')!,
+            ),
+          };
+        });
+        expect(tracks).toEqual({
+          figure: 2,
+          partitions: 2,
+          train: 4,
+          validation: 2,
+          test: 2,
+        });
+
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+        await expectNoOverflowOrClientScripts(page);
+      }
+    });
   },
 );

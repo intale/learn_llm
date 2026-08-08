@@ -415,6 +415,33 @@ describe('corpus-partitions diagram component contract', () => {
     expect(source).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
     expect(source).toContain('@container course-diagram (max-width: 44rem)');
     expect(source).toContain('grid-template-columns: 1fr');
+    const fullViewStyles = source.slice(
+      source.indexOf('.corpus-partitions-diagram:fullscreen {'),
+      source.indexOf('\n</style>'),
+    );
+    expect(fullViewStyles).toContain(
+      'grid-template-columns: repeat(2, minmax(0, 1fr));',
+    );
+    expect(fullViewStyles).toContain('align-content: start;');
+    expect(source).not.toContain(
+      '@container course-diagram (min-width: 64rem)',
+    );
+    expect(fullViewStyles).toContain(
+      ".partition-card[data-partition='train'] {",
+    );
+    expect(fullViewStyles).toContain('grid-column: 1 / -1;');
+    expect(fullViewStyles).toContain(
+      'grid-template-columns: 8rem minmax(0, 1fr);',
+    );
+    expect(fullViewStyles).toContain(
+      'grid-template-columns: repeat(4, minmax(0, 1fr));',
+    );
+    expect(fullViewStyles).toContain(
+      '.partition-card:not([data-partition=\'train\'])',
+    );
+    expect(fullViewStyles).not.toMatch(
+      /font-size|zoom\s*:|transform\s*:\s*scale|overflow\s*:\s*(?:hidden|clip)/,
+    );
     expect(sharedStyles).toContain('unicode-bidi: isolate');
     expect(source).not.toContain('letter-spacing');
     expect(sharedStyles).toContain(':focus-visible');
