@@ -598,7 +598,7 @@ const expectedSheets = {
       ['Token-weighted mean NLL', 'token-weighted mean negative log-likelihood'],
       ['Perplexity', 'test perplexity'],
       ['Aligned target slot', 'aligned target slots'],
-      ['Evaluation provenance', 'EvaluationProvenance'],
+      ['Evaluation provenance assertions', 'caller-supplied provenance assertions'],
       ['No-grad evaluation', 'That call records no graph'],
       ['Frozen final evaluation report', 'immutable report'],
       ['Frozen bigram', 'Frozen bigram'],
@@ -808,15 +808,15 @@ const exactDefinitions = {
   '34-final-evaluation': {
     'Validation-selected checkpoint': 'The planned model checkpoint chosen using validation evidence before any test result is available.',
     'Frozen selected state': 'The complete selected decoder snapshot after every model and data choice is sealed; test scores may describe it but cannot change it.',
-    'Single-use test evaluation boundary': 'The once-only post-selection protocol that verifies held-out test role and provenance before scoring, consumes test access when scoring begins, and prevents test evidence from becoming a selection signal.',
-    'Final test evaluation': 'The reporting-only pass over held-out test data after selection closes; its result cannot choose a checkpoint or tune another decision.',
+    'Single-use test evaluation boundary': "A local once-only post-selection protocol that checks the epoch's Test label, caller-assertion consistency, and pre-open model constraints; it consumes local access before inspecting token IDs and cannot establish external lineage or cross-process uniqueness.",
+    'Final test evaluation': 'The reporting-only pass over held-out test data after selection closes; under the course protocol, its result must not be used to choose a checkpoint or tune another decision.',
     'Token-weighted mean NLL': 'Total negative log likelihood divided by the number of aligned target tokens, so longer documents contribute in proportion to their targets.',
     Perplexity: 'The exponential of mean negative log likelihood, expressing average multiplicative uncertainty per target token.',
     'Aligned target slot': 'One causal input and observed next-token target at a stable document, window, and position, including repetitions from overlapping windows.',
-    'Evaluation provenance': 'The shared corpus, split, tokenizer, and context identity binding the selected decoder, baseline, and test epoch.',
+    'Evaluation provenance assertions': 'Three nonblank caller-supplied corpus, split, and tokenizer identifiers plus a positive context value; equality checks assertion consistency but does not derive or verify the underlying artifacts.',
     'No-grad evaluation': 'Scoring with graph construction disabled and with decoder parameters and gradient bits verified unchanged afterward.',
-    'Frozen final evaluation report': 'A versioned record of final test provenance, aligned targets, scores, one-use evidence, and state-preservation checks, fixed after selection closes.',
-    'Frozen bigram': 'An add-one bigram fitted only on the same training token slices and sealed before test access.',
+    'Frozen final evaluation report': 'A versioned record of caller-supplied identifiers, checked target evidence, scores, local gate facts, and state-preservation checks, fixed after selection closes; it is not proof of external lineage.',
+    'Frozen bigram': "In this fixture, an add-one bigram fitted on Chapter 33's exact training token slices and sealed before test access; the generic wrapper itself checks only a Train assertion and a nonzero fitted-document count.",
     'Like-for-like targets': 'A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows.',
   },
   '35-checkpoints': {
@@ -1051,6 +1051,18 @@ describe('English chapter cheat-sheet content', () => {
       }
     });
   }
+
+  it('describes Chapter 34 provenance as assertions, checked facts, and fixture evidence', () => {
+    const sheet = readSheet('34-final-evaluation.json');
+    expect(sheet.description).toBe(
+      'A quick reference for validation-selected state, the test-only gate, fair token weighting, caller-supplied provenance assertions, mechanically checked facts, immutable reporting, and like-for-like comparison.',
+    );
+    const serialized = JSON.stringify(sheet);
+    expect(serialized).not.toMatch(/verifies held-out test role and provenance/i);
+    expect(serialized).not.toMatch(/provenance cannot hide/i);
+    expect(serialized).not.toMatch(/result cannot (?:choose|tune)/i);
+    expect(serialized).not.toMatch(/verified lineage/i);
+  });
 });
 
 describe('Russian chapter cheat-sheet localization', () => {
@@ -1120,6 +1132,64 @@ describe('Russian chapter cheat-sheet localization', () => {
     ).toBe(
       'Один полный обратный обход от выбранного отслеживаемого скалярного выхода после того, как для него задали конечную начальную сопряжённую величину; обычный вызов использует 1.',
     );
+  });
+
+  it('keeps the Chapter 34 assertion boundary explicit in Russian', () => {
+    const sheet = readLocalizedSheet('ru', '34-final-evaluation.json');
+    expect(sheet.title).toBe(
+      'Зафиксируйте решения до единственного тестового отчёта',
+    );
+    expect(sheet.description).toBe(
+      'Выбор по валидации, однократная оценка на тесте, веса целей, заявленные идентификаторы, проверки, неизменяемый отчёт и честное сравнение.',
+    );
+    const expected = {
+      'Контрольная точка, выбранная по валидации':
+        'Заранее предусмотренное состояние модели, выбранное по результатам валидации до получения каких-либо результатов на тестовой выборке.',
+      'Зафиксированное выбранное состояние':
+        'Полный снимок выбранного декодера после фиксации всех решений о модели и данных; тестовые оценки могут его описывать, но не изменять.',
+      'Граница однократной оценки на тестовой выборке':
+        'Локальный протокол однократного доступа после выбора модели: до открытия доступа он проверяет метку Test, согласованность заявленных сведений и ограничения модели, а перед чтением ID токенов считает локальный доступ израсходованным; установить внешнее происхождение данных или гарантировать единственность доступа между процессами он не может.',
+      'Итоговая оценка на тестовой выборке':
+        'Предназначенный только для отчёта проход по отложенным тестовым данным после завершения выбора; по правилам курса результат нельзя использовать, чтобы выбрать другую контрольную точку или изменить иное решение.',
+      'Заявленные сведения о происхождении данных и условиях оценки':
+        'Три непустых идентификатора корпуса, разбиения и токенизатора, заданные вызывающим кодом, и положительное значение длины контекста; проверка совпадения показывает только согласованность строк и не устанавливает, какие корпус, способ разбиения и токенизатор стоят за ними.',
+      'Неизменяемый итоговый отчёт об оценке':
+        'Версионируемая запись заданных вызывающим кодом идентификаторов, проверенных целевых позиций, результатов, фактов локального доступа и сохранности состояния, зафиксированная после завершения выбора; она не доказывает внешнее происхождение данных.',
+      'Зафиксированная биграммная модель':
+        'В этом примере — биграммная модель с аддитивным сглаживанием с параметром один, обученная на точных срезах обучающих токенов главы 33 и зафиксированная до доступа к тестовой выборке; универсальная обёртка проверяет лишь заявленную метку Train и ненулевое число обработанных документов.',
+      'Средняя NLL с весами по числу целевых токенов':
+        'Суммарное отрицательное логарифмическое правдоподобие, делённое на число выровненных целевых токенов, поэтому вклад более длинных документов пропорционален числу их целей.',
+      Перплексия:
+        'Экспонента среднего отрицательного логарифмического правдоподобия, выражающая среднюю мультипликативную неопределённость на один целевой токен.',
+      'Выровненная целевая позиция':
+        'Одна пара «каузальный вход — наблюдаемый следующий токен», определённая документом, окном и позицией; учитываются и повторы из перекрывающихся окон.',
+      'Оценка без записи графа вычислений':
+        'Оценка с отключённой записью графа и последующей проверкой того, что параметры декодера и биты градиентов не изменились.',
+      'Одни и те же целевые позиции':
+        'Сравнение, в котором обе модели оценивают одинаковый упорядоченный набор целевых позиций, включая каждый повтор из перекрывающихся окон декодера.',
+    } as const;
+    expect(sheet.terms.map(({ term }) => term)).toEqual([
+      'Контрольная точка, выбранная по валидации',
+      'Зафиксированное выбранное состояние',
+      'Граница однократной оценки на тестовой выборке',
+      'Итоговая оценка на тестовой выборке',
+      'Средняя NLL с весами по числу целевых токенов',
+      'Перплексия',
+      'Выровненная целевая позиция',
+      'Заявленные сведения о происхождении данных и условиях оценки',
+      'Оценка без записи графа вычислений',
+      'Неизменяемый итоговый отчёт об оценке',
+      'Зафиксированная биграммная модель',
+      'Одни и те же целевые позиции',
+    ]);
+    for (const [term, definition] of Object.entries(expected)) {
+      expect(sheet.terms.find((entry) => entry.term === term)?.definition).toBe(
+        definition,
+      );
+    }
+    const serialized = JSON.stringify(sheet);
+    expect(serialized).not.toMatch(/проверяет роль и происхождение/i);
+    expect(serialized).not.toMatch(/происхождение должно совпадать/i);
   });
 
   it('grounds the reviewed Chapter 1 Russian handoff terms in the natural lesson explanations', () => {

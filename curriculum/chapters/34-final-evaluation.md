@@ -2,7 +2,7 @@
 {
   "chapter_id": "34-final-evaluation",
   "concept_id": "final-evaluation",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 34,
   "objective": {
     "en": "Evaluate the frozen validation-selected decoder through one test-only gate, validate and record the ordered test input/target positions, aggregate every target token fairly, and compare the result with a frozen bigram fitted on the same training tokens.",
@@ -118,7 +118,7 @@
       "en": "The road to modern LLM evaluation combines three-way role separation with checkpoint discipline and data-overlap audits. This chapter uses a deliberately strict one-gate rule to make the boundary observable; it does not claim that the cited papers used exactly one test query, and a local gate cannot replace real dataset governance.",
       "ru": "Современная оценка LLM сочетает разделение ролей данных, дисциплину выбора контрольной точки и поиск пересечений между наборами данных. В этой главе границу делает видимой намеренно строгое правило: локальный доступ к тестовой выборке открывается только один раз. Это не означает, что в процитированных работах тестовую выборку запрашивали ровно один раз; локальный механизм не заменяет управление доступом к реальным наборам данных."
     },
-    "rust_contrast": "Use the typed evaluator and fixture to demonstrate the modern Train, Validation, and Test boundary with matching provenance, a consumed-on-open evaluator, graph-free scoring, and an immutable versioned report; keep historical paper claims in sourced prose rather than hardcoded boolean records."
+    "rust_contrast": "Use the typed evaluator and fixture to distinguish matching caller-supplied provenance assertions from mechanically checked context, state, vocabulary, and target facts, while demonstrating a consumed-on-open Test boundary, graph-free scoring, and an immutable versioned report; keep historical paper claims in sourced prose rather than hardcoded boolean records."
   },
   "rust": {
     "package": "ch34-final-evaluation",
@@ -129,14 +129,14 @@
       "rust/demos/ch34-final-evaluation/src/main.rs",
       "rust/demos/ch34-final-evaluation/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=34-final-evaluation\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true\nprovenance=corpus:ch33-34-synthetic-v1 split:fixed-role-split-v1 tokenizer:literal-u32-v1 vocabulary:5 context:2\nbaseline=alpha:1.000000 fitted_partition:train documents:2 transitions:22 frozen:true\ntest=documents:2 windows:12 batches:3 targets:24 gate_openings_before:0 gate_openings_after:1 fingerprint:fnv1a64:dac4bb4d76beeb59\ndecoder=mean_nll:1.607679 perplexity:4.991215 total_nll:38.584306 graphs:0 parameters_unchanged:true gradients_unchanged:true\nbigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634\ncomparison=lower_loss:selected-decoder gap:0.629055 same_targets:true\nproof=token_weighted:true provenance_match:true selection_closed:true report_version:1\nnext=serialize the selected evaluated state in a versioned checkpoint\n"
+    "expected_output": "chapter=34-final-evaluation\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true\nprovenance=corpus:ch33-34-synthetic-v1 split:fixed-role-split-v1 tokenizer:literal-u32-v1 vocabulary:5 context:2\nbaseline=alpha:1.000000 fitted_partition:train documents:2 transitions:22 frozen:true\ntest=documents:2 windows:12 batches:3 targets:24 gate_openings_before:0 gate_openings_after:1 fingerprint:fnv1a64:dac4bb4d76beeb59\ndecoder=mean_nll:1.607679 perplexity:4.991215 total_nll:38.584306 graphs:0 parameters_unchanged:true gradients_unchanged:true\nbigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634\ncomparison=lower_loss:selected-decoder gap:0.629055 same_targets:true\nproof=token_weighted:true provenance_assertions_match:true selection_closed:true report_version:1\nnext=serialize the selected evaluated state in a versioned checkpoint\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "final-evaluation-boundary",
     "rationale": {
-      "en": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and provenance cards show that both models use the same inspected input/target order without turning the result into another model-selection step.",
-      "ru": "Единая последовательность движения информации наглядно разделяет подгонку параметров, выбор и итоговую оценку. Точная таблица с результатами двух моделей и карточки происхождения данных показывают, что обе модели используют одну и ту же проверенную последовательность входных и целевых позиций, а численный результат не становится ещё одним шагом выбора модели."
+      "en": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and separate assertion/checked-fact cards show that both models use the same inspected input/target order without turning the result into another model-selection step.",
+      "ru": "Единая последовательность движения информации наглядно разделяет подгонку параметров, выбор и итоговую оценку. Точная таблица с результатами двух моделей и отдельные карточки заявленных сведений и проверяемых фактов показывают, что обе модели используют одну и ту же последовательность входных и целевых позиций, а численный результат не становится ещё одним шагом выбора модели."
     }
   },
   "decoder_connection": {
@@ -161,8 +161,8 @@
     },
     {
       "concept_id": "evaluation-provenance",
-      "en": "evaluation provenance",
-      "ru": "сведения о происхождении данных и условиях оценки"
+      "en": "evaluation provenance assertions",
+      "ru": "заявленные сведения о происхождении данных и условиях оценки"
     },
     {
       "concept_id": "immutable-report",
@@ -191,12 +191,13 @@
     }
   ],
   "translation_notes": [
-    "Chapter 34 has the exact active locale set {en, ru}. English content revision 4 is the canonical semantic source; Russian is translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 135aacbce225a4c3da107c16414e6beca73aee4f33d3e536a8c34beaa4921ec3",
-    "reviewed Russian SHA-256: 22d11053e6dc17e0419ecccc5a3ca914ee435162d6e78961dd3457f93f8dd554",
+    "Chapter 34 has the exact active locale set {en, ru}. English content revision 5 is the canonical semantic source; Russian is translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: ab71bcf95e1bcb446d01cd531e9a0aad29dbe8afd03751b38d5c543f99e18e6c",
+    "reviewed Russian SHA-256: 20d40b3340755af228eea0c4a988623686b481a129def2fe7a6ca4cd65e468ec",
     "Preserve the distinct Train, Validation, and Test responsibilities; test is not a synonym for validation.",
     "Preserve theta_{s^*}, s^*, L_te, N_te, x_n, y_n, natural-log notation, exact trace tokens, fingerprints, and numeric lexemes.",
     "Translate exactly once as a strict course protocol with a documented local-gate limit, not as a universal historical claim. Preserve that the one-use resource is permission to inspect the test epoch, while SelectedDecoder borrows both the retained selected state and the matching already isolated model.",
+    "Preserve the three-way distinction between caller-supplied provenance and role assertions, facts mechanically checked by the evaluator, and stronger assembly evidence supplied by the concrete Chapter 33/34 fixture; never translate matching identifier strings as verified actual lineage.",
     "Preserve that one inspection means one input-validation boundary at gate opening, not one physical memory pass: the private non-mutable inspected view couples evidence to checked pairs, each batch checks alignment then each input ID then its target ID, decoder scoring remains a separate no-grad traversal, and every public raw-ID API retains its checks.",
     "Programming language names may identify source provenance only where relevant; the history must stay on the road to trustworthy modern LLM evaluation."
   ],
@@ -214,8 +215,8 @@
       "expected": "The documents contribute 14 and 10 target-token positions, each with one aligned input position, so the report divides the combined surprise by 24 instead of averaging two document means."
     },
     {
-      "input": "Change one corpus, split, tokenizer, or context fingerprint",
-      "expected": "Preflight rejects the mismatch while the test gate remains unopened."
+      "input": "Change one caller-supplied corpus, split, or tokenizer identifier or the context value for one participant",
+      "expected": "Preflight rejects the assertion mismatch while the test gate remains unopened. Reusing the same identifier for a changed underlying artifact is not detected by this equality check."
     },
     {
       "input": "Compare the selected decoder and alpha-one bigram",
@@ -247,8 +248,9 @@
 ## Scope
 
 This chapter evaluates the complete Chapter 33 decoder after validation has
-already selected checkpoint $s^*=8$. It owns a validated provenance record, a
-frozen selected-decoder view, a frozen training-only bigram view, one test-only
+already selected checkpoint $s^*=8$. It owns a record of caller-supplied
+provenance assertions, a frozen selected-decoder view, a frozen training-only
+bigram view, one test-only
 gate, one private inspected view that binds report evidence to checked
 input/target indices, graph-free token-weighted decoder scoring, and an immutable
 versioned report comparing both models over the same ordered positions.
@@ -354,17 +356,30 @@ belongs to this course; it is not attributed to the papers.
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
-`EvaluationProvenance` owns nonblank corpus, split, and tokenizer fingerprints
-plus one positive context length. `TrainingResult` already owns a retained
-graph-free selected state and a separate decoder built from the same values.
-`SelectedDecoder` borrows both and accepts them only with a `Validation`
-selection label; it performs no second state restoration. Immediately before
-opening the test gate, the evaluator requires bit-exact floating configuration,
-equal integer configuration, stable parameter count, order, names, shapes, and
-value bits. A mismatch is `SelectedStateMismatch` and leaves the gate unused.
-`FrozenBigram` accepts only a model fitted on `Train`. Their provenance must
-match exactly, their vocabularies must agree, and the test epoch's context must
-match both provenance and decoder capacity.
+`EvaluationProvenance` stores three nonblank strings supplied by the caller and
+named corpus, split, and tokenizer fingerprints, plus one positive context
+length. The evaluator compares the strings for exact equality but neither
+derives them nor checks their referents. Equal strings can therefore describe
+different corpora, split construction, or tokenizers. The context value is
+checked more strongly: it must also equal the test epoch's context length and
+decoder capacity.
+
+`SelectedDecoder::new` requires a caller-supplied `Validation` assertion. It
+does not validate `selected_step`, and it checks `selected_validation_loss` only
+for finiteness and nonnegativity. Immediately before opening the test gate, the
+evaluator separately requires bit-exact floating configuration, equal integer
+configuration, stable parameter count, order, names, shapes, and value bits
+between the supplied state and model. A mismatch is `SelectedStateMismatch` and
+leaves the gate unused. That equality does not reconstruct selection history.
+
+`FrozenBigram::new` requires a caller-supplied `Train` assertion and a model that
+reports at least one fitted document, but it cannot discover which documents
+produced the counts. `FinalEvaluator` checks an epoch's stored `Test` label,
+which likewise does not prove external holdout lineage. The concrete Chapter 34
+fixture has stronger call-site evidence: Chapter 33 supplies the actual selected
+result, and the bigram is fitted directly from Chapter 33's exact training
+slices. External lineage still requires trusted fingerprint derivation, access
+control, audit logs, and dataset governance.
 
 `FinalEvaluator` owns one nonempty `Test` epoch and is deliberately neither
 cloneable nor copyable. Metadata errors occur before opening. Immediately before
@@ -406,8 +421,9 @@ existed.
 The report requires equal target counts, zero recorded graphs, unchanged decoder
 parameter and gradient bits, finite scores, one gate opening, and an ordered evidence
 fingerprint over document ID, window start, input token, and target token. It owns
-report schema version $1$, provenance, counts, both scores, the selected step,
-and proof flags behind getters only. Tests cover every role and provenance error,
+report schema version $1$, caller-supplied provenance assertions, counts, both
+scores, the selected step, and proof flags behind getters only. Tests cover every
+role/provenance assertion error and the documented matching-assertion adversary,
 empty and mismatched epochs, vocabulary and token bounds, consumed-on-error
 behavior, uneven batches, exact token weighting, target alignment, bit preservation,
 deterministic replay, exact fixture numbers, and the fixture-specific lower loss.
@@ -423,8 +439,10 @@ source order. Numbered states and explicit verbs preserve meaning without color.
 A two-row semantic table compares the selected decoder and frozen bigram on the
 same inspected order of $N_{te}=24$ input/target positions. Only that table
 occupies one named, keyboard-reachable shared scroll region at narrow widths.
-Four check cards show matching provenance, closed selection, separate graph-free
-decoder scoring, and one inspected view bound to one report. Every bounded card
+Four check cards distinguish matching caller-supplied identifiers from the
+independently checked context, vocabulary, target, state/model, and graph-free
+facts; they also show closed selection and one inspected view bound to one
+report. Every bounded card
 has four visible borders and contains its text and formula ink.
 
 The figure is complete static HTML derived from the Rust trace. It uses the shared
@@ -444,8 +462,9 @@ full-view control.
    replace $s^*$? Explain which earlier step would need to be repeated instead.
 4. The decoder uses context-two windows while the bigram scores each original
    document transition only once. Why are the resulting means not like-for-like?
-5. Change only the tokenizer fingerprint. Predict whether the gate opens and
-   whether its gate-opening count changes.
+5. First change the tokenizer mapping while reusing the same fingerprint string
+   and the same vocabulary/context sizes. Then change only the fingerprint
+   string. Predict which change this API detects before the gate opens.
 6. Force an out-of-range token during the gate-opening inspection. Predict why
    the call fails and why a retry through that evaluator is still forbidden.
 7. Compare mean losses $1.607679$ and $2.236735$. State the bounded conclusion
@@ -480,6 +499,9 @@ fingerprints, trace tokens, numeric lexemes, lower-loss cue, private inspected
 view, alignment/input/target error order, checked public API boundary, separate
 decoder traversal, physical-pass caveat, and the difference between final
 evidence and model selection have been refreshed from English and reviewed again.
+Both locales must also preserve the distinction between caller-supplied
+provenance/role assertions, mechanically checked runtime facts, and the concrete
+fixture's stronger assembly evidence.
 Russian must distinguish a frozen model or choice, a private checked internal
 view, and an immutable report. Historical prose must stay on the road to
 trustworthy LLM evaluation rather than programming-language history.
@@ -488,7 +510,9 @@ trustworthy LLM evaluation rather than programming-language history.
 ## Acceptance evidence
 
 The step is accepted only when the locked Rust workspace proves the test-only
-gate, pre-open role and provenance checks, consumed-on-open behavior, identical
+gate, pre-open role/provenance assertion consistency, the adversarial limit of
+matching assertions, independently checked context/state/vocabulary facts,
+consumed-on-open behavior, identical
 target ordering, first-error precedence, checked-index reuse, public raw-ID
 checks, token weighting, graph freedom, bit preservation, immutable report,
 exact fixture scores, deterministic replay, and bounded runtime; learner

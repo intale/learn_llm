@@ -5,5 +5,5 @@ PROVENANCE|corpus=ch33-34-synthetic-v1|split=fixed-role-split-v1|tokenizer=liter
 SCORE|model=selected-decoder|fit_partition=train|selected_by=validation|targets=24|total_nll=38.584306|mean_nll=1.607679|perplexity=4.991215
 SCORE|model=frozen-bigram|fit_partition=train|selected_by=none|targets=24|total_nll=53.681634|mean_nll=2.236735|perplexity=9.362710
 COMPARE|lower_loss=selected-decoder|loss_gap=0.629055|same_targets=true|decoder_beats_bigram=true
-PROOF|token_weighted=true|provenance_match=true|graph_nodes=0|parameters_unchanged=true|gradients_unchanged=true|selection_closed=true
+PROOF|token_weighted=true|provenance_assertions_match=true|graph_nodes=0|parameters_unchanged=true|gradients_unchanged=true|selection_closed=true
 END_FINAL_EVALUATION_TRACE

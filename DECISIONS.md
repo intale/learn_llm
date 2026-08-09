@@ -18577,3 +18577,59 @@ owned by the formula's sanctioned math scroller, and the corrected localized
 cheat-sheet text. Earlier revision-4 formula records remain historical only.
 
 **Affected step:** `correct-ch14-reverse-mode-boundary-equation`.
+
+## 2026-08-09 - Bound Chapter 34 provenance to caller-assertion consistency
+
+**Status:** Accepted during preflight for
+`bound-ch34-evaluation-provenance-claims` before product files were edited.
+
+**Context:** The independent audit correctly distinguishes the Chapter 34
+fixture from its reusable API. The fixture obtains the retained selected state
+and model from Chapter 33 and fits its bigram from Chapter 33's exact read-only
+training slices. The generic constructors cannot establish that history.
+`EvaluationProvenance::new` rejects blank corpus, split, and tokenizer strings
+and a zero context length, while its evaluator compares those caller-supplied
+strings for equality. `SelectedDecoder::new` checks a caller-supplied
+`Validation` role and a finite, nonnegative loss; `FrozenBigram::new` checks a caller-supplied
+`Train` role and a nonempty fitted model. Equal identifiers or accepted role
+labels can therefore accompany different underlying data, tokenizer, selection,
+or fitting histories.
+
+**Decision:** Advance Chapter 34 to English content revision 5 and refresh
+Russian directly from that final English revision. Teach three separate
+categories: caller-supplied corpus/split/tokenizer and selection/fit assertions;
+mechanically checked context, vocabulary, state/model, token-bound, ordering,
+no-gradient, and unchanged-bit facts; and the concrete fixture's correctly
+assembled call-site evidence. State explicitly that equal identifier strings do
+not prove equal referents and that external data lineage still requires trusted
+fingerprint derivation and dataset governance.
+
+Keep the public `EvaluationProvenance`, `SelectedDecoder`, and `FrozenBigram`
+type and constructor names so the unrelated Chapter 39 rendered pipeline need
+not change in this checkpoint. Make their trust boundary explicit in public
+documentation, constructor parameter names, and error text. Rename the private
+comparison helper to `require_matching_provenance_assertions`, and rename the
+learner report, evidence, trace, and parser proof field from
+`provenance_match` to `provenance_assertions_match`. Add an adversarial Rust test
+that deliberately reuses arbitrary nonblank identifiers and accepted role labels
+with different underlying objects, proving that this acceptance is the documented
+caller-trust boundary rather than verified lineage. Preserve every existing
+positive check for mismatched assertions and mechanically checked runtime facts.
+
+Expand this step before publication to include `curriculum/course-plan.md`, both
+Chapter 34 cheat sheets, their shared static and browser tests, and
+`rust/demos/ch34-final-evaluation/src/diagram_trace.rs`. Keep Chapter 33's
+selection fixture, the bigram/trainer/pipeline implementations, Chapter 39, the
+shared diagram presentation/controller, dependencies, and locks protected unless
+validation establishes a separate direct defect.
+
+**Consequences:** The scoring algorithm, selected state, test gate, 24 ordered
+targets, losses, perplexities, target fingerprint, state-preservation facts, and
+report version remain unchanged. Exact stdout and diagram traces change only the
+ambiguous proof-field name. Learner prose, diagram labels/descriptions, exercises,
+and cheat sheets no longer turn string equality or typed caller labels into a
+lineage guarantee. Static, Rust, and two-engine validation must reject the old
+claim and prove both the bounded API and the correctly assembled fixture.
+
+**Affected step and run:** `bound-ch34-evaluation-provenance-claims`,
+`20260809T130957Z-bound-ch34-evaluation-provenance-claims-01`.

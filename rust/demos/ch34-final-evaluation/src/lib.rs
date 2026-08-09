@@ -93,7 +93,12 @@ fn require(condition: bool, message: &'static str) -> Result<(), FixtureError> {
     }
 }
 
-pub fn fixture_provenance() -> Result<EvaluationProvenance, FixtureError> {
+/// Returns the caller-supplied identifiers used consistently by this fixture.
+///
+/// The fixture assembly below supplies their intended referents. The generic
+/// `EvaluationProvenance` constructor validates only nonblank strings and a
+/// positive context length; it does not derive lineage from those referents.
+pub fn fixture_provenance_assertions() -> Result<EvaluationProvenance, FixtureError> {
     EvaluationProvenance::new(
         CORPUS_FINGERPRINT,
         SPLIT_FINGERPRINT,
@@ -124,7 +129,7 @@ pub struct LearnerEvidence {
     pub baseline_documents: usize,
     pub baseline_transitions: u64,
     pub token_weighted: bool,
-    pub provenance_match: bool,
+    pub provenance_assertions_match: bool,
 }
 
 /// Builds both frozen candidates before opening one owned test evaluator.
@@ -134,7 +139,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         selected.test_partition_rejected,
         "selection no longer rejects the test partition",
     )?;
-    let provenance = fixture_provenance()?;
+    let provenance_assertions = fixture_provenance_assertions()?;
     let training_documents = fixture_training_documents();
     let baseline = BigramModel::fit_training_documents(
         VOCABULARY_SIZE,
@@ -156,10 +161,10 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         selected.result.selected_step(),
         selected.result.selected_validation_loss(),
         Partition::Validation,
-        &provenance,
+        &provenance_assertions,
     )?;
-    let bigram = FrozenBigram::new(&baseline, Partition::Train, &provenance)?;
-    let mut evaluator = FinalEvaluator::new(test_epoch()?, provenance.clone())?;
+    let bigram = FrozenBigram::new(&baseline, Partition::Train, &provenance_assertions)?;
+    let mut evaluator = FinalEvaluator::new(test_epoch()?, provenance_assertions.clone())?;
     let gate_openings_before = evaluator.access_count();
     require(gate_openings_before == 0, "test gate opened before scoring")?;
     let report = evaluator.evaluate_once(decoder, bigram)?;
@@ -200,10 +205,10 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
             (score.total_nll() / score.target_count() as f64 - score.mean_nll()).abs() <= 1e-12
         });
     require(token_weighted, "model scores are no longer token weighted")?;
-    let provenance_match = report.provenance() == &provenance;
+    let provenance_assertions_match = report.provenance() == &provenance_assertions;
     require(
-        provenance_match,
-        "report provenance no longer matches the frozen fixture",
+        provenance_assertions_match,
+        "report provenance assertions no longer match the fixture assertions",
     )?;
 
     Ok(LearnerEvidence {
@@ -214,7 +219,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         baseline_documents: baseline.fitted_documents(),
         baseline_transitions: baseline.fitted_transitions(),
         token_weighted,
-        provenance_match,
+        provenance_assertions_match,
     })
 }
 // endregion:learner-evidence
@@ -232,7 +237,7 @@ test=documents:{} windows:{} batches:{} targets:{} gate_openings_before:{} gate_
 decoder=mean_nll:{:.6} perplexity:{:.6} total_nll:{:.6} graphs:{} parameters_unchanged:{} gradients_unchanged:{}\n\
 bigram=mean_nll:{:.6} perplexity:{:.6} total_nll:{:.6}\n\
 comparison=lower_loss:selected-decoder gap:{:.6} same_targets:true\n\
-proof=token_weighted:{} provenance_match:{} selection_closed:{} report_version:{}\n\
+proof=token_weighted:{} provenance_assertions_match:{} selection_closed:{} report_version:{}\n\
 next=serialize the selected evaluated state in a versioned checkpoint\n",
         report.selected_step(),
         report.selected_validation_loss(),
@@ -263,7 +268,7 @@ next=serialize the selected evaluated state in a versioned checkpoint\n",
         report.bigram().total_nll(),
         report.loss_gap(),
         evidence.token_weighted,
-        evidence.provenance_match,
+        evidence.provenance_assertions_match,
         evidence.selection_test_partition_rejected,
         report.version(),
     ))
@@ -303,7 +308,7 @@ mod tests {
         assert_eq!(evidence.baseline_transitions, 22);
         assert_close(evidence.baseline_alpha, 1.0);
         assert!(evidence.token_weighted);
-        assert!(evidence.provenance_match);
+        assert!(evidence.provenance_assertions_match);
     }
 
     #[test]

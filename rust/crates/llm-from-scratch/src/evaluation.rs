@@ -1,4 +1,9 @@
-//! Test-only final evaluation for one frozen validation-selected decoder.
+//! Final-evaluation boundary with caller-asserted roles and identifiers.
+//!
+//! Corpus, split, tokenizer, selection-role, and fit-role values enter this
+//! module as caller assertions. The evaluator checks their shape and mutual
+//! consistency; it does not derive data or model lineage from the underlying
+//! corpus, tokenizer, selection run, or bigram fit.
 
 use std::error::Error;
 use std::fmt;
@@ -126,43 +131,46 @@ impl fmt::Display for EvaluationError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::EmptyProvenance { field } => {
-                write!(formatter, "{field} provenance must not be blank")
+                write!(formatter, "{field} provenance assertion must not be blank")
             }
             Self::ZeroContextLength => {
-                formatter.write_str("provenance context length must be positive")
+                formatter.write_str("asserted provenance context length must be positive")
             }
             Self::WrongSelectionPartition { actual } => write!(
                 formatter,
-                "the selected decoder must come from Validation, got {actual:?}"
+                "the caller selection-partition assertion must be Validation, got {actual:?}"
             ),
             Self::InvalidSelectionLoss { value } => write!(
                 formatter,
-                "selected validation loss must be finite and nonnegative, got {value}"
+                "caller-supplied selected-validation-loss value must be finite and nonnegative, got {value}"
             ),
             Self::WrongBaselinePartition { actual } => write!(
                 formatter,
-                "the frozen bigram must be fitted on Train, got {actual:?}"
+                "the caller fit-partition assertion must be Train, got {actual:?}"
             ),
             Self::UnfittedBigram => {
-                formatter.write_str("the frozen bigram must own at least one fitted document")
+                formatter.write_str("the bigram must report at least one fitted document")
             }
             Self::WrongTestPartition { actual } => {
-                write!(formatter, "final evaluation requires Test, got {actual:?}")
+                write!(
+                    formatter,
+                    "final evaluation requires an epoch labeled Test, got {actual:?}"
+                )
             }
             Self::EmptyTestEpoch => formatter.write_str("test epoch must contain targets"),
             Self::AlreadyEvaluated => {
                 formatter.write_str("this final evaluator has already opened test data")
             }
             Self::ProvenanceMismatch { field } => {
-                write!(formatter, "{field} provenance does not match")
+                write!(formatter, "{field} provenance assertion does not match")
             }
             Self::EpochContextMismatch { expected, actual } => write!(
                 formatter,
-                "test epoch context length must be {expected}, got {actual}"
+                "test epoch context length must match asserted evaluation context {expected}, got {actual}"
             ),
             Self::ModelContextMismatch { expected, actual } => write!(
                 formatter,
-                "decoder context capacity must be {expected}, got {actual}"
+                "decoder context capacity must match asserted evaluation context {expected}, got {actual}"
             ),
             Self::VocabularyMismatch { decoder, bigram } => write!(
                 formatter,
@@ -194,9 +202,8 @@ impl fmt::Display for EvaluationError {
                 formatter,
                 "test batch {batch} target {position} has token {id} outside vocabulary {vocabulary_size}"
             ),
-            Self::SelectedStateMismatch => formatter.write_str(
-                "the selected decoder no longer matches its retained validation-selected state",
-            ),
+            Self::SelectedStateMismatch => formatter
+                .write_str("the supplied decoder does not match the supplied retained state"),
             Self::MissingGradient { name } => {
                 write!(
                     formatter,
@@ -263,7 +270,13 @@ impl From<BigramError> for EvaluationError {
 }
 
 // region:evaluation-provenance
-/// The data and context identity shared by every participant in a final report.
+/// Caller-supplied identifiers and context metadata shared by report participants.
+///
+/// Construction proves only that the three identifier strings are nonblank and
+/// the context length is positive. Equality between values of this type proves
+/// only that callers supplied matching assertions; it does not hash or inspect a
+/// corpus, split construction, or tokenizer. The evaluator separately checks the
+/// context value against the test epoch and decoder capacity.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EvaluationProvenance {
     corpus_fingerprint: String,
@@ -319,9 +332,14 @@ impl EvaluationProvenance {
         self.context_length
     }
 }
-// endregion:evaluation-provenance
 
-/// A borrowed validation-selected decoder with no mutation API.
+/// A borrowed decoder accompanied by the caller's validation-role assertion.
+///
+/// Construction checks the asserted role and the numeric shape of the supplied
+/// selection values. It cannot reconstruct how `selected_step`,
+/// `selected_validation_loss`, or the model were selected. Before test access,
+/// the evaluator does mechanically compare the retained state with the borrowed
+/// model's exact configuration, names, shapes, and value bits.
 #[derive(Clone, Copy, Debug)]
 pub struct SelectedDecoder<'a> {
     state: &'a DecoderModelState,
@@ -337,12 +355,12 @@ impl<'a> SelectedDecoder<'a> {
         model: &'a DecoderModel,
         selected_step: usize,
         selected_validation_loss: f64,
-        selection_partition: Partition,
+        selection_partition_assertion: Partition,
         provenance: &'a EvaluationProvenance,
     ) -> Result<Self, EvaluationError> {
-        if selection_partition != Partition::Validation {
+        if selection_partition_assertion != Partition::Validation {
             return Err(EvaluationError::WrongSelectionPartition {
-                actual: selection_partition,
+                actual: selection_partition_assertion,
             });
         }
         if !selected_validation_loss.is_finite() || selected_validation_loss < 0.0 {
@@ -380,7 +398,10 @@ impl<'a> SelectedDecoder<'a> {
     }
 }
 
-/// A borrowed training-only count baseline with no refit operation.
+/// A borrowed count baseline accompanied by the caller's training-role assertion.
+///
+/// Construction checks the asserted role and that the model reports at least one
+/// fitted document. It cannot discover which documents produced the counts.
 #[derive(Clone, Copy, Debug)]
 pub struct FrozenBigram<'a> {
     model: &'a BigramModel,
@@ -390,12 +411,12 @@ pub struct FrozenBigram<'a> {
 impl<'a> FrozenBigram<'a> {
     pub fn new(
         model: &'a BigramModel,
-        fit_partition: Partition,
+        fit_partition_assertion: Partition,
         provenance: &'a EvaluationProvenance,
     ) -> Result<Self, EvaluationError> {
-        if fit_partition != Partition::Train {
+        if fit_partition_assertion != Partition::Train {
             return Err(EvaluationError::WrongBaselinePartition {
-                actual: fit_partition,
+                actual: fit_partition_assertion,
             });
         }
         if model.fitted_documents() == 0 {
@@ -412,6 +433,7 @@ impl<'a> FrozenBigram<'a> {
         self.provenance
     }
 }
+// endregion:evaluation-provenance
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ModelScore {
@@ -692,7 +714,7 @@ impl<'a> InspectedTestEpoch<'a> {
 }
 // endregion:inspected-test-epoch
 
-fn require_matching_provenance(
+fn require_matching_provenance_assertions(
     expected: &EvaluationProvenance,
     actual: &EvaluationProvenance,
 ) -> Result<(), EvaluationError> {
@@ -820,7 +842,8 @@ fn score_bigram(
 ///
 /// This type is deliberately not cloneable. It enforces one access through one
 /// owner; external dataset governance is still required to prevent another
-/// process from constructing a separate owner over copied data.
+/// process from constructing a separate owner over copied data. Construction
+/// checks the epoch's stored `Test` enum value, not its external lineage.
 #[derive(Debug)]
 pub struct FinalEvaluator {
     test_epoch: MiniBatchEpoch,
@@ -866,8 +889,8 @@ impl FinalEvaluator {
         if self.access_count != 0 {
             return Err(EvaluationError::AlreadyEvaluated);
         }
-        require_matching_provenance(&self.provenance, decoder.provenance())?;
-        require_matching_provenance(&self.provenance, bigram.provenance())?;
+        require_matching_provenance_assertions(&self.provenance, decoder.provenance())?;
+        require_matching_provenance_assertions(&self.provenance, bigram.provenance())?;
 
         if !selected_state_matches_model(decoder.state(), decoder.model()) {
             return Err(EvaluationError::SelectedStateMismatch);
@@ -995,7 +1018,7 @@ mod tests {
     }
 
     #[test]
-    fn provenance_rejects_blank_fields_and_zero_context() {
+    fn provenance_assertions_reject_blank_fields_and_zero_context() {
         assert_eq!(
             EvaluationProvenance::new(" ", "split", "tokens", 2),
             Err(EvaluationError::EmptyProvenance {
@@ -1021,7 +1044,7 @@ mod tests {
     }
 
     #[test]
-    fn typed_views_enforce_validation_selection_and_training_fit() {
+    fn typed_views_validate_caller_role_assertions_and_numeric_shape() {
         let decoder_model = model(5, 2);
         let state = DecoderModelState::snapshot(&decoder_model);
         let provenance = provenance();
@@ -1038,17 +1061,19 @@ mod tests {
                 actual: Partition::Train
             })
         ));
-        assert!(matches!(
-            SelectedDecoder::new(
-                &state,
-                &decoder_model,
-                2,
-                f64::NAN,
-                Partition::Validation,
-                &provenance
-            ),
-            Err(EvaluationError::InvalidSelectionLoss { .. })
-        ));
+        for invalid_loss in [f64::NAN, -0.25, f64::INFINITY, f64::NEG_INFINITY] {
+            assert!(matches!(
+                SelectedDecoder::new(
+                    &state,
+                    &decoder_model,
+                    2,
+                    invalid_loss,
+                    Partition::Validation,
+                    &provenance
+                ),
+                Err(EvaluationError::InvalidSelectionLoss { .. })
+            ));
+        }
         assert!(matches!(
             FrozenBigram::new(&baseline(5), Partition::Validation, &provenance),
             Err(EvaluationError::WrongBaselinePartition {
@@ -1062,6 +1087,117 @@ mod tests {
             FrozenBigram::new(&empty, Partition::Train, &provenance),
             Err(EvaluationError::UnfittedBigram)
         ));
+        assert_eq!(
+            EvaluationError::EmptyProvenance {
+                field: ProvenanceField::Tokenizer,
+            }
+            .to_string(),
+            "tokenizer provenance assertion must not be blank",
+        );
+        assert_eq!(
+            EvaluationError::WrongSelectionPartition {
+                actual: Partition::Train,
+            }
+            .to_string(),
+            "the caller selection-partition assertion must be Validation, got Train",
+        );
+        assert_eq!(
+            EvaluationError::WrongBaselinePartition {
+                actual: Partition::Validation,
+            }
+            .to_string(),
+            "the caller fit-partition assertion must be Train, got Validation",
+        );
+        assert_eq!(
+            EvaluationError::WrongTestPartition {
+                actual: Partition::Validation,
+            }
+            .to_string(),
+            "final evaluation requires an epoch labeled Test, got Validation",
+        );
+        assert_eq!(
+            EvaluationError::ProvenanceMismatch {
+                field: ProvenanceField::Corpus,
+            }
+            .to_string(),
+            "corpus provenance assertion does not match",
+        );
+    }
+
+    #[test]
+    fn matching_caller_assertions_are_not_lineage_proof() {
+        let evaluator_assertions = EvaluationProvenance::new(
+            "arbitrary-corpus",
+            "arbitrary-split",
+            "arbitrary-tokenizer",
+            2,
+        )
+        .unwrap();
+        let decoder_assertions = EvaluationProvenance::new(
+            "arbitrary-corpus",
+            "arbitrary-split",
+            "arbitrary-tokenizer",
+            2,
+        )
+        .unwrap();
+        let bigram_assertions = EvaluationProvenance::new(
+            "arbitrary-corpus",
+            "arbitrary-split",
+            "arbitrary-tokenizer",
+            2,
+        )
+        .unwrap();
+
+        // This random decoder never passed through a selection procedure. The
+        // constructor accepts the caller's Validation role and finite loss;
+        // evaluate_once later checks only that the supplied state/model match.
+        let unselected_model = model(5, 2);
+        let unselected_state = DecoderModelState::snapshot(&unselected_model);
+        let decoder = SelectedDecoder::new(
+            &unselected_state,
+            &unselected_model,
+            999,
+            0.25,
+            Partition::Validation,
+            &decoder_assertions,
+        )
+        .unwrap();
+
+        // These counts come from an arbitrary slice. The wrapper cannot infer
+        // its partition; it accepts the caller's Train role assertion.
+        let arbitrary_fit = [4, 4, 4, 4];
+        let arbitrary_bigram =
+            BigramModel::fit_training_documents(5, 1.0, [&arbitrary_fit[..]]).unwrap();
+        let bigram =
+            FrozenBigram::new(&arbitrary_bigram, Partition::Train, &bigram_assertions).unwrap();
+
+        let mut evaluator = FinalEvaluator::new(
+            epoch(Partition::Test, &[("arbitrary-test", &TEST_A)]),
+            evaluator_assertions.clone(),
+        )
+        .unwrap();
+        let report = evaluator.evaluate_once(decoder, bigram).unwrap();
+
+        assert_eq!(report.provenance(), &evaluator_assertions);
+        assert_eq!(report.selected_step(), 999);
+        assert_eq!(report.selected_validation_loss(), 0.25);
+        assert_eq!(report.access_count(), 1);
+
+        // Matching strings also cannot prove that two Test-labeled epochs refer
+        // to the same underlying data: a second caller can reuse all three
+        // identifiers for a different epoch, which produces a different checked
+        // target fingerprint after the gate opens.
+        let mut other_evaluator = FinalEvaluator::new(
+            epoch(Partition::Test, &[("different-test", &TEST_B)]),
+            evaluator_assertions,
+        )
+        .unwrap();
+        let other_report = other_evaluator.evaluate_once(decoder, bigram).unwrap();
+        assert_eq!(report.provenance(), other_report.provenance());
+        assert_ne!(
+            report.target_fingerprint(),
+            other_report.target_fingerprint()
+        );
     }
 
     #[test]
@@ -1232,7 +1368,7 @@ mod tests {
     }
 
     #[test]
-    fn provenance_and_shape_errors_before_open_leave_access_unused() {
+    fn provenance_assertion_and_shape_errors_before_open_leave_access_unused() {
         let provenance = provenance();
         let decoder_model = model(5, 2);
         let state = DecoderModelState::snapshot(&decoder_model);
@@ -1272,6 +1408,27 @@ mod tests {
             .unwrap();
             assert_eq!(
                 evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+                EvaluationError::ProvenanceMismatch { field }
+            );
+            assert_eq!(evaluator.access_count(), 0);
+
+            let decoder = SelectedDecoder::new(
+                &state,
+                &decoder_model,
+                1,
+                1.0,
+                Partition::Validation,
+                &provenance,
+            )
+            .unwrap();
+            let wrong_bigram = FrozenBigram::new(&bigram_model, Partition::Train, &wrong).unwrap();
+            let mut evaluator = FinalEvaluator::new(
+                epoch(Partition::Test, &[("test", &TEST_A)]),
+                provenance.clone(),
+            )
+            .unwrap();
+            assert_eq!(
+                evaluator.evaluate_once(decoder, wrong_bigram).unwrap_err(),
                 EvaluationError::ProvenanceMismatch { field }
             );
             assert_eq!(evaluator.access_count(), 0);

@@ -336,7 +336,7 @@ const englishSheets = [
     chapter: 34,
     chapterId: '34-final-evaluation',
     title: 'Freeze choices before one final test report',
-    terms: ['Validation-selected checkpoint', 'Frozen selected state', 'Single-use test evaluation boundary', 'Final test evaluation', 'Token-weighted mean NLL', 'Perplexity', 'Aligned target slot', 'Evaluation provenance', 'No-grad evaluation', 'Frozen final evaluation report', 'Frozen bigram', 'Like-for-like targets'],
+    terms: ['Validation-selected checkpoint', 'Frozen selected state', 'Single-use test evaluation boundary', 'Final test evaluation', 'Token-weighted mean NLL', 'Perplexity', 'Aligned target slot', 'Evaluation provenance assertions', 'No-grad evaluation', 'Frozen final evaluation report', 'Frozen bigram', 'Like-for-like targets'],
   },
   {
     chapter: 35,
@@ -422,6 +422,53 @@ const sheets: BrowserSheet[] = [
   })),
   ...russianSheets,
 ];
+
+const chapter34BoundaryDefinitions = {
+  en: [
+    {
+      term: 'Single-use test evaluation boundary',
+      definition: "A local once-only post-selection protocol that checks the epoch's Test label, caller-assertion consistency, and pre-open model constraints; it consumes local access before inspecting token IDs and cannot establish external lineage or cross-process uniqueness.",
+    },
+    {
+      term: 'Final test evaluation',
+      definition: 'The reporting-only pass over held-out test data after selection closes; under the course protocol, its result must not be used to choose a checkpoint or tune another decision.',
+    },
+    {
+      term: 'Evaluation provenance assertions',
+      definition: 'Three nonblank caller-supplied corpus, split, and tokenizer identifiers plus a positive context value; equality checks assertion consistency but does not derive or verify the underlying artifacts.',
+    },
+    {
+      term: 'Frozen final evaluation report',
+      definition: 'A versioned record of caller-supplied identifiers, checked target evidence, scores, local gate facts, and state-preservation checks, fixed after selection closes; it is not proof of external lineage.',
+    },
+    {
+      term: 'Frozen bigram',
+      definition: "In this fixture, an add-one bigram fitted on Chapter 33's exact training token slices and sealed before test access; the generic wrapper itself checks only a Train assertion and a nonzero fitted-document count.",
+    },
+  ],
+  ru: [
+    {
+      term: 'Граница однократной оценки на тестовой выборке',
+      definition: 'Локальный протокол однократного доступа после выбора модели: до открытия доступа он проверяет метку Test, согласованность заявленных сведений и ограничения модели, а перед чтением ID токенов считает локальный доступ израсходованным; установить внешнее происхождение данных или гарантировать единственность доступа между процессами он не может.',
+    },
+    {
+      term: 'Итоговая оценка на тестовой выборке',
+      definition: 'Предназначенный только для отчёта проход по отложенным тестовым данным после завершения выбора; по правилам курса результат нельзя использовать, чтобы выбрать другую контрольную точку или изменить иное решение.',
+    },
+    {
+      term: 'Заявленные сведения о происхождении данных и условиях оценки',
+      definition: 'Три непустых идентификатора корпуса, разбиения и токенизатора, заданные вызывающим кодом, и положительное значение длины контекста; проверка совпадения показывает только согласованность строк и не устанавливает, какие корпус, способ разбиения и токенизатор стоят за ними.',
+    },
+    {
+      term: 'Неизменяемый итоговый отчёт об оценке',
+      definition: 'Версионируемая запись заданных вызывающим кодом идентификаторов, проверенных целевых позиций, результатов, фактов локального доступа и сохранности состояния, зафиксированная после завершения выбора; она не доказывает внешнее происхождение данных.',
+    },
+    {
+      term: 'Зафиксированная биграммная модель',
+      definition: 'В этом примере — биграммная модель с аддитивным сглаживанием с параметром один, обученная на точных срезах обучающих токенов главы 33 и зафиксированная до доступа к тестовой выборке; универсальная обёртка проверяет лишь заявленную метку Train и ненулевое число обработанных документов.',
+    },
+  ],
+} as const;
 
 function expectedPages(terms: readonly string[], locale: Locale) {
   const sorted = sortCheatSheetTerms(
@@ -518,7 +565,10 @@ function expectPaginatedShell(layout: Awaited<ReturnType<typeof readPaginatedLay
   expect(layout.dialog.top).toBeGreaterThanOrEqual(0);
   expect(layout.dialog.bottom).toBeLessThanOrEqual(layout.viewport.height);
   expect(layout.dialogScrollTop).toBeLessThanOrEqual(1);
-  expect(layout.dialogScrollHeight).toBeLessThanOrEqual(
+  expect(
+    layout.dialogScrollHeight,
+    `dialog shell geometry ${JSON.stringify(layout)}`,
+  ).toBeLessThanOrEqual(
     layout.dialogClientHeight + 1,
   );
   expect(layout.pageViewportClientHeight).toBeGreaterThan(0);
@@ -688,6 +738,19 @@ for (const sheet of sheets) {
         await expect(entry.locator('dd')).toHaveText(
           expectedDefinitions.definition,
         );
+      }
+      if (sheet.chapterId === '34-final-evaluation') {
+        const expectedDefinitions = chapter34BoundaryDefinitions[sheet.locale];
+        for (const expectedDefinition of expectedDefinitions) {
+          const entry = dialog.locator('.cheat-sheet-term').filter({
+            has: page.locator('dt', { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator('dt')).toHaveText(expectedDefinition.term);
+          await expect(entry.locator('dd')).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
       }
       await expect(visibleTerms).toHaveText(termPages[0] ?? []);
       await expect(
@@ -1002,6 +1065,20 @@ for (const sheet of sheets) {
       await fallback.locator('summary').click();
       await expect(fallback).toHaveAttribute('open', '');
       await expect(fallback.locator('dt')).toHaveText(sortedTerms);
+      if (sheet.chapterId === '34-final-evaluation') {
+        for (const expectedDefinition of chapter34BoundaryDefinitions[
+          sheet.locale
+        ]) {
+          const entry = fallback.locator('.cheat-sheet-term').filter({
+            has: page.locator('dt', { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator('dt')).toHaveText(expectedDefinition.term);
+          await expect(entry.locator('dd')).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
+      }
       await expect(fallback.locator('[data-cheat-sheet-pagination]')).toHaveCount(0);
       await expect(fallback.locator('[data-cheat-sheet-page]')).toHaveCount(0);
       expect(await fallback.locator('dt:visible').count()).toBe(sortedTerms.length);

@@ -1,10 +1,62 @@
+interface FinalEvaluationReportTrace {
+  readonly version: string;
+  readonly partition: string;
+  readonly selected_step: string;
+  readonly selection_criterion: string;
+  readonly gate_openings_before: string;
+  readonly gate_openings_after: string;
+}
+
+interface FinalEvaluationGateTrace {
+  readonly selection_test_partition_rejected: string;
+}
+
+interface FinalEvaluationProvenanceTrace {
+  readonly corpus: string;
+  readonly split: string;
+  readonly tokenizer: string;
+  readonly vocabulary: string;
+  readonly context: string;
+  readonly documents: string;
+  readonly windows: string;
+  readonly batches: string;
+  readonly targets: string;
+  readonly target_fingerprint: string;
+}
+
+interface FinalEvaluationScoreTrace {
+  readonly model: string;
+  readonly fit_partition: string;
+  readonly selected_by: string;
+  readonly targets: string;
+  readonly total_nll: string;
+  readonly mean_nll: string;
+  readonly perplexity: string;
+}
+
+interface FinalEvaluationComparisonTrace {
+  readonly lower_loss: string;
+  readonly loss_gap: string;
+  readonly same_targets: string;
+  readonly decoder_beats_bigram: string;
+}
+
+interface FinalEvaluationProofTrace {
+  readonly token_weighted: string;
+  readonly provenance_assertions_match: string;
+  readonly graph_nodes: string;
+  readonly parameters_unchanged: string;
+  readonly gradients_unchanged: string;
+  readonly selection_closed: string;
+}
+
 export interface FinalEvaluationTrace {
-  readonly report: Readonly<Record<string, string>>;
-  readonly gate: Readonly<Record<string, string>>;
-  readonly provenance: Readonly<Record<string, string>>;
-  readonly scores: readonly Readonly<Record<string, string>>[];
-  readonly comparison: Readonly<Record<string, string>>;
-  readonly proof: Readonly<Record<string, string>>;
+  readonly report: FinalEvaluationReportTrace;
+  readonly gate: FinalEvaluationGateTrace;
+  readonly provenance: FinalEvaluationProvenanceTrace;
+  readonly scores: readonly FinalEvaluationScoreTrace[];
+  readonly comparison: FinalEvaluationComparisonTrace;
+  readonly proof: FinalEvaluationProofTrace;
 }
 
 export interface FinalEvaluationDiagramLabels {
@@ -73,7 +125,7 @@ const expectedLines = [
   "SCORE|model=selected-decoder|fit_partition=train|selected_by=validation|targets=24|total_nll=38.584306|mean_nll=1.607679|perplexity=4.991215",
   "SCORE|model=frozen-bigram|fit_partition=train|selected_by=none|targets=24|total_nll=53.681634|mean_nll=2.236735|perplexity=9.362710",
   "COMPARE|lower_loss=selected-decoder|loss_gap=0.629055|same_targets=true|decoder_beats_bigram=true",
-  "PROOF|token_weighted=true|provenance_match=true|graph_nodes=0|parameters_unchanged=true|gradients_unchanged=true|selection_closed=true",
+  "PROOF|token_weighted=true|provenance_assertions_match=true|graph_nodes=0|parameters_unchanged=true|gradients_unchanged=true|selection_closed=true",
   "END_FINAL_EVALUATION_TRACE",
 ] as const;
 
@@ -341,7 +393,7 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     proof,
     [
       "token_weighted",
-      "provenance_match",
+      "provenance_assertions_match",
       "graph_nodes",
       "parameters_unchanged",
       "gradients_unchanged",
@@ -353,7 +405,7 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     required(proof, "graph_nodes") !== "0" ||
     [
       "token_weighted",
-      "provenance_match",
+      "provenance_assertions_match",
       "parameters_unchanged",
       "gradients_unchanged",
       "selection_closed",
@@ -367,11 +419,11 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
   }
 
   return Object.freeze({
-    report,
-    gate,
-    provenance,
-    scores,
-    comparison,
-    proof,
+    report: report as unknown as FinalEvaluationReportTrace,
+    gate: gate as unknown as FinalEvaluationGateTrace,
+    provenance: provenance as unknown as FinalEvaluationProvenanceTrace,
+    scores: scores as unknown as readonly FinalEvaluationScoreTrace[],
+    comparison: comparison as unknown as FinalEvaluationComparisonTrace,
+    proof: proof as unknown as FinalEvaluationProofTrace,
   });
 }

@@ -125,11 +125,10 @@ const scores = trace.scores.map((score) => ({
     <div class="proof-grid course-diagram__grid">
       <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-status="pass">
         <h5>{labels.proofs.provenance}</h5>
-        <p><InlineMath latex={String.raw`V=${trace.provenance.vocabulary},\;T=${trace.provenance.context}`} /></p>
         <code><bdi dir="ltr">corpus={trace.provenance.corpus}</bdi></code>
         <code><bdi dir="ltr">split={trace.provenance.split}</bdi></code>
         <code><bdi dir="ltr">tokenizer={trace.provenance.tokenizer}</bdi></code>
-        <code><bdi dir="ltr">{trace.provenance.target_fingerprint}</bdi></code>
+        <code><bdi dir="ltr">provenance_assertions_match={trace.proof.provenance_assertions_match}</bdi></code>
       </article>
       <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-status="pass">
         <h5>{labels.proofs.selectionClosed}</h5>
@@ -146,7 +145,8 @@ const scores = trace.scores.map((score) => ({
       </article>
       <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-status="pass">
         <h5>{labels.proofs.immutableState}</h5>
-        <p><InlineMath latex={`N_{te}=${trace.provenance.targets}`} /></p>
+        <p><InlineMath latex={String.raw`V=${trace.provenance.vocabulary},\;T=${trace.provenance.context},\;N_{te}=${trace.provenance.targets}`} /></p>
+        <code><bdi dir="ltr">{trace.provenance.target_fingerprint}</bdi></code>
         <code><bdi dir="ltr">gate_openings_before={trace.report.gate_openings_before}</bdi></code>
         <code><bdi dir="ltr">gate_openings_after={trace.report.gate_openings_after}</bdi></code>
         <code><bdi dir="ltr">report_version={trace.report.version}</bdi></code>
@@ -187,7 +187,11 @@ const scores = trace.scores.map((score) => ({
   }
 
   .proof-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  }
+
+  .final-evaluation-diagram:fullscreen .stage-list {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   @container course-diagram (max-width: 52rem) {

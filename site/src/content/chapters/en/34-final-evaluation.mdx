@@ -2,11 +2,11 @@
 {
   "chapter_id": "34-final-evaluation",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 34,
   "concept_id": "final-evaluation",
   "title": "Open test once, keep the report",
-  "description": "Learn how to freeze validation-selected choices, validate and record the ordered test inputs and targets at one final-evaluation gate, aggregate every target token fairly, and publish graph-free decoder and bigram scores in a provenance-checked report.",
+  "description": "Learn how to freeze validation-selected choices, validate and record the ordered test inputs and targets at one final-evaluation gate, distinguish caller-supplied provenance assertions from mechanically checked facts, and compare graph-free decoder and bigram scores fairly.",
   "objective": "Evaluate the frozen validation-selected decoder through one test-only gate, validate and record the ordered test input/target positions, aggregate every target token fairly, and compare the result with a frozen bigram fitted on the same training tokens.",
   "worked_inputs": "Score two fixed reverse-cycle test documents of nine and seven token IDs with the Chapter 33 context-two decoder and an alpha-one bigram fitted on the exact same two training documents; in one immutable report compare both models over the same ordered 24 target-token positions, each paired with its aligned input token.",
   "formula": {
@@ -87,6 +87,11 @@
   "rust_sources": [
     {
       "path": "rust/crates/llm-from-scratch/src/evaluation.rs",
+      "region": "evaluation-provenance",
+      "purpose": "Show that provenance identifiers and selection/fit roles enter as caller assertions, while later evaluation checks context and exact state/model agreement separately."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/evaluation.rs",
       "region": "inspected-test-epoch",
       "purpose": "At gate opening, validate test alignment and token bounds and record the resulting ordered pairs beside the report evidence."
     },
@@ -112,13 +117,13 @@
     {
       "path": "rust/demos/ch34-final-evaluation/src/diagram_trace.rs",
       "region": "final-evaluation-trace",
-      "purpose": "Serialize the exact gate, provenance, score, comparison, and measured check records used by the chapter figure."
+      "purpose": "Serialize the exact gate, provenance-assertion, score, comparison, and mechanically checked records used by the chapter figure."
     }
   ],
   "visualization": {
     "decision": "useful",
     "id": "final-evaluation-boundary",
-    "rationale": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and provenance cards show that both models use the same inspected input/target order without turning the result into another model-selection step."
+    "rationale": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and separate assertion/checked-fact cards show that both models use the same inspected input/target order without turning the result into another model-selection step."
   },
   "decoder_connection": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance."
 }
@@ -130,11 +135,11 @@ import FinalEvaluationDiagram from "../../../components/chapters/FinalEvaluation
 export const diagramLabels = {
   title: "Freeze choices before final evidence",
   description:
-    "Follow training and validation to one test gate. At gate opening, the evaluator records 24 ordered, vocabulary-checked input/target pairs in one private inspected view. The decoder then scores the original epoch separately without a graph, while the bigram reuses those pairs; both results enter one immutable report.",
+    "Follow training and validation to one test gate. Caller-supplied identifiers and role labels are kept distinct from mechanically checked context, state, vocabulary, and target facts. At gate opening, the evaluator records 24 ordered input/target pairs; both model scores enter one immutable report.",
   sections: {
     boundary: "Give each partition one responsibility",
     comparison: "Score the same inspected target order",
-    proof: "Audit provenance, access, and state",
+    proof: "Separate assertions from checked facts",
   },
   stages: {
     train: "Train fits parameters",
@@ -154,8 +159,8 @@ export const diagramLabels = {
   },
   fields: {
     model: "Model",
-    fittedRole: "Fitted on",
-    selectedBy: "Selected by",
+    fittedRole: "Asserted fit role",
+    selectedBy: "Asserted selection role",
     targetCount: "Shared targets",
     totalNll: "Total NLL",
     meanLoss: "Mean test loss",
@@ -168,10 +173,10 @@ export const diagramLabels = {
     lowerLoss: "Double border: lower loss in this fixture",
     sameTargets: "Equivalence sign: same inspected target order",
     rejectedBeforeFreeze: "Cross: selection rejected the test partition",
-    verified: "Recorded in the final report",
+    verified: "Mechanically checked or recorded",
   },
   proofs: {
-    provenance: "Matching data provenance",
+    provenance: "Caller-supplied identifiers agree",
     selectionClosed: "Selection was already closed",
     noGrad: "Decoder scoring stays separate and graph-free",
     immutableState: "One inspected test view and one report",
@@ -182,7 +187,7 @@ export const diagramLabels = {
     comparison:
       "The decoder evaluates the epoch separately without a graph, while the bigram reuses the same 24 checked input/target pairs. The double border marks the lower recorded mean in this fixture.",
     proof:
-      "One private inspected view binds the report to one corpus, split, literal-token mapping, context length, ordered target fingerprint, and local gate opening.",
+      "Corpus, split, and tokenizer strings are caller-supplied; equality checks only their consistency. Context, vocabulary, test targets, state/model identity, and no-grad state preservation are independently checked. The fixture assembly supplies the intended histories.",
   },
   scrollers: {
     comparison: "Scrollable decoder and bigram scores over the same inspected target order",
@@ -341,23 +346,38 @@ the local counter cannot replace organizational data governance.
 
 ## Make the final boundary executable
 
-`EvaluationProvenance` owns nonblank corpus, split, and tokenizer fingerprints
-plus a positive context length. Equality is field-by-field, so a matching label
-cannot hide a changed tokenizer or context.
+`EvaluationProvenance` stores three nonblank strings supplied by the caller and
+named corpus, split, and tokenizer fingerprints, plus a positive context length.
+The evaluator compares those strings for exact equality; it neither derives them
+nor checks their relationship to the underlying corpus, split construction, or
+tokenizer. Equal strings can therefore describe different underlying artifacts.
+Context has a stronger runtime check: it must also equal the test epoch's context
+length and the decoder's maximum context length.
 
-`TrainingResult` already owns two independent representations of the validation
-choice: a graph-free selected state and a decoder built from the same values.
-`SelectedDecoder` borrows both and accepts them only with a `Validation`
-selection label; it neither copies nor rebuilds the decoder. Immediately before
-the test gate opens, `FinalEvaluator` compares the decoder configuration,
-parameter count and order, every parameter name and shape, and every value bit
-with the retained selected state. A mismatch returns `SelectedStateMismatch`
-while the gate-opening count remains $0$.
+`SelectedDecoder::new` requires the caller's selection-partition assertion to be
+`Validation`. It does not validate `selected_step`, and it checks
+`selected_validation_loss` only for finiteness and nonnegativity. Evaluation
+later verifies that the retained state and borrowed model match exactly, but it
+cannot reconstruct how the step or state was selected. `FrozenBigram::new`
+requires a caller-supplied `Train` assertion and a model that reports at least
+one fitted document, but it cannot discover which documents produced the counts.
+`FinalEvaluator` checks the epoch's stored `Test` role; that label alone does not
+prove external holdout lineage.
 
-`FrozenBigram` accepts only a model fitted on `Train`. The Chapter 34 fixture
-obtains the exact Chapter 33 training slices through a read-only helper, so the
-baseline does not depend on copied constants. It fits the unchanged alpha-one
-bigram algorithm before constructing the test evaluator.
+<RustSource
+  path="rust/crates/llm-from-scratch/src/evaluation.rs"
+  region="evaluation-provenance"
+  caption="Distinguish caller-supplied identifiers and role assertions from the context and exact state/model facts checked during evaluation"
+  label="Rust source showing the Chapter 34 caller-assertion boundary"
+/>
+
+The Chapter 34 fixture supplies the intended histories at its assembly call
+sites. `TrainingResult` provides the actual Chapter 33 retained selected state
+and matching decoder. The fixture obtains Chapter 33's exact training slices
+through a read-only helper and fits the unchanged alpha-one bigram before it
+constructs the test evaluator. That concrete assembly evidence is stronger than
+the generic constructors' labels; external datasets still require trusted
+fingerprint derivation, access controls, audit logs, and dataset governance.
 
 <RustSource
   path="rust/demos/ch34-final-evaluation/src/lib.rs"
@@ -366,8 +386,8 @@ bigram algorithm before constructing the test evaluator.
   label="Rust source assembling the Chapter 34 final comparison"
 />
 
-`FinalEvaluator` owns a nonempty `Test` epoch and is neither cloneable nor
-copyable. Role, provenance, selected-state/model, context, and vocabulary errors
+`FinalEvaluator` owns a nonempty epoch labeled `Test` and is neither cloneable nor
+copyable. Role-assertion, provenance-assertion, selected-state/model, context, and vocabulary errors
 leave the gate-opening count at $0$. After those checks pass, the evaluator
 changes the count to $1$ before inspecting the first test ID. A later alignment,
 token-range, or numerical error therefore consumes that local permission. The
@@ -413,8 +433,9 @@ the `Validation` partition is the different, earlier stage that selected
 checkpoint $s^*$.
 
 The report has getters but no setters or selection operation. It owns schema
-version $1$, the selected step, provenance, ordered target fingerprint, counts,
-both model scores, one gate-opening count, and state-preservation checks.
+version $1$, the selected step, caller-supplied provenance assertions, ordered
+target fingerprint, counts, both model scores, one gate-opening count, and
+state-preservation checks.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/bigram.rs"
@@ -437,13 +458,14 @@ evaluation, both token-weighted scores, and the state-preservation checks.
 
 ## Read one information boundary and one comparison
 
-The evidence record keeps the gate result, provenance, inspected target order,
-both scores, shared target count, and measured state-preservation facts together.
+The evidence record keeps the gate result, provenance assertions, inspected
+target order, both scores, shared target count, and mechanically checked
+state-preservation facts together.
 
 <RustSource
   path="rust/demos/ch34-final-evaluation/src/diagram_trace.rs"
   region="final-evaluation-trace"
-  caption="Record the exact gate, provenance, scores, comparison, and measured check values"
+  caption="Record the exact gate, provenance assertions, scores, comparison, and mechanically checked values"
   label="Rust source producing the Chapter 34 final-evaluation evidence"
 />
 
@@ -453,7 +475,8 @@ The five numbered cards show why test cannot appear before the frozen boundary.
 The table repeats $N_{te}=24$ for both rows and marks the lower fixture loss with
 text plus a double start border. The four check cards retain the rejected
 selection-time test probe, one gate opening, zero recorded graph nodes, unchanged
-state bits, one inspected view, and `fnv1a64:dac4bb4d76beeb59` target evidence.
+state bits, one inspected view, `provenance_assertions_match=true`, and
+`fnv1a64:dac4bb4d76beeb59` target evidence.
 
 {/* chapter-section:exercises */}
 
@@ -467,8 +490,9 @@ state bits, one inspected view, and `fnv1a64:dac4bb4d76beeb59` target evidence.
    replace $s^*$?
 4. The decoder scores overlapping context-two windows, but the bigram scores
    each original transition once. Are the resulting means comparable?
-5. Change only the tokenizer fingerprint. Does the gate open, and does its
-   gate-opening count change?
+5. First change the tokenizer mapping while reusing the same tokenizer
+   fingerprint string and the same vocabulary/context sizes. Then change only
+   the fingerprint string. Which change can this API detect before opening?
 6. Put token ID $5$ into this vocabulary-$5$ test epoch. What happens when the
    gate-opening inspection reaches it?
 7. From losses $1.607679$ and $2.236735$, state one justified conclusion and
@@ -485,7 +509,9 @@ state bits, one inspected view, and `fnv1a64:dac4bb4d76beeb59` target evidence.
   3. No. $s^*$ was already chosen by validation. A new untouched test set would
      be needed after reselection.
   4. No. Both models must score the same ordered slots, including repetitions.
-  5. Provenance preflight rejects it while the local gate-opening count remains $0$.
+  5. Reusing the same string hides the first change from these assertion checks;
+     the API does not inspect the tokenizer. Changing only the string creates an
+     assertion mismatch, so the gate stays closed with count $0$.
   6. The inspector returns a token-range error. This `FinalEvaluator` has already
      consumed its one-use permission, so a retry returns `AlreadyEvaluated`.
   7. The selected decoder is lower on this reversed synthetic fixture; the

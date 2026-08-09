@@ -13,7 +13,7 @@ PROVENANCE|corpus={}|split={}|tokenizer={}|vocabulary={}|context={}|documents={}
 SCORE|model=selected-decoder|fit_partition=train|selected_by=validation|targets={}|total_nll={:.6}|mean_nll={:.6}|perplexity={:.6}\n\
 SCORE|model=frozen-bigram|fit_partition=train|selected_by=none|targets={}|total_nll={:.6}|mean_nll={:.6}|perplexity={:.6}\n\
 COMPARE|lower_loss=selected-decoder|loss_gap={:.6}|same_targets=true|decoder_beats_bigram={}\n\
-PROOF|token_weighted={}|provenance_match={}|graph_nodes={}|parameters_unchanged={}|gradients_unchanged={}|selection_closed={}\n\
+PROOF|token_weighted={}|provenance_assertions_match={}|graph_nodes={}|parameters_unchanged={}|gradients_unchanged={}|selection_closed={}\n\
 END_FINAL_EVALUATION_TRACE\n",
         report.version(),
         report.selected_step(),
@@ -41,7 +41,7 @@ END_FINAL_EVALUATION_TRACE\n",
         report.loss_gap(),
         report.decoder_has_lower_loss(),
         evidence.token_weighted,
-        evidence.provenance_match,
+        evidence.provenance_assertions_match,
         report.recorded_graphs(),
         report.parameters_unchanged(),
         report.gradients_unchanged(),
@@ -55,7 +55,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn trace_has_nine_lf_terminated_lines_and_only_derived_evidence() {
+    fn trace_has_nine_lf_terminated_lines_and_separates_fixture_and_checked_evidence() {
         let trace = diagram_trace().unwrap();
         assert!(!trace.contains('\r'));
         assert!(trace.ends_with('\n'));
@@ -68,5 +68,7 @@ mod tests {
         assert!(trace.contains("targets=24"));
         assert!(trace.contains("target_fingerprint=fnv1a64:dac4bb4d76beeb59"));
         assert!(trace.contains("decoder_beats_bigram=true"));
+        assert!(trace.contains("provenance_assertions_match=true"));
+        assert!(!trace.contains("provenance_match="));
     }
 }
