@@ -18181,3 +18181,107 @@ semantic repairs and exact negative geometry remain reusable evidence.
 block-debt acceptance for every unfinished step in this repair build. Older
 succeeded runs retain their former acceptance only as historical provenance;
 they do not authorize a future squeezed composition.
+
+## 2026-08-09 - Repair the shared diagram-count fixtures discovered after the Chapter 15 split
+
+**Status:** Accepted as necessary shared integration in
+`repair-ch06-readable-full-view-flow`.
+
+**Context:** Chapter 15 revision 9 added two explicit registered supplementary
+figures, increasing the source component and useful-registration totals from 42
+to 44. Its chapter-local registration, content, Astro, build, review, and browser
+gates passed, but the exact subsequent shared Vitest replay showed that
+`diagram-style-system.test.ts` and `diagram-full-view.test.ts` still froze the
+old total of 42. The Chapter 15 product, localized evidence, and three-figure
+registration are correct; the stale constants are shared integration fixtures,
+not a reason to undo the split.
+
+**Decision:** Add those two shared test files as necessary integration outputs
+of the active Chapter 6 correction and update only their exact registered-source
+totals from 42 to 44. Preserve every per-component contract, unique-ID check,
+shared-controller rule, and Chapter 15 run artifact. Record the initially failed
+shared replay rather than claiming it passed.
+
+**Consequences:** The Chapter 6 commit will contain its three chapter-local
+readable-flow outputs, the two narrowly corrected shared fixtures, and the two
+ledgers. No shared production style/controller, learner content, component,
+route, dependency, or lock byte changes because of this fixture repair.
+
+**Affected steps:** `repair-ch15-full-view-composition` and
+`repair-ch06-readable-full-view-flow`.
+
+## 2026-08-09 - Keep fullscreen exit chrome out of the root-owned reading flow
+
+**Status:** Accepted as necessary shared integration in
+`repair-ch06-readable-full-view-flow` after the first readable-flow browser
+probe.
+
+**Context:** The Chapter 6 correction intentionally allows the fullscreen
+figure to own vertical travel instead of narrowing its probability tables into
+peer columns. That exposed a pre-existing shared-chrome conflict: the shared
+fullscreen action was sticky at the block-start edge. In Chromium's requested
+1024 by 576 fullscreen surface, the 52-pixel action band remained above the
+scrollport and painted over the heading and context text of the 685-pixel-tall
+Russian unseen-context card when that card reached the scrollport start. The
+separate lesson pixels below the 574-pixel native fullscreen client in an
+element screenshot are a Playwright compositor artifact, but the translucent
+action overlap inside the client is real.
+
+**Decision:** Remove sticky positioning, stacking, and block-start anchoring
+from the shared fullscreen action. Keep the existing action as an ordinary
+direct figure row immediately after the caption. Do not patch Chapter 6 with
+private spacing or a second controller. Native Escape, the visible exit button,
+localized state, focus restoration, forced colors, and the shared controller
+implementation remain unchanged. Add a browser assertion that scrolls the tall
+Chapter 6 figure and proves the action does not intersect the evidence region.
+
+The shared module is a material new input and output, so interrupt readable-flow
+run 01 without relabelling its validated artifacts and start run 02 from a new
+fingerprint. Reuse run 01's exact product geometry and bilingual browser evidence
+only after verifying their checksums.
+
+**Consequences:** The active step additionally owns
+`site/src/styles/diagram.module.css`; the change removes an overlap behavior for
+all registered figures but changes no typography, spacing token, surface,
+component geometry, learner content, controller code, or scroll implementation.
+Run the shared source contracts, the complete site gate, and the exact
+Chromium/Firefox Chapter 6 matrix before publication.
+
+**Affected step and runs:** `repair-ch06-readable-full-view-flow`,
+`20260809T081211Z-repair-ch06-readable-full-view-flow-01`, and
+`20260809T084248Z-repair-ch06-readable-full-view-flow-02`.
+
+## 2026-08-09 - Restore Chapter 6 full view as a full-width vertical evidence flow
+
+**Status:** Accepted and validated in
+`repair-ch06-readable-full-view-flow` run 02.
+
+**Context:** The invalidated three-track fullscreen mosaic reduced the two token
+regions to roughly 154-pixel clients and the probability-table regions to
+roughly 335 and 405 pixels, creating local horizontal travel solely to keep the
+figure close to one viewport high. The original semantic sequence already has a
+coherent reading order: count construction, known-context row, unseen-context
+row, then the corpus-boundary proof. When those regions receive the figure's
+full evidence width, both languages fit every token and native table without
+local travel; only the figure's natural block continuation remains.
+
+**Decision:** In Chapter 6 full view, use one root column and keep the authored
+caption, shared action, training evidence, known row, unseen row, and boundary
+proof in that order. Keep the probability rows in their existing one-column
+grid. Do not compact their documents, legends, headers, table spacing, or
+boundary facts for fullscreen. Let the figure root own vertical continuation;
+do not introduce a descendant vertical owner. Retain the ordinary fixed-layout
+native tables and 35rem intrinsic floor after they have received the full panel
+width.
+
+**Consequences:** Chromium and Firefox now give all four named evidence regions
+their full available width with zero local horizontal or vertical debt in both
+locales at standard and minimum eligible requests. The root becomes taller, as
+explicitly permitted by the readable-flow policy. Learner content, values,
+formulas, native table semantics, ordinary/narrow layout, text size, direction,
+forced colors, no-JavaScript fallback, and controller behavior do not change.
+Focused tests compare same-surface entity widths and actual content edges, scan
+all local scroll ownership and painted evidence, and preserve authored node
+identity instead of enforcing a root-height target.
+
+**Affected step:** `repair-ch06-readable-full-view-flow`.

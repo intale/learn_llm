@@ -342,10 +342,11 @@ describe('bigram-baseline diagram component contract', () => {
     expect(authoredScrollTags[0]).toContain('aria-label=');
     expect(authoredScrollTags[1]).toContain('aria-labelledby=');
     expect(source).not.toContain('overflow-x: auto');
-    expect(source).toContain('table-layout: auto');
+    expect(source).toContain('table-layout: fixed');
     expect(source).toContain('border-inline-start');
     expect(sharedStyles).toContain(':focus-visible');
     expect(sharedStyles).toContain('@media (forced-colors: active)');
+    expect(sharedStyles).not.toContain('position: sticky');
 
     const fullscreenSelector =
       "figure.bigram-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen";
@@ -363,8 +364,6 @@ describe('bigram-baseline diagram component contract', () => {
       '> :global(.diagram-full-view-actions)',
       '.training-evidence',
       '.row-grid',
-      "[data-context-kind='known']",
-      "[data-context-kind='unseen']",
       '.boundary-guard',
     ]) {
       expect(fullscreenStyles).toContain(hook);
@@ -373,9 +372,20 @@ describe('bigram-baseline diagram component contract', () => {
       /figure\.bigram-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*\{(?<body>[\s\S]*?)\}/,
     )?.groups?.body;
     expect(rootFullscreenRule).toBeDefined();
-    expect(rootFullscreenRule?.match(/minmax\(/g) ?? []).toHaveLength(3);
+    expect(rootFullscreenRule?.match(/minmax\(/g) ?? []).toHaveLength(1);
+    expect(rootFullscreenRule).toMatch(
+      /grid-template-columns:\s*minmax\(0,\s*1fr\)/,
+    );
+    expect(rootFullscreenRule).toMatch(
+      /grid-template-rows:\s*auto\s+auto\s+auto\s+auto\s+auto/,
+    );
     expect(fullscreenStyles).toMatch(
-      /:fullscreen\s*>\s*\.row-grid\s*\{[\s\S]*?display:\s*contents;/,
+      /:fullscreen\s*>\s*\.row-grid\s*\{[\s\S]*?display:\s*grid;[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)/,
+    );
+    expect(fullscreenStyles).not.toMatch(/display:\s*contents/);
+    expect(fullscreenStyles).not.toMatch(/display:\s*none/);
+    expect(fullscreenStyles).not.toMatch(
+      /\[data-context-kind=['"](?:known|unseen)['"]\][^{]*\{[\s\S]*?grid-column/,
     );
     const captionRule = fullscreenStyles.match(
       /> figcaption\s*\{(?<body>[\s\S]*?)\}/,
@@ -386,9 +396,13 @@ describe('bigram-baseline diagram component contract', () => {
     );
     expect(fullscreenStyles).not.toMatch(/font-size\s*:/);
     expect(fullscreenStyles).not.toMatch(/\bzoom\s*:/);
-    expect(fullscreenStyles).not.toMatch(/transform\s*:\s*scale/);
+    expect(fullscreenStyles).not.toMatch(/\b(?:transform|scale|rotate|translate)\s*:/);
     expect(fullscreenStyles).not.toMatch(/overflow(?:-[xy])?\s*:\s*(?:hidden|clip)/);
     expect(fullscreenStyles).not.toMatch(/contain\s*:\s*(?:paint|strict|content)/);
+    expect(fullscreenStyles).not.toMatch(/\b(?:clip-path|mask|mask-image|-webkit-mask)\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\b(?:filter|opacity|content-visibility)\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\btext-indent\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\b(?:color|background(?:-color)?)\s*:/);
     expect(fullscreenStyles).not.toMatch(/text-overflow\s*:/);
     expect(fullscreenStyles).not.toMatch(/(?:-webkit-)?line-clamp\s*:/);
     expect(fullscreenStyles).not.toMatch(/max-height\s*:/);

@@ -29,6 +29,7 @@ const diagramSelector = 'figure[data-visualization-id="bigram-baseline"]';
 const diagramInstanceId = 'bigram-baseline-diagram';
 const desktop = { width: 1440, height: 1000 } as const;
 const standardFullView = { width: 1280, height: 900 } as const;
+const minimumFullView = { width: 1024, height: 576 } as const;
 const narrow = { width: 390, height: 844 } as const;
 
 function readRustRegion(path: string, region: string): string {
@@ -248,10 +249,24 @@ async function readBigramGeometry(diagram: Locator) {
     };
     const clipped = (element: HTMLElement) => {
       const style = getComputedStyle(element);
+      const zoom = Number.parseFloat(style.getPropertyValue('zoom') || '1');
+      const lineClamp = style.getPropertyValue('-webkit-line-clamp');
+      const textIndent = Number.parseFloat(style.textIndent || '0');
       return (
         [style.overflowX, style.overflowY].some((value) =>
           ['hidden', 'clip'].includes(value),
-        ) || /(?:paint|strict|content)/.test(style.contain)
+        ) ||
+        /(?:paint|strict|content)/.test(style.contain) ||
+        style.clipPath !== 'none' ||
+        style.maskImage !== 'none' ||
+        style.filter !== 'none' ||
+        Number.parseFloat(style.opacity) <= 0 ||
+        style.transform !== 'none' ||
+        (Number.isFinite(zoom) && Math.abs(zoom - 1) > 0.001) ||
+        style.contentVisibility === 'hidden' ||
+        style.textOverflow === 'ellipsis' ||
+        (lineClamp !== '' && lineClamp !== 'none') ||
+        (Number.isFinite(textIndent) && textIndent < -tolerance)
       );
     };
     const innerRect = (element: HTMLElement) => {
@@ -384,7 +399,11 @@ async function readBigramGeometry(diagram: Locator) {
         }
         for (const id of ids) {
           const matches = document.querySelectorAll<HTMLElement>(`#${CSS.escape(id)}`);
-          if (matches.length !== 1 || !matches[0]?.textContent?.trim()) {
+          if (
+            matches.length !== 1 ||
+            !matches[0]?.textContent?.trim() ||
+            !figure.contains(matches[0])
+          ) {
             problems.push(`idref-${index} ${attribute} does not resolve ${id} exactly once`);
           }
         }
@@ -411,10 +430,18 @@ async function readBigramGeometry(diagram: Locator) {
       const checkInline = !scroller || scroller.contains(owner);
       const range = document.createRange();
       range.selectNodeContents(textNode);
-      for (const paint of Array.from(range.getClientRects())) {
+      const paints = Array.from(range.getClientRects()).filter(
+        (paint) => paint.width > 0 && paint.height > 0,
+      );
+      if (paints.length === 0) {
+        problems.push(`${describe(parent)} has nonblank text without paint`);
+        continue;
+      }
+      if (transparent(getComputedStyle(parent).color)) {
+        problems.push(`${describe(parent)} has transparent text`);
+      }
+      for (const paint of paints) {
         if (
-          paint.width > 0 &&
-          paint.height > 0 &&
           !within(paint, innerRect(owner), checkInline, true)
         ) {
           problems.push(`${describe(parent)} paints outside ${describe(owner)}`);
@@ -469,7 +496,49 @@ async function readBigramGeometry(diagram: Locator) {
       if (clipped(element)) {
         problems.push(`element-${index} ${describe(element)} conceals overflow`);
       }
+      const blockDebt =
+        element.clientHeight > 0
+          ? Math.max(0, element.scrollHeight - element.clientHeight)
+          : 0;
+      if (element !== figure && blockDebt > tolerance) {
+        problems.push(`element-${index} ${describe(element)} has local vertical debt ${blockDebt}`);
+      }
+      const inlineDebt =
+        element.clientWidth > 0
+          ? Math.max(0, element.scrollWidth - element.clientWidth)
+          : 0;
+      if (
+        element !== figure &&
+        inlineDebt > tolerance &&
+        ['auto', 'scroll'].includes(getComputedStyle(element).overflowX) &&
+        !element.hasAttribute('data-diagram-scroll')
+      ) {
+        problems.push(`element-${index} ${describe(element)} is an undeclared horizontal owner`);
+      }
     }
+
+    for (const [index, element] of allElements.entries()) {
+      if (
+        element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]')
+      ) {
+        continue;
+      }
+      const hasDirectText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      if (hasDirectText && !visible(element)) {
+        problems.push(`element-${index} ${describe(element)} hides authored text`);
+      }
+    }
+
+    const localVerticalOwnerCount = visibleElements.filter((element) => {
+      if (element === figure || element.closest('[data-diagram-full-view-controls]')) {
+        return false;
+      }
+      const style = getComputedStyle(element);
+      const debt = Math.max(0, element.scrollHeight - element.clientHeight);
+      return style.overflowY === 'scroll' || (style.overflowY === 'auto' && debt > tolerance);
+    }).length;
 
     const fontSizes = allElements.flatMap((element, index) => {
       if (
@@ -485,16 +554,7 @@ async function readBigramGeometry(diagram: Locator) {
         ? [{ index, pixels: Number.parseFloat(getComputedStyle(element).fontSize) }]
         : [];
     });
-    const tableTravel = scrollers
-      .filter((scroller) => scroller.classList.contains('table-scroll'))
-      .map((scroller) => {
-        const client = scroller.clientWidth;
-        const debt = Math.max(0, scroller.scrollWidth - client);
-        return { client, debt, ratio: client > 0 ? debt / client : Number.POSITIVE_INFINITY };
-      });
-
     return {
-      blockBudget: Math.ceil(figure.clientHeight * 0.2),
       blockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
       borderedOwnerCount: borderedOwners.length,
       boxCount: markedBoxes.length,
@@ -507,8 +567,7 @@ async function readBigramGeometry(diagram: Locator) {
       fontSizes,
       inlineDebt: Math.max(0, figure.scrollWidth - figure.clientWidth),
       legendItemCount: figure.querySelectorAll('.token-legend > li').length,
-      maxTableTravel: Math.max(0, ...tableTravel.map(({ debt }) => debt)),
-      maxTableTravelRatio: Math.max(0, ...tableTravel.map(({ ratio }) => ratio)),
+      localVerticalOwnerCount,
       problems: [...new Set(problems)],
       rowCount: figure.querySelectorAll('table tr').length,
       scrollerCount: scrollers.length,
@@ -532,6 +591,7 @@ function expectCompleteBigramGeometry(
   expect(geometry.documentCount).toBe(2);
   expect(geometry.transitionArrowCount).toBe(7);
   expect(geometry.legendItemCount).toBe(5);
+  expect(geometry.localVerticalOwnerCount).toBe(0);
   expect(geometry.tableCount).toBe(2);
   expect(geometry.rowCount).toBe(12);
   expect(geometry.cellCount).toBe(72);
@@ -580,7 +640,7 @@ async function readBigramEvidence(diagram: Locator) {
   }));
 }
 
-async function readFullViewComposition(diagram: Locator) {
+async function readReadableFlow(diagram: Locator) {
   return diagram.evaluate((root) => {
     const figure = root as HTMLElement;
     const rect = (selector: string) => {
@@ -596,13 +656,190 @@ async function readFullViewComposition(diagram: Locator) {
         width: box.width,
       };
     };
+    const contentSpan = (element: HTMLElement) => {
+      const box = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        left:
+          box.left +
+          Number.parseFloat(style.borderLeftWidth) +
+          Number.parseFloat(style.paddingLeft),
+        right:
+          box.right -
+          Number.parseFloat(style.borderRightWidth) -
+          Number.parseFloat(style.paddingRight),
+      };
+    };
+    const columnCount = (element: HTMLElement) => {
+      const columns = getComputedStyle(element).gridTemplateColumns;
+      return columns === 'none' ? 0 : columns.split(/\s+/).filter(Boolean).length;
+    };
+    const occupiedBandCount = (elements: HTMLElement[]) => {
+      const bands: Array<{ top: number; count: number }> = [];
+      for (const element of elements) {
+        const top = element.getBoundingClientRect().top;
+        const band = bands.find((candidate) => Math.abs(candidate.top - top) <= 2);
+        if (band) band.count += 1;
+        else bands.push({ top, count: 1 });
+      }
+      return Math.max(0, ...bands.map(({ count }) => count));
+    };
+    const widthSelectors = [
+      '.course-diagram__caption',
+      '.course-diagram__caption > h3',
+      '.course-diagram__description',
+      '.summary-facts',
+      '.summary-facts > div',
+      '.summary-facts dt',
+      '.summary-facts dd',
+      '.training-evidence',
+      '.training-evidence > h4',
+      '.document-list',
+      '.document-list > li',
+      '.document-list > li > strong',
+      '.token-sequence',
+      '.token-sequence > code',
+      '.transition-arrow',
+      '.token-legend',
+      '.token-legend > li',
+      '.token-legend > li > code',
+      '.token-legend > li > span',
+      '.evidence-note',
+      '.row-grid',
+      '.probability-row',
+      '.probability-row > header',
+      '.probability-row > header > h4',
+      '.context-label',
+      '.context-label > code',
+      '.row-facts',
+      '.row-facts > div',
+      '.row-facts dt',
+      '.row-facts dd',
+      '.table-scroll',
+      'table[data-diagram-table]',
+      'th',
+      'td',
+      '.row-note',
+      '.boundary-guard',
+      '.boundary-guard > h4',
+      '.forbidden-transition',
+      '.forbidden-transition > code',
+      '.forbidden-transition > span',
+      '.boundary-guard > p:last-child',
+    ];
+    const widthSamples = widthSelectors.flatMap((selector) =>
+      Array.from(figure.querySelectorAll<HTMLElement>(selector)).map((element, index) => {
+        const box = element.getBoundingClientRect();
+        return {
+          key: `${selector}:${index}`,
+          width: box.width,
+          height: box.height,
+        };
+      }),
+    );
+    const scrollers = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+    ).map((scroller, index) => ({
+      key: `${scroller.classList.contains('table-scroll') ? 'table' : 'tokens'}:${index}`,
+      client: scroller.clientWidth,
+      debt: Math.max(0, scroller.scrollWidth - scroller.clientWidth),
+      blockDebt: Math.max(0, scroller.scrollHeight - scroller.clientHeight),
+    }));
+    const tableSpans = Array.from(
+      figure.querySelectorAll<HTMLElement>('.probability-row'),
+    ).map((panel) => {
+      const panelSpan = contentSpan(panel);
+      const scroller = panel.querySelector<HTMLElement>('.table-scroll');
+      if (!scroller) throw new Error('Missing probability table scroller');
+      const scrollerBox = scroller.getBoundingClientRect();
+      return {
+        panelLeft: panelSpan.left,
+        panelRight: panelSpan.right,
+        scrollerLeft: scrollerBox.left,
+        scrollerRight: scrollerBox.right,
+      };
+    });
+    const documentList = figure.querySelector<HTMLElement>('.document-list');
+    const legend = figure.querySelector<HTMLElement>('.token-legend');
+    const rowGrid = figure.querySelector<HTMLElement>('.row-grid');
+    if (!documentList || !legend || !rowGrid) {
+      throw new Error('Missing Chapter 6 readable-flow grid');
+    }
+    const figureBox = figure.getBoundingClientRect();
+    const figureStyle = getComputedStyle(figure);
+    const figureBorderLeft = Number.parseFloat(figureStyle.borderLeftWidth);
+    const figureBorderRight = Number.parseFloat(figureStyle.borderRightWidth);
+    const reservedGutter = Math.max(
+      0,
+      figureBox.width - figureBorderLeft - figureBorderRight - figure.clientWidth,
+    );
+    const rootSpan = {
+      left:
+        figureBox.left +
+        figureBorderLeft +
+        reservedGutter / 2 +
+        Number.parseFloat(figureStyle.paddingLeft),
+      right:
+        figureBox.right -
+        figureBorderRight -
+        reservedGutter / 2 -
+        Number.parseFloat(figureStyle.paddingRight),
+    };
+    const regionSpans = [
+      ['training', figure.querySelector<HTMLElement>('.training-evidence')],
+      ['row-grid', rowGrid],
+      ['boundary', figure.querySelector<HTMLElement>('.boundary-guard')],
+    ].map(([key, element]) => {
+      if (!(element instanceof HTMLElement)) throw new Error(`Missing ${key}`);
+      const box = element.getBoundingClientRect();
+      return { key: String(key), left: box.left, right: box.right };
+    });
+    const rowGridSpan = contentSpan(rowGrid);
+    const panelSpans = Array.from(
+      rowGrid.querySelectorAll<HTMLElement>(':scope > .probability-row'),
+    ).map((panel) => {
+      const box = panel.getBoundingClientRect();
+      return { left: box.left, right: box.right };
+    });
+    const legendItems = Array.from(
+      legend.querySelectorAll<HTMLElement>(':scope > li'),
+    );
+    const firstLegend = legendItems[0]?.getBoundingClientRect();
+    const secondLegend = legendItems[1]?.getBoundingClientRect();
+    if (!firstLegend || !secondLegend) throw new Error('Missing legend order witness');
     return {
-      columns: getComputedStyle(figure).gridTemplateColumns
-        .split(/\s+/)
-        .filter(Boolean).length,
-      rowGridDisplay: getComputedStyle(
-        figure.querySelector<HTMLElement>('.row-grid')!,
-      ).display,
+      columns: columnCount(figure),
+      direction: getComputedStyle(figure).direction,
+      rowGridColumns: columnCount(rowGrid),
+      rowGridDisplay: getComputedStyle(rowGrid).display,
+      occupiedPeers: {
+        documents: occupiedBandCount(
+          Array.from(documentList.querySelectorAll<HTMLElement>(':scope > li')),
+        ),
+        legend: occupiedBandCount(legendItems),
+        rows: occupiedBandCount(
+          Array.from(rowGrid.querySelectorAll<HTMLElement>(':scope > .probability-row')),
+        ),
+      },
+      actionPosition: getComputedStyle(
+        figure.querySelector<HTMLElement>(':scope > [data-diagram-full-view-controls]')!,
+      ).position,
+      rootBlockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
+      rootOverflowY: getComputedStyle(figure).overflowY,
+      rootSpan,
+      regionSpans,
+      rowGridSpan,
+      panelSpans,
+      scrollers,
+      tableSpans,
+      widthSamples,
+      legendWitness: {
+        firstLeft: firstLegend.left,
+        secondLeft: secondLegend.left,
+        topDelta: Math.abs(firstLegend.top - secondLegend.top),
+      },
+      caption: rect('figcaption'),
+      actions: rect(':scope > [data-diagram-full-view-controls]'),
       training: rect('.training-evidence'),
       known: rect('[data-context-kind="known"]'),
       unseen: rect('[data-context-kind="unseen"]'),
@@ -611,34 +848,138 @@ async function readFullViewComposition(diagram: Locator) {
   });
 }
 
-function expectCoherentFullView(
-  composition: Awaited<ReturnType<typeof readFullViewComposition>>,
+async function rememberAuthoredNodes(diagram: Locator, slot: string) {
+  return diagram.evaluate((root, storageKey) => {
+    const authored = [
+      root,
+      ...Array.from(root.querySelectorAll<HTMLElement>('*')),
+    ].filter((element) => !element.closest('[data-diagram-full-view-controls]'));
+    (window as unknown as Record<string, unknown>)[storageKey] = authored;
+    return authored.length;
+  }, slot);
+}
+
+async function authoredNodesAreUnchanged(diagram: Locator, slot: string) {
+  return diagram.evaluate((root, storageKey) => {
+    const before = (window as unknown as Record<string, unknown>)[storageKey];
+    if (!Array.isArray(before)) return false;
+    const authored = [
+      root,
+      ...Array.from(root.querySelectorAll<HTMLElement>('*')),
+    ].filter((element) => !element.closest('[data-diagram-full-view-controls]'));
+    return (
+      authored.length === before.length &&
+      authored.every((element, index) => element === before[index])
+    );
+  }, slot);
+}
+
+async function readScrolledChromeRelation(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const action = figure.querySelector<HTMLElement>(
+      ':scope > [data-diagram-full-view-controls]',
+    );
+    const evidence = figure.querySelector<HTMLElement>('[data-context-kind="known"]');
+    if (!action || !evidence) throw new Error('Missing scroll-overlap evidence');
+    const previous = figure.scrollTop;
+    evidence.scrollIntoView({ block: 'start', inline: 'nearest' });
+    const actionBox = action.getBoundingClientRect();
+    const evidenceBox = evidence.getBoundingClientRect();
+    const overlaps = !(
+      actionBox.bottom <= evidenceBox.top + 2 ||
+      actionBox.top >= evidenceBox.bottom - 2 ||
+      actionBox.right <= evidenceBox.left + 2 ||
+      actionBox.left >= evidenceBox.right - 2
+    );
+    const result = {
+      actionPosition: getComputedStyle(action).position,
+      evidenceAtScrollport: evidenceBox.top <= figure.getBoundingClientRect().top + 3,
+      overlaps,
+      scrollTop: figure.scrollTop,
+    };
+    figure.scrollTop = previous;
+    return result;
+  });
+}
+
+function expectLogicalLegendOrder(
+  flow: Awaited<ReturnType<typeof readReadableFlow>>,
 ) {
-  expect(composition.columns).toBe(3);
-  expect(composition.rowGridDisplay).toBe('contents');
+  expect(flow.legendWitness.topDelta).toBeLessThanOrEqual(2);
+  if (flow.direction === 'rtl') {
+    expect(flow.legendWitness.firstLeft).toBeGreaterThan(flow.legendWitness.secondLeft);
+  } else {
+    expect(flow.direction).toBe('ltr');
+    expect(flow.legendWitness.firstLeft).toBeLessThan(flow.legendWitness.secondLeft);
+  }
+}
+
+function expectReadableFullView(
+  inline: Awaited<ReturnType<typeof readReadableFlow>>,
+  full: Awaited<ReturnType<typeof readReadableFlow>>,
+) {
+  expect(full.columns).toBe(1);
+  expect(full.rowGridDisplay).toBe('grid');
+  expect(full.rowGridColumns).toBe(1);
+  expect(full.actionPosition).toBe('static');
+  expectLogicalLegendOrder(full);
   const regions = [
-    composition.training,
-    composition.known,
-    composition.unseen,
-    composition.boundary,
+    full.caption,
+    full.actions,
+    full.training,
+    full.known,
+    full.unseen,
+    full.boundary,
   ];
   for (const region of regions) {
-    expect(region.width).toBeGreaterThan(200);
+    expect(region.width).toBeGreaterThan(0);
     expect(region.height).toBeGreaterThan(0);
   }
-  for (let first = 0; first < regions.length; first += 1) {
-    for (let second = first + 1; second < regions.length; second += 1) {
-      const a = regions[first]!;
-      const b = regions[second]!;
-      const overlapsInline = a.left < b.right - 1 && a.right > b.left + 1;
-      const overlapsBlock = a.top < b.bottom - 1 && a.bottom > b.top + 1;
-      expect(overlapsInline && overlapsBlock).toBe(false);
-    }
+  for (let index = 1; index < regions.length; index += 1) {
+    expect(regions[index]!.top).toBeGreaterThanOrEqual(regions[index - 1]!.bottom - 2);
   }
-  expect(Math.abs(composition.training.top - composition.known.top)).toBeLessThanOrEqual(2);
-  expect(Math.abs(composition.training.top - composition.unseen.top)).toBeLessThanOrEqual(2);
-  expect(composition.boundary.top).toBeGreaterThan(composition.training.top);
-  expect(composition.unseen.width).toBeGreaterThan(composition.known.width);
+  expect(full.widthSamples.map(({ key }) => key)).toEqual(
+    inline.widthSamples.map(({ key }) => key),
+  );
+  const inlineWidths = new Map(
+    inline.widthSamples.map(({ key, width }) => [key, width]),
+  );
+  for (const sample of full.widthSamples) {
+    expect(sample.height).toBeGreaterThan(0);
+    expect(sample.width + 1).toBeGreaterThanOrEqual(inlineWidths.get(sample.key) ?? Infinity);
+  }
+  expect(full.occupiedPeers.documents).toBeLessThanOrEqual(
+    inline.occupiedPeers.documents,
+  );
+  expect(full.occupiedPeers.legend).toBeLessThanOrEqual(inline.occupiedPeers.legend);
+  expect(full.occupiedPeers.rows).toBeLessThanOrEqual(inline.occupiedPeers.rows);
+  for (const span of full.regionSpans) {
+    expect(Math.abs(span.left - full.rootSpan.left)).toBeLessThanOrEqual(2);
+    expect(Math.abs(span.right - full.rootSpan.right)).toBeLessThanOrEqual(2);
+  }
+  for (const span of full.panelSpans) {
+    expect(Math.abs(span.left - full.rowGridSpan.left)).toBeLessThanOrEqual(2);
+    expect(Math.abs(span.right - full.rowGridSpan.right)).toBeLessThanOrEqual(2);
+  }
+  expect(full.scrollers.map(({ key }) => key)).toEqual(
+    inline.scrollers.map(({ key }) => key),
+  );
+  for (let index = 0; index < full.scrollers.length; index += 1) {
+    const before = inline.scrollers[index]!;
+    const after = full.scrollers[index]!;
+    expect(after.client + 1).toBeGreaterThanOrEqual(before.client);
+    expect(after.debt).toBeLessThanOrEqual(before.debt + 2);
+    expect(after.blockDebt).toBeLessThanOrEqual(2);
+    if (after.key.startsWith('tokens:')) expect(after.debt).toBeLessThanOrEqual(2);
+  }
+  for (const span of full.tableSpans) {
+    expect(Math.abs(span.scrollerLeft - span.panelLeft)).toBeLessThanOrEqual(2);
+    expect(Math.abs(span.scrollerRight - span.panelRight)).toBeLessThanOrEqual(2);
+  }
+  if (full.rootBlockDebt > 2) {
+    expect(['auto', 'scroll']).toContain(full.rootOverflowY);
+  }
 }
 
 async function expectFormulaGeometry(page: Page) {
@@ -956,7 +1297,14 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
 
       const inlineGeometry = await readBigramGeometry(diagram);
       expectCompleteBigramGeometry(inlineGeometry);
+      const inlineFlow = await readReadableFlow(diagram);
+      expectLogicalLegendOrder(inlineFlow);
       const inlineEvidence = await readBigramEvidence(diagram);
+      const authoredNodeCount = await rememberAuthoredNodes(
+        diagram,
+        '__chapter06AuthoredNodes',
+      );
+      expect(authoredNodeCount).toBeGreaterThan(0);
       const staticMarkup = await diagram.evaluate((node) => {
         const clone = node.cloneNode(true) as HTMLElement;
         clone
@@ -981,6 +1329,9 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
         ),
       ).toBe(true);
       expect(
+        await authoredNodesAreUnchanged(diagram, '__chapter06AuthoredNodes'),
+      ).toBe(true);
+      expect(
         await diagram.evaluate((node) => {
           const clone = node.cloneNode(true) as HTMLElement;
           clone
@@ -990,20 +1341,123 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
         }),
       ).toBe(staticMarkup);
       expect(await readBigramEvidence(diagram)).toEqual(inlineEvidence);
-      expectCoherentFullView(await readFullViewComposition(diagram));
+      expectReadableFullView(inlineFlow, await readReadableFlow(diagram));
+      expect(await readScrolledChromeRelation(diagram)).toEqual(
+        expect.objectContaining({
+          actionPosition: 'static',
+          evidenceAtScrollport: true,
+          overlaps: false,
+        }),
+      );
 
       const fullGeometry = await readBigramGeometry(diagram);
       expectCompleteBigramGeometry(fullGeometry);
-      expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
-      expect(fullGeometry.maxTableTravel).toBeLessThanOrEqual(280);
-      expect(fullGeometry.maxTableTravelRatio).toBeLessThanOrEqual(0.75);
       expectFontsNotShrunk(inlineGeometry, fullGeometry);
 
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => document.fullscreenElement === null);
       await expect(toggle).toBeFocused();
       await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(
+        await diagram.evaluate(
+          (node) =>
+            (window as unknown as { __chapter06Figure?: Element }).__chapter06Figure === node,
+        ),
+      ).toBe(true);
+      expect(
+        await authoredNodesAreUnchanged(diagram, '__chapter06AuthoredNodes'),
+      ).toBe(true);
+      expect(await readBigramEvidence(diagram)).toEqual(inlineEvidence);
       await expectNoOverflowOrClientScripts(page);
+    }
+  });
+
+  test('both localized figures keep full-width evidence at the minimum eligible request', async ({
+    page,
+  }) => {
+    await page.setViewportSize(minimumFullView);
+    for (const locale of chapterLocales) {
+      await page.goto(chapterPath(locale, chapterId));
+      await page.waitForFunction(
+        () => document.documentElement.dataset.diagramFullViewReady === 'true',
+      );
+      const diagram = page.locator(diagramSelector);
+      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+      await expect(toggle).toHaveCount(1);
+      await expect(toggle).toBeVisible();
+      await settle(page);
+
+      const inlineGeometry = await readBigramGeometry(diagram);
+      const inlineFlow = await readReadableFlow(diagram);
+      expectLogicalLegendOrder(inlineFlow);
+      const inlineEvidence = await readBigramEvidence(diagram);
+      const authoredNodeCount = await rememberAuthoredNodes(
+        diagram,
+        '__chapter06MinimumAuthoredNodes',
+      );
+      expect(authoredNodeCount).toBeGreaterThan(0);
+      expectCompleteBigramGeometry(inlineGeometry);
+      const staticMarkup = await diagram.evaluate((node) => {
+        const clone = node.cloneNode(true) as HTMLElement;
+        clone
+          .querySelectorAll('[data-diagram-full-view-controls]')
+          .forEach((control) => control.remove());
+        return clone.innerHTML;
+      });
+      await diagram.evaluate((node) => {
+        (window as unknown as { __chapter06MinimumFigure?: Element }).__chapter06MinimumFigure = node;
+      });
+
+      await toggle.click();
+      await page.waitForFunction(
+        () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'bigram-baseline',
+      );
+      await settle(page);
+      expect(
+        await diagram.evaluate(
+          (node) =>
+            (window as unknown as { __chapter06MinimumFigure?: Element })
+              .__chapter06MinimumFigure === node,
+        ),
+      ).toBe(true);
+      expect(
+        await authoredNodesAreUnchanged(
+          diagram,
+          '__chapter06MinimumAuthoredNodes',
+        ),
+      ).toBe(true);
+      expect(
+        await diagram.evaluate((node) => {
+          const clone = node.cloneNode(true) as HTMLElement;
+          clone
+            .querySelectorAll('[data-diagram-full-view-controls]')
+            .forEach((control) => control.remove());
+          return clone.innerHTML;
+        }),
+      ).toBe(staticMarkup);
+      expect(await readBigramEvidence(diagram)).toEqual(inlineEvidence);
+      expectReadableFullView(inlineFlow, await readReadableFlow(diagram));
+      expect(await readScrolledChromeRelation(diagram)).toEqual(
+        expect.objectContaining({
+          actionPosition: 'static',
+          evidenceAtScrollport: true,
+          overlaps: false,
+        }),
+      );
+      const fullGeometry = await readBigramGeometry(diagram);
+      expectCompleteBigramGeometry(fullGeometry);
+      expectFontsNotShrunk(inlineGeometry, fullGeometry);
+
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
+      await expect(toggle).toBeFocused();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(
+        await authoredNodesAreUnchanged(
+          diagram,
+          '__chapter06MinimumAuthoredNodes',
+        ),
+      ).toBe(true);
     }
   });
 
@@ -1016,7 +1470,12 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
     await page.waitForFunction(
       () => document.documentElement.dataset.diagramFullViewReady === 'true',
     );
+    expect(
+      await page.evaluate(() => matchMedia('(forced-colors: active)').matches),
+    ).toBe(true);
     const diagram = page.locator(diagramSelector);
+    await settle(page);
+    expectLogicalLegendOrder(await readReadableFlow(diagram));
     await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
     await settle(page);
     expectCompleteBigramGeometry(await readBigramGeometry(diagram));
@@ -1030,6 +1489,9 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
       'double',
     );
     await expect(diagram.locator('.boundary-guard')).toHaveCSS('border-top-style', 'dashed');
+    const inlineGeometry = await readBigramGeometry(diagram);
+    const inlineFlow = await readReadableFlow(diagram);
+    expectLogicalLegendOrder(inlineFlow);
 
     const toggle = diagram.locator('[data-diagram-full-view-toggle]');
     await toggle.click();
@@ -1037,12 +1499,17 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
       () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'bigram-baseline',
     );
     await settle(page);
-    expectCoherentFullView(await readFullViewComposition(diagram));
+    expectReadableFullView(inlineFlow, await readReadableFlow(diagram));
+    expect(await readScrolledChromeRelation(diagram)).toEqual(
+      expect.objectContaining({
+        actionPosition: 'static',
+        evidenceAtScrollport: true,
+        overlaps: false,
+      }),
+    );
     const fullGeometry = await readBigramGeometry(diagram);
     expectCompleteBigramGeometry(fullGeometry);
-    expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
-    expect(fullGeometry.maxTableTravel).toBeLessThanOrEqual(280);
-    expect(fullGeometry.maxTableTravelRatio).toBeLessThanOrEqual(0.75);
+    expectFontsNotShrunk(inlineGeometry, fullGeometry);
     expect(
       await diagram.locator('code, bdi, .token-sequence, .forbidden-transition').evaluateAll(
         (nodes) => nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
