@@ -1,0 +1,242 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertTensorAutodiffCoreDiagramLabels,
+  parseTensorAutodiffCoreTrace,
+  tensorAutodiffReverseDiagramId,
+  type TensorAutodiffCoreDiagramLabels,
+  type TensorSavedContext,
+  type TraceNumber,
+  type TraceShape,
+} from '../../lib/tensor-autodiff-core-diagram';
+
+interface Props {
+  labels: TensorAutodiffCoreDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+assertTensorAutodiffCoreDiagramLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Tensor-autodiff reverse diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseTensorAutodiffCoreTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${tensorAutodiffReverseDiagramId}-${instanceId}-title`;
+const descriptionId = `${tensorAutodiffReverseDiagramId}-${instanceId}-description`;
+const ruleKeyId = `${tensorAutodiffReverseDiagramId}-${instanceId}-rule-key`;
+
+const valuesText = (values: readonly TraceNumber[]) =>
+  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+const shapeText = (shape: TraceShape) => `[${shape.lexeme.replaceAll('x', ', ')}]`;
+const contextText = (context: TensorSavedContext): string => {
+  if (context === null) return labels.states.none;
+  if (context.kind === 'mean') {
+    return `${labels.fields.axis}=${context.axis.lexeme}; ${labels.fields.keepDimension}=${labels.states.no}; ${labels.fields.divisor}=${context.divisor.lexeme}`;
+  }
+  if (context.kind === 'transpose') {
+    return `${labels.fields.axes}=${context.firstAxis.lexeme},${context.secondAxis.lexeme}`;
+  }
+  if (context.kind === 'multiply') {
+    return `${labels.fields.otherOperand} ${shapeText(context.otherShape)}=${valuesText(context.otherValues)}; ${labels.fields.inputShape}=${context.inputShape.lexeme}; ${labels.fields.outputShape}=${context.outputShape.lexeme}`;
+  }
+  return `${labels.fields.inputShape}=${context.inputShape.lexeme}; ${labels.fields.outputShape}=${context.outputShape.lexeme}`;
+};
+const contextData = (context: TensorSavedContext): string => {
+  if (context === null) return 'none';
+  if (context.kind === 'mean') {
+    return `axis=${context.axis.lexeme}; keep-dim=${context.keepDim}; divisor=${context.divisor.lexeme}`;
+  }
+  if (context.kind === 'transpose') {
+    return `axes=${context.firstAxis.lexeme},${context.secondAxis.lexeme}`;
+  }
+  if (context.kind === 'multiply') {
+    return `other-shape=${context.otherShape.lexeme}; other-values=${context.otherValues.map(({ lexeme }) => lexeme).join(',')}; input=${context.inputShape.lexeme}; output=${context.outputShape.lexeme}`;
+  }
+  return `input=${context.inputShape.lexeme}; output=${context.outputShape.lexeme}`;
+};
+const reducedAxesText = (axes: 'none' | readonly TraceNumber[]): string =>
+  axes === 'none' ? labels.states.none : axes.map(({ lexeme }) => lexeme).join(',');
+const reducedAxesData = (axes: 'none' | readonly TraceNumber[]): string =>
+  axes === 'none' ? 'none' : axes.map(({ lexeme }) => lexeme).join(',');
+---
+
+<figure
+  class="course-diagram tensor-autodiff-reverse-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id={tensorAutodiffReverseDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.reverseTitle}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.reverseDescription}</p>
+  </figcaption>
+
+  <section data-diagram-box class="diagram-section reverse-section" aria-labelledby={`${titleId}-reverse`}>
+    <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
+    <p>{labels.notes.reverse}</p>
+    <h4 id={ruleKeyId} class="rule-key-heading">{labels.fields.rule}</h4>
+    <dl class="rule-key" aria-labelledby={ruleKeyId}>
+      {(['mean', 'multiply', 'add', 'broadcast', 'transpose', 'reshape'] as const).map((rule) => (
+        <div>
+          <dt>{labels.operations[rule]}</dt>
+          <dd id={`${ruleKeyId}-${rule}`}>{labels.rules[rule]}</dd>
+        </div>
+      ))}
+    </dl>
+    <div
+      class="trace-scroll course-diagram__scroll"
+      role="region"
+      tabindex="0"
+      aria-labelledby={`${titleId}-reverse`}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="vjp-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.reverseOrder}</th>
+            <th scope="col">{labels.fields.child}</th>
+            <th scope="col">{labels.fields.operand}</th>
+            <th scope="col">{labels.fields.parent}</th>
+            <th scope="col">{labels.fields.upstream}</th>
+            <th scope="col">{labels.fields.rule}</th>
+            <th scope="col">{labels.fields.reducedAxes}</th>
+            <th scope="col">{labels.fields.savedContext}</th>
+            <th scope="col">{labels.fields.contribution}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.edges.map((edge) => (
+            <tr
+              data-edge-reverse={edge.reverse.lexeme}
+              data-child={edge.child}
+              data-child-id={edge.childId.lexeme}
+              data-operand={edge.operand.lexeme}
+              data-parent={edge.parent}
+              data-parent-id={edge.parentId.lexeme}
+              data-rule={edge.rule}
+              data-source-shape={edge.sourceShape.lexeme}
+              data-target-shape={edge.targetShape.lexeme}
+              data-reduced-axes={reducedAxesData(edge.reducedAxes)}
+              data-saved-context={contextData(edge.savedContext)}
+              data-upstream-adjoint={trace.nodes
+                .find(({ id }) => id.lexeme === edge.childId.lexeme)!
+                .adjoint.map(({ lexeme }) => lexeme)
+                .join(',')}
+              data-contribution={edge.contribution.map(({ lexeme }) => lexeme).join(',')}
+            >
+              <th scope="row"><bdi dir="ltr">{edge.reverse.lexeme}</bdi></th>
+              <td><code dir="ltr">{edge.child} {shapeText(edge.sourceShape)}</code></td>
+              <td><bdi dir="ltr">{edge.operand.lexeme}</bdi></td>
+              <td><code dir="ltr">{edge.parent} {shapeText(edge.targetShape)}</code></td>
+              <td><code dir="ltr">{valuesText(trace.nodes.find(({ id }) => id.lexeme === edge.childId.lexeme)!.adjoint)}</code></td>
+              <td aria-describedby={`${ruleKeyId}-${edge.rule}`}>{labels.operations[edge.rule]}</td>
+              <td><code dir="ltr">{reducedAxesText(edge.reducedAxes)}</code></td>
+              <td><code dir="ltr">{contextText(edge.savedContext)}</code></td>
+              <td><code dir="ltr">{valuesText(edge.contribution)}</code></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .rule-key {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem var(--diagram-gap);
+    margin: 0;
+  }
+
+  .rule-key > div {
+    min-inline-size: 0;
+  }
+
+  .trace-scroll {
+    --diagram-scroll-inline-size: 100%;
+  }
+
+  .vjp-table {
+    inline-size: 100%;
+    min-inline-size: 100rem;
+    table-layout: fixed;
+  }
+
+  .vjp-table :is(th, td):nth-child(1) { inline-size: 9%; }
+  .vjp-table :is(th, td):nth-child(2) { inline-size: 16%; }
+  .vjp-table :is(th, td):nth-child(3) { inline-size: 8%; }
+  .vjp-table :is(th, td):nth-child(4) { inline-size: 10%; }
+  .vjp-table :is(th, td):nth-child(5) { inline-size: 12%; }
+  .vjp-table :is(th, td):nth-child(6) { inline-size: 9%; }
+  .vjp-table :is(th, td):nth-child(7) { inline-size: 9%; }
+  .vjp-table :is(th, td):nth-child(8) { inline-size: 14%; }
+  .vjp-table :is(th, td):nth-child(9) { inline-size: 13%; }
+
+  @container course-diagram (max-width: 47.5rem) {
+    .rule-key {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    align-items: start;
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen > figcaption {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen > :global(.diagram-full-view-actions) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen > .reverse-section {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    align-items: start;
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen .reverse-section > h3 {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen .reverse-section > p {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen .rule-key-heading {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen .rule-key {
+    grid-column: 1;
+    grid-row: 4;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tensor-autodiff-reverse-diagram:fullscreen .trace-scroll {
+    grid-column: 1;
+    grid-row: 5;
+  }
+</style>

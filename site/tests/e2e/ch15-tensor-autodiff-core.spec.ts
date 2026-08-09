@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page, type TestInfo } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -23,7 +23,13 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '15-tensor-autodiff-core';
-const contentRevision = 8;
+const contentRevision = 9;
+const visualizationIds = [
+  'tensor-autodiff-core',
+  'tensor-autodiff-reverse',
+  'tensor-autodiff-outcomes',
+] as const;
+type VisualizationId = (typeof visualizationIds)[number];
 const formulaLatex = String.raw`\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)},\qquad e\in E`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const normalizeProse = (value: string) =>
@@ -49,10 +55,12 @@ interface LocalizedCopy {
   historyHeading: string;
   historyFragments: readonly string[];
   revisionInvariantFragments: readonly string[];
-  diagramTitle: string;
-  diagramDescription: string;
-  diagramSections: readonly string[];
-  diagramTerms: readonly string[];
+  figures: Readonly<Record<VisualizationId, Readonly<{
+    title: string;
+    description: string;
+    sections: readonly string[];
+    terms: readonly string[];
+  }>>>;
 }
 
 const copy: Record<ChapterLocale, LocalizedCopy> = {
@@ -67,7 +75,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Name the tensors, map, and adjoints',
       'From explicit next-word updates to reusable tensor pullbacks',
       'Own tensor primals and save only local context',
-      'Follow shape restoration edge by edge',
+      'Follow shape restoration in three focused views',
       'Predict before running Rust',
       'Prepare model-critical tensor gradients',
     ],
@@ -94,25 +102,39 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'destination offsets [0,1,2,0,1,2]',
       'An empty traversal emits no offset and performs no read',
     ],
-    diagramTitle: 'Reverse every tensor edge to its original shape',
-    diagramDescription:
-      'Inspect eight forward nodes, eight ordered operand edges, a non-scalar seed, shape-exact VJPs, parameter-only accumulation, graph release, detach, numerical checks, and rejected unsafe requests.',
-    diagramSections: [
-      'Build one shape-changing tensor graph',
-      'Pull the non-scalar seed through every edge',
-      'Restore exact parameter shapes',
-      'Retain, accumulate, zero, release',
-      'Check sum, detach, and every VJP',
-      'Reject unsafe requests without mutation',
-    ],
-    diagramTerms: [
-      'Pass-local adjoint',
-      'Stored gradient',
-      'Other operand',
-      'Sampled flat coordinates',
-      'detached branch gradient path cut',
-      'releasing pass recomputed and committed one-pass gradients',
-    ],
+    figures: {
+      'tensor-autodiff-core': {
+        title: 'Build the tensor graph without losing an operand use',
+        description:
+          'Inspect eight forward nodes in topological order, with every operation, shape, value, pass-local adjoint, and all eight ordered operand edges.',
+        sections: ['Build one shape-changing tensor graph'],
+        terms: ['Pass-local adjoint'],
+      },
+      'tensor-autodiff-reverse': {
+        title: 'Reverse the non-scalar seed through all eight edges',
+        description:
+          'Follow seed [3, 6] from reverse order 0 through 7, pairing every edge with its upstream adjoint, local VJP, reduced axes, saved context, exact parent shape, and parent contribution.',
+        sections: ['Pull the non-scalar seed through every edge'],
+        terms: ['Other operand'],
+      },
+      'tensor-autodiff-outcomes': {
+        title: 'Separate stored gradients, graph lifecycle, checks, and rejections',
+        description:
+          'Compare retained accumulation, zeroing, release, detach, sampled checks, and four rejected requests without mixing pass-local adjoints with stored parameter gradients.',
+        sections: [
+          'Restore exact parameter shapes',
+          'Retain, accumulate, zero, release',
+          'Check sum, detach, and every VJP',
+          'Reject unsafe requests without mutation',
+        ],
+        terms: [
+          'Stored gradient',
+          'Sampled flat coordinates',
+          'detached branch gradient path cut',
+          'releasing pass recomputed and committed one-pass gradients',
+        ],
+      },
+    },
   },
   ru: {
     revisionLabel: 'Версия материала',
@@ -125,7 +147,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'Назовите тензоры, отображение и сопряжённые величины',
       'От явных уравнений для модели следующего слова к переиспользуемым тензорным VJP',
       'Храните значения тензоров из прямого прохода и сохраняйте локальный контекст',
-      'Проследите восстановление формы по каждому ребру',
+      'Проследите восстановление формы на трёх отдельных схемах',
       'Сначала предскажите, затем запускайте Rust',
       'Подготовьте градиенты ключевых операций модели',
     ],
@@ -153,25 +175,39 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       'смещения назначения [0,1,2,0,1,2]',
       'Пустой обход не выдаёт ни одного смещения и ничего не читает',
     ],
-    diagramTitle: 'Верните вклад каждого тензорного ребра к исходной форме',
-    diagramDescription:
-      'Проследите восемь узлов прямого прохода, восемь упорядоченных рёбер использования операндов, начальную сопряжённую величину нескалярного выхода, VJP с точными формами, градиенты, накопленные только в параметрах, освобождение графа, detach, численные проверки и отклонение недопустимых запросов без изменения состояния.',
-    diagramSections: [
-      'Постройте один граф с изменениями формы',
-      'Распространите начальную сопряжённую величину назад по каждому ребру',
-      'Восстановите точные формы параметров',
-      'Сохраняйте, накапливайте, обнуляйте, освобождайте',
-      'Проверьте сумму, detach и каждый VJP',
-      'Отклоняйте недопустимые запросы без изменения состояния',
-    ],
-    diagramTerms: [
-      'Сопряжённая величина текущего прохода',
-      'Накопленный градиент',
-      'Другой операнд',
-      'Выбранные плоские координаты',
-      'путь градиента отсоединённой ветви прерван',
-      'освобождающий проход заново вычислил и записал градиенты одного прохода',
-    ],
+    figures: {
+      'tensor-autodiff-core': {
+        title: 'Постройте тензорный граф, не потеряв ни одного использования операнда',
+        description:
+          'Проследите восемь узлов прямого прохода в топологическом порядке: для каждого указаны операция, форма, значения и сопряжённая величина текущего прохода, а также сохранены все восемь упорядоченных рёбер использования операндов.',
+        sections: ['Постройте один граф с изменениями формы'],
+        terms: ['Сопряжённая величина текущего прохода'],
+      },
+      'tensor-autodiff-reverse': {
+        title: 'Распространите нескалярную начальную сопряжённую величину назад по всем восьми рёбрам',
+        description:
+          'Проследите начальную сопряжённую величину [3, 6] в порядке обратного прохода от 0 до 7: для каждого ребра сопоставьте входящую сопряжённую величину, локальный VJP, оси редукции, сохранённый контекст, точную форму родителя и вклад в родителя.',
+        sections: ['Распространите начальную сопряжённую величину назад по каждому ребру'],
+        terms: ['Другой операнд'],
+      },
+      'tensor-autodiff-outcomes': {
+        title: 'Сопоставьте накопленные градиенты, состояния графа, проверки и отклонённые запросы',
+        description:
+          'Сравните первый и второй проходы с сохранением графа, обнуление, освобождающий проход, detach, выборочные проверки градиентов и четыре отклонённых запроса, не смешивая сопряжённые величины текущего прохода с накопленными градиентами параметров.',
+        sections: [
+          'Восстановите точные формы параметров',
+          'Сохраняйте, накапливайте, обнуляйте, освобождайте',
+          'Проверьте сумму, detach и каждый VJP',
+          'Отклоняйте недопустимые запросы без изменения состояния',
+        ],
+        terms: [
+          'Накопленный градиент',
+          'Выбранные плоские координаты',
+          'путь градиента отсоединённой ветви прерван',
+          'освобождающий проход заново вычислил и записал градиенты одного прохода',
+        ],
+      },
+    },
   },
 };
 
@@ -198,6 +234,1007 @@ const expectedRustRegions = [
 const expectedRustSources = expectedRustRegions.map(([path, region]) =>
   readRustRegion(path, region),
 );
+
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolveFrame) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame())),
+    );
+  });
+}
+
+async function staticDiagramMarkup(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const clone = root.cloneNode(true) as HTMLElement;
+    clone.querySelector('[data-diagram-full-view-controls]')?.remove();
+    return clone.innerHTML;
+  });
+}
+
+async function readDiagramAudit(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const tolerance = 2;
+    const problems: string[] = [];
+    const allElements = [figure, ...figure.querySelectorAll<HTMLElement>('*')];
+    const ignored = (element: HTMLElement) =>
+      Boolean(
+        element.closest(
+          '.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]',
+        ),
+      );
+    const visible = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        style.display !== 'none' &&
+        !['hidden', 'collapse'].includes(style.visibility) &&
+        Number.parseFloat(style.opacity) > 0 &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    };
+    const describe = (element: HTMLElement) => {
+      const identifier =
+        element.dataset.edgeReverse ??
+        element.dataset.nodeLabel ??
+        element.dataset.lifecycleState ??
+        element.dataset.evidence ??
+        element.dataset.errorKind ??
+        '';
+      const classes = [...element.classList].slice(0, 2).join('.');
+      return `${element.tagName.toLowerCase()}${classes ? `.${classes}` : ''}${
+        identifier ? `[${identifier}]` : ''
+      }`;
+    };
+    const border = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return {
+        colors: [
+          style.borderTopColor,
+          style.borderRightColor,
+          style.borderBottomColor,
+          style.borderLeftColor,
+        ],
+        styles: [
+          style.borderTopStyle,
+          style.borderRightStyle,
+          style.borderBottomStyle,
+          style.borderLeftStyle,
+        ],
+        widths: [
+          Number.parseFloat(style.borderTopWidth),
+          Number.parseFloat(style.borderRightWidth),
+          Number.parseFloat(style.borderBottomWidth),
+          Number.parseFloat(style.borderLeftWidth),
+        ],
+      };
+    };
+    const transparent = (value: string) => {
+      const normalized = value.toLowerCase().replaceAll(' ', '');
+      return (
+        normalized === 'transparent' ||
+        /^rgba\([^)]*,0(?:\.0+)?\)$/.test(normalized) ||
+        /\/0(?:\.0+)?\)$/.test(normalized)
+      );
+    };
+    const completeBorder = (element: HTMLElement) => {
+      const evidence = border(element);
+      return (
+        evidence.widths.every((width) => Number.isFinite(width) && width > 0) &&
+        evidence.styles.every((style) => !['none', 'hidden'].includes(style)) &&
+        evidence.colors.every((color) => !transparent(color))
+      );
+    };
+    const concealed = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      const webkitLineClamp = style.getPropertyValue('-webkit-line-clamp');
+      const clipPath = style.getPropertyValue('clip-path');
+      const maskImage = style.getPropertyValue('mask-image');
+      const filter = style.getPropertyValue('filter');
+      return (
+        [style.overflowX, style.overflowY].some((value) =>
+          ['hidden', 'clip'].includes(value),
+        ) ||
+        /(?:paint|strict|content)/.test(style.contain) ||
+        style.contentVisibility === 'hidden' ||
+        style.textOverflow === 'ellipsis' ||
+        (webkitLineClamp !== '' && webkitLineClamp !== 'none') ||
+        Boolean(clipPath && clipPath !== 'none') ||
+        Boolean(maskImage && maskImage !== 'none') ||
+        Boolean(filter && filter !== 'none')
+      );
+    };
+    const innerRect = (element: HTMLElement) => {
+      const rect = element.getBoundingClientRect();
+      const widths = border(element).widths;
+      return {
+        left: rect.left + widths[3]!,
+        right: rect.right - widths[1]!,
+        top: rect.top + widths[0]!,
+        bottom: rect.bottom - widths[2]!,
+      };
+    };
+    const within = (
+      child: { left: number; right: number; top: number; bottom: number },
+      owner: { left: number; right: number; top: number; bottom: number },
+      checkInline = true,
+      checkBlock = true,
+    ) =>
+      (!checkInline ||
+        (child.left >= owner.left - tolerance && child.right <= owner.right + tolerance)) &&
+      (!checkBlock ||
+        (child.top >= owner.top - tolerance && child.bottom <= owner.bottom + tolerance));
+
+    const visibleElements = allElements.filter(
+      (element) => !ignored(element) && visible(element),
+    );
+    let localVerticalOwnerCount = 0;
+    let undeclaredHorizontalOwnerCount = 0;
+    for (const [index, element] of allElements.entries()) {
+      if (ignored(element)) continue;
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      const directText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      if (
+        style.display === 'none' ||
+        ['hidden', 'collapse'].includes(style.visibility) ||
+        Number.parseFloat(style.opacity) <= 0
+      ) {
+        problems.push(`element-${index} ${describe(element)} is concealed`);
+      }
+      if (directText && (rect.width <= 0 || rect.height <= 0)) {
+        problems.push(`element-${index} ${describe(element)} has no painted area`);
+      }
+      if (concealed(element)) {
+        problems.push(`element-${index} ${describe(element)} conceals overflow or paint`);
+      }
+      if (directText && transparent(style.color)) {
+        problems.push(`element-${index} ${describe(element)} paints transparent text`);
+      }
+      if (
+        style.transform !== 'none' ||
+        !['', '1', 'normal'].includes(style.getPropertyValue('zoom'))
+      ) {
+        problems.push(`element-${index} ${describe(element)} is scaled or transformed`);
+      }
+      if (Number.parseFloat(style.textIndent) < -tolerance) {
+        problems.push(`element-${index} ${describe(element)} hides text off canvas`);
+      }
+      if (
+        element !== figure &&
+        visible(element) &&
+        element.clientWidth > 0 &&
+        element.clientHeight > 0
+      ) {
+        const inlineDebt = Math.max(0, element.scrollWidth - element.clientWidth);
+        const blockDebt = Math.max(0, element.scrollHeight - element.clientHeight);
+        const horizontalOwner = ['auto', 'scroll'].includes(style.overflowX);
+        const verticalOwnerWithTravel =
+          style.overflowY === 'scroll' || blockDebt > tolerance;
+        if (
+          (horizontalOwner || inlineDebt > tolerance) &&
+          !element.hasAttribute('data-diagram-scroll')
+        ) {
+          undeclaredHorizontalOwnerCount += 1;
+          problems.push(
+            `element-${index} ${describe(element)} is an undeclared horizontal owner/debt ${inlineDebt}`,
+          );
+        }
+        if (verticalOwnerWithTravel) {
+          localVerticalOwnerCount += 1;
+          problems.push(
+            `element-${index} ${describe(element)} has private vertical owner/debt ${blockDebt}`,
+          );
+        }
+      }
+    }
+
+    const markedBoxes = visibleElements.filter((element) =>
+      element.hasAttribute('data-diagram-box'),
+    );
+    const borderedOwners = visibleElements.filter((element) => completeBorder(element));
+    const boundedOwners = new Set<HTMLElement>([...markedBoxes, ...borderedOwners]);
+    const nearestOwner = (element: HTMLElement | null) => {
+      let current = element;
+      while (current && figure.contains(current)) {
+        if (boundedOwners.has(current)) return current;
+        if (current === figure) break;
+        current = current.parentElement;
+      }
+      return null;
+    };
+
+    for (const [index, owner] of [...boundedOwners].entries()) {
+      if (!completeBorder(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} lacks four visible borders`);
+      }
+      const rect = owner.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        problems.push(`owner-${index} ${describe(owner)} has no painted area`);
+      }
+      const inlineDebt = Math.max(0, owner.scrollWidth - owner.clientWidth);
+      const blockDebt = Math.max(0, owner.scrollHeight - owner.clientHeight);
+      if (owner !== figure && blockDebt > tolerance) {
+        problems.push(`owner-${index} ${describe(owner)} has block debt ${blockDebt}`);
+      }
+      if (
+        owner !== figure &&
+        !owner.matches('[data-diagram-scroll]') &&
+        inlineDebt > tolerance
+      ) {
+        problems.push(`owner-${index} ${describe(owner)} has inline debt ${inlineDebt}`);
+      }
+      const ancestor = nearestOwner(owner.parentElement);
+      if (!ancestor) continue;
+      const interveningScroller = owner.parentElement?.closest<HTMLElement>(
+        '[data-diagram-scroll]',
+      );
+      const checkInline =
+        !interveningScroller || !ancestor.contains(interveningScroller);
+      if (
+        !within(
+          owner.getBoundingClientRect(),
+          innerRect(ancestor),
+          checkInline,
+          ancestor !== figure,
+        )
+      ) {
+        problems.push(`owner-${index} ${describe(owner)} escapes its nearest owner`);
+      }
+    }
+
+    const cards = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-card]'),
+    ).filter(visible);
+    for (let first = 0; first < cards.length; first += 1) {
+      for (let second = first + 1; second < cards.length; second += 1) {
+        const a = cards[first]!;
+        const b = cards[second]!;
+        if (a.contains(b) || b.contains(a)) continue;
+        const ar = a.getBoundingClientRect();
+        const br = b.getBoundingClientRect();
+        const overlapInline = Math.min(ar.right, br.right) - Math.max(ar.left, br.left);
+        const overlapBlock = Math.min(ar.bottom, br.bottom) - Math.max(ar.top, br.top);
+        if (overlapInline > tolerance && overlapBlock > tolerance) {
+          problems.push(`${describe(a)} overlaps ${describe(b)}`);
+        }
+      }
+    }
+
+    const scrollers = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+    );
+    for (const [index, scroller] of scrollers.entries()) {
+      const labelledBy = scroller.getAttribute('aria-labelledby')?.trim() ?? '';
+      const directLabel = scroller.getAttribute('aria-label')?.trim() ?? '';
+      const ids = labelledBy.split(/\s+/).filter(Boolean);
+      const resolved = ids.length > 0 && ids.every((id) => document.getElementById(id));
+      if (
+        scroller.getAttribute('role') !== 'region' ||
+        scroller.getAttribute('tabindex') !== '0' ||
+        !scroller.classList.contains('course-diagram__scroll') ||
+        (!directLabel && !resolved)
+      ) {
+        problems.push(`scroller-${index} lacks its named keyboard region contract`);
+      }
+      if (
+        scroller.hasAttribute('data-diagram-box') ||
+        scroller.hasAttribute('data-diagram-card')
+      ) {
+        problems.push(`scroller-${index} also claims bounded ownership`);
+      }
+      if (scroller.scrollHeight - scroller.clientHeight > tolerance) {
+        problems.push(`scroller-${index} has private vertical travel`);
+      }
+    }
+
+    const idrefElements = [
+      figure,
+      ...figure.querySelectorAll<HTMLElement>('[aria-labelledby], [aria-describedby]'),
+    ].filter(
+      (element) =>
+        element.hasAttribute('aria-labelledby') || element.hasAttribute('aria-describedby'),
+    );
+    const referencedIds = new Set<string>();
+    let idrefTokenCount = 0;
+    for (const [index, element] of idrefElements.entries()) {
+      for (const attribute of ['aria-labelledby', 'aria-describedby'] as const) {
+        if (!element.hasAttribute(attribute)) continue;
+        const ids = (element.getAttribute(attribute) ?? '').split(/\s+/).filter(Boolean);
+        if (ids.length === 0) {
+          problems.push(`idref-${index} has an empty ${attribute}`);
+          continue;
+        }
+        for (const id of ids) {
+          referencedIds.add(id);
+          idrefTokenCount += 1;
+          const matches = document.querySelectorAll<HTMLElement>(`#${CSS.escape(id)}`);
+          if (
+            matches.length !== 1 ||
+            !matches[0]?.textContent?.trim() ||
+            !figure.contains(matches[0])
+          ) {
+            problems.push(`idref-${index} ${attribute} does not resolve ${id} once`);
+          }
+        }
+      }
+    }
+
+    const walker = document.createTreeWalker(figure, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      if (!textNode.textContent?.trim()) continue;
+      const parent = textNode.parentElement;
+      if (!parent || ignored(parent) || !visible(parent)) continue;
+      const owner = nearestOwner(parent);
+      if (!owner) continue;
+      const scroller = parent.closest<HTMLElement>('[data-diagram-scroll]');
+      const checkInline = !scroller || scroller.contains(owner);
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      const positivePaints = Array.from(range.getClientRects()).filter(
+        (paint) => paint.width > 0 && paint.height > 0,
+      );
+      if (positivePaints.length === 0) {
+        problems.push(`${describe(parent)} has nonblank text with no positive paint rect`);
+        continue;
+      }
+      for (const paint of positivePaints) {
+        if (
+          !within(paint, innerRect(owner), checkInline, owner !== figure)
+        ) {
+          problems.push(`${describe(parent)} paints outside ${describe(owner)}`);
+          break;
+        }
+      }
+    }
+
+    for (const [index, replaced] of Array.from(
+      figure.querySelectorAll<HTMLElement>('img, svg, math, .katex'),
+    ).entries()) {
+      if (!visible(replaced) || ignored(replaced)) continue;
+      const owner = nearestOwner(replaced.parentElement);
+      if (owner && !within(replaced.getBoundingClientRect(), innerRect(owner), true, owner !== figure)) {
+        problems.push(`replaced-${index} ${describe(replaced)} paints outside its owner`);
+      }
+    }
+
+    for (const [tableIndex, table] of Array.from(
+      figure.querySelectorAll<HTMLTableElement>('table[data-diagram-table]'),
+    ).entries()) {
+      if (getComputedStyle(table).display !== 'table') {
+        problems.push(`table-${tableIndex} is not a native table`);
+      }
+      if (!table.tHead || getComputedStyle(table.tHead).display !== 'table-header-group') {
+        problems.push(`table-${tableIndex} lost its native header group`);
+      }
+      for (const body of Array.from(table.tBodies)) {
+        if (getComputedStyle(body).display !== 'table-row-group') {
+          problems.push(`table-${tableIndex} lost its native body group`);
+        }
+      }
+      for (const [headerIndex, header] of Array.from(
+        table.querySelectorAll<HTMLTableCellElement>('thead th'),
+      ).entries()) {
+        const walker = document.createTreeWalker(header, NodeFilter.SHOW_TEXT);
+        let wordIndex = 0;
+        while (walker.nextNode()) {
+          const textNode = walker.currentNode as Text;
+          for (const match of textNode.data.matchAll(/\S+/gu)) {
+            const start = match.index ?? -1;
+            if (start < 0) continue;
+            const range = document.createRange();
+            range.setStart(textNode, start);
+            range.setEnd(textNode, start + match[0].length);
+            const paints = Array.from(range.getClientRects()).filter(
+              (paint) => paint.width > 0 && paint.height > 0,
+            );
+            if (paints.length !== 1) {
+              problems.push(
+                `table-${tableIndex} header-${headerIndex} word-${wordIndex} fragments into ${paints.length} paint rects`,
+              );
+            }
+            wordIndex += 1;
+          }
+        }
+      }
+      for (const [rowIndex, row] of Array.from(table.rows).entries()) {
+        const rowRect = row.getBoundingClientRect();
+        if (getComputedStyle(row).display !== 'table-row') {
+          problems.push(`table-${tableIndex} row-${rowIndex} is not a native row`);
+        }
+        if (row.cells.length !== 9) {
+          problems.push(`table-${tableIndex} row-${rowIndex} does not have nine cells`);
+        }
+        for (const [cellIndex, cell] of Array.from(row.cells).entries()) {
+          const cellRect = cell.getBoundingClientRect();
+          if (getComputedStyle(cell).display !== 'table-cell') {
+            problems.push(`table-${tableIndex} row-${rowIndex} cell-${cellIndex} is not table-cell`);
+          }
+          if (!completeBorder(cell)) {
+            problems.push(`table-${tableIndex} row-${rowIndex} cell-${cellIndex} lacks four borders`);
+          }
+          if (
+            Math.abs(cellRect.top - rowRect.top) > 1 ||
+            Math.abs(cellRect.bottom - rowRect.bottom) > 1
+          ) {
+            problems.push(`table-${tableIndex} row-${rowIndex} cell-${cellIndex} does not fill row`);
+          }
+        }
+      }
+    }
+
+    const ruleCells = Array.from(
+      figure.querySelectorAll<HTMLTableCellElement>('tbody td[aria-describedby]'),
+    );
+    for (const [index, cell] of ruleCells.entries()) {
+      const id = cell.getAttribute('aria-describedby') ?? '';
+      const target = id ? document.getElementById(id) : null;
+      if (!target || !figure.contains(target) || !target.textContent?.trim() || !visible(target)) {
+        problems.push(`rule-cell-${index} lacks its visible rule-key association`);
+      }
+    }
+
+    const fontSizes = allElements.flatMap((element, index) => {
+      if (ignored(element) || !visible(element)) return [];
+      const directText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      return directText
+        ? [{ index, pixels: Number.parseFloat(getComputedStyle(element).fontSize) }]
+        : [];
+    });
+    const directOrder = Array.from(figure.children)
+      .filter((element) => !element.hasAttribute('data-diagram-full-view-controls'))
+      .map((element) => `${element.tagName}.${element.className}`);
+    const scrollerTravel = scrollers.map((scroller) => ({
+      client: scroller.clientWidth,
+      debt: Math.max(0, scroller.scrollWidth - scroller.clientWidth),
+    }));
+
+    return {
+      blockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
+      borderedOwnerCount: borderedOwners.length,
+      boxCount: markedBoxes.length,
+      cardCount: figure.querySelectorAll('[data-diagram-card]').length,
+      cellCount: figure.querySelectorAll('th, td').length,
+      columnHeaderCount: figure.querySelectorAll('th[scope="col"]').length,
+      cueCount: figure.querySelectorAll('.state-symbol').length,
+      directOrder,
+      errorCount: figure.querySelectorAll('[data-error-kind]').length,
+      evidenceCount: figure.querySelectorAll('[data-evidence]').length,
+      fontSizes,
+      fullscreen: document.fullscreenElement === figure,
+      gradientCount: figure.querySelectorAll(
+        '[data-parameter-gradient][data-backward-pass]',
+      ).length,
+      idrefElementCount: idrefElements.length,
+      idrefTargetCount: referencedIds.size,
+      idrefTokenCount,
+      inlineDebt: Math.max(0, figure.scrollWidth - figure.clientWidth),
+      lifecycleCount: figure.querySelectorAll('[data-lifecycle-state]').length,
+      listCount: figure.querySelectorAll('ol, ul').length,
+      listItemCount: figure.querySelectorAll('li').length,
+      localVerticalOwnerCount,
+      nodeCount: figure.querySelectorAll('[data-node-id]').length,
+      operandCount: figure.querySelectorAll('.operand-list > li').length,
+      problems: [...new Set(problems)],
+      reverseRowCount: figure.querySelectorAll('tr[data-edge-reverse]').length,
+      rootOverflowY: getComputedStyle(figure).overflowY,
+      rowCount: figure.querySelectorAll('table tr').length,
+      rowHeaderCount: figure.querySelectorAll('th[scope="row"]').length,
+      ruleAssociationCount: ruleCells.length,
+      ruleKeyCount: figure.querySelectorAll('.rule-key > div').length,
+      scrollerCount: scrollers.length,
+      scrollerTravel,
+      summaryCount: figure.querySelectorAll('.summary-grid > div').length,
+      tableCount: figure.querySelectorAll('table[data-diagram-table]').length,
+      undeclaredHorizontalOwnerCount,
+      viewportHeight: figure.clientHeight,
+      viewportWidth: figure.clientWidth,
+    };
+  });
+}
+
+async function readReadableFlow(diagram: Locator, id: VisualizationId) {
+  return diagram.evaluate((root, visualizationId) => {
+    const figure = root as HTMLElement;
+    const tolerance = 2;
+    const definitions: Record<VisualizationId, readonly [string, string][]> = {
+      'tensor-autodiff-core': [
+        ['caption', ':scope > figcaption'],
+        ['caption-field', ':scope > figcaption > h3, :scope > figcaption > p'],
+        ['summary', ':scope > .summary-grid > div'],
+        ['graph-panel', ':scope > .graph-section'],
+        ['node', '.node-grid > [data-node-id]'],
+        ['node-fact', '.node-card > dl > div'],
+        ['operand', '.operand-list > li'],
+      ],
+      'tensor-autodiff-reverse': [
+        ['caption', ':scope > figcaption'],
+        ['caption-field', ':scope > figcaption > h3, :scope > figcaption > p'],
+        ['reverse-panel', ':scope > .reverse-section'],
+        ['rule', '.rule-key > div'],
+        ['reverse-table', '.vjp-table'],
+        ['edge', 'tr[data-edge-reverse]'],
+        ['edge-field', '.vjp-table th, .vjp-table td'],
+      ],
+      'tensor-autodiff-outcomes': [
+        ['caption', ':scope > figcaption'],
+        ['caption-field', ':scope > figcaption > h3, :scope > figcaption > p'],
+        [
+          'outcome-panel',
+          ':scope > .gradients-section, :scope > .lifecycle-section, :scope > .checks-section, :scope > .errors-section',
+        ],
+        ['outcome-record', '[data-diagram-card]'],
+        ['outcome-field', '[data-diagram-card] dl > div, .error-card > code'],
+      ],
+    };
+    const siblingIndex = (element: Element) =>
+      element.parentElement ? Array.from(element.parentElement.children).indexOf(element) : -1;
+    const semanticIdentity = (element: HTMLElement) => {
+      const direct =
+        element.dataset.nodeId ??
+        element.dataset.edgeReverse ??
+        (element.dataset.parameterGradient && element.dataset.backwardPass
+          ? `${element.dataset.parameterGradient}-${element.dataset.backwardPass}`
+          : undefined) ??
+        element.dataset.lifecycleState ??
+        element.dataset.evidence ??
+        element.dataset.errorKind;
+      if (direct) return direct;
+      const node = element.closest<HTMLElement>('[data-node-id]');
+      if (node) return `node-${node.dataset.nodeId}-part-${siblingIndex(element)}`;
+      const edge = element.closest<HTMLElement>('tr[data-edge-reverse]');
+      if (edge) return `edge-${edge.dataset.edgeReverse}-field-${siblingIndex(element)}`;
+      const outcome = element.closest<HTMLElement>(
+        '[data-backward-pass], [data-lifecycle-state], [data-evidence], [data-error-kind]',
+      );
+      if (outcome) {
+        const outcomeId =
+          (outcome.dataset.parameterGradient && outcome.dataset.backwardPass
+            ? `${outcome.dataset.parameterGradient}-${outcome.dataset.backwardPass}`
+            : undefined) ??
+          outcome.dataset.lifecycleState ??
+          outcome.dataset.evidence ??
+          outcome.dataset.errorKind;
+        return `outcome-${outcomeId}-part-${siblingIndex(element)}`;
+      }
+      return null;
+    };
+    const entities = definitions[visualizationId].flatMap(([kind, selector]) =>
+      Array.from(figure.querySelectorAll<HTMLElement>(selector)).map((element, index) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          key: `${kind}:${semanticIdentity(element) ?? index}`,
+          width: rect.width,
+        };
+      }),
+    );
+    const peerSelectors: Record<VisualizationId, readonly [string, string][]> = {
+      'tensor-autodiff-core': [
+        ['summary', ':scope > .summary-grid'],
+        ['nodes', '.node-grid'],
+        ['node-facts', '.node-card > dl'],
+        ['operands', '.operand-list'],
+      ],
+      'tensor-autodiff-reverse': [['rules', '.rule-key']],
+      'tensor-autodiff-outcomes': [
+        ['gradients', '.gradient-grid'],
+        ['lifecycle', '.lifecycle-grid'],
+        ['checks', '.check-grid'],
+        ['errors', '.error-grid'],
+      ],
+    };
+    const peerColumns = peerSelectors[visualizationId].flatMap(([kind, selector]) =>
+      Array.from(figure.querySelectorAll<HTMLElement>(selector)).map((owner, index) => {
+        const children = Array.from(owner.children).map((child) =>
+          child.getBoundingClientRect(),
+        );
+        const columns = children.reduce(
+          (maximum, candidate) =>
+            Math.max(
+              maximum,
+              children.filter((peer) => Math.abs(peer.top - candidate.top) <= tolerance)
+                .length,
+            ),
+          0,
+        );
+        const semanticOwner = owner.closest<HTMLElement>(
+          '[data-node-id], [data-backward-pass], [data-lifecycle-state], [data-evidence], [data-error-kind]',
+        );
+        return {
+          columns,
+          key: `${kind}:${semanticOwner ? semanticIdentity(semanticOwner) : index}`,
+        };
+      }),
+    );
+    const explicit = (...selectors: string[]) =>
+      selectors.map((selector) => figure.querySelector<HTMLElement>(selector)).filter(
+        (element): element is HTMLElement => Boolean(element),
+      );
+    const flowGroups: readonly [string, readonly HTMLElement[]][] =
+      visualizationId === 'tensor-autodiff-core'
+        ? [
+            [
+              'root-evidence',
+              explicit(':scope > .summary-grid', ':scope > .graph-section'),
+            ],
+          ]
+        : visualizationId === 'tensor-autodiff-reverse'
+          ? [
+              [
+                'reverse-evidence',
+                explicit(
+                  '.reverse-section > h3',
+                  '.reverse-section > p',
+                  '.reverse-section > .rule-key-heading',
+                  '.reverse-section > .rule-key',
+                  '.reverse-section > .trace-scroll',
+                ),
+              ],
+              [
+                'native-table-rows',
+                Array.from(figure.querySelectorAll<HTMLElement>('.vjp-table tr')),
+              ],
+            ]
+          : [
+              [
+                'outcome-panels',
+                explicit(
+                  ':scope > .gradients-section',
+                  ':scope > .lifecycle-section',
+                  ':scope > .checks-section',
+                  ':scope > .errors-section',
+                ),
+              ],
+            ];
+    const flowProblems: string[] = [];
+    for (const [name, elements] of flowGroups) {
+      for (let index = 1; index < elements.length; index += 1) {
+        const previous = elements[index - 1]!.getBoundingClientRect();
+        const current = elements[index]!.getBoundingClientRect();
+        if (current.top < previous.bottom - tolerance) {
+          flowProblems.push(
+            `${name}-${index} starts at ${current.top} before the prior item ends at ${previous.bottom}`,
+          );
+        }
+      }
+    }
+    for (const [kind, selector] of peerSelectors[visualizationId]) {
+      for (const [ownerIndex, owner] of Array.from(
+        figure.querySelectorAll<HTMLElement>(selector),
+      ).entries()) {
+        const direction = getComputedStyle(owner).direction;
+        const records = Array.from(owner.children).map((child) =>
+          child.getBoundingClientRect(),
+        );
+        for (let index = 1; index < records.length; index += 1) {
+          const previous = records[index - 1]!;
+          const current = records[index]!;
+          const blockOverlap =
+            Math.min(previous.bottom, current.bottom) -
+            Math.max(previous.top, current.top);
+          if (blockOverlap > tolerance) {
+            const advancesInline =
+              direction === 'rtl'
+                ? current.right <= previous.left + tolerance
+                : current.left >= previous.right - tolerance;
+            if (!advancesInline) {
+              flowProblems.push(
+                `${kind}-${ownerIndex}-${index} overlaps or reverses its ${direction} source order`,
+              );
+            }
+          } else if (current.top < previous.bottom - tolerance) {
+            flowProblems.push(
+              `${kind}-${ownerIndex}-${index} reverses its later source-order band`,
+            );
+          }
+        }
+      }
+    }
+
+    const section = figure.querySelector<HTMLElement>('.reverse-section');
+    const scroller = figure.querySelector<HTMLElement>('.trace-scroll');
+    let reverseScroller = null as null | {
+      available: number;
+      client: number;
+      debt: number;
+      endDelta: number;
+      startDelta: number;
+      width: number;
+    };
+    if (section && scroller) {
+      const sectionRect = section.getBoundingClientRect();
+      const scrollerRect = scroller.getBoundingClientRect();
+      const style = getComputedStyle(section);
+      const availableStart =
+        sectionRect.left +
+        Number.parseFloat(style.borderLeftWidth) +
+        Number.parseFloat(style.paddingLeft);
+      const availableEnd =
+        sectionRect.right -
+        Number.parseFloat(style.borderRightWidth) -
+        Number.parseFloat(style.paddingRight);
+      reverseScroller = {
+        available: availableEnd - availableStart,
+        client: scroller.clientWidth,
+        debt: Math.max(0, scroller.scrollWidth - scroller.clientWidth),
+        endDelta: Math.abs(availableEnd - scrollerRect.right),
+        startDelta: Math.abs(scrollerRect.left - availableStart),
+        width: scrollerRect.width,
+      };
+    }
+
+    return { entities, flowProblems, peerColumns, reverseScroller };
+  }, id);
+}
+
+const exactFigureCounts = {
+  'tensor-autodiff-core': {
+    borderedOwnerCount: 30,
+    boxCount: 21,
+    cardCount: 16,
+    cellCount: 0,
+    columnHeaderCount: 0,
+    cueCount: 8,
+    directOrder: [
+      'FIGCAPTION.course-diagram__caption',
+      'DL.summary-grid',
+      'SECTION.diagram-section graph-section',
+    ],
+    errorCount: 0,
+    evidenceCount: 0,
+    gradientCount: 0,
+    idrefElementCount: 2,
+    idrefTargetCount: 3,
+    idrefTokenCount: 3,
+    lifecycleCount: 0,
+    listCount: 7,
+    listItemCount: 16,
+    nodeCount: 8,
+    operandCount: 8,
+    reverseRowCount: 0,
+    rowCount: 0,
+    rowHeaderCount: 0,
+    ruleAssociationCount: 0,
+    ruleKeyCount: 0,
+    scrollerCount: 0,
+    summaryCount: 4,
+    tableCount: 0,
+  },
+  'tensor-autodiff-reverse': {
+    borderedOwnerCount: 83,
+    boxCount: 1,
+    cardCount: 0,
+    cellCount: 81,
+    columnHeaderCount: 9,
+    cueCount: 0,
+    directOrder: [
+      'FIGCAPTION.course-diagram__caption',
+      'SECTION.diagram-section reverse-section',
+    ],
+    errorCount: 0,
+    evidenceCount: 0,
+    gradientCount: 0,
+    idrefElementCount: 12,
+    idrefTargetCount: 10,
+    idrefTokenCount: 13,
+    lifecycleCount: 0,
+    listCount: 0,
+    listItemCount: 0,
+    nodeCount: 0,
+    operandCount: 0,
+    reverseRowCount: 8,
+    rowCount: 9,
+    rowHeaderCount: 8,
+    ruleAssociationCount: 8,
+    ruleKeyCount: 6,
+    scrollerCount: 1,
+    summaryCount: 0,
+    tableCount: 1,
+  },
+  'tensor-autodiff-outcomes': {
+    borderedOwnerCount: 29,
+    boxCount: 16,
+    cardCount: 12,
+    cellCount: 0,
+    columnHeaderCount: 0,
+    cueCount: 12,
+    directOrder: [
+      'FIGCAPTION.course-diagram__caption',
+      'SECTION.diagram-section gradients-section',
+      'SECTION.diagram-section lifecycle-section',
+      'SECTION.diagram-section checks-section',
+      'SECTION.diagram-section errors-section',
+    ],
+    errorCount: 4,
+    evidenceCount: 2,
+    gradientCount: 2,
+    idrefElementCount: 5,
+    idrefTargetCount: 6,
+    idrefTokenCount: 6,
+    lifecycleCount: 4,
+    listCount: 0,
+    listItemCount: 0,
+    nodeCount: 0,
+    operandCount: 0,
+    reverseRowCount: 0,
+    rowCount: 0,
+    rowHeaderCount: 0,
+    ruleAssociationCount: 0,
+    ruleKeyCount: 0,
+    scrollerCount: 0,
+    summaryCount: 0,
+    tableCount: 0,
+  },
+} as const;
+
+function expectCompleteFigureAudit(
+  id: VisualizationId,
+  audit: Awaited<ReturnType<typeof readDiagramAudit>>,
+) {
+  const exact = exactFigureCounts[id];
+  for (const [key, expected] of Object.entries(exact)) {
+    expect(audit[key as keyof typeof audit], `${id} ${key}`).toEqual(expected);
+  }
+  expect(audit.inlineDebt, `${id} root inline debt`).toBeLessThanOrEqual(2);
+  expect(
+    audit.undeclaredHorizontalOwnerCount,
+    `${id} undeclared horizontal owner/debt count`,
+  ).toBe(0);
+  expect(
+    audit.localVerticalOwnerCount,
+    `${id} local vertical owner/debt count`,
+  ).toBe(0);
+  expect(audit.problems, `${id} containment/concealment audit`).toEqual([]);
+  for (const travel of audit.scrollerTravel) {
+    expect(travel.client, `${id} scroller client width`).toBeGreaterThan(0);
+  }
+}
+
+function expectReadableFlow(
+  id: VisualizationId,
+  inline: Awaited<ReturnType<typeof readReadableFlow>>,
+  full: Awaited<ReturnType<typeof readReadableFlow>>,
+) {
+  expect(full.flowProblems, `${id} fullscreen source-order vertical flow`).toEqual([]);
+  expect(
+    full.entities.map(({ key }) => key),
+    `${id} evidence entity identity`,
+  ).toEqual(inline.entities.map(({ key }) => key));
+  const inlineWidths = new Map(inline.entities.map(({ key, width }) => [key, width]));
+  for (const entity of full.entities) {
+    expect(
+      entity.width + 2,
+      `${id} ${entity.key} usable inline width (${entity.width} full versus ${inlineWidths.get(entity.key)} inline)`,
+    ).toBeGreaterThanOrEqual(inlineWidths.get(entity.key) ?? Number.POSITIVE_INFINITY);
+  }
+  expect(
+    full.peerColumns.map(({ key }) => key),
+    `${id} peer-layout identity`,
+  ).toEqual(inline.peerColumns.map(({ key }) => key));
+  const inlineColumns = new Map(
+    inline.peerColumns.map(({ key, columns }) => [key, columns]),
+  );
+  for (const peer of full.peerColumns) {
+    expect(
+      peer.columns,
+      `${id} ${peer.key} fullscreen peer columns`,
+    ).toBeLessThanOrEqual(inlineColumns.get(peer.key) ?? -1);
+  }
+
+  if (id === 'tensor-autodiff-reverse') {
+    expect(inline.reverseScroller, `${id} inline scroller geometry`).not.toBeNull();
+    expect(full.reverseScroller, `${id} fullscreen scroller geometry`).not.toBeNull();
+    const before = inline.reverseScroller!;
+    const after = full.reverseScroller!;
+    expect(after.startDelta, `${id} scroller logical-start span`).toBeLessThanOrEqual(2);
+    expect(after.endDelta, `${id} scroller logical-end span`).toBeLessThanOrEqual(2);
+    expect(after.width + 2, `${id} scroller available evidence width`).toBeGreaterThanOrEqual(
+      after.available,
+    );
+    expect(after.client + 2, `${id} fullscreen scroller client width`).toBeGreaterThanOrEqual(
+      before.client,
+    );
+    expect(after.debt, `${id} fullscreen scroller travel`).toBeLessThanOrEqual(
+      before.debt + 2,
+    );
+  } else {
+    expect(inline.reverseScroller, `${id} inline private scroller`).toBeNull();
+    expect(full.reverseScroller, `${id} fullscreen private scroller`).toBeNull();
+  }
+}
+
+function expectRootOwnsVerticalContinuation(
+  id: VisualizationId,
+  audit: Awaited<ReturnType<typeof readDiagramAudit>>,
+) {
+  expect(audit.fullscreen, `${id} is the active fullscreen root`).toBe(true);
+  if (audit.blockDebt > 2) {
+    expect(
+      audit.rootOverflowY,
+      `${id} root must own its ${audit.blockDebt}px vertical continuation`,
+    ).toMatch(/^(?:auto|scroll)$/);
+  }
+}
+
+async function attachReadableFlowMetrics(
+  testInfo: TestInfo,
+  name: string,
+  requestedSurface: { width: number; height: number },
+  page: Page,
+  inlineAudit: Awaited<ReturnType<typeof readDiagramAudit>>,
+  fullAudit: Awaited<ReturnType<typeof readDiagramAudit>>,
+  inlineFlow: Awaited<ReturnType<typeof readReadableFlow>>,
+  fullFlow: Awaited<ReturnType<typeof readReadableFlow>>,
+) {
+  const actualSurface = await page.evaluate(() => ({
+    innerHeight,
+    innerWidth,
+    screenHeight: screen.height,
+    screenWidth: screen.width,
+  }));
+  await testInfo.attach(name, {
+    body: JSON.stringify(
+      {
+        actualSurface,
+        evidenceWidths: {
+          full: fullFlow.entities,
+          inline: inlineFlow.entities,
+        },
+        peerColumns: {
+          full: fullFlow.peerColumns,
+          inline: inlineFlow.peerColumns,
+        },
+        requestedSurface,
+        reverseScroller: {
+          full: fullFlow.reverseScroller,
+          inline: inlineFlow.reverseScroller,
+        },
+        root: {
+          full: {
+            blockDebt: fullAudit.blockDebt,
+            clientHeight: fullAudit.viewportHeight,
+            clientWidth: fullAudit.viewportWidth,
+            inlineDebt: fullAudit.inlineDebt,
+            overflowY: fullAudit.rootOverflowY,
+          },
+          inline: {
+            blockDebt: inlineAudit.blockDebt,
+            clientHeight: inlineAudit.viewportHeight,
+            clientWidth: inlineAudit.viewportWidth,
+            inlineDebt: inlineAudit.inlineDebt,
+          },
+        },
+      },
+      null,
+      2,
+    ),
+    contentType: 'application/json',
+  });
+}
+
+function expectFontsNotShrunk(
+  id: VisualizationId,
+  inline: Awaited<ReturnType<typeof readDiagramAudit>>,
+  full: Awaited<ReturnType<typeof readDiagramAudit>>,
+) {
+  expect(full.fontSizes.map(({ index }) => index), `${id} font sample identity`).toEqual(
+    inline.fontSizes.map(({ index }) => index),
+  );
+  const inlinePixels = new Map(inline.fontSizes.map(({ index, pixels }) => [index, pixels]));
+  for (const sample of full.fontSizes) {
+    expect(
+      sample.pixels + 0.01,
+      `${id} font sample ${sample.index} must not shrink`,
+    ).toBeGreaterThanOrEqual(inlinePixels.get(sample.index) ?? Number.POSITIVE_INFINITY);
+  }
+}
 
 async function expectChapterContent(
   page: Page,
@@ -296,19 +1333,40 @@ async function expectChapterContent(
   await expectVisualizationDecision(page, {
     decision: 'useful',
     id: 'tensor-autodiff-core',
+    supplementary: [
+      { id: 'tensor-autodiff-reverse' },
+      { id: 'tensor-autodiff-outcomes' },
+    ],
   });
-  const diagram = page.locator('figure[data-visualization-id="tensor-autodiff-core"]');
-  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
-  await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
-  for (const heading of localized.diagramSections) {
-    await expect(diagram.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+  const renderedIds = await page
+    .locator('figure[data-visualization-id]')
+    .evaluateAll((figures) => figures.map((figure) => figure.getAttribute('data-visualization-id')));
+  expect(renderedIds).toEqual(visualizationIds);
+  const figures = Object.fromEntries(
+    visualizationIds.map((id) => [
+      id,
+      page.locator(`figure[data-visualization-id="${id}"]`),
+    ]),
+  ) as Record<VisualizationId, Locator>;
+  for (const id of visualizationIds) {
+    const localizedFigure = localized.figures[id];
+    await expect(figures[id]).toHaveAccessibleName(localizedFigure.title);
+    await expect(figures[id]).toHaveAccessibleDescription(localizedFigure.description);
+    for (const heading of localizedFigure.sections) {
+      await expect(
+        figures[id].getByRole('heading', { name: heading, exact: true }),
+      ).toBeVisible();
+    }
+    for (const term of localizedFigure.terms) {
+      await expect(figures[id].getByText(term, { exact: false }).first()).toBeVisible();
+    }
   }
-  for (const term of localized.diagramTerms) {
-    await expect(diagram.getByText(term, { exact: false }).first()).toBeVisible();
-  }
+  const core = figures['tensor-autodiff-core'];
+  const reverse = figures['tensor-autodiff-reverse'];
+  const outcomes = figures['tensor-autodiff-outcomes'];
 
   expect(
-    await diagram.locator('[data-node-id]').evaluateAll((nodes) =>
+    await core.locator('[data-node-id]').evaluateAll((nodes) =>
       nodes.map((node) => ({
         id: node.getAttribute('data-node-id'),
         label: node.getAttribute('data-node-label'),
@@ -330,7 +1388,25 @@ async function expectChapterContent(
     { id: '7', label: 'y', topology: '7', operation: 'mean', shape: '2', values: '11.000000000000,18.000000000000', adjoint: '3.000000000000,6.000000000000' },
   ]);
   expect(
-    await diagram.locator('tr[data-edge-reverse]').evaluateAll((rows) =>
+    await core.locator('.operand-list > li').evaluateAll((records) =>
+      records.map((record) => ({
+        child: record.closest<HTMLElement>('[data-node-label]')?.dataset.nodeLabel ?? null,
+        operand: record.querySelector('bdi')?.textContent?.trim() ?? null,
+        parent: record.querySelector('strong code')?.textContent?.trim() ?? null,
+      })),
+    ),
+  ).toEqual([
+    { child: 'r', operand: '0', parent: 'x' },
+    { child: 't', operand: '0', parent: 'r' },
+    { child: 'bb', operand: '0', parent: 'bias' },
+    { child: 'z', operand: '0', parent: 't' },
+    { child: 'z', operand: '1', parent: 'bb' },
+    { child: 'q', operand: '0', parent: 'z' },
+    { child: 'q', operand: '1', parent: 'z' },
+    { child: 'y', operand: '0', parent: 'q' },
+  ]);
+  expect(
+    await reverse.locator('tr[data-edge-reverse]').evaluateAll((rows) =>
       rows.map((row) => ({
         reverse: row.getAttribute('data-edge-reverse'),
         child: row.getAttribute('data-child'),
@@ -357,7 +1433,7 @@ async function expectChapterContent(
   ]);
 
   expect(
-    await diagram.locator('[data-parameter-gradient]').evaluateAll((cards) =>
+    await outcomes.locator('[data-parameter-gradient]').evaluateAll((cards) =>
       cards
         .filter((card) => card.hasAttribute('data-backward-pass'))
         .map((card) => ({
@@ -372,7 +1448,7 @@ async function expectChapterContent(
     { parameter: 'bias', pass: '1', shape: '3', gradient: '16.000000000000,16.000000000000,34.000000000000' },
   ]);
   expect(
-    await diagram.locator('[data-lifecycle-state]').evaluateAll((cards) =>
+    await outcomes.locator('[data-lifecycle-state]').evaluateAll((cards) =>
       cards.map((card) => ({
         state: card.getAttribute('data-lifecycle-state'),
         x: card.getAttribute('data-x-gradient'),
@@ -389,7 +1465,7 @@ async function expectChapterContent(
     { state: 'released', x: null, bias: null, operation: 'mean', released: 'yes', unchanged: 'yes' },
   ]);
   expect(
-    await diagram.locator('[data-evidence]').evaluateAll((cards) =>
+    await outcomes.locator('[data-evidence]').evaluateAll((cards) =>
       cards.map((card) => ({
         kind: card.getAttribute('data-evidence'),
         expression: card.getAttribute('data-expression'),
@@ -407,7 +1483,7 @@ async function expectChapterContent(
     { kind: 'gradcheck', expression: null, value: null, gradient: null, detached: null, operations: 'add,multiply,reshape,transpose,broadcast,sum,mean', xSamples: '0,1,3,5', biasSamples: '0,1,2', status: 'pass' },
   ]);
   expect(
-    await diagram.locator('[data-error-kind]').evaluateAll((cards) =>
+    await outcomes.locator('[data-error-kind]').evaluateAll((cards) =>
       cards.map((card) => ({
         kind: card.getAttribute('data-error-kind'),
         gradients: card.getAttribute('data-gradients-unchanged'),
@@ -421,12 +1497,22 @@ async function expectChapterContent(
     { kind: 'non-finite-accumulated-gradient', gradients: 'yes', graph: 'yes' },
   ]);
 
-  expect(
-    await diagram.locator('code, bdi').evaluateAll((nodes) =>
-      nodes.every((node) => window.getComputedStyle(node).direction === 'ltr'),
-    ),
-  ).toBe(true);
-  const scroller = diagram.locator('.trace-scroll');
+  for (const id of visualizationIds) {
+    expect(
+      await figures[id].locator('code, bdi').evaluateAll((nodes) =>
+        nodes.every((node) => window.getComputedStyle(node).direction === 'ltr'),
+      ),
+    ).toBe(true);
+  }
+  await expect(core.locator('[data-diagram-scroll]')).toHaveCount(0);
+  await expect(reverse.locator('[data-diagram-scroll]')).toHaveCount(1);
+  await expect(outcomes.locator('[data-diagram-scroll]')).toHaveCount(0);
+  await expect(page.locator('figure.course-diagram [data-diagram-scroll]')).toHaveCount(1);
+  await settle(page);
+  for (const id of visualizationIds) {
+    expectCompleteFigureAudit(id, await readDiagramAudit(figures[id]));
+  }
+  const scroller = reverse.locator('.trace-scroll');
   await scroller.focus();
   await expect(scroller).toBeFocused();
   if (narrow) {
@@ -435,14 +1521,14 @@ async function expectChapterContent(
       scroll: node.scrollWidth,
     }));
     expect(widths.scroll).toBeGreaterThan(widths.client);
-    for (const selector of [
-      '.node-card',
-      '.gradient-card',
-      '.lifecycle-card',
-      '.check-card',
-      '.error-card',
-    ]) {
-      const positions = await diagram.locator(selector).evaluateAll((cards) =>
+    for (const [owner, selector] of [
+      [core, '.node-card'],
+      [outcomes, '.gradient-card'],
+      [outcomes, '.lifecycle-card'],
+      [outcomes, '.check-card'],
+      [outcomes, '.error-card'],
+    ] as const) {
+      const positions = await owner.locator(selector).evaluateAll((cards) =>
         cards.slice(0, 2).map((card) => {
           const rectangle = card.getBoundingClientRect();
           return { left: rectangle.left, top: rectangle.top, bottom: rectangle.bottom };
@@ -467,6 +1553,8 @@ async function expectChapterContent(
 test.describe('chapter 15 localized tensor-autodiff-core vertical slice', {
   tag: chapterTag(chapterId),
 }, () => {
+  test.describe.configure({ mode: 'serial' });
+
   test('chapter 15 is fifteenth on both indexes with direct equivalent locale routes', async ({
     page,
   }) => {
@@ -519,63 +1607,537 @@ test.describe('chapter 15 localized tensor-autodiff-core vertical slice', {
     });
   }
 
-  test('operation roles, lifecycle states, and rejections survive forced colors', async ({
+  test('each localized figure independently reuses its DOM in readable standard full view', async ({
     page,
-  }) => {
-    await page.emulateMedia({ forcedColors: 'active' });
+  }, testInfo) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 1280, height: 900 });
     for (const locale of chapterLocales) {
       await page.goto(chapterPath(locale, chapterId));
-      const diagram = page.locator('figure[data-visualization-id="tensor-autodiff-core"]');
-      const parameter = diagram.locator('.node-parameter').first();
-      const structural = diagram.locator('.node-structural').first();
-      const broadcast = diagram.locator('.node-broadcast');
-      const elementwise = diagram.locator('.node-elementwise').first();
-      const reduction = diagram.locator('.node-reduction');
-      const second = diagram.locator('.state-secondPass');
-      const zeroed = diagram.locator('.state-zeroed');
-      const released = diagram.locator('.state-released');
-      const rejected = diagram.locator('.state-rejected').first();
-      await expect(parameter.locator('.state-symbol')).toHaveText('P');
-      await expect(structural.locator('.state-symbol')).toHaveText('S');
-      await expect(broadcast.locator('.state-symbol')).toHaveText('B');
-      await expect(elementwise.locator('.state-symbol')).toHaveText('E');
-      await expect(reduction.locator('.state-symbol')).toHaveText('Σ');
-      await expect(second.locator('.state-symbol')).toHaveText('2');
-      await expect(zeroed.locator('.state-symbol')).toHaveText('0');
-      await expect(released.locator('.state-symbol')).toHaveText('X');
-      await expect(rejected.locator('.state-symbol')).toHaveText('!');
-      expect(await parameter.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('solid');
-      expect(await structural.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dotted');
-      expect(await broadcast.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
-      expect(await elementwise.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('double');
-      expect(await reduction.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('ridge');
-      expect(await second.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('double');
-      expect(await zeroed.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dotted');
-      expect(await released.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
-      expect(await rejected.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
+      await settle(page);
+      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(3);
+      for (const id of visualizationIds) {
+        const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        const inlineMarkup = await staticDiagramMarkup(diagram);
+        const inlineAudit = await readDiagramAudit(diagram);
+        const inlineFlow = await readReadableFlow(diagram, id);
+        expectCompleteFigureAudit(id, inlineAudit);
+        await diagram.evaluate((root, visualizationId) => {
+          const semantic = Array.from(
+            root.querySelectorAll(
+              '[data-node-id], .operand-list > li, tr[data-edge-reverse], [data-parameter-gradient][data-backward-pass], [data-lifecycle-state], [data-evidence], [data-error-kind]',
+            ),
+          );
+          const state = window as unknown as {
+            __ch15FigureIdentity?: Record<string, { root: Element; semantic: Element[] }>;
+          };
+          state.__ch15FigureIdentity ??= {};
+          state.__ch15FigureIdentity[visualizationId] = { root, semantic };
+        }, id);
+
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+        await toggle.click();
+        await page.waitForFunction(
+          (visualizationId) =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            visualizationId,
+          id,
+        );
+        await settle(page);
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+        for (const otherId of visualizationIds.filter((candidate) => candidate !== id)) {
+          await expect(
+            page.locator(
+              `figure[data-visualization-id="${otherId}"] [data-diagram-full-view-toggle]`,
+            ),
+          ).toHaveAttribute('aria-expanded', 'false');
+        }
+        expect(await staticDiagramMarkup(diagram), `${locale}/${id} full markup`).toBe(
+          inlineMarkup,
+        );
+        expect(
+          await diagram.evaluate((root, visualizationId) => {
+            const state = window as unknown as {
+              __ch15FigureIdentity?: Record<string, { root: Element; semantic: Element[] }>;
+            };
+            const before = state.__ch15FigureIdentity?.[visualizationId];
+            const semantic = Array.from(
+              root.querySelectorAll(
+                '[data-node-id], .operand-list > li, tr[data-edge-reverse], [data-parameter-gradient][data-backward-pass], [data-lifecycle-state], [data-evidence], [data-error-kind]',
+              ),
+            );
+            return Boolean(
+              before &&
+                before.root === root &&
+                before.semantic.length === semantic.length &&
+                semantic.every((node, index) => before.semantic[index] === node),
+            );
+          }, id),
+          `${locale}/${id} semantic DOM identity`,
+        ).toBe(true);
+        const fullAudit = await readDiagramAudit(diagram);
+        const fullFlow = await readReadableFlow(diagram, id);
+        await attachReadableFlowMetrics(
+          testInfo,
+          `standard-${locale}-${id}.json`,
+          { width: 1280, height: 900 },
+          page,
+          inlineAudit,
+          fullAudit,
+          inlineFlow,
+          fullFlow,
+        );
+        expectCompleteFigureAudit(id, fullAudit);
+        expectRootOwnsVerticalContinuation(id, fullAudit);
+        expectReadableFlow(id, inlineFlow, fullFlow);
+        expectFontsNotShrunk(id, inlineAudit, fullAudit);
+
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+        expect(await staticDiagramMarkup(diagram), `${locale}/${id} exit markup`).toBe(
+          inlineMarkup,
+        );
+        expect(
+          await diagram.evaluate((root, visualizationId) => {
+            const state = window as unknown as {
+              __ch15FigureIdentity?: Record<string, { root: Element; semantic: Element[] }>;
+            };
+            const before = state.__ch15FigureIdentity?.[visualizationId];
+            const semantic = Array.from(
+              root.querySelectorAll(
+                '[data-node-id], .operand-list > li, tr[data-edge-reverse], [data-parameter-gradient][data-backward-pass], [data-lifecycle-state], [data-evidence], [data-error-kind]',
+              ),
+            );
+            return Boolean(
+              before &&
+                before.root === root &&
+                before.semantic.length === semantic.length &&
+                semantic.every((node, index) => before.semantic[index] === node),
+            );
+          }, id),
+          `${locale}/${id} post-Escape semantic DOM identity`,
+        ).toBe(true);
+      }
       await expectNoOverflowOrClientScripts(page);
     }
   });
 
-  test('the full lesson and Rust-derived tensor graph render with JavaScript disabled', async ({
+  test('the 1024x576 eligibility boundary keeps the same readable-width flow contract', async ({
     browser,
+    browserName,
   }, testInfo) => {
+    test.setTimeout(120_000);
+    const baseURL = testInfo.project.use.baseURL;
+    if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
     const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
+      baseURL,
+      screen: { width: 1024, height: 576 },
+      viewport: { width: 1024, height: 576 },
     });
     const page = await context.newPage();
+    try {
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        await settle(page);
+        const inlineSurface = await page.evaluate(() => ({
+          innerHeight,
+          innerWidth,
+          screenHeight: screen.height,
+          screenWidth: screen.width,
+        }));
+        expect(inlineSurface.innerHeight).toBe(576);
+        expect(inlineSurface.innerWidth).toBe(1024);
+        if (browserName === 'chromium') {
+          expect(inlineSurface.screenHeight).toBe(576);
+          expect(inlineSurface.screenWidth).toBe(1024);
+        } else {
+          expect(inlineSurface.screenHeight).toBeGreaterThan(0);
+          expect(inlineSurface.screenWidth).toBeGreaterThan(0);
+        }
+        await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(3);
+        for (const id of visualizationIds) {
+          const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
+          const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+          const inlineMarkup = await staticDiagramMarkup(diagram);
+          const inlineAudit = await readDiagramAudit(diagram);
+          const inlineFlow = await readReadableFlow(diagram, id);
+          expectCompleteFigureAudit(id, inlineAudit);
+          await toggle.click();
+          await page.waitForFunction(
+            (visualizationId) =>
+              document.fullscreenElement?.getAttribute('data-visualization-id') ===
+              visualizationId,
+            id,
+          );
+          await settle(page);
+          const audit = await readDiagramAudit(diagram);
+          const fullFlow = await readReadableFlow(diagram, id);
+          await attachReadableFlowMetrics(
+            testInfo,
+            `boundary-${browserName}-${locale}-${id}.json`,
+            { width: 1024, height: 576 },
+            page,
+            inlineAudit,
+            audit,
+            inlineFlow,
+            fullFlow,
+          );
+          expectCompleteFigureAudit(id, audit);
+          expectRootOwnsVerticalContinuation(id, audit);
+          expect(await staticDiagramMarkup(diagram), `${locale}/${id} boundary markup`).toBe(
+            inlineMarkup,
+          );
+          expectReadableFlow(id, inlineFlow, fullFlow);
+          expectFontsNotShrunk(id, inlineAudit, audit);
+          await page.keyboard.press('Escape');
+          await page.waitForFunction(() => document.fullscreenElement === null);
+          await expect(toggle).toBeFocused();
+          await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+          expect(
+            await staticDiagramMarkup(diagram),
+            `${locale}/${id} boundary exit markup`,
+          ).toBe(inlineMarkup);
+        }
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('all graph and outcome cues plus every reverse cell survive forced colors', async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.emulateMedia({ forcedColors: 'active' });
     for (const locale of chapterLocales) {
       await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('[data-node-id]')).toHaveCount(8);
-      await expect(page.locator('tr[data-edge-reverse]')).toHaveCount(8);
-      await expect(page.locator('[data-parameter-gradient][data-backward-pass]')).toHaveCount(2);
-      await expect(page.locator('[data-lifecycle-state]')).toHaveCount(4);
-      await expect(page.locator('[data-evidence]')).toHaveCount(2);
-      await expect(page.locator('[data-error-kind]')).toHaveCount(4);
+      await settle(page);
+      expect(
+        await page.evaluate(() => matchMedia('(forced-colors: active)').matches),
+      ).toBe(true);
+      const core = page.locator('figure[data-visualization-id="tensor-autodiff-core"]');
+      const outcomes = page.locator(
+        'figure[data-visualization-id="tensor-autodiff-outcomes"]',
+      );
+      expect(
+        await core.locator('.node-card').evaluateAll((cards) =>
+          cards.map((card) => ({
+            symbol: card.querySelector('.state-symbol')?.textContent,
+            border: getComputedStyle(card).borderTopStyle,
+          })),
+        ),
+      ).toEqual([
+        { symbol: 'P', border: 'solid' },
+        { symbol: 'S', border: 'dotted' },
+        { symbol: 'S', border: 'dotted' },
+        { symbol: 'P', border: 'solid' },
+        { symbol: 'B', border: 'dashed' },
+        { symbol: 'E', border: 'double' },
+        { symbol: 'E', border: 'double' },
+        { symbol: 'Σ', border: 'ridge' },
+      ]);
+      expect(
+        await outcomes.locator('[data-diagram-card]').evaluateAll((cards) =>
+          cards.map((card) => ({
+            symbol: card.querySelector('.state-symbol')?.textContent,
+            border: getComputedStyle(card).borderTopStyle,
+          })),
+        ),
+      ).toEqual([
+        { symbol: '1', border: 'solid' },
+        { symbol: '1', border: 'solid' },
+        { symbol: '2', border: 'double' },
+        { symbol: '0', border: 'dotted' },
+        { symbol: 'R', border: 'double' },
+        { symbol: 'X', border: 'dashed' },
+        { symbol: 'D', border: 'dashed' },
+        { symbol: 'OK', border: 'double' },
+        { symbol: '!', border: 'dashed' },
+        { symbol: '!', border: 'dashed' },
+        { symbol: '!', border: 'dashed' },
+        { symbol: '!', border: 'dashed' },
+      ]);
+      for (const id of visualizationIds) {
+        const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
+        const inlineAudit = await readDiagramAudit(diagram);
+        const inlineFlow = await readReadableFlow(diagram, id);
+        expectCompleteFigureAudit(id, inlineAudit);
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        await toggle.click();
+        await page.waitForFunction(
+          (visualizationId) =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            visualizationId,
+          id,
+        );
+        await settle(page);
+        expect(
+          await page.evaluate(() => matchMedia('(forced-colors: active)').matches),
+        ).toBe(true);
+        const fullAudit = await readDiagramAudit(diagram);
+        const fullFlow = await readReadableFlow(diagram, id);
+        await attachReadableFlowMetrics(
+          testInfo,
+          `forced-colors-${locale}-${id}.json`,
+          { width: 1280, height: 900 },
+          page,
+          inlineAudit,
+          fullAudit,
+          inlineFlow,
+          fullFlow,
+        );
+        expectCompleteFigureAudit(id, fullAudit);
+        expectRootOwnsVerticalContinuation(id, fullAudit);
+        expectReadableFlow(id, inlineFlow, fullFlow);
+        expectFontsNotShrunk(id, inlineAudit, fullAudit);
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
       await expectNoOverflowOrClientScripts(page);
     }
-    await context.close();
+  });
+
+  test('synthetic RTL mirrors logical geometry without changing semantic order', async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(chapterPath('en', chapterId));
+    await settle(page);
+    const readWitnesses = () =>
+      page.evaluate(() => {
+        const witness = (figureId: string, ownerSelector: string, itemSelector: string) => {
+          const figure = document.querySelector<HTMLElement>(
+            `figure[data-visualization-id="${figureId}"]`,
+          );
+          const owner = figure?.querySelector<HTMLElement>(ownerSelector);
+          const item = figure?.querySelector<HTMLElement>(itemSelector);
+          if (!figure || !owner || !item) throw new Error(`Missing RTL witness ${figureId}`);
+          const ownerRect = owner.getBoundingClientRect();
+          const itemRect = item.getBoundingClientRect();
+          return {
+            direction: getComputedStyle(figure).direction,
+            fromLeft: itemRect.left - ownerRect.left,
+            fromRight: ownerRect.right - itemRect.right,
+          };
+        };
+        return {
+          core: witness('tensor-autodiff-core', '.node-grid', '.node-card'),
+          reverse: witness('tensor-autodiff-reverse', '.vjp-table', 'thead th'),
+          outcomes: witness(
+            'tensor-autodiff-outcomes',
+            '.gradient-grid',
+            '.gradient-card',
+          ),
+        };
+      });
+    const ltr = await readWitnesses();
+    await page.locator('html').evaluate((root) => root.setAttribute('dir', 'rtl'));
+    await settle(page);
+    const rtl = await readWitnesses();
+    for (const key of ['core', 'reverse', 'outcomes'] as const) {
+      expect(ltr[key].direction).toBe('ltr');
+      expect(rtl[key].direction).toBe('rtl');
+      expect(
+        Math.abs(ltr[key].fromLeft - rtl[key].fromRight),
+        `${key} logical mirror`,
+      ).toBeLessThanOrEqual(2);
+    }
+    expect(
+      await page.locator('[data-node-id]').evaluateAll((nodes) =>
+        nodes.map((node) => node.getAttribute('data-topology-order')),
+      ),
+    ).toEqual(['0', '1', '2', '3', '4', '5', '6', '7']);
+    expect(
+      await page.locator('tr[data-edge-reverse]').evaluateAll((rows) =>
+        rows.map((row) => row.getAttribute('data-edge-reverse')),
+      ),
+    ).toEqual(['0', '1', '2', '3', '4', '5', '6', '7']);
+    expect(
+      await page.locator('[data-lifecycle-state]').evaluateAll((records) =>
+        records.map((record) => record.getAttribute('data-lifecycle-state')),
+      ),
+    ).toEqual(['second-pass', 'zeroed', 'after-zero-release', 'released']);
+    for (const id of visualizationIds) {
+      const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
+      const inlineAudit = await readDiagramAudit(diagram);
+      const inlineFlow = await readReadableFlow(diagram, id);
+      expectCompleteFigureAudit(id, inlineAudit);
+      expect(
+        await diagram.locator('code, bdi').evaluateAll((nodes) =>
+          nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+        ),
+      ).toBe(true);
+      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+      await toggle.click();
+      await page.waitForFunction(
+        (visualizationId) =>
+          document.fullscreenElement?.getAttribute('data-visualization-id') ===
+          visualizationId,
+        id,
+      );
+      await settle(page);
+      const readExpandedWitness = () =>
+        diagram.evaluate((root, visualizationId) => {
+          const selectors: Record<VisualizationId, [string, string]> = {
+            'tensor-autodiff-core': ['.node-grid', '.node-card'],
+            'tensor-autodiff-reverse': ['.vjp-table', 'thead th'],
+            'tensor-autodiff-outcomes': ['.gradient-grid', '.gradient-card'],
+          };
+          const [ownerSelector, itemSelector] = selectors[visualizationId];
+          const owner = root.querySelector<HTMLElement>(ownerSelector);
+          const item = root.querySelector<HTMLElement>(itemSelector);
+          if (!owner || !item) {
+            throw new Error(`Missing expanded RTL witness ${visualizationId}`);
+          }
+          const ownerRect = owner.getBoundingClientRect();
+          const itemRect = item.getBoundingClientRect();
+          return {
+            direction: getComputedStyle(root).direction,
+            fromLeft: itemRect.left - ownerRect.left,
+            fromRight: ownerRect.right - itemRect.right,
+          };
+        }, id);
+      await page.locator('html').evaluate((root) => root.setAttribute('dir', 'ltr'));
+      await settle(page);
+      const ltrFullWitness = await readExpandedWitness();
+      await page.locator('html').evaluate((root) => root.setAttribute('dir', 'rtl'));
+      await settle(page);
+      const rtlFullWitness = await readExpandedWitness();
+      expect(ltrFullWitness.direction).toBe('ltr');
+      expect(rtlFullWitness.direction).toBe('rtl');
+      expect(
+        Math.abs(ltrFullWitness.fromLeft - rtlFullWitness.fromRight),
+        `${id} expanded logical mirror`,
+      ).toBeLessThanOrEqual(2);
+      const fullAudit = await readDiagramAudit(diagram);
+      const fullFlow = await readReadableFlow(diagram, id);
+      await attachReadableFlowMetrics(
+        testInfo,
+        `rtl-${id}.json`,
+        { width: 1280, height: 900 },
+        page,
+        inlineAudit,
+        fullAudit,
+        inlineFlow,
+        fullFlow,
+      );
+      expectCompleteFigureAudit(id, fullAudit);
+      expectRootOwnsVerticalContinuation(id, fullAudit);
+      expectReadableFlow(id, inlineFlow, fullFlow);
+      expectFontsNotShrunk(id, inlineAudit, fullAudit);
+      expect(await diagram.evaluate((root) => getComputedStyle(root).direction)).toBe('rtl');
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
+      await expect(toggle).toBeFocused();
+    }
+    await expectNoOverflowOrClientScripts(page);
+  });
+
+  test('desktop and narrow EN/RU remain complete without JavaScript', async ({
+    browser,
+  }, testInfo) => {
+    test.setTimeout(120_000);
+    const baseURL = testInfo.project.use.baseURL;
+    if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
+    for (const locale of chapterLocales) {
+      for (const viewport of [
+        { width: 1440, height: 1000 },
+        { width: 390, height: 844 },
+      ]) {
+        const context = await browser.newContext({
+          baseURL,
+          javaScriptEnabled: false,
+          viewport,
+        });
+        const page = await context.newPage();
+        try {
+          await page.goto(chapterPath(locale, chapterId));
+          await expect(
+            page.getByRole('heading', { level: 1, name: copy[locale].title }),
+          ).toBeVisible();
+          await expect(page.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
+          await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+          for (const id of visualizationIds) {
+            const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
+            await expect(diagram).toHaveAccessibleName(copy[locale].figures[id].title);
+            await expect(diagram).toHaveAccessibleDescription(
+              copy[locale].figures[id].description,
+            );
+            expectCompleteFigureAudit(id, await readDiagramAudit(diagram));
+          }
+          await expect(page.locator('[data-node-id]')).toHaveCount(8);
+          await expect(page.locator('tr[data-edge-reverse]')).toHaveCount(8);
+          await expect(page.locator('[data-lifecycle-state]')).toHaveCount(4);
+          await expect(page.locator('[data-evidence]')).toHaveCount(2);
+          await expect(page.locator('[data-error-kind]')).toHaveCount(4);
+          await expect(page.locator('[data-diagram-scroll]')).toHaveCount(1);
+          if (viewport.width === 390) {
+            const widths = await page.locator('[data-diagram-scroll]').evaluate((node) => ({
+              client: node.clientWidth,
+              scroll: node.scrollWidth,
+            }));
+            expect(widths.scroll).toBeGreaterThan(widths.client);
+          }
+          await expectNoOverflowOrClientScripts(page);
+        } finally {
+          await context.close();
+        }
+      }
+    }
+  });
+
+  test('mobile and unsupported Fullscreen API expose no unusable control', async ({
+    browser,
+  }, testInfo) => {
+    const baseURL = testInfo.project.use.baseURL;
+    if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
+    for (const locale of chapterLocales) {
+      const mobile = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
+      const mobilePage = await mobile.newPage();
+      try {
+        await mobilePage.goto(chapterPath(locale, chapterId));
+        await expect(mobilePage.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+        for (const id of visualizationIds) {
+          expectCompleteFigureAudit(
+            id,
+            await readDiagramAudit(
+              mobilePage.locator(`figure[data-visualization-id="${id}"]`),
+            ),
+          );
+        }
+      } finally {
+        await mobile.close();
+      }
+
+      const unsupported = await browser.newContext({
+        baseURL,
+        viewport: { width: 1440, height: 1000 },
+      });
+      await unsupported.addInitScript(() => {
+        Object.defineProperty(document, 'fullscreenEnabled', {
+          configurable: true,
+          value: false,
+        });
+      });
+      const unsupportedPage = await unsupported.newPage();
+      try {
+        await unsupportedPage.goto(chapterPath(locale, chapterId));
+        await expect(unsupportedPage.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+        for (const id of visualizationIds) {
+          expectCompleteFigureAudit(
+            id,
+            await readDiagramAudit(
+              unsupportedPage.locator(`figure[data-visualization-id="${id}"]`),
+            ),
+          );
+        }
+      } finally {
+        await unsupported.close();
+      }
+    }
   });
 });

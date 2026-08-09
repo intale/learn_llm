@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "concept_id": "tensor-autodiff-core",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 15,
   "objective": {
     "en": "Differentiate structural and elementwise tensor expressions while reversing shape transformations, broadcasts, and reductions correctly.",
@@ -137,10 +137,29 @@
   "visualization": {
     "decision": "useful",
     "id": "tensor-autodiff-core",
+    "component": "TensorAutodiffCoreDiagram",
     "rationale": {
-      "en": "An eight-node tensor-operation DAG can keep forward shapes, eight ordered operand edges, the non-scalar seed, repeated multiply contributions, broadcast reduction axes, shape restoration by structural VJPs, parameter-only stored gradients, and graph lifecycle states visible together; a flat list of final gradients hides where each shape is restored.",
-      "ru": "Граф из восьми узлов тензорных операций позволяет одновременно увидеть формы прямого прохода, восемь упорядоченных рёбер использования операндов, начальную сопряжённую величину нескалярного выхода, VJP с точными формами, два вклада повторного умножения, оси, по которым суммируются вклады при обращении согласования форм, восстановление формы с помощью структурных VJP, градиенты, накопленные только в параметрах, и состояния жизненного цикла графа. В плоском списке итоговых градиентов не видно, где именно восстанавливается каждая форма."
-    }
+      "en": "An ordered graph figure can show each of the eight tensor nodes once while retaining all eight operand uses, forward shapes and values, operation classes, and pass-local adjoints; those node-to-edge relationships are easy to lose in a flat result list.",
+      "ru": "Упорядоченная схема графа позволяет показать каждый из восьми тензорных узлов один раз, сохранив все восемь использований операндов, формы и значения прямого прохода, классы операций и сопряжённые величины текущего прохода. В плоском списке результатов связи между узлами и рёбрами легко потерять."
+    },
+    "supplementary": [
+      {
+        "id": "tensor-autodiff-reverse",
+        "component": "TensorAutodiffReverseDiagram",
+        "rationale": {
+          "en": "A separate edge-major reverse figure preserves seed [3,6], reverse order 0 through 7, source and target shapes, upstream adjoints, local VJP rules, reduced axes, saved contexts, and parent contributions without forcing the graph traversal and reverse ledger into one oversized figure.",
+          "ru": "Отдельная схема обратного прохода с одной строкой на ребро сохраняет начальную сопряжённую величину [3,6], порядок от 0 до 7, формы результата и родителя, входящие сопряжённые величины, локальные правила VJP, оси редукции, сохранённый контекст и вклады в родителей, не вынуждая объединять обход графа и журнал обратного прохода в одну перегруженную схему."
+        }
+      },
+      {
+        "id": "tensor-autodiff-outcomes",
+        "component": "TensorAutodiffOutcomesDiagram",
+        "rationale": {
+          "en": "A separate outcomes figure compares exact parameter gradients, retained accumulation, zeroing, release, detach, sampled VJP checks, and typed rejections without crowding either the forward graph or the edge-major reverse ledger.",
+          "ru": "Отдельная схема результатов позволяет сопоставить точные градиенты параметров, накопление при сохранённом графе, обнуление, освобождение, detach, выборочные проверки VJP и запросы, отклонённые с типизированными ошибками, не перегружая ни граф прямого прохода, ни таблицу обратного прохода с одной строкой на ребро."
+        }
+      }
+    ]
   },
   "decoder_connection": {
     "en": "The cumulative project can now reverse shape-preserving elementwise operations and structural tensor transformations while returning every contribution to its parent's exact shape, accumulating only parameter-leaf gradients, and releasing saved operation context safely. VJPs that map one logical shape onto another can reuse the checked projected-stride traversal. Chapter 16 adds model-critical VJPs for matrix multiplication, repeated embedding gathers, nonlinearities, log-softmax, and indexed mean token loss; Chapter 15 alone still cannot train the decoder.",
@@ -229,7 +248,8 @@
     }
   ],
   "translation_notes": [
-    "Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 8 with SHA-256 c5a1eb87e400b3a7e901a2b65c3399a3c5a70c607c07f0f0dc8fe51a36f36128 and becomes stale whenever that source changes.",
+    "Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 9 with SHA-256 4b553b8b10aacbe02f998be66a14934756c4995569c9d96c7e0dff9a5438c852 and becomes stale whenever that source changes.",
+    "Keep the ordered visualization registration tensor-autodiff-core, tensor-autodiff-reverse, then tensor-autodiff-outcomes identical across locales. Translate each figure's title and description at its own graph, reverse-edge, or outcome scope; do not move a result or relationship between figures during localization.",
     "Keep shapes, axes, ordered values, seeds, gradients, bar notation, Jacobian notation, Rust identifiers, formulas, and source URLs exact across locales.",
     "In the displayed formula, the superscript transpose applies to the conceptual Jacobian map. It is not the same object as the forward TensorValue::transpose operation, whose own VJP swaps the saved axes back.",
     "Describe broadcasting as coordinate reuse. Its VJP sums missing leading and expanded singleton axes back to the original parent shape; it does not select one forward occurrence or preserve the expanded shape.",
@@ -499,22 +519,28 @@ tensor-autodiff-core-v1` expose the same frozen graph and lifecycle.
 <!-- contract-section:visualization -->
 ## Visualization
 
-The useful static figure consumes only the checked-in Rust trace. It renders all
-eight forward nodes once, labels their shapes and saved context, retains both
-multiply operand edges, and orders each reverse VJP from seed `[3,6]` through
-mean, multiply, add, broadcast, transpose, and reshape. Separate parameter cards
-show the first retained commit, doubled second commit, positive-zero state, the
-releasing commit that recomputes values equal to the first-pass gradients, and the rejected
-post-release request.
+Three focused static figures consume only the checked-in Rust trace. The primary
+graph figure renders all eight forward nodes once, labels their shapes, values,
+operation classes, and pass-local adjoints, and retains all eight ordered operand
+uses, including both multiply edges.
 
-Focused evidence covers sum, detach, sampled gradchecks, and typed errors. The
-component may parse and cross-reference recorded trace lexemes but must not infer
-shapes, evaluate a VJP, accumulate gradients, choose reduction axes, or enact
-lifecycle transitions. Semantic lists and tables provide reading order; solid,
-double, and dashed outlines plus text glyphs provide non-color cues. A named
-focusable local scroller contains wide graph evidence, cards keep natural height,
-narrow layouts stack without document overflow, and the figure remains complete
-with JavaScript disabled and forced colors.
+The first supplementary figure preserves the edge-major reverse order from seed
+`[3,6]` through mean, multiply, add, broadcast, transpose, and reshape. Every row
+keeps the child and parent shapes, upstream adjoint, local VJP, reduced axes,
+saved context, and exact parent contribution. The second supplementary figure
+shows the first retained commit, doubled second commit, positive-zero state, the
+releasing commit that recomputes values equal to the first-pass gradients, and
+the rejected post-release request. It also keeps the focused sum, detach, sampled
+gradchecks, and typed errors together.
+
+Each component may parse and cross-reference recorded trace lexemes but must not
+infer shapes, evaluate a VJP, accumulate gradients, choose reduction axes, or
+enact lifecycle transitions. Semantic lists and tables provide reading order;
+solid, double, and dashed outlines plus text glyphs provide non-color cues. One
+named focusable local scroller contains the wide reverse table; graph and outcome
+records reflow within their own figures, keep natural height, and stack without
+document overflow on narrow layouts. All three figures remain complete with
+JavaScript disabled and forced colors.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
@@ -550,10 +576,15 @@ their own validated shapes and still require their own local derivatives.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 8 is the canonical semantic source and Russian is the complete
+English revision 9 is the canonical semantic source and Russian is the complete
 translated locale for Chapter 15. Any later English change makes the Russian
 review stale until the contract, lesson, diagram labels, accessible names,
 history claims, exercises, and answers are refreshed together from English.
+
+The three visualization registrations remain in primary graph, supplementary
+reverse-edge, and supplementary outcome order in both locales. Translate each
+caption and accessible description at that figure's own scope without moving a
+recorded value, relationship, or prerequisite to a different figure.
 
 Keep formula transpose distinct from the forward transpose operation. Explain
 broadcasting as coordinate reuse whose reverse sum restores the parent shape.

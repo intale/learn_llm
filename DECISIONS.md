@@ -17763,3 +17763,421 @@ Chapter 7 commit as exact ledger-validation evidence.
 `20260809T000325Z-repair-ch07-table-cells-and-full-view-01`,
 `repair-ch10-full-view-travel`, and
 `20260809T011935Z-repair-ch10-full-view-travel-01`.
+
+## 2026-08-09 - Bound the Chapter 15 composition investigation to cached local compute
+
+**Status:** Accepted before candidate selection in
+`repair-ch15-full-view-composition` run 01.
+
+**Context:** The published audit measures Chapter 15 full-view block debt of
+2778/3573 pixels against Chromium's 180-pixel budget and 2794/3643 pixels
+against Firefox's 154-pixel budget for English/Russian. Unlike the small Chapter
+10 correction, this requires a substantive dependency-preserving concept mosaic
+and a complete fail-loud browser contract. The active build has an unlimited
+agent-session budget, but the step is correctly classified as large because it
+requires repeated bilingual two-engine geometry probes and validation.
+
+**Decision:** Spend only cached local Docker build and pinned Chromium/Firefox
+CPU. Keep the English and Russian revision-8 lessons, contract, formulas, trace,
+Rust tensor-autodiff implementation, dependencies, locks, routes, shared diagram
+style, and shared controller frozen. Use the existing workspace image and pinned
+Playwright digest with network disabled for probes wherever practical. Do not use
+generation, a paid service, or an unrecorded network input. Retain useful rejected
+candidates under the run-specific staging directory and remove every disposable
+container and volume.
+
+**Consequences:** Cost alone does not pause the build for approval. A product
+candidate may be selected only after exact English/Russian Chromium and Firefox
+evidence shows the standard 20% block and 2-pixel inline budgets, unchanged-or-
+larger text, complete bounded-box/formula containment, preserved dependency and
+source order, and no clipping, hiding, duplication, or private full-view
+behavior. Any need to change learner meaning, protected code, shared behavior,
+dependencies, or acceptance must be recorded as a separate scope decision before
+the corresponding edit.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch15-full-view-composition`, and
+`20260809T023313Z-repair-ch15-full-view-composition-01`.
+
+## 2026-08-09 - Permit Chapter 15 semantic presentation grouping after the frozen-tree lower bound
+
+**Status:** Accepted during the bounded investigation in
+`repair-ch15-full-view-composition` run 01, before any canonical product edit.
+
+**Context:** Exact network-disabled probes disproved a CSS-only repair over the
+current presentation tree. The strongest rejected comparator put the graph and
+native reverse table in simultaneous regions, added a second named graph
+scroller, widened the reverse table, and placed the four outcome sections in an
+ordered mosaic. It still measured 1084/1554 pixels of English/Russian Chromium
+block debt against 180 and 1157/1620 pixels in Firefox against 154, while both
+local evidence regions required roughly 1800 to 2000 pixels of horizontal
+travel. Root-only grids were worse. The defect therefore cannot be repaired by
+another track ratio, more scrolling, or a chapter-local size reduction.
+
+**Decision:** Permit a run-local semantic presentation redesign, followed by a
+canonical implementation only if the exact bilingual two-engine probe passes.
+Neutral grouping wrappers may make the graph, reverse pass, and ordered outcome
+evidence participate in one dependency-preserving mosaic. Repeated graph facts
+may be expressed through an aligned semantic evidence surface, and the four
+outcome groups may share one outer presentation region, provided that every
+existing localized string, value, state, edge, node, error, data attribute, and
+accessible association remains present and the authored order remains
+`graph -> reverse -> gradients -> lifecycle -> checks -> errors`. Preserve the
+eight-node ordered list, native reverse table hierarchy, ordered reverse rows,
+technical LTR islands, and one static semantic figure. Ordinary and narrow
+fallbacks must remain complete and readable.
+
+Do not add a broad scroller, duplicate or mode-swapped tree, private controller,
+font reduction, clipping, hidden paint, generated learner text, or a learner-copy,
+formula, trace, Rust, dependency, shared-style, or shared-controller change. A
+run-local structural candidate is evidence only until exact English/Russian
+Chromium and Firefox results meet the unchanged 20% block, 2-pixel inline,
+no-shrink, native-table, bounded-box, paint-containment, direction, and
+accessibility gates.
+
+**Consequences:** This expands only the permitted presentation structure, not
+the step outputs, learner meaning, evidence inventory, acceptance criteria, or
+resource boundary. Rejected CSS-only artifacts remain immutable diagnostics in
+the active run. If the structural probe cannot satisfy the existing budgets, the
+run must record that failure rather than weaken the contract.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch15-full-view-composition`, and
+`20260809T023313Z-repair-ch15-full-view-composition-01`.
+
+## 2026-08-09 - Permit compact Chapter 15 outcome records after the preserved-card lower bound
+
+**Status:** Accepted during `repair-ch15-full-view-composition` run 01 before
+any canonical product edit.
+
+**Context:** The decision-authorized semantic probe retained every existing
+node, edge, outcome card, string, value, data entry, and native reverse-table
+cell. Both the edge-major and field-major variants remained decisively outside
+the standard full-view budget. The stronger variant measured Chromium
+English/Russian debt of 2366/3073 pixels against 180 and Firefox debt of
+2468/3053 against 154. More importantly, the unchanged gradients, lifecycle,
+checks, and errors card mosaic alone required 1921/2298 pixels in Chromium and
+1828/2092 pixels in Firefox. The reverse-table orientation is therefore not the
+controlling defect; repeating deep card stacks inside narrow outcome panels is.
+
+**Decision:** Permit one bounded run-local redesign that expresses the existing
+gradient, lifecycle, check, and error records as compact semantic comparison
+rows instead of preserving their individual generic card skins. Keep all four
+labelled sections as direct figure children so the shared module continues to
+own their panel presentation. Preserve every existing section heading, note,
+state label, symbol, field label, technical value, error detail, trace-derived
+value, data attribute, causal relationship, and the exact record order within
+and across the four groups. Data attributes may move from an article to the
+single semantic row that represents the same record. The resulting owner and
+card counts may change only as the direct consequence of removing redundant
+per-record frames; tests must freeze the selected inventory and continue to
+discover every computed four-sided border dynamically.
+
+Probe a three-rail, two-band dependency board: caption/action/summary evidence,
+graph evidence, and reverse evidence share the upper band; the four outcome
+groups use measured vertical slack in the lower band while retaining logical
+source order and RTL mirroring. The eight-node ordered list, eight operand uses,
+one native reverse table, reverse edge sequence, 81 reverse cells, bilingual
+copy, technical LTR islands, and one static semantic figure remain unchanged.
+Do not select the field-major reverse orientation unless a later exact pass also
+justifies and records its separate assistive-traversal refinement.
+
+Do not reduce typography or shared spacing tokens, remove or abbreviate learner
+text, add broad or private scrolling, conceal paint, flatten accessibility
+relationships, duplicate the tree, or change learner meaning, formulas, trace,
+Rust, dependencies, routes, shared styles, or the shared controller. The
+candidate remains diagnostic unless exact English/Russian Chromium and Firefox
+results meet the unchanged 20% block, 2-pixel inline, no-shrink, native-table,
+paint-containment, direction, no-JavaScript, forced-color, and focus gates.
+
+**Consequences:** This supersedes only the assumption that every outcome record
+must retain an individual generic card frame. It does not weaken the step
+acceptance or authorize a content change. The two earlier lower-bound probes
+remain immutable negative evidence. If this compact-record family still fails,
+the run records the incompatibility instead of continuing ratio tuning or
+relaxing the course-wide full-view contract.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch15-full-view-composition`, and
+`20260809T023313Z-repair-ch15-full-view-composition-01`.
+
+## 2026-08-09 - Replace Chapter 15's repeated presentation cards with one comparison board
+
+**Status:** Accepted after run 01 failed without canonical product edits and
+before run 02 begins.
+
+**Context:** Run 01 exhausted three bounded families under its exact input
+fingerprint. CSS-only composition still required multiple viewports and broad
+local travel. Preserving every generic card left the outcome mosaic above the
+complete fullscreen cap by itself. Removing card skins without changing the
+underlying deep field stacks still required 2819.516/4130.516 pixels in
+English/Russian Chromium and exposed that independent direct-child masonry
+cannot be expressed by the accepted non-positioned grid. Absolute positioning,
+more scrolling, font or shared-token reduction, clipping, and a field-major
+reverse-table swap were correctly rejected. No product, learner-content, Rust,
+shared-style, dependency, or controller file changed in that failed run.
+
+**Decision:** Start a new exact-input run for a comparison-oriented semantic
+encoding, not another track-ratio variant. Keep the caption, summary, graph, and
+reverse evidence as direct figure children. Replace the four direct outcome
+panels with one direct shared-skinned outcome panel whose nested labelled groups
+retain the exact source and assistive order `gradients -> lifecycle -> checks ->
+errors`. Repeated per-record field labels may be factored into real semantic
+headers or a visible local key, and individual record frames may become native
+list, definition-list, or table rows, provided every current localized wording
+string remains visible at least once at its original conceptual scope and every
+trace value, state, symbol, error detail, data attribute, and record association
+remains explicit and testable.
+
+The graph may similarly factor its repeated five field labels into one visible
+comparison axis while preserving node order `x,r,t,bias,bb,z,q,y`, all eight
+operand-use records, values, adjoints, operation classes, shapes, data
+attributes, and an accessible ordered traversal. The reverse evidence remains a
+single edge-major native table with rows `0 -> 7`. Its repeated rule and saved-
+context wording may be factored into visible in-panel headers or keys only when
+each edge still has an explicit programmatic association to the exact rule,
+context values, source/target shapes, upstream adjoint, reduced axes, and
+contribution. Do not select the previously rejected field-major traversal.
+
+Use one static tree and ordinary semantic HTML in inline, narrow,
+no-JavaScript, and full-view modes. Root full-view placement may put caption,
+shared action, two-by-two summary, graph, reverse, and the consolidated outcomes
+into a simultaneous comparison board, using logical direction so RTL mirrors
+without changing DOM order. Any new horizontal region must be the smallest
+meaningful named keyboard-reachable owner and must not require substantial
+travel in full view. Shared diagram CSS and controller files remain frozen; the
+component must use existing shared roles rather than recreate their chrome.
+
+**Consequences:** The active step acceptance is refined to preserve every
+unique learner wording string and every semantic relationship, rather than the
+number and location of repeated labels or generic presentation frames. Exact
+owner, card, section, table-cell, list, and IDREF inventories will be frozen from
+the selected canonical tree and augmented by dynamic computed-border discovery.
+English revision 8 remains the canonical semantic source and Russian revision 8
+must receive its own localization-skill and two-engine rendered review. No MDX,
+contract, parser, trace, Rust, dependency, shared-style, controller, route, or
+acceptance-budget output is added. If this comparison-board family also cannot
+meet the unchanged 20% block, 2-pixel inline, no-shrink, containment,
+direction, no-JavaScript, forced-color, and focus gates, the step is blocked on
+an explicit learner-content or course-wide acceptance decision rather than
+silently expanding scope again.
+
+**Affected build, step, and runs:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch15-full-view-composition`,
+`20260809T023313Z-repair-ch15-full-view-composition-01`, and the new run 02.
+
+## 2026-08-09 - Block Chapter 15 rather than weaken full-view or learner-evidence contracts
+
+**Status:** Blocked after the exact run-02 comparison-board gate.
+
+**Context:** The comparison board consumed the final component-only scope that
+had been explicitly authorized after run 01 failed. It consolidated the four
+outcome panels, factored repeated graph/rule/context labels into visible keys,
+kept one edge-major native table and one static tree, and retained all 139
+unique learner strings plus 204 semantic data entries. Local graph, reverse,
+and outcome travel ratios stayed at or below 0.718, root inline debt was zero,
+and the tree retained eight ordered nodes, eight operand uses, rows `0 -> 7`,
+81 native reverse cells, and all 2/4/2/4 outcome records. Nevertheless exact
+Chromium full view measured 2840/4395 pixels of English/Russian block debt
+against the unchanged 180-pixel budget. The graph, reverse, and outcome rails
+were respectively 2667/2854, 3435/4972, and 2171/3245 pixels tall. Firefox was
+correctly skipped by the fail-fast gate.
+
+The rejected overlay also retained a Russian reverse-key containment leak,
+collapsed the intended solid/dotted/dashed/double/ridge cue distribution to
+solid, and associated the null-context key too narrowly. Those are real defects,
+but correcting them cannot recover thousands of pixels; even removing the
+entire shared 52-pixel control would leave the block failure decisive. The
+manifest and report are retained, the scoped Docker volume is absent, and no
+canonical component, test, content, Rust, shared-style, or controller file was
+changed in either attempt.
+
+**Decision:** Mark `repair-ch15-full-view-composition` blocked and both attempted
+runs failed. Do not publish any diagnostic candidate, weaken the standard 20%
+block or 2-pixel inline budgets, accept substantial local scrolling, shrink
+type, remove/hide/abbreviate evidence, change reverse traversal, introduce
+absolute placement, or alter shared styles/controller behavior without an
+explicit new user-authorized direction. The current component, English/Russian
+revision 8, contract, trace, Rust implementation, parser, shared CSS, controller,
+dependencies, and tests remain canonical and byte-preserved.
+
+**Consequences:** The dependency-ordered build cannot advance to Chapter 16
+while Chapter 15 is blocked. Resumption needs a material authority choice that
+the present step deliberately does not infer: revise learner-facing evidence
+scope/content, revise the course-wide full-view acceptance model, or authorize
+a shared presentation/controller change with its own outputs and course-wide
+regression proof. A resumed audit starts from the retained checksummed run-01
+and run-02 evidence rather than repeating their disproven families.
+
+**Affected build, step, and runs:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch15-full-view-composition`,
+`20260809T023313Z-repair-ch15-full-view-composition-01`, and
+`20260809T041500Z-repair-ch15-full-view-composition-02`.
+
+## 2026-08-09 - Split Chapter 15 into focused registered figures without removing results
+
+**Status:** Accepted by explicit user direction after the blocked run-02 handoff
+and before run 03 or any product edit.
+
+**Context:** The learner confirmed that the existing Chapter 15 visualization
+already contains the intended results and accepted the recommendation to split
+the presentation rather than remove evidence or weaken the full-view contract.
+The blocked single-figure investigation established that content correctness was
+not the defect: the complete figure remained readable by scrolling, but required
+approximately four to five fullscreen heights. Two exact failed runs exhausted
+the component-only single-figure families while preserving the canonical result.
+
+The chapter workflow already supports a primary figure plus explicitly registered
+supplementary figures when one figure would overload distinct relationships.
+Chapter 14 uses that pattern to separate its graph from lifecycle evidence. It is
+the smallest established architecture that gives Chapter 15's forward graph,
+edge-by-edge reverse ledger, and lifecycle/check evidence independent full-view
+budgets without hiding or abbreviating any result.
+
+**Decision:** Resume `repair-ch15-full-view-composition` in a new exact-input run
+and replace the one oversized registered visualization with three focused static
+figures in lesson and assistive order:
+
+1. the primary `tensor-autodiff-core` figure contains the output/seed/count
+   summary and the eight-node ordered forward graph with all eight operand uses;
+2. supplementary `tensor-autodiff-reverse` contains the one edge-major native
+   reverse table ordered `0 -> 7`, including every upstream adjoint, rule,
+   reduced-axis fact, saved context, shape, and parent contribution; and
+3. supplementary `tensor-autodiff-outcomes` contains exact parameter gradients,
+   retained/zeroed/released lifecycle states, detach and gradcheck evidence, and
+   the four typed rejection records in their existing order.
+
+Each explicit Astro component emits exactly one semantic `figure`, carries one
+unique registered `data-visualization-id`, consumes the same checked trace, and
+receives its own shared localized full-view control. English revision 9 is the
+canonical presentation source; Russian revision 9 is refreshed directly from it
+with the localization skill. The contract and lessons may add only the localized
+figure titles, descriptions, and plural presentation explanation required to
+make the split understandable. Every pre-existing learner result, value, formula,
+trace/data relationship, source order within its conceptual group, technical LTR
+island, non-color cue, and accessible association remains explicit.
+
+Do not implement one wrapper component that emits several figures, duplicate or
+swap trees by display mode, turn a semantic list into a region, transpose the
+edge-major table, remove or abbreviate evidence, introduce private controls or
+scrolling, change shared CSS/controller behavior, shrink type, conceal paint, or
+relax the standard 20% block and 2-pixel inline acceptance. Full-view validation
+applies independently to every registered figure in English and Russian in both
+Chromium and Firefox; ordinary, narrow, no-JavaScript, forced-color, direction,
+focus, Escape, native-table, box, and painted-ink guarantees remain course-wide.
+
+**Consequences:** The step outputs expand to the Chapter 15 contract, English and
+Russian lessons, the existing diagram library, two new explicit supplementary
+components, the primary component, focused static/browser tests, and the two
+ledgers. The old failed runs and their manifests remain immutable negative
+evidence. Run 03 starts from their verified fingerprints and may publish only a
+three-figure candidate that passes the unchanged acceptance. No Rust, trace,
+parser semantics, dependency, route, shared-style, controller, or unrelated
+chapter output enters scope.
+
+**Affected build, step, and runs:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch15-full-view-composition`,
+`20260809T023313Z-repair-ch15-full-view-composition-01`,
+`20260809T041500Z-repair-ch15-full-view-composition-02`, and
+`20260809T055848Z-repair-ch15-split-figures-03`.
+
+## 2026-08-09 - Prefer one readable vertical full-view flow over squeezed peer rows
+
+**Status:** Accepted by explicit user correction during the Chapter 15 split,
+after the Chapter 6 and Chapter 7 published full views were re-inspected.
+
+**Context:** The Chapter 6 repair placed count construction plus two probability
+tables in three peer columns. The two intrinsic tables then required about 225
+and 267 pixels of local horizontal travel in standard Chromium full view. The
+Chapter 7 repair similarly put its calculation and frozen-model evidence into a
+three-track mosaic while retaining 40rem intrinsic evidence widths; standard
+local travel reached about 282 pixels and the minimum Chromium surface reached
+332 pixels. Those layouts met the former root block-debt thresholds, preserved
+native tables and full-size text, and passed their recorded tests, but the user
+correctly identified that their entities had been squeezed into rows and made
+locally scrollable to optimize a height number.
+
+The first Chapter 15 split probe reproduced the same conflict. A readable 100rem
+reverse ledger still needed 428 pixels of travel even after receiving the full
+available evidence band, while narrower peer-track experiments wrapped or
+squeezed graph and outcome records. Continuing to tune toward the former 20%
+root block-debt ceiling would repeat the Chapter 6/7 presentation error.
+
+**Decision:** Full view prioritizes readable intrinsic entity width and one
+continuous learner reading surface over a universal root-height target. Do not
+place sections, tables, cards, or other evidence side by side when that placement
+creates local scrolling or materially narrows their content compared with the
+ordinary same-width figure. When the complete evidence is taller than the
+fullscreen client, the shared fullscreen figure may own natural vertical travel;
+that is preferable to squeezing peers into one row.
+
+Keep local vertical scroll owners forbidden. A horizontal region remains valid
+only for evidence that is intrinsically wide even after it receives the complete
+available figure width, such as a native table at a minimum eligibility surface.
+It must remain the smallest meaningful named region, span the available evidence
+width, and must not gain travel merely because the component placed another
+entity beside it. Full view must not reduce any evidence width or font size from
+the same requested inline surface. Continue enforcing 2-pixel root inline debt,
+native semantics, four-sided owners, painted-ink containment, no clipping or
+concealment, one static DOM, direction, focus, Escape, forced colors, and
+no-JavaScript behavior. Record root block debt as diagnostic evidence rather than
+using it to justify squeezed composition.
+
+**Consequences:** Interrupt Chapter 15 run 03 because its exact fingerprint and
+tests encode the superseded universal 20% block-debt acceptance. Reuse its
+verified three-figure semantic split in a new run, but give each figure a
+readable full-width vertical flow and replace the height assertion with
+same-surface width preservation, root-owned vertical continuity, and no
+layout-created local travel. Add explicit Chapter 6 and Chapter 7 corrective
+steps immediately after Chapter 15 and before Chapter 16. Their prior succeeded
+runs remain immutable historical evidence for the old acceptance, but their
+horizontal mosaics are not the final presentation under this correction.
+
+**Affected build, steps, and runs:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch06-full-view-composition`,
+`repair-ch07-table-cells-and-full-view`,
+`repair-ch15-full-view-composition`,
+`20260809T055848Z-repair-ch15-split-figures-03`, and the pending readable-flow
+replacement runs.
+
+## 2026-08-09 - Invalidate the superseded Chapter 6 and Chapter 7 layout checkpoints
+
+**Status:** Accepted as the ledger consequence of the user's readable-flow
+correction.
+
+**Context:** The preceding decision rejects the squeeze-to-fit compositions
+published by `repair-ch06-full-view-composition` and
+`repair-ch07-table-cells-and-full-view`. Repository process rules require a
+completed step whose product result became stale to be marked `invalidated`.
+The original succeeded run records and their checksummed evidence must remain
+immutable; invalidation concerns the selected fullscreen layout, not the native
+table/cell fixes or the honesty of the historical validation under its former
+acceptance.
+
+**Decision:** Mark those two completed steps `invalidated` and retain every
+existing succeeded run record unchanged. Their new readable-flow correction
+steps remain pending after Chapter 15 and before Chapter 16. Do not invalidate
+the separately completed Chapter 10 output, whose product behavior has not been
+rejected by this correction.
+
+**Consequences:** Queue eligibility continues through the active Chapter 15
+step and then the explicit Chapter 6 and Chapter 7 corrective steps. The old
+three-column mosaics cannot be cited as current acceptance, while their native
+semantic repairs and exact negative geometry remain reusable evidence.
+
+**Affected build and steps:** `repair-and-audit-diagram-rendering-20260808`,
+`repair-ch06-full-view-composition`, `repair-ch07-table-cells-and-full-view`,
+`repair-ch06-readable-full-view-flow`, and
+`repair-ch07-readable-full-view-flow`.
+
+**Scope clarification:** The readable-flow decision supersedes the 20% root
+block-debt acceptance for every unfinished step in this repair build. Older
+succeeded runs retain their former acceptance only as historical provenance;
+they do not authorize a future squeezed composition.

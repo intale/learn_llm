@@ -1,4 +1,6 @@
 export const tensorAutodiffCoreDiagramId = 'tensor-autodiff-core';
+export const tensorAutodiffReverseDiagramId = 'tensor-autodiff-reverse';
+export const tensorAutodiffOutcomesDiagramId = 'tensor-autodiff-outcomes';
 
 export interface TraceNumber {
   readonly lexeme: string;
@@ -173,6 +175,10 @@ export interface TensorAutodiffCoreTrace {
 export interface TensorAutodiffCoreDiagramLabels {
   readonly title: string;
   readonly description: string;
+  readonly reverseTitle: string;
+  readonly reverseDescription: string;
+  readonly outcomesTitle: string;
+  readonly outcomesDescription: string;
   readonly summary: Readonly<{
     output: string;
     seed: string;
@@ -692,6 +698,10 @@ type RequiredLabelShape = true | RequiredLabelGroup;
 const requiredLabelShape: RequiredLabelShape = {
   title: true,
   description: true,
+  reverseTitle: true,
+  reverseDescription: true,
+  outcomesTitle: true,
+  outcomesDescription: true,
   summary: { output: true, seed: true, uniqueNodes: true, operandEdges: true },
   sections: { graph: true, reverse: true, gradients: true, lifecycle: true, checks: true, errors: true },
   fields: {

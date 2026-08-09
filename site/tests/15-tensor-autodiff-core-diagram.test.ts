@@ -11,6 +11,8 @@ import {
   assertTensorAutodiffCoreDiagramLabels,
   parseTensorAutodiffCoreTrace,
   tensorAutodiffCoreDiagramId,
+  tensorAutodiffOutcomesDiagramId,
+  tensorAutodiffReverseDiagramId,
   type TensorAutodiffCoreDiagramLabels,
 } from '../src/lib/tensor-autodiff-core-diagram';
 
@@ -25,10 +27,19 @@ const parser = readFileSync(
   resolve(repositoryRoot, 'site/src/lib/tensor-autodiff-core-diagram.ts'),
   'utf8',
 );
-const component = readFileSync(
+const coreComponent = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/TensorAutodiffCoreDiagram.astro'),
   'utf8',
 );
+const reverseComponent = readFileSync(
+  resolve(repositoryRoot, 'site/src/components/chapters/TensorAutodiffReverseDiagram.astro'),
+  'utf8',
+);
+const outcomesComponent = readFileSync(
+  resolve(repositoryRoot, 'site/src/components/chapters/TensorAutodiffOutcomesDiagram.astro'),
+  'utf8',
+);
+const component = `${coreComponent}\n${reverseComponent}\n${outcomesComponent}`;
 const tensorCoreSource = readFileSync(
   resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/autograd/tensor_core.rs'),
   'utf8',
@@ -68,6 +79,10 @@ const chapter15Russian = readFileSync(
 const labels: TensorAutodiffCoreDiagramLabels = {
   title: 'title',
   description: 'description',
+  reverseTitle: 'reverse title',
+  reverseDescription: 'reverse description',
+  outcomesTitle: 'outcomes title',
+  outcomesDescription: 'outcomes description',
   summary: { output: 'output', seed: 'seed', uniqueNodes: 'nodes', operandEdges: 'edges' },
   sections: {
     graph: 'graph',
@@ -280,11 +295,11 @@ describe('Chapter 15 Rust trace parser', () => {
     }
 
     for (const source of [chapter15Contract, chapter15English, chapter15Russian]) {
-      expect(source).toContain('"content_revision": 8');
+      expect(source).toContain('"content_revision": 9');
     }
     const canonicalEnglishHash = createHash('sha256').update(chapter15English).digest('hex');
     expect(chapter15Contract).toContain(
-      `Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 8 with SHA-256 ${canonicalEnglishHash} and becomes stale whenever that source changes.`,
+      `Chapter 15 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 9 with SHA-256 ${canonicalEnglishHash} and becomes stale whenever that source changes.`,
     );
     expect(chapter15English.replace(/\s+/g, ' ')).toContain(
       'Both calls build the node order, hold fresh adjoints for the duration of the pass, and read the saved context required by each local VJP.',
@@ -614,55 +629,187 @@ describe('Chapter 15 Rust trace parser', () => {
 });
 
 describe('Chapter 15 static diagram component', () => {
-  it('reads the Rust fixture at build time without client hydration', () => {
-    expect(component).toContain("readFileSync(fixtureUrl, 'utf8')");
-    expect(component).toContain(
-      '../../../../rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt',
-    );
-    expect(component).toContain('parseTensorAutodiffCoreTrace');
-    expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
-    expect(component).not.toContain('<script');
+  it('registers exactly three localized figures in graph, reverse, outcomes order', () => {
+    expect(tensorAutodiffCoreDiagramId).toBe('tensor-autodiff-core');
+    expect(tensorAutodiffReverseDiagramId).toBe('tensor-autodiff-reverse');
+    expect(tensorAutodiffOutcomesDiagramId).toBe('tensor-autodiff-outcomes');
+
+    for (const source of [chapter15Contract, chapter15English, chapter15Russian]) {
+      const core = source.indexOf('"id": "tensor-autodiff-core"');
+      const reverse = source.indexOf('"id": "tensor-autodiff-reverse"');
+      const outcomes = source.indexOf('"id": "tensor-autodiff-outcomes"');
+      expect(core).toBeGreaterThan(-1);
+      expect(reverse).toBeGreaterThan(core);
+      expect(outcomes).toBeGreaterThan(reverse);
+      expect(source.match(/"id": "tensor-autodiff-(?:core|reverse|outcomes)"/g)).toHaveLength(3);
+    }
+
+    for (const lesson of [chapter15English, chapter15Russian]) {
+      expect(lesson.match(/import TensorAutodiffCoreDiagram /g)).toHaveLength(1);
+      expect(lesson.match(/import TensorAutodiffReverseDiagram /g)).toHaveLength(1);
+      expect(lesson.match(/import TensorAutodiffOutcomesDiagram /g)).toHaveLength(1);
+      expect(lesson.match(/<TensorAutodiffCoreDiagram /g)).toHaveLength(1);
+      expect(lesson.match(/<TensorAutodiffReverseDiagram /g)).toHaveLength(1);
+      expect(lesson.match(/<TensorAutodiffOutcomesDiagram /g)).toHaveLength(1);
+      const core = lesson.indexOf('<TensorAutodiffCoreDiagram ');
+      const reverse = lesson.indexOf('<TensorAutodiffReverseDiagram ');
+      const outcomes = lesson.indexOf('<TensorAutodiffOutcomesDiagram ');
+      expect(core).toBeLessThan(reverse);
+      expect(reverse).toBeLessThan(outcomes);
+    }
   });
 
-  it('renders semantic node order and exact Rust-authored VJP and lifecycle evidence', () => {
-    expect(component).toContain('<ol class="node-grid course-diagram__grid">');
-    expect(component).toContain('data-node-id=');
-    expect(component).toContain('data-node-label=');
-    expect(component).toContain('data-topology-order=');
-    expect(component.match(/<table data-diagram-table class="vjp-table"/g)).toHaveLength(1);
-    expect(component).toContain('scope="col"');
-    expect(component).toContain('scope="row"');
-    expect(component).toContain('data-edge-reverse=');
-    expect(component).toContain('data-saved-context=');
-    expect(component).toContain('data-reduced-axes=');
-    expect(component).toContain('data-contribution=');
-    expect(component).toContain('data-parameter-gradient=');
-    expect(component).toContain('data-lifecycle-state=');
-    expect(component).toContain('data-evidence="detach"');
-    expect(component).toContain('data-evidence="gradcheck"');
-    expect(component).toContain('data-graph-unchanged=');
-    expect(component).toContain('data-diagram-card');
-    expect(component).toContain('data-diagram-box');
+  it('reads the same Rust fixture independently at build time without a private client', () => {
+    for (const source of [coreComponent, reverseComponent, outcomesComponent]) {
+      expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
+      expect(source).toContain(
+        '../../../../rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt',
+      );
+      expect(source).toContain('parseTensorAutodiffCoreTrace');
+      expect(source.match(/<figure\b/g)).toHaveLength(1);
+      expect(source).not.toMatch(/client:(?:load|idle|visible|media|only)/);
+      expect(source).not.toContain('<script');
+      expect(source).not.toMatch(/requestFullscreen|fullscreenchange|data-diagram-full-view-toggle/);
+    }
+  });
+
+  it('keeps the summary, ordered graph, and all eight operand uses only in the core figure', () => {
+    expect(coreComponent).toContain('data-visualization-id={tensorAutodiffCoreDiagramId}');
+    expect(coreComponent).toContain('<dl class="summary-grid">');
+    expect(coreComponent).toContain('<ol class="node-grid course-diagram__grid">');
+    expect(coreComponent.match(/trace\.nodes\.map/g)).toHaveLength(1);
+    expect(coreComponent.match(/trace\.edges\.filter/g)).toHaveLength(1);
+    for (const attribute of [
+      'data-node-id=',
+      'data-node-label=',
+      'data-topology-order=',
+      'data-operation=',
+      'data-shape=',
+      'data-values=',
+      'data-adjoint=',
+    ]) {
+      expect(coreComponent).toContain(attribute);
+    }
+    expect(coreComponent).toContain('<ul class="operand-list course-diagram__grid"');
+    expect(coreComponent).not.toContain('data-edge-reverse=');
+    expect(coreComponent).not.toContain('data-parameter-gradient=');
+    expect(coreComponent).not.toContain('data-lifecycle-state=');
+    expect(coreComponent).not.toContain('data-evidence=');
+    expect(coreComponent).not.toContain('data-error-kind=');
+    expect(coreComponent).not.toContain('<table');
+    expect(coreComponent).not.toContain('data-diagram-scroll');
+  });
+
+  it('keeps one edge-major native table and the sole named scroller only in reverse', () => {
+    expect(reverseComponent).toContain(
+      'data-visualization-id={tensorAutodiffReverseDiagramId}',
+    );
+    expect(reverseComponent.match(/<table data-diagram-table class="vjp-table"/g)).toHaveLength(1);
+    expect(reverseComponent.match(/<th scope="col">/g)).toHaveLength(9);
+    expect(reverseComponent.match(/<th scope="row">/g)).toHaveLength(1);
+    expect(reverseComponent.match(/trace\.edges\.map/g)).toHaveLength(1);
+    for (const attribute of [
+      'data-edge-reverse=',
+      'data-child=',
+      'data-child-id=',
+      'data-operand=',
+      'data-parent=',
+      'data-parent-id=',
+      'data-rule=',
+      'data-source-shape=',
+      'data-target-shape=',
+      'data-reduced-axes=',
+      'data-saved-context=',
+      'data-upstream-adjoint=',
+      'data-contribution=',
+    ]) {
+      expect(reverseComponent).toContain(attribute);
+    }
+    expect(reverseComponent).toContain('aria-describedby={`${ruleKeyId}-${edge.rule}`}');
+    expect(reverseComponent.match(/data-diagram-scroll/g)).toHaveLength(1);
+    expect(reverseComponent.match(/role="region"/g)).toHaveLength(1);
+    expect(reverseComponent.match(/tabindex="0"/g)).toHaveLength(2);
+    expect(coreComponent).not.toContain('data-diagram-scroll');
+    expect(outcomesComponent).not.toContain('data-diagram-scroll');
+  });
+
+  it('keeps the ordered 2/4/2/4 outcome records only in the outcomes figure', () => {
+    expect(outcomesComponent).toContain(
+      'data-visualization-id={tensorAutodiffOutcomesDiagramId}',
+    );
+    const gradients = outcomesComponent.indexOf('class="diagram-section gradients-section"');
+    const lifecycle = outcomesComponent.indexOf('class="diagram-section lifecycle-section"');
+    const checks = outcomesComponent.indexOf('class="diagram-section checks-section"');
+    const errors = outcomesComponent.indexOf('class="diagram-section errors-section"');
+    expect(gradients).toBeGreaterThan(-1);
+    expect(lifecycle).toBeGreaterThan(gradients);
+    expect(checks).toBeGreaterThan(lifecycle);
+    expect(errors).toBeGreaterThan(checks);
+    expect(outcomesComponent).toContain('[firstX, firstBias].map');
+    expect(outcomesComponent.match(/data-lifecycle-state=/g)).toHaveLength(4);
+    expect(outcomesComponent.match(/data-evidence=/g)).toHaveLength(2);
+    expect(outcomesComponent).toContain('trace.errors.map');
+    expect(outcomesComponent).toContain('data-error-kind=');
+    expect(outcomesComponent).not.toContain('data-node-id=');
+    expect(outcomesComponent).not.toContain('data-edge-reverse=');
+    expect(outcomesComponent).not.toContain('<table');
+  });
+
+  it('keeps fullscreen evidence in root-owned source-order flow', () => {
+    const core = coreComponent.replace(/\s+/g, ' ');
+    const reverse = reverseComponent.replace(/\s+/g, ' ');
+    const outcomes = outcomesComponent.replace(/\s+/g, ' ');
+
+    expect(core).toContain(
+      '.tensor-autodiff-core-diagram:fullscreen > .summary-grid { grid-column: 1 / -1; grid-row: 3;',
+    );
+    expect(core).toContain(
+      '.tensor-autodiff-core-diagram:fullscreen > .graph-section { grid-column: 1 / -1; grid-row: 4;',
+    );
+    expect(core).toContain('.tensor-autodiff-core-diagram:fullscreen .node-grid {');
+
+    expect(reverse).toContain(
+      '.tensor-autodiff-reverse-diagram:fullscreen > .reverse-section { display: grid; grid-column: 1 / -1; grid-row: 3; grid-template-columns: minmax(0, 1fr);',
+    );
+    expect(reverse).toContain(
+      '.tensor-autodiff-reverse-diagram:fullscreen .trace-scroll { grid-column: 1; grid-row: 5;',
+    );
+    expect(reverse).not.toMatch(/:fullscreen[^}]*\.vjp-table[^}]*min-inline-size/s);
+
+    for (const [selector, row] of [
+      ['gradients', 3],
+      ['lifecycle', 4],
+      ['checks', 5],
+      ['errors', 6],
+    ] as const) {
+      expect(outcomes).toContain(
+        `.tensor-autodiff-outcomes-diagram:fullscreen > .${selector}-section { grid-column: 1 / -1; grid-row: ${row};`,
+      );
+    }
+  });
+
+  it('limits local source to semantic geometry and non-color state cues', () => {
+    expect(component.match(/data-visualization-id=/g)).toHaveLength(3);
+    expect(component.match(/data-diagram-scroll/g)).toHaveLength(1);
     expect(component).toContain('course-diagram__card-stack');
     expect(component).toContain('course-diagram__card-heading');
-  });
-
-  it('keeps wide evidence local and gives every card natural intrinsic height', () => {
-    expect(component).toContain('data-visualization-id={tensorAutodiffCoreDiagramId}');
-    expect(component).toContain('class="trace-scroll course-diagram__scroll"');
-    expect(component.match(/tabindex="0"/g)).toHaveLength(2);
-    expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('data-diagram-scroll');
-    expect(component).not.toContain('overflow-x: auto');
-    expect(component).not.toContain('contain: paint');
+    expect(component).toContain('data-diagram-box');
     expect(component).toContain('.node-structural { border-style: dotted; }');
     expect(component).toContain('.node-broadcast { border-style: dashed; }');
     expect(component).toContain('.node-elementwise { border-style: double; }');
     expect(component).toContain('.state-zeroed { border-style: dotted; }');
-    expect(component).not.toMatch(
-      /\.(?:node-card|gradient-card|lifecycle-card|check-card|error-card)[^{]*\{[^}]*(?:min-)?(?:height|block-size)\s*:/s,
-    );
     expect(component).not.toContain('@media (forced-colors: active)');
-    expect(component).not.toMatch(/\.tensor-autodiff-core-diagram\s*\{[^}]*(?:border|background|box-shadow)\s*:/s);
+    expect(component).not.toMatch(/\boverflow(?:-[xy])?\s*:/);
+    expect(component).not.toMatch(/\bcontain\s*:\s*(?:paint|strict|content)/);
+    expect(component).not.toMatch(
+      /\b(?:clip-path|filter|content-visibility|text-overflow|line-clamp|zoom|color)\s*:|(?:^|[\s;{])(?:-webkit-)?mask(?:-image)?\s*:/m,
+    );
+    expect(component).not.toMatch(/\bopacity\s*:\s*0(?:\D|$)/);
+    expect(component).not.toMatch(/\btransform\s*:/);
+    expect(component).not.toMatch(/\bfont(?:-size|-family|-weight|-style)?\s*:/);
+    expect(component).not.toMatch(/\b(?:min-|max-)?(?:height|block-size)\s*:/);
+    expect(component).not.toMatch(
+      /\.tensor-autodiff-(?:core|reverse|outcomes)-diagram\s*\{[^}]*(?:background|box-shadow|border-radius)\s*:/s,
+    );
   });
 });

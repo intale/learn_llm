@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "locale": "en",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 15,
   "concept_id": "tensor-autodiff-core",
   "title": "Reverse tensor operations with edge-local VJPs",
@@ -132,18 +132,39 @@
   "visualization": {
     "decision": "useful",
     "id": "tensor-autodiff-core",
-    "rationale": "An eight-node tensor-operation DAG can keep forward shapes, eight ordered operand edges, the non-scalar seed, repeated multiply contributions, broadcast reduction axes, shape restoration by structural VJPs, parameter-only stored gradients, and graph lifecycle states visible together; a flat list of final gradients hides where each shape is restored."
+    "component": "TensorAutodiffCoreDiagram",
+    "rationale": "An ordered graph figure can show each of the eight tensor nodes once while retaining all eight operand uses, forward shapes and values, operation classes, and pass-local adjoints; those node-to-edge relationships are easy to lose in a flat result list.",
+    "supplementary": [
+      {
+        "id": "tensor-autodiff-reverse",
+        "component": "TensorAutodiffReverseDiagram",
+        "rationale": "A separate edge-major reverse figure preserves seed [3,6], reverse order 0 through 7, source and target shapes, upstream adjoints, local VJP rules, reduced axes, saved contexts, and parent contributions without forcing the graph traversal and reverse ledger into one oversized figure."
+      },
+      {
+        "id": "tensor-autodiff-outcomes",
+        "component": "TensorAutodiffOutcomesDiagram",
+        "rationale": "A separate outcomes figure compares exact parameter gradients, retained accumulation, zeroing, release, detach, sampled VJP checks, and typed rejections without crowding either the forward graph or the edge-major reverse ledger."
+      }
+    ]
   },
   "decoder_connection": "The cumulative project can now reverse shape-preserving elementwise operations and structural tensor transformations while returning every contribution to its parent's exact shape, accumulating only parameter-leaf gradients, and releasing saved operation context safely. VJPs that map one logical shape onto another can reuse the checked projected-stride traversal. Chapter 16 adds model-critical VJPs for matrix multiplication, repeated embedding gathers, nonlinearities, log-softmax, and indexed mean token loss; Chapter 15 alone still cannot train the decoder."
 }
 ---
 
 import TensorAutodiffCoreDiagram from '../../../components/chapters/TensorAutodiffCoreDiagram.astro';
+import TensorAutodiffReverseDiagram from '../../../components/chapters/TensorAutodiffReverseDiagram.astro';
+import TensorAutodiffOutcomesDiagram from '../../../components/chapters/TensorAutodiffOutcomesDiagram.astro';
 
 export const diagramLabels = {
-  title: 'Reverse every tensor edge to its original shape',
+  title: 'Build the tensor graph without losing an operand use',
   description:
-    'Inspect eight forward nodes, eight ordered operand edges, a non-scalar seed, shape-exact VJPs, parameter-only accumulation, graph release, detach, numerical checks, and rejected unsafe requests.',
+    'Inspect eight forward nodes in topological order, with every operation, shape, value, pass-local adjoint, and all eight ordered operand edges.',
+  reverseTitle: 'Reverse the non-scalar seed through all eight edges',
+  reverseDescription:
+    'Follow seed [3, 6] from reverse order 0 through 7, pairing every edge with its upstream adjoint, local VJP, reduced axes, saved context, exact parent shape, and parent contribution.',
+  outcomesTitle: 'Separate stored gradients, graph lifecycle, checks, and rejections',
+  outcomesDescription:
+    'Compare retained accumulation, zeroing, release, detach, sampled checks, and four rejected requests without mixing pass-local adjoints with stored parameter gradients.',
   summary: {
     output: 'Output tensor',
     seed: 'Reverse seed',
@@ -645,21 +666,33 @@ chapter 16 handoff: add model-critical tensor VJPs
 
 {/* chapter-section:visualization */}
 
-## Follow shape restoration edge by edge
+## Follow shape restoration in three focused views
 
-The diagram keeps the forward tensor shapes and reverse parent shapes in one
-ordered view. Eight node cards expose the two parameter leaves, three structural
-operations, two elementwise operations, and final reduction. Eight edge records
-retain both multiply operands and show the upstream adjoint, saved context,
-local rule, and resulting parent contribution.
+The first figure keeps the forward tensor graph in topological order. Its eight
+node records expose the two parameter leaves, three structural operations, two
+elementwise operations, and final reduction, together with every forward shape,
+value, operation class, and pass-local adjoint. All eight operand-use records
+remain attached to their child operations, including both multiply operands.
 
-Lifecycle cards separate fresh pass-local adjoints from stored parameter
-gradients. Focused evidence shows sum, detach, numerical checks, and typed
-rejections without crowding those rules into the main graph. The visualization
-presents the recorded relationships; the Rust implementation computes every
-shape, VJP, accumulated gradient, numerical comparison, and rejection.
+The second figure carries seed `[3,6]` through the edge-major reverse ledger.
+Eight rows preserve reverse order `0` through `7` across mean, multiply, add,
+broadcast, transpose, and reshape. Each row keeps the upstream adjoint, saved
+context, reduced axes, exact parent shape, local rule, and resulting parent
+contribution.
+
+The third figure separates pass-local adjoints from stored parameter gradients.
+It retains the first committed gradients, the doubled second retained pass,
+positive-zero state, and releasing commit equal to the first pass, then keeps
+sum, detach, sampled checks, and all four typed rejections together. Across all
+three figures, the presentation reads recorded relationships; the Rust
+implementation computes every shape, VJP, accumulated gradient, numerical
+comparison, lifecycle transition, and rejection.
 
 <TensorAutodiffCoreDiagram labels={diagramLabels} instanceId="lesson" />
+
+<TensorAutodiffReverseDiagram labels={diagramLabels} instanceId="lesson" />
+
+<TensorAutodiffOutcomesDiagram labels={diagramLabels} instanceId="lesson" />
 
 {/* chapter-section:exercises */}
 
