@@ -18285,3 +18285,80 @@ all local scroll ownership and painted evidence, and preserve authored node
 identity instead of enforcing a root-height target.
 
 **Affected step:** `repair-ch06-readable-full-view-flow`.
+
+## 2026-08-09 - Keep Chapter 7 score tokens whole in every presentation
+
+**Status:** Accepted as a narrow readable-flow acceptance refinement after the
+first Chapter 7 full-width probe.
+
+**Context:** The one-column Chapter 7 correction removes all layout-created
+local travel and gives the native score table the full available evidence width.
+At Chromium's requested 1024 by 576 surface, however, the existing 51rem fixed
+table still divides six columns evenly. The exact technical values
+`7067.943541648752`, `1867.529710185699`, and `partition=validation` then split a
+final character onto a second line. Relative width and zero-travel checks do not
+detect that readability defect. The same intrinsic floor also governs the
+ordinary and narrow fallback inside its existing named keyboard-reachable score
+region.
+
+**Decision:** Preserve the native fixed-layout table and its sole existing named
+scroll owner, but increase the table's intrinsic floor from 51rem to 62rem and
+assign content-aware column shares of 23, 11, 13, 20, 16, and 17 percent for
+partition, documents, targets, total surprise, mean NLL, and perplexity. Require
+every body `code` and `bdi` technical token to paint in exactly one Range
+rectangle on every audited surface. The table must first receive the full panel
+width; only the remaining intrinsic horizontal travel is acceptable, and no
+local vertical owner is allowed.
+
+This deliberately changes ordinary and narrow horizontal travel for the score
+region, so replace the earlier promise of byte-for-byte fallback geometry with
+the narrower guarantee that its semantic structure, typography, data, native
+cells, named scroll ownership, and all other ordinary/narrow behavior remain
+unchanged. Interrupt run 01 without relabelling its checksummed zero-travel
+artifacts and start run 02 from a fingerprint that includes this decision and
+the widened-table requirement.
+
+**Consequences:** The minimum Chromium full view may have modest intrinsic score
+travel after using the complete panel width; that is preferable to fragmented
+evidence and remains far below one owner width. The causal chain stays
+local-travel-free. No learner copy, value, formula, row/column association, Rust,
+trace, parser, shared style/controller, dependency, or route changes.
+
+**Affected step and runs:** `repair-ch07-readable-full-view-flow`,
+`20260809T091813Z-repair-ch07-readable-full-view-flow-01`, and its replacement
+run 02.
+
+## 2026-08-09 - Restore Chapter 7 full view as a full-width vertical causal flow
+
+**Status:** Accepted and validated in
+`repair-ch07-readable-full-view-flow` run 02.
+
+**Context:** The invalidated three-track fullscreen mosaic placed the target
+calculation, provenance, score table, and boundary evidence into narrow peer
+tracks. That reduced the available width of otherwise readable entities and
+created layout-driven horizontal travel. The authored semantic sequence is
+already coherent: target construction, aggregation, mean loss, perplexity,
+provenance, score rows, then boundary evidence. Full view should expose that
+sequence at the figure's evidence width and let the figure itself continue
+vertically.
+
+**Decision:** Use one root column in Chapter 7 full view. Keep the calculation
+chain in causal block order and keep the frozen evidence in provenance, score,
+then boundary order. Give both named technical regions the complete panel width
+before considering intrinsic travel. The causal chain must fit without local
+travel; the native score table may use only the separately recorded 62rem
+intrinsic-width exception needed to keep its exact technical tokens whole. No
+descendant may own vertical travel, and no peer-row placement may narrow an
+entity merely to reduce figure height.
+
+**Consequences:** Chromium and Firefox now preserve or increase every audited
+evidence width and text size in both locales at standard and minimum eligible
+requests. The figure root owns natural vertical continuation. The causal chain
+has zero local travel; only Chromium's minimum surface retains 68 pixels of
+intrinsic score-table travel after the table receives the full 924-pixel panel
+width. Native table semantics, exact values and formulas, learner copy, causal
+and source order, ordinary/narrow presentation outside the recorded table-floor
+refinement, forced colors, direction, no-JavaScript fallback, native Escape,
+focus restoration, Rust evidence, dependencies, and locks remain unchanged.
+
+**Affected step:** `repair-ch07-readable-full-view-flow`.

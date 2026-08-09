@@ -25,6 +25,11 @@ const chapterId = '07-language-model-metrics';
 const contentRevision = 6;
 const formulaLatex = String.raw`\mathcal{L}=-\frac{1}{N}\sum_{t=1}^{N}\log p_t(z_t), \quad \operatorname{PPL}=\exp(\mathcal{L})`;
 const repositoryRoot = resolve(process.cwd(), '..');
+const diagramSelector = 'figure[data-visualization-id="language-model-metrics"]';
+const desktop = { width: 1440, height: 1000 } as const;
+const standardFullView = { width: 1280, height: 900 } as const;
+const minimumFullView = { width: 1024, height: 576 } as const;
+const narrow = { width: 390, height: 844 } as const;
 
 function readRustRegion(path: string, region: string): string {
   const lines = readFileSync(resolve(repositoryRoot, path), 'utf8').split(/\r?\n/);
@@ -250,12 +255,19 @@ async function readMetricsGeometry(diagram: Locator) {
     const tolerance = 2;
     const problems: string[] = [];
     const allElements = [figure, ...figure.querySelectorAll<HTMLElement>('*')];
+    const ignored = (element: HTMLElement) =>
+      Boolean(
+        element.closest(
+          '.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]',
+        ),
+      );
     const visible = (element: HTMLElement) => {
       const style = getComputedStyle(element);
       const rect = element.getBoundingClientRect();
       return (
         style.display !== 'none' &&
-        style.visibility !== 'hidden' &&
+        !['hidden', 'collapse'].includes(style.visibility) &&
+        Number.parseFloat(style.opacity) > 0 &&
         rect.width > 0 &&
         rect.height > 0
       );
@@ -303,12 +315,25 @@ async function readMetricsGeometry(diagram: Locator) {
         evidence.colors.every((color) => !transparent(color))
       );
     };
-    const clipped = (element: HTMLElement) => {
+    const concealed = (element: HTMLElement) => {
       const style = getComputedStyle(element);
+      const zoom = style.getPropertyValue('zoom');
+      const lineClamp = style.getPropertyValue('-webkit-line-clamp');
+      const textIndent = Number.parseFloat(style.textIndent || '0');
       return (
         [style.overflowX, style.overflowY].some((value) =>
           ['hidden', 'clip'].includes(value),
-        ) || /(?:paint|strict|content)/.test(style.contain)
+        ) ||
+        /(?:paint|strict|content)/.test(style.contain) ||
+        style.clipPath !== 'none' ||
+        style.maskImage !== 'none' ||
+        style.filter !== 'none' ||
+        Number.parseFloat(style.opacity) <= 0 ||
+        style.contentVisibility === 'hidden' ||
+        style.textOverflow === 'ellipsis' ||
+        (lineClamp !== '' && lineClamp !== 'none') ||
+        (Number.isFinite(textIndent) && textIndent < -tolerance) ||
+        !['', '1', 'normal'].includes(zoom)
       );
     };
     const innerRect = (element: HTMLElement) => {
@@ -332,15 +357,18 @@ async function readMetricsGeometry(diagram: Locator) {
       (!checkBlock ||
         (child.top >= owner.top - tolerance && child.bottom <= owner.bottom + tolerance));
 
-    const visibleElements = allElements.filter(visible);
+    const visibleElements = allElements.filter(
+      (element) => !ignored(element) && visible(element),
+    );
+    let localVerticalOwnerCount = 0;
+    let undeclaredHorizontalOwnerCount = 0;
     for (const [index, element] of allElements.entries()) {
-      if (
-        element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]')
-      ) {
-        continue;
-      }
+      if (ignored(element)) continue;
       const style = getComputedStyle(element);
       const rect = element.getBoundingClientRect();
+      const directText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
       if (
         style.display === 'none' ||
         ['hidden', 'collapse'].includes(style.visibility) ||
@@ -349,8 +377,41 @@ async function readMetricsGeometry(diagram: Locator) {
       ) {
         problems.push(`element-${index} ${describe(element)} is concealed`);
       }
-      if (element.textContent?.trim() && (rect.width <= 0 || rect.height <= 0)) {
+      if (directText && (rect.width <= 0 || rect.height <= 0)) {
         problems.push(`element-${index} ${describe(element)} has no painted area`);
+      }
+      if (concealed(element)) {
+        problems.push(`element-${index} ${describe(element)} conceals overflow or paint`);
+      }
+      if (directText && transparent(style.color)) {
+        problems.push(`element-${index} ${describe(element)} paints transparent text`);
+      }
+      if (style.transform !== 'none' && !element.classList.contains('causal-arrow')) {
+        problems.push(`element-${index} ${describe(element)} is transformed`);
+      }
+      if (
+        element !== figure &&
+        visible(element) &&
+        element.clientWidth > 0 &&
+        element.clientHeight > 0
+      ) {
+        const inlineDebt = Math.max(0, element.scrollWidth - element.clientWidth);
+        const blockDebt = Math.max(0, element.scrollHeight - element.clientHeight);
+        if (
+          (['auto', 'scroll'].includes(style.overflowX) || inlineDebt > tolerance) &&
+          !element.hasAttribute('data-diagram-scroll')
+        ) {
+          undeclaredHorizontalOwnerCount += 1;
+          problems.push(
+            `element-${index} ${describe(element)} is an undeclared horizontal owner/debt ${inlineDebt}`,
+          );
+        }
+        if (style.overflowY === 'scroll' || blockDebt > tolerance) {
+          localVerticalOwnerCount += 1;
+          problems.push(
+            `element-${index} ${describe(element)} has private vertical owner/debt ${blockDebt}`,
+          );
+        }
       }
     }
     const markedBoxes = visibleElements.filter((element) =>
@@ -375,8 +436,8 @@ async function readMetricsGeometry(diagram: Locator) {
       if (!completeBorder(owner)) {
         problems.push(`owner-${index} ${describe(owner)} lacks four visible borders`);
       }
-      if (clipped(owner)) {
-        problems.push(`owner-${index} ${describe(owner)} clips or paint-contains`);
+      if (concealed(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} conceals overflow or paint`);
       }
       const rect = owner.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) {
@@ -409,6 +470,24 @@ async function readMetricsGeometry(diagram: Locator) {
       }
     }
 
+    const cards = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-card]'),
+    ).filter(visible);
+    for (let first = 0; first < cards.length; first += 1) {
+      for (let second = first + 1; second < cards.length; second += 1) {
+        const a = cards[first]!;
+        const b = cards[second]!;
+        if (a.contains(b) || b.contains(a)) continue;
+        const ar = a.getBoundingClientRect();
+        const br = b.getBoundingClientRect();
+        const inlineOverlap = Math.min(ar.right, br.right) - Math.max(ar.left, br.left);
+        const blockOverlap = Math.min(ar.bottom, br.bottom) - Math.max(ar.top, br.top);
+        if (inlineOverlap > tolerance && blockOverlap > tolerance) {
+          problems.push(`${describe(a)} overlaps ${describe(b)}`);
+        }
+      }
+    }
+
     const scrollers = Array.from(
       figure.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
     );
@@ -431,7 +510,7 @@ async function readMetricsGeometry(diagram: Locator) {
       ) {
         problems.push(`scroller-${index} also claims bounded ownership`);
       }
-      if (clipped(scroller)) problems.push(`scroller-${index} clips overflow`);
+      if (concealed(scroller)) problems.push(`scroller-${index} conceals overflow or paint`);
       if (scroller.scrollHeight - scroller.clientHeight > tolerance) {
         problems.push(`scroller-${index} has vertical travel`);
       }
@@ -487,15 +566,41 @@ async function readMetricsGeometry(diagram: Locator) {
       const checkInline = !scroller || scroller.contains(owner);
       const range = document.createRange();
       range.selectNodeContents(textNode);
-      for (const paint of Array.from(range.getClientRects())) {
+      const paints = Array.from(range.getClientRects()).filter(
+        (paint) => paint.width > 0 && paint.height > 0,
+      );
+      if (paints.length === 0) {
+        problems.push(`${describe(parent)} has nonblank text without positive paint`);
+        continue;
+      }
+      if (transparent(getComputedStyle(parent).color)) {
+        problems.push(`${describe(parent)} paints transparent text`);
+      }
+      for (const paint of paints) {
         if (
-          paint.width > 0 &&
-          paint.height > 0 &&
           !within(paint, innerRect(owner), checkInline, owner !== figure)
         ) {
           problems.push(`${describe(parent)} paints outside ${describe(owner)}`);
           break;
         }
+      }
+    }
+
+    for (const [index, replaced] of Array.from(
+      figure.querySelectorAll<HTMLElement>('img, svg, math, .katex'),
+    ).entries()) {
+      if (!visible(replaced) || ignored(replaced)) continue;
+      const owner = nearestOwner(replaced.parentElement);
+      if (
+        owner &&
+        !within(
+          replaced.getBoundingClientRect(),
+          innerRect(owner),
+          true,
+          owner !== figure,
+        )
+      ) {
+        problems.push(`replaced-${index} ${describe(replaced)} paints outside its owner`);
       }
     }
 
@@ -516,10 +621,41 @@ async function readMetricsGeometry(diagram: Locator) {
           problems.push(`table-${index} lost its native body group`);
         }
       }
+      for (const [headerIndex, header] of Array.from(
+        table.querySelectorAll<HTMLTableCellElement>('thead th'),
+      ).entries()) {
+        const walker = document.createTreeWalker(header, NodeFilter.SHOW_TEXT);
+        let wordIndex = 0;
+        while (walker.nextNode()) {
+          const textNode = walker.currentNode as Text;
+          for (const match of textNode.data.matchAll(/\S+/gu)) {
+            const start = match.index ?? -1;
+            if (start < 0) continue;
+            const range = document.createRange();
+            range.setStart(textNode, start);
+            range.setEnd(textNode, start + match[0].length);
+            const paints = Array.from(range.getClientRects()).filter(
+              (paint) => paint.width > 0 && paint.height > 0,
+            );
+            if (paints.length !== 1) {
+              problems.push(
+                `table-${index} header-${headerIndex} word-${wordIndex} fragments into ${paints.length} paint rects`,
+              );
+            }
+            wordIndex += 1;
+          }
+        }
+      }
       for (const [rowIndex, row] of Array.from(table.rows).entries()) {
         const rowRect = row.getBoundingClientRect();
         if (getComputedStyle(row).display !== 'table-row') {
           problems.push(`table-${index} row-${rowIndex} is not a native row`);
+        }
+        const expectedCells = index === 0 ? 3 : 6;
+        if (row.cells.length !== expectedCells) {
+          problems.push(
+            `table-${index} row-${rowIndex} has ${row.cells.length} cells instead of ${expectedCells}`,
+          );
         }
         for (const [cellIndex, cell] of Array.from(row.cells).entries()) {
           const cellRect = cell.getBoundingClientRect();
@@ -555,13 +691,29 @@ async function readMetricsGeometry(diagram: Locator) {
       }
     }
 
+    const scoreTechnical = Array.from(
+      figure.querySelectorAll<HTMLElement>('.score-table-scroll tbody :is(code, bdi)'),
+    );
+    for (const [index, technical] of scoreTechnical.entries()) {
+      const range = document.createRange();
+      range.selectNodeContents(technical);
+      const paints = Array.from(range.getClientRects()).filter(
+        (paint) => paint.width > 0 && paint.height > 0,
+      );
+      if (paints.length !== 1) {
+        problems.push(
+          `score-technical-${index} ${describe(technical)} fragments into ${paints.length} paint rects`,
+        );
+      }
+    }
+
     for (const [index, element] of visibleElements.entries()) {
       if (
         element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]')
       ) {
         continue;
       }
-      if (clipped(element)) {
+      if (concealed(element)) {
         problems.push(`element-${index} ${describe(element)} conceals overflow`);
       }
     }
@@ -580,11 +732,12 @@ async function readMetricsGeometry(diagram: Locator) {
         ? [{ index, pixels: Number.parseFloat(getComputedStyle(element).fontSize) }]
         : [];
     });
-    const scrollerTravel = scrollers.map((scroller) => {
-      const client = scroller.clientWidth;
-      const debt = Math.max(0, scroller.scrollWidth - client);
-      return { client, debt, ratio: client > 0 ? debt / client : Number.POSITIVE_INFINITY };
-    });
+    const scrollerTravel = scrollers.map((scroller, index) => ({
+      key: `${scroller.classList.contains('chain-scroll') ? 'chain' : 'score'}:${index}`,
+      client: scroller.clientWidth,
+      debt: Math.max(0, scroller.scrollWidth - scroller.clientWidth),
+      blockDebt: Math.max(0, scroller.scrollHeight - scroller.clientHeight),
+    }));
 
     const causalOrder = Array.from(
       figure.querySelectorAll<HTMLElement>('.calculation-chain > :is(.stage, .stage-connector)'),
@@ -604,7 +757,6 @@ async function readMetricsGeometry(diagram: Locator) {
     });
 
     return {
-      blockBudget: Math.ceil(figure.clientHeight * 0.2),
       blockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
       borderedOwnerCount: borderedOwners.length,
       boxCount: markedBoxes.length,
@@ -621,14 +773,14 @@ async function readMetricsGeometry(diagram: Locator) {
       idrefTargetCount: referencedIds.size,
       idrefTokenCount,
       inlineDebt: Math.max(0, figure.scrollWidth - figure.clientWidth),
-      maxScrollerTravel: Math.max(0, ...scrollerTravel.map(({ debt }) => debt)),
-      maxScrollerTravelRatio: Math.max(0, ...scrollerTravel.map(({ ratio }) => ratio)),
+      localVerticalOwnerCount,
       problems: [...new Set(problems)],
       provenanceFactCount: figure.querySelectorAll('.provenance-facts > div').length,
       rowCount: figure.querySelectorAll('table tr').length,
       rowHeaderCount: figure.querySelectorAll('th[scope="row"]').length,
       scoreRowHeadingCount: figure.querySelectorAll('.score-row-heading').length,
       scrollerCount: scrollers.length,
+      scrollerTravel,
       stageCount: figure.querySelectorAll('[data-stage]').length,
       stageNumberCount: figure.querySelectorAll('.stage-number').length,
       connectorCount: figure.querySelectorAll('.stage-connector').length,
@@ -636,8 +788,13 @@ async function readMetricsGeometry(diagram: Locator) {
       tableCount: figure.querySelectorAll('table[data-diagram-table]').length,
       targetRowCount: figure.querySelectorAll('[data-target-index]').length,
       scoredRowCount: figure.querySelectorAll('[data-scored-partition]').length,
+      scoreTechnicalCount: scoreTechnical.length,
       boundaryFactCount: figure.querySelectorAll('.boundary-panel li').length,
+      fullscreen: document.fullscreenElement === figure,
+      rootOverflowY: getComputedStyle(figure).overflowY,
+      undeclaredHorizontalOwnerCount,
       viewportHeight: figure.clientHeight,
+      viewportWidth: figure.clientWidth,
     };
   });
 }
@@ -677,11 +834,19 @@ function expectCompleteMetricsGeometry(
   expect(geometry.provenanceFactCount).toBe(10);
   expect(geometry.targetRowCount).toBe(2);
   expect(geometry.scoredRowCount).toBe(2);
+  expect(geometry.scoreTechnicalCount).toBe(12);
   expect(geometry.boundaryFactCount).toBe(4);
   expect(geometry.idrefElementCount).toBe(8);
   expect(geometry.idrefTargetCount).toBe(9);
   expect(geometry.idrefTokenCount).toBe(11);
   expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+  expect(geometry.localVerticalOwnerCount).toBe(0);
+  expect(geometry.undeclaredHorizontalOwnerCount).toBe(0);
+  expect(geometry.scrollerTravel).toHaveLength(2);
+  for (const travel of geometry.scrollerTravel) {
+    expect(travel.client).toBeGreaterThan(0);
+    expect(travel.blockDebt).toBeLessThanOrEqual(2);
+  }
   expect(geometry.problems).toEqual([]);
 }
 
@@ -700,12 +865,16 @@ function expectFontsNotShrunk(
   }
 }
 
-async function readFullViewComposition(diagram: Locator) {
+async function readReadableFlow(diagram: Locator) {
   return diagram.evaluate((root) => {
     const figure = root as HTMLElement;
+    const tolerance = 2;
     const rect = (selector: string) => {
       const element = figure.querySelector<HTMLElement>(selector);
       if (!element) throw new Error(`Missing ${selector}`);
+      return elementRect(element);
+    };
+    const elementRect = (element: HTMLElement) => {
       const box = element.getBoundingClientRect();
       return {
         bottom: box.bottom,
@@ -716,96 +885,436 @@ async function readFullViewComposition(diagram: Locator) {
         width: box.width,
       };
     };
+    const contentSpan = (element: HTMLElement) => {
+      const box = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        left:
+          box.left +
+          Number.parseFloat(style.borderLeftWidth) +
+          Number.parseFloat(style.paddingLeft),
+        right:
+          box.right -
+          Number.parseFloat(style.borderRightWidth) -
+          Number.parseFloat(style.paddingRight),
+      };
+    };
+    const columnCount = (element: HTMLElement) => {
+      const columns = getComputedStyle(element).gridTemplateColumns;
+      return columns === 'none' ? 0 : columns.split(/\s+/).filter(Boolean).length;
+    };
+    const occupiedBandCount = (elements: readonly HTMLElement[]) => {
+      const bands: Array<{ top: number; count: number }> = [];
+      for (const element of elements) {
+        const top = element.getBoundingClientRect().top;
+        const band = bands.find((candidate) => Math.abs(candidate.top - top) <= tolerance);
+        if (band) band.count += 1;
+        else bands.push({ top, count: 1 });
+      }
+      return Math.max(0, ...bands.map(({ count }) => count));
+    };
+    const widthSelectors = [
+      '.course-diagram__caption',
+      '.course-diagram__caption > h3',
+      '.course-diagram__description',
+      '.calculation-panel',
+      '.calculation-panel > h4',
+      '.scroll-instruction',
+      '.chain-scroll',
+      '.target-stage',
+      '.target-stage table',
+      '.target-stage caption',
+      '.target-stage caption > span',
+      '.target-stage th',
+      '.target-stage td',
+      '.target-stage code',
+      '.target-stage bdi',
+      '.stage-connector',
+      '.stage-connector > span',
+      '.stage-number',
+      '.aggregate-stage',
+      '.aggregate-stage > h5',
+      '.aggregate-stage > dl',
+      '.aggregate-stage > dl > div',
+      '.aggregate-stage dt',
+      '.aggregate-stage dd',
+      '.aggregate-stage bdi',
+      '.mean-stage',
+      '.mean-stage > h5',
+      '.mean-stage > p',
+      '.mean-stage > p > span',
+      '.mean-stage > p > strong',
+      '.mean-stage bdi',
+      '.perplexity-stage',
+      '.perplexity-stage > h5',
+      '.perplexity-stage > p',
+      '.perplexity-stage > p > span',
+      '.perplexity-stage > p > strong',
+      '.perplexity-stage bdi',
+      '.frozen-model-panel',
+      '.frozen-model-panel > h4',
+      '.frozen-model-note',
+      '.provenance-panel',
+      '.provenance-panel > h5',
+      '.provenance-facts',
+      '.provenance-facts > div',
+      '.provenance-facts dt',
+      '.provenance-facts dd',
+      '.provenance-facts code',
+      '.provenance-facts bdi',
+      '.score-table-scroll',
+      '.score-table-scroll table',
+      '.score-table-scroll caption',
+      '.score-table-scroll th',
+      '.score-table-scroll td',
+      '.score-table-scroll bdi',
+      '.score-row-heading',
+      '.score-row-heading > span',
+      '.score-row-heading > code',
+      '.boundary-panel',
+      '.boundary-panel > h5',
+      '.boundary-panel > ul',
+      '.boundary-panel li',
+      '.boundary-panel li > span',
+      '.boundary-panel li > code',
+    ] as const;
+    const widthSamples = widthSelectors.flatMap((selector) =>
+      Array.from(figure.querySelectorAll<HTMLElement>(selector)).map((element, index) => {
+        const box = element.getBoundingClientRect();
+        const kind = getComputedStyle(element).display === 'inline' ? 'paint' : 'allocation';
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const paints = Array.from(range.getClientRects()).filter(
+          (paint) => paint.width > 0 && paint.height > 0,
+        );
+        return {
+          key: `${selector}:${index}`,
+          kind,
+          fragments: kind === 'paint' ? paints.length : 0,
+          height: box.height,
+          width:
+            kind === 'paint'
+              ? Math.max(0, ...paints.map((paint) => paint.width))
+              : box.width,
+        };
+      }),
+    );
+    const calculation = figure.querySelector<HTMLElement>('.calculation-panel');
+    const chain = figure.querySelector<HTMLElement>('.calculation-chain');
+    const frozen = figure.querySelector<HTMLElement>('.frozen-model-panel');
+    const provenanceFacts = figure.querySelector<HTMLElement>('.provenance-facts');
+    const boundaryList = figure.querySelector<HTMLElement>('.boundary-panel > ul');
+    if (!calculation || !chain || !frozen || !provenanceFacts || !boundaryList) {
+      throw new Error('Missing Chapter 7 readable-flow owner');
+    }
+    const figureBox = figure.getBoundingClientRect();
+    const figureStyle = getComputedStyle(figure);
+    const figureBorderLeft = Number.parseFloat(figureStyle.borderLeftWidth);
+    const figureBorderRight = Number.parseFloat(figureStyle.borderRightWidth);
+    const reservedGutter = Math.max(
+      0,
+      figureBox.width - figureBorderLeft - figureBorderRight - figure.clientWidth,
+    );
+    const rootSpan = {
+      left:
+        figureBox.left +
+        figureBorderLeft +
+        reservedGutter / 2 +
+        Number.parseFloat(figureStyle.paddingLeft),
+      right:
+        figureBox.right -
+        figureBorderRight -
+        reservedGutter / 2 -
+        Number.parseFloat(figureStyle.paddingRight),
+    };
+    const calculationSpan = contentSpan(calculation);
+    const chainSpan = contentSpan(chain);
+    const frozenSpan = contentSpan(frozen);
+    const provenanceSpan = contentSpan(provenanceFacts);
+    const regionSpans = [
+      ['calculation', calculation],
+      ['frozen', frozen],
+    ].map(([key, element]) => {
+      const box = (element as HTMLElement).getBoundingClientRect();
+      return { key: String(key), left: box.left, right: box.right };
+    });
+    const chainStageSpans = Array.from(
+      chain.querySelectorAll<HTMLElement>(':scope > .stage'),
+    ).map((element, index) => {
+      const box = element.getBoundingClientRect();
+      return { key: index, left: box.left, right: box.right };
+    });
+    const frozenRecordSpans = [
+      frozen.querySelector<HTMLElement>(':scope > .provenance-panel'),
+      frozen.querySelector<HTMLElement>(':scope > .score-table-scroll'),
+      frozen.querySelector<HTMLElement>(':scope > .boundary-panel'),
+    ].map((element, index) => {
+      if (!element) throw new Error(`Missing frozen evidence ${index}`);
+      const box = element.getBoundingClientRect();
+      return { key: index, left: box.left, right: box.right };
+    });
+    const provenanceFactSpans = Array.from(
+      provenanceFacts.querySelectorAll<HTMLElement>(':scope > div'),
+    ).map((element, index) => {
+      const box = element.getBoundingClientRect();
+      return { key: index, left: box.left, right: box.right };
+    });
+    const scrollers = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+    ).map((scroller, index) => {
+      const box = scroller.getBoundingClientRect();
+      const isChain = scroller.classList.contains('chain-scroll');
+      const ownerSpan = isChain ? calculationSpan : frozenSpan;
+      return {
+        key: `${isChain ? 'chain' : 'score'}:${index}`,
+        blockDebt: Math.max(0, scroller.scrollHeight - scroller.clientHeight),
+        client: scroller.clientWidth,
+        debt: Math.max(0, scroller.scrollWidth - scroller.clientWidth),
+        left: box.left,
+        ownerLeft: ownerSpan.left,
+        ownerRight: ownerSpan.right,
+        right: box.right,
+      };
+    });
+    const stageElements = Array.from(
+      chain.querySelectorAll<HTMLElement>(':scope > :is(.stage, .stage-connector)'),
+    );
+    const provenanceFactsElements = Array.from(
+      provenanceFacts.querySelectorAll<HTMLElement>(':scope > div'),
+    );
+    const boundaryFacts = Array.from(
+      boundaryList.querySelectorAll<HTMLElement>(':scope > li'),
+    );
     return {
-      aggregate: rect('[data-stage="aggregate"]'),
-      aggregateConnector: rect('[data-connector-to="aggregate"]'),
-      actions: rect(':scope > [data-diagram-full-view-controls]'),
-      boundary: rect('.boundary-panel'),
-      calculation: rect(':scope > .calculation-panel'),
-      caption: rect(':scope > figcaption'),
-      columns: getComputedStyle(figure).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
-      direction: getComputedStyle(figure).direction,
-      frozen: rect(':scope > .frozen-model-panel'),
-      frozenHeading: rect(':scope > .frozen-model-panel > h4'),
-      frozenNote: rect(':scope > .frozen-model-panel > .frozen-model-note'),
-      mean: rect('[data-stage="mean-nll"]'),
-      meanConnector: rect('[data-connector-to="mean"]'),
-      perplexity: rect('[data-stage="perplexity"]'),
-      perplexityConnector: rect('[data-connector-to="perplexity"]'),
-      provenance: rect('.provenance-panel'),
-      score: rect('.score-table-scroll'),
-      target: rect('.target-stage'),
+      actionPosition: getComputedStyle(
+        figure.querySelector<HTMLElement>(':scope > [data-diagram-full-view-controls]')!,
+      ).position,
+      boundaryColumns: columnCount(boundaryList),
+      calculationColumns: columnCount(chain),
+      chainSpan,
+      columns: columnCount(figure),
+      frozenColumns: columnCount(frozen),
+      frozenSpan,
+      occupiedPeers: {
+        calculation: occupiedBandCount(stageElements),
+        provenance: occupiedBandCount(provenanceFactsElements),
+        boundaries: occupiedBandCount(boundaryFacts),
+      },
+      provenanceColumns: columnCount(provenanceFacts),
+      rootBlockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
+      rootOverflowY: getComputedStyle(figure).overflowY,
+      rootSpan,
+      calculationSpan,
+      provenanceSpan,
+      regionSpans,
+      chainStageSpans,
+      frozenRecordSpans,
+      provenanceFactSpans,
+      scrollers,
+      widthSamples,
+      rootFlow: [
+        rect(':scope > figcaption'),
+        rect(':scope > [data-diagram-full-view-controls]'),
+        rect(':scope > .calculation-panel'),
+        rect(':scope > .frozen-model-panel'),
+      ],
+      calculationFlow: [
+        rect('.target-stage'),
+        rect('[data-connector-to="aggregate"]'),
+        rect('.aggregate-stage'),
+        rect('[data-connector-to="mean"]'),
+        rect('.mean-stage'),
+        rect('[data-connector-to="perplexity"]'),
+        rect('.perplexity-stage'),
+      ],
+      frozenFlow: [
+        rect(':scope > .frozen-model-panel > h4'),
+        rect(':scope > .frozen-model-panel > .frozen-model-note'),
+        rect(':scope > .frozen-model-panel > .provenance-panel'),
+        rect(':scope > .frozen-model-panel > .score-table-scroll'),
+        rect(':scope > .frozen-model-panel > .boundary-panel'),
+      ],
+      provenanceFlow: provenanceFactsElements.map(elementRect),
+      boundaryFlow: boundaryFacts.map(elementRect),
     };
   });
 }
 
-function expectCoherentFullView(
-  composition: Awaited<ReturnType<typeof readFullViewComposition>>,
+async function readMetricsEvidence(diagram: Locator) {
+  return diagram.evaluate((root) => ({
+    boundary: Array.from(root.querySelectorAll<HTMLElement>('[data-boundary]')).map(
+      (record) => ({ key: record.dataset.boundary, text: record.textContent?.trim() }),
+    ),
+    provenance: Array.from(root.querySelectorAll<HTMLElement>('.provenance-facts > div')).map(
+      (record) => record.textContent?.trim(),
+    ),
+    scored: Array.from(root.querySelectorAll<HTMLElement>('[data-scored-partition]')).map(
+      (row) => ({ key: row.dataset.scoredPartition, text: row.textContent?.trim() }),
+    ),
+    stages: Array.from(root.querySelectorAll<HTMLElement>('[data-stage]')).map(
+      (stage) => ({ key: stage.dataset.stage, text: stage.textContent?.trim() }),
+    ),
+    targets: Array.from(root.querySelectorAll<HTMLElement>('[data-target-index]')).map(
+      (row) => ({ key: row.dataset.targetIndex, text: row.textContent?.trim() }),
+    ),
+  }));
+}
+
+async function rememberAuthoredNodes(diagram: Locator, slot: string) {
+  return diagram.evaluate((root, storageKey) => {
+    const authored = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))].filter(
+      (element) => !element.closest('[data-diagram-full-view-controls]'),
+    );
+    (window as unknown as Record<string, unknown>)[storageKey] = authored;
+    return authored.length;
+  }, slot);
+}
+
+async function authoredNodesAreUnchanged(diagram: Locator, slot: string) {
+  return diagram.evaluate((root, storageKey) => {
+    const before = (window as unknown as Record<string, unknown>)[storageKey];
+    if (!Array.isArray(before)) return false;
+    const authored = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))].filter(
+      (element) => !element.closest('[data-diagram-full-view-controls]'),
+    );
+    return (
+      authored.length === before.length &&
+      authored.every((element, index) => element === before[index])
+    );
+  }, slot);
+}
+
+async function readScrolledChromeRelation(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const action = figure.querySelector<HTMLElement>(
+      ':scope > [data-diagram-full-view-controls]',
+    );
+    const evidence = figure.querySelector<HTMLElement>('.provenance-panel');
+    if (!action || !evidence) throw new Error('Missing Chapter 7 scroll-overlap evidence');
+    const previous = figure.scrollTop;
+    evidence.scrollIntoView({ block: 'start', inline: 'nearest' });
+    const actionBox = action.getBoundingClientRect();
+    const evidenceBox = evidence.getBoundingClientRect();
+    const figureBox = figure.getBoundingClientRect();
+    const figureStyle = getComputedStyle(figure);
+    const scrollportStart =
+      figureBox.top +
+      Number.parseFloat(figureStyle.borderTopWidth) +
+      Number.parseFloat(figureStyle.paddingTop);
+    const overlaps = !(
+      actionBox.bottom <= evidenceBox.top + 2 ||
+      actionBox.top >= evidenceBox.bottom - 2 ||
+      actionBox.right <= evidenceBox.left + 2 ||
+      actionBox.left >= evidenceBox.right - 2
+    );
+    const result = {
+      actionPosition: getComputedStyle(action).position,
+      evidenceAtScrollport: evidenceBox.top <= scrollportStart + 3,
+      overlaps,
+      scrollTop: figure.scrollTop,
+    };
+    figure.scrollTop = previous;
+    return result;
+  });
+}
+
+function expectReadableFullView(
+  inline: Awaited<ReturnType<typeof readReadableFlow>>,
+  full: Awaited<ReturnType<typeof readReadableFlow>>,
 ) {
-  const inlineBefore = (
-    first: { left: number; right: number },
-    second: { left: number; right: number },
-  ) => {
-    if (composition.direction === 'rtl') {
-      expect(first.left + 1).toBeGreaterThanOrEqual(second.right);
-    } else {
-      expect(first.right).toBeLessThanOrEqual(second.left + 1);
-    }
-  };
-  const verticallyOverlaps = (
-    first: { top: number; bottom: number },
-    second: { top: number; bottom: number },
-  ) => Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top);
-
-  expect(composition.columns).toBe(3);
-  for (const region of [
-    composition.aggregate,
-    composition.aggregateConnector,
-    composition.caption,
-    composition.actions,
-    composition.calculation,
-    composition.frozen,
-    composition.frozenHeading,
-    composition.frozenNote,
-    composition.mean,
-    composition.meanConnector,
-    composition.perplexity,
-    composition.perplexityConnector,
-    composition.provenance,
-    composition.score,
-    composition.target,
-    composition.boundary,
+  expect(full.columns).toBe(1);
+  expect(full.calculationColumns).toBe(1);
+  expect(full.frozenColumns).toBe(1);
+  expect(full.provenanceColumns).toBe(1);
+  expect(full.boundaryColumns).toBe(1);
+  expect(full.actionPosition).toBe('static');
+  for (const flow of [
+    full.rootFlow,
+    full.calculationFlow,
+    full.frozenFlow,
+    full.provenanceFlow,
+    full.boundaryFlow,
   ]) {
-    expect(region.width).toBeGreaterThan(0);
-    expect(region.height).toBeGreaterThan(0);
+    for (const region of flow) {
+      expect(region.width).toBeGreaterThan(0);
+      expect(region.height).toBeGreaterThan(0);
+    }
+    for (let index = 1; index < flow.length; index += 1) {
+      expect(flow[index]!.top).toBeGreaterThanOrEqual(flow[index - 1]!.bottom - 2);
+    }
   }
-  inlineBefore(composition.caption, composition.actions);
-  inlineBefore(composition.calculation, composition.frozen);
-  expect(Math.abs(composition.calculation.top - composition.frozen.top)).toBeLessThanOrEqual(2);
-  inlineBefore(composition.frozenHeading, composition.provenance);
-  inlineBefore(composition.frozenNote, composition.provenance);
-  inlineBefore(composition.score, composition.provenance);
-  expect(composition.frozenHeading.bottom).toBeLessThanOrEqual(composition.frozenNote.top + 1);
-  expect(composition.frozenNote.bottom).toBeLessThanOrEqual(composition.score.top + 1);
-  expect(composition.boundary.top + 1).toBeGreaterThanOrEqual(
-    Math.max(composition.score.bottom, composition.provenance.bottom),
+  expect(full.widthSamples.map(({ key }) => key)).toEqual(
+    inline.widthSamples.map(({ key }) => key),
   );
+  const inlineWidths = new Map(
+    inline.widthSamples.map(({ key, ...sample }) => [key, sample]),
+  );
+  for (const sample of full.widthSamples) {
+    const before = inlineWidths.get(sample.key);
+    expect(before, `${sample.key} inline witness`).toBeDefined();
+    expect(sample.kind, `${sample.key} measurement kind`).toBe(before?.kind);
+    expect(sample.height, `${sample.key} full-view height`).toBeGreaterThan(0);
+    expect(
+      sample.width + 2,
+      `${sample.key} width (${sample.width} full versus ${before?.width} inline)`,
+    ).toBeGreaterThanOrEqual(before?.width ?? Number.POSITIVE_INFINITY);
+    if (sample.kind === 'paint') {
+      expect(sample.fragments, `${sample.key} paint fragments`).toBeLessThanOrEqual(
+        before?.fragments ?? 0,
+      );
+    }
+  }
+  for (const key of ['calculation', 'provenance', 'boundaries'] as const) {
+    expect(full.occupiedPeers[key], `${key} fullscreen same-band peers`).toBeLessThanOrEqual(
+      inline.occupiedPeers[key],
+    );
+  }
+  for (const span of full.regionSpans) {
+    expect(Math.abs(span.left - full.rootSpan.left), `${span.key} logical start`).toBeLessThanOrEqual(2);
+    expect(Math.abs(span.right - full.rootSpan.right), `${span.key} logical end`).toBeLessThanOrEqual(2);
+  }
+  for (const span of full.chainStageSpans) {
+    expect(Math.abs(span.left - full.chainSpan.left), `chain item ${span.key} start`).toBeLessThanOrEqual(2);
+    expect(Math.abs(span.right - full.chainSpan.right), `chain item ${span.key} end`).toBeLessThanOrEqual(2);
+  }
+  for (const span of full.frozenRecordSpans) {
+    expect(Math.abs(span.left - full.frozenSpan.left), `frozen item ${span.key} start`).toBeLessThanOrEqual(2);
+    expect(Math.abs(span.right - full.frozenSpan.right), `frozen item ${span.key} end`).toBeLessThanOrEqual(2);
+  }
+  for (const span of full.provenanceFactSpans) {
+    expect(Math.abs(span.left - full.provenanceSpan.left), `provenance fact ${span.key} start`).toBeLessThanOrEqual(2);
+    expect(Math.abs(span.right - full.provenanceSpan.right), `provenance fact ${span.key} end`).toBeLessThanOrEqual(2);
+  }
+  expect(full.scrollers.map(({ key }) => key)).toEqual(inline.scrollers.map(({ key }) => key));
+  for (let index = 0; index < full.scrollers.length; index += 1) {
+    const before = inline.scrollers[index]!;
+    const after = full.scrollers[index]!;
+    expect(Math.abs(after.left - after.ownerLeft), `${after.key} start edge`).toBeLessThanOrEqual(2);
+    expect(Math.abs(after.right - after.ownerRight), `${after.key} end edge`).toBeLessThanOrEqual(2);
+    expect(after.client + 2, `${after.key} client width`).toBeGreaterThanOrEqual(before.client);
+    expect(after.debt, `${after.key} travel versus inline`).toBeLessThanOrEqual(before.debt + 2);
+    if (after.key.startsWith('chain:')) {
+      expect(after.debt, `${after.key} avoidable local travel`).toBeLessThanOrEqual(2);
+    } else {
+      expect(after.debt, `${after.key} substantial intrinsic travel`).toBeLessThan(
+        after.client,
+      );
+    }
+    expect(after.blockDebt, `${after.key} local block debt`).toBeLessThanOrEqual(2);
+  }
+  if (full.rootBlockDebt > 2) {
+    expect(full.rootOverflowY).toMatch(/^(?:auto|scroll)$/);
+  }
+}
 
-  const resultRow = [composition.aggregate, composition.mean, composition.perplexity];
-  expect(composition.target.bottom).toBeLessThanOrEqual(composition.aggregateConnector.top + 1);
-  expect(composition.aggregateConnector.bottom).toBeLessThanOrEqual(
-    Math.min(...resultRow.map(({ top }) => top)) + 1,
-  );
-  inlineBefore(composition.aggregate, composition.meanConnector);
-  inlineBefore(composition.meanConnector, composition.mean);
-  inlineBefore(composition.mean, composition.perplexityConnector);
-  inlineBefore(composition.perplexityConnector, composition.perplexity);
-  expect(verticallyOverlaps(composition.aggregate, composition.meanConnector)).toBeGreaterThan(0);
-  expect(verticallyOverlaps(composition.meanConnector, composition.mean)).toBeGreaterThan(0);
-  expect(verticallyOverlaps(composition.mean, composition.perplexityConnector)).toBeGreaterThan(0);
-  expect(verticallyOverlaps(composition.perplexityConnector, composition.perplexity)).toBeGreaterThan(
-    0,
-  );
+function expectRootOwnsVerticalContinuation(
+  geometry: Awaited<ReturnType<typeof readMetricsGeometry>>,
+) {
+  expect(geometry.fullscreen).toBe(true);
+  if (geometry.blockDebt > 2) {
+    expect(geometry.rootOverflowY).toMatch(/^(?:auto|scroll)$/);
+  }
 }
 
 async function expectChapterContent(
@@ -1081,10 +1590,10 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     });
   }
 
-  test('both locales reuse the semantic figure in a bounded native-table full view', async ({
+  test('both locales reuse one semantic tree in a readable native-table full view', async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.setViewportSize(standardFullView);
 
     for (const locale of chapterLocales) {
       await page.goto(chapterPath(locale, chapterId));
@@ -1093,13 +1602,20 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
       );
       await settle(page);
 
-      const diagram = page.locator('figure[data-visualization-id="language-model-metrics"]');
+      const diagram = page.locator(diagramSelector);
       const toggle = diagram.locator('[data-diagram-full-view-toggle]');
       await expect(toggle).toHaveCount(1);
       await expect(toggle).toBeVisible();
       const beforeMarkup = await staticDiagramMarkup(diagram);
       const inlineGeometry = await readMetricsGeometry(diagram);
       expectCompleteMetricsGeometry(inlineGeometry);
+      const inlineFlow = await readReadableFlow(diagram);
+      const inlineEvidence = await readMetricsEvidence(diagram);
+      const authoredNodeCount = await rememberAuthoredNodes(
+        diagram,
+        '__chapter07AuthoredNodes',
+      );
+      expect(authoredNodeCount).toBeGreaterThan(0);
       await diagram.evaluate((root) => {
         (
           window as typeof window & { __chapterSevenMetricsFigure?: Element }
@@ -1123,24 +1639,37 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
         ),
       ).toBe(true);
       expect(await staticDiagramMarkup(diagram)).toBe(beforeMarkup);
-      expectCoherentFullView(await readFullViewComposition(diagram));
+      expect(await authoredNodesAreUnchanged(diagram, '__chapter07AuthoredNodes')).toBe(
+        true,
+      );
+      expect(await readMetricsEvidence(diagram)).toEqual(inlineEvidence);
+      expectReadableFullView(inlineFlow, await readReadableFlow(diagram));
+      expect(await readScrolledChromeRelation(diagram)).toEqual(
+        expect.objectContaining({
+          actionPosition: 'static',
+          evidenceAtScrollport: true,
+          overlaps: false,
+        }),
+      );
 
       const fullGeometry = await readMetricsGeometry(diagram);
       expectCompleteMetricsGeometry(fullGeometry);
-      expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
-      expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(300);
-      expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(0.8);
+      expectRootOwnsVerticalContinuation(fullGeometry);
       expectFontsNotShrunk(inlineGeometry, fullGeometry);
 
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => document.fullscreenElement === null);
       await expect(toggle).toBeFocused();
       await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(await authoredNodesAreUnchanged(diagram, '__chapter07AuthoredNodes')).toBe(
+        true,
+      );
+      expect(await readMetricsEvidence(diagram)).toEqual(inlineEvidence);
       await expectNoOverflowOrClientScripts(page);
     }
   });
 
-  test('the minimum eligible surface keeps one coherent composition without shrinking', async ({
+  test('the minimum eligible surface keeps full-width evidence without shrinking', async ({
     browser,
     browserName,
   }, testInfo) => {
@@ -1148,8 +1677,8 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
     const context = await browser.newContext({
       baseURL,
-      screen: { width: 1024, height: 576 },
-      viewport: { width: 1024, height: 576 },
+      screen: minimumFullView,
+      viewport: minimumFullView,
     });
     const page = await context.newPage();
 
@@ -1160,15 +1689,20 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
           () => document.documentElement.dataset.diagramFullViewReady === 'true',
         );
         await settle(page);
-        const diagram = page.locator(
-          'figure[data-visualization-id="language-model-metrics"]',
-        );
+        const diagram = page.locator(diagramSelector);
         const toggle = diagram.locator('[data-diagram-full-view-toggle]');
         await expect(toggle).toHaveCount(1);
         await expect(toggle).toBeVisible();
         const beforeMarkup = await staticDiagramMarkup(diagram);
         const inlineGeometry = await readMetricsGeometry(diagram);
         expectCompleteMetricsGeometry(inlineGeometry);
+        const inlineFlow = await readReadableFlow(diagram);
+        const inlineEvidence = await readMetricsEvidence(diagram);
+        const authoredNodeCount = await rememberAuthoredNodes(
+          diagram,
+          '__chapter07MinimumAuthoredNodes',
+        );
+        expect(authoredNodeCount).toBeGreaterThan(0);
 
         await toggle.click();
         await page.waitForFunction(
@@ -1178,9 +1712,21 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
         );
         await settle(page);
         expect(await staticDiagramMarkup(diagram)).toBe(beforeMarkup);
-        expectCoherentFullView(await readFullViewComposition(diagram));
+        expect(
+          await authoredNodesAreUnchanged(diagram, '__chapter07MinimumAuthoredNodes'),
+        ).toBe(true);
+        expect(await readMetricsEvidence(diagram)).toEqual(inlineEvidence);
+        expectReadableFullView(inlineFlow, await readReadableFlow(diagram));
+        expect(await readScrolledChromeRelation(diagram)).toEqual(
+          expect.objectContaining({
+            actionPosition: 'static',
+            evidenceAtScrollport: true,
+            overlaps: false,
+          }),
+        );
         const fullGeometry = await readMetricsGeometry(diagram);
         expectCompleteMetricsGeometry(fullGeometry);
+        expectRootOwnsVerticalContinuation(fullGeometry);
         expectFontsNotShrunk(inlineGeometry, fullGeometry);
 
         const surface = await page.evaluate(() => ({
@@ -1195,20 +1741,19 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
           expect(surface.innerWidth).toBe(1024);
           expect(surface.innerHeight).toBe(576);
           expect(fullGeometry.viewportHeight).toBe(574);
-          expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.viewportHeight);
-          expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(340);
-          expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(1.25);
         } else {
           expect(surface.innerWidth).toBeGreaterThanOrEqual(1280);
           expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
-          expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
-          expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(300);
-          expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(0.8);
         }
 
         await page.keyboard.press('Escape');
         await page.waitForFunction(() => document.fullscreenElement === null);
         await expect(toggle).toBeFocused();
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+        expect(
+          await authoredNodesAreUnchanged(diagram, '__chapter07MinimumAuthoredNodes'),
+        ).toBe(true);
+        expect(await readMetricsEvidence(diagram)).toEqual(inlineEvidence);
       }
     } finally {
       await context.close();
@@ -1253,12 +1798,15 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     page,
   }) => {
     await page.emulateMedia({ forcedColors: 'active' });
-    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.setViewportSize(standardFullView);
     await page.goto(chapterPath('ru', chapterId));
     await page.waitForFunction(
       () => document.documentElement.dataset.diagramFullViewReady === 'true',
     );
-    const diagram = page.locator('figure[data-visualization-id="language-model-metrics"]');
+    expect(await page.evaluate(() => matchMedia('(forced-colors: active)').matches)).toBe(
+      true,
+    );
+    const diagram = page.locator(diagramSelector);
     await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
     await settle(page);
 
@@ -1266,21 +1814,18 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
       diagram.evaluate((root) => {
         const style = (selector: string) =>
           getComputedStyle(root.querySelector<HTMLElement>(selector)!);
-        const aggregateArrow = root.querySelector<HTMLElement>(
-          '[data-connector-to="aggregate"] .causal-arrow',
-        );
         return {
           aggregateBorder: style('[data-stage="aggregate"]').borderTopStyle,
-          aggregateTransform: aggregateArrow ? getComputedStyle(aggregateArrow).transform : '',
           boundaryBorder: style('.boundary-panel').borderTopStyle,
           forcedColors: matchMedia('(forced-colors: active)').matches,
           frozenBorder: style('.frozen-model-panel').borderTopStyle,
+          inlineArrowTransform: getComputedStyle(
+            root.querySelector<HTMLElement>('.inline-arrow.causal-arrow')!,
+          ).transform,
           meanBorder: style('[data-stage="mean-nll"]').borderTopStyle,
-          otherArrowTransforms: Array.from(
-            root.querySelectorAll<HTMLElement>('.causal-arrow'),
-          )
-            .filter((arrow) => !arrow.closest('[data-connector-to="aggregate"]'))
-            .map((arrow) => getComputedStyle(arrow).transform),
+          stageConnectorTransforms: Array.from(
+            root.querySelectorAll<HTMLElement>('.stage-connector .causal-arrow'),
+          ).map((arrow) => getComputedStyle(arrow).transform),
           proseDirections: Array.from(
             root.querySelectorAll<HTMLElement>('h3, h4, h5, p, th, dt'),
           ).map((element) => getComputedStyle(element).direction),
@@ -1320,10 +1865,11 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     expect(inline.validationCue).toBe('double');
     expect(inline.proseDirections.every((direction) => direction === 'rtl')).toBe(true);
     expect(inline.technicalDirections.every((direction) => direction === 'ltr')).toBe(true);
-    expect(inline.otherArrowTransforms.every((transform) => transform.startsWith('matrix(-1'))).toBe(
-      true,
-    );
-    expect(inline.aggregateTransform.startsWith('matrix(-1')).toBe(true);
+    expect(inline.stageConnectorTransforms).toHaveLength(3);
+    expect(
+      inline.stageConnectorTransforms.every((transform) => transform.startsWith('matrix(-1')),
+    ).toBe(true);
+    expect(inline.inlineArrowTransform.startsWith('matrix(-1')).toBe(true);
     const inlineCausalOrder = await readInlineCausalOrder();
     expect(inlineCausalOrder.direction).toBe('rtl');
     expect(inlineCausalOrder.regions).toHaveLength(7);
@@ -1335,7 +1881,9 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
         0,
       );
     }
-    expectCompleteMetricsGeometry(await readMetricsGeometry(diagram));
+    const inlineGeometry = await readMetricsGeometry(diagram);
+    expectCompleteMetricsGeometry(inlineGeometry);
+    const inlineFlow = await readReadableFlow(diagram);
 
     const toggle = diagram.locator('[data-diagram-full-view-toggle]');
     await toggle.click();
@@ -1345,7 +1893,14 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
         'language-model-metrics',
     );
     await settle(page);
-    expectCoherentFullView(await readFullViewComposition(diagram));
+    expectReadableFullView(inlineFlow, await readReadableFlow(diagram));
+    expect(await readScrolledChromeRelation(diagram)).toEqual(
+      expect.objectContaining({
+        actionPosition: 'static',
+        evidenceAtScrollport: true,
+        overlaps: false,
+      }),
+    );
     const full = await readDirectionAndCues();
     expect(full.forcedColors).toBe(true);
     expect(full.aggregateBorder).toBe('double');
@@ -1355,15 +1910,15 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     expect(full.validationCue).toBe('double');
     expect(full.proseDirections.every((direction) => direction === 'rtl')).toBe(true);
     expect(full.technicalDirections.every((direction) => direction === 'ltr')).toBe(true);
-    expect(full.otherArrowTransforms.every((transform) => transform.startsWith('matrix(-1'))).toBe(
-      true,
-    );
-    expect(full.aggregateTransform).toMatch(/^matrix\(0, 1, -1, 0,/);
+    expect(full.inlineArrowTransform.startsWith('matrix(-1')).toBe(true);
+    expect(full.stageConnectorTransforms).toHaveLength(3);
+    for (const transform of full.stageConnectorTransforms) {
+      expect(transform).toMatch(/^matrix\(0, 1, -1, 0,/);
+    }
     const fullGeometry = await readMetricsGeometry(diagram);
     expectCompleteMetricsGeometry(fullGeometry);
-    expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
-    expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(300);
-    expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(0.8);
+    expectRootOwnsVerticalContinuation(fullGeometry);
+    expectFontsNotShrunk(inlineGeometry, fullGeometry);
 
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => document.fullscreenElement === null);
@@ -1371,17 +1926,15 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     await expectNoOverflowOrClientScripts(page);
   });
 
-  test('both localized static figures remain complete without JavaScript', async ({
+  test('both localized figures remain complete without JavaScript or the Fullscreen API', async ({
     browser,
   }, testInfo) => {
+    test.setTimeout(90_000);
     const baseURL = testInfo.project.use.baseURL;
     if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
 
     for (const locale of chapterLocales) {
-      for (const viewport of [
-        { width: 1440, height: 1000 },
-        { width: 390, height: 844 },
-      ]) {
+      for (const viewport of [desktop, narrow]) {
         const context = await browser.newContext({
           baseURL,
           javaScriptEnabled: false,
@@ -1391,9 +1944,7 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
         try {
           await page.goto(chapterPath(locale, chapterId));
           await page.waitForLoadState('networkidle');
-          const diagram = page.locator(
-            'figure[data-visualization-id="language-model-metrics"]',
-          );
+          const diagram = page.locator(diagramSelector);
           await expect(diagram).toBeVisible();
           const rect = await diagram.boundingBox();
           expect(rect?.width ?? 0).toBeGreaterThan(0);
@@ -1420,6 +1971,31 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
           await context.close();
         }
       }
+    }
+
+    const unsupportedContext = await browser.newContext({ baseURL, viewport: desktop });
+    await unsupportedContext.addInitScript(() => {
+      Object.defineProperty(document, 'fullscreenEnabled', {
+        configurable: true,
+        value: false,
+      });
+    });
+    const unsupportedPage = await unsupportedContext.newPage();
+    try {
+      await unsupportedPage.goto(chapterPath('en', chapterId));
+      await unsupportedPage.waitForFunction(
+        () => document.documentElement.dataset.diagramFullViewReady === 'true',
+      );
+      const diagram = unsupportedPage.locator(diagramSelector);
+      await expect(diagram).toBeVisible();
+      await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
+      await expect(diagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+      await expect(diagram.locator('[data-stage]')).toHaveCount(4);
+      await expect(diagram.locator('[data-scored-partition]')).toHaveCount(2);
+      expectCompleteMetricsGeometry(await readMetricsGeometry(diagram));
+      await expectNoOverflowOrClientScripts(unsupportedPage);
+    } finally {
+      await unsupportedContext.close();
     }
   });
 });

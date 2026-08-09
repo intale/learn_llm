@@ -770,7 +770,7 @@ describe('language-model-metrics diagram component contract', () => {
     expect(componentSource).not.toContain('data-diagram-full-view-controls');
   });
 
-  it('keeps score headers native and confines full-view changes to concept geometry', () => {
+  it('keeps native score headers and uses one readable source-order full-view flow', () => {
     expect(componentSource).toMatch(
       /<th scope="row">\s*<span class="score-row-heading">[\s\S]*?labels\.partitions\[score\.partition\][\s\S]*?<code dir="ltr">partition=\{score\.partition\}<\/code>[\s\S]*?<\/span>\s*<\/th>/,
     );
@@ -831,27 +831,68 @@ describe('language-model-metrics diagram component contract', () => {
     ]) {
       expect(fullscreenStyles).toContain(hook);
     }
+    const rootRule = fullscreenStyles.match(
+      /^figure\.metrics-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*\{(?<body>[^{}]*)\}/,
+    )?.groups?.body;
+    expect(rootRule).toBeDefined();
+    expect(rootRule).toMatch(/grid-template-columns\s*:\s*minmax\(0,\s*1fr\)/);
+    expect(rootRule).toMatch(/grid-template-rows\s*:\s*repeat\(4,\s*auto\)/);
     expect(fullscreenStyles).toMatch(
-      /grid-template-columns\s*:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/,
+      /> figcaption\s*\{[^{}]*grid-column\s*:\s*1[^{}]*grid-row\s*:\s*1/,
     );
     expect(fullscreenStyles).toMatch(
-      /\.frozen-model-panel[\s\S]*?grid-template-columns\s*:\s*minmax\(18rem,\s*1\.1fr\) minmax\(0,\s*0\.9fr\)/,
+      /> :global\(\.diagram-full-view-actions\)\s*\{[^{}]*grid-column\s*:\s*1[^{}]*grid-row\s*:\s*2/,
     );
     expect(fullscreenStyles).toMatch(
-      /\.calculation-chain[\s\S]*?min-inline-size\s*:\s*40rem/,
+      /> \.calculation-panel\s*\{[^{}]*grid-column\s*:\s*1[^{}]*grid-row\s*:\s*3/,
     );
     expect(fullscreenStyles).toMatch(
-      /grid-template-areas\s*:\s*'target target target target target'\s*'to-aggregate to-aggregate to-aggregate to-aggregate to-aggregate'\s*'aggregate to-mean mean to-perplexity perplexity'/,
+      /> \.frozen-model-panel\s*\{[^{}]*grid-column\s*:\s*1[^{}]*grid-row\s*:\s*4[^{}]*grid-template-columns\s*:\s*minmax\(0,\s*1fr\)[^{}]*grid-template-rows\s*:\s*repeat\(5,\s*auto\)/,
+    );
+    for (const [selector, row] of [
+      ['h4', 1],
+      ['\\.frozen-model-note', 2],
+      ['\\.provenance-panel', 3],
+      ['\\.score-table-scroll', 4],
+      ['\\.boundary-panel', 5],
+    ] as const) {
+      expect(fullscreenStyles).toMatch(
+        new RegExp(
+          `> \\.frozen-model-panel\\s*> ${selector}\\s*\\{[^{}]*grid-column\\s*:\\s*1[^{}]*grid-row\\s*:\\s*${row}`,
+        ),
+      );
+    }
+    expect(fullscreenStyles).toMatch(
+      /\.calculation-chain\s*\{[^{}]*min-inline-size\s*:\s*0[^{}]*grid-template-columns\s*:\s*minmax\(0,\s*1fr\)[^{}]*grid-template-areas\s*:\s*'target'\s*'to-aggregate'\s*'aggregate'\s*'to-mean'\s*'mean'\s*'to-perplexity'\s*'perplexity'/,
     );
     expect(fullscreenStyles).toMatch(
-      /\.score-table-scroll[\s\S]*?table\s*\{[\s\S]*?min-inline-size\s*:\s*40rem/,
+      /\.stage-connector\s+\.causal-arrow[^{}]*\{[^{}]*transform\s*:\s*rotate\(90deg\)/,
     );
     expect(fullscreenStyles).toMatch(
-      /@container \(max-width:\s*70rem\)[\s\S]*?figure\.metrics-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen[\s\S]*?> \.frozen-model-panel[\s\S]*?gap\s*:\s*0\.5rem[\s\S]*?figure\.metrics-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen[\s\S]*?\.calculation-chain[\s\S]*?min-inline-size\s*:\s*38rem/,
+      /\.provenance-facts\s*\{[^{}]*grid-template-columns\s*:\s*minmax\(0,\s*1fr\)/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /\.boundary-panel\s+ul\s*\{[^{}]*grid-template-columns\s*:\s*minmax\(0,\s*1fr\)/,
+    );
+    expect(componentSource).toMatch(
+      /\.score-table-scroll table\s*\{[^{}]*min-inline-size\s*:\s*62rem/,
+    );
+    expect(componentSource).toMatch(
+      /table\s*\{[^{}]*width\s*:\s*100%[^{}]*table-layout\s*:\s*fixed/,
+    );
+    for (const [column, share] of [23, 11, 13, 20, 16, 17].entries()) {
+      expect(componentSource).toMatch(
+        new RegExp(
+          `\\.score-table-scroll thead th:nth-child\\(${column + 1}\\)\\s*\\{[^{}]*inline-size\\s*:\\s*${share}%`,
+        ),
+      );
+    }
+    expect(fullscreenStyles).not.toMatch(
+      /\.score-table-scroll[^{}]*\btable\s*\{[^{}]*min-inline-size\s*:/,
     );
 
     const captionRule = fullscreenStyles.match(
-      /> figcaption\s*\{(?<body>[\s\S]*?)\}/,
+      /> figcaption\s*\{(?<body>[^{}]*)\}/,
     )?.groups?.body;
     expect(captionRule).toBeDefined();
     expect(captionRule).not.toMatch(
@@ -859,13 +900,24 @@ describe('language-model-metrics diagram component contract', () => {
     );
     expect(fullscreenStyles).not.toMatch(/font-size\s*:/);
     expect(fullscreenStyles).not.toMatch(/\bzoom\s*:/);
-    expect(fullscreenStyles).not.toMatch(/transform\s*:\s*scale/);
+    expect(fullscreenStyles).not.toMatch(/transform\s*:\s*(?:scale|translate|skew)/);
     expect(fullscreenStyles).not.toMatch(/overflow(?:-[xy])?\s*:\s*(?:hidden|clip)/);
     expect(fullscreenStyles).not.toMatch(/contain\s*:\s*(?:paint|strict|content)/);
+    expect(fullscreenStyles).not.toMatch(/clip-path\s*:/);
+    expect(fullscreenStyles).not.toMatch(/mask(?:-image)?\s*:/);
+    expect(fullscreenStyles).not.toMatch(/filter\s*:/);
+    expect(fullscreenStyles).not.toMatch(/opacity\s*:/);
+    expect(fullscreenStyles).not.toMatch(/content-visibility\s*:/);
+    expect(fullscreenStyles).not.toMatch(/text-indent\s*:\s*-/);
     expect(fullscreenStyles).not.toMatch(/text-overflow\s*:/);
     expect(fullscreenStyles).not.toMatch(/(?:-webkit-)?line-clamp\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:^|[;{])\s*height\s*:/m);
     expect(fullscreenStyles).not.toMatch(/max-height\s*:/);
-    expect(fullscreenStyles).not.toMatch(/(?:max-)?block-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:min-|max-)?block-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/table-layout\s*:\s*auto/);
+    expect(fullscreenStyles).not.toMatch(/grid-auto-flow\s*:\s*column/);
+    expect(fullscreenStyles).not.toMatch(/display\s*:\s*(?:contents|none)/);
+    expect(fullscreenStyles).not.toMatch(/min-inline-size\s*:\s*(?:38|40)rem/);
     expect(fullscreenStyles).not.toMatch(/(?:^|[;{])\s*content\s*:/m);
     expect(fullscreenStyles).not.toMatch(/--diagram-cell-padding/);
   });
