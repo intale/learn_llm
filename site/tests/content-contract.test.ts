@@ -992,11 +992,13 @@ describe("LLM-evolution history contract", () => {
 });
 
 describe("curriculum and catalog contracts", () => {
-  it("projects holdout-evidence plan revision 71 and the exact bilingual chapter revisions", () => {
+  it("projects checkpoint-scope plan revision 72 and the exact bilingual chapter revisions", () => {
     const root = repositoryRoot();
-    const plan = jsonFrontmatter(
-      readFileSync(join(root, "curriculum/course-plan.md"), "utf8"),
+    const planSource = readFileSync(
+      join(root, "curriculum/course-plan.md"),
+      "utf8",
     );
+    const plan = jsonFrontmatter(planSource);
     const projection = JSON.parse(
       readFileSync(join(root, "site/src/i18n/chapter-locales.json"), "utf8"),
     ) as {
@@ -1007,15 +1009,31 @@ describe("curriculum and catalog contracts", () => {
         activeLocales: string[];
       }>;
     };
-    expect(plan.plan_revision).toBe(71);
-    expect(projection.planRevision).toBe(71);
+    expect(plan.plan_revision).toBe(72);
+    expect(projection.planRevision).toBe(72);
+    expect(planSource).toContain(
+      "- **Handoff:** Chapter 35 serializes the trainer-captured selected model and matching optimizer state for reproducible inference; the immutable evaluation report remains separate, and the sampling RNG is initialized independently.",
+    );
+    expect(planSource).toContain(
+      "- **Outcome:** Save and load a versioned tokenizer, decoder, optimizer, and sampling-state checkpoint, then replay one caller-specified update from a trainer-issued selected-state capture.",
+    );
+    expect(planSource).toContain(
+      "Explicitly leave corpus/split identity, batch order/cursor, training RNG, inputs/targets, learning-rate schedule, clipping, and validation policy to the caller; defer cache state and whole-job resume.",
+    );
+    expect(planSource).toContain(
+      "changed batch or learning rate diverges and no whole-trainer resume is claimed.",
+    );
+    expect(planSource).not.toContain(
+      "Save and load a versioned checkpoint that reproduces tokenizer/configuration, parameters, optimizer/RNG state, logits, and one resumed update.",
+    );
 
     for (const [chapterId, order, revision] of [
       ["00-llm-parts", 0, 5],
       ["02-corpus-partitions", 2, 9],
       ["07-language-model-metrics", 7, 7],
       ["33-training-selection", 33, 10],
-      ["34-final-evaluation", 34, 6],
+      ["34-final-evaluation", 34, 7],
+      ["35-checkpoints", 35, 5],
       ["38-cached-generation", 38, 6],
       ["39-end-to-end-llm", 39, 8],
     ] as const) {
@@ -1616,7 +1634,7 @@ describe("curriculum and catalog contracts", () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 71',
+      '"plan_revision": 72',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

@@ -259,7 +259,7 @@ bigram=mean_nll:{:.6} perplexity:{:.6} total_nll:{:.6}\n\
 comparison=lower_loss:selected-decoder gap:{:.6} same_targets:true\n\
 evidence=scope:{} within_run_selection_isolated:{} fixture_selected_for_ordering:{} independent_generalization_estimate:{} architecture_superiority_evidence:{}\n\
 proof=token_weighted:{} provenance_assertions_match:{} selection_closed:{} report_version:{}\n\
-next=serialize the selected evaluated state in a versioned checkpoint\n",
+next=serialize the trainer-selected model and matching optimizer capture\n",
         report.selected_step(),
         report.selected_validation_loss(),
         evidence.selection_test_partition_rejected,

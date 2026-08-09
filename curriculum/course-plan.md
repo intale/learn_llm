@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 71,
+  "plan_revision": 72,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1513,7 +1513,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `34-final-evaluation`
 - **Implementation step:** `implement-ch34-final-evaluation`
-- **Revision status:** Content revision 6 preserves the local one-use evaluator and exact losses while identifying the deliberately selected reverse-cycle comparison as fixed-fixture regression evidence, not an untouched independent estimate of generalization or evidence of architecture-wide superiority. It adds the bounded adaptive-holdout warning from Dwork et al. (2015), explicit evidence-scope markers, a reversed-order diagnostic, and a direct Russian refresh; revision 5's caller-assertion boundary remains in force.
+- **Revision status:** Content revision 7 corrects the handoff to Chapter 35: only the trainer-captured selected model and matching optimizer state cross the checkpoint boundary, while the immutable evaluation report remains separate and the sampling RNG is initialized independently. Revision 6's fixed-fixture evidence scope and all exact evaluation behavior remain in force.
 - **Depends on:** `33-training-selection`.
 - **Outcome:** Evaluate the frozen selected decoder through one local post-selection gate and compare it fairly with the frozen bigram on a fixed teaching fixture.
 - **Scope boundary:** Teach no-grad evaluation, token-weighted aggregation, separation of within-execution model selection from test scoring, exact equality of caller-supplied provenance assertions, and the independently checked context, state, vocabulary, and target facts. Explain why the concrete fixture has the intended training and selection history without claiming that the reusable API derives corpus, split, tokenizer, fit, selection, or holdout lineage. State that the reverse-cycle documents were deliberately chosen for the recorded model ordering and are now regression-tested, so the result is neither an untouched independent generalization estimate nor architecture-superiority evidence. Do not feed test results back into selection inside the demonstrated execution.
@@ -1523,22 +1523,22 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Visualization:** Useful — show the train/validation/test information flow, a numeric two-model test-loss comparison, caller-supplied identifier and role assertions, and the facts checked mechanically by the evaluator, not a decorative chart.
 - **Practice:** Classify decisions as legal before or after local gate opening, compute a token-weighted loss from unequal documents, and distinguish a fixed-fixture regression result from an independent estimate of generalization.
 - **Integration evidence:** Gate opening preserves alignment-before-input-before-target error precedence, the private view and crate-private bigram path reuse one checked order, public raw-ID calls remain checked, decoder evaluation creates no tape, parameters remain byte-identical, aggregation is token-weighted, training/selection traces contain no test access, caller-supplied provenance assertions match, context/state/vocabulary/targets pass independent checks, an adversarial test proves that equal assertions alone do not establish lineage, the selected decoder has lower loss on the named fixed fixture, a diagnostic sequence family reverses that ordering without changing evaluator guarantees, and exact evidence markers classify the checked result as within-run selection-isolated regression evidence rather than independent generalization or architecture superiority.
-- **Handoff:** Chapter 35 serializes the exact selected and evaluated state for reproducible inference.
+- **Handoff:** Chapter 35 serializes the trainer-captured selected model and matching optimizer state for reproducible inference; the immutable evaluation report remains separate, and the sampling RNG is initialized independently.
 
 ## 35. Parameter serialization and reproducible checkpoints
 
 - **Chapter ID:** `35-checkpoints`
 - **Implementation step:** `implement-ch35-checkpoints`
-- **Revision status:** Content revision 4 replaces the temporary validation decoder with the shared borrowed decoder-layout check, assigns tokenizer/model/optimizer invariant ownership to construction and untrusted loading, plans descriptors over borrowed values before writing payloads directly into one final canonical file buffer, and refreshes Russian directly from the frozen English revision; revision 3's state-transfer ownership, exact layout and evidence, history, and formula remain in force.
+- **Revision status:** Content revision 5 preserves wire version 1 while replacing the free model/optimizer/step constructor with a sealed trainer-issued selected-state capture and narrowing the evidence to persisted component-state replay plus one caller-specified update. It names the saved SplitMix64 stream as sampling state and makes corpus/split identity, batch order/cursor, training randomness, inputs/targets, learning-rate schedule, clipping, and validation policy explicit caller obligations; revision 4's byte layout, loading, ownership, history, and formula remain in force.
 - **Depends on:** `34-final-evaluation`.
-- **Outcome:** Save and load a versioned checkpoint that reproduces tokenizer/configuration, parameters, optimizer/RNG state, logits, and one resumed update.
-- **Scope boundary:** Teach schema/version headers, stable parameter order, shapes/dtypes, tokenizer/config data, endian-safe byte encoding, byte-width-aware offsets, checksums, atomic writes, and corruption errors; defer cache state.
+- **Outcome:** Save and load a versioned tokenizer, decoder, optimizer, and sampling-state checkpoint, then replay one caller-specified update from a trainer-issued selected-state capture.
+- **Scope boundary:** Teach schema/version headers, stable parameter order, shapes/dtypes, tokenizer/config data, endian-safe byte encoding, byte-width-aware offsets, checksums, atomic writes, corruption errors, and same-capture model/optimizer pairing. Explicitly leave corpus/split identity, batch order/cursor, training RNG, inputs/targets, learning-rate schedule, clipping, and validation policy to the caller; defer cache state and whole-job resume.
 - **Formula:** `o_{k+1}=o_k+b_k\prod_i n_i^{(k)},\quad o_0=h`.
 - **Historical contrast:** Contrast ad hoc raw-memory dumps and retraining with self-describing, validated checkpoints.
-- **Rust contribution:** Add a dependency-free compact binary format with explicit little-endian primitives and atomic temporary-file replacement.
+- **Rust contribution:** Add a dependency-free compact binary format with explicit little-endian primitives and atomic temporary-file replacement, plus a sealed trainer-issued selected model/AdamW/step capture accepted by public checkpoint construction.
 - **Visualization:** Not useful — a byte-layout table, hex excerpt, and executable corruption checks communicate the format more precisely than a diagram.
 - **Practice:** Compute byte offsets from shapes and element widths, then predict which corruptions the loader must reject.
-- **Integration evidence:** Header offsets, mixed byte widths, round trip, byte determinism, version/config/tokenizer mismatch, truncation, checksum corruption, atomic replacement, identical logits, and resumed-update equivalence pass.
+- **Integration evidence:** Header offsets, mixed byte widths, frozen version-1 compatibility, round trip, byte determinism, version/config/tokenizer mismatch, truncation, checksum corruption, atomic replacement, identical logits and sampling draw, trainer-owned same-capture pairing, and one matched caller-specified update pass; changed batch or learning rate diverges and no whole-trainer resume is claimed.
 - **Handoff:** Chapter 36 loads the selected checkpoint and converts its logits into reproducible token choices.
 
 ## 36. Temperature and top-k sampling

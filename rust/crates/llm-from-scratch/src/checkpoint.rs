@@ -1,4 +1,4 @@
-//! Versioned, self-describing decoder checkpoints with exact restart state.
+//! Versioned, self-describing decoder component checkpoints.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -17,11 +17,13 @@ use crate::training::adamw::{
     AdamW, AdamWConfig, AdamWError, AdamWParameterGroups, AdamWState, AdamWStateEntry,
     AdamWStateError,
 };
-use crate::training::trainer::{DecoderModelState, TrainerError};
+use crate::training::trainer::{DecoderModelState, SelectedTrainingState, TrainerError};
 
 pub const CHECKPOINT_VERSION: u16 = 1;
 pub const TOKENIZER_LAYOUT_VERSION: u16 = 1;
-pub const RNG_ALGORITHM_VERSION: u16 = 1;
+pub const SAMPLING_RNG_ALGORITHM_VERSION: u16 = 1;
+/// Compatibility name for the version-1 sampling RNG field.
+pub const RNG_ALGORITHM_VERSION: u16 = SAMPLING_RNG_ALGORITHM_VERSION;
 pub const CHECKPOINT_MAGIC: [u8; 8] = *b"LLMCP35\0";
 
 const LITTLE_ENDIAN_MARKER: u32 = 0x0102_0304;
@@ -291,32 +293,42 @@ impl CheckpointTokenizer {
     }
 }
 
-/// A complete decoder continuation boundary with no attention-cache state.
+/// A decoder, AdamW, tokenizer, and sampling-RNG component checkpoint.
+///
+/// Corpus identity, batch order and cursor, training randomness, the remaining
+/// learning-rate schedule, and gradients are outside this version-1 file. The
+/// file validates equality between its selected-step label and AdamW step, but
+/// it does not encode independent proof of the model's training lineage.
 #[derive(Debug, PartialEq)]
 pub struct Checkpoint {
     tokenizer: CheckpointTokenizer,
     model_state: DecoderModelState,
     optimizer_state: AdamWState,
     selected_step: u64,
-    rng_state: u64,
+    sampling_rng_state: u64,
 }
 
 impl Checkpoint {
     // region:checkpoint-state-transfer
-    /// Creates a durable checkpoint by explicitly copying borrowed training state.
+    /// Copies one trainer-issued selected model/AdamW/step bundle.
+    ///
+    /// The sealed bundle prevents callers from attaching a free step label or an
+    /// independently chosen optimizer to the selected model state.
     pub fn from_snapshot(
         tokenizer: CheckpointTokenizer,
-        model_state: &DecoderModelState,
-        optimizer: &AdamW,
-        selected_step: u64,
-        rng_state: u64,
+        selected: &SelectedTrainingState,
+        sampling_rng_state: u64,
     ) -> Result<Self, CheckpointError> {
+        let selected_step =
+            u64::try_from(selected.step()).map_err(|_| CheckpointError::SizeOverflow {
+                context: "selected training step",
+            })?;
         Self::from_owned_parts(
             tokenizer,
-            model_state.independent_snapshot(),
-            optimizer.persistence_state(),
+            selected.model_state().independent_snapshot(),
+            selected.optimizer_state().clone(),
             selected_step,
-            rng_state,
+            sampling_rng_state,
         )
     }
 
@@ -325,14 +337,14 @@ impl Checkpoint {
         model_state: DecoderModelState,
         optimizer_state: AdamWState,
         selected_step: u64,
-        rng_state: u64,
+        sampling_rng_state: u64,
     ) -> Result<Self, CheckpointError> {
         let checkpoint = Self {
             tokenizer,
             model_state,
             optimizer_state,
             selected_step,
-            rng_state,
+            sampling_rng_state,
         };
         checkpoint.validate_parts()?;
         Ok(checkpoint)
@@ -354,8 +366,13 @@ impl Checkpoint {
         self.selected_step
     }
 
+    pub const fn sampling_rng_state(&self) -> u64 {
+        self.sampling_rng_state
+    }
+
+    /// Compatibility accessor for the version-1 sampling RNG state.
     pub const fn rng_state(&self) -> u64 {
-        self.rng_state
+        self.sampling_rng_state()
     }
 
     /// Rebuilds an independent decoder while retaining the checkpoint.
@@ -522,7 +539,10 @@ impl fmt::Display for CheckpointError {
                 write!(formatter, "tokenizer layout version {found} is unsupported")
             }
             Self::UnsupportedRngAlgorithm { found } => {
-                write!(formatter, "RNG algorithm version {found} is unsupported")
+                write!(
+                    formatter,
+                    "sampling RNG algorithm version {found} is unsupported"
+                )
             }
             Self::Truncated { context } => {
                 write!(formatter, "checkpoint is truncated while reading {context}")
@@ -952,9 +972,9 @@ fn write_metadata(
     records: &[TensorRecordPlan<'_>],
 ) -> Result<(), CheckpointError> {
     put_u16(bytes, TOKENIZER_LAYOUT_VERSION);
-    put_u16(bytes, RNG_ALGORITHM_VERSION);
+    put_u16(bytes, SAMPLING_RNG_ALGORITHM_VERSION);
     put_u64(bytes, checkpoint.selected_step);
-    put_u64(bytes, checkpoint.rng_state);
+    put_u64(bytes, checkpoint.sampling_rng_state);
     match &checkpoint.tokenizer.representation {
         CheckpointTokenizerRepresentation::LiteralTokens(_) => put_u8(bytes, 1),
         CheckpointTokenizerRepresentation::ByteBpe(_) => put_u8(bytes, 2),
@@ -1119,7 +1139,7 @@ struct DecodedHeader {
     beta1_power: f64,
     beta2_power: f64,
     selected_step: u64,
-    rng_state: u64,
+    sampling_rng_state: u64,
     model_parameter_count: usize,
     optimizer_state_count: usize,
     descriptors: Vec<CheckpointTensorDescriptor>,
@@ -1239,7 +1259,7 @@ impl Checkpoint {
             model_state,
             optimizer_state,
             header.selected_step,
-            header.rng_state,
+            header.sampling_rng_state,
         )?;
         let canonical = checkpoint.encode()?;
         if canonical.bytes() != bytes {
@@ -1260,14 +1280,14 @@ fn decode_variable_header(bytes: &[u8]) -> Result<DecodedHeader, CheckpointError
             found: tokenizer_layout,
         });
     }
-    let rng_algorithm = reader.read_u16("RNG algorithm version")?;
-    if rng_algorithm != RNG_ALGORITHM_VERSION {
+    let sampling_rng_algorithm = reader.read_u16("sampling RNG algorithm version")?;
+    if sampling_rng_algorithm != SAMPLING_RNG_ALGORITHM_VERSION {
         return Err(CheckpointError::UnsupportedRngAlgorithm {
-            found: rng_algorithm,
+            found: sampling_rng_algorithm,
         });
     }
     let selected_step = reader.read_u64("selected step")?;
-    let rng_state = reader.read_u64("RNG state")?;
+    let sampling_rng_state = reader.read_u64("sampling RNG state")?;
     let tokenizer_kind = reader.read_u8("tokenizer kind")?;
     if ![1, 2].contains(&tokenizer_kind) {
         return Err(CheckpointError::UnknownTokenizerKind {
@@ -1360,7 +1380,7 @@ fn decode_variable_header(bytes: &[u8]) -> Result<DecodedHeader, CheckpointError
         beta1_power,
         beta2_power,
         selected_step,
-        rng_state,
+        sampling_rng_state,
         model_parameter_count,
         optimizer_state_count,
         descriptors,
@@ -1859,9 +1879,25 @@ mod tests {
         AdamW::new(AdamWConfig::new(0.01, 0.9, 0.999, 1e-8, 0.0).unwrap())
     }
 
+    fn checkpoint_from_components(
+        tokenizer: CheckpointTokenizer,
+        model_state: &DecoderModelState,
+        optimizer: &AdamW,
+        selected_step: u64,
+        sampling_rng_state: u64,
+    ) -> Result<Checkpoint, CheckpointError> {
+        Checkpoint::from_owned_parts(
+            tokenizer,
+            model_state.independent_snapshot(),
+            optimizer.persistence_state(),
+            selected_step,
+            sampling_rng_state,
+        )
+    }
+
     fn literal_checkpoint(rng_state: u64) -> Checkpoint {
         let model = model(5);
-        Checkpoint::from_snapshot(
+        checkpoint_from_components(
             CheckpointTokenizer::literal_tokens(vec![
                 b"a".to_vec(),
                 b"bb".to_vec(),
@@ -1976,7 +2012,8 @@ mod tests {
         assert_eq!(first, second);
         assert_eq!(loaded, checkpoint);
         assert_eq!(loaded.encode().unwrap(), first);
-        assert_eq!(loaded.rng_state(), 0xfeed_beef);
+        assert_eq!(loaded.sampling_rng_state(), 0xfeed_beef);
+        assert_eq!(loaded.rng_state(), loaded.sampling_rng_state());
         assert_eq!(loaded.tokenizer().kind_name(), "literal-u32");
     }
 
@@ -1987,7 +2024,7 @@ mod tests {
         checkpoint_optimizer
             .step(checkpoint_model.parameters())
             .unwrap();
-        let checkpoint = Checkpoint::from_snapshot(
+        let checkpoint = checkpoint_from_components(
             CheckpointTokenizer::literal_tokens(vec![
                 b"a".to_vec(),
                 b"b".to_vec(),
@@ -2037,7 +2074,7 @@ mod tests {
         ));
 
         let tokenizer = BpeTokenizer::from_merge_pairs(&[TokenPair::new(97, 98)]).unwrap();
-        let bpe_checkpoint = Checkpoint::from_snapshot(
+        let bpe_checkpoint = checkpoint_from_components(
             CheckpointTokenizer::byte_bpe(&tokenizer),
             &DecoderModelState::snapshot(&model(tokenizer.layout().vocabulary_size())),
             &optimizer(),
@@ -2064,7 +2101,7 @@ mod tests {
         let source = model(5);
         let source_state = DecoderModelState::snapshot(&source);
         let source_addresses = source_state.storage_addresses();
-        let checkpoint = Checkpoint::from_snapshot(
+        let checkpoint = checkpoint_from_components(
             CheckpointTokenizer::literal_tokens(vec![
                 b"a".to_vec(),
                 b"b".to_vec(),
@@ -2115,7 +2152,7 @@ mod tests {
             BpeTokenizer::from_merge_pairs(&[TokenPair::new(97, 98), TokenPair::new(256, 99)])
                 .unwrap();
         let model = model(tokenizer.layout().vocabulary_size());
-        let checkpoint = Checkpoint::from_snapshot(
+        let checkpoint = checkpoint_from_components(
             CheckpointTokenizer::byte_bpe(&tokenizer),
             &DecoderModelState::snapshot(&model),
             &optimizer(),
@@ -2133,7 +2170,7 @@ mod tests {
     #[test]
     fn tokenizer_and_decoder_vocabulary_must_match() {
         let model = model(3);
-        let error = Checkpoint::from_snapshot(
+        let error = checkpoint_from_components(
             CheckpointTokenizer::literal_tokens(vec![b"a".to_vec(), b"b".to_vec()]).unwrap(),
             &DecoderModelState::snapshot(&model),
             &optimizer(),
@@ -2148,6 +2185,50 @@ mod tests {
                 tokenizer: 2,
                 decoder: 3
             }
+        ));
+    }
+
+    #[test]
+    fn true_model_optimizer_step_mismatch_is_rejected_for_owned_and_loaded_state() {
+        let tokenizer = CheckpointTokenizer::literal_tokens(vec![
+            b"a".to_vec(),
+            b"b".to_vec(),
+            b"c".to_vec(),
+            b"d".to_vec(),
+            b"e".to_vec(),
+        ])
+        .unwrap();
+        let checkpoint_model = model(5);
+        let owned_error = Checkpoint::from_owned_parts(
+            tokenizer,
+            DecoderModelState::snapshot(&checkpoint_model),
+            optimizer().persistence_state(),
+            1,
+            17,
+        )
+        .unwrap_err();
+        assert!(matches!(
+            owned_error,
+            CheckpointError::StepMismatch {
+                selected: 1,
+                optimizer: 0
+            }
+        ));
+
+        let encoded = literal_checkpoint(17).encode().unwrap();
+        let mut changed_step = encoded.bytes().to_vec();
+        let selected_step_offset = FIXED_HEADER_BYTES + 2 + 2;
+        changed_step[selected_step_offset..selected_step_offset + 8]
+            .copy_from_slice(&1_u64.to_le_bytes());
+        let checksum = checkpoint_checksum(&changed_step);
+        changed_step[CHECKSUM_OFFSET..CHECKSUM_OFFSET + CHECKSUM_WIDTH]
+            .copy_from_slice(&checksum.to_le_bytes());
+        assert!(matches!(
+            Checkpoint::from_bytes(&changed_step),
+            Err(CheckpointError::StepMismatch {
+                selected: 1,
+                optimizer: 0
+            })
         ));
     }
 
@@ -2260,7 +2341,7 @@ mod tests {
         checkpoint_optimizer
             .step(checkpoint_model.parameters())
             .unwrap();
-        let checkpoint = Checkpoint::from_snapshot(
+        let checkpoint = checkpoint_from_components(
             CheckpointTokenizer::literal_tokens(vec![
                 b"a".to_vec(),
                 b"b".to_vec(),
@@ -2322,7 +2403,7 @@ mod tests {
         second.save_atomic(&path).unwrap();
         let loaded = Checkpoint::load(&path).unwrap();
 
-        assert_eq!(loaded.rng_state(), 2);
+        assert_eq!(loaded.sampling_rng_state(), 2);
         assert_eq!(fs::read(&path).unwrap(), second.encode().unwrap().bytes());
         assert_eq!(fs::read_dir(&directory).unwrap().count(), 1);
         fs::remove_file(path).unwrap();

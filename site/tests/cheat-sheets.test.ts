@@ -731,16 +731,19 @@ const expectedSheets = {
   "35-checkpoints": {
     file: "35-checkpoints.json",
     lesson: "35-checkpoints.mdx",
-    title: "Save every state, resume exactly",
+    title: "Save decoder state, replay one specified update",
     entries: [
       ["Versioned decoder checkpoint", "versioned decoder checkpoint"],
-      ["Checkpoint schema", "application schema for tokenizer"],
-      ["Same-step boundary", "parameters and AdamW state describe one common"],
       [
-        "AdamW optimizer state",
-        "named AdamW moment tensors, parameter groups, step",
+        "Checkpoint schema",
+        "application schema that names both stored component state",
       ],
-      ["Continuation RNG state", "continuation stream for later sampling"],
+      [
+        "Trainer-issued selected state",
+        "trainer-issued selected training state",
+      ],
+      ["AdamW optimizer state", "22 AdamW moment tensors"],
+      ["Sampling RNG state", "SplitMix64 sampling state"],
       ["Checkpoint payload record", "ordered payload records"],
       [
         "Checkpoint record descriptor",
@@ -755,8 +758,11 @@ const expectedSheets = {
         "Checkpoint integrity checksum (FNV-1a)",
         "FNV-1a detects accidental corruption; it does not authenticate",
       ],
-      ["Exact round trip", "exact round trip and resumed update"],
-      ["Exact resumed update", "one equal resumed update"],
+      ["Exact round trip", "exact reload"],
+      [
+        "Matched caller-supplied update",
+        "one caller-supplied component update",
+      ],
       [
         "Atomic checkpoint replacement",
         "atomic replacement under the supported",
@@ -1088,15 +1094,15 @@ const exactDefinitions = {
   },
   "35-checkpoints": {
     "Versioned decoder checkpoint":
-      "A validated, schema-versioned artifact binding tokenizer layout, decoder configuration and parameters, same-step optimizer state, selected step, and continuation RNG.",
+      "A validated, schema-versioned artifact storing tokenizer layout, decoder configuration and parameter bits, trainer-paired AdamW state and shared step, plus a separate sampling RNG.",
     "Checkpoint schema":
-      "The versioned application contract that defines required tokenizer, decoder, optimizer, and RNG state together with record roles and compatibility checks.",
-    "Same-step boundary":
-      "The clean post-update point where decoder parameters and AdamW state share one completed step and no gradients need saving.",
+      "The versioned application contract that defines stored tokenizer, decoder, optimizer, and sampling-RNG state, record roles, compatibility checks, and the continuation data left to the caller.",
+    "Trainer-issued selected state":
+      "The sealed model/AdamW capture required at checkpoint creation; version 1 stores both counters and validates equality but stores no independent model-lineage proof.",
     "AdamW optimizer state":
-      "Named first and second moments, parameter groups, step, configuration, and exact accumulated beta powers required to continue the selected decoder’s next update.",
-    "Continuation RNG state":
-      "The saved raw SplitMix64 stream state used for later sampling, distinct from the earlier batch-shuffle seed.",
+      "Named first and second moments, parameter groups, step, configuration, and exact accumulated beta powers; the caller still supplies update inputs, targets, and any learning-rate override.",
+    "Sampling RNG state":
+      "The saved raw SplitMix64 stream state used for later token sampling, distinct from the omitted batch-shuffle or other training RNG.",
     "Checkpoint payload record":
       "One ordered contiguous block of encoded tokenizer, decoder-parameter, or optimizer values in the checkpoint payload.",
     "Checkpoint record descriptor":
@@ -1108,9 +1114,9 @@ const exactDefinitions = {
     "Checkpoint integrity checksum (FNV-1a)":
       "An accidental-corruption check over the complete canonical checkpoint with its checksum field treated as zero; FNV-1a does not authenticate the file.",
     "Exact round trip":
-      "Loading and canonical re-encoding reproduce identical checkpoint bytes, logits bits, and the next RNG draw in the same arithmetic environment.",
-    "Exact resumed update":
-      "Original and restored same-step states given identical inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits.",
+      "Loading and canonical re-encoding reproduce identical checkpoint bytes, logits bits, and the next sampling-RNG draw in the same arithmetic environment.",
+    "Matched caller-supplied update":
+      "Original and loaded branches given the same caller-supplied inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits for one manual update; this is not a trainer restart.",
     "Atomic checkpoint replacement":
       "The supported Unix same-filesystem publication that synchronizes a complete same-directory temporary checkpoint, renames it over the destination, then synchronizes the directory.",
   },
@@ -1324,10 +1330,113 @@ describe("English chapter cheat-sheet content", () => {
     ).toEqual([9]);
   });
 
-  it("sorts all thirteen Chapter 35 concepts into exact ten-plus-three pages without loss", () => {
-    const sheet = readSheet("35-checkpoints.json");
-    const sorted = sortCheatSheetTerms(sheet.terms, "en");
-    const pages = paginateCheatSheetTerms(sorted);
+  it("freezes both Chapter 35 sheets and sorts each into exact ten-plus-three pages", () => {
+    const english = readLocalizedSheet("en", "35-checkpoints.json");
+    const russian = readLocalizedSheet("ru", "35-checkpoints.json");
+    const englishDefinitions = exactDefinitions["35-checkpoints"] as Record<
+      string,
+      string
+    >;
+    const expectedEnglishTerms = expectedSheets["35-checkpoints"].entries.map(
+      ([term]) => ({
+        definition: englishDefinitions[term],
+        term,
+      }),
+    );
+    const expectedRussianTerms = [
+      {
+        term: "Контрольная точка декодера с версией формата",
+        definition:
+          "Проверенный артефакт с номером версии схемы, сохраняющий данные токенизатора, конфигурацию и биты параметров декодера, состояние AdamW из того же снимка цикла обучения, их общий номер шага и отдельный генератор для выбора токенов.",
+      },
+      {
+        term: "Схема контрольной точки",
+        definition:
+          "Контракт приложения с номером версии, задающий сохраняемые состояния токенизатора, декодера, оптимизатора и генератора для выбора токенов, роли записей, проверки совместимости и данные, которые должен предоставить вызывающий код.",
+      },
+      {
+        term: "Состояние, выбранное циклом обучения",
+        definition:
+          "Единый снимок модели и AdamW, обязательный при создании контрольной точки; версия 1 хранит оба счётчика и проверяет их равенство, но не сохраняет отдельного доказательства общего происхождения.",
+      },
+      {
+        term: "Состояние оптимизатора AdamW",
+        definition:
+          "Именованные первые и вторые моменты, группы параметров, номер шага, конфигурация и точные накопленные степени коэффициентов бета; входы, цели и новое значение скорости обучения по-прежнему задаёт вызывающий код.",
+      },
+      {
+        term: "Состояние генератора для выбора токенов",
+        definition:
+          "Сохранённое внутреннее состояние потока SplitMix64 для последующего выбора токенов, отличное от не сохранённого генератора перемешивания пакетов и других генераторов обучения.",
+      },
+      {
+        term: "Запись данных контрольной точки",
+        definition:
+          "Один упорядоченный непрерывный блок закодированных данных токенизатора, параметров декодера или значений оптимизатора в области данных контрольной точки.",
+      },
+      {
+        term: "Дескриптор записи контрольной точки",
+        definition:
+          "Метаданные, задающие для одной записи данных её роль, имя, тип данных, форму, абсолютное смещение и длину в байтах.",
+      },
+      {
+        term: "Абсолютное смещение записи данных",
+        definition:
+          "Позиция байта от начала файла, с которой начинается запись данных; следующее смещение увеличивается на размер элемента в байтах, умноженный на произведение размеров формы.",
+      },
+      {
+        term: "Каноническое кодирование контрольной точки",
+        definition:
+          "Детерминированное представление с порядком байтов от младшего к старшему, стабильными полями заголовка, порядком дескрипторов и данных и без неявных промежутков выравнивания.",
+      },
+      {
+        term: "Контрольная сумма контрольной точки (FNV-1a)",
+        definition:
+          "Проверка случайных повреждений всего канонического файла, при которой поле контрольной суммы считается нулевым; FNV-1a не подтверждает подлинность файла.",
+      },
+      {
+        term: "Точный цикл сохранения и загрузки",
+        definition:
+          "Загрузка и повторное каноническое кодирование воспроизводят идентичные байты контрольной точки, биты логитов и следующее значение генератора для выбора токенов в той же арифметической среде.",
+      },
+      {
+        term: "Совпадение одного обновления с заданными извне данными",
+        definition:
+          "Если исходной и загруженной ветвям передать одинаковые входы, цели и скорость обучения, одно вручную выполненное обновление даст одинаковые биты параметров, состояние оптимизатора и логиты; это не возобновление всего процесса обучения.",
+      },
+      {
+        term: "Атомарная замена контрольной точки",
+        definition:
+          "Поддерживаемая в Unix публикация в пределах одной файловой системы: полный временный файл в том же каталоге синхронизируется, переименовывается поверх целевого, после чего синхронизируется каталог.",
+      },
+    ];
+
+    expect(localizedSheetSha256("en", "35-checkpoints.json")).toBe(
+      "c18319acb80b65ca4703ae0cf25e401f9734673f5d7b6fef9dc782579766bfe6",
+    );
+    expect(localizedSheetSha256("ru", "35-checkpoints.json")).toBe(
+      "d5aa75f9a4d00f5991dbe8f5aafec029a9362c188cf8f6588f34beb44f1377c1",
+    );
+    expect(english).toMatchObject({
+      title: "Save decoder state, replay one specified update",
+      description:
+        "A quick reference for declared checkpoint state, caller obligations, canonical byte layout, exact component replay, integrity checks, and atomic publication.",
+    });
+    expect(russian).toMatchObject({
+      title:
+        "Сохраните состояние декодера и точно повторите одно заданное обновление",
+      description:
+        "Кратко о заявленном состоянии контрольной точки, обязанностях вызывающего кода, канонических байтах, точном повторе одного обновления, проверке целостности и атомарной замене.",
+    });
+    expect(english.terms).toEqual(expectedEnglishTerms);
+    expect(russian.terms).toEqual(expectedRussianTerms);
+
+    const pages = paginateCheatSheetTerms(
+      sortCheatSheetTerms(english.terms, "en"),
+    );
+    const russianPages = paginateCheatSheetTerms(
+      sortCheatSheetTerms(russian.terms, "ru"),
+    );
     const expectedSortedTerms = [
       "AdamW optimizer state",
       "Atomic checkpoint replacement",
@@ -1337,16 +1446,20 @@ describe("English chapter cheat-sheet content", () => {
       "Checkpoint payload record",
       "Checkpoint record descriptor",
       "Checkpoint schema",
-      "Continuation RNG state",
-      "Exact resumed update",
       "Exact round trip",
-      "Same-step boundary",
+      "Matched caller-supplied update",
+      "Sampling RNG state",
+      "Trainer-issued selected state",
       "Versioned decoder checkpoint",
     ];
 
     expect(pages.map((page) => page.length)).toEqual([10, 3]);
+    expect(russianPages.map((page) => page.length)).toEqual([10, 3]);
     expect(pages.flat().map(({ term }) => term)).toEqual(expectedSortedTerms);
     expect(new Set(pages.flat().map(({ term }) => term)).size).toBe(13);
+    expect(JSON.stringify([english, russian])).not.toMatch(
+      /Save every state, resume exactly|Continuation RNG state|Exact resumed update|Сохраните всё состояние и продолжите без расхождений|Точное продолжение обновления/,
+    );
   });
 
   it("sorts all thirteen Chapter 38 concepts into exact ten-plus-three pages without loss", () => {

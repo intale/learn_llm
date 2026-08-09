@@ -8,4 +8,4 @@ bigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634
 comparison=lower_loss:selected-decoder gap:0.629055 same_targets:true
 evidence=scope:fixed-fixture-regression within_run_selection_isolated:true fixture_selected_for_ordering:true independent_generalization_estimate:false architecture_superiority_evidence:false
 proof=token_weighted:true provenance_assertions_match:true selection_closed:true report_version:1
-next=serialize the selected evaluated state in a versioned checkpoint
+next=serialize the trainer-selected model and matching optimizer capture

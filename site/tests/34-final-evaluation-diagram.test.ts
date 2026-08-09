@@ -610,9 +610,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
     );
-    expect(contract.content_revision).toBe(6);
-    expect(lesson.content_revision).toBe(6);
-    expect(russianLesson.content_revision).toBe(6);
+    expect(contract.content_revision).toBe(7);
+    expect(lesson.content_revision).toBe(7);
+    expect(russianLesson.content_revision).toBe(7);
     expect(lesson.title).toBe("Open one local test gate, keep the report");
     expect(russianLesson.title).toBe(
       "Передайте тестовую выборку одному локальному оценщику и сохраните отчёт",
@@ -622,6 +622,12 @@ describe("Chapter 34 static diagram and content boundary", () => {
     );
     expect(contract.translation_notes).toContain(
       `reviewed Russian SHA-256: ${createHash("sha256").update(russianLessonSource).digest("hex")}`,
+    );
+    expect(contract.decoder_connection.en).toBe(
+      "The cumulative decoder now has one validation-selected model state and one immutable fixed-fixture regression report on shared targets. Chapter 35 will serialize the trainer-issued selected training state: that model snapshot, its matching AdamW snapshot, and their shared step, together with the tokenizer and decoder configuration. The evaluation report, test provenance, and a separate sampling RNG remain outside that trainer capture.",
+    );
+    expect(contract.decoder_connection.ru).toBe(
+      "К этому этапу у декодера есть состояние модели, выбранное по валидации, и неизменяемый отчёт о регрессионной проверке фиксированного примера на общих целевых позициях. В главе 35 будет сериализовано состояние, выданное циклом обучения: снимок выбранной модели, зафиксированное одновременно с ним состояние AdamW и их общий номер шага, а также токенизатор и конфигурация декодера. Итоговый отчёт, сведения о происхождении тестовых данных и отдельный генератор для выбора токенов не входят в этот снимок.",
     );
     const dworkSource = contract.history.llm_evolution.sources.find(
       ({ source_url }: { source_url: string }) =>
@@ -638,10 +644,10 @@ describe("Chapter 34 static diagram and content boundary", () => {
       },
     });
     expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
-      "6870f76a2dc8d2f1bc15ce301d286849d9110f9e7228bcd67466720bd03da7c7",
+      "095902ed5db207ba601f29e2fedd5f40fa427badd0aa1c5d27bdb942dad07791",
     );
     expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
-      "f003f568bd21b4fa2e96c043b4764779d9b4329258533f478010f08b8c845ce5",
+      "0d78779975b59513ce964ef922fad6d676857f39dee311d5afb52888225222e3",
     );
     expect(
       contract.translation_notes.filter((note: string) =>
@@ -672,6 +678,27 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(normalizedLesson).not.toContain("history of programming languages");
     expect(normalizedLesson).toContain(
       "does not show that decoder architectures are universally superior to bigrams",
+    );
+    expect(normalizedLesson).toContain(
+      "Chapter 35 will serialize the trainer-issued selected training state: the selected model snapshot, its matching AdamW snapshot, and their shared step.",
+    );
+    expect(normalizedLesson).toContain(
+      "The Chapter 34 evaluation report and test provenance are not serialized, and the sampling RNG is not evaluation provenance.",
+    );
+    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
+    expect(normalizedRussianLesson).toContain(
+      "В главе 35 будет сериализовано состояние, выданное циклом обучения: снимок выбранной модели, зафиксированное одновременно с ним состояние AdamW и их общий номер шага.",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Итоговый отчёт главы 34 и сведения о происхождении тестовых данных не сериализуются, а генератор для выбора токенов не относится к происхождению данных оценки.",
+    );
+    for (const source of [normalizedLesson, normalizedRussianLesson]) {
+      expect(source).not.toMatch(
+        /serialize the same selected state that this chapter evaluated|serialize the exact selected and evaluated state|сериализуем именно то выбранное состояние, которое оценили здесь/i,
+      );
+    }
+    expect(expectedOutput).toContain(
+      "next=serialize the trainer-selected model and matching optimizer capture\n",
     );
     expect(lessonSource).not.toMatch(
       /TypeScript (?:validates|performs|computes)/,
@@ -1008,7 +1035,6 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(russianExercisesSection).toContain(
       "Повторное использование той же строки скрывает первое изменение от проверки заявленных сведений: API не исследует токенизатор. Изменение самой строки создаёт несовпадение заявленных сведений",
     );
-    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
     expect(normalizedRussianLesson).toContain(
       "Тестовые документы намеренно следуют синтетическому обучающему циклу в обратном направлении. Их выбрали именно ради записанного порядка результатов после того, как нейтральная отложенная выборка его не сохранила.",
     );

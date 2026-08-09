@@ -18942,3 +18942,67 @@ score, dependency, completed-run artifact, or historical result changes.
 **Affected steps and run:** `implement-ch34-final-evaluation`,
 `qualify-ch34-ch39-holdout-evidence`, and
 `20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Make Chapter 35 a sealed component-state replay boundary
+
+**Status:** Accepted during preflight for
+`define-ch35-checkpoint-resume-scope`, before product or test edits.
+
+**Context:** Chapter 35 says its version-1 file saves every state needed to
+resume exactly. The file does preserve tokenizer representation, decoder
+configuration and parameter bits, AdamW configuration, groups, moments, beta
+powers and counter, plus one SplitMix64 stream used later for token sampling.
+It does not preserve corpus or split identity, materialized batch order or
+cursor, the Chapter 33 shuffle state, a remaining learning-rate schedule,
+clipping or validation policy, gradients, or an attention cache. Its demo does
+not re-enter `train_decoder`; it supplies a new `[0,1]` input, `[1,2]` target,
+and learning rate `0.006` to two branches and compares one manual update.
+Moreover, the public `Checkpoint::from_snapshot` constructor accepts a free
+model snapshot, a free selected-step label, and an optimizer. It compares the
+label with the optimizer counter, names, and shapes, but cannot establish that
+the model and optimizer were captured from the same training boundary.
+
+**Decision:** Keep checkpoint wire version 1 and all canonical byte-layout
+facts unchanged. Narrow the learner contract to exact replay of the persisted
+component state and one explicitly caller-supplied update. Make the trainer
+capture a sealed selected model/AdamW/step bundle whenever validation selection
+changes, and make public checkpoint creation consume that bundle rather than
+free model, optimizer, and step arguments. This proves same-capture pairing for
+course-owned training without claiming external corpus or trajectory lineage.
+Name the stored SplitMix64 value as sampling state and state every caller-owned
+training input directly. Add a frozen complete version-1 byte fixture and
+adversarial evidence for changed batches and learning rates.
+
+Advance Chapter 35 to content revision 5. Correct Chapter 34's handoff so it
+passes only the selected model/trainer capture—not its final-evaluation report
+or a fictitious evaluation RNG provenance—and advance that handoff projection
+to revision 7. Advance the reviewed course plan and locale projection from 71
+to 72. Add both localized Chapter 35 cheat sheets and their shared static and
+browser gates before editing them. Project the new Chapter 35 reviewed outcome
+only into the historical implementation step's top-level objective and first
+acceptance item when the scheduler requires it; preserve every old run record,
+artifact, command, result, status, timestamp, and note byte for byte.
+
+**Consequences:** Existing version-1 files remain loadable and byte-identical;
+no checkpoint field, offset, checksum, dependency, or downstream generation
+contract changes. A checkpoint now truthfully proves tokenizer/model/optimizer
+pairing as captured by this trainer and sampling-state replay, while full-job
+restart remains outside the API until data provenance, order/cursor, training
+randomness, and schedule state are designed explicitly. English remains the
+canonical source; Russian Chapter 34/35 prose and Chapter 35 sheet copy are
+refreshed directly under the localization workflow. The course plan, exact
+Rust output, static checks, and Chromium/Firefox English/Russian surfaces must
+all agree before publication.
+
+Exact Chromium review also exposed that the shared lesson rule's intended
+`0.9em` inline-code size computes to 11.7px when the browser supplies only its
+generic `monospace` face, even though the surrounding table cell is 16px at
+both desktop and narrow widths. Add the explicit system monospace stack to that
+existing rule so the declared relative size computes to 14.4px. This is a
+shared readability correction, not responsive squeezing or a checkpoint
+semantic change; keep the local table scroller and all font-size, paint, and
+containment browser gates.
+
+**Affected steps and run:** `implement-ch35-checkpoints`,
+`define-ch35-checkpoint-resume-scope`, and
+`20260809T185416Z-define-ch35-checkpoint-resume-scope-01`.

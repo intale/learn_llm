@@ -2,7 +2,7 @@
 {
   "chapter_id": "34-final-evaluation",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 34,
   "concept_id": "final-evaluation",
   "title": "Open one local test gate, keep the report",
@@ -132,7 +132,7 @@
     "id": "final-evaluation-boundary",
     "rationale": "One information-flow sequence makes the within-execution fit/select/evaluate boundary visible, while an exact two-row score table and evidence-scope cues show that both models use the same inspected input/target order and that the known decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence."
   },
-  "decoder_connection": "The cumulative decoder now has one validation-selected state and one immutable fixed-fixture regression report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance."
+  "decoder_connection": "The cumulative decoder now has one validation-selected model state and one immutable fixed-fixture regression report on shared targets. Chapter 35 will serialize the trainer-issued selected training state: that model snapshot, its matching AdamW snapshot, and their shared step, together with the tokenizer and decoder configuration. The evaluation report, test provenance, and a separate sampling RNG remain outside that trainer capture."
 }
 ---
 
@@ -571,13 +571,17 @@ regression reuse of the known ordering.
 
 {/* chapter-section:decoder-connection */}
 
-## Carry the selected and evaluated state forward
+## Carry the trainer-selected model and optimizer capture forward
 
-The cumulative decoder now has one validation-selected state and one immutable
-fixed-fixture regression report on shared targets. The local evaluation cannot
+The cumulative decoder now has one validation-selected model state and one
+immutable fixed-fixture regression report on shared targets. The local evaluation cannot
 change that state, but the report is not an independent generalization estimate.
-Chapter 35 will serialize that exact selected and evaluated state with its
-tokenizer, configuration, optimizer, and RNG provenance.
+Chapter 35 will serialize the trainer-issued selected training state: the
+selected model snapshot, its matching AdamW snapshot, and their shared step. It
+will also store the tokenizer and decoder configuration needed to interpret the
+model, plus a separate RNG state for later sampling. The Chapter 34 evaluation
+report and test provenance are not serialized, and the sampling RNG is not
+evaluation provenance.
 
 Serialization must reproduce this model and its logits, not reopen test data or
 turn the final report into a new selection signal.

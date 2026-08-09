@@ -2,7 +2,7 @@
 {
   "chapter_id": "34-final-evaluation",
   "concept_id": "final-evaluation",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 34,
   "objective": {
     "en": "Evaluate the frozen validation-selected decoder through one local test-only gate, validate and record the ordered test input/target positions, aggregate every target token fairly, and compare it with a frozen bigram while identifying the deliberately selected comparison as fixed-fixture regression evidence.",
@@ -139,7 +139,7 @@
       "rust/demos/ch34-final-evaluation/src/main.rs",
       "rust/demos/ch34-final-evaluation/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=34-final-evaluation\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true\nprovenance=corpus:ch33-34-synthetic-v1 split:fixed-role-split-v1 tokenizer:literal-u32-v1 vocabulary:5 context:2\nbaseline=alpha:1.000000 fitted_partition:train documents:2 transitions:22 frozen:true\ntest=documents:2 windows:12 batches:3 targets:24 gate_openings_before:0 gate_openings_after:1 fingerprint:fnv1a64:dac4bb4d76beeb59\ndecoder=mean_nll:1.607679 perplexity:4.991215 total_nll:38.584306 graphs:0 parameters_unchanged:true gradients_unchanged:true\nbigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634\ncomparison=lower_loss:selected-decoder gap:0.629055 same_targets:true\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true fixture_selected_for_ordering:true independent_generalization_estimate:false architecture_superiority_evidence:false\nproof=token_weighted:true provenance_assertions_match:true selection_closed:true report_version:1\nnext=serialize the selected evaluated state in a versioned checkpoint\n"
+    "expected_output": "chapter=34-final-evaluation\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true\nprovenance=corpus:ch33-34-synthetic-v1 split:fixed-role-split-v1 tokenizer:literal-u32-v1 vocabulary:5 context:2\nbaseline=alpha:1.000000 fitted_partition:train documents:2 transitions:22 frozen:true\ntest=documents:2 windows:12 batches:3 targets:24 gate_openings_before:0 gate_openings_after:1 fingerprint:fnv1a64:dac4bb4d76beeb59\ndecoder=mean_nll:1.607679 perplexity:4.991215 total_nll:38.584306 graphs:0 parameters_unchanged:true gradients_unchanged:true\nbigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634\ncomparison=lower_loss:selected-decoder gap:0.629055 same_targets:true\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true fixture_selected_for_ordering:true independent_generalization_estimate:false architecture_superiority_evidence:false\nproof=token_weighted:true provenance_assertions_match:true selection_closed:true report_version:1\nnext=serialize the trainer-selected model and matching optimizer capture\n"
   },
   "visualization": {
     "decision": "useful",
@@ -150,8 +150,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now has one validation-selected state and one immutable fixed-fixture regression report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance.",
-    "ru": "К этому этапу у декодера есть состояние, выбранное по валидации, и неизменяемый отчёт о регрессионной проверке фиксированного примера на общих целевых позициях. В главе 35 мы сериализуем именно то выбранное состояние, которое оценили здесь, а вместе с ним — токенизатор, конфигурацию, состояние оптимизатора и состояние генератора псевдослучайных чисел."
+    "en": "The cumulative decoder now has one validation-selected model state and one immutable fixed-fixture regression report on shared targets. Chapter 35 will serialize the trainer-issued selected training state: that model snapshot, its matching AdamW snapshot, and their shared step, together with the tokenizer and decoder configuration. The evaluation report, test provenance, and a separate sampling RNG remain outside that trainer capture.",
+    "ru": "К этому этапу у декодера есть состояние модели, выбранное по валидации, и неизменяемый отчёт о регрессионной проверке фиксированного примера на общих целевых позициях. В главе 35 будет сериализовано состояние, выданное циклом обучения: снимок выбранной модели, зафиксированное одновременно с ним состояние AdamW и их общий номер шага, а также токенизатор и конфигурация декодера. Итоговый отчёт, сведения о происхождении тестовых данных и отдельный генератор для выбора токенов не входят в этот снимок."
   },
   "terminology": [
     {
@@ -206,15 +206,16 @@
     }
   ],
   "translation_notes": [
-    "Chapter 34 has the exact active locale set {en, ru}. English content revision 6 is the canonical semantic source; Russian is translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 6870f76a2dc8d2f1bc15ce301d286849d9110f9e7228bcd67466720bd03da7c7",
-    "reviewed Russian SHA-256: f003f568bd21b4fa2e96c043b4764779d9b4329258533f478010f08b8c845ce5",
+    "Chapter 34 has the exact active locale set {en, ru}. English content revision 7 is the canonical semantic source; Russian is translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 095902ed5db207ba601f29e2fedd5f40fa427badd0aa1c5d27bdb942dad07791",
+    "reviewed Russian SHA-256: 0d78779975b59513ce964ef922fad6d676857f39dee311d5afb52888225222e3",
     "The English and reviewed Russian Chapter 34 cheat sheets have SHA-256 f2418a4615bcc7067379949fad18e3cbc5e02c33056016777d40a15aaad05674 and 2ec2f61b14f8ddb2f0588a79d75800357eb2a1e7644466a1e1a8d10768018f1b respectively.",
     "Preserve the distinct Train, Validation, and Test responsibilities; test is not a synonym for validation.",
     "Preserve theta_{s^*}, s^*, L_te, N_te, x_n, y_n, natural-log notation, exact trace tokens, fingerprints, and numeric lexemes.",
     "Translate exactly once as a strict course protocol with a documented local-gate limit, not as a universal historical claim. Preserve that the one-use resource is permission to inspect the test epoch, while SelectedDecoder borrows both the retained selected state and the matching already isolated model.",
     "Preserve the three-way distinction between caller-supplied provenance and role assertions, facts mechanically checked by the evaluator, and stronger assembly evidence supplied by the concrete Chapter 33/34 fixture; never translate matching identifier strings as verified actual lineage.",
     "Preserve the evidence-scope distinction: within one execution test cannot affect the selected state; the Chapter 34 documents were deliberately selected for the recorded ordering; their known result is retained for fixed-fixture regression checking, not as an independent generalization estimate or evidence of architecture superiority. In Russian use natural wording about a fixed teaching example and regression checking, not the calque «фикстура».",
+    "Preserve the Chapter 35 handoff boundary: the trainer-issued capture contains the selected model snapshot, its matching AdamW snapshot, and their shared step. It does not contain the Chapter 34 evaluation report or test provenance, and the sampling RNG stored later by Chapter 35 is separate from evaluation provenance.",
     "Preserve that one inspection means one input-validation boundary at gate opening, not one physical memory pass: the private non-mutable inspected view couples evidence to checked pairs, each batch checks alignment then each input ID then its target ID, decoder scoring remains a separate no-grad traversal, and every public raw-ID API retains its checks.",
     "Programming language names may identify source provenance only where relevant; the history must stay on the road to trustworthy modern LLM evaluation."
   ],
@@ -550,10 +551,12 @@ The course now owns a validation-selected decoder state plus one immutable
 fixed-fixture regression report that compares it with a frozen training-only
 baseline on identical test targets. Evaluation records no graph and changes no
 model bits inside the execution; the report is not an independent generalization
-estimate. Chapter 35 will
-serialize this exact selected and evaluated state together with its tokenizer,
-configuration, optimizer, RNG, and version metadata so loading can reproduce its
-logits and one resumed update.
+estimate. Chapter 35 will serialize the trainer-issued selected training state:
+the selected model snapshot, its matching AdamW snapshot, and their shared step.
+It will also store the tokenizer and decoder configuration needed to interpret
+the model, plus a separate RNG state for later sampling. The Chapter 34
+evaluation report and test provenance are not serialized, and the sampling RNG
+is not evaluation provenance.
 
 <!-- contract-section:localization -->
 ## Localization boundary

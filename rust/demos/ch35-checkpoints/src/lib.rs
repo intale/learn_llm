@@ -14,13 +14,17 @@ use llm_from_scratch::models::decoder::{DecoderModel, DecoderModelError};
 use llm_from_scratch::nn::init::SplitMix64;
 use llm_from_scratch::tensor::storage::{Tensor, TensorError};
 use llm_from_scratch::training::adamw::{AdamW, AdamWError};
+use llm_from_scratch::training::trainer::SelectedTrainingState;
 
 pub const NEXT_LEARNING_RATE: f64 = 0.006;
-pub const RNG_SEED: u64 = 35;
+pub const SAMPLING_RNG_SEED: u64 = 35;
 pub const LOGIT_INPUTS: [u32; 2] = [0, 1];
 pub const LOGIT_TARGETS: [u32; 2] = [1, 2];
 const FNV_OFFSET_BASIS: u64 = 0xcbf2_9ce4_8422_2325;
 const FNV_PRIME: u64 = 0x0000_0100_0000_01b3;
+const CHECKSUM_OFFSET: usize = 30;
+const CHECKSUM_WIDTH: usize = 8;
+const SELECTED_STEP_OFFSET: usize = 42;
 static NEXT_DIRECTORY: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Debug)]
@@ -125,7 +129,7 @@ pub struct HistoricalCheckpointContrast {
     pub tokenizer_records: usize,
     pub optimizer_moment_records: usize,
     pub checkpoint_file_bytes: usize,
-    pub checkpoint_rng_state: u64,
+    pub checkpoint_sampling_rng_state: u64,
 }
 
 /// Contrasts model-derived value bytes with the complete local LLM checkpoint.
@@ -169,7 +173,7 @@ pub fn historical_checkpoint_contrast(
         tokenizer_records,
         optimizer_moment_records,
         checkpoint_file_bytes: encoded.bytes().len(),
-        checkpoint_rng_state: checkpoint.rng_state(),
+        checkpoint_sampling_rng_state: checkpoint.sampling_rng_state(),
     }
 }
 // endregion:historical-checkpoint-contrast
@@ -178,6 +182,7 @@ pub fn historical_checkpoint_contrast(
 pub struct CorruptionEvidence {
     pub version_rejected: bool,
     pub vocabulary_mismatch_rejected: bool,
+    pub step_mismatch_rejected: bool,
     pub truncation_rejected: bool,
     pub checksum_rejected: bool,
 }
@@ -185,7 +190,7 @@ pub struct CorruptionEvidence {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AtomicEvidence {
     pub replaced_complete_file: bool,
-    pub loaded_rng_state: u64,
+    pub loaded_sampling_rng_state: u64,
     pub temporary_files: usize,
 }
 
@@ -201,8 +206,10 @@ pub struct LearnerEvidence {
     pub optimizer_after_identical: bool,
     pub logits_after_bits_identical: bool,
     pub logits_after_fingerprint: String,
-    pub rng_next_identical: bool,
-    pub rng_next: u64,
+    pub changed_batch_diverges: bool,
+    pub changed_learning_rate_diverges: bool,
+    pub sampling_rng_next_identical: bool,
+    pub sampling_rng_next: u64,
     pub corruption: CorruptionEvidence,
     pub atomic: AtomicEvidence,
     pub history: HistoricalCheckpointContrast,
@@ -253,17 +260,38 @@ fn bits_fingerprint(bits: &[u64]) -> String {
     format!("fnv1a64:{hash:016x}")
 }
 
-fn apply_resumed_update(
+fn complete_file_checksum(bytes: &[u8]) -> u64 {
+    bytes
+        .iter()
+        .enumerate()
+        .fold(FNV_OFFSET_BASIS, |hash, (index, byte)| {
+            let checked = if (CHECKSUM_OFFSET..CHECKSUM_OFFSET + CHECKSUM_WIDTH).contains(&index) {
+                0
+            } else {
+                *byte
+            };
+            (hash ^ u64::from(checked)).wrapping_mul(FNV_PRIME)
+        })
+}
+
+fn apply_component_update(
     model: DecoderModel,
     mut optimizer: AdamW,
+    inputs: &[u32],
+    targets: &[u32],
+    learning_rate: f64,
 ) -> Result<(DecoderModel, AdamW), FixtureError> {
-    let loss = model.loss(&LOGIT_INPUTS, &[1, 2], &LOGIT_TARGETS)?;
+    require(
+        inputs.len() == targets.len() && !inputs.is_empty(),
+        "component replay needs one nonempty aligned input/target row",
+    )?;
+    let loss = model.loss(inputs, &[1, inputs.len()], targets)?;
     loss.backward_with_seed(
         &Tensor::from_vec(Vec::new(), vec![1.0])?.view(),
         GraphRetention::Release,
     )?;
     drop(loss);
-    optimizer.step_with_learning_rate(model.parameters(), NEXT_LEARNING_RATE)?;
+    optimizer.step_with_learning_rate(model.parameters(), learning_rate)?;
     for parameter in model.parameters() {
         parameter.tensor().zero_grad()?;
     }
@@ -271,6 +299,7 @@ fn apply_resumed_update(
 }
 
 fn corruption_evidence(
+    selected: &SelectedTrainingState,
     checkpoint: &Checkpoint,
     encoded: &[u8],
 ) -> Result<CorruptionEvidence, FixtureError> {
@@ -283,12 +312,20 @@ fn corruption_evidence(
     let vocabulary_mismatch_rejected = matches!(
         Checkpoint::from_snapshot(
             CheckpointTokenizer::literal_tokens(vec![b"x".to_vec()])?,
-            checkpoint.model_state(),
-            &checkpoint.restore_optimizer(),
-            checkpoint.selected_step(),
-            checkpoint.rng_state(),
+            selected,
+            checkpoint.sampling_rng_state(),
         ),
         Err(CheckpointError::VocabularyMismatch { .. })
+    );
+    let mut wrong_step = encoded.to_vec();
+    wrong_step[SELECTED_STEP_OFFSET..SELECTED_STEP_OFFSET + 8]
+        .copy_from_slice(&checkpoint.selected_step().wrapping_add(1).to_le_bytes());
+    let checksum = complete_file_checksum(&wrong_step);
+    wrong_step[CHECKSUM_OFFSET..CHECKSUM_OFFSET + CHECKSUM_WIDTH]
+        .copy_from_slice(&checksum.to_le_bytes());
+    let step_mismatch_rejected = matches!(
+        Checkpoint::from_bytes(&wrong_step),
+        Err(CheckpointError::StepMismatch { .. })
     );
     let truncation_rejected = matches!(
         Checkpoint::from_bytes(&encoded[..encoded.len() - 1]),
@@ -305,13 +342,17 @@ fn corruption_evidence(
     Ok(CorruptionEvidence {
         version_rejected,
         vocabulary_mismatch_rejected,
+        step_mismatch_rejected,
         truncation_rejected,
         checksum_rejected,
     })
 }
 
 #[cfg(unix)]
-fn atomic_evidence(checkpoint: &Checkpoint) -> Result<AtomicEvidence, FixtureError> {
+fn atomic_evidence(
+    selected: &SelectedTrainingState,
+    checkpoint: &Checkpoint,
+) -> Result<AtomicEvidence, FixtureError> {
     let parent = loop {
         let serial = NEXT_DIRECTORY.fetch_add(1, Ordering::Relaxed);
         let candidate = std::env::temp_dir().join(format!(
@@ -329,17 +370,15 @@ fn atomic_evidence(checkpoint: &Checkpoint) -> Result<AtomicEvidence, FixtureErr
         checkpoint.save_atomic(&path)?;
         let replacement = Checkpoint::from_snapshot(
             checkpoint.tokenizer().clone(),
-            checkpoint.model_state(),
-            &checkpoint.restore_optimizer(),
-            checkpoint.selected_step(),
-            checkpoint.rng_state().wrapping_add(1),
+            selected,
+            checkpoint.sampling_rng_state().wrapping_add(1),
         )?;
         replacement.save_atomic(&path)?;
         let loaded = Checkpoint::load(&path)?;
         let temporary_files = fs::read_dir(&parent)?.count().saturating_sub(1);
         Ok(AtomicEvidence {
             replaced_complete_file: loaded == replacement,
-            loaded_rng_state: loaded.rng_state(),
+            loaded_sampling_rng_state: loaded.sampling_rng_state(),
             temporary_files,
         })
     })();
@@ -349,36 +388,32 @@ fn atomic_evidence(checkpoint: &Checkpoint) -> Result<AtomicEvidence, FixtureErr
 }
 
 #[cfg(not(unix))]
-fn atomic_evidence(_checkpoint: &Checkpoint) -> Result<AtomicEvidence, FixtureError> {
+fn atomic_evidence(
+    _selected: &SelectedTrainingState,
+    _checkpoint: &Checkpoint,
+) -> Result<AtomicEvidence, FixtureError> {
     Err(CheckpointError::UnsupportedAtomicReplacement.into())
 }
 
 // region:learner-evidence
 pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let selected = selection_evidence()?;
+    let selected_training_state = selected.result.selected_training_state();
     let selected_step = u64::try_from(selected.result.selected_step())
         .map_err(|_| FixtureError::Invariant("selected step does not fit u64"))?;
-    let optimizer = selected.result.final_optimizer();
     require(
-        selected_step == optimizer.step_count(),
-        "selected state and final optimizer no longer share one step",
-    )?;
-    require(
-        selected.result.selected_state().bit_pattern()
-            == selected.result.final_state().bit_pattern(),
-        "selected state is no longer the final optimizer state",
+        selected_step == selected_training_state.optimizer_state().step_count(),
+        "trainer-issued selected model and optimizer no longer share one step",
     )?;
 
-    let mut rng = SplitMix64::from_seed(RNG_SEED);
-    let _ = rng.next_u64();
-    let saved_rng_state = rng.state();
-    let expected_rng_next = rng.next_u64();
+    let mut sampling_rng = SplitMix64::from_seed(SAMPLING_RNG_SEED);
+    let _ = sampling_rng.next_u64();
+    let saved_sampling_rng_state = sampling_rng.state();
+    let expected_sampling_rng_next = sampling_rng.next_u64();
     let checkpoint = Checkpoint::from_snapshot(
         literal_tokenizer()?,
-        selected.result.selected_state(),
-        optimizer,
-        selected_step,
-        saved_rng_state,
+        selected_training_state,
+        saved_sampling_rng_state,
     )?;
     let encoded = checkpoint.encode()?;
     let repeated = checkpoint.encode()?;
@@ -387,21 +422,50 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
 
     let original_model = checkpoint.restore_independent_model()?;
     let loaded_optimizer = loaded.restore_optimizer();
-    let loaded_rng_state = loaded.rng_state();
+    let loaded_sampling_rng_state = loaded.sampling_rng_state();
     let loaded_model = loaded.into_model()?;
     let original_logits = logits_bits(&original_model)?;
     let loaded_logits = logits_bits(&loaded_model)?;
-    let (updated_original, updated_original_optimizer) =
-        apply_resumed_update(original_model, checkpoint.restore_optimizer())?;
-    let (updated_loaded, updated_loaded_optimizer) =
-        apply_resumed_update(loaded_model, loaded_optimizer)?;
+    let (updated_original, updated_original_optimizer) = apply_component_update(
+        original_model,
+        checkpoint.restore_optimizer(),
+        &LOGIT_INPUTS,
+        &LOGIT_TARGETS,
+        NEXT_LEARNING_RATE,
+    )?;
+    let (updated_loaded, updated_loaded_optimizer) = apply_component_update(
+        loaded_model,
+        loaded_optimizer,
+        &LOGIT_INPUTS,
+        &LOGIT_TARGETS,
+        NEXT_LEARNING_RATE,
+    )?;
     let updated_original_bits = parameter_bits(&updated_original);
     let updated_loaded_bits = parameter_bits(&updated_loaded);
     let updated_original_logits = logits_bits(&updated_original)?;
     let updated_loaded_logits = logits_bits(&updated_loaded)?;
-    let loaded_rng_next = SplitMix64::from_state(loaded_rng_state).next_u64();
-    let corruption = corruption_evidence(&checkpoint, encoded.bytes())?;
-    let atomic = atomic_evidence(&checkpoint)?;
+    let (changed_batch_model, changed_batch_optimizer) = apply_component_update(
+        checkpoint.restore_independent_model()?,
+        checkpoint.restore_optimizer(),
+        &[1, 2],
+        &[2, 3],
+        NEXT_LEARNING_RATE,
+    )?;
+    let changed_batch_diverges = parameter_bits(&changed_batch_model) != updated_original_bits
+        || changed_batch_optimizer != updated_original_optimizer;
+    let (changed_learning_rate_model, changed_learning_rate_optimizer) = apply_component_update(
+        checkpoint.restore_independent_model()?,
+        checkpoint.restore_optimizer(),
+        &LOGIT_INPUTS,
+        &LOGIT_TARGETS,
+        NEXT_LEARNING_RATE * 2.0,
+    )?;
+    let changed_learning_rate_diverges = parameter_bits(&changed_learning_rate_model)
+        != updated_original_bits
+        || changed_learning_rate_optimizer != updated_original_optimizer;
+    let loaded_sampling_rng_next = SplitMix64::from_state(loaded_sampling_rng_state).next_u64();
+    let corruption = corruption_evidence(selected_training_state, &checkpoint, encoded.bytes())?;
+    let atomic = atomic_evidence(selected_training_state, &checkpoint)?;
 
     require(
         encoded.tensors().len() == 38,
@@ -417,11 +481,16 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     )?;
     require(
         updated_original_optimizer.step_count() == selected_step + 1,
-        "resumed optimizer step count changed",
+        "component-replay optimizer step count changed",
+    )?;
+    require(
+        changed_batch_diverges && changed_learning_rate_diverges,
+        "caller-supplied batch or learning-rate adversary no longer diverges",
     )?;
     require(
         corruption.version_rejected
             && corruption.vocabulary_mismatch_rejected
+            && corruption.step_mismatch_rejected
             && corruption.truncation_rejected
             && corruption.checksum_rejected,
         "one corruption fixture was accepted",
@@ -454,8 +523,10 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         optimizer_after_identical: updated_original_optimizer == updated_loaded_optimizer,
         logits_after_bits_identical: updated_original_logits == updated_loaded_logits,
         logits_after_fingerprint: bits_fingerprint(&updated_loaded_logits),
-        rng_next_identical: expected_rng_next == loaded_rng_next,
-        rng_next: loaded_rng_next,
+        changed_batch_diverges,
+        changed_learning_rate_diverges,
+        sampling_rng_next_identical: expected_sampling_rng_next == loaded_sampling_rng_next,
+        sampling_rng_next: loaded_sampling_rng_next,
         corruption,
         atomic,
         history,
@@ -505,12 +576,13 @@ schema=version:{} magic:LLMCP35 endian:little header_bytes:{} payload_bytes:{} f
 tokenizer=kind:{} layout_version:1 vocabulary:{} pieces:5 decoder_vocabulary:{}\n\
 layout=records:{} first:{} first_parameter:{} final_end:{} alignment_padding:0\n\
 hex={}\n\
-state=selected_step:{} optimizer_step:{} parameter_tensors:{} parameter_scalars:{} rng:splitmix64-v1 rng_state:0x{:016x}\n\
-roundtrip=bytes_deterministic:{} loaded_bytes_identical:{} logits_bits_identical:{} logits_fingerprint:{} rng_next_identical:{} rng_next:0x{:016x}\n\
-resume=learning_rate:{:.6} next_step:{} parameter_bits_identical:{} optimizer_state_identical:{} logits_bits_identical:{} logits_fingerprint:{}\n\
-reject=version:{} vocabulary_mismatch:{} truncation:{} checksum:{}\n\
-atomic=replaced_complete_file:{} loaded_rng_state:0x{:016x} temporary_files:{} unix_same_directory:true\n\
-contrast=isolated_parameter_tensors:{} isolated_parameter_scalars:{} isolated_parameter_bytes:{} checkpoint_records:{} tokenizer_records:{} optimizer_moment_records:{} checkpoint_file_bytes:{} rng_state:0x{:016x}\n\
+	state=selected_step:{} optimizer_step:{} parameter_tensors:{} parameter_scalars:{} sampling_rng:splitmix64-v1 sampling_rng_state:0x{:016x}\n\
+	roundtrip=bytes_deterministic:{} loaded_bytes_identical:{} logits_bits_identical:{} logits_fingerprint:{} sampling_rng_next_identical:{} sampling_rng_next:0x{:016x}\n\
+	component_replay=caller_inputs:[0,1] caller_targets:[1,2] caller_learning_rate:{:.6} next_step:{} parameter_bits_identical:{} optimizer_state_identical:{} logits_bits_identical:{} logits_fingerprint:{} changed_batch_diverges:{} changed_learning_rate_diverges:{}\n\
+	scope=tokenizer:stored model:stored optimizer:stored selected_step:stored optimizer_step:stored optimizer_base_learning_rate:stored sampling_rng:stored step_equality:validated model_lineage:not_stored corpus_identity:not_stored split_identity:not_stored epoch_materialization:not_stored epoch_cursor:not_stored batch_order:not_stored batch_cursor:not_stored shuffle_rng:not_stored training_rng:not_stored learning_rate_schedule:not_stored next_learning_rate:not_stored clipping_policy:not_stored validation_policy:not_stored gradients:not_stored trainer_capture:creation_required caller_next_batch:required caller_next_learning_rate:required clean_post_update:required whole_job_resume:false\n\
+	reject=version:{} vocabulary_mismatch:{} step_mismatch:{} truncation:{} checksum:{}\n\
+	atomic=replaced_complete_file:{} loaded_sampling_rng_state:0x{:016x} temporary_files:{} unix_same_directory:true\n\
+	contrast=isolated_parameter_tensors:{} isolated_parameter_scalars:{} isolated_parameter_bytes:{} checkpoint_records:{} tokenizer_records:{} optimizer_moment_records:{} checkpoint_file_bytes:{} sampling_rng_state:0x{:016x}\n\
 next=load this checkpoint for temperature and top-k sampling\n",
         CHECKPOINT_VERSION,
         encoded.header_bytes(),
@@ -529,25 +601,28 @@ next=load this checkpoint for temperature and top-k sampling\n",
         evidence.checkpoint.optimizer_state().step_count(),
         evidence.checkpoint.model_state().parameter_names().len(),
         evidence.checkpoint.model_state().scalar_count(),
-        evidence.checkpoint.rng_state(),
+        evidence.checkpoint.sampling_rng_state(),
         evidence.bytes_deterministic,
         evidence.round_trip_identical,
         evidence.logits_before_bits_identical,
         evidence.logits_before_fingerprint,
-        evidence.rng_next_identical,
-        evidence.rng_next,
+        evidence.sampling_rng_next_identical,
+        evidence.sampling_rng_next,
         NEXT_LEARNING_RATE,
         evidence.checkpoint.optimizer_state().step_count() + 1,
         evidence.parameter_bits_after_identical,
         evidence.optimizer_after_identical,
         evidence.logits_after_bits_identical,
         evidence.logits_after_fingerprint,
+        evidence.changed_batch_diverges,
+        evidence.changed_learning_rate_diverges,
         evidence.corruption.version_rejected,
         evidence.corruption.vocabulary_mismatch_rejected,
+        evidence.corruption.step_mismatch_rejected,
         evidence.corruption.truncation_rejected,
         evidence.corruption.checksum_rejected,
         evidence.atomic.replaced_complete_file,
-        evidence.atomic.loaded_rng_state,
+        evidence.atomic.loaded_sampling_rng_state,
         evidence.atomic.temporary_files,
         evidence.history.isolated_parameter_tensors,
         evidence.history.isolated_parameter_scalars,
@@ -556,13 +631,50 @@ next=load this checkpoint for temperature and top-k sampling\n",
         evidence.history.tokenizer_records,
         evidence.history.optimizer_moment_records,
         evidence.history.checkpoint_file_bytes,
-        evidence.history.checkpoint_rng_state,
+        evidence.history.checkpoint_sampling_rng_state,
     ))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn hex_nibble(byte: u8) -> u8 {
+        match byte {
+            b'0'..=b'9' => byte - b'0',
+            b'a'..=b'f' => byte - b'a' + 10,
+            b'A'..=b'F' => byte - b'A' + 10,
+            _ => panic!("fixture contains a non-hex digit"),
+        }
+    }
+
+    fn frozen_version_one_bytes() -> Vec<u8> {
+        let digits = include_str!("../fixtures/v1-selected-step8.hex")
+            .bytes()
+            .filter(|byte| !byte.is_ascii_whitespace())
+            .collect::<Vec<_>>();
+        assert_eq!(digits.len() % 2, 0);
+        digits
+            .chunks_exact(2)
+            .map(|pair| (hex_nibble(pair[0]) << 4) | hex_nibble(pair[1]))
+            .collect()
+    }
+
+    #[test]
+    fn frozen_complete_version_one_fixture_loads_and_reencodes_byte_exactly() {
+        let bytes = frozen_version_one_bytes();
+        assert_eq!(bytes.len(), 6_330);
+
+        let checkpoint = Checkpoint::from_bytes(&bytes).unwrap();
+        assert_eq!(checkpoint.selected_step(), 8);
+        assert_eq!(checkpoint.optimizer_state().step_count(), 8);
+        assert_eq!(checkpoint.sampling_rng_state(), 0x9e37_79b9_7f4a_7c38);
+        assert_eq!(checkpoint.encode().unwrap().bytes(), bytes);
+
+        let current = learner_evidence().unwrap();
+        assert_eq!(current.encoded.bytes(), bytes);
+        assert_eq!(current.encoded.checksum_label(), "fnv1a64:2b8b6097eaed6a91");
+    }
 
     #[test]
     fn complete_fixture_replays_every_persisted_state() {
@@ -574,7 +686,11 @@ mod tests {
         assert!(evidence.parameter_bits_after_identical);
         assert!(evidence.optimizer_after_identical);
         assert!(evidence.logits_after_bits_identical);
-        assert!(evidence.rng_next_identical);
+        assert!(evidence.sampling_rng_next_identical);
+        assert!(evidence.changed_batch_diverges);
+        assert!(evidence.changed_learning_rate_diverges);
+        assert_eq!(LOGIT_INPUTS, [0, 1]);
+        assert_eq!(LOGIT_TARGETS, [1, 2]);
         assert_eq!(evidence.encoded.tensors().len(), 38);
         assert_eq!(evidence.checkpoint.selected_step(), 8);
         assert_eq!(evidence.checkpoint.optimizer_state().step_count(), 8);
@@ -585,7 +701,10 @@ mod tests {
         assert_eq!(evidence.history.tokenizer_records, 5);
         assert_eq!(evidence.history.optimizer_moment_records, 22);
         assert_eq!(evidence.history.checkpoint_file_bytes, 6_330);
-        assert_eq!(evidence.history.checkpoint_rng_state, 0x9e37_79b9_7f4a_7c38);
+        assert_eq!(
+            evidence.history.checkpoint_sampling_rng_state,
+            0x9e37_79b9_7f4a_7c38
+        );
         let encoded_parameter_bytes = evidence
             .encoded
             .tensors()
@@ -609,13 +728,34 @@ mod tests {
     }
 
     #[test]
+    fn caller_supplied_batch_and_learning_rate_bound_component_replay() {
+        let evidence = learner_evidence().unwrap();
+
+        assert!(evidence.parameter_bits_after_identical);
+        assert!(evidence.optimizer_after_identical);
+        assert!(evidence.changed_batch_diverges);
+        assert!(evidence.changed_learning_rate_diverges);
+        assert_ne!(
+            NEXT_LEARNING_RATE,
+            evidence
+                .checkpoint
+                .optimizer_state()
+                .config()
+                .learning_rate()
+        );
+    }
+
+    #[test]
     fn report_is_byte_deterministic_and_newline_terminated() {
         let first = learner_report().unwrap();
         let second = learner_report().unwrap();
 
         assert_eq!(first, second);
+        assert_eq!(first, include_str!("../expected.txt"));
         assert!(first.ends_with('\n'));
-        assert!(first.contains("parameter_bits_identical:true"));
-        assert!(first.contains("temporary_files:0"));
+        assert!(first.contains(
+            "component_replay=caller_inputs:[0,1] caller_targets:[1,2] caller_learning_rate:0.006000"
+        ));
+        assert!(first.contains("whole_job_resume:false"));
     }
 }

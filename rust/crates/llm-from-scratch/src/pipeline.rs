@@ -388,7 +388,7 @@ pub struct CheckpointEvidence {
     tensor_records: usize,
     selected_step: u64,
     optimizer_step: u64,
-    rng_state: u64,
+    sampling_rng_state: u64,
     bytes_roundtrip: bool,
     model_bits_exact: bool,
     optimizer_bits_exact: bool,
@@ -423,8 +423,13 @@ impl CheckpointEvidence {
         self.optimizer_step
     }
 
+    pub const fn sampling_rng_state(&self) -> u64 {
+        self.sampling_rng_state
+    }
+
+    /// Compatibility accessor for the persisted sampling RNG state.
     pub const fn rng_state(&self) -> u64 {
-        self.rng_state
+        self.sampling_rng_state()
     }
 
     pub const fn bytes_roundtrip(&self) -> bool {
@@ -1015,7 +1020,7 @@ pub fn run_capstone(
         "validation no longer selects the final optimizer state",
     )?;
     require(
-        selected_step_u64 == primary.final_optimizer().step_count(),
+        selected_step_u64 == primary.selected_optimizer_state().step_count(),
         "selected model and optimizer no longer share one step",
     )?;
     require(
@@ -1086,9 +1091,7 @@ pub fn run_capstone(
         PipelineStage::Checkpoint,
         Checkpoint::from_snapshot(
             CheckpointTokenizer::byte_bpe(&data.tokenizer),
-            primary.selected_state(),
-            primary.final_optimizer(),
-            selected_step_u64,
+            primary.selected_training_state(),
             rng_state,
         ),
     )?;
@@ -1110,13 +1113,11 @@ pub fn run_capstone(
         .ok_or_else(|| PipelineError::invariant("checkpoint lost its byte BPE tokenizer"))?;
     let model_bits_exact =
         loaded.model_state().bit_pattern() == primary.selected_state().bit_pattern();
-    let optimizer_bits_exact = adamw_state_bitwise(
-        loaded.optimizer_state(),
-        &primary.final_optimizer().persistence_state(),
-    );
+    let optimizer_bits_exact =
+        adamw_state_bitwise(loaded.optimizer_state(), primary.selected_optimizer_state());
     let loaded_selected_step = loaded.selected_step();
     let loaded_optimizer_step = loaded.optimizer_state().step_count();
-    let loaded_rng_state = loaded.rng_state();
+    let loaded_rng_state = loaded.sampling_rng_state();
     let loaded_model = map(PipelineStage::Checkpoint, loaded.into_model())?;
     let logit_probe_text = "At";
     let logit_probe_ids = data.tokenizer.encode_utf8(logit_probe_text);
@@ -1166,7 +1167,7 @@ pub fn run_capstone(
         tensor_records: encoded_checkpoint.tensors().len(),
         selected_step: loaded_selected_step,
         optimizer_step: loaded_optimizer_step,
-        rng_state: loaded_rng_state,
+        sampling_rng_state: loaded_rng_state,
         bytes_roundtrip,
         model_bits_exact,
         optimizer_bits_exact,

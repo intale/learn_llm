@@ -35,7 +35,7 @@ const copy = {
       "Make the final boundary executable",
       "Read one information boundary and one comparison",
       "Classify legal decisions before you run",
-      "Carry the selected and evaluated state forward",
+      "Carry the trainer-selected model and optimizer capture forward",
     ],
     diagramTitle: "Separate local isolation from fixture evidence",
     diagramDescription:
@@ -125,6 +125,11 @@ const copy = {
       "Scrollable fixed-fixture decoder and bigram scores over the same inspected target order",
     boundaryRustCaption:
       "Encode the modern separation between a validation-selected model and one local test evaluation",
+    handoffFragments: [
+      "Chapter 35 will serialize the trainer-issued selected training state: the selected model snapshot, its matching AdamW snapshot, and their shared step.",
+      "The Chapter 34 evaluation report and test provenance are not serialized, and the sampling RNG is not evaluation provenance.",
+      "Serialization must reproduce this model and its logits, not reopen test data or turn the final report into a new selection signal.",
+    ],
   },
   ru: {
     revisionLabel: "Версия материала",
@@ -140,7 +145,7 @@ const copy = {
       "Реализуйте правила итоговой оценки в коде",
       "Проследите одну информационную границу и одно сравнение",
       "Определите допустимые решения до запуска",
-      "Сохраните в контрольной точке то же выбранное состояние",
+      "Передайте дальше выбранную модель и соответствующий снимок оптимизатора",
     ],
     diagramTitle:
       "Отделите локальную изоляцию от результата фиксированного примера",
@@ -231,6 +236,11 @@ const copy = {
       "Прокручиваемые результаты декодера и биграммной модели на фиксированном примере с одной и той же проверенной последовательностью пар «вход — цель»",
     boundaryRustCaption:
       "Закрепите современное разделение между моделью, выбранной по валидации, и одной локальной оценкой на тестовой выборке",
+    handoffFragments: [
+      "В главе 35 будет сериализовано состояние, выданное циклом обучения: снимок выбранной модели, зафиксированное одновременно с ним состояние AdamW и их общий номер шага.",
+      "Итоговый отчёт главы 34 и сведения о происхождении тестовых данных не сериализуются, а генератор для выбора токенов не относится к происхождению данных оценки.",
+      "Сериализованное состояние должно позволять точно воспроизвести эту модель и её логиты.",
+    ],
   },
 } as const;
 
@@ -1868,7 +1878,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 34,
-    revision: 6,
+    revision: 7,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -1928,6 +1938,14 @@ async function expectChapterContent(
   for (const fragment of localized.evidenceBoundaryFragments) {
     expect(lessonText).toContain(fragment);
   }
+  for (const fragment of localized.handoffFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  expect(lessonText).not.toMatch(
+    locale === "en"
+      ? /serialize the same selected state that this chapter evaluated|serialize the exact selected and evaluated state|optimizer and RNG provenance/i
+      : /сериализуем именно то выбранное состояние, которое оценили здесь|состояние генератора псевдослучайных чисел как часть происхождения оценки/i,
+  );
   expect(lessonText).not.toMatch(
     locale === "en"
       ? /course(?:'s)? first and only final test|previously unscored test|proves? (?:independent )?generalization|shows? (?:that )?decoder architectures? (?:always|universally) (?:beat|outperform)/i
@@ -2317,6 +2335,12 @@ test.describe(
         await expect(
           page.getByRole("heading", { level: 1, name: copy[locale].title }),
         ).toBeVisible();
+        const lessonText = (await page.locator(".lesson-body").innerText())
+          .replace(/[’‘]/g, "'")
+          .replace(/\s+/g, " ");
+        for (const fragment of copy[locale].handoffFragments) {
+          expect(lessonText).toContain(fragment);
+        }
         const diagram = page.locator(
           'figure[data-visualization-id="final-evaluation-boundary"]',
         );

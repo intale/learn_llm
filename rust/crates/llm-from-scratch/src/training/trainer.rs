@@ -11,7 +11,7 @@ use crate::models::decoder::{
 };
 use crate::nn::init::{InitializationError, NamedParameter};
 use crate::tensor::storage::{Tensor, TensorError};
-use crate::training::adamw::{AdamW, AdamWError};
+use crate::training::adamw::{AdamW, AdamWError, AdamWState};
 use crate::training::batch::MiniBatchEpoch;
 
 // region:training-plan
@@ -481,6 +481,42 @@ impl DecoderModelState {
         DecoderModel::from_parameters(config, parameters).map_err(Into::into)
     }
 }
+
+/// One validation-selected model and its AdamW state captured at the same step.
+///
+/// Only the trainer can construct this bundle. Callers may inspect it, but they
+/// cannot attach a freely supplied step label or optimizer from another point in
+/// the run before passing it to a checkpoint.
+///
+/// ```compile_fail
+/// use llm_from_scratch::training::trainer::SelectedTrainingState;
+///
+/// let _counterfeit = SelectedTrainingState {
+///     step: 8,
+///     model_state: todo!(),
+///     optimizer_state: todo!(),
+/// };
+/// ```
+#[derive(Debug, PartialEq)]
+pub struct SelectedTrainingState {
+    step: usize,
+    model_state: DecoderModelState,
+    optimizer_state: AdamWState,
+}
+
+impl SelectedTrainingState {
+    pub const fn step(&self) -> usize {
+        self.step
+    }
+
+    pub const fn model_state(&self) -> &DecoderModelState {
+        &self.model_state
+    }
+
+    pub const fn optimizer_state(&self) -> &AdamWState {
+        &self.optimizer_state
+    }
+}
 // endregion:decoder-state-snapshot
 
 // region:decoder-state-layout-validation
@@ -659,9 +695,8 @@ impl TrainingStep {
 pub struct TrainingResult {
     steps: Vec<TrainingStep>,
     checkpoints: Vec<LossCheckpoint>,
-    selected_step: usize,
     selected_validation_loss: f64,
-    selected_state: DecoderModelState,
+    selected_training_state: SelectedTrainingState,
     final_state: DecoderModelState,
     selected_model: DecoderModel,
     final_optimizer: AdamW,
@@ -677,7 +712,7 @@ impl TrainingResult {
     }
 
     pub const fn selected_step(&self) -> usize {
-        self.selected_step
+        self.selected_training_state.step()
     }
 
     pub const fn selected_validation_loss(&self) -> f64 {
@@ -685,7 +720,17 @@ impl TrainingResult {
     }
 
     pub const fn selected_state(&self) -> &DecoderModelState {
-        &self.selected_state
+        self.selected_training_state.model_state()
+    }
+
+    /// Returns the trainer-issued model, optimizer, and step capture.
+    pub const fn selected_training_state(&self) -> &SelectedTrainingState {
+        &self.selected_training_state
+    }
+
+    /// Returns the AdamW snapshot paired with the selected model.
+    pub const fn selected_optimizer_state(&self) -> &AdamWState {
+        self.selected_training_state.optimizer_state()
     }
 
     pub const fn final_state(&self) -> &DecoderModelState {
@@ -987,6 +1032,7 @@ pub fn train_decoder(
     let mut selected_step = 0_usize;
     let mut selected_validation_loss = checkpoints[0].validation.mean_loss();
     let mut selected_state = DecoderModelState::snapshot(&model);
+    let mut selected_optimizer_state = optimizer.persistence_state();
     let mut steps = Vec::with_capacity(config.schedule.steps());
 
     for step in 1..=config.schedule.steps() {
@@ -1049,6 +1095,7 @@ pub fn train_decoder(
                 selected_step = step;
                 selected_validation_loss = measured.validation.mean_loss();
                 selected_state = DecoderModelState::snapshot(&model);
+                selected_optimizer_state = optimizer.persistence_state();
             }
             checkpoints.push(measured);
         }
@@ -1062,9 +1109,12 @@ pub fn train_decoder(
     Ok(TrainingResult {
         steps,
         checkpoints,
-        selected_step,
         selected_validation_loss,
-        selected_state,
+        selected_training_state: SelectedTrainingState {
+            step: selected_step,
+            model_state: selected_state,
+            optimizer_state: selected_optimizer_state,
+        },
         final_state,
         selected_model,
         final_optimizer: optimizer,
@@ -1301,6 +1351,10 @@ mod tests {
                 && step.cleared_gradients()
         }));
         assert_eq!(result.final_optimizer().step_count(), 2);
+        assert_eq!(
+            result.selected_optimizer_state().step_count(),
+            result.selected_step() as u64
+        );
         assert_eq!(DecoderModelState::snapshot(&model), initial);
         assert_eq!(optimizer.step_count(), 0);
         assert_eq!(
@@ -1365,8 +1419,47 @@ mod tests {
             result.checkpoints()[1].validation()
         );
         assert_eq!(result.selected_step(), 0);
+        assert_eq!(result.selected_optimizer_state().step_count(), 0);
+        assert_eq!(result.final_optimizer().step_count(), 1);
         assert!(result.checkpoints()[0].selected());
         assert!(!result.checkpoints()[1].selected());
+    }
+
+    #[test]
+    fn complete_training_loop_rejects_a_component_checkpoint_as_job_continuation() {
+        let initial_model = model();
+        let initial_optimizer = optimizer();
+        let updates = epoch(Partition::Train, "train", &TRAIN_IDS);
+        let validation = epoch(Partition::Validation, "validation", &VALIDATION_IDS);
+        let first = train_decoder(
+            &initial_model,
+            &initial_optimizer,
+            &updates,
+            &updates,
+            &validation,
+            &config(vec![0.01]),
+        )
+        .unwrap();
+        let restored_model = first.final_state().restore_independent_model().unwrap();
+        let restored_optimizer =
+            AdamW::from_persistence_state(&first.final_optimizer().persistence_state());
+        let model_before = DecoderModelState::snapshot(&restored_model);
+        let optimizer_before = restored_optimizer.persistence_state();
+
+        assert_eq!(
+            train_decoder(
+                &restored_model,
+                &restored_optimizer,
+                &updates,
+                &updates,
+                &validation,
+                &config(vec![0.01]),
+            )
+            .unwrap_err(),
+            TrainerError::OptimizerNotFresh { step: 1 }
+        );
+        assert_eq!(DecoderModelState::snapshot(&restored_model), model_before);
+        assert_eq!(restored_optimizer.persistence_state(), optimizer_before);
     }
 
     #[test]

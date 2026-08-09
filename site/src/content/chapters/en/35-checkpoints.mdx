@@ -2,13 +2,13 @@
 {
   "chapter_id": "35-checkpoints",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 35,
   "concept_id": "checkpoints",
-  "title": "Save every state, resume exactly",
-  "description": "Learn how a versioned LLM checkpoint stores tokenizer and decoder configuration, parameters, optimizer moments, and RNG state, rejects corrupted bytes, and resumes with identical logits and one identical update.",
-  "objective": "Save and load one versioned decoder checkpoint that reproduces its tokenizer and configuration, parameter and optimizer state, continuation RNG, logits, and one resumed update.",
-  "worked_inputs": "Serialize the Chapter 33 step-8 vocabulary-five decoder with five one-byte literal-token labels, 11 parameter tensors, 22 AdamW moment tensors, and one saved SplitMix64 state; then load it and apply the same step-9 update.",
+  "title": "Save decoder state, replay one specified update",
+  "description": "Learn how a versioned checkpoint stores the tokenizer, decoder, trainer-paired AdamW state, and a separate sampling RNG, rejects corrupted bytes, and matches one update whose inputs, targets, and learning rate the caller supplies.",
+  "objective": "Save and load one versioned decoder checkpoint that restores its tokenizer, decoder configuration and parameter bits, trainer-paired AdamW state and shared step, and a separate sampling RNG, then show that one caller-supplied update matches across the original and loaded branches.",
+  "worked_inputs": "Serialize the Chapter 33 trainer-issued step-8 selected training state for the vocabulary-five decoder—five one-byte literal-token labels, 11 parameter tensors, and 22 AdamW moment tensors—plus one separate SplitMix64 sampling state; then load it and give both branches the same caller-supplied inputs [0,1], targets [1,2], and learning rate 0.006 for one manual component update.",
   "formula": {
     "latex": "o_{k+1}=o_k+b_k\\prod_i n_i^{(k)},\\quad o_0=h",
     "symbols": [
@@ -47,7 +47,7 @@
       "predecessor_kind": "model-building-practice",
       "limitation": "An isolated parameter blob does not say which tokenizer, model configuration, tensor shapes, optimizer moments, or random stream gives those bytes their meaning, while separately coordinated artifacts can drift apart.",
       "later_advance": "Released neural language models coordinated tokenizer, configuration, and checkpoint artifacts; large-model training made optimizer state a major state family, and later tensor containers exposed dtype, shape, and byte offsets before loading values.",
-      "modern_llm_role": "A reproducible LLM checkpoint binds self-describing tensor storage to an application schema for tokenizer, decoder configuration, optimizer continuation, RNG state, validation, and publication.",
+      "modern_llm_role": "A reproducible LLM checkpoint combines self-describing tensor storage with an application schema that names both stored component state and caller-owned continuation inputs; this chapter stores tokenizer, decoder, paired AdamW, and sampling-RNG state without claiming a full trainer restart.",
       "sources": [
         {
           "role": "earlier",
@@ -72,7 +72,7 @@
         }
       ]
     },
-    "approach": "Move from isolated weight bytes and separately coordinated model artifacts toward a versioned, validated checkpoint that binds every state needed to interpret and continue one LLM.",
+    "approach": "Move from isolated weight bytes and separately coordinated model artifacts toward a versioned, validated checkpoint that binds the model and optimizer state this application stores while separating omitted trainer and data state from one caller-supplied component replay.",
     "summary": "The road to reproducible modern LLMs joins coordinated tokenizer and configuration artifacts, first-class optimizer state, and self-describing tensor metadata. This chapter's checksum and atomic file policy are course-specific integrity boundaries, not properties attributed to GPT-2, ZeRO, or safetensors.",
     "rust_source": "rust/demos/ch35-checkpoints/src/lib.rs"
   },
@@ -80,7 +80,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
       "region": "checkpoint-state-transfer",
-      "purpose": "Name the durable snapshot required when borrowed training state must remain available, and move already-owned checkpoint state into a decoder without another tensor-buffer copy."
+      "purpose": "Name the trainer-issued selected model/AdamW capture that remains available after checkpoint construction, and move already-owned checkpoint state into a decoder without another tensor-buffer copy."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
@@ -115,16 +115,16 @@
     {
       "path": "rust/demos/ch35-checkpoints/src/lib.rs",
       "region": "historical-checkpoint-contrast",
-      "purpose": "Derive a parameter-only byte array from the selected model and compare its measured contents with the complete resumable checkpoint."
+      "purpose": "Derive a parameter-only byte array from the selected model and compare its measured contents with the versioned checkpoint file."
     },
     {
       "path": "rust/demos/ch35-checkpoints/src/lib.rs",
       "region": "learner-evidence",
-      "purpose": "Snapshot the retained Chapter 33 state, reload owned checkpoint state, compare exact logits and RNG continuation, and execute the same next update on independent branches."
+      "purpose": "Snapshot the retained trainer-issued Chapter 33 state, reload owned checkpoint state, compare exact logits and sampling-RNG continuation, and replay one caller-supplied component update on independent branches."
     },
     {
       "path": "rust/demos/ch35-checkpoints/src/main.rs",
-      "purpose": "Print the exact schema, layout, replay, rejection, atomic-replacement, and parameter-array contrast evidence."
+      "purpose": "Print the exact schema, layout, stored/not-stored scope, component replay, rejection, atomic-replacement, and parameter-array contrast evidence."
     }
   ],
   "visualization": {
@@ -132,7 +132,7 @@
     "id": null,
     "rationale": "A semantic byte-layout table, a short exact hex prefix, and executable corruption results expose record order and offsets more precisely than a diagram would."
   },
-  "decoder_connection": "The cumulative decoder can now leave memory as one validated selected-state checkpoint and return with identical logits, optimizer continuation, and RNG continuation; Chapter 36 will load it before converting logits into token choices."
+  "decoder_connection": "The cumulative decoder can now leave memory with its tokenizer, configuration, parameter bits, trainer-paired AdamW state and shared step, plus a separate sampling RNG, and return with identical logits. Chapter 36 will load the model and sampling stream before converting logits into token choices; the checkpoint alone does not resume the Chapter 33 trainer."
 }
 ---
 
@@ -141,26 +141,49 @@ import RustSource from "../../../components/RustSource.astro";
 
 {/* chapter-section:worked-example */}
 
-## Freeze the whole state, not only weights
+## Save the declared component state, not only weights
 
-Chapter 33 selected decoder step $8$. In this fixed fixture that is also the
-last training step, so the parameters and AdamW state describe one common
-boundary. Chapter 35 asserts that equality before saving; pairing a selected
-step-$6$ model with a step-$8$ optimizer would be rejected rather than called a
-checkpoint.
+Chapter 33 selected decoder step $8$. Its trainer returns one sealed selected
+training state containing the model snapshot, the matching AdamW snapshot, and
+their shared completed step. In this fixed fixture the selection is also the
+last training step, but Chapter 35 does not infer pairing from that coincidence.
+An untrusted file that declares selected step $6$ while its AdamW counter is $8$
+is rejected.
 
-The complete state includes:
+Checkpoint creation requires that trainer-issued capture. Version $1$ stores the
+model snapshot, AdamW snapshot, and both step values, but no independent
+model-lineage proof. Loading checks that the selected-step value equals the AdamW
+counter; equal counters in arbitrary bytes do not by themselves prove a common
+training trajectory.
 
-1. schema, tokenizer-layout, and continuation-RNG versions;
+The checkpoint stores:
+
+1. schema, tokenizer-layout, and sampling-RNG versions;
 2. five ordered literal token pieces and every decoder configuration field;
 3. $11$ stable named parameter tensors;
 4. $22$ named AdamW moment tensors, parameter groups, step, and exact
    accumulated beta powers; and
-5. the selected step plus one raw SplitMix64 continuation state.
+5. the selected step plus one separate raw SplitMix64 sampling state.
 
-At this clean post-update boundary there are no gradients to save. The Chapter
-34 test documents and final-evaluation gate are not reopened or embedded. An
-attention cache is also absent; Chapter 38 will own cache state.
+At this required clean post-update boundary there are no gradients to save. The
+stored AdamW configuration includes its base learning rate, but not the next
+caller-supplied override or the Chapter 33 schedule.
+
+Keep the ownership boundary explicit:
+
+- **Stored:** tokenizer, decoder configuration and parameter bits, trainer-paired
+  AdamW state, their shared recorded step, and the sampling RNG.
+- **Supplied by the caller for the demonstrated update:** inputs `[0,1]`, targets
+  `[1,2]`, and learning rate $0.006$.
+- **Still required to continue training:** corpus and split identity, tokenized
+  data, batch order and cursor, training RNG, learning-rate schedule, gradient
+  clipping, and validation policy.
+- **Outside this checkpoint:** the Chapter 34 evaluation report and test
+  provenance, gradients at this clean boundary, and the attention cache that
+  Chapter 38 will own.
+
+The saved SplitMix64 state is used for later token sampling. It is not the
+Chapter 33 batch-shuffle seed or another training RNG.
 
 The fixture's five token IDs, $0$ through $4$, map to the one-byte program
 labels `0` through `4`. Together with the model and optimizer records they make
@@ -313,7 +336,7 @@ file, exact training resumption, optimizer or RNG restoration, checksums, or
 this chapter's wire format.
 
 [ZeRO](https://arxiv.org/pdf/1910.02054) exposes the scale pressure behind
-complete training state. Rajbhandari and colleagues classify large-model
+model-and-optimizer state families. Rajbhandari and colleagues classify large-model
 training state as parameters, gradients, and optimizer state such as Adam
 momentum and variance, then quantify and partition those state families as
 language models scale. From that accounting we can infer that weights alone do
@@ -335,23 +358,25 @@ checkpoint artifacts; large-model training made optimizer state a major state
 family, and later tensor containers exposed dtype, shape, and byte offsets
 before loading values.
 
-A reproducible LLM checkpoint binds self-describing tensor storage to an
-application schema for tokenizer, decoder configuration, optimizer
-continuation, RNG state, validation, and publication.
+A reproducible LLM checkpoint combines self-describing tensor storage with an
+application schema that names both stored component state and caller-owned
+continuation inputs; this chapter stores tokenizer, decoder, paired AdamW, and
+sampling-RNG state without claiming a full trainer restart.
 
 The road to reproducible modern LLMs joins coordinated model artifacts,
 optimizer state, and inspectable tensor metadata with an application-level
-schema. The local Rust contrast derives $1152$ bytes from the selected model's
+schema that states what is stored and what a caller must still supply. The local
+Rust contrast derives $1152$ bytes from the selected model's
 $144$ `f64` parameter values. It then records that the complete $6330$-byte file
 also has five tokenizer records, $11$ named parameter records, $22$ optimizer
-moment records, and the continuation RNG state. This measured comparison does
+moment records, and the sampling RNG state. This measured comparison does
 not describe GPT-2 or safetensors as a raw-memory dump, and the course format is
 not safetensors-compatible or a proposed universal standard.
 
 <RustSource
   path="rust/demos/ch35-checkpoints/src/lib.rs"
   region="historical-checkpoint-contrast"
-  caption="Derive a parameter-only value array and measure it next to the complete checkpoint state"
+  caption="Derive a parameter-only value array and measure it next to the versioned checkpoint file"
   label="Rust source for the Chapter 35 LLM-checkpoint history contrast"
 />
 
@@ -370,7 +395,7 @@ path.
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
   region="adamw-persistence-state"
-  caption="Validate every named AdamW moment tensor and preserve the exact continuation arithmetic"
+  caption="Validate every named AdamW moment tensor and preserve the AdamW values that affect a later update"
   label="Rust source implementing the Chapter 35 AdamW persistence boundary"
 />
 
@@ -380,14 +405,16 @@ byte-BPE constructor accepts an already validated tokenizer; untrusted decoded
 pairs are accepted only after the existing BPE constructor validates them during
 loading. Each valid path records the resulting vocabulary size, and the private
 representation has no mutator that could make that size stale. The file also
-records the tokenizer-layout and SplitMix64 algorithm versions. The saved random
-state is a continuation stream for later sampling, not the Chapter 33
+records the tokenizer-layout and SplitMix64 algorithm versions. The saved
+sampling-RNG state continues only the later sampling stream, not the Chapter 33
 batch-shuffle seed.
 
 Checkpoint creation and loading start from different ownership situations.
-`Checkpoint::from_snapshot` borrows selected model state and an optimizer that
-the caller must continue using afterward, so it copies both into an independently
-owned checkpoint. `Checkpoint::from_bytes` instead returns a checkpoint that
+`Checkpoint::from_snapshot` borrows the trainer-issued selected training state,
+which seals a model snapshot, its matching AdamW snapshot, and their shared step.
+Because the trainer-owned capture remains available afterward, checkpoint
+construction copies those buffers into an independently owned checkpoint.
+`Checkpoint::from_bytes` instead returns a checkpoint that
 owns the tensor buffers decoded from the file.
 `restore_independent_model` copies because the checkpoint must remain available;
 `into_model` consumes the checkpoint and moves its model buffers. Both produce
@@ -489,32 +516,38 @@ unsupported error instead of deleting the prior checkpoint.
   label="Rust source implementing Chapter 35 checkpoint publication"
 />
 
-The executable fixture needs two independent continuation branches. It retains
+The executable fixture needs two independent component-replay branches. It retains
 the original checkpoint for later corruption and atomic-save evidence, so that
 branch uses `restore_independent_model`. The loaded checkpoint has no later
-owner: after obtaining the optimizer continuation and saved RNG value needed by
+owner: after obtaining the AdamW state and saved sampling-RNG value needed by
 the loaded branch, the fixture consumes it with `into_model` and moves its
-tensors into the second decoder. Both decoders produce
-no-gradient logits for inputs $[0,1]$, then backpropagate targets $[1,2]$ and
-apply the same explicit next learning rate $0.006$. The fixture compares every
-parameter bit, exact optimizer state, post-update logits, and the next SplitMix64
-draw.
+tensors into the second decoder. The caller gives both branches inputs $[0,1]$,
+targets $[1,2]$, and learning rate $0.006$. The fixture directly invokes loss,
+backward, and one AdamW update, then compares every parameter bit, exact optimizer
+state, post-update logits, and the next sampling SplitMix64 draw. It does not
+call `train_decoder`, restore a corpus or batch cursor, or apply the Chapter 33
+learning-rate schedule, clipping, or validation policy.
 
 <RustSource
   path="rust/demos/ch35-checkpoints/src/lib.rs"
   region="learner-evidence"
-  caption="Measure deterministic bytes, exact reload, corruption rejection, one equal resumed update, and atomic replacement"
+  caption="Measure deterministic bytes, exact reload, corruption rejection, one matching caller-supplied update, and atomic replacement"
   label="Rust source assembling the Chapter 35 learner evidence"
 />
 
-The executable report records these four measured results:
+The executable report records these five measured boundaries:
 
 ```text
-roundtrip=bytes_deterministic:true loaded_bytes_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:6029064fe7cd162d rng_next_identical:true rng_next:0x9a8c505971939232
-resume=learning_rate:0.006000 next_step:9 parameter_bits_identical:true optimizer_state_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:0b875a0c9f380d8f
-reject=version:true vocabulary_mismatch:true truncation:true checksum:true
-atomic=replaced_complete_file:true loaded_rng_state:0x9e3779b97f4a7c39 temporary_files:0 unix_same_directory:true
+roundtrip=bytes_deterministic:true loaded_bytes_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:6029064fe7cd162d sampling_rng_next_identical:true sampling_rng_next:0x9a8c505971939232
+component_replay=caller_inputs:[0,1] caller_targets:[1,2] caller_learning_rate:0.006000 next_step:9 parameter_bits_identical:true optimizer_state_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:0b875a0c9f380d8f changed_batch_diverges:true changed_learning_rate_diverges:true
+scope=tokenizer:stored model:stored optimizer:stored selected_step:stored optimizer_step:stored optimizer_base_learning_rate:stored sampling_rng:stored step_equality:validated model_lineage:not_stored corpus_identity:not_stored split_identity:not_stored epoch_materialization:not_stored epoch_cursor:not_stored batch_order:not_stored batch_cursor:not_stored shuffle_rng:not_stored training_rng:not_stored learning_rate_schedule:not_stored next_learning_rate:not_stored clipping_policy:not_stored validation_policy:not_stored gradients:not_stored trainer_capture:creation_required caller_next_batch:required caller_next_learning_rate:required clean_post_update:required whole_job_resume:false
+reject=version:true vocabulary_mismatch:true step_mismatch:true truncation:true checksum:true
+atomic=replaced_complete_file:true loaded_sampling_rng_state:0x9e3779b97f4a7c39 temporary_files:0 unix_same_directory:true
 ```
+
+The divergence fields make the condition observable: changing either the batch
+or the learning rate changes the result. Equality belongs to this one specified
+update, not to an unstored trainer trajectory.
 
 The complete executable example also checks the byte-BPE variant, mixed element
 widths, version and endian drift, metadata corruption, trailing bytes, tokenizer
@@ -540,10 +573,11 @@ exclusive end must equal the declared file length. The fixed $16$-byte prefix
 then lets you cross-check the magic, schema version, endian marker, and start of
 the header length against the same bytes the loader receives.
 
-The rejection lines test complementary failure boundaries: an unknown version,
-an incompatible vocabulary, a truncated range, and a changed checked byte.
-Together with the exact round trip and resumed update, they show both what was
-stored and which inconsistencies are refused.
+The rejection line tests complementary failure boundaries: an unknown version,
+an incompatible vocabulary, a mismatched recorded step, a truncated range, and
+a changed checked byte. Together with `roundtrip`, `component_replay`, and
+`scope`, the result separates stored-state replay, one caller-supplied update,
+and the trainer state that remains outside the file.
 
 Read the evidence conservatively. `logits_bits_identical:true` establishes exact
 replay for this fixture. `checksum:true` shows that one modified checked byte is
@@ -560,8 +594,8 @@ rejected; it does not turn FNV-1a into a cryptographic signature.
 4. Parameter values stay intact but a descriptor shape changes. Should loading
    succeed when the checksum covers metadata and values?
 5. Weights reload exactly but AdamW moments reset. Will the next update match?
-6. The selected state moves to step $6$ while the optimizer remains at step $8$.
-   Which construction invariant rejects the pair?
+6. An untrusted file declares selected step $6$ while its AdamW counter remains
+   at step $8$. Which validation invariant rejects it?
 7. A process stops after the temporary file is synchronized but before rename.
    Which complete destination remains visible?
 8. Does a matching FNV-1a value prove that no adversary changed the file?
@@ -577,28 +611,33 @@ rejected; it does not turn FNV-1a into a cryptographic signature.
      reject a freshly checksummed inconsistent descriptor too.
   5. No. AdamW's next adaptive direction depends on its first and second
      moments and accumulated beta powers.
-  6. Checkpoint construction requires the selected step and optimizer step to
-     agree.
+  6. Checkpoint validation requires the recorded selected step and AdamW counter
+     to agree.
   7. The prior complete destination remains visible; the unpublished temporary
      file can be cleaned up.
   8. No. FNV-1a detects accidental corruption but provides no authentication.
 </details>
 
-The central misconception is that a checkpoint is only weights. Weights
-reproduce a function only with their tokenizer and configuration; exact
-training continuation additionally requires optimizer and RNG state from the
-same step.
+The central misconception is that a checkpoint is either only weights or a
+complete trainer restart. This file stores enough to interpret the decoder,
+restore its trainer-paired AdamW state, and continue a separate sampling stream.
+Full training continuation would also need the caller-owned corpus and split,
+batch order and cursor, training RNG, update inputs and targets, next learning
+rate and schedule, and clipping and validation policy. The demo supplies one
+batch and learning rate manually; it does not resume `train_decoder`.
 
 {/* chapter-section:decoder-connection */}
 
 ## Load the same state before choosing a token
 
-The cumulative decoder can now leave memory as one validated selected-state
-checkpoint and return with identical logits, optimizer continuation, and RNG
-continuation. The loader restores model meaning before any consumer can use the
-values.
+The cumulative decoder can now leave memory with the same tokenizer meaning,
+architecture, parameter bits, trainer-paired AdamW state and shared step, and a
+separate sampling stream. The loader restores model meaning before any consumer
+can use the values. Replaying one specified update still requires the caller to
+supply the same inputs, targets, and learning rate.
 
 Chapter 36 will load this checkpoint before converting logits into token choices
 with temperature and top-$k$ sampling. That next boundary can vary sampling
 policy without silently changing tokenizer, model configuration, weights,
-optimizer provenance, or the random stream being continued.
+trainer-paired AdamW state, or the sampling stream being continued. It does not
+turn this file into a Chapter 33 trainer restart.

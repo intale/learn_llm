@@ -604,20 +604,20 @@ const englishSheets = [
   {
     chapter: 35,
     chapterId: "35-checkpoints",
-    title: "Save every state, resume exactly",
+    title: "Save decoder state, replay one specified update",
     terms: [
       "Versioned decoder checkpoint",
       "Checkpoint schema",
-      "Same-step boundary",
+      "Trainer-issued selected state",
       "AdamW optimizer state",
-      "Continuation RNG state",
+      "Sampling RNG state",
       "Checkpoint payload record",
       "Checkpoint record descriptor",
       "Checkpoint payload offset",
       "Canonical checkpoint encoding",
       "Checkpoint integrity checksum (FNV-1a)",
       "Exact round trip",
-      "Exact resumed update",
+      "Matched caller-supplied update",
       "Atomic checkpoint replacement",
     ],
   },
@@ -860,6 +860,143 @@ const chapter34BoundaryDefinitions = {
       term: "Одни и те же целевые позиции",
       definition:
         "Сравнение, в котором обе модели оценивают одинаковый упорядоченный набор целевых позиций, включая каждый повтор из перекрывающихся окон декодера; справедливость сравнения внутри примера не делает сами данные независимо отложенными.",
+    },
+  ],
+} as const;
+
+const chapter35BoundaryDefinitions = {
+  en: [
+    {
+      term: "Versioned decoder checkpoint",
+      definition:
+        "A validated, schema-versioned artifact storing tokenizer layout, decoder configuration and parameter bits, trainer-paired AdamW state and shared step, plus a separate sampling RNG.",
+    },
+    {
+      term: "Checkpoint schema",
+      definition:
+        "The versioned application contract that defines stored tokenizer, decoder, optimizer, and sampling-RNG state, record roles, compatibility checks, and the continuation data left to the caller.",
+    },
+    {
+      term: "Trainer-issued selected state",
+      definition:
+        "The sealed model/AdamW capture required at checkpoint creation; version 1 stores both counters and validates equality but stores no independent model-lineage proof.",
+    },
+    {
+      term: "AdamW optimizer state",
+      definition:
+        "Named first and second moments, parameter groups, step, configuration, and exact accumulated beta powers; the caller still supplies update inputs, targets, and any learning-rate override.",
+    },
+    {
+      term: "Sampling RNG state",
+      definition:
+        "The saved raw SplitMix64 stream state used for later token sampling, distinct from the omitted batch-shuffle or other training RNG.",
+    },
+    {
+      term: "Checkpoint payload record",
+      definition:
+        "One ordered contiguous block of encoded tokenizer, decoder-parameter, or optimizer values in the checkpoint payload.",
+    },
+    {
+      term: "Checkpoint record descriptor",
+      definition:
+        "Metadata assigning one checkpoint payload record its role, name, dtype, shape, absolute offset, and byte length.",
+    },
+    {
+      term: "Checkpoint payload offset",
+      definition:
+        "The absolute file-byte position where one checkpoint payload record begins; the next offset advances by element byte width times shape product.",
+    },
+    {
+      term: "Canonical checkpoint encoding",
+      definition:
+        "The deterministic little-endian checkpoint representation with stable header fields, descriptor and payload order, and no implicit alignment padding.",
+    },
+    {
+      term: "Checkpoint integrity checksum (FNV-1a)",
+      definition:
+        "An accidental-corruption check over the complete canonical checkpoint with its checksum field treated as zero; FNV-1a does not authenticate the file.",
+    },
+    {
+      term: "Exact round trip",
+      definition:
+        "Loading and canonical re-encoding reproduce identical checkpoint bytes, logits bits, and the next sampling-RNG draw in the same arithmetic environment.",
+    },
+    {
+      term: "Matched caller-supplied update",
+      definition:
+        "Original and loaded branches given the same caller-supplied inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits for one manual update; this is not a trainer restart.",
+    },
+    {
+      term: "Atomic checkpoint replacement",
+      definition:
+        "The supported Unix same-filesystem publication that synchronizes a complete same-directory temporary checkpoint, renames it over the destination, then synchronizes the directory.",
+    },
+  ],
+  ru: [
+    {
+      term: "Контрольная точка декодера с версией формата",
+      definition:
+        "Проверенный артефакт с номером версии схемы, сохраняющий данные токенизатора, конфигурацию и биты параметров декодера, состояние AdamW из того же снимка цикла обучения, их общий номер шага и отдельный генератор для выбора токенов.",
+    },
+    {
+      term: "Схема контрольной точки",
+      definition:
+        "Контракт приложения с номером версии, задающий сохраняемые состояния токенизатора, декодера, оптимизатора и генератора для выбора токенов, роли записей, проверки совместимости и данные, которые должен предоставить вызывающий код.",
+    },
+    {
+      term: "Состояние, выбранное циклом обучения",
+      definition:
+        "Единый снимок модели и AdamW, обязательный при создании контрольной точки; версия 1 хранит оба счётчика и проверяет их равенство, но не сохраняет отдельного доказательства общего происхождения.",
+    },
+    {
+      term: "Состояние оптимизатора AdamW",
+      definition:
+        "Именованные первые и вторые моменты, группы параметров, номер шага, конфигурация и точные накопленные степени коэффициентов бета; входы, цели и новое значение скорости обучения по-прежнему задаёт вызывающий код.",
+    },
+    {
+      term: "Состояние генератора для выбора токенов",
+      definition:
+        "Сохранённое внутреннее состояние потока SplitMix64 для последующего выбора токенов, отличное от не сохранённого генератора перемешивания пакетов и других генераторов обучения.",
+    },
+    {
+      term: "Запись данных контрольной точки",
+      definition:
+        "Один упорядоченный непрерывный блок закодированных данных токенизатора, параметров декодера или значений оптимизатора в области данных контрольной точки.",
+    },
+    {
+      term: "Дескриптор записи контрольной точки",
+      definition:
+        "Метаданные, задающие для одной записи данных её роль, имя, тип данных, форму, абсолютное смещение и длину в байтах.",
+    },
+    {
+      term: "Абсолютное смещение записи данных",
+      definition:
+        "Позиция байта от начала файла, с которой начинается запись данных; следующее смещение увеличивается на размер элемента в байтах, умноженный на произведение размеров формы.",
+    },
+    {
+      term: "Каноническое кодирование контрольной точки",
+      definition:
+        "Детерминированное представление с порядком байтов от младшего к старшему, стабильными полями заголовка, порядком дескрипторов и данных и без неявных промежутков выравнивания.",
+    },
+    {
+      term: "Контрольная сумма контрольной точки (FNV-1a)",
+      definition:
+        "Проверка случайных повреждений всего канонического файла, при которой поле контрольной суммы считается нулевым; FNV-1a не подтверждает подлинность файла.",
+    },
+    {
+      term: "Точный цикл сохранения и загрузки",
+      definition:
+        "Загрузка и повторное каноническое кодирование воспроизводят идентичные байты контрольной точки, биты логитов и следующее значение генератора для выбора токенов в той же арифметической среде.",
+    },
+    {
+      term: "Совпадение одного обновления с заданными извне данными",
+      definition:
+        "Если исходной и загруженной ветвям передать одинаковые входы, цели и скорость обучения, одно вручную выполненное обновление даст одинаковые биты параметров, состояние оптимизатора и логиты; это не возобновление всего процесса обучения.",
+    },
+    {
+      term: "Атомарная замена контрольной точки",
+      definition:
+        "Поддерживаемая в Unix публикация в пределах одной файловой системы: полный временный файл в том же каталоге синхронизируется, переименовывается поверх целевого, после чего синхронизируется каталог.",
     },
   ],
 } as const;
@@ -1263,23 +1400,28 @@ for (const sheet of sheets) {
 
       const termPages = expectedPages(sheet.terms, sheet.locale);
       const sortedTerms = termPages.flat();
-      if (sheet.locale === "en" && sheet.chapterId === "35-checkpoints") {
+      if (sheet.chapterId === "35-checkpoints") {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
-        expect(sortedTerms).toEqual([
-          "AdamW optimizer state",
-          "Atomic checkpoint replacement",
-          "Canonical checkpoint encoding",
-          "Checkpoint integrity checksum (FNV-1a)",
-          "Checkpoint payload offset",
-          "Checkpoint payload record",
-          "Checkpoint record descriptor",
-          "Checkpoint schema",
-          "Continuation RNG state",
-          "Exact resumed update",
-          "Exact round trip",
-          "Same-step boundary",
-          "Versioned decoder checkpoint",
-        ]);
+        if (sheet.locale === "en") {
+          expect(sortedTerms).toEqual([
+            "AdamW optimizer state",
+            "Atomic checkpoint replacement",
+            "Canonical checkpoint encoding",
+            "Checkpoint integrity checksum (FNV-1a)",
+            "Checkpoint payload offset",
+            "Checkpoint payload record",
+            "Checkpoint record descriptor",
+            "Checkpoint schema",
+            "Exact round trip",
+            "Matched caller-supplied update",
+            "Sampling RNG state",
+            "Trainer-issued selected state",
+            "Versioned decoder checkpoint",
+          ]);
+        }
+        expect(sortedTerms.join(" ")).not.toMatch(
+          /Continuation RNG state|Exact resumed update|Same-step boundary|Точное продолжение обновления/,
+        );
       }
       if (sheet.chapterId === "02-corpus-partitions") {
         expect(termPages.map((termPage) => termPage.length)).toEqual([9]);
@@ -1400,6 +1542,20 @@ for (const sheet of sheets) {
       if (sheet.chapterId === "34-final-evaluation") {
         const expectedDefinitions = chapter34BoundaryDefinitions[sheet.locale];
         for (const expectedDefinition of expectedDefinitions) {
+          const entry = dialog.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
+      }
+      if (sheet.chapterId === "35-checkpoints") {
+        for (const expectedDefinition of chapter35BoundaryDefinitions[
+          sheet.locale
+        ]) {
           const entry = dialog.locator(".cheat-sheet-term").filter({
             has: page.locator("dt", { hasText: expectedDefinition.term }),
           });
@@ -1759,6 +1915,20 @@ for (const sheet of sheets) {
       }
       if (sheet.chapterId === "34-final-evaluation") {
         for (const expectedDefinition of chapter34BoundaryDefinitions[
+          sheet.locale
+        ]) {
+          const entry = fallback.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
+      }
+      if (sheet.chapterId === "35-checkpoints") {
+        for (const expectedDefinition of chapter35BoundaryDefinitions[
           sheet.locale
         ]) {
           const entry = fallback.locator(".cheat-sheet-term").filter({
