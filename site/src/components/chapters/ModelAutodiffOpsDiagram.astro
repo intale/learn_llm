@@ -329,6 +329,13 @@ const parentLabel = (parent: ModelPullbackEvidence['parent']) => labels.parents[
     font-weight: 900;
   }
 
+  .model-autodiff-ops-diagram:dir(rtl)
+    :is(.forward-card, .pullback-card, .embedding-single, .occurrence-no)
+    > .card-state
+    .state-symbol {
+    transform: scaleX(-1);
+  }
+
   @container course-diagram (max-width: 64rem) {
     .embedding-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -342,17 +349,52 @@ const parentLabel = (parent: ModelPullbackEvidence['parent']) => labels.parents[
   }
 
   @media (min-width: 64rem) {
-    .model-autodiff-ops-diagram:fullscreen {
+    figure.model-autodiff-ops-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
       grid-template-columns: minmax(0, 1fr);
       align-content: start;
+      align-items: start;
     }
 
-    .model-autodiff-ops-diagram:fullscreen .forward-rail {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .model-autodiff-ops-diagram:fullscreen > .summary-grid,
+    .model-autodiff-ops-diagram:fullscreen .forward-rail,
+    .model-autodiff-ops-diagram:fullscreen .pullback-grid,
+    .model-autodiff-ops-diagram:fullscreen .embedding-grid,
+    .model-autodiff-ops-diagram:fullscreen .contribution-list {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .model-autodiff-ops-diagram:fullscreen .embedding-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .model-autodiff-ops-diagram:fullscreen :is(.target-scroll, .target-table) {
+      inline-size: 100%;
+      max-inline-size: none;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .target-table {
+      table-layout: fixed;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .target-table :is(th, td):nth-child(1) {
+      inline-size: 11%;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .target-table :is(th, td):nth-child(2) {
+      inline-size: 8%;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .target-table :is(th, td):nth-child(3) {
+      inline-size: 10%;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .target-table :is(th, td):nth-child(4) {
+      inline-size: 23%;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .target-table :is(th, td):nth-child(5) {
+      inline-size: 18%;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .target-table :is(th, td):nth-child(6),
+    .model-autodiff-ops-diagram:fullscreen .target-table :is(th, td):nth-child(7) {
+      inline-size: 15%;
     }
   }
 </style>

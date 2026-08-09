@@ -47,6 +47,10 @@ const chapter16Russian = readFileSync(
   resolve(repositoryRoot, 'site/src/content/chapters/ru/16-model-autodiff-ops.mdx'),
   'utf8',
 );
+const componentStyle = component.slice(
+  component.indexOf('<style>') + '<style>'.length,
+  component.lastIndexOf('</style>'),
+);
 
 const labels: ModelAutodiffOpsDiagramLabels = {
   title: 'title',
@@ -507,30 +511,138 @@ describe('Chapter 16 static diagram component', () => {
     expect(component).not.toContain('data-gradcheck-operation=');
     expect(component).not.toContain('data-error-kind=');
     expect(component).toContain('rowOccurrences = trace.occurrences.filter');
+
+    const authoredOrder = [
+      '<figcaption class="course-diagram__caption">',
+      '<dl class="summary-grid">',
+      'class="diagram-section forward-section"',
+      'class="diagram-section reverse-section"',
+      'class="diagram-section accumulation-section"',
+    ].map((fragment) => component.indexOf(fragment));
+    expect(authoredOrder.every((position) => position >= 0)).toBe(true);
+    expect(authoredOrder).toEqual([...authoredOrder].sort((left, right) => left - right));
+
+    const forwardOrder = [
+      '<ol class="forward-rail course-diagram__grid">',
+      'trace.forward.map((step)',
+    ].map((fragment) => component.indexOf(fragment));
+    expect(forwardOrder.every((position) => position >= 0)).toBe(true);
+    expect(forwardOrder).toEqual([...forwardOrder].sort((left, right) => left - right));
+
+    const reverseOrder = [
+      '{labels.rules.target}',
+      'class="target-scroll course-diagram__scroll"',
+      'trace.targets.map((target)',
+      '{labels.rules.matmul}',
+      'class="pullback-grid course-diagram__grid"',
+      'trace.pullbacks.map((pullback)',
+    ].map((fragment) => component.indexOf(fragment));
+    expect(reverseOrder.every((position) => position >= 0)).toBe(true);
+    expect(reverseOrder).toEqual([...reverseOrder].sort((left, right) => left - right));
+
+    const accumulationOrder = [
+      '{labels.rules.scatter}',
+      'class="embedding-grid course-diagram__grid"',
+      'trace.embeddings.map((embedding)',
+      'class="contribution-list course-diagram__grid"',
+      'rowOccurrences.map((occurrence)',
+    ].map((fragment) => component.indexOf(fragment));
+    expect(accumulationOrder.every((position) => position >= 0)).toBe(true);
+    expect(accumulationOrder).toEqual(
+      [...accumulationOrder].sort((left, right) => left - right),
+    );
+
+    expect(component.match(/<table data-diagram-table class=/g)).toHaveLength(1);
+    expect(component.match(/<caption id=/g)).toHaveLength(1);
+    expect(component.match(/<thead>/g)).toHaveLength(1);
+    expect(component.match(/<tbody>/g)).toHaveLength(1);
+    expect(component.match(/<th scope="col">/g)).toHaveLength(7);
+    expect(component.match(/<th scope="row">/g)).toHaveLength(1);
   });
 
   it('uses the shared diagram system and keeps only concept geometry locally', () => {
     expect(component).toContain('data-visualization-id={modelAutodiffOpsDiagramId}');
     expect(component).toContain('class="course-diagram model-autodiff-ops-diagram"');
     expect(component).toContain('data-diagram-style="course-v1"');
-    expect(component.match(/data-diagram-card/g)?.length).toBeGreaterThanOrEqual(4);
-    expect(component.match(/data-diagram-box/g)?.length).toBeGreaterThanOrEqual(8);
+    expect(component.match(/data-diagram-card/g)).toHaveLength(4);
+    expect(component.match(/data-diagram-box/g)).toHaveLength(11);
     expect(component.match(/class="target-scroll course-diagram__scroll"/g)).toHaveLength(1);
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('data-diagram-scroll');
-    expect(component).not.toContain('overflow-x: auto');
-    expect(component).not.toContain('contain: paint');
+    expect(component.match(/data-diagram-scroll/g)).toHaveLength(1);
+    expect(component.match(/data-diagram-table/g)).toHaveLength(1);
+    expect(component).toContain(
+      'role="region" tabindex="0" aria-labelledby={`${titleId}-target-table`} data-diagram-scroll',
+    );
+    expect(component).toContain('tabindex="0"\n  aria-labelledby={titleId}');
+    expect(component).toContain('aria-describedby={descriptionId}');
+
+    expect(componentStyle).not.toMatch(/(?:^|[;{])\s*overflow(?:-x|-y)?\s*:/m);
+    expect(componentStyle).not.toMatch(
+      /(?:^|[;{])\s*contain\s*:\s*[^;}]*(?:paint|strict|content)/m,
+    );
+    expect(componentStyle).not.toMatch(
+      /(?:^|[;{])\s*(?:clip-path|mask(?:-image)?|filter|opacity|content-visibility|text-overflow|-webkit-line-clamp|text-indent|zoom|scale)\s*:/m,
+    );
+    expect(componentStyle).not.toMatch(
+      /(?:^|[;{])\s*(?:(?:min|max)-)?(?:height|block-size)\s*:/m,
+    );
+    expect(componentStyle).not.toMatch(
+      /(?:^|[;{])\s*(?:font|font-size|line-height)\s*:/m,
+    );
+    expect(componentStyle).not.toMatch(/(?:^|[;{])\s*content\s*:/m);
     expect(component).not.toMatch(/\.model-autodiff-ops-diagram\s*\{[^}]*(?:border|background|box-shadow|padding|margin)\s*:/s);
+    expect(componentStyle).not.toMatch(
+      /(?:\.target-table|\.target-scroll)[^{]*\{[^{}]*(?:border|background|box-shadow|padding|overflow|scrollbar)\s*:/s,
+    );
+    expect(componentStyle).not.toMatch(
+      /(?:\btable\b|\bthead\b|\btbody\b|\btr\b|\bth\b|\btd\b)[^{]*\{[^{}]*display\s*:/s,
+    );
     expect(component).not.toContain('@media (forced-colors: active)');
     expect(component).toContain('.occurrence-yes,');
     expect(component).toContain('border-style: double;');
     expect(component).toContain('.embedding-unused');
     expect(component).toContain('border-style: dotted;');
-    expect(component).not.toMatch(
-      /\.(?:forward-card|pullback-card|occurrence-card|embedding-card|check-card|error-card)[^{]*\{[^}]*(?:min-)?(?:height|block-size)\s*:/s,
+    expect(component).not.toContain('<button');
+    expect(component).not.toContain('<dialog');
+    expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
+    expect(component).not.toContain('data-diagram-full-view-controls');
+
+    const rtlCueRule = componentStyle.match(
+      /\.model-autodiff-ops-diagram:dir\(rtl\)\s*:is\(\.forward-card, \.pullback-card, \.embedding-single, \.occurrence-no\)\s*> \.card-state\s*\.state-symbol\s*\{[^{}]*transform:\s*scaleX\(-1\);[^{}]*\}/s,
+    )?.[0];
+    expect(rtlCueRule).toBeDefined();
+    expect(componentStyle.replace(rtlCueRule ?? '', '')).not.toMatch(
+      /(?:^|[;{])\s*transform\s*:/m,
     );
-    expect(component).toContain('.model-autodiff-ops-diagram:fullscreen');
+
+    expect(componentStyle).toMatch(
+      /figure\.model-autodiff-ops-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*\{[^{}]*grid-template-columns:\s*minmax\(0,\s*1fr\);[^{}]*align-content:\s*start;[^{}]*align-items:\s*start;[^{}]*\}/s,
+    );
+    expect(componentStyle).toMatch(
+      /\.model-autodiff-ops-diagram:fullscreen > \.summary-grid,\s*\.model-autodiff-ops-diagram:fullscreen \.forward-rail,\s*\.model-autodiff-ops-diagram:fullscreen \.pullback-grid,\s*\.model-autodiff-ops-diagram:fullscreen \.embedding-grid,\s*\.model-autodiff-ops-diagram:fullscreen \.contribution-list\s*\{[^{}]*grid-template-columns:\s*minmax\(0,\s*1fr\);[^{}]*\}/s,
+    );
+    expect(componentStyle).toMatch(
+      /\.target-table\s*\{[^{}]*inline-size:\s*100%;[^{}]*min-inline-size:\s*58rem;[^{}]*\}/s,
+    );
+    expect(componentStyle).toMatch(
+      /\.model-autodiff-ops-diagram:fullscreen :is\(\.target-scroll, \.target-table\)\s*\{[^{}]*inline-size:\s*100%;[^{}]*max-inline-size:\s*none;[^{}]*\}/s,
+    );
+    expect(componentStyle).toMatch(
+      /\.model-autodiff-ops-diagram:fullscreen \.target-table\s*\{[^{}]*table-layout:\s*fixed;[^{}]*\}/s,
+    );
+    const expectedColumnShares = [11, 8, 10, 23, 18] as const;
+    for (const [index, share] of expectedColumnShares.entries()) {
+      expect(componentStyle).toMatch(
+        new RegExp(
+          `\\.model-autodiff-ops-diagram:fullscreen \\.target-table :is\\(th, td\\):nth-child\\(${index + 1}\\)\\s*\\{[^{}]*inline-size:\\s*${share}%;[^{}]*\\}`,
+          's',
+        ),
+      );
+    }
+    expect(componentStyle).toMatch(
+      /\.model-autodiff-ops-diagram:fullscreen \.target-table :is\(th, td\):nth-child\(6\),\s*\.model-autodiff-ops-diagram:fullscreen \.target-table :is\(th, td\):nth-child\(7\)\s*\{[^{}]*inline-size:\s*15%;[^{}]*\}/s,
+    );
     expect(component).toContain("import InlineMath from '../InlineMath.astro'");
   });
 });

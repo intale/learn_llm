@@ -18362,3 +18362,52 @@ refinement, forced colors, direction, no-JavaScript fallback, native Escape,
 focus restoration, Rust evidence, dependencies, and locks remain unchanged.
 
 **Affected step:** `repair-ch07-readable-full-view-flow`.
+
+## 2026-08-09 - Restore Chapter 16 full view as a full-width vertical model-operation flow
+
+**Status:** Accepted during `repair-ch16-full-view-composition` run 01.
+
+**Context:** Chapter 16's authored figure already has the required pedagogical
+order: summary, compact forward operations, target-logit gradients, matrix
+pullbacks, then occurrence contributions nested inside their destination
+embedding rows. Its prior fullscreen rules still placed forward records in two
+columns and embedding rows in three columns. That reduced the width available
+to long exact vectors and repeated-row evidence merely to shorten the figure.
+The target-gradient table also divided its seven fields without content-aware
+shares, so individual Russian header words and exact numeric tokens could break
+inside otherwise full-width evidence. The current readable-flow policy permits
+the figure root to continue vertically and forbids using narrow peer rows to
+optimize block height.
+
+**Decision:** Keep the single static figure and its complete authored DOM order.
+In full view, use one root column and give the summary facts, five forward
+records, three pullbacks, three embedding rows, and every nested occurrence
+record one full-width row. The target-gradient table remains the sole named
+horizontal region and receives the complete reverse-section width before any
+intrinsic travel is considered. Retain its existing 58rem intrinsic floor, use
+native fixed table layout only in full view, and allocate the seven columns as
+11, 8, 10, 23, 18, 15, and 15 percent so every localized header word and
+whitespace-delimited technical token remains whole. At Chromium's requested
+1024 by 576 surface, the resulting four pixels of table travel are intrinsic
+and occur only after the region receives the full 924-pixel client width; the
+standard Chromium and native Firefox full views have no table travel.
+
+Treat the forward, reverse, and single-occurrence arrow glyphs as logical
+direction cues. Mirror only those aria-hidden redundant glyphs in synthetic RTL;
+do not transform text, formulas, records, the repeated-sum symbol, or the unused
+row symbol. Preserve source and assistive order in every direction.
+
+**Consequences:** The expanded figure is intentionally several viewports tall;
+that root block debt is diagnostic rather than a failure. Only the root owns
+natural vertical continuation. Every evidence entity preserves or increases
+its same-surface inline allocation and text size, while the sole table region
+has no vertical debt and no avoidable horizontal travel. English and Russian
+revision 7, formulas, values, trace records, Rust behavior, parser, native table
+semantics, ordinary and narrow layout, shared presentation/controller,
+dependencies, and locks remain unchanged. Focused browser validation must prove
+all authored-node identity, complete borders and nearest paint, whole technical
+tokens, direction, forced colors, no-JavaScript/mobile/API absence, native
+Escape, focus restoration, and the absence of any descendant vertical owner.
+
+**Affected step and run:** `repair-ch16-full-view-composition`,
+`20260809T105336Z-repair-ch16-full-view-composition-01`.
