@@ -17556,3 +17556,55 @@ evidence; the provisional numbers may not be used to waive that failure.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch05-token-boxes-and-full-view`, and
 `20260808T213626Z-repair-ch05-bilingual-rules-and-full-view-01`.
+
+## 2026-08-09 - Keep Chapter 6's probability evidence in native tables
+
+**Status:** Accepted after exact English and Russian Chromium and Firefox probes.
+
+**Context:** Chapter 6's inline figure correctly presents document-local count
+construction, a known-context probability row, an unseen-context probability
+row, and the forbidden cross-document transition in one causal order. Its old
+full view retained that single vertical stack, producing 713/956 pixels of
+English/Russian block debt in Chromium at 1280 by 900. A visually compact trial
+transposed each probability table with CSS and fit, but it changed computed
+`table`, `tr`, `th`, and `td` display roles. That would make the learner's visual
+comparison depend on a presentation that no longer behaved as the native table
+encoded by the semantic tree.
+
+**Decision:** Preserve the one static figure, its source order, every localized
+label and value, and the complete native table hierarchy. In full view only,
+use three complementary concept columns: place the caption over columns one and
+two with the shared controller in column three; put training-count evidence in
+column one, the known-context card in column two, and the wider unseen-context
+card in column three; place the boundary guard below the first two columns while
+the unseen card spans that second evidence row. Let the otherwise neutral
+`.row-grid` use `display: contents` only in full view so its two semantic section
+children can participate in the figure grid without a duplicate tree or a new
+wrapper. Keep every `table`, `thead`, `tbody`, `tr`, `th`, and `td` at its native
+computed display role, use automatic table layout in full view, and give the
+longer unseen-context table a 42rem intrinsic floor inside its existing named
+scroll region.
+
+The boundary guard may reflow its existing heading, forbidden transition, and
+explanation into one horizontal relationship at the wider surface. Compact only
+concept-local gaps and list tracks; do not change type size, learner copy,
+formulas, values, Rust evidence, shared skin, or controller behavior. Ordinary,
+narrow, no-JavaScript, forced-color, and configured-direction modes continue to
+reuse the same semantic nodes.
+
+**Consequences:** Exact final probes preserve native table/header/body/row/cell
+roles, all four named scroll regions, 72 bordered cells, four marked evidence
+boxes, zero inline debt, zero clipped or escaped paint, and no font reduction.
+At the standard surface Chromium English/Russian block debt is 0/123 pixels
+against a 180-pixel budget; Firefox English/Russian is 0/141 against 154. The
+largest probability-table travel is 267 pixels with a 0.672 ratio in Chromium
+and 209 pixels with a 0.451 ratio in Firefox. Focused browser acceptance also
+covers desktop, narrow, full view, native Escape and focus restoration, Russian
+forced colors with synthetic RTL, and both locales without JavaScript. No
+learner-content, formula, trace, Rust, dependency, route, or shared-style file is
+changed.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch06-full-view-composition`, and
+`20260808T225226Z-repair-ch06-full-view-composition-01`.

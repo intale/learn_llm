@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -25,6 +25,11 @@ const chapterId = '06-bigram-baseline';
 const contentRevision = 5;
 const formulaLatex = String.raw`C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t^{(d)}=i\land z_{t+1}^{(d)}=j],\quad N_i=\sum_{k\in V}C_{ik},\quad \widehat P_{\mathrm{MLE}}(j\mid i)=\frac{C_{ij}}{N_i}\;(N_i>0),\quad \widehat P_{\alpha}(j\mid i)=\frac{C_{ij}+\alpha}{N_i+\alpha|V|}\;(\alpha>0)`;
 const repositoryRoot = resolve(process.cwd(), '..');
+const diagramSelector = 'figure[data-visualization-id="bigram-baseline"]';
+const diagramInstanceId = 'bigram-baseline-diagram';
+const desktop = { width: 1440, height: 1000 } as const;
+const standardFullView = { width: 1280, height: 900 } as const;
+const narrow = { width: 390, height: 844 } as const;
 
 function readRustRegion(path: string, region: string): string {
   const lines = readFileSync(resolve(repositoryRoot, path), 'utf8').split(/\r?\n/);
@@ -63,11 +68,22 @@ const copy = {
       'Print the exact count, MLE, add-one, and boundary evidence',
     ],
     diagramTitle: 'Follow two count rows all the way to probabilities',
+    diagramDescription:
+      'The same Rust fixture supplies the separated training documents and both tables. Compare a known context with one missing successor against a context with no outgoing observations at all.',
+    summaryFacts: [
+      ['Vocabulary size', '5'],
+      ['Smoothing amount', '1.000'],
+      ['Training documents', '2'],
+      ['Transitions counted', '7'],
+    ],
     documentSection: 'Evidence counted inside document boundaries',
     tokenLegend: 'Vocabulary tokens and their roles',
     knownSection: 'Known context: one successor is missing',
     unseenSection: 'Context with no outgoing observations',
     boundarySection: 'Transition that must not be counted',
+    documentField: 'Training document',
+    contextField: 'Current token',
+    rowFactLabels: ['Observed row total', 'Smoothed denominator'],
     tableHeaders: [
       'Next token',
       'Observed count',
@@ -77,7 +93,20 @@ const copy = {
       'Smoothed probability',
     ],
     undefinedMle: 'undefined (row total is zero)',
-    boundaryName: /EOS 1 must not transition to BOS 0/,
+    boundaryName: 'EOS 1 must not transition to BOS 0',
+    roleLabels: [
+      'document-boundary token',
+      'document-boundary token',
+      'observed content token',
+      'observed content token',
+      'absent from these training documents',
+    ],
+    notes: [
+      'Every arrow within a document contributes once. No arrow connects the end of one line to the beginning of the next.',
+      'The transition from A to C has count zero inside a row whose total is three. Its MLE probability is therefore a defined zero; add-one smoothing assigns one eighth.',
+      'No transition leaves C, so its row total is zero and an MLE row cannot be normalized. Add-one smoothing imposes a uniform fallback; it does not reveal evidence about C.',
+      'Flattening the two documents would insert EOS→BOS between them. Fitting documents separately prevents that fabricated observation.',
+    ],
     exerciseSummary: 'Check each prediction and calculation',
     exerciseAnswer: 'Flattening inserts EOS(1)→BOS(0)',
   },
@@ -102,11 +131,25 @@ const copy = {
       'Счётчики, оценки MLE, сглаженные вероятности и проверка границы документов',
     ],
     diagramTitle: 'Проследите, как две строки счётчиков превращаются в вероятности',
+    diagramDescription:
+      'Один и тот же пример на Rust задаёт два отдельных документа обучающей выборки и строки таблицы для токенов A и C. Сопоставьте строку A, где токен C ни разу не был продолжением, и строку C, для которой вообще не наблюдались продолжения.',
+    summaryFacts: [
+      ['Размер словаря', '5'],
+      ['Параметр сглаживания', '1.000'],
+      ['Документов в обучающей выборке', '2'],
+      ['Подсчитано переходов', '7'],
+    ],
     documentSection: 'Переходы, учтённые внутри каждого документа',
     tokenLegend: 'Токены словаря и их роли',
     knownSection: 'Контекст A: продолжение C не встретилось',
     unseenSection: 'Контекст C: после C нет ни одного наблюдения',
     boundarySection: 'Проверка границы между документами',
+    documentField: 'Документ обучающей выборки',
+    contextField: 'Текущий токен',
+    rowFactLabels: [
+      'Общее число наблюдений в строке',
+      'Знаменатель сглаженного распределения',
+    ],
     tableHeaders: [
       'Следующий токен',
       'Число наблюдений',
@@ -116,11 +159,506 @@ const copy = {
       'Сглаженная вероятность',
     ],
     undefinedMle: 'не определена: сумма строки равна нулю',
-    boundaryName: /EOS 1 не соединяется с BOS 0/,
+    boundaryName: 'EOS 1 не соединяется с BOS 0',
+    roleLabels: [
+      'служебный маркер начала или конца документа',
+      'служебный маркер начала или конца документа',
+      'токен содержимого, встречающийся в обучающей выборке',
+      'токен содержимого, встречающийся в обучающей выборке',
+      'есть в словаре, но не встречается в этих документах',
+    ],
+    notes: [
+      'Каждый переход между соседними токенами внутри документа учитывается ровно один раз. Конец одного документа не соединяется с началом следующего.',
+      'Продолжение C после A не встретилось, но сумма строки A равна трём. Поэтому его оценка MLE определена и равна нулю; после сглаживания с единичной псевдочастотой это продолжение получает вероятность, равную одной восьмой.',
+      'В обучающих документах ни один переход не начинается с C, поэтому сумма строки равна нулю и получить распределение MLE нельзя. Равномерное распределение задаёт правило сглаживания; из данных не следует, что продолжения после C действительно равновероятны.',
+      'Если склеить документы, между ними появится искусственный переход EOS→BOS. При обработке документов по отдельности он не попадает в таблицу.',
+    ],
     exerciseSummary: 'Проверьте ответы и ход вычислений',
     exerciseAnswer: 'Между документами появится EOS(1)→BOS(0)',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
+
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolveFrame) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame())),
+    );
+  });
+}
+
+async function readBigramGeometry(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const tolerance = 2;
+    const problems: string[] = [];
+    const allElements = [figure, ...figure.querySelectorAll<HTMLElement>('*')];
+    const visible = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    };
+    const describe = (element: HTMLElement) => {
+      const classes = [...element.classList].slice(0, 2).join('.');
+      return `${element.tagName.toLowerCase()}${classes ? `.${classes}` : ''}`;
+    };
+    const border = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return {
+        colors: [
+          style.borderTopColor,
+          style.borderRightColor,
+          style.borderBottomColor,
+          style.borderLeftColor,
+        ],
+        styles: [
+          style.borderTopStyle,
+          style.borderRightStyle,
+          style.borderBottomStyle,
+          style.borderLeftStyle,
+        ],
+        widths: [
+          Number.parseFloat(style.borderTopWidth),
+          Number.parseFloat(style.borderRightWidth),
+          Number.parseFloat(style.borderBottomWidth),
+          Number.parseFloat(style.borderLeftWidth),
+        ],
+      };
+    };
+    const transparent = (value: string) => {
+      const normalized = value.toLowerCase().replaceAll(' ', '');
+      return (
+        normalized === 'transparent' ||
+        /^rgba\([^)]*,0(?:\.0+)?\)$/.test(normalized) ||
+        /\/0(?:\.0+)?\)$/.test(normalized)
+      );
+    };
+    const completeBorder = (element: HTMLElement) => {
+      const evidence = border(element);
+      return (
+        evidence.widths.every((width) => Number.isFinite(width) && width > 0) &&
+        evidence.styles.every((style) => !['none', 'hidden'].includes(style)) &&
+        evidence.colors.every((color) => !transparent(color))
+      );
+    };
+    const clipped = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return (
+        [style.overflowX, style.overflowY].some((value) =>
+          ['hidden', 'clip'].includes(value),
+        ) || /(?:paint|strict|content)/.test(style.contain)
+      );
+    };
+    const innerRect = (element: HTMLElement) => {
+      const rect = element.getBoundingClientRect();
+      const widths = border(element).widths;
+      return {
+        left: rect.left + widths[3]!,
+        right: rect.right - widths[1]!,
+        top: rect.top + widths[0]!,
+        bottom: rect.bottom - widths[2]!,
+      };
+    };
+    const within = (
+      child: { left: number; right: number; top: number; bottom: number },
+      owner: { left: number; right: number; top: number; bottom: number },
+      checkInline = true,
+      checkBlock = true,
+    ) =>
+      (!checkInline ||
+        (child.left >= owner.left - tolerance &&
+          child.right <= owner.right + tolerance)) &&
+      (!checkBlock ||
+        (child.top >= owner.top - tolerance &&
+          child.bottom <= owner.bottom + tolerance));
+
+    const visibleElements = allElements.filter(visible);
+    const markedBoxes = visibleElements.filter((element) =>
+      element.hasAttribute('data-diagram-box'),
+    );
+    const borderedOwners = visibleElements.filter(
+      (element) =>
+        !element.closest('[data-diagram-full-view-controls]') &&
+        completeBorder(element),
+    );
+    const boundedOwners = new Set<HTMLElement>([
+      ...markedBoxes,
+      ...borderedOwners,
+    ]);
+    const nearestOwner = (element: HTMLElement | null) => {
+      let current = element;
+      while (current && figure.contains(current)) {
+        if (boundedOwners.has(current)) return current;
+        if (current === figure) break;
+        current = current.parentElement;
+      }
+      return null;
+    };
+
+    for (const [index, owner] of [...boundedOwners].entries()) {
+      if (!completeBorder(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} lacks four visible borders`);
+      }
+      if (clipped(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} clips or paint-contains`);
+      }
+      if (owner.getBoundingClientRect().width <= 0 || owner.getBoundingClientRect().height <= 0) {
+        problems.push(`owner-${index} ${describe(owner)} has no painted area`);
+      }
+      const inlineDebt = Math.max(0, owner.scrollWidth - owner.clientWidth);
+      const blockDebt = Math.max(0, owner.scrollHeight - owner.clientHeight);
+      if (owner !== figure && blockDebt > tolerance) {
+        problems.push(`owner-${index} has block debt ${blockDebt}`);
+      }
+      if (
+        owner !== figure &&
+        !owner.matches('[data-diagram-scroll]') &&
+        inlineDebt > tolerance
+      ) {
+        problems.push(`owner-${index} has inline debt ${inlineDebt}`);
+      }
+
+      const ancestor = nearestOwner(owner.parentElement);
+      if (!ancestor) continue;
+      const interveningScroller = owner.parentElement?.closest<HTMLElement>(
+        '[data-diagram-scroll]',
+      );
+      const checkInline =
+        !interveningScroller || !ancestor.contains(interveningScroller);
+      if (
+        !within(
+          owner.getBoundingClientRect(),
+          innerRect(ancestor),
+          checkInline,
+          ancestor !== figure,
+        )
+      ) {
+        problems.push(`owner-${index} escapes its nearest bounded ancestor`);
+      }
+    }
+
+    const scrollers = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+    );
+    for (const [index, scroller] of scrollers.entries()) {
+      const labelledBy = scroller.getAttribute('aria-labelledby')?.trim() ?? '';
+      const directLabel = scroller.getAttribute('aria-label')?.trim() ?? '';
+      const ids = labelledBy.split(/\s+/).filter(Boolean);
+      const resolved = ids.length > 0 && ids.every((id) => document.getElementById(id));
+      if (
+        scroller.getAttribute('role') !== 'region' ||
+        scroller.getAttribute('tabindex') !== '0' ||
+        !scroller.classList.contains('course-diagram__scroll') ||
+        (!directLabel && !resolved)
+      ) {
+        problems.push(`scroller-${index} lacks its shared accessible region contract`);
+      }
+      if (scroller.hasAttribute('data-diagram-box')) {
+        problems.push(`scroller-${index} also claims box ownership`);
+      }
+      if (clipped(scroller)) problems.push(`scroller-${index} clips overflow`);
+      if (scroller.scrollHeight - scroller.clientHeight > tolerance) {
+        problems.push(`scroller-${index} has vertical travel`);
+      }
+    }
+
+    const idrefElements = [
+      figure,
+      ...figure.querySelectorAll<HTMLElement>('[aria-labelledby], [aria-describedby]'),
+    ].filter(
+      (element) =>
+        element.hasAttribute('aria-labelledby') || element.hasAttribute('aria-describedby'),
+    );
+    for (const [index, element] of idrefElements.entries()) {
+      for (const attribute of ['aria-labelledby', 'aria-describedby'] as const) {
+        if (!element.hasAttribute(attribute)) continue;
+        const ids = (element.getAttribute(attribute) ?? '').split(/\s+/).filter(Boolean);
+        if (ids.length === 0) {
+          problems.push(`idref-${index} has an empty ${attribute}`);
+          continue;
+        }
+        for (const id of ids) {
+          const matches = document.querySelectorAll<HTMLElement>(`#${CSS.escape(id)}`);
+          if (matches.length !== 1 || !matches[0]?.textContent?.trim()) {
+            problems.push(`idref-${index} ${attribute} does not resolve ${id} exactly once`);
+          }
+        }
+      }
+    }
+
+    const walker = document.createTreeWalker(figure, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      if (!textNode.textContent?.trim()) continue;
+      const parent = textNode.parentElement;
+      if (
+        !parent ||
+        parent.closest(
+          '.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]',
+        ) ||
+        !visible(parent)
+      ) {
+        continue;
+      }
+      const owner = nearestOwner(parent);
+      if (!owner) continue;
+      const scroller = parent.closest<HTMLElement>('[data-diagram-scroll]');
+      const checkInline = !scroller || scroller.contains(owner);
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      for (const paint of Array.from(range.getClientRects())) {
+        if (
+          paint.width > 0 &&
+          paint.height > 0 &&
+          !within(paint, innerRect(owner), checkInline, true)
+        ) {
+          problems.push(`${describe(parent)} paints outside ${describe(owner)}`);
+          break;
+        }
+      }
+    }
+
+    for (const [index, table] of Array.from(
+      figure.querySelectorAll<HTMLTableElement>('table[data-diagram-table]'),
+    ).entries()) {
+      if (getComputedStyle(table).display !== 'table') {
+        problems.push(`table-${index} is not a native table`);
+      }
+      if (!table.tHead || getComputedStyle(table.tHead).display !== 'table-header-group') {
+        problems.push(`table-${index} lost its native header group`);
+      }
+      for (const body of Array.from(table.tBodies)) {
+        if (getComputedStyle(body).display !== 'table-row-group') {
+          problems.push(`table-${index} lost its native body group`);
+        }
+      }
+      for (const [rowIndex, row] of Array.from(table.rows).entries()) {
+        const rowRect = row.getBoundingClientRect();
+        if (getComputedStyle(row).display !== 'table-row') {
+          problems.push(`table-${index} row-${rowIndex} is not a native row`);
+        }
+        for (const [cellIndex, cell] of Array.from(row.cells).entries()) {
+          const cellRect = cell.getBoundingClientRect();
+          if (getComputedStyle(cell).display !== 'table-cell') {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} is not a table cell`);
+          }
+          if (!completeBorder(cell)) {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} lacks four borders`);
+          }
+          if (
+            Math.abs(cellRect.top - rowRect.top) > 1 ||
+            Math.abs(cellRect.bottom - rowRect.bottom) > 1
+          ) {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} does not fill its row`);
+          }
+        }
+      }
+    }
+
+    for (const [index, element] of visibleElements.entries()) {
+      if (
+        element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]')
+      ) {
+        continue;
+      }
+      if (clipped(element)) {
+        problems.push(`element-${index} ${describe(element)} conceals overflow`);
+      }
+    }
+
+    const fontSizes = allElements.flatMap((element, index) => {
+      if (
+        element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]') ||
+        !visible(element)
+      ) {
+        return [];
+      }
+      const directText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      return directText
+        ? [{ index, pixels: Number.parseFloat(getComputedStyle(element).fontSize) }]
+        : [];
+    });
+    const tableTravel = scrollers
+      .filter((scroller) => scroller.classList.contains('table-scroll'))
+      .map((scroller) => {
+        const client = scroller.clientWidth;
+        const debt = Math.max(0, scroller.scrollWidth - client);
+        return { client, debt, ratio: client > 0 ? debt / client : Number.POSITIVE_INFINITY };
+      });
+
+    return {
+      blockBudget: Math.ceil(figure.clientHeight * 0.2),
+      blockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
+      borderedOwnerCount: borderedOwners.length,
+      boxCount: markedBoxes.length,
+      candidateRowCount: figure.querySelectorAll('tbody tr').length,
+      cellCount: figure.querySelectorAll('th, td').length,
+      directOrder: Array.from(figure.children)
+        .filter((element) => !element.hasAttribute('data-diagram-full-view-controls'))
+        .map((element) => `${element.tagName}.${element.className}`),
+      documentCount: figure.querySelectorAll('[data-document]').length,
+      fontSizes,
+      inlineDebt: Math.max(0, figure.scrollWidth - figure.clientWidth),
+      legendItemCount: figure.querySelectorAll('.token-legend > li').length,
+      maxTableTravel: Math.max(0, ...tableTravel.map(({ debt }) => debt)),
+      maxTableTravelRatio: Math.max(0, ...tableTravel.map(({ ratio }) => ratio)),
+      problems: [...new Set(problems)],
+      rowCount: figure.querySelectorAll('table tr').length,
+      scrollerCount: scrollers.length,
+      tableCount: figure.querySelectorAll('table').length,
+      transitionArrowCount: figure.querySelectorAll('.transition-arrow').length,
+      unseenSuccessorCount: figure.querySelectorAll('[data-unseen-successor="true"]').length,
+      viewportHeight: figure.clientHeight,
+    };
+  });
+}
+
+function expectCompleteBigramGeometry(
+  geometry: Awaited<ReturnType<typeof readBigramGeometry>>,
+) {
+  expect(geometry.directOrder).toEqual([
+    'FIGCAPTION.course-diagram__caption',
+    'SECTION.training-evidence',
+    'DIV.row-grid',
+    'SECTION.boundary-guard',
+  ]);
+  expect(geometry.documentCount).toBe(2);
+  expect(geometry.transitionArrowCount).toBe(7);
+  expect(geometry.legendItemCount).toBe(5);
+  expect(geometry.tableCount).toBe(2);
+  expect(geometry.rowCount).toBe(12);
+  expect(geometry.cellCount).toBe(72);
+  expect(geometry.candidateRowCount).toBe(10);
+  expect(geometry.unseenSuccessorCount).toBe(1);
+  expect(geometry.boxCount).toBe(4);
+  expect(geometry.borderedOwnerCount).toBe(77);
+  expect(geometry.scrollerCount).toBe(4);
+  expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+  expect(geometry.problems).toEqual([]);
+}
+
+function expectFontsNotShrunk(
+  inline: Awaited<ReturnType<typeof readBigramGeometry>>,
+  full: Awaited<ReturnType<typeof readBigramGeometry>>,
+) {
+  const before = new Map(inline.fontSizes.map(({ index, pixels }) => [index, pixels]));
+  for (const sample of full.fontSizes) {
+    const inlinePixels = before.get(sample.index);
+    if (inlinePixels === undefined) continue;
+    expect(sample.pixels + 0.01).toBeGreaterThanOrEqual(inlinePixels);
+  }
+}
+
+async function readBigramEvidence(diagram: Locator) {
+  return diagram.evaluate((root) => ({
+    contexts: Array.from(root.querySelectorAll<HTMLElement>('[data-context-id]')).map(
+      (row) => ({ id: row.dataset.contextId, kind: row.dataset.contextKind }),
+    ),
+    documents: Array.from(root.querySelectorAll<HTMLElement>('[data-document]')).map(
+      (document) => ({
+        id: document.dataset.document,
+        tokens: Array.from(document.querySelectorAll<HTMLElement>('[data-token-id]')).map(
+          (token) => token.dataset.tokenId,
+        ),
+      }),
+    ),
+    tableRows: Array.from(root.querySelectorAll<HTMLTableRowElement>('tbody tr')).map(
+      (row) => ({
+        candidate: row.dataset.candidateId,
+        values: Array.from(row.querySelectorAll<HTMLElement>('[data-value]')).map(
+          (value) => value.textContent?.trim(),
+        ),
+      }),
+    ),
+  }));
+}
+
+async function readFullViewComposition(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const rect = (selector: string) => {
+      const element = figure.querySelector<HTMLElement>(selector);
+      if (!element) throw new Error(`Missing ${selector}`);
+      const box = element.getBoundingClientRect();
+      return {
+        bottom: box.bottom,
+        height: box.height,
+        left: box.left,
+        right: box.right,
+        top: box.top,
+        width: box.width,
+      };
+    };
+    return {
+      columns: getComputedStyle(figure).gridTemplateColumns
+        .split(/\s+/)
+        .filter(Boolean).length,
+      rowGridDisplay: getComputedStyle(
+        figure.querySelector<HTMLElement>('.row-grid')!,
+      ).display,
+      training: rect('.training-evidence'),
+      known: rect('[data-context-kind="known"]'),
+      unseen: rect('[data-context-kind="unseen"]'),
+      boundary: rect('.boundary-guard'),
+    };
+  });
+}
+
+function expectCoherentFullView(
+  composition: Awaited<ReturnType<typeof readFullViewComposition>>,
+) {
+  expect(composition.columns).toBe(3);
+  expect(composition.rowGridDisplay).toBe('contents');
+  const regions = [
+    composition.training,
+    composition.known,
+    composition.unseen,
+    composition.boundary,
+  ];
+  for (const region of regions) {
+    expect(region.width).toBeGreaterThan(200);
+    expect(region.height).toBeGreaterThan(0);
+  }
+  for (let first = 0; first < regions.length; first += 1) {
+    for (let second = first + 1; second < regions.length; second += 1) {
+      const a = regions[first]!;
+      const b = regions[second]!;
+      const overlapsInline = a.left < b.right - 1 && a.right > b.left + 1;
+      const overlapsBlock = a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      expect(overlapsInline && overlapsBlock).toBe(false);
+    }
+  }
+  expect(Math.abs(composition.training.top - composition.known.top)).toBeLessThanOrEqual(2);
+  expect(Math.abs(composition.training.top - composition.unseen.top)).toBeLessThanOrEqual(2);
+  expect(composition.boundary.top).toBeGreaterThan(composition.training.top);
+  expect(composition.unseen.width).toBeGreaterThan(composition.known.width);
+}
+
+async function expectFormulaGeometry(page: Page) {
+  const evidence = await page.locator('.katex-display').evaluateAll((formulas) =>
+    formulas.map((formula) => {
+      const outer = formula as HTMLElement;
+      const visible = outer.querySelector<HTMLElement>('.katex-html');
+      const outerRect = outer.getBoundingClientRect();
+      const visibleRect = visible?.getBoundingClientRect();
+      return {
+        blockDebt: Math.max(0, outer.scrollHeight - outer.clientHeight),
+        visibleInsideBlock:
+          !visibleRect ||
+          (visibleRect.top >= outerRect.top - 2 && visibleRect.bottom <= outerRect.bottom + 2),
+      };
+    }),
+  );
+  expect(evidence).toHaveLength(3);
+  expect(evidence.every(({ blockDebt, visibleInsideBlock }) => blockDebt <= 2 && visibleInsideBlock)).toBe(true);
+}
 
 async function expectChapterContent(
   page: Page,
@@ -146,6 +684,7 @@ async function expectChapterContent(
   await expect(displayedFormula).toHaveCount(3);
   await expect(displayedFormula.first()).toHaveCSS('direction', 'ltr');
   await expect(displayedFormula.last().locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
+  await expectFormulaGeometry(page);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(4);
@@ -182,8 +721,20 @@ async function expectChapterContent(
   }
 
   await expectVisualizationDecision(page, { decision: 'useful', id: 'bigram-baseline' });
-  const diagram = page.locator('figure[data-visualization-id="bigram-baseline"]');
+  const diagram = page.locator(diagramSelector);
   await expect(diagram.getByRole('heading', { level: 3, name: localized.diagramTitle })).toBeVisible();
+  await expect(diagram.locator(`#${diagramInstanceId}-description`)).toHaveText(
+    localized.diagramDescription,
+  );
+  await expect(diagram.locator('.summary-facts > div')).toHaveCount(4);
+  expect(
+    await diagram.locator('.summary-facts > div').evaluateAll((facts) =>
+      facts.map((fact) => [
+        fact.querySelector('dt')?.textContent?.trim(),
+        fact.querySelector('dd')?.textContent?.trim(),
+      ]),
+    ),
+  ).toEqual(localized.summaryFacts.map((fact) => [...fact]));
   for (const sectionTitle of [
     localized.documentSection,
     localized.knownSection,
@@ -194,9 +745,26 @@ async function expectChapterContent(
   }
   await expect(diagram.getByRole('list', { name: localized.tokenLegend })).toBeVisible();
   await expect(diagram.locator('.summary-facts dd')).toHaveText(['5', '1.000', '2', '7']);
+  await expect(diagram.locator('.token-legend > li > span')).toHaveText([
+    ...localized.roleLabels,
+  ]);
+  await expect(diagram.locator('.evidence-note')).toHaveText(localized.notes[0]);
+  await expect(diagram.locator('[data-context-kind="known"] .row-note')).toHaveText(
+    localized.notes[1],
+  );
+  await expect(diagram.locator('[data-context-kind="unseen"] .row-note')).toHaveText(
+    localized.notes[2],
+  );
+  await expect(diagram.locator('.boundary-guard > p:last-child')).toHaveText(
+    localized.notes[3],
+  );
 
   const documents = diagram.locator('[data-document]');
   await expect(documents).toHaveCount(2);
+  await expect(documents.locator(':scope > strong')).toContainText([
+    localized.documentField,
+    localized.documentField,
+  ]);
   expect(
     await documents.evaluateAll((nodes) => nodes.map((node) => ({
       id: node.getAttribute('data-document'),
@@ -215,6 +783,14 @@ async function expectChapterContent(
   await expect(unseenRow.getByRole('table', { name: localized.unseenSection })).toBeVisible();
   await expect(knownRow.getByRole('columnheader')).toHaveText([...localized.tableHeaders]);
   await expect(unseenRow.getByRole('columnheader')).toHaveText([...localized.tableHeaders]);
+  await expect(diagram.locator('.context-label')).toContainText([
+    localized.contextField,
+    localized.contextField,
+  ]);
+  await expect(diagram.locator('.row-facts dt')).toHaveText([
+    ...localized.rowFactLabels,
+    ...localized.rowFactLabels,
+  ]);
   await expect(knownRow.locator('.row-facts dd')).toHaveText(['3', '8']);
   await expect(unseenRow.locator('.row-facts dd')).toHaveText(['0', '5']);
 
@@ -265,6 +841,7 @@ async function expectChapterContent(
     if (expectTableOverflow) expect(widths.scroll).toBeGreaterThan(widths.client);
     else expect(widths.scroll).toBeLessThanOrEqual(widths.client);
   }
+  expectCompleteBigramGeometry(await readBigramGeometry(diagram));
 
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
@@ -304,6 +881,8 @@ async function expectStructuralListsUseAvailableWidth(page: Page) {
 }
 
 test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId) }, () => {
+  test.describe.configure({ mode: 'serial' });
+
   test('chapter 6 is sixth on every course index and preserves locale switching', async ({ page }) => {
     for (const locale of chapterLocales) {
       const localized = copy[locale];
@@ -342,25 +921,177 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
 
   for (const locale of chapterLocales) {
     test(`chapter 6 ${locale} renders every learning element at desktop and narrow widths`, async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 1000 });
+      await page.setViewportSize(desktop);
       const chapters = await readOrderedCourseChapters(page, locale);
       await page.goto(chapterPath(locale, chapterId));
       await expectChapterContent(page, locale, 1, false, chapters);
       await expectStructuralListsUseAvailableWidth(page);
-
-      const diagram = page.locator('figure[data-visualization-id="bigram-baseline"]');
-      await diagram.locator('[data-diagram-full-view-toggle]').click();
       await page.waitForFunction(
-        () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'bigram-baseline',
+        () => document.documentElement.dataset.diagramFullViewReady === 'true',
       );
-      await expectStructuralListsUseAvailableWidth(page);
-      await page.keyboard.press('Escape');
-      await page.waitForFunction(() => document.fullscreenElement === null);
+      await expect(page.locator(diagramSelector).locator('[data-diagram-full-view-toggle]')).toHaveCount(1);
 
-      await page.setViewportSize({ width: 390, height: 844 });
+      await page.setViewportSize(narrow);
       await page.reload();
       await expectChapterContent(page, locale, 1, true, chapters);
       await expectStructuralListsUseAvailableWidth(page);
+      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
     });
   }
+
+  test('both localized figures reuse one semantic tree in a readable native-table full view', async ({
+    page,
+  }) => {
+    await page.setViewportSize(standardFullView);
+    for (const locale of chapterLocales) {
+      await page.goto(chapterPath(locale, chapterId));
+      await page.waitForFunction(
+        () => document.documentElement.dataset.diagramFullViewReady === 'true',
+      );
+      const diagram = page.locator(diagramSelector);
+      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+      await expect(toggle).toHaveCount(1);
+      await expect(toggle).toBeVisible();
+      await settle(page);
+
+      const inlineGeometry = await readBigramGeometry(diagram);
+      expectCompleteBigramGeometry(inlineGeometry);
+      const inlineEvidence = await readBigramEvidence(diagram);
+      const staticMarkup = await diagram.evaluate((node) => {
+        const clone = node.cloneNode(true) as HTMLElement;
+        clone
+          .querySelectorAll('[data-diagram-full-view-controls]')
+          .forEach((control) => control.remove());
+        return clone.innerHTML;
+      });
+      await diagram.evaluate((node) => {
+        (window as unknown as { __chapter06Figure?: Element }).__chapter06Figure = node;
+      });
+
+      await toggle.click();
+      await page.waitForFunction(
+        () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'bigram-baseline',
+      );
+      await settle(page);
+
+      expect(
+        await diagram.evaluate(
+          (node) =>
+            (window as unknown as { __chapter06Figure?: Element }).__chapter06Figure === node,
+        ),
+      ).toBe(true);
+      expect(
+        await diagram.evaluate((node) => {
+          const clone = node.cloneNode(true) as HTMLElement;
+          clone
+            .querySelectorAll('[data-diagram-full-view-controls]')
+            .forEach((control) => control.remove());
+          return clone.innerHTML;
+        }),
+      ).toBe(staticMarkup);
+      expect(await readBigramEvidence(diagram)).toEqual(inlineEvidence);
+      expectCoherentFullView(await readFullViewComposition(diagram));
+
+      const fullGeometry = await readBigramGeometry(diagram);
+      expectCompleteBigramGeometry(fullGeometry);
+      expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
+      expect(fullGeometry.maxTableTravel).toBeLessThanOrEqual(280);
+      expect(fullGeometry.maxTableTravelRatio).toBeLessThanOrEqual(0.75);
+      expectFontsNotShrunk(inlineGeometry, fullGeometry);
+
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
+      await expect(toggle).toBeFocused();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await expectNoOverflowOrClientScripts(page);
+    }
+  });
+
+  test('Russian evidence keeps redundant borders and technical direction in forced colors and RTL', async ({
+    page,
+  }) => {
+    await page.setViewportSize(standardFullView);
+    await page.emulateMedia({ forcedColors: 'active' });
+    await page.goto(chapterPath('ru', chapterId));
+    await page.waitForFunction(
+      () => document.documentElement.dataset.diagramFullViewReady === 'true',
+    );
+    const diagram = page.locator(diagramSelector);
+    await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
+    await settle(page);
+    expectCompleteBigramGeometry(await readBigramGeometry(diagram));
+    expect(
+      await diagram.locator('code, bdi, .token-sequence, .forbidden-transition').evaluateAll(
+        (nodes) => nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+      ),
+    ).toBe(true);
+    await expect(diagram.locator('[data-unseen-successor="true"]')).toHaveCSS(
+      'border-inline-start-style',
+      'double',
+    );
+    await expect(diagram.locator('.boundary-guard')).toHaveCSS('border-top-style', 'dashed');
+
+    const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+    await toggle.click();
+    await page.waitForFunction(
+      () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'bigram-baseline',
+    );
+    await settle(page);
+    expectCoherentFullView(await readFullViewComposition(diagram));
+    const fullGeometry = await readBigramGeometry(diagram);
+    expectCompleteBigramGeometry(fullGeometry);
+    expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
+    expect(fullGeometry.maxTableTravel).toBeLessThanOrEqual(280);
+    expect(fullGeometry.maxTableTravelRatio).toBeLessThanOrEqual(0.75);
+    expect(
+      await diagram.locator('code, bdi, .token-sequence, .forbidden-transition').evaluateAll(
+        (nodes) => nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+      ),
+    ).toBe(true);
+    await expect(diagram.locator('[data-unseen-successor="true"]')).toHaveCSS(
+      'border-inline-start-style',
+      'double',
+    );
+    await expect(diagram.locator('.boundary-guard')).toHaveCSS('border-top-style', 'dashed');
+
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.fullscreenElement === null);
+    await expect(toggle).toBeFocused();
+    await expectNoOverflowOrClientScripts(page);
+  });
+
+  test('both localized static figures remain complete without JavaScript at desktop and narrow widths', async ({
+    browser,
+  }, testInfo) => {
+    test.setTimeout(90_000);
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      baseURL: String(testInfo.project.use.baseURL),
+    });
+    const page = await context.newPage();
+    for (const locale of chapterLocales) {
+      for (const viewport of [desktop, narrow]) {
+        await page.setViewportSize(viewport);
+        await page.goto(chapterPath(locale, chapterId));
+        await page.waitForLoadState('networkidle');
+        await expect(
+          page.getByRole('heading', { level: 1, name: copy[locale].chapterTitle }),
+        ).toBeVisible();
+        await expect(page.locator('.katex-display')).toHaveCount(3);
+        await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+        const diagram = page.locator(diagramSelector);
+        await expect(diagram).toBeVisible();
+        const rect = await diagram.boundingBox();
+        expect(rect?.width ?? 0).toBeGreaterThan(0);
+        expect(rect?.height ?? 0).toBeGreaterThan(0);
+        expectCompleteBigramGeometry(await readBigramGeometry(diagram));
+        await expect(diagram.locator('[data-document]')).toHaveCount(2);
+        await expect(diagram.locator('tbody tr')).toHaveCount(10);
+        await expect(page.locator('.lesson-body details')).toHaveCount(1);
+        await expectFormulaGeometry(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
+    }
+    await context.close();
+  });
 });

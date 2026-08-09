@@ -267,15 +267,34 @@ describe('bigram-baseline Rust trace parser', () => {
 });
 
 describe('bigram-baseline diagram component contract', () => {
-  it('stays semantic, static, responsive, keyboard-readable, and locale-neutral', () => {
+  it('keeps one ordered semantic tree with native tables and shared scroll ownership', () => {
     const source = readFileSync(
       resolve(process.cwd(), 'src/components/chapters/BigramBaselineDiagram.astro'),
       'utf8',
     );
-    expect(source).toContain('<figure');
-    expect(source).toContain('<figcaption class="course-diagram__caption">');
+
+    expect(source.match(/<figure\b/g) ?? []).toHaveLength(1);
+    expect(source.match(/<figcaption\b/g) ?? []).toHaveLength(1);
+    const captionIndex = source.indexOf('<figcaption class="course-diagram__caption">');
+    const trainingIndex = source.indexOf('class="training-evidence"');
+    const rowsIndex = source.indexOf('{rowSections.map');
+    const boundaryIndex = source.indexOf('class="boundary-guard"');
+    expect(captionIndex).toBeGreaterThan(-1);
+    expect(trainingIndex).toBeGreaterThan(captionIndex);
+    expect(rowsIndex).toBeGreaterThan(trainingIndex);
+    expect(boundaryIndex).toBeGreaterThan(rowsIndex);
+
+    const knownDefinition = source.indexOf("kind: 'known'");
+    const unseenDefinition = source.indexOf("kind: 'unseen'");
+    expect(knownDefinition).toBeGreaterThan(-1);
+    expect(unseenDefinition).toBeGreaterThan(knownDefinition);
     expect(source).toContain('<ol class="document-list">');
+    expect(source.match(/<ol class="document-list">/g) ?? []).toHaveLength(1);
+    expect(source).toContain('<ul class="token-legend"');
+    expect(source.match(/<table data-diagram-table/g) ?? []).toHaveLength(1);
     expect(source).toContain('<table data-diagram-table aria-labelledby={headingId}>');
+    expect(source).toContain('<thead>');
+    expect(source).toContain('<tbody>');
     expect(source).toContain('<th scope="col">');
     expect(source).toContain('<th scope="row">');
     expect(source).toContain('data-context-id={row.context}');
@@ -288,27 +307,103 @@ describe('bigram-baseline diagram component contract', () => {
     expect(source).toContain('aria-describedby={descriptionId}');
     expect(source).toContain('role="img"');
     expect(source).toContain('dir="ltr"');
-    expect(source).toContain('data-diagram-scroll');
+
+    const trainingTag = source.match(
+      /<section\s+class="training-evidence"[\s\S]*?>/,
+    )?.[0];
+    const probabilityTag = source.match(
+      /<section\s+class="probability-row"[\s\S]*?>/,
+    )?.[0];
+    const boundaryTag = source.match(
+      /<section\s+class="boundary-guard"[\s\S]*?>/,
+    )?.[0];
+    expect(trainingTag).toContain('data-diagram-box');
+    expect(probabilityTag).toContain('data-diagram-card');
+    expect(probabilityTag).toContain('data-diagram-box');
+    expect(boundaryTag).toContain('data-diagram-box');
+
+    const authoredScrollTags = [
+      source.match(
+        /<span\s+class="token-sequence course-diagram__scroll"[\s\S]*?>/,
+      )?.[0],
+      source.match(
+        /<div\s+class="table-scroll course-diagram__scroll"[\s\S]*?>/,
+      )?.[0],
+    ];
+    expect(authoredScrollTags.every(Boolean)).toBe(true);
+    for (const tag of authoredScrollTags) {
+      expect(tag).toContain('course-diagram__scroll');
+      expect(tag).toContain('role="region"');
+      expect(tag).toContain('tabindex="0"');
+      expect(tag).toContain('data-diagram-scroll');
+      expect(tag).not.toContain('data-diagram-box');
+      expect(tag).not.toContain('data-diagram-card');
+    }
+    expect(authoredScrollTags[0]).toContain('aria-label=');
+    expect(authoredScrollTags[1]).toContain('aria-labelledby=');
     expect(source).not.toContain('overflow-x: auto');
-    expect(source).toContain('grid-template-columns: minmax(0, 1fr)');
-    expect(source).toContain('min-width: 35rem');
-    expect(source).toContain('table-layout: fixed');
-    expect(sharedStyles).toContain('font-size: 0.9rem');
+    expect(source).toContain('table-layout: auto');
     expect(source).toContain('border-inline-start');
     expect(sharedStyles).toContain(':focus-visible');
     expect(sharedStyles).toContain('@media (forced-colors: active)');
-    expect(source).toContain('data-diagram-box');
-    expect(source).toMatch(
-      /class="token-sequence course-diagram__scroll"[^>]*data-diagram-scroll/,
+
+    const fullscreenSelector =
+      "figure.bigram-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen";
+    const fullscreenStart = source.indexOf(fullscreenSelector);
+    const fullscreenEnds = [
+      source.indexOf('@container course-diagram', fullscreenStart),
+      source.indexOf('@media (forced-colors: active)', fullscreenStart),
+      source.indexOf('</style>', fullscreenStart),
+    ].filter((index) => index > fullscreenStart);
+    expect(fullscreenStart).toBeGreaterThan(-1);
+    expect(fullscreenEnds.length).toBeGreaterThan(0);
+    const fullscreenStyles = source.slice(fullscreenStart, Math.min(...fullscreenEnds));
+    for (const hook of [
+      '> figcaption',
+      '> :global(.diagram-full-view-actions)',
+      '.training-evidence',
+      '.row-grid',
+      "[data-context-kind='known']",
+      "[data-context-kind='unseen']",
+      '.boundary-guard',
+    ]) {
+      expect(fullscreenStyles).toContain(hook);
+    }
+    const rootFullscreenRule = fullscreenStyles.match(
+      /figure\.bigram-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*\{(?<body>[\s\S]*?)\}/,
+    )?.groups?.body;
+    expect(rootFullscreenRule).toBeDefined();
+    expect(rootFullscreenRule?.match(/minmax\(/g) ?? []).toHaveLength(3);
+    expect(fullscreenStyles).toMatch(
+      /:fullscreen\s*>\s*\.row-grid\s*\{[\s\S]*?display:\s*contents;/,
     );
-    expect(source).not.toMatch(
-      /class="token-sequence course-diagram__scroll"[^>]*data-diagram-card/,
+    const captionRule = fullscreenStyles.match(
+      /> figcaption\s*\{(?<body>[\s\S]*?)\}/,
+    )?.groups?.body;
+    expect(captionRule).toBeDefined();
+    expect(captionRule).not.toMatch(
+      /display\s*:|grid-template|grid-auto-flow|flex-direction|font(?:-|\s*:)|padding|overflow/,
     );
+    expect(fullscreenStyles).not.toMatch(/font-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\bzoom\s*:/);
+    expect(fullscreenStyles).not.toMatch(/transform\s*:\s*scale/);
+    expect(fullscreenStyles).not.toMatch(/overflow(?:-[xy])?\s*:\s*(?:hidden|clip)/);
+    expect(fullscreenStyles).not.toMatch(/contain\s*:\s*(?:paint|strict|content)/);
+    expect(fullscreenStyles).not.toMatch(/text-overflow\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:-webkit-)?line-clamp\s*:/);
+    expect(fullscreenStyles).not.toMatch(/max-height\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:max-)?block-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:^|[;{])\s*content\s*:/m);
+
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseBigramBaselineTrace');
     expect(source).not.toContain('Math.random');
     expect(source).not.toContain('<script');
     expect(source).not.toContain('client:');
+    expect(source).not.toContain('<dialog');
+    expect(source).not.toContain('<button');
+    expect(source).not.toContain('data-diagram-full-view-toggle');
+    expect(source).not.toContain('data-diagram-full-view-controls');
     for (const localized of [
       englishLabels.title,
       englishLabels.sections.knownContext,
