@@ -17608,3 +17608,71 @@ changed.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch06-full-view-composition`, and
 `20260808T225226Z-repair-ch06-full-view-composition-01`.
+
+## 2026-08-09 - Keep Chapter 7 score rows native and use a causal evidence mosaic
+
+**Status:** Accepted after exact English and Russian Chromium and Firefox
+validation.
+
+**Context:** Chapter 7's score-table row headings used `display: grid` directly
+on each `th[scope='row']`. That removed the header from native table-cell layout,
+so its bounded box no longer reliably filled the row. The figure also kept its
+calculation chain and frozen-model evidence in one long full-view stack. The
+audited baseline produced 658/813 pixels of English/Russian block debt in
+Chromium against a 180-pixel budget and 748/920 pixels in Firefox against 154.
+A simple half-and-half panel split still failed, while visually transposing the
+tables or changing their computed display roles would have weakened the semantic
+evidence.
+
+**Decision:** Keep both score tables, every row, and every cell at their native
+computed display roles. Put the existing two-line partition label and technical
+identifier in one neutral `.score-row-heading` child that owns the grid layout;
+the `th` retains only its solid/double inline-start state cue.
+
+In full view only, use three equal figure tracks. Place the caption over the
+first two tracks and the shared controller in the third. Put the complete causal
+calculation in track one and the frozen-model panel across tracks two and three.
+Inside the frozen panel, keep its heading, explanation, and score table in the
+wider first column; place provenance beside them across those rows; and place the
+boundary evidence below both columns. Keep the source order unchanged:
+caption, calculation, then frozen-model evidence, with provenance before score
+before boundary inside the frozen panel.
+
+The causal chain keeps one target row, a downward aggregation connector, and the
+logical aggregate-to-mean-to-perplexity result row. Its existing named scroll
+region retains a 40rem intrinsic width on standard surfaces. The score table also
+retains a 40rem intrinsic width in its smallest named region. At the exact
+Chromium 1024 by 576 eligibility boundary, a specificity-safe descendant
+container rule reduces only the causal chain to 38rem and the frozen-panel gap to
+0.5rem. It does not change the root composition, text size, source order, table
+roles, or bounded ownership.
+
+**Consequences:** The selected standard probe measured English/Russian block
+debt of 0/72 pixels in Chromium against 180 and 10/135 in Firefox against 154.
+Maximum named-region travel was 282 pixels with a 0.788 ratio in Chromium and
+228 pixels with a 0.553 ratio in Firefox. The canonical tests therefore retain
+standard caps of 300 pixels and 0.80 while enforcing the unchanged 20% root
+budget, two-pixel inline budget, complete borders, painted-content containment,
+and no text shrink.
+
+The exact Chromium 1024 by 576 probe measured English/Russian root debt of
+365/574 pixels in a 574-pixel client and local travel of 332 pixels with a 1.203
+ratio. This is a separate minimum-surface contract: no more than one additional
+figure viewport, 340 pixels of local travel, and a 1.25 ratio. It is not described
+as a standard 20% pass. Firefox exposes its larger native 1366 by 768 fullscreen
+surface for the same requested context and remains subject to the standard
+budget and travel caps.
+
+Final Chromium and Firefox matrices each pass all eight serial cases over both
+locales, desktop and narrow fallback, standard native full view, the minimum
+requested surface, native Escape and focus restoration, forced colors,
+synthetic RTL, exact causal and frozen-panel geometry, every internal IDREF, and
+both locales without JavaScript. Exactly 13 marked boxes, 27 native table cells,
+41 complete non-controller bordered owners, and two named scroll regions remain.
+No learner copy, formula, metric, exact value, history, Rust evidence, trace,
+dependency, route, shared style, or controller implementation changes.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch07-table-cells-and-full-view`, and
+`20260809T000325Z-repair-ch07-table-cells-and-full-view-01`.

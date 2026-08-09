@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
@@ -227,6 +227,587 @@ const copy = {
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolveFrame) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame())),
+    );
+  });
+}
+
+async function staticDiagramMarkup(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const clone = root.cloneNode(true) as HTMLElement;
+    clone.querySelector('[data-diagram-full-view-controls]')?.remove();
+    return clone.innerHTML;
+  });
+}
+
+async function readMetricsGeometry(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const tolerance = 2;
+    const problems: string[] = [];
+    const allElements = [figure, ...figure.querySelectorAll<HTMLElement>('*')];
+    const visible = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    };
+    const describe = (element: HTMLElement) => {
+      const classes = [...element.classList].slice(0, 2).join('.');
+      return `${element.tagName.toLowerCase()}${classes ? `.${classes}` : ''}`;
+    };
+    const border = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return {
+        colors: [
+          style.borderTopColor,
+          style.borderRightColor,
+          style.borderBottomColor,
+          style.borderLeftColor,
+        ],
+        styles: [
+          style.borderTopStyle,
+          style.borderRightStyle,
+          style.borderBottomStyle,
+          style.borderLeftStyle,
+        ],
+        widths: [
+          Number.parseFloat(style.borderTopWidth),
+          Number.parseFloat(style.borderRightWidth),
+          Number.parseFloat(style.borderBottomWidth),
+          Number.parseFloat(style.borderLeftWidth),
+        ],
+      };
+    };
+    const transparent = (value: string) => {
+      const normalized = value.toLowerCase().replaceAll(' ', '');
+      return (
+        normalized === 'transparent' ||
+        /^rgba\([^)]*,0(?:\.0+)?\)$/.test(normalized) ||
+        /\/0(?:\.0+)?\)$/.test(normalized)
+      );
+    };
+    const completeBorder = (element: HTMLElement) => {
+      const evidence = border(element);
+      return (
+        evidence.widths.every((width) => Number.isFinite(width) && width > 0) &&
+        evidence.styles.every((style) => !['none', 'hidden'].includes(style)) &&
+        evidence.colors.every((color) => !transparent(color))
+      );
+    };
+    const clipped = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return (
+        [style.overflowX, style.overflowY].some((value) =>
+          ['hidden', 'clip'].includes(value),
+        ) || /(?:paint|strict|content)/.test(style.contain)
+      );
+    };
+    const innerRect = (element: HTMLElement) => {
+      const rect = element.getBoundingClientRect();
+      const widths = border(element).widths;
+      return {
+        left: rect.left + widths[3]!,
+        right: rect.right - widths[1]!,
+        top: rect.top + widths[0]!,
+        bottom: rect.bottom - widths[2]!,
+      };
+    };
+    const within = (
+      child: { left: number; right: number; top: number; bottom: number },
+      owner: { left: number; right: number; top: number; bottom: number },
+      checkInline = true,
+      checkBlock = true,
+    ) =>
+      (!checkInline ||
+        (child.left >= owner.left - tolerance && child.right <= owner.right + tolerance)) &&
+      (!checkBlock ||
+        (child.top >= owner.top - tolerance && child.bottom <= owner.bottom + tolerance));
+
+    const visibleElements = allElements.filter(visible);
+    for (const [index, element] of allElements.entries()) {
+      if (
+        element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]')
+      ) {
+        continue;
+      }
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      if (
+        style.display === 'none' ||
+        ['hidden', 'collapse'].includes(style.visibility) ||
+        style.contentVisibility === 'hidden' ||
+        Number.parseFloat(style.opacity) <= 0
+      ) {
+        problems.push(`element-${index} ${describe(element)} is concealed`);
+      }
+      if (element.textContent?.trim() && (rect.width <= 0 || rect.height <= 0)) {
+        problems.push(`element-${index} ${describe(element)} has no painted area`);
+      }
+    }
+    const markedBoxes = visibleElements.filter((element) =>
+      element.hasAttribute('data-diagram-box'),
+    );
+    const borderedOwners = visibleElements.filter(
+      (element) =>
+        !element.closest('[data-diagram-full-view-controls]') && completeBorder(element),
+    );
+    const boundedOwners = new Set<HTMLElement>([...markedBoxes, ...borderedOwners]);
+    const nearestOwner = (element: HTMLElement | null) => {
+      let current = element;
+      while (current && figure.contains(current)) {
+        if (boundedOwners.has(current)) return current;
+        if (current === figure) break;
+        current = current.parentElement;
+      }
+      return null;
+    };
+
+    for (const [index, owner] of [...boundedOwners].entries()) {
+      if (!completeBorder(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} lacks four visible borders`);
+      }
+      if (clipped(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} clips or paint-contains`);
+      }
+      const rect = owner.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        problems.push(`owner-${index} ${describe(owner)} has no painted area`);
+      }
+      const inlineDebt = Math.max(0, owner.scrollWidth - owner.clientWidth);
+      const blockDebt = Math.max(0, owner.scrollHeight - owner.clientHeight);
+      if (owner !== figure && blockDebt > tolerance) {
+        problems.push(`owner-${index} has block debt ${blockDebt}`);
+      }
+      if (owner !== figure && !owner.matches('[data-diagram-scroll]') && inlineDebt > tolerance) {
+        problems.push(`owner-${index} has inline debt ${inlineDebt}`);
+      }
+
+      const ancestor = nearestOwner(owner.parentElement);
+      if (!ancestor) continue;
+      const interveningScroller = owner.parentElement?.closest<HTMLElement>(
+        '[data-diagram-scroll]',
+      );
+      const checkInline = !interveningScroller || !ancestor.contains(interveningScroller);
+      if (
+        !within(
+          owner.getBoundingClientRect(),
+          innerRect(ancestor),
+          checkInline,
+          ancestor !== figure,
+        )
+      ) {
+        problems.push(`owner-${index} escapes its nearest bounded ancestor`);
+      }
+    }
+
+    const scrollers = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+    );
+    for (const [index, scroller] of scrollers.entries()) {
+      const labelledBy = scroller.getAttribute('aria-labelledby')?.trim() ?? '';
+      const directLabel = scroller.getAttribute('aria-label')?.trim() ?? '';
+      const ids = labelledBy.split(/\s+/).filter(Boolean);
+      const resolved = ids.length > 0 && ids.every((id) => document.getElementById(id));
+      if (
+        scroller.getAttribute('role') !== 'region' ||
+        scroller.getAttribute('tabindex') !== '0' ||
+        !scroller.classList.contains('course-diagram__scroll') ||
+        (!directLabel && !resolved)
+      ) {
+        problems.push(`scroller-${index} lacks its shared accessible region contract`);
+      }
+      if (
+        scroller.hasAttribute('data-diagram-box') ||
+        scroller.hasAttribute('data-diagram-card')
+      ) {
+        problems.push(`scroller-${index} also claims bounded ownership`);
+      }
+      if (clipped(scroller)) problems.push(`scroller-${index} clips overflow`);
+      if (scroller.scrollHeight - scroller.clientHeight > tolerance) {
+        problems.push(`scroller-${index} has vertical travel`);
+      }
+    }
+
+    const idrefElements = [
+      figure,
+      ...figure.querySelectorAll<HTMLElement>('[aria-labelledby], [aria-describedby]'),
+    ].filter(
+      (element) =>
+        element.hasAttribute('aria-labelledby') || element.hasAttribute('aria-describedby'),
+    );
+    const referencedIds = new Set<string>();
+    let idrefTokenCount = 0;
+    for (const [index, element] of idrefElements.entries()) {
+      for (const attribute of ['aria-labelledby', 'aria-describedby'] as const) {
+        if (!element.hasAttribute(attribute)) continue;
+        const ids = (element.getAttribute(attribute) ?? '').split(/\s+/).filter(Boolean);
+        if (ids.length === 0) {
+          problems.push(`idref-${index} has an empty ${attribute}`);
+          continue;
+        }
+        for (const id of ids) {
+          referencedIds.add(id);
+          idrefTokenCount += 1;
+          const matches = document.querySelectorAll<HTMLElement>(`#${CSS.escape(id)}`);
+          if (
+            matches.length !== 1 ||
+            !matches[0]?.textContent?.trim() ||
+            !figure.contains(matches[0])
+          ) {
+            problems.push(`idref-${index} ${attribute} does not resolve ${id} exactly once`);
+          }
+        }
+      }
+    }
+
+    const walker = document.createTreeWalker(figure, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      if (!textNode.textContent?.trim()) continue;
+      const parent = textNode.parentElement;
+      if (
+        !parent ||
+        parent.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]') ||
+        !visible(parent)
+      ) {
+        continue;
+      }
+      const owner = nearestOwner(parent);
+      if (!owner) continue;
+      const scroller = parent.closest<HTMLElement>('[data-diagram-scroll]');
+      const checkInline = !scroller || scroller.contains(owner);
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      for (const paint of Array.from(range.getClientRects())) {
+        if (
+          paint.width > 0 &&
+          paint.height > 0 &&
+          !within(paint, innerRect(owner), checkInline, owner !== figure)
+        ) {
+          problems.push(`${describe(parent)} paints outside ${describe(owner)}`);
+          break;
+        }
+      }
+    }
+
+    for (const [index, table] of Array.from(
+      figure.querySelectorAll<HTMLTableElement>('table[data-diagram-table]'),
+    ).entries()) {
+      if (getComputedStyle(table).display !== 'table') {
+        problems.push(`table-${index} is not a native table`);
+      }
+      if (!table.caption || getComputedStyle(table.caption).display !== 'table-caption') {
+        problems.push(`table-${index} lost its native caption`);
+      }
+      if (!table.tHead || getComputedStyle(table.tHead).display !== 'table-header-group') {
+        problems.push(`table-${index} lost its native header group`);
+      }
+      for (const body of Array.from(table.tBodies)) {
+        if (getComputedStyle(body).display !== 'table-row-group') {
+          problems.push(`table-${index} lost its native body group`);
+        }
+      }
+      for (const [rowIndex, row] of Array.from(table.rows).entries()) {
+        const rowRect = row.getBoundingClientRect();
+        if (getComputedStyle(row).display !== 'table-row') {
+          problems.push(`table-${index} row-${rowIndex} is not a native row`);
+        }
+        for (const [cellIndex, cell] of Array.from(row.cells).entries()) {
+          const cellRect = cell.getBoundingClientRect();
+          if (getComputedStyle(cell).display !== 'table-cell') {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} is not table-cell`);
+          }
+          if (!completeBorder(cell)) {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} lacks four borders`);
+          }
+          if (
+            Math.abs(cellRect.top - rowRect.top) > 1 ||
+            Math.abs(cellRect.bottom - rowRect.bottom) > 1
+          ) {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} does not fill row`);
+          }
+        }
+      }
+    }
+
+    for (const [index, heading] of Array.from(
+      figure.querySelectorAll<HTMLElement>('.score-row-heading'),
+    ).entries()) {
+      const cell = heading.parentElement;
+      if (!cell?.matches('th[scope="row"]')) {
+        problems.push(`score-row-heading-${index} is not a direct child of its row header`);
+        continue;
+      }
+      if (getComputedStyle(heading).display !== 'grid') {
+        problems.push(`score-row-heading-${index} is not the intended grid wrapper`);
+      }
+      if (!within(heading.getBoundingClientRect(), innerRect(cell), true, true)) {
+        problems.push(`score-row-heading-${index} escapes its native row header`);
+      }
+    }
+
+    for (const [index, element] of visibleElements.entries()) {
+      if (
+        element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]')
+      ) {
+        continue;
+      }
+      if (clipped(element)) {
+        problems.push(`element-${index} ${describe(element)} conceals overflow`);
+      }
+    }
+
+    const fontSizes = allElements.flatMap((element, index) => {
+      if (
+        element.closest('.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]') ||
+        !visible(element)
+      ) {
+        return [];
+      }
+      const directText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      return directText
+        ? [{ index, pixels: Number.parseFloat(getComputedStyle(element).fontSize) }]
+        : [];
+    });
+    const scrollerTravel = scrollers.map((scroller) => {
+      const client = scroller.clientWidth;
+      const debt = Math.max(0, scroller.scrollWidth - client);
+      return { client, debt, ratio: client > 0 ? debt / client : Number.POSITIVE_INFINITY };
+    });
+
+    const causalOrder = Array.from(
+      figure.querySelectorAll<HTMLElement>('.calculation-chain > :is(.stage, .stage-connector)'),
+    ).map((element) =>
+      element.matches('.stage')
+        ? `stage:${element.dataset.stage}`
+        : `connector:${element.dataset.connectorTo}`,
+    );
+    const frozenOrder = Array.from(
+      figure.querySelectorAll<HTMLElement>(
+        '.frozen-model-panel > :is(.provenance-panel, .score-table-scroll, .boundary-panel)',
+      ),
+    ).map((element) => {
+      if (element.matches('.provenance-panel')) return 'provenance';
+      if (element.matches('.score-table-scroll')) return 'score';
+      return 'boundary';
+    });
+
+    return {
+      blockBudget: Math.ceil(figure.clientHeight * 0.2),
+      blockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
+      borderedOwnerCount: borderedOwners.length,
+      boxCount: markedBoxes.length,
+      cardCount: figure.querySelectorAll('[data-diagram-card]').length,
+      causalOrder,
+      cellCount: figure.querySelectorAll('th, td').length,
+      columnHeaderCount: figure.querySelectorAll('th[scope="col"]').length,
+      directOrder: Array.from(figure.children)
+        .filter((element) => !element.hasAttribute('data-diagram-full-view-controls'))
+        .map((element) => `${element.tagName}.${element.className}`),
+      fontSizes,
+      frozenOrder,
+      idrefElementCount: idrefElements.length,
+      idrefTargetCount: referencedIds.size,
+      idrefTokenCount,
+      inlineDebt: Math.max(0, figure.scrollWidth - figure.clientWidth),
+      maxScrollerTravel: Math.max(0, ...scrollerTravel.map(({ debt }) => debt)),
+      maxScrollerTravelRatio: Math.max(0, ...scrollerTravel.map(({ ratio }) => ratio)),
+      problems: [...new Set(problems)],
+      provenanceFactCount: figure.querySelectorAll('.provenance-facts > div').length,
+      rowCount: figure.querySelectorAll('table tr').length,
+      rowHeaderCount: figure.querySelectorAll('th[scope="row"]').length,
+      scoreRowHeadingCount: figure.querySelectorAll('.score-row-heading').length,
+      scrollerCount: scrollers.length,
+      stageCount: figure.querySelectorAll('[data-stage]').length,
+      stageNumberCount: figure.querySelectorAll('.stage-number').length,
+      connectorCount: figure.querySelectorAll('.stage-connector').length,
+      arrowCount: figure.querySelectorAll('.causal-arrow').length,
+      tableCount: figure.querySelectorAll('table[data-diagram-table]').length,
+      targetRowCount: figure.querySelectorAll('[data-target-index]').length,
+      scoredRowCount: figure.querySelectorAll('[data-scored-partition]').length,
+      boundaryFactCount: figure.querySelectorAll('.boundary-panel li').length,
+      viewportHeight: figure.clientHeight,
+    };
+  });
+}
+
+function expectCompleteMetricsGeometry(
+  geometry: Awaited<ReturnType<typeof readMetricsGeometry>>,
+) {
+  expect(geometry.directOrder).toEqual([
+    'FIGCAPTION.course-diagram__caption',
+    'SECTION.calculation-panel',
+    'SECTION.frozen-model-panel',
+  ]);
+  expect(geometry.causalOrder).toEqual([
+    'stage:probability-surprise',
+    'connector:aggregate',
+    'stage:aggregate',
+    'connector:mean',
+    'stage:mean-nll',
+    'connector:perplexity',
+    'stage:perplexity',
+  ]);
+  expect(geometry.frozenOrder).toEqual(['provenance', 'score', 'boundary']);
+  expect(geometry.tableCount).toBe(2);
+  expect(geometry.rowCount).toBe(6);
+  expect(geometry.cellCount).toBe(27);
+  expect(geometry.columnHeaderCount).toBe(9);
+  expect(geometry.rowHeaderCount).toBe(4);
+  expect(geometry.scoreRowHeadingCount).toBe(2);
+  expect(geometry.boxCount).toBe(13);
+  expect(geometry.cardCount).toBe(6);
+  expect(geometry.borderedOwnerCount).toBe(41);
+  expect(geometry.scrollerCount).toBe(2);
+  expect(geometry.stageCount).toBe(4);
+  expect(geometry.stageNumberCount).toBe(5);
+  expect(geometry.connectorCount).toBe(3);
+  expect(geometry.arrowCount).toBe(4);
+  expect(geometry.provenanceFactCount).toBe(10);
+  expect(geometry.targetRowCount).toBe(2);
+  expect(geometry.scoredRowCount).toBe(2);
+  expect(geometry.boundaryFactCount).toBe(4);
+  expect(geometry.idrefElementCount).toBe(8);
+  expect(geometry.idrefTargetCount).toBe(9);
+  expect(geometry.idrefTokenCount).toBe(11);
+  expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+  expect(geometry.problems).toEqual([]);
+}
+
+function expectFontsNotShrunk(
+  inline: Awaited<ReturnType<typeof readMetricsGeometry>>,
+  full: Awaited<ReturnType<typeof readMetricsGeometry>>,
+) {
+  expect(full.fontSizes.map(({ index }) => index)).toEqual(
+    inline.fontSizes.map(({ index }) => index),
+  );
+  const before = new Map(inline.fontSizes.map(({ index, pixels }) => [index, pixels]));
+  for (const sample of full.fontSizes) {
+    const inlinePixels = before.get(sample.index);
+    if (inlinePixels === undefined) continue;
+    expect(sample.pixels + 0.01).toBeGreaterThanOrEqual(inlinePixels);
+  }
+}
+
+async function readFullViewComposition(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const rect = (selector: string) => {
+      const element = figure.querySelector<HTMLElement>(selector);
+      if (!element) throw new Error(`Missing ${selector}`);
+      const box = element.getBoundingClientRect();
+      return {
+        bottom: box.bottom,
+        height: box.height,
+        left: box.left,
+        right: box.right,
+        top: box.top,
+        width: box.width,
+      };
+    };
+    return {
+      aggregate: rect('[data-stage="aggregate"]'),
+      aggregateConnector: rect('[data-connector-to="aggregate"]'),
+      actions: rect(':scope > [data-diagram-full-view-controls]'),
+      boundary: rect('.boundary-panel'),
+      calculation: rect(':scope > .calculation-panel'),
+      caption: rect(':scope > figcaption'),
+      columns: getComputedStyle(figure).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      direction: getComputedStyle(figure).direction,
+      frozen: rect(':scope > .frozen-model-panel'),
+      frozenHeading: rect(':scope > .frozen-model-panel > h4'),
+      frozenNote: rect(':scope > .frozen-model-panel > .frozen-model-note'),
+      mean: rect('[data-stage="mean-nll"]'),
+      meanConnector: rect('[data-connector-to="mean"]'),
+      perplexity: rect('[data-stage="perplexity"]'),
+      perplexityConnector: rect('[data-connector-to="perplexity"]'),
+      provenance: rect('.provenance-panel'),
+      score: rect('.score-table-scroll'),
+      target: rect('.target-stage'),
+    };
+  });
+}
+
+function expectCoherentFullView(
+  composition: Awaited<ReturnType<typeof readFullViewComposition>>,
+) {
+  const inlineBefore = (
+    first: { left: number; right: number },
+    second: { left: number; right: number },
+  ) => {
+    if (composition.direction === 'rtl') {
+      expect(first.left + 1).toBeGreaterThanOrEqual(second.right);
+    } else {
+      expect(first.right).toBeLessThanOrEqual(second.left + 1);
+    }
+  };
+  const verticallyOverlaps = (
+    first: { top: number; bottom: number },
+    second: { top: number; bottom: number },
+  ) => Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top);
+
+  expect(composition.columns).toBe(3);
+  for (const region of [
+    composition.aggregate,
+    composition.aggregateConnector,
+    composition.caption,
+    composition.actions,
+    composition.calculation,
+    composition.frozen,
+    composition.frozenHeading,
+    composition.frozenNote,
+    composition.mean,
+    composition.meanConnector,
+    composition.perplexity,
+    composition.perplexityConnector,
+    composition.provenance,
+    composition.score,
+    composition.target,
+    composition.boundary,
+  ]) {
+    expect(region.width).toBeGreaterThan(0);
+    expect(region.height).toBeGreaterThan(0);
+  }
+  inlineBefore(composition.caption, composition.actions);
+  inlineBefore(composition.calculation, composition.frozen);
+  expect(Math.abs(composition.calculation.top - composition.frozen.top)).toBeLessThanOrEqual(2);
+  inlineBefore(composition.frozenHeading, composition.provenance);
+  inlineBefore(composition.frozenNote, composition.provenance);
+  inlineBefore(composition.score, composition.provenance);
+  expect(composition.frozenHeading.bottom).toBeLessThanOrEqual(composition.frozenNote.top + 1);
+  expect(composition.frozenNote.bottom).toBeLessThanOrEqual(composition.score.top + 1);
+  expect(composition.boundary.top + 1).toBeGreaterThanOrEqual(
+    Math.max(composition.score.bottom, composition.provenance.bottom),
+  );
+
+  const resultRow = [composition.aggregate, composition.mean, composition.perplexity];
+  expect(composition.target.bottom).toBeLessThanOrEqual(composition.aggregateConnector.top + 1);
+  expect(composition.aggregateConnector.bottom).toBeLessThanOrEqual(
+    Math.min(...resultRow.map(({ top }) => top)) + 1,
+  );
+  inlineBefore(composition.aggregate, composition.meanConnector);
+  inlineBefore(composition.meanConnector, composition.mean);
+  inlineBefore(composition.mean, composition.perplexityConnector);
+  inlineBefore(composition.perplexityConnector, composition.perplexity);
+  expect(verticallyOverlaps(composition.aggregate, composition.meanConnector)).toBeGreaterThan(0);
+  expect(verticallyOverlaps(composition.meanConnector, composition.mean)).toBeGreaterThan(0);
+  expect(verticallyOverlaps(composition.mean, composition.perplexityConnector)).toBeGreaterThan(0);
+  expect(verticallyOverlaps(composition.perplexityConnector, composition.perplexity)).toBeGreaterThan(
+    0,
+  );
+}
+
 async function expectChapterContent(
   page: Page,
   locale: ChapterLocale,
@@ -371,7 +952,7 @@ async function expectChapterContent(
 
   const scoreTable = diagram.locator('.score-table-scroll table');
   await expect(scoreTable.getByRole('columnheader')).toHaveText([...localized.scoreHeaders]);
-  await expect(scoreTable.locator('tbody th[scope="row"] > span')).toHaveText([
+  await expect(scoreTable.locator('tbody .score-row-heading > span')).toHaveText([
     ...localized.partitionLabels,
   ]);
   expect(
@@ -424,6 +1005,19 @@ async function expectChapterContent(
     }
   }
 
+  await page.waitForFunction(
+    () => document.documentElement.dataset.diagramFullViewReady === 'true',
+  );
+  const fullViewToggle = diagram.locator('[data-diagram-full-view-toggle]');
+  if (narrow) {
+    await expect(fullViewToggle).toHaveCount(0);
+  } else {
+    await expect(fullViewToggle).toHaveCount(1);
+    await expect(fullViewToggle).toBeVisible();
+  }
+  await settle(page);
+  expectCompleteMetricsGeometry(await readMetricsGeometry(diagram));
+
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
   await expect(exerciseDetails.locator('summary')).toHaveText(localized.exerciseSummary);
@@ -436,6 +1030,8 @@ async function expectChapterContent(
 }
 
 test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId) }, () => {
+  test.describe.configure({ mode: 'serial' });
+
   test('chapter 7 is seventh on every course index and preserves locale switching', async ({ page }) => {
     for (const locale of chapterLocales) {
       const localized = copy[locale];
@@ -485,6 +1081,140 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     });
   }
 
+  test('both locales reuse the semantic figure in a bounded native-table full view', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+
+    for (const locale of chapterLocales) {
+      await page.goto(chapterPath(locale, chapterId));
+      await page.waitForFunction(
+        () => document.documentElement.dataset.diagramFullViewReady === 'true',
+      );
+      await settle(page);
+
+      const diagram = page.locator('figure[data-visualization-id="language-model-metrics"]');
+      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+      await expect(toggle).toHaveCount(1);
+      await expect(toggle).toBeVisible();
+      const beforeMarkup = await staticDiagramMarkup(diagram);
+      const inlineGeometry = await readMetricsGeometry(diagram);
+      expectCompleteMetricsGeometry(inlineGeometry);
+      await diagram.evaluate((root) => {
+        (
+          window as typeof window & { __chapterSevenMetricsFigure?: Element }
+        ).__chapterSevenMetricsFigure = root;
+      });
+
+      await toggle.click();
+      await page.waitForFunction(
+        () =>
+          document.fullscreenElement?.getAttribute('data-visualization-id') ===
+          'language-model-metrics',
+      );
+      await settle(page);
+      expect(
+        await diagram.evaluate(
+          (root) =>
+            root ===
+              (
+                window as typeof window & { __chapterSevenMetricsFigure?: Element }
+              ).__chapterSevenMetricsFigure && document.fullscreenElement === root,
+        ),
+      ).toBe(true);
+      expect(await staticDiagramMarkup(diagram)).toBe(beforeMarkup);
+      expectCoherentFullView(await readFullViewComposition(diagram));
+
+      const fullGeometry = await readMetricsGeometry(diagram);
+      expectCompleteMetricsGeometry(fullGeometry);
+      expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
+      expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(300);
+      expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(0.8);
+      expectFontsNotShrunk(inlineGeometry, fullGeometry);
+
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
+      await expect(toggle).toBeFocused();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await expectNoOverflowOrClientScripts(page);
+    }
+  });
+
+  test('the minimum eligible surface keeps one coherent composition without shrinking', async ({
+    browser,
+    browserName,
+  }, testInfo) => {
+    const baseURL = testInfo.project.use.baseURL;
+    if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
+    const context = await browser.newContext({
+      baseURL,
+      screen: { width: 1024, height: 576 },
+      viewport: { width: 1024, height: 576 },
+    });
+    const page = await context.newPage();
+
+    try {
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        await page.waitForFunction(
+          () => document.documentElement.dataset.diagramFullViewReady === 'true',
+        );
+        await settle(page);
+        const diagram = page.locator(
+          'figure[data-visualization-id="language-model-metrics"]',
+        );
+        const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+        await expect(toggle).toHaveCount(1);
+        await expect(toggle).toBeVisible();
+        const beforeMarkup = await staticDiagramMarkup(diagram);
+        const inlineGeometry = await readMetricsGeometry(diagram);
+        expectCompleteMetricsGeometry(inlineGeometry);
+
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute('data-visualization-id') ===
+            'language-model-metrics',
+        );
+        await settle(page);
+        expect(await staticDiagramMarkup(diagram)).toBe(beforeMarkup);
+        expectCoherentFullView(await readFullViewComposition(diagram));
+        const fullGeometry = await readMetricsGeometry(diagram);
+        expectCompleteMetricsGeometry(fullGeometry);
+        expectFontsNotShrunk(inlineGeometry, fullGeometry);
+
+        const surface = await page.evaluate(() => ({
+          innerHeight,
+          innerWidth,
+          screenHeight: screen.height,
+          screenWidth: screen.width,
+        }));
+        expect(surface.screenWidth).toBe(1024);
+        expect(surface.screenHeight).toBe(576);
+        if (browserName === 'chromium') {
+          expect(surface.innerWidth).toBe(1024);
+          expect(surface.innerHeight).toBe(576);
+          expect(fullGeometry.viewportHeight).toBe(574);
+          expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.viewportHeight);
+          expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(340);
+          expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(1.25);
+        } else {
+          expect(surface.innerWidth).toBeGreaterThanOrEqual(1280);
+          expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
+          expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
+          expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(300);
+          expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(0.8);
+        }
+
+        await page.keyboard.press('Escape');
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
   test('localized causal connector words stay intact at desktop and narrow widths', async ({
     page,
   }) => {
@@ -519,47 +1249,177 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
     }
   });
 
-  test('the causal chain follows inherited direction and mirrors its arrows in RTL', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(chapterPath('en', chapterId));
+  test('Russian keeps redundant cues and technical direction in forced colors and RTL', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ forcedColors: 'active' });
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(chapterPath('ru', chapterId));
+    await page.waitForFunction(
+      () => document.documentElement.dataset.diagramFullViewReady === 'true',
+    );
     const diagram = page.locator('figure[data-visualization-id="language-model-metrics"]');
-    const target = diagram.locator('[data-stage="probability-surprise"]');
-    const aggregate = diagram.locator('[data-stage="aggregate"]');
-
-    const ltr = await diagram.evaluate((node) => {
-      const arrows = Array.from(node.querySelectorAll<HTMLElement>('.causal-arrow'));
-      return {
-        direction: window.getComputedStyle(node).direction,
-        transforms: arrows.map((arrow) => window.getComputedStyle(arrow).transform),
-      };
-    });
-    expect(ltr.direction).toBe('ltr');
-    expect(ltr.transforms).toEqual(Array(4).fill('none'));
-    expect((await target.boundingBox())?.x ?? Number.POSITIVE_INFINITY).toBeLessThan(
-      (await aggregate.boundingBox())?.x ?? Number.NEGATIVE_INFINITY,
-    );
-
     await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
-    const rtl = await diagram.evaluate((node) => {
-      const arrows = Array.from(node.querySelectorAll<HTMLElement>('.causal-arrow'));
-      return {
-        direction: window.getComputedStyle(node).direction,
-        transforms: arrows.map((arrow) => window.getComputedStyle(arrow).transform),
-        proseDirections: Array.from(node.querySelectorAll<HTMLElement>('h3, h4, h5, p, th, dt')).map(
-          (element) => window.getComputedStyle(element).direction,
-        ),
-        technicalDirections: Array.from(node.querySelectorAll<HTMLElement>('code, bdi')).map(
-          (element) => window.getComputedStyle(element).direction,
-        ),
-      };
-    });
-    expect(rtl.direction).toBe('rtl');
-    expect(rtl.transforms.every((transform) => transform.startsWith('matrix(-1'))).toBe(true);
-    expect(rtl.proseDirections.every((direction) => direction === 'rtl')).toBe(true);
-    expect(rtl.technicalDirections.every((direction) => direction === 'ltr')).toBe(true);
-    expect((await target.boundingBox())?.x ?? Number.NEGATIVE_INFINITY).toBeGreaterThan(
-      (await aggregate.boundingBox())?.x ?? Number.POSITIVE_INFINITY,
+    await settle(page);
+
+    const readDirectionAndCues = () =>
+      diagram.evaluate((root) => {
+        const style = (selector: string) =>
+          getComputedStyle(root.querySelector<HTMLElement>(selector)!);
+        const aggregateArrow = root.querySelector<HTMLElement>(
+          '[data-connector-to="aggregate"] .causal-arrow',
+        );
+        return {
+          aggregateBorder: style('[data-stage="aggregate"]').borderTopStyle,
+          aggregateTransform: aggregateArrow ? getComputedStyle(aggregateArrow).transform : '',
+          boundaryBorder: style('.boundary-panel').borderTopStyle,
+          forcedColors: matchMedia('(forced-colors: active)').matches,
+          frozenBorder: style('.frozen-model-panel').borderTopStyle,
+          meanBorder: style('[data-stage="mean-nll"]').borderTopStyle,
+          otherArrowTransforms: Array.from(
+            root.querySelectorAll<HTMLElement>('.causal-arrow'),
+          )
+            .filter((arrow) => !arrow.closest('[data-connector-to="aggregate"]'))
+            .map((arrow) => getComputedStyle(arrow).transform),
+          proseDirections: Array.from(
+            root.querySelectorAll<HTMLElement>('h3, h4, h5, p, th, dt'),
+          ).map((element) => getComputedStyle(element).direction),
+          technicalDirections: Array.from(
+            root.querySelectorAll<HTMLElement>('code, bdi'),
+          ).map((element) => getComputedStyle(element).direction),
+          validationCue: style(
+            'tr[data-scored-partition="validation"] th[scope="row"]',
+          ).borderInlineStartStyle,
+        };
+      });
+
+    const readInlineCausalOrder = () =>
+      diagram.evaluate((root) => ({
+        direction: getComputedStyle(root).direction,
+        regions: Array.from(
+          root.querySelectorAll<HTMLElement>(
+            '.calculation-chain > :is(.stage, .stage-connector)',
+          ),
+        ).map((element) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            bottom: rect.bottom,
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+          };
+        }),
+      }));
+
+    const inline = await readDirectionAndCues();
+    expect(inline.forcedColors).toBe(true);
+    expect(inline.aggregateBorder).toBe('double');
+    expect(inline.frozenBorder).toBe('double');
+    expect(inline.meanBorder).toBe('dashed');
+    expect(inline.boundaryBorder).toBe('dashed');
+    expect(inline.validationCue).toBe('double');
+    expect(inline.proseDirections.every((direction) => direction === 'rtl')).toBe(true);
+    expect(inline.technicalDirections.every((direction) => direction === 'ltr')).toBe(true);
+    expect(inline.otherArrowTransforms.every((transform) => transform.startsWith('matrix(-1'))).toBe(
+      true,
     );
+    expect(inline.aggregateTransform.startsWith('matrix(-1')).toBe(true);
+    const inlineCausalOrder = await readInlineCausalOrder();
+    expect(inlineCausalOrder.direction).toBe('rtl');
+    expect(inlineCausalOrder.regions).toHaveLength(7);
+    for (let index = 1; index < inlineCausalOrder.regions.length; index += 1) {
+      const previous = inlineCausalOrder.regions[index - 1]!;
+      const current = inlineCausalOrder.regions[index]!;
+      expect(previous.left + 1).toBeGreaterThanOrEqual(current.right);
+      expect(Math.min(previous.bottom, current.bottom) - Math.max(previous.top, current.top)).toBeGreaterThan(
+        0,
+      );
+    }
+    expectCompleteMetricsGeometry(await readMetricsGeometry(diagram));
+
+    const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+    await toggle.click();
+    await page.waitForFunction(
+      () =>
+        document.fullscreenElement?.getAttribute('data-visualization-id') ===
+        'language-model-metrics',
+    );
+    await settle(page);
+    expectCoherentFullView(await readFullViewComposition(diagram));
+    const full = await readDirectionAndCues();
+    expect(full.forcedColors).toBe(true);
+    expect(full.aggregateBorder).toBe('double');
+    expect(full.frozenBorder).toBe('double');
+    expect(full.meanBorder).toBe('dashed');
+    expect(full.boundaryBorder).toBe('dashed');
+    expect(full.validationCue).toBe('double');
+    expect(full.proseDirections.every((direction) => direction === 'rtl')).toBe(true);
+    expect(full.technicalDirections.every((direction) => direction === 'ltr')).toBe(true);
+    expect(full.otherArrowTransforms.every((transform) => transform.startsWith('matrix(-1'))).toBe(
+      true,
+    );
+    expect(full.aggregateTransform).toMatch(/^matrix\(0, 1, -1, 0,/);
+    const fullGeometry = await readMetricsGeometry(diagram);
+    expectCompleteMetricsGeometry(fullGeometry);
+    expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
+    expect(fullGeometry.maxScrollerTravel).toBeLessThanOrEqual(300);
+    expect(fullGeometry.maxScrollerTravelRatio).toBeLessThanOrEqual(0.8);
+
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.fullscreenElement === null);
+    await expect(toggle).toBeFocused();
     await expectNoOverflowOrClientScripts(page);
+  });
+
+  test('both localized static figures remain complete without JavaScript', async ({
+    browser,
+  }, testInfo) => {
+    const baseURL = testInfo.project.use.baseURL;
+    if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
+
+    for (const locale of chapterLocales) {
+      for (const viewport of [
+        { width: 1440, height: 1000 },
+        { width: 390, height: 844 },
+      ]) {
+        const context = await browser.newContext({
+          baseURL,
+          javaScriptEnabled: false,
+          viewport,
+        });
+        const page = await context.newPage();
+        try {
+          await page.goto(chapterPath(locale, chapterId));
+          await page.waitForLoadState('networkidle');
+          const diagram = page.locator(
+            'figure[data-visualization-id="language-model-metrics"]',
+          );
+          await expect(diagram).toBeVisible();
+          const rect = await diagram.boundingBox();
+          expect(rect?.width ?? 0).toBeGreaterThan(0);
+          expect(rect?.height ?? 0).toBeGreaterThan(0);
+          await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
+          await expect(diagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+          await expect(diagram.locator('.stage-number')).toHaveText(['1', '2', '3', '4', '5']);
+          await expect(diagram.locator('[data-scored-partition]')).toHaveCount(2);
+          expectCompleteMetricsGeometry(await readMetricsGeometry(diagram));
+          if (viewport.width === 390) {
+            for (const scroller of [
+              diagram.locator('.chain-scroll'),
+              diagram.locator('.score-table-scroll'),
+            ]) {
+              const widths = await scroller.evaluate((node) => ({
+                client: node.clientWidth,
+                scroll: node.scrollWidth,
+              }));
+              expect(widths.scroll).toBeGreaterThan(widths.client);
+            }
+          }
+          await expectNoOverflowOrClientScripts(page);
+        } finally {
+          await context.close();
+        }
+      }
+    }
   });
 });

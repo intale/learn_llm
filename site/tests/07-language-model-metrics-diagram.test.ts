@@ -756,7 +756,118 @@ describe('language-model-metrics diagram component contract', () => {
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-inline-start');
     expect(componentSource).toContain('@media (forced-colors: active)');
+    expect(componentSource).toMatch(
+      /@media \(forced-colors:\s*active\)\s*\{[\s\S]*?\.stage-number\s*\{[\s\S]*?border-color\s*:\s*CanvasText/,
+    );
     expect(componentSource).toContain('data-diagram-box');
+    expect(componentSource.match(/<table\b/g)).toHaveLength(2);
+    expect(componentSource.match(/<thead>/g)).toHaveLength(2);
+    expect(componentSource.match(/<tbody>/g)).toHaveLength(2);
+    expect(componentSource.match(/data-diagram-scroll/g)).toHaveLength(2);
+    expect(componentSource).not.toContain('<dialog');
+    expect(componentSource).not.toContain('<button');
+    expect(componentSource).not.toContain('data-diagram-full-view-toggle');
+    expect(componentSource).not.toContain('data-diagram-full-view-controls');
+  });
+
+  it('keeps score headers native and confines full-view changes to concept geometry', () => {
+    expect(componentSource).toMatch(
+      /<th scope="row">\s*<span class="score-row-heading">[\s\S]*?labels\.partitions\[score\.partition\][\s\S]*?<code dir="ltr">partition=\{score\.partition\}<\/code>[\s\S]*?<\/span>\s*<\/th>/,
+    );
+
+    const rowHeaderRule = componentSource.match(
+      /\.score-table-scroll th\[scope='row'\]\s*\{(?<body>[\s\S]*?)\}/,
+    )?.groups?.body;
+    expect(rowHeaderRule).toBeDefined();
+    expect(rowHeaderRule).toMatch(/border-inline-start\s*:\s*0\.35rem solid currentColor/);
+    expect(rowHeaderRule).not.toMatch(/\bdisplay\s*:/);
+
+    const rowHeadingRule = componentSource.match(
+      /\.score-row-heading\s*\{(?<body>[\s\S]*?)\}/,
+    )?.groups?.body;
+    expect(rowHeadingRule).toBeDefined();
+    expect(rowHeadingRule).toMatch(/display\s*:\s*grid/);
+    expect(rowHeadingRule).toMatch(/gap\s*:\s*0\.25rem/);
+
+    const captionPosition = componentSource.indexOf('<figcaption');
+    const calculationPosition = componentSource.indexOf('class="calculation-panel"');
+    const frozenPosition = componentSource.indexOf('class="frozen-model-panel"');
+    expect(captionPosition).toBeGreaterThan(-1);
+    expect(calculationPosition).toBeGreaterThan(captionPosition);
+    expect(frozenPosition).toBeGreaterThan(calculationPosition);
+
+    const causalPositions = [
+      'data-stage="probability-surprise"',
+      'data-connector-to="aggregate"',
+      'data-stage="aggregate"',
+      'data-connector-to="mean"',
+      'data-stage="mean-nll"',
+      'data-connector-to="perplexity"',
+      'data-stage="perplexity"',
+    ].map((marker) => componentSource.indexOf(marker));
+    expect(causalPositions.every((position) => position >= 0)).toBe(true);
+    expect(causalPositions).toEqual([...causalPositions].sort((left, right) => left - right));
+
+    const fullscreenSelector =
+      "figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen";
+    const fullscreenStart = componentSource.indexOf(fullscreenSelector);
+    const fullscreenEnd = componentSource.indexOf(
+      '@media (forced-colors: active)',
+      fullscreenStart,
+    );
+    expect(fullscreenStart).toBeGreaterThan(-1);
+    expect(fullscreenEnd).toBeGreaterThan(fullscreenStart);
+    const fullscreenStyles = componentSource.slice(fullscreenStart, fullscreenEnd);
+
+    for (const hook of [
+      '> figcaption',
+      '> :global(.diagram-full-view-actions)',
+      '> .calculation-panel',
+      '> .frozen-model-panel',
+      '.calculation-chain',
+      '.provenance-panel',
+      '.score-table-scroll',
+      '.boundary-panel',
+    ]) {
+      expect(fullscreenStyles).toContain(hook);
+    }
+    expect(fullscreenStyles).toMatch(
+      /grid-template-columns\s*:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /\.frozen-model-panel[\s\S]*?grid-template-columns\s*:\s*minmax\(18rem,\s*1\.1fr\) minmax\(0,\s*0\.9fr\)/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /\.calculation-chain[\s\S]*?min-inline-size\s*:\s*40rem/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /grid-template-areas\s*:\s*'target target target target target'\s*'to-aggregate to-aggregate to-aggregate to-aggregate to-aggregate'\s*'aggregate to-mean mean to-perplexity perplexity'/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /\.score-table-scroll[\s\S]*?table\s*\{[\s\S]*?min-inline-size\s*:\s*40rem/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /@container \(max-width:\s*70rem\)[\s\S]*?figure\.metrics-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen[\s\S]*?> \.frozen-model-panel[\s\S]*?gap\s*:\s*0\.5rem[\s\S]*?figure\.metrics-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen[\s\S]*?\.calculation-chain[\s\S]*?min-inline-size\s*:\s*38rem/,
+    );
+
+    const captionRule = fullscreenStyles.match(
+      /> figcaption\s*\{(?<body>[\s\S]*?)\}/,
+    )?.groups?.body;
+    expect(captionRule).toBeDefined();
+    expect(captionRule).not.toMatch(
+      /display\s*:|grid-template|grid-auto-flow|flex-direction|font(?:-|\s*:)|padding|overflow/,
+    );
+    expect(fullscreenStyles).not.toMatch(/font-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\bzoom\s*:/);
+    expect(fullscreenStyles).not.toMatch(/transform\s*:\s*scale/);
+    expect(fullscreenStyles).not.toMatch(/overflow(?:-[xy])?\s*:\s*(?:hidden|clip)/);
+    expect(fullscreenStyles).not.toMatch(/contain\s*:\s*(?:paint|strict|content)/);
+    expect(fullscreenStyles).not.toMatch(/text-overflow\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:-webkit-)?line-clamp\s*:/);
+    expect(fullscreenStyles).not.toMatch(/max-height\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:max-)?block-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:^|[;{])\s*content\s*:/m);
+    expect(fullscreenStyles).not.toMatch(/--diagram-cell-padding/);
   });
 
   it('keeps causal progression and arrow direction coherent in RTL locales', () => {

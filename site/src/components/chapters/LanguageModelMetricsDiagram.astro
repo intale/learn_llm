@@ -182,7 +182,7 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     data-diagram-box
   >
     <h4 id={frozenModelTitleId}>{labels.sections.frozenModel}</h4>
-    <p id={frozenModelNoteId}>{labels.notes.frozenModel}</p>
+    <p id={frozenModelNoteId} class="frozen-model-note">{labels.notes.frozenModel}</p>
 
     <section
       class="provenance-panel"
@@ -259,8 +259,10 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
           {trace.scored.map((score) => (
             <tr data-scored-partition={score.partition}>
               <th scope="row">
-                <span>{labels.partitions[score.partition]}</span>
-                <code dir="ltr">partition={score.partition}</code>
+                <span class="score-row-heading">
+                  <span>{labels.partitions[score.partition]}</span>
+                  <code dir="ltr">partition={score.partition}</code>
+                </span>
               </th>
               <td><bdi dir="ltr">{score.documents.lexeme}</bdi></td>
               <td><bdi dir="ltr">{score.targets.lexeme}</bdi></td>
@@ -429,9 +431,12 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
   }
 
   .score-table-scroll th[scope='row'] {
+    border-inline-start: 0.35rem solid currentColor;
+  }
+
+  .score-row-heading {
     display: grid;
     gap: 0.25rem;
-    border-inline-start: 0.35rem solid currentColor;
   }
 
   .score-table-scroll tr[data-scored-partition='validation'] th[scope='row'] {
@@ -514,6 +519,183 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     [data-connector-to='aggregate'] .causal-arrow,
     .metrics-diagram:dir(rtl) [data-connector-to='aggregate'] .causal-arrow {
       transform: rotate(90deg);
+    }
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    align-content: start;
+    align-items: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > figcaption {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > :global(.diagram-full-view-actions) {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .calculation-panel {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .frozen-model-panel {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    grid-template-columns: minmax(18rem, 1.1fr) minmax(0, 0.9fr);
+    grid-template-rows: auto auto auto auto;
+    align-self: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .frozen-model-panel
+    > h4 {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .frozen-model-panel
+    > .frozen-model-note {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    margin: 0;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .frozen-model-panel
+    > .provenance-panel {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    align-self: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .frozen-model-panel
+    > .score-table-scroll {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    margin: 0;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .frozen-model-panel
+    > .boundary-panel {
+    grid-column: 1 / 3;
+    grid-row: 4;
+    align-self: start;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .calculation-chain {
+    min-inline-size: 40rem;
+    grid-template-columns:
+      minmax(0, 1fr) max-content minmax(0, 1fr) max-content minmax(0, 1fr);
+    grid-template-areas:
+      'target target target target target'
+      'to-aggregate to-aggregate to-aggregate to-aggregate to-aggregate'
+      'aggregate to-mean mean to-perplexity perplexity';
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .target-stage {
+    grid-area: target;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    [data-connector-to='aggregate'] {
+    grid-area: to-aggregate;
+    justify-self: stretch;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .aggregate-stage {
+    grid-area: aggregate;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    [data-connector-to='mean'] {
+    grid-area: to-mean;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .mean-stage {
+    grid-area: mean;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    [data-connector-to='perplexity'] {
+    grid-area: to-perplexity;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .perplexity-stage {
+    grid-area: perplexity;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    [data-connector-to='aggregate']
+    .causal-arrow,
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen:dir(rtl)
+    [data-connector-to='aggregate']
+    .causal-arrow {
+    transform: rotate(90deg);
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .target-stage
+    table {
+    min-inline-size: 100%;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .provenance-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .score-table-scroll
+    table {
+    min-inline-size: 40rem;
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .boundary-panel
+    ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .boundary-panel
+    li {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: baseline;
+  }
+
+  @container (max-width: 70rem) {
+    figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .frozen-model-panel {
+      gap: 0.5rem;
+    }
+
+    figure.metrics-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      .calculation-chain {
+      min-inline-size: 38rem;
     }
   }
 
