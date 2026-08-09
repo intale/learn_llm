@@ -670,6 +670,25 @@ for (const sheet of sheets) {
         sortedTerms,
       );
       expect(new Set(sortedTerms).size).toBe(sortedTerms.length);
+      if (sheet.chapterId === '14-scalar-autodiff') {
+        const expectedDefinitions = sheet.locale === 'en'
+          ? {
+              term: 'Adjoint',
+              definition: "A pass-local sensitivity for one tracked node: the selected output's derivative with respect to that node, multiplied by the finite seed installed at the output.",
+            }
+          : {
+              term: 'Сопряжённая величина',
+              definition: 'Чувствительность отслеживаемого узла в текущем проходе: производная выбранного выхода по этому узлу, умноженная на конечную начальную сопряжённую величину, заданную для выхода.',
+            };
+        const entry = dialog.locator('.cheat-sheet-term').filter({
+          has: page.locator('dt', { hasText: expectedDefinitions.term }),
+        });
+        await expect(entry).toHaveCount(1);
+        await expect(entry.locator('dt')).toHaveText(expectedDefinitions.term);
+        await expect(entry.locator('dd')).toHaveText(
+          expectedDefinitions.definition,
+        );
+      }
       await expect(visibleTerms).toHaveText(termPages[0] ?? []);
       await expect(
         root.getByRole('button', { name: sheet.copy.closeLabel }),

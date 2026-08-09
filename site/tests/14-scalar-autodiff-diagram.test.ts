@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runtime.
+import { createHash } from 'node:crypto';
+// @ts-ignore Node APIs are available in the Vitest runtime.
 import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Vitest runtime.
 import { resolve } from 'node:path';
@@ -16,6 +18,67 @@ import {
 declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), '..');
+const formulaLatex = String.raw`\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e`;
+const formulaSymbols = [
+  'v',
+  String.raw`\bar v`,
+  'o',
+  's',
+  String.raw`\mathbf{1}[v=o]`,
+  'e',
+  'E_o(v)',
+  'c(e)',
+  String.raw`\bar{c(e)}`,
+  'd_e',
+] as const;
+const formulaMeanings = {
+  en: [
+    'one tracked scalar node in the dependency subgraph traversed backward from selected output o for this reverse pass',
+    'the pass-local adjoint of v under seed s, equal to s times the derivative of the selected scalar output o with respect to v',
+    'the selected tracked scalar output whose reverse pass is being evaluated',
+    'the finite scalar seed supplied by the caller and installed at selected output o; backward() uses 1',
+    'the graph-node identity indicator that equals 1 when v is the selected output node o and 0 at every other node, regardless of equal primal values',
+    'one distinct outgoing edge for one occurrence of v as an operand',
+    "the distinct operand-use edges leaving tracked node v inside o's reverse-pass dependency subgraph, with one edge per occurrence even when several edges reach the same consuming node",
+    'the consuming result node reached by edge e',
+    'the pass-local adjoint already accumulated at the consuming result',
+    'the derivative of the consuming result with respect to this operand occurrence, evaluated from stored forward values',
+  ],
+  ru: [
+    'один отслеживаемый скалярный узел в подграфе зависимостей, который для этого обратного прохода обходится от выбранного выхода o к его операндам',
+    'сопряжённая величина v в текущем обратном проходе при начальном значении s, равная произведению s на производную выбранного скалярного выхода o по v',
+    'выбранный отслеживаемый скалярный выход, для которого выполняется обратный проход',
+    'конечная скалярная начальная сопряжённая величина, которую задаёт вызывающий код для выбранного выхода o; метод backward() использует 1',
+    'индикатор идентичности узлов графа, равный 1, когда v — выбранный выходной узел o, и 0 во всех остальных узлах независимо от совпадения значений прямого прохода',
+    'одно отдельное исходящее ребро для одного вхождения v как операнда',
+    'отдельные рёбра вхождений отслеживаемого узла v как операнда в подграфе зависимостей обратного прохода от o: по одному ребру на каждое вхождение, даже если несколько рёбер ведут в один узел-потребитель',
+    'узел-результат, который использует операнд через ребро e',
+    'сопряжённая величина текущего обратного прохода, уже накопленная в узле-потребителе',
+    'локальная производная результата по данному вхождению операнда, вычисленная по сохранённым значениям прямого прохода',
+  ],
+} as const;
+const protectedScalarArtifacts = {
+  'rust/crates/llm-from-scratch/src/autograd/scalar.rs':
+    '6624ef49eaeb3c1007cf8dbcad72b31dff0a1a610041f1e50da1e8b0d9ef3e17',
+  'rust/demos/ch14-scalar-autodiff/src/lib.rs':
+    'd1c664dbf91078bc8d14df6d84f829f0f6d30815373f1e8249b0b4164a9ac907',
+  'rust/demos/ch14-scalar-autodiff/src/main.rs':
+    '08d41305280aede7fff29ac40426b1f5a0f4bc8ccc2a177754361605f892bbb0',
+  'rust/demos/ch14-scalar-autodiff/expected.txt':
+    'bdfaa6efb3b06c422105d69fc3e65f83ee74561567b8c176d189a4aed703def0',
+  'rust/demos/ch14-scalar-autodiff/diagram-trace.txt':
+    'c6ce34d2f937aa6f48e5aff0b4032cb3ddc1f546098fb7554760a4739c201fde',
+} as const;
+const contractSource = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/14-scalar-autodiff.md'),
+  'utf8',
+);
+const lessonSources = ['en', 'ru'].map((locale) =>
+  readFileSync(
+    resolve(repositoryRoot, `site/src/content/chapters/${locale}/14-scalar-autodiff.mdx`),
+    'utf8',
+  ),
+);
 const fixture = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch14-scalar-autodiff/diagram-trace.txt'),
   'utf8',
@@ -33,6 +96,26 @@ const lifecycleComponent = readFileSync(
   'utf8',
 );
 const component = `${graphComponent}\n${lifecycleComponent}`;
+
+interface FormulaFrontmatter {
+  content_revision: number;
+  formula: {
+    latex: string;
+    symbols: Array<{ symbol: string; meaning?: string; en?: string; ru?: string }>;
+  };
+}
+
+function parseFormulaFrontmatter(source: string): FormulaFrontmatter {
+  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match?.[1]) throw new Error('Chapter 14 must start with JSON frontmatter');
+  return JSON.parse(match[1]) as FormulaFrontmatter;
+}
+
+function sha256(path: string): string {
+  return createHash('sha256')
+    .update(readFileSync(resolve(repositoryRoot, path)))
+    .digest('hex');
+}
 
 const labels: ScalarAutodiffDiagramLabels = {
   title: 'title',
@@ -105,6 +188,73 @@ const labels: ScalarAutodiffDiagramLabels = {
     'non-finite-accumulated-gradient': 'gradient',
   },
 };
+
+describe('Chapter 14 exact reverse-mode boundary', () => {
+  it('publishes one revision-5 seed boundary and its complete symbol inventory', () => {
+    const records = [contractSource, ...lessonSources].map(parseFormulaFrontmatter);
+
+    expect(records.map(({ content_revision }) => content_revision)).toEqual([5, 5, 5]);
+    expect(records.map(({ formula }) => formula.latex)).toEqual([
+      formulaLatex,
+      formulaLatex,
+      formulaLatex,
+    ]);
+    expect(
+      records.map(({ formula }) => formula.symbols.map(({ symbol }) => symbol)),
+    ).toEqual([formulaSymbols, formulaSymbols, formulaSymbols]);
+
+    for (const [index, { formula }] of records.entries()) {
+      for (const [symbolIndex, symbol] of formula.symbols.entries()) {
+        const meanings = index === 0 ? [symbol.en, symbol.ru] : [symbol.meaning];
+        expect(
+          meanings.every((meaning) => typeof meaning === 'string' && meaning.trim() !== ''),
+          `frontmatter ${index} symbol ${symbolIndex} meaning`,
+        ).toBe(true);
+      }
+    }
+
+    const [contractRecord, englishRecord, russianRecord] = records;
+    const contractSymbols = contractRecord!.formula.symbols;
+    const englishMeanings = englishRecord!.formula.symbols.map(({ meaning }) => meaning);
+    const russianMeanings = russianRecord!.formula.symbols.map(({ meaning }) => meaning);
+    expect(englishMeanings).toEqual(contractSymbols.map(({ en }) => en));
+    expect(russianMeanings).toEqual(contractSymbols.map(({ ru }) => ru));
+    expect(englishMeanings).toEqual(formulaMeanings.en);
+    expect(russianMeanings).toEqual(formulaMeanings.ru);
+
+    const escapedFormula = formulaLatex.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    expect(
+      contractSource.match(new RegExp(`\`\`\`latex\\r?\\n${escapedFormula}\\r?\\n\`\`\``, 'g')),
+    ).toHaveLength(1);
+    for (const source of lessonSources) {
+      expect(
+        source.match(
+          new RegExp(`\\$\\$\\r?\\n${escapedFormula}\\r?\\n\\$\\$`, 'g'),
+        ),
+      ).toHaveLength(1);
+    }
+    for (const source of [contractSource, ...lessonSources]) {
+      expect(source).not.toContain(
+        String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`,
+      );
+    }
+    expect(lessonSources[0]).toMatch(
+      /`backward\(\)`[^\n]*uses[^\n]*s=1/i,
+    );
+    expect(lessonSources[1]).toMatch(
+      /`backward\(\)`[^\n]*использует[^\n]*s=1/iu,
+    );
+    expect(lessonSources[1]).not.toMatch(/обратн(?:ый|ого|ом) срез|множество с повторениями/iu);
+  });
+
+  it('keeps the already-correct scalar runtime, output, and trace byte-identical', () => {
+    expect(
+      Object.fromEntries(
+        Object.keys(protectedScalarArtifacts).map((path) => [path, sha256(path)]),
+      ),
+    ).toEqual(protectedScalarArtifacts);
+  });
+});
 
 describe('Chapter 14 Rust trace parser', () => {
   it('projects unique nodes, repeated edges, fresh passes, checks, and rejections', () => {

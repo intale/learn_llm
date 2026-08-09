@@ -23,8 +23,21 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '14-scalar-autodiff';
-const contentRevision = 4;
-const formulaLatex = String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`;
+const contentRevision = 5;
+const formulaLatex = String.raw`\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e`;
+const staleFormulaLatex = String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`;
+const formulaSymbols = [
+  'v',
+  String.raw`\bar v`,
+  'o',
+  's',
+  String.raw`\mathbf{1}[v=o]`,
+  'e',
+  'E_o(v)',
+  'c(e)',
+  String.raw`\bar{c(e)}`,
+  'd_e',
+] as const;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
   'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
@@ -189,6 +202,300 @@ async function settle(page: Page) {
   });
 }
 
+async function expectSeedBoundaryFormula(
+  page: Page,
+  locale: ChapterLocale,
+  narrow: boolean,
+) {
+  await settle(page);
+  const response = await page.request.get(chapterPath(locale, chapterId));
+  expect(response.ok(), `${locale} Chapter 14 static response`).toBe(true);
+  const staticHtml = await response.text();
+  const annotationMarkup = `<annotation encoding="application/x-tex">${formulaLatex}</annotation>`;
+  expect(
+    staticHtml.split(annotationMarkup).length - 1,
+    `${locale} exact seed-boundary SSR annotation count`,
+  ).toBe(1);
+  expect(staticHtml, `${locale} stale edge-only SSR formula`).not.toContain(
+    `<annotation encoding="application/x-tex">${staleFormulaLatex}</annotation>`,
+  );
+  await expect(page.locator('.lesson-body .katex-error')).toHaveCount(0);
+
+  const annotations = page.locator(
+    '.lesson-body .katex-display annotation[encoding="application/x-tex"]',
+  );
+  const annotationTexts = await annotations.allTextContents();
+  expect(
+    annotationTexts.filter((text) => text === formulaLatex),
+    `${locale} exact rendered seed-boundary annotation`,
+  ).toHaveLength(1);
+  expect(annotationTexts, `${locale} stale rendered edge-only annotation`).not.toContain(
+    staleFormulaLatex,
+  );
+  const annotation = annotations.filter({ hasText: formulaLatex });
+  await expect(annotation).toHaveCount(1);
+  await expect(annotation).toHaveText(formulaLatex);
+
+  const geometry = await annotation.evaluate((node) => {
+    const display = node.closest('.katex-display') as HTMLElement | null;
+    const lesson = node.closest('.lesson-body') as HTMLElement | null;
+    const rendered = display?.querySelector<HTMLElement>('.katex-html') ?? null;
+    const problems: string[] = [];
+    if (!display || !lesson || !rendered) {
+      return {
+        problems: ['formula is missing its display, lesson, or rendered KaTeX owner'],
+        paintRectCount: 0,
+      };
+    }
+
+    const displayRect = display.getBoundingClientRect();
+    const lessonRect = lesson.getBoundingClientRect();
+    const range = document.createRange();
+    range.selectNodeContents(rendered);
+    const displayStyle = getComputedStyle(display);
+    const renderedStyle = getComputedStyle(rendered);
+    const within = (inner: DOMRect, outer: DOMRect, tolerance = 1) =>
+      inner.left >= outer.left - tolerance &&
+      inner.right <= outer.right + tolerance &&
+      inner.top >= outer.top - tolerance &&
+      inner.bottom <= outer.bottom + tolerance;
+
+    if (displayRect.width <= 0 || displayRect.height <= 0) {
+      problems.push('display formula has nonpositive geometry');
+    }
+    if (!within(displayRect, lessonRect, 2)) {
+      problems.push('display formula escapes the lesson content box');
+    }
+    if (display.scrollHeight - display.clientHeight > 2) {
+      problems.push('display formula owns block travel');
+    }
+    if (displayStyle.overflowX !== 'auto') {
+      problems.push(`display formula overflow-x is ${displayStyle.overflowX}, not auto`);
+    }
+    if (displayStyle.display === 'none' || displayStyle.visibility !== 'visible') {
+      problems.push('display formula is concealed');
+    }
+    if (
+      renderedStyle.display === 'none' ||
+      renderedStyle.visibility !== 'visible' ||
+      Number.parseFloat(renderedStyle.opacity) <= 0 ||
+      renderedStyle.color === 'transparent'
+    ) {
+      problems.push('rendered formula ink is concealed');
+    }
+    if (renderedStyle.direction !== 'ltr') {
+      problems.push('rendered formula is not an LTR technical island');
+    }
+
+    const originalScrollLeft = display.scrollLeft;
+    const maxScrollLeft = Math.max(0, display.scrollWidth - display.clientWidth);
+    const readPaint = () => {
+      const renderedRect = rendered.getBoundingClientRect();
+      const paintRects = Array.from(range.getClientRects()).filter(
+        (rect) => rect.width > 0 && rect.height > 0,
+      );
+      return { renderedRect, paintRects };
+    };
+    display.scrollLeft = 0;
+    const start = readPaint();
+    display.scrollLeft = maxScrollLeft;
+    const end = readPaint();
+    display.scrollLeft = originalScrollLeft;
+
+    if (start.renderedRect.width <= 0 || start.renderedRect.height <= 0) {
+      problems.push('rendered formula has nonpositive geometry');
+    }
+    if (start.paintRects.length === 0 || end.paintRects.length === 0) {
+      problems.push('rendered formula has no positive Range paint');
+    }
+    if (start.paintRects.some((rect) => rect.top < displayRect.top - 2 || rect.bottom > displayRect.bottom + 2)) {
+      problems.push('formula Range paint escapes the display block edges');
+    }
+    if (start.paintRects.some((rect) => rect.left < displayRect.left - 2)) {
+      problems.push('formula start ink is not reachable at scroll start');
+    }
+    if (end.paintRects.some((rect) => rect.right > displayRect.right + 2)) {
+      problems.push('formula end ink is not reachable at scroll end');
+    }
+    const contentRects = start.paintRects.map((rect) => ({
+      left: rect.left - displayRect.left,
+      right: rect.right - displayRect.left,
+    }));
+    if (
+      contentRects.some(
+        ({ left, right }) => left < -2 || right > display.scrollWidth + 2,
+      )
+    ) {
+      problems.push('formula Range paint escapes the complete scroll width');
+    }
+
+    return { problems, paintRectCount: start.paintRects.length };
+  });
+  expect(
+    geometry.problems,
+    `${locale}/${narrow ? 'narrow' : 'desktop'} seed-boundary formula containment`,
+  ).toEqual([]);
+  expect(geometry.paintRectCount).toBeGreaterThan(0);
+
+  const formulaHeading = page.getByRole('heading', {
+    level: 2,
+    name: copy[locale].headings[1],
+    exact: true,
+  });
+  const formulaSection = formulaHeading.locator(
+    `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${copy[locale].headings[1]}"]]`,
+  );
+  const formulaText = (await formulaSection.allInnerTexts())
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const requiredClaims =
+    locale === 'en'
+      ? [
+          'selected tracked scalar output',
+          'explicit finite seed supplied by the caller',
+          'backward() uses',
+          'same graph node',
+          'equal primal values',
+          'one distinct edge for every occurrence',
+          'a consumer unrelated to',
+          'Untracked constants and detached values',
+          'outside the active adjoint recurrence',
+        ]
+      : [
+          'выбранный отслеживаемый скалярный выход',
+          'конечная начальная сопряжённая величина, которую явно задаёт вызывающий код',
+          'backward() использует',
+          'один и тот же узел графа',
+          'совпадения значений прямого прохода',
+          'каждое вхождение отслеживаемого',
+          'потребитель, не связанный с',
+          'Неотслеживаемые константы и отсоединённые значения',
+          'не входят в область рекуррентного вычисления сопряжённых величин',
+        ];
+  for (const claim of requiredClaims) {
+    expect(formulaText, `${locale} visible boundary claim: ${claim}`).toContain(claim);
+  }
+  expect(formulaText).not.toMatch(/active (?:operand-use )?edge|активн\w* р[её]бр/iu);
+
+  const glossaryHeading = page.getByRole('heading', {
+    level: 2,
+    name: copy[locale].headings[2],
+    exact: true,
+  });
+  const glossaryTable = glossaryHeading.locator(
+    `xpath=following-sibling::table[preceding-sibling::h2[1][normalize-space()="${copy[locale].headings[2]}"]][1]`,
+  );
+  await expect(glossaryTable).toHaveCount(1);
+  await expect(glossaryTable).toHaveRole('table');
+  await expect(glossaryTable.getByRole('columnheader')).toHaveCount(2);
+  await expect(glossaryTable.getByRole('row')).toHaveCount(11);
+  await expect(glossaryTable.locator('tbody > tr')).toHaveCount(10);
+  await expect(glossaryTable.locator('tbody > tr > td')).toHaveCount(20);
+  expect(
+    await glossaryTable
+      .locator('tbody > tr > td:first-child annotation[encoding="application/x-tex"]')
+      .allTextContents(),
+  ).toEqual(formulaSymbols);
+  const glossaryMeaningFragments =
+    locale === 'en'
+      ? [
+          'tracked scalar node',
+          'pass-local adjoint under seed',
+          'selected tracked scalar output',
+          'finite scalar seed supplied by the caller',
+          'graph-node identity indicator',
+          'distinct outgoing edge',
+          'distinct operand-use edges leaving tracked',
+          'result node that consumes',
+          'pass-local adjoint already accumulated',
+          'local derivative',
+        ]
+      : [
+          'отслеживаемый скалярный узел',
+          'Сопряжённая величина текущего прохода при начальном значении',
+          'Выбранный отслеживаемый скалярный выход',
+          'Конечная скалярная начальная сопряжённая величина',
+          'Индикатор идентичности узлов графа',
+          'отдельное исходящее ребро',
+          'Отдельные рёбра вхождений отслеживаемого',
+          'Узел-результат, который использует',
+          'Сопряжённая величина текущего прохода, уже накопленная',
+          'Локальная производная результата',
+        ];
+  const renderedMeanings = await glossaryTable
+    .locator('tbody > tr > td:nth-child(2)')
+    .allInnerTexts();
+  expect(renderedMeanings).toHaveLength(glossaryMeaningFragments.length);
+  for (const [index, fragment] of glossaryMeaningFragments.entries()) {
+    expect(
+      renderedMeanings[index],
+      `${locale} glossary row ${index} meaning association`,
+    ).toContain(fragment);
+  }
+  expect(
+    await glossaryTable.evaluate((table) => ({
+      tag: table.tagName,
+      head: (table as HTMLTableElement).tHead?.tagName ?? null,
+      body: (table as HTMLTableElement).tBodies[0]?.tagName ?? null,
+      rowTags: Array.from((table as HTMLTableElement).rows).map((row) => row.tagName),
+      bodyCellTags: Array.from(
+        (table as HTMLTableElement).tBodies[0]?.rows ?? [],
+      ).map((row) =>
+        Array.from(row.cells).map((cell) => cell.tagName),
+      ),
+    })),
+  ).toEqual({
+    tag: 'TABLE',
+    head: 'THEAD',
+    body: 'TBODY',
+    rowTags: Array.from({ length: 11 }, () => 'TR'),
+    bodyCellTags: Array.from({ length: 10 }, () => ['TD', 'TD']),
+  });
+  const glossaryProblems = await glossaryTable.locator('th, td').evaluateAll((cells) =>
+    cells.flatMap((cell, index) => {
+      const element = cell as HTMLElement;
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const paintRects = Array.from(range.getClientRects()).filter(
+        (paint) => paint.width > 0 && paint.height > 0,
+      );
+      const problems: string[] = [];
+      if (rect.width <= 0 || rect.height <= 0) {
+        problems.push(`cell ${index} has nonpositive geometry`);
+      }
+      if (element.scrollWidth - element.clientWidth > 2) {
+        problems.push(`cell ${index} overflows inline`);
+      }
+      if (element.scrollHeight - element.clientHeight > 2) {
+        problems.push(`cell ${index} overflows block`);
+      }
+      if (['hidden', 'clip'].includes(style.overflowX) || ['hidden', 'clip'].includes(style.overflowY)) {
+        problems.push(`cell ${index} conceals overflow`);
+      }
+      if (paintRects.length === 0) problems.push(`cell ${index} has no positive Range paint`);
+      if (
+        paintRects.some(
+          (paint) =>
+            paint.left < rect.left - 2 ||
+            paint.right > rect.right + 2 ||
+            paint.top < rect.top - 2 ||
+            paint.bottom > rect.bottom + 2,
+        )
+      ) {
+        problems.push(`cell ${index} Range paint crosses its edges`);
+      }
+      return problems;
+    }),
+  );
+  expect(
+    glossaryProblems,
+    `${locale}/${narrow ? 'narrow' : 'desktop'} native glossary containment`,
+  ).toEqual([]);
+}
+
 async function expectDiagramEvidence(page: Page, narrow: boolean) {
   const diagram = page.locator(
     'figure[data-visualization-id="scalar-autodiff"], figure[data-visualization-id="scalar-autodiff-lifecycle"]',
@@ -329,11 +636,9 @@ async function expectChapterContent(
     ),
   ).toEqual(historySources);
 
+  await expectSeedBoundaryFormula(page, locale, narrow);
   const displayFormulae = page.locator('.lesson-body .katex-display');
   expect(await displayFormulae.count()).toBeGreaterThan(0);
-  expect(
-    await displayFormulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
-  ).toContain(formulaLatex);
   expect(
     await displayFormulae.evaluateAll((nodes) =>
       nodes.every((node) => window.getComputedStyle(node).direction === 'ltr'),

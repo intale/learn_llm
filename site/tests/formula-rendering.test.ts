@@ -345,7 +345,7 @@ const documentedChapter08To13Code = [
 
 const requiredChapter14To39Math: Record<string, readonly string[]> = {
   "14": [
-    String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`,
+    String.raw`\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e`,
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
     String.raw`2x^2`,

@@ -457,7 +457,7 @@ const chapter14To39FormulaLatex: Record<
   readonly string[]
 > = {
   "14-scalar-autodiff": [
-    String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`,
+    String.raw`\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e`,
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`2x^2`,
   ],

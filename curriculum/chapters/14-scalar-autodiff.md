@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "concept_id": "scalar-autodiff",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 14,
   "objective": {
     "en": "Build a scalar computation graph and accumulate reverse-mode adjoints across every operand use in shared subexpressions.",
@@ -13,17 +13,32 @@
     "ru": "Задайте x=2, square=x*x и loss=square+square. Сначала предскажите square=4 и loss=8, затем посчитайте два вхождения square как операнда loss и два вхождения x как операнда square, чтобы до обратного прохода получить bar(square)=2 и bar(x)=8."
   },
   "formula": {
-    "latex": "\\bar v=\\sum_{e\\in E(v)}\\bar{c(e)}\\,d_e",
+    "latex": "\\bar v=s\\,\\mathbf{1}[v=o]+\\sum_{e\\in E_o(v)}\\bar{c(e)}\\,d_e",
     "symbols": [
       {
         "symbol": "v",
-        "en": "one scalar value stored in the computation graph",
-        "ru": "одно скалярное значение в вычислительном графе"
+        "en": "one tracked scalar node in the dependency subgraph traversed backward from selected output o for this reverse pass",
+        "ru": "один отслеживаемый скалярный узел в подграфе зависимостей, который для этого обратного прохода обходится от выбранного выхода o к его операндам"
       },
       {
         "symbol": "\\bar v",
-        "en": "the pass-local adjoint of v, equal to the derivative of the selected scalar output with respect to v",
-        "ru": "сопряжённая величина v в текущем обратном проходе, равная производной выбранного скалярного выхода по v"
+        "en": "the pass-local adjoint of v under seed s, equal to s times the derivative of the selected scalar output o with respect to v",
+        "ru": "сопряжённая величина v в текущем обратном проходе при начальном значении s, равная произведению s на производную выбранного скалярного выхода o по v"
+      },
+      {
+        "symbol": "o",
+        "en": "the selected tracked scalar output whose reverse pass is being evaluated",
+        "ru": "выбранный отслеживаемый скалярный выход, для которого выполняется обратный проход"
+      },
+      {
+        "symbol": "s",
+        "en": "the finite scalar seed supplied by the caller and installed at selected output o; backward() uses 1",
+        "ru": "конечная скалярная начальная сопряжённая величина, которую задаёт вызывающий код для выбранного выхода o; метод backward() использует 1"
+      },
+      {
+        "symbol": "\\mathbf{1}[v=o]",
+        "en": "the graph-node identity indicator that equals 1 when v is the selected output node o and 0 at every other node, regardless of equal primal values",
+        "ru": "индикатор идентичности узлов графа, равный 1, когда v — выбранный выходной узел o, и 0 во всех остальных узлах независимо от совпадения значений прямого прохода"
       },
       {
         "symbol": "e",
@@ -31,9 +46,9 @@
         "ru": "одно отдельное исходящее ребро для одного вхождения v как операнда"
       },
       {
-        "symbol": "E(v)",
-        "en": "the operand-use edges leaving v, with one edge per occurrence even when several edges reach the same consuming node",
-        "ru": "рёбра вхождений v как операнда: по одному ребру на каждое вхождение, даже если несколько рёбер ведут в один узел-потребитель"
+        "symbol": "E_o(v)",
+        "en": "the distinct operand-use edges leaving tracked node v inside o's reverse-pass dependency subgraph, with one edge per occurrence even when several edges reach the same consuming node",
+        "ru": "отдельные рёбра вхождений отслеживаемого узла v как операнда в подграфе зависимостей обратного прохода от o: по одному ребру на каждое вхождение, даже если несколько рёбер ведут в один узел-потребитель"
       },
       {
         "symbol": "c(e)",
@@ -205,9 +220,9 @@
     }
   ],
   "translation_notes": [
-    "Chapter 14 has the exact active locale set {en,ru}. English is the canonical semantic source; Russian is translated directly from revision 4 and reviewed as a complete lesson.",
+    "Chapter 14 has the exact active locale set {en,ru}. English is the canonical semantic source; Russian is translated directly from revision 5 and reviewed as a complete lesson.",
     "Keep bar notation, graph values, edge multiplicity, finite numbers, Rust identifiers, formulas, and source URLs exact across locales.",
-    "Translate E(v) as distinct operand-use edges, c(e) as the consuming result, and d_e as the derivative for one operand occurrence. Repeated references to one node remain separate edges even though topological traversal visits the node once.",
+    "Explain o as the selected tracked output, s as the finite caller-supplied seed (with backward() using 1), the indicator as a graph-node identity boundary, and E_o(v) as distinct operand-use edges leaving tracked v inside o's backward dependency subgraph. Repeated references to one node remain separate edges even though topological traversal visits the node once; structurally reachable untracked nodes receive no pass-local adjoint.",
     "Distinguish a fresh pass-local adjoint from the optional stored gradient accumulated across successful backward calls. Detach preserves the primal value but cuts the parent edge; it does not freeze or copy a whole model.",
     "Never imply that decoder inference runs reverse mode or that the cited papers prescribe this example's graph representation, traversal, f64 validation, accumulation, zeroing, detach, or error policy.",
     "Russian diagram labels, explanations, exercises, accessible names, metadata, SEO copy, history claims, and navigation must be reviewed together, including every full-view surface in Chromium and Firefox."
@@ -296,18 +311,29 @@ different invariants.
 <!-- contract-section:formula -->
 ## Formula and symbols
 
-For one fresh reverse pass, use an edge-exact sum:
+For one fresh reverse pass from selected scalar output `o` with finite seed `s`,
+use an output boundary plus an edge-exact sum:
 
 ```latex
-\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e
+\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e
 ```
 
-`v` is one scalar graph value and `bar(v)` is its pass-local adjoint: the
-selected scalar output's derivative with respect to `v`. `E(v)` contains one
-distinct outgoing edge for every occurrence of `v` as an operand. `c(e)` is
-the result node that consumes that occurrence, `bar(c(e))` is the pass-local
-adjoint already accumulated there, and `d_e` is the derivative of that result
-with respect to this operand slot, evaluated from stored forward values.
+`v` is one tracked scalar node in the dependency subgraph traversed backward
+from selected tracked output `o`, and `bar(v)` is its pass-local adjoint under
+seed `s`: `s` times the derivative of `o` with respect to `v`. The caller supplies
+finite `s` to `backward_with_seed`; `backward()` uses `s=1`. The indicator is one
+when `v` and `o` are the same graph node and zero otherwise; equal primal values
+do not satisfy this identity test. It therefore installs `bar(o)=s` even though the
+selected output has no consuming edge in its own backward slice. `E_o(v)`
+contains one distinct outgoing edge for every occurrence of tracked `v` as an
+operand inside that subgraph; unrelated consumers are excluded. Untracked
+constants and detached values can still occur in the structural traversal, but
+they are outside this active adjoint recurrence: the implementation stores no
+pass-local adjoint for them and skips propagation into them. `c(e)` is the result
+node that consumes that occurrence, `bar(c(e))` is
+the pass-local adjoint already accumulated there, and `d_e` is the derivative
+of that result with respect to this operand slot, evaluated from stored forward
+values.
 
 Two edges may reach the same consuming node. For `square=x*x`, the two slots
 therefore contribute `bar(square)*x` once each. The formula never takes a total
@@ -413,14 +439,19 @@ the decoder's parameters and token loss can be trained.
 ## Localization notes
 
 English and Russian are the complete active locales for Chapter 14. English is
-the semantic source, and Russian is translated directly from revision 4. Both
+the semantic source, and Russian is translated directly from revision 5. Both
 lessons publish the same formulas, diagram evidence, code regions, history
 claims, exercises, and answers.
 
-Keep the displayed notation locale neutral. Explain `E(v)` as distinct operand
-occurrences, `c(e)` as the consuming result, and `d_e` as the derivative for one
-operand slot. Keep pass-local adjoints distinct from stored cross-call gradients,
-and describe detach as cutting one graph edge while preserving a value. Do not
+Keep the displayed notation locale neutral. Explain `o` as the selected tracked
+output, `s` as the finite caller-supplied seed with a default value of one, the
+indicator as graph-node identity rather than primal equality, and `E_o(v)` as
+the distinct operand occurrences leaving tracked `v` in the selected output's
+backward dependency subgraph. State that structurally reachable untracked nodes
+receive no pass-local adjoint. Explain `c(e)` as the consuming result and `d_e`
+as the derivative for one operand slot. Keep
+pass-local adjoints distinct from stored cross-call gradients, and describe
+detach as cutting one graph edge while preserving a value. Do not
 turn the history into programming-language or framework history, and do not
 attribute this example's graph or error choices to the sources.
 

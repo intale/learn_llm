@@ -241,7 +241,7 @@ const expectedSheets = {
     lesson: '14-scalar-autodiff.mdx',
     title: 'Accumulate gradients through a scalar graph',
     entries: [
-      ['Computation graph', 'One scalar value stored in the computation graph.'],
+      ['Computation graph', 'One tracked scalar node in the dependency subgraph traversed backward from'],
       ['Reverse mode', 'Baydin et al. describe reverse mode as recording dependencies'],
       ['Adjoint', 'pass-local adjoint'],
       ['Operand-use edge', 'operand-use edges'],
@@ -725,6 +725,10 @@ const exactDefinitions = {
   '12-stable-softmax': {
     Underflow: 'A finite-precision effect where a tiny magnitude becomes subnormal or rounds to zero.',
   },
+  '14-scalar-autodiff': {
+    Adjoint: "A pass-local sensitivity for one tracked node: the selected output's derivative with respect to that node, multiplied by the finite seed installed at the output.",
+    'Backward pass': 'One complete reverse traversal from a selected tracked scalar output after installing a finite seed there; the default operation uses seed 1.',
+  },
   '15-tensor-autodiff-core': {
     'Reduction VJP': 'A reverse rule that reinserts and broadcasts a reduced axis, dividing by its extent for a mean.',
   },
@@ -1102,6 +1106,21 @@ describe('Russian chapter cheat-sheet localization', () => {
       });
     });
   }
+
+  it('keeps the Chapter 14 adjoint and backward-pass definitions seed-aware', () => {
+    const sheet = readLocalizedSheet('ru', '14-scalar-autodiff.json');
+    expect(
+      sheet.terms.find((entry) => entry.term === 'Сопряжённая величина')
+        ?.definition,
+    ).toBe(
+      'Чувствительность отслеживаемого узла в текущем проходе: производная выбранного выхода по этому узлу, умноженная на конечную начальную сопряжённую величину, заданную для выхода.',
+    );
+    expect(
+      sheet.terms.find((entry) => entry.term === 'Обратный проход')?.definition,
+    ).toBe(
+      'Один полный обратный обход от выбранного отслеживаемого скалярного выхода после того, как для него задали конечную начальную сопряжённую величину; обычный вызов использует 1.',
+    );
+  });
 
   it('grounds the reviewed Chapter 1 Russian handoff terms in the natural lesson explanations', () => {
     const sheet = readLocalizedSheet('ru', '01-text-units.json');

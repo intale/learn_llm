@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 14,
   "concept_id": "scalar-autodiff",
   "title": "Accumulate gradients through a scalar graph",
@@ -10,23 +10,35 @@
   "objective": "Build a scalar computation graph and accumulate reverse-mode adjoints across every operand use in shared subexpressions.",
   "worked_inputs": "Set x=2, square=x*x, and loss=square+square. Predict square=4 and loss=8, then count the two occurrences of square as an operand of loss and the two occurrences of x as an operand of square to obtain bar(square)=2 and bar(x)=8 before running backward.",
   "formula": {
-    "latex": "\\bar v=\\sum_{e\\in E(v)}\\bar{c(e)}\\,d_e",
+    "latex": "\\bar v=s\\,\\mathbf{1}[v=o]+\\sum_{e\\in E_o(v)}\\bar{c(e)}\\,d_e",
     "symbols": [
       {
         "symbol": "v",
-        "meaning": "one scalar value stored in the computation graph"
+        "meaning": "one tracked scalar node in the dependency subgraph traversed backward from selected output o for this reverse pass"
       },
       {
         "symbol": "\\bar v",
-        "meaning": "the pass-local adjoint of v, equal to the derivative of the selected scalar output with respect to v"
+        "meaning": "the pass-local adjoint of v under seed s, equal to s times the derivative of the selected scalar output o with respect to v"
+      },
+      {
+        "symbol": "o",
+        "meaning": "the selected tracked scalar output whose reverse pass is being evaluated"
+      },
+      {
+        "symbol": "s",
+        "meaning": "the finite scalar seed supplied by the caller and installed at selected output o; backward() uses 1"
+      },
+      {
+        "symbol": "\\mathbf{1}[v=o]",
+        "meaning": "the graph-node identity indicator that equals 1 when v is the selected output node o and 0 at every other node, regardless of equal primal values"
       },
       {
         "symbol": "e",
         "meaning": "one distinct outgoing edge for one occurrence of v as an operand"
       },
       {
-        "symbol": "E(v)",
-        "meaning": "the operand-use edges leaving v, with one edge per occurrence even when several edges reach the same consuming node"
+        "symbol": "E_o(v)",
+        "meaning": "the distinct operand-use edges leaving tracked node v inside o's reverse-pass dependency subgraph, with one edge per occurrence even when several edges reach the same consuming node"
       },
       {
         "symbol": "c(e)",
@@ -256,19 +268,34 @@ adjoint $2$ gives contributions $4$ and $4$, so $\bar{x}=8$.
 
 ## Accumulate every reverse path
 
-For one fresh reverse pass, the exact edge-based accumulation rule is:
+For one fresh reverse pass, the exact rule combines the output boundary with
+edge-based accumulation:
 
 $$
-\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e
+\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e
 $$
 
-Here $E(v)$ contains one distinct edge for every occurrence of $v$ as an
-operand, $c(e)$ is the result that consumes that occurrence, and $d_e$ is the
+Here $o$ is the selected tracked scalar output and $s$ is the explicit finite
+seed supplied by the caller. The method `backward_with_seed` installs $s$ at
+$o$; `backward()` uses $s=1$. The node $v$ is tracked and belongs to the
+dependency subgraph traversed backward from $o$. The indicator is $1$ when $v$
+and $o$ are the same
+graph node and $0$
+otherwise; two nodes with equal primal values do not pass that identity test. It
+therefore installs $\bar o=s$ even though the selected output has no consuming
+edge in its own backward subgraph.
+$E_o(v)$ contains one distinct edge for every occurrence of tracked $v$ as an
+operand inside that subgraph; a consumer unrelated to $o$ is excluded.
+Untracked constants and detached values can still appear in the structural
+traversal, but they are outside the active adjoint recurrence: no pass-local
+adjoint is stored for them and propagation into them is skipped. The result
+$c(e)$ consumes that occurrence, and $d_e$ is the
 slot-local derivative evaluated from stored forward values. This is the chain
-rule with branching made explicit. In $x\cdot x$, the two operand slots produce
-two edges even though both point to the same $x$ node. Each edge contributes an
-upstream adjoint times its own local derivative; addition combines those
-contributions. Assignment would silently discard all but one.
+rule with its output boundary and branching made explicit. In $x\cdot x$, the
+two operand slots produce two edges even though both point to the same $x$
+node. Each edge contributes an upstream adjoint times its own local derivative;
+addition combines those contributions. Assignment would silently discard all
+but one.
 
 The graph is evaluated forward before this rule runs. A result-last
 topological list is traversed in reverse, so all contributions have reached a
@@ -282,10 +309,13 @@ $g_v\mathrel{+}=\bar v$ only after the fresh pass has been validated.
 
 | Symbol | Operational meaning |
 | :--- | :--- |
-| $v$ | One scalar value stored in the computation graph. |
-| $\bar v$ | The pass-local derivative of the selected scalar output with respect to $v$. |
+| $v$ | One tracked scalar node in the dependency subgraph traversed backward from $o$. |
+| $\bar v$ | The pass-local adjoint under seed $s$: $s$ times the derivative of selected output $o$ with respect to $v$. |
+| $o$ | The selected tracked scalar output whose reverse pass is being evaluated. |
+| $s$ | The finite scalar seed supplied by the caller and installed at $o$; `backward()` uses $s=1$. |
+| $\mathbf{1}[v=o]$ | The graph-node identity indicator: $1$ when $v$ is output node $o$, otherwise $0$, even if another node has the same primal value. |
 | $e$ | One distinct outgoing edge for one occurrence of $v$ as an operand. |
-| $E(v)$ | All operand-use edges leaving $v$, counted with multiplicity. |
+| $E_o(v)$ | The distinct operand-use edges leaving tracked $v$ inside $o$'s reverse-pass dependency subgraph. |
 | $c(e)$ | The result node that consumes the operand occurrence represented by $e$. |
 | $\bar{c(e)}$ | The pass-local adjoint already accumulated at that consuming result. |
 | $d_e$ | The result's local derivative with respect to this operand occurrence, evaluated from stored forward values. |

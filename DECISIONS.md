@@ -18411,3 +18411,169 @@ Escape, focus restoration, and the absence of any descendant vertical owner.
 
 **Affected step and run:** `repair-ch16-full-view-composition`,
 `20260809T105336Z-repair-ch16-full-view-composition-01`.
+
+## 2026-08-09 - Prioritize the independent theory and evidence audit before Chapter 17
+
+**Status:** Accepted by explicit user direction after the Chapter 16 checkpoint.
+
+**Context:** An independent repository-wide review using a separate frontier
+agent found no defect that invalidates the teaching model's forward pass,
+gradients, training run, or cached generation. It did find three high-severity
+theory/evidence defects, six medium-severity precision or numerical defects, and
+four lower-risk caveats. The most urgent defects are an incomplete exact
+reverse-mode equation in Chapter 14, provenance claims in Chapter 34 that exceed
+what caller-supplied labels can prove, and presentation of a deliberately chosen
+and permanently regression-tested holdout as if it were untouched independent
+generalization evidence. The user directed that these findings take priority
+immediately after Chapter 16 and that work continue without approval pauses.
+
+**Decision:** Insert an English-first, dependency-ordered remediation sequence
+between the completed Chapter 16 diagram repair and the pending Chapter 17
+diagram repair. Correct the three high-severity findings first. Then correct or
+precisely bound Chapter 35 checkpoint-resume scope, Chapter 39 window-slot
+perplexity, Chapter 13 representable finite-difference spacing and oracle limits,
+Chapter 22 AdamW shrinkage/clipping domains, Chapter 36 retained-top-k versus
+positive floating-point support, Chapter 23's validation-history claim, and
+Chapter 18's embedding-sharing wording. Finish with an independent closure that
+maps every supplied finding to a separate committed correction or a validated
+no-defect conclusion. `repair-ch17-full-view-travel` now depends on that closure.
+
+Use the localization skill for every learner-facing change. English remains the
+canonical semantic source and Russian must be refreshed directly from the
+matching English revision. Preserve formulas, identifiers, values, causal
+relationships, units, links, and program evidence unless the finding itself
+requires their correction. Render changed mathematics through the site's math
+pipeline and validate both locales in Chromium and Firefox. Where the audit
+identifies an actual numerical or API defect, prefer a tested Rust correction
+over prose that merely excuses it; where the limit is epistemic and cannot be
+mechanically proved by this repository, narrow the claim instead of inventing a
+false guarantee.
+
+The deterministic locked test suite proves the behavior of its frozen fixtures.
+It must not be described as proving universal mathematical correctness,
+untouched generalization, or architecture-wide superiority. Earlier decisions
+remain immutable historical provenance, but any stronger conflicting claim is
+superseded by the correction step that addresses it.
+
+**Consequences:** The active build's objective and completion criteria now
+include technical honesty across learner theory, numerical evidence, APIs, and
+localization in addition to diagram readability. Its former low-priority label
+continues to describe the remaining diagram queue, not this user-prioritized
+audit. Each correction receives a new run, complete fingerprint, staged
+publication, validation, and standalone commit. No remaining diagram step may
+start until the audit closure succeeds. No dependency, external service, or
+network input is authorized implicitly; a primary research source may be read
+only when a retained research claim needs it.
+
+**Affected build and steps:**
+`repair-and-audit-diagram-rendering-20260808`,
+`correct-ch14-reverse-mode-boundary-equation`,
+`bound-ch34-evaluation-provenance-claims`,
+`qualify-ch34-ch39-holdout-evidence`,
+`define-ch35-checkpoint-resume-scope`,
+`distinguish-ch39-window-slot-perplexity`,
+`correct-ch13-rounded-probe-gradcheck`,
+`bound-ch22-adamw-shrinkage-and-clipping`,
+`distinguish-ch36-retained-set-from-sampling-support`,
+`correct-ch23-validation-history`,
+`clarify-ch18-embedding-parameter-sharing`,
+`close-independent-theory-evidence-audit`, and
+`repair-ch17-full-view-travel`.
+
+## 2026-08-09 - Treat every Chapter 14 formula registry as correction scope
+
+**Status:** Accepted during
+`correct-ch14-reverse-mode-boundary-equation` run 01.
+
+**Context:** Exact-input review found three additional authoritative claim sites
+for the incomplete recurrence: the curriculum course-plan summary, the shared
+static formula registry, and the shared rendered-formula browser registry. The
+active step initially declared only the chapter contract, localized lessons,
+and Chapter 14-focused tests. Leaving the shared registries unchanged would
+publish contradictory mathematics and let a future regression reintroduce the
+edge-only equation.
+
+**Decision:** Add `curriculum/course-plan.md`,
+`site/tests/formula-rendering.test.ts`, and
+`site/tests/e2e/formula-rendering.spec.ts` to the active step's necessary shared
+integration outputs. Update only Chapter 14's revision/formula entries there;
+preserve every other chapter record and shared formula assertion.
+
+**Consequences:** The correction commit owns ten declared files including the
+two ledgers. Shared formula validation must inspect the exact output-boundary
+recurrence and rendered math annotation, while the scalar Rust implementation,
+trace, dependencies, and all unrelated chapter formulas remain byte-identical.
+
+**Affected step:** `correct-ch14-reverse-mode-boundary-equation`.
+
+## 2026-08-09 - Keep Chapter 14's cheat-sheet adjoint definition seed-aware
+
+**Status:** Accepted during
+`correct-ch14-reverse-mode-boundary-equation` run 01.
+
+**Context:** The Chapter 14 English and Russian cheat sheets define an adjoint as
+the unscaled derivative of the selected output. That is true only for the
+default seed `s=1`; the public scalar API also accepts an arbitrary finite seed.
+After correcting the exact recurrence to `bar(v)=s*partial(o)/partial(v)`, the
+old modal definition would contradict the lesson and runtime.
+
+**Decision:** Add both Chapter 14 cheat sheets and their shared static/browser
+validation to the active step. Define the pass-local adjoint as the selected
+output derivative multiplied by its explicit seed, and keep the backward-pass
+entry explicit that the worked/default pass uses seed one. Refresh Russian
+directly from the corrected English meaning and preserve all other sheet entries
+and order.
+
+**Consequences:** Formula, lesson, and progressive reference modal now teach one
+seed-aware contract. The existing localized trigger/dialog/Escape/focus,
+constrained-scroll, narrow, and no-JavaScript behavior must still pass; no shared
+modal implementation, unrelated cheat sheet, scalar runtime, dependency, or
+lock changes.
+
+**Affected step:** `correct-ch14-reverse-mode-boundary-equation`.
+
+## 2026-08-09 - Add the selected-output boundary to Chapter 14 reverse mode
+
+**Status:** Accepted during
+`correct-ch14-reverse-mode-boundary-equation` run 01.
+
+**Context:** Chapter 14 called its edge-only recurrence exact, but the selected
+output has no consuming edge in its own reverse dependency subgraph. The stated
+sum therefore assigned it zero instead of the finite seed. The Rust runtime was
+already correct: `backward_with_seed` requires a tracked output and finite seed,
+installs that seed at the selected output, traverses only dependencies reachable
+from that output, skips adjoint propagation into untracked parents, and commits
+validated stored gradients transactionally.
+
+**Decision:** Publish content revision 5 with the exact pass-local recurrence
+
+```latex
+\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e.
+```
+
+Its domain is the tracked scalar nodes in the dependency subgraph traversed
+backward from selected tracked output `o`. The caller supplies finite seed `s`;
+`backward()` uses one. The indicator compares graph-node identity, not equal
+primal values. `E_o(v)` retains one distinct outgoing operand-use edge per
+occurrence inside that subgraph. Structurally reachable untracked constants and
+detached values may still appear in the traversal, but they receive no
+pass-local adjoint and are outside this recurrence's active domain.
+
+Correct English first and refresh Russian directly with the same symbol order,
+scope, and causal meaning. Update the contract, lesson displays and glossaries,
+course-plan registry, shared formula fixtures, and the existing seed-dependent
+Adjoint and Backward pass cheat-sheet definitions. Do not alter the already
+correct scalar implementation, demo, trace, expected output, dependency graph,
+or lockfiles.
+
+**Consequences:** All fourteen declared outputs now agree on the boundary
+condition, selected-output scope, node identity, edge multiplicity, and seed
+scaling. Static tests must distinguish the contract's fenced LaTeX from each
+lesson's display math, reject the historical edge-only equation, freeze the
+ordered ten-symbol inventory and protected runtime bytes, and bind both locales
+to the contract. Browser tests must require the exact SSR annotation, zero
+KaTeX errors, readable desktop/narrow paint with any intrinsic inline travel
+owned by the formula's sanctioned math scroller, and the corrected localized
+cheat-sheet text. Earlier revision-4 formula records remain historical only.
+
+**Affected step:** `correct-ch14-reverse-mode-boundary-equation`.

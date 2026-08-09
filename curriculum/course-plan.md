@@ -1191,11 +1191,11 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `14-scalar-autodiff`
 - **Implementation step:** `implement-ch14-scalar-autodiff`
-- **Revision status:** Content revision 4 corrects reverse accumulation to sum distinct operand-use edges, removes learner-facing delivery rationale, adopts the shared diagram presentation contract, and activates the reviewed Russian lesson through `activate-ch14-russian-localization`; revision 3 remains recorded by `repair-formula-rendering-ch14-ch19`.
+- **Revision status:** Content revision 5 adds the selected-output seed boundary and restricts operand-use edges to that output's backward dependency slice; revision 4's edge multiplicity, shared presentation, and reviewed Russian activation remain in force.
 - **Depends on:** `13-gradient-checking`.
 - **Outcome:** Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions.
 - **Scope boundary:** Teach graph nodes, local derivatives, topological order, chain rule, accumulation, zeroing, and detach; defer tensor operations.
-- **Formula:** `\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`.
+- **Formula:** `\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e`.
 - **Historical contrast:** Symbolic expansion and forward-mode propagation scale poorly when one loss depends on many parameters; trace hand-derived neural-network gradients to reverse-mode backpropagation, whose direction matches modern language-model training.
 - **Rust contribution:** Add a tiny safe scalar graph supporting arithmetic and elementary functions, with gradients checked numerically.
 - **Visualization:** Useful — render a branched computation DAG with forward values, local derivatives, and reverse adjoint flow.
