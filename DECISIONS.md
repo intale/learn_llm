@@ -17676,3 +17676,90 @@ dependency, route, shared style, or controller implementation changes.
 `repair-and-audit-diagram-rendering-20260808`,
 `repair-ch07-table-cells-and-full-view`, and
 `20260809T000325Z-repair-ch07-table-cells-and-full-view-01`.
+
+## 2026-08-09 - Share Chapter 10's first full-view row and reflow only boundary descendants
+
+**Status:** Accepted after exact bilingual Chromium and Firefox diagnosis and
+before product edits in `repair-ch10-full-view-travel` run 01.
+
+**Context:** Chapter 10 already preserves native broadcast and reduction tables,
+an ordered request/evidence/reason `dl`, complete trace evidence, and named local
+fallback regions. Its full-view figure nevertheless placed the shared controller
+in a separate full-width grid row above two evidence panels. The published audit
+measured Russian Firefox block debt of 175 pixels against a 154-pixel budget.
+The exact frozen-copy replay measured the same baseline at 175/154 in Firefox;
+Chromium passed, so changing learner copy, table semantics, type size, or the
+shared controller would be disproportionate.
+
+**Decision:** In standard full view, keep one semantic figure and the existing
+source order. Give the figure three concept tracks: the shared caption occupies
+the first two tracks and the shared action occupies the third in row one; the
+broadcast panel occupies the first track and the wider reductions panel occupies
+the last two tracks in row two. Preserve the broadcast panel's existing
+facts/mapping/rejection relationship and both native tables.
+
+The shared full-view eligibility threshold also admits an exact 1024 by 576
+Chromium surface. A figure establishes the named `course-diagram` container and
+cannot use a query on that same container to restyle itself, so the minimum-
+surface fallback must not pretend to switch the root grid. Under a descendant-
+only `@container course-diagram (max-width: 70rem)` query, let the broadcast and
+reductions panels span successive full-width rows. Inside the reductions panel,
+place its heading and explanation in a narrow semantic rail beside the native
+table. Inside the existing rejection card, place its heading beside the unchanged
+three-column semantic `dl`. Keep the caption/action cells, shared gaps, complete
+text, formulas, state cues, table roles, and named regions intact.
+
+The standard acceptance remains block debt no greater than 20% of the actual
+figure client. The exact Chromium 1024 by 576 surface has a separate minimum-
+surface contract, consistent with earlier eligible-boundary decisions: no more
+than one 574-pixel figure client of block travel, two pixels of root inline debt,
+no local table travel, no text shrink, and complete box/paint containment.
+Firefox exposes a larger native 1366 by 768 fullscreen surface for the same
+requested context and remains subject to the standard 20% rule. This boundary
+contract is not described as a standard 20% pass.
+
+**Consequences:** The selected read-only probe measures standard Chromium
+English/Russian debt at 0/39 pixels against 180 and Firefox at 45/112 against
+154. At exact Chromium 1024 by 576 it measures 454/567 pixels within one
+574-pixel figure client. All selected surfaces have zero root and local inline
+travel, zero local vertical travel, native table/row/cell roles, unchanged
+semantic markup, zero font reduction, and no containment or painted-ink defect.
+Ordinary, narrow, no-JavaScript, forced-color, and configured-direction modes
+continue to reuse the same nodes. No learner copy, formula, trace, Rust,
+dependency, route, shared-style, or controller file changes.
+
+**Affected build, step, and run:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch10-full-view-travel`, and
+`20260809T011935Z-repair-ch10-full-view-travel-01`.
+
+## 2026-08-09 - Repair inherited Chapter 7 ledger delimiters without changing its record
+
+**Status:** Accepted as a mechanical recovery discovered during
+`repair-ch10-full-view-travel` validation.
+
+**Context:** Commit `c46e3e68a90a2fb8c4d2849d740b19f8b4fbeece` recorded
+Chapter 7 as completed, but five consecutive flow-style validation mappings in
+that run were each missing their closing `}`. The committed
+`BUILD_STATE.yaml` therefore did not parse, so its statements that the exact
+committed ledger and scheduler validation passed were not true of those bytes.
+The intended keys and values remain present and unambiguous.
+
+**Decision:** Add only the five missing mapping delimiters while Chapter 10
+already owns the ledger output. Do not alter, relabel, or remove any Chapter 7
+run, field, validation result, status, timestamp, dependency, or artifact.
+Validate the recovered ledger independently and record the inherited correction
+in Chapter 10's run before its atomic completion.
+
+**Consequences:** The recovered file parses with the same intended history:
+Chapter 7 remains completed, Chapter 10 remains the sole running step, and the
+ordered successor remains unchanged. Current and completed-ledger scheduler
+checks must use the repaired bytes; no future report may cite the malformed
+Chapter 7 commit as exact ledger-validation evidence.
+
+**Affected build, steps, and runs:**
+`repair-and-audit-diagram-rendering-20260808`,
+`repair-ch07-table-cells-and-full-view`,
+`20260809T000325Z-repair-ch07-table-cells-and-full-view-01`,
+`repair-ch10-full-view-travel`, and
+`20260809T011935Z-repair-ch10-full-view-travel-01`.

@@ -313,24 +313,49 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
     border: 0;
   }
 
-  .broadcasting-reductions-diagram:fullscreen {
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+    grid-template-columns:
+      minmax(0, 0.958333fr)
+      minmax(0, 0.541667fr)
+      minmax(0, 0.5fr);
+    grid-template-rows: auto auto;
     align-content: start;
+    align-items: start;
   }
 
-  .broadcasting-reductions-diagram:fullscreen > figcaption {
-    grid-column: 1 / -1;
+  figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen > figcaption {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > :global(.diagram-full-view-actions) {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
   }
 
   .broadcasting-reductions-diagram:fullscreen :is(.mapping-table, .reductions-table) {
     min-inline-size: 100%;
   }
 
-  .broadcasting-reductions-diagram:fullscreen > .broadcast-panel {
+  figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .broadcast-panel {
     display: grid;
     grid-template-columns: minmax(18rem, 1fr) minmax(0, 1fr);
     align-content: start;
     column-gap: var(--diagram-gap);
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+  }
+
+  figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    > .reductions-panel {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    align-self: start;
   }
 
   .broadcasting-reductions-diagram:fullscreen > .broadcast-panel > :is(h4, p, .alignment-facts, .broadcast-error) {
@@ -351,6 +376,70 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
   .broadcasting-reductions-diagram:fullscreen .rejection-summary {
     grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.9fr) minmax(0, 1.6fr);
     column-gap: 0.75rem;
+  }
+
+  @container course-diagram (max-width: 70rem) {
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .broadcast-panel {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .reductions-panel {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: minmax(8rem, 0.17fr) minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      align-content: start;
+      column-gap: var(--diagram-gap);
+    }
+
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .reductions-panel
+      > h4 {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: start;
+    }
+
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .reductions-panel
+      > p {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .reductions-panel
+      > .reductions-scroll {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .broadcast-panel
+      > .broadcast-error {
+      grid-template-columns: max-content minmax(0, 1fr);
+      align-items: start;
+      column-gap: var(--diagram-gap);
+    }
+
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .broadcast-panel
+      > .broadcast-error
+      > .course-diagram__card-heading {
+      grid-column: 1;
+    }
+
+    figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+      > .broadcast-panel
+      > .broadcast-error
+      > .rejection-summary {
+      grid-column: 2;
+    }
   }
 
 </style>

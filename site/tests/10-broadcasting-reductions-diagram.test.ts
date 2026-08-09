@@ -306,6 +306,143 @@ describe('Chapter 10 static diagram component', () => {
     expect(component).not.toMatch(/\.error-card\s*\{[^}]*border/is);
     expect(component).not.toMatch(/@media\s*\(forced-colors:\s*active\)/);
   });
+
+  it('keeps one semantic tree and confines full-view reflow to concept geometry', () => {
+    expect(component.match(/<figure\b/g)).toHaveLength(1);
+    expect(component.match(/<figcaption\b/g)).toHaveLength(1);
+    expect(component.match(/<table\b/g)).toHaveLength(2);
+    expect(component.match(/<thead>/g)).toHaveLength(2);
+    expect(component.match(/<tbody>/g)).toHaveLength(2);
+    expect(component.match(/data-diagram-scroll/g)).toHaveLength(2);
+    expect(component.match(/data-diagram-box/g)).toHaveLength(3);
+    expect(component.match(/data-diagram-card/g)).toHaveLength(1);
+
+    const captionPosition = component.indexOf('<figcaption');
+    const broadcastPosition = component.indexOf('class="broadcast-panel"');
+    const reductionsPosition = component.indexOf('class="reductions-panel"');
+    expect(captionPosition).toBeGreaterThan(-1);
+    expect(broadcastPosition).toBeGreaterThan(captionPosition);
+    expect(reductionsPosition).toBeGreaterThan(broadcastPosition);
+
+    for (const tag of component.match(/<(?:div|section)[^>]+data-diagram-scroll[^>]*>/g) ?? []) {
+      expect(tag).toContain('course-diagram__scroll');
+      expect(tag).toContain('role="region"');
+      expect(tag).toContain('tabindex="0"');
+      expect(tag).toMatch(/aria-(?:label|labelledby)=/);
+      expect(tag).not.toContain('data-diagram-box');
+      expect(tag).not.toContain('data-diagram-card');
+    }
+
+    expect(component).not.toContain('<dialog');
+    expect(component).not.toContain('<button');
+    expect(component).not.toContain('data-diagram-full-view-toggle');
+    expect(component).not.toContain('data-diagram-full-view-controls');
+    expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
+    expect(component).not.toContain('<script');
+
+    const fullscreenSelector =
+      "figure.broadcasting-reductions-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen";
+    const fullscreenStart = component.indexOf(fullscreenSelector);
+    const fullscreenEnd = component.indexOf('</style>', fullscreenStart);
+    expect(fullscreenStart).toBeGreaterThan(-1);
+    expect(fullscreenEnd).toBeGreaterThan(fullscreenStart);
+    const fullscreenStyles = component.slice(fullscreenStart, fullscreenEnd);
+    const boundaryStart = fullscreenStyles.indexOf('@container course-diagram (max-width: 70rem)');
+    expect(boundaryStart).toBeGreaterThan(-1);
+    const standardStyles = fullscreenStyles.slice(0, boundaryStart);
+    const boundaryStyles = fullscreenStyles.slice(boundaryStart);
+
+    expect(
+      standardStyles.match(
+        /figure\.broadcasting-reductions-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*\{/g,
+      ),
+    ).toHaveLength(1);
+    for (const selectorPattern of [
+      />\s*figcaption\s*\{/g,
+      />\s*:global\(\.diagram-full-view-actions\)\s*\{/g,
+      />\s*\.broadcast-panel\s*\{/g,
+      />\s*\.reductions-panel\s*\{/g,
+    ]) {
+      expect(standardStyles.match(selectorPattern)).toHaveLength(1);
+    }
+    expect(boundaryStyles).not.toMatch(
+      /figure\.broadcasting-reductions-diagram\.course-diagram\[data-diagram-style='course-v1'\]:fullscreen\s*\{/,
+    );
+
+    for (const hook of [
+      '> figcaption',
+      '> :global(.diagram-full-view-actions)',
+      '> .broadcast-panel',
+      '> .reductions-panel',
+      '> .reductions-panel\n      > h4',
+      '> .reductions-panel\n      > p',
+      '> .reductions-panel\n      > .reductions-scroll',
+      '> .broadcast-panel\n      > .broadcast-error',
+    ]) {
+      expect(fullscreenStyles).toContain(hook);
+    }
+    expect(fullscreenStyles).toMatch(
+      /grid-template-columns:\s*minmax\(0, [^)]+\)\s*minmax\(0, [^)]+\)\s*minmax\(0, [^)]+\)/,
+    );
+    expect(fullscreenStyles).toMatch(/grid-template-rows:\s*auto auto/);
+    expect(fullscreenStyles).toMatch(
+      /> figcaption\s*\{[^}]*grid-column:\s*1 \/ 3[^}]*grid-row:\s*1/s,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> :global\(\.diagram-full-view-actions\)\s*\{[^}]*grid-column:\s*3[^}]*grid-row:\s*1/s,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> \.broadcast-panel\s*\{[^}]*grid-column:\s*1[^}]*grid-row:\s*2/s,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> \.reductions-panel\s*\{[^}]*grid-column:\s*2 \/ 4[^}]*grid-row:\s*2/s,
+    );
+
+    const captionRule = fullscreenStyles.match(
+      /> figcaption\s*\{(?<body>[\s\S]*?)\}/,
+    )?.groups?.body;
+    expect(captionRule).toBeDefined();
+    expect(captionRule).not.toMatch(
+      /display\s*:|grid-template|grid-auto-flow|flex-direction|font(?:-|\s*:)|padding|overflow/,
+    );
+
+    expect(fullscreenStyles).toMatch(
+      /@container course-diagram \(max-width:\s*70rem\)[\s\S]*?> \.broadcast-panel\s*\{[^}]*grid-column:\s*1 \/ -1[^}]*grid-row:\s*2/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /@container course-diagram \(max-width:\s*70rem\)[\s\S]*?> \.reductions-panel\s*\{[^}]*grid-column:\s*1 \/ -1[^}]*grid-row:\s*3[^}]*display:\s*grid[^}]*grid-template-columns:\s*minmax\(8rem, 0\.17fr\) minmax\(0, 1fr\)/,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> \.reductions-panel\s*> \.reductions-scroll\s*\{[^}]*grid-column:\s*2[^}]*grid-row:\s*1 \/ span 2/s,
+    );
+    expect(fullscreenStyles).toMatch(
+      /> \.broadcast-panel\s*> \.broadcast-error\s*\{[^}]*grid-template-columns:\s*max-content minmax\(0, 1fr\)/s,
+    );
+
+    expect(fullscreenStyles).not.toMatch(/\bfont(?:-size|-family|-weight|-style)?\s*:/);
+    expect(fullscreenStyles).not.toMatch(/line-height\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\bzoom\s*:/);
+    expect(fullscreenStyles).not.toMatch(/transform\s*:\s*scale/);
+    expect(fullscreenStyles).not.toMatch(/display\s*:\s*none/);
+    expect(fullscreenStyles).not.toMatch(/visibility\s*:\s*(?:hidden|collapse)/);
+    expect(fullscreenStyles).not.toMatch(/opacity\s*:\s*0(?:\D|$)/);
+    expect(fullscreenStyles).not.toMatch(/content-visibility\s*:\s*hidden/);
+    expect(fullscreenStyles).not.toMatch(/position\s*:\s*(?:absolute|fixed)/);
+    expect(fullscreenStyles).not.toMatch(/overflow(?:-[xy])?\s*:\s*(?:hidden|clip)/);
+    expect(fullscreenStyles).not.toMatch(/contain\s*:\s*(?:paint|strict|content)/);
+    expect(fullscreenStyles).not.toMatch(/\bclip\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\bclip-path\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:-webkit-)?mask(?:-[\w-]+)?\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\bfilter\s*:/);
+    expect(fullscreenStyles).not.toMatch(/\b(?:color|background(?:-color)?)\s*:/);
+    expect(fullscreenStyles).not.toMatch(/text-overflow\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:-webkit-)?line-clamp\s*:/);
+    expect(fullscreenStyles).not.toMatch(/max-height\s*:/);
+    expect(fullscreenStyles).not.toMatch(/(?:max-)?block-size\s*:/);
+    expect(fullscreenStyles).not.toMatch(/!important/);
+    expect(fullscreenStyles).not.toMatch(/--diagram-(?:gap|cell|panel|frame|card)[\w-]*\s*:/);
+    expect(fullscreenStyles).not.toMatch(/@media\s*\(/);
+  });
 });
 
 describe('Chapter 10 validated offset traversal contract', () => {

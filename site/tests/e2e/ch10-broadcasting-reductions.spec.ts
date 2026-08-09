@@ -33,6 +33,20 @@ const historySources = [
   'https://github.com/openai/gpt-2/blob/master/src/model.py',
 ] as const;
 
+// Standard values reflect the final zero-local-travel probe with the 2 px test tolerance.
+const GEOMETRY_LIMITS = {
+  standardBlockDebtRatio: 0.2,
+  standardScrollerTravelPx: 2,
+  standardScrollerTravelRatio: 0.01,
+  chromiumBoundaryWidth: 1024,
+  chromiumBoundaryHeight: 576,
+  chromiumBoundaryFigureHeight: 574,
+  chromiumBoundaryBlockDebtPx: 574,
+  chromiumBoundaryBlockDebtRatio: 1,
+  chromiumBoundaryScrollerTravelPx: 2,
+  chromiumBoundaryScrollerTravelRatio: 0.01,
+} as const;
+
 const copy = {
   en: {
     revisionLabel: 'Content revision',
@@ -113,7 +127,8 @@ const copy = {
       'Согласуйте формы и сопоставьте координаты результата координатам входов',
       'Выполняйте редукцию по одной заданной оси',
     ],
-    incompatibleReason: 'Согласованные размеры осей 3 и 2 различаются, и ни один из них не равен 1.',
+    incompatibleReason:
+      'Согласованные размеры осей 3 и 2 различаются, и ни один из них не равен 1.',
     emptyMeanReason: 'Для выбранной пустой оси среднее не определено.',
     emptyMaxReason: 'Для выбранной пустой оси максимум не определён.',
     rejected: 'Операция отклонена',
@@ -132,7 +147,9 @@ function readRustRegion(path: string, region: string): string {
   const lines = readFileSync(resolve(repositoryRoot, path), 'utf8').split(/\r?\n/);
   const start = lines.findIndex((line: string) => line.trim() === `// region:${region}`);
   const end = lines.findIndex((line: string) => line.trim() === `// endregion:${region}`);
-  if (start === -1 || end <= start) throw new Error(`Missing ordered Rust region ${region} in ${path}`);
+  if (start === -1 || end <= start) {
+    throw new Error(`Missing ordered Rust region ${region} in ${path}`);
+  }
   return lines.slice(start + 1, end).join('\n');
 }
 
@@ -143,7 +160,9 @@ const expectedRustRegions = [
   ['rust/crates/llm-from-scratch/src/tensor/ops.rs', 'axis-reductions'],
   ['rust/demos/ch10-broadcasting-reductions/src/main.rs', 'learner-broadcasting-output'],
 ] as const;
-const expectedRustSources = expectedRustRegions.map(([path, region]) => readRustRegion(path, region));
+const expectedRustSources = expectedRustRegions.map(([path, region]) =>
+  readRustRegion(path, region),
+);
 
 async function settle(page: Page) {
   await page.evaluate(async () => {
@@ -154,15 +173,23 @@ async function settle(page: Page) {
   });
 }
 
+async function staticDiagramMarkup(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const clone = root.cloneNode(true) as HTMLElement;
+    clone.querySelector('[data-diagram-full-view-controls]')?.remove();
+    return clone.innerHTML;
+  });
+}
+
 async function expectRejectionFieldRows(
   diagram: Locator,
   expectedLabels: readonly string[],
   context: string,
 ) {
-  const card = diagram.locator('[data-error-kind="incompatible-broadcast"]');
-  const summary = card.locator(':scope > .rejection-summary');
+  const summary = diagram.locator(
+    '[data-error-kind="incompatible-broadcast"] > .rejection-summary',
+  );
   const fields = summary.locator(':scope > [data-rejection-field]');
-
   await expect(summary, `${context}: rejection summary`).toHaveCount(1);
   await expect(fields, `${context}: rejection fields`).toHaveCount(3);
   expect(
@@ -170,156 +197,860 @@ async function expectRejectionFieldRows(
       nodes.map((node) => node.getAttribute('data-rejection-field')),
     ),
   ).toEqual(['request', 'evidence', 'reason']);
-  await expect(fields.locator(':scope > [data-rejection-label]')).toHaveText([...expectedLabels]);
+  await expect(fields.locator(':scope > dt[data-rejection-label]')).toHaveText([
+    ...expectedLabels,
+  ]);
 
-  const diagnostics = await fields.evaluateAll((nodes) => {
-    const paintedTextRects = (root: Element) => {
-      const rects: Array<{ top: number; right: number; bottom: number; left: number }> = [];
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-      let textNode = walker.nextNode();
-      while (textNode) {
-        const parent = textNode.parentElement;
-        const text = textNode.textContent ?? '';
-        if (
-          parent &&
-          text.trim() &&
-          !parent.closest('.visually-hidden, .katex-mathml')
-        ) {
-          const style = window.getComputedStyle(parent);
-          if (style.display !== 'none' && style.visibility !== 'hidden') {
-            const range = document.createRange();
-            range.selectNodeContents(textNode);
-            for (const rect of Array.from(range.getClientRects())) {
-              if (rect.width > 0 && rect.height > 0) {
-                rects.push({
-                  top: rect.top,
-                  right: rect.right,
-                  bottom: rect.bottom,
-                  left: rect.left,
-                });
-              }
-            }
-          }
-        }
-        textNode = walker.nextNode();
-      }
-      return rects;
-    };
-
-    return nodes.map((node) => {
-      const label = node.querySelector(':scope > [data-rejection-label]');
-      const value = node.querySelector(':scope > [data-rejection-value]');
-      const summaryNode = node.parentElement;
-      const cardNode = node.closest('[data-error-kind="incompatible-broadcast"]');
+  const diagnostics = await fields.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const label = node.querySelector(':scope > dt[data-rejection-label]');
+      const value = node.querySelector(':scope > dd[data-rejection-value]');
       if (!(label instanceof HTMLElement) || !(value instanceof HTMLElement)) {
-        throw new Error('Missing direct rejection label or value');
+        throw new Error('Missing direct DT/DD rejection pair');
       }
-      if (!(summaryNode instanceof HTMLElement) || !(cardNode instanceof HTMLElement)) {
-        throw new Error('Missing rejection summary or card');
-      }
-
-      const labelRects = paintedTextRects(label);
-      const valueRects = paintedTextRects(value);
-      if (labelRects.length === 0 || valueRects.length === 0) {
-        throw new Error('Missing painted rejection label or value text');
-      }
-      const cardRect = cardNode.getBoundingClientRect();
-      const cardStyle = window.getComputedStyle(cardNode);
-      const inner = {
-        top: cardRect.top + Number.parseFloat(cardStyle.borderTopWidth),
-        right: cardRect.right - Number.parseFloat(cardStyle.borderRightWidth),
-        bottom: cardRect.bottom - Number.parseFloat(cardStyle.borderBottomWidth),
-        left: cardRect.left + Number.parseFloat(cardStyle.borderLeftWidth),
+      const rangeRect = (element: HTMLElement) => {
+        const rects: DOMRect[] = [];
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          const text = walker.currentNode as Text;
+          const parent = text.parentElement;
+          if (
+            !text.textContent?.trim() ||
+            !parent ||
+            parent.closest('.visually-hidden, .katex-mathml')
+          ) {
+            continue;
+          }
+          const style = getComputedStyle(parent);
+          if (style.display === 'none' || style.visibility === 'hidden') continue;
+          const range = document.createRange();
+          range.selectNodeContents(text);
+          rects.push(
+            ...Array.from(range.getClientRects()).filter(
+              ({ width, height }) => width > 0 && height > 0,
+            ),
+          );
+        }
+        if (rects.length === 0) throw new Error('Rejection field has no painted text');
+        return {
+          bottom: Math.max(...rects.map(({ bottom }) => bottom)),
+          top: Math.min(...rects.map(({ top }) => top)),
+        };
       };
-      const paintRects = [...labelRects, ...valueRects];
-      const styles = [node, label, value].map((element) => window.getComputedStyle(element));
-
+      const labelPaint = rangeRect(label);
+      const valuePaint = rangeRect(value);
       return {
+        display: getComputedStyle(node).display,
         field: node.getAttribute('data-rejection-field'),
+        labelBeforeValue: Boolean(
+          label.compareDocumentPosition(value) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
         labelTag: label.tagName,
+        separation: valuePaint.top - labelPaint.bottom,
         valueTag: value.tagName,
-        labelBeforeValue: Boolean(label.compareDocumentPosition(value) & Node.DOCUMENT_POSITION_FOLLOWING),
-        summaryDisplay: window.getComputedStyle(summaryNode).display,
-        fieldDisplay: window.getComputedStyle(node).display,
-        separation:
-          Math.min(...valueRects.map(({ top }) => top)) -
-          Math.max(...labelRects.map(({ bottom }) => bottom)),
-        inlineDebt: (node as HTMLElement).scrollWidth - (node as HTMLElement).clientWidth,
-        blockDebt: (node as HTMLElement).scrollHeight - (node as HTMLElement).clientHeight,
-        clipped: styles.some(({ overflowX, overflowY }) =>
-          [overflowX, overflowY].some((overflow) => overflow === 'hidden' || overflow === 'clip'),
-        ),
-        paintOverhang: Math.max(
-          0,
-          ...paintRects.flatMap((rect) => [
-            inner.left - rect.left,
-            rect.right - inner.right,
-            inner.top - rect.top,
-            rect.bottom - inner.bottom,
-          ]),
-        ),
       };
-    });
-  });
-
+    }),
+  );
   expect(
-    diagnostics.map(({
+    diagnostics.map(({ display, field, labelBeforeValue, labelTag, valueTag }) => ({
+      display,
       field,
+      labelBeforeValue,
       labelTag,
       valueTag,
-      labelBeforeValue,
-      summaryDisplay,
-      fieldDisplay,
-      clipped,
-    }) => ({
-      field,
-      labelTag,
-      valueTag,
-      labelBeforeValue,
-      summaryDisplay,
-      fieldDisplay,
-      clipped,
     })),
     context,
   ).toEqual([
-    {
-      field: 'request',
-      labelTag: 'DT',
-      valueTag: 'DD',
-      labelBeforeValue: true,
-      summaryDisplay: 'grid',
-      fieldDisplay: 'grid',
-      clipped: false,
-    },
-    {
-      field: 'evidence',
-      labelTag: 'DT',
-      valueTag: 'DD',
-      labelBeforeValue: true,
-      summaryDisplay: 'grid',
-      fieldDisplay: 'grid',
-      clipped: false,
-    },
-    {
-      field: 'reason',
-      labelTag: 'DT',
-      valueTag: 'DD',
-      labelBeforeValue: true,
-      summaryDisplay: 'grid',
-      fieldDisplay: 'grid',
-      clipped: false,
-    },
+    { display: 'grid', field: 'request', labelBeforeValue: true, labelTag: 'DT', valueTag: 'DD' },
+    { display: 'grid', field: 'evidence', labelBeforeValue: true, labelTag: 'DT', valueTag: 'DD' },
+    { display: 'grid', field: 'reason', labelBeforeValue: true, labelTag: 'DT', valueTag: 'DD' },
   ]);
   for (const diagnostic of diagnostics) {
-    expect(diagnostic.separation, `${context}: ${diagnostic.field} label/value separation`)
-      .toBeGreaterThanOrEqual(1);
-    expect(diagnostic.inlineDebt, `${context}: ${diagnostic.field} inline debt`)
-      .toBeLessThanOrEqual(1);
-    expect(diagnostic.blockDebt, `${context}: ${diagnostic.field} block debt`)
-      .toBeLessThanOrEqual(1);
-    expect(diagnostic.paintOverhang, `${context}: ${diagnostic.field} paint overhang`)
-      .toBeLessThanOrEqual(1);
+    expect(diagnostic.separation, `${context}: ${diagnostic.field} separation`).toBeGreaterThanOrEqual(1);
   }
+}
+
+async function readDiagramGeometry(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const tolerance = 2;
+    const problems: string[] = [];
+    const allElements = [figure, ...figure.querySelectorAll<HTMLElement>('*')];
+    const ignored = (element: HTMLElement) =>
+      Boolean(
+        element.closest(
+          '.visually-hidden, .katex-mathml, [data-diagram-full-view-controls]',
+        ),
+      );
+    const visible = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        style.display !== 'none' &&
+        !['hidden', 'collapse'].includes(style.visibility) &&
+        style.contentVisibility !== 'hidden' &&
+        Number.parseFloat(style.opacity) > 0 &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    };
+    const describe = (element: HTMLElement) => {
+      const classes = [...element.classList].slice(0, 2).join('.');
+      return `${element.tagName.toLowerCase()}${classes ? `.${classes}` : ''}`;
+    };
+    const border = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      return {
+        colors: [
+          style.borderTopColor,
+          style.borderRightColor,
+          style.borderBottomColor,
+          style.borderLeftColor,
+        ],
+        styles: [
+          style.borderTopStyle,
+          style.borderRightStyle,
+          style.borderBottomStyle,
+          style.borderLeftStyle,
+        ],
+        widths: [
+          Number.parseFloat(style.borderTopWidth),
+          Number.parseFloat(style.borderRightWidth),
+          Number.parseFloat(style.borderBottomWidth),
+          Number.parseFloat(style.borderLeftWidth),
+        ],
+      };
+    };
+    const transparent = (value: string) => {
+      const normalized = value.toLowerCase().replaceAll(' ', '');
+      return (
+        normalized === 'transparent' ||
+        /^rgba\([^)]*,0(?:\.0+)?\)$/.test(normalized) ||
+        /\/0(?:\.0+)?\)$/.test(normalized)
+      );
+    };
+    const completeBorder = (element: HTMLElement) => {
+      const evidence = border(element);
+      return (
+        evidence.widths.every((width) => Number.isFinite(width) && width > 0) &&
+        evidence.styles.every((style) => !['none', 'hidden'].includes(style)) &&
+        evidence.colors.every((color) => !transparent(color))
+      );
+    };
+    const clipped = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      const sharedInlineMathFallback =
+        element.matches('.katex') &&
+        style.overflowX === 'auto' &&
+        style.overflowY === 'hidden';
+      return (
+        (!sharedInlineMathFallback &&
+          [style.overflowX, style.overflowY].some((value) =>
+            ['hidden', 'clip'].includes(value),
+          )) ||
+        /(?:paint|strict|content)/.test(style.contain) ||
+        style.getPropertyValue('clip') !== 'auto' ||
+        style.clipPath !== 'none' ||
+        style.maskImage !== 'none' ||
+        /(?:opacity\(0(?:\.0+)?\)|brightness\(0(?:\.0+)?\))/.test(style.filter)
+      );
+    };
+    const innerRect = (element: HTMLElement) => {
+      const rect = element.getBoundingClientRect();
+      const widths = border(element).widths;
+      return {
+        bottom: rect.bottom - widths[2]!,
+        left: rect.left + widths[3]!,
+        right: rect.right - widths[1]!,
+        top: rect.top + widths[0]!,
+      };
+    };
+    const within = (
+      child: { bottom: number; left: number; right: number; top: number },
+      owner: { bottom: number; left: number; right: number; top: number },
+      checkInline = true,
+      checkBlock = true,
+    ) =>
+      (!checkInline ||
+        (child.left >= owner.left - tolerance && child.right <= owner.right + tolerance)) &&
+      (!checkBlock ||
+        (child.top >= owner.top - tolerance && child.bottom <= owner.bottom + tolerance));
+
+    for (const [index, element] of allElements.entries()) {
+      if (ignored(element)) continue;
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      const ownsDirectText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      if ((ownsDirectText || element.matches('.katex')) && transparent(style.color)) {
+        problems.push(`element-${index} ${describe(element)} has transparent text`);
+      }
+      if (
+        style.display === 'none' ||
+        ['hidden', 'collapse'].includes(style.visibility) ||
+        style.contentVisibility === 'hidden' ||
+        Number.parseFloat(style.opacity) <= 0
+      ) {
+        problems.push(`element-${index} ${describe(element)} is concealed`);
+      }
+      if (
+        element.textContent?.trim() &&
+        !element.closest('.katex-html') &&
+        (rect.width <= 0 || rect.height <= 0)
+      ) {
+        problems.push(`element-${index} ${describe(element)} has no painted area`);
+      }
+      if (visible(element) && clipped(element)) {
+        problems.push(`element-${index} ${describe(element)} conceals overflow`);
+      }
+    }
+
+    const visibleElements = allElements.filter(visible);
+    const markedBoxes = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-box]'),
+    );
+    const cells = Array.from(figure.querySelectorAll<HTMLTableCellElement>('th, td'));
+    const stateSymbols = Array.from(
+      figure.querySelectorAll<HTMLElement>('.state-symbol'),
+    );
+    const mandatoryOwners = new Set<HTMLElement>([figure, ...markedBoxes, ...cells]);
+    const borderedOwners = visibleElements.filter(
+      (element) =>
+        !element.closest('[data-diagram-full-view-controls]') && completeBorder(element),
+    );
+    const boundedOwners = new Set<HTMLElement>([...mandatoryOwners, ...borderedOwners]);
+    const nearestOwner = (element: HTMLElement | null) => {
+      let current = element;
+      while (current && figure.contains(current)) {
+        if (boundedOwners.has(current)) return current;
+        if (current === figure) break;
+        current = current.parentElement;
+      }
+      return null;
+    };
+
+    for (const [index, owner] of [...boundedOwners].entries()) {
+      if (!completeBorder(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} lacks four visible borders`);
+      }
+      if (clipped(owner)) {
+        problems.push(`owner-${index} ${describe(owner)} clips or paint-contains`);
+      }
+      const rect = owner.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        problems.push(`owner-${index} ${describe(owner)} has no painted area`);
+      }
+      const inlineDebt = Math.max(0, owner.scrollWidth - owner.clientWidth);
+      const blockDebt = Math.max(0, owner.scrollHeight - owner.clientHeight);
+      if (owner !== figure && inlineDebt > tolerance) {
+        problems.push(`owner-${index} ${describe(owner)} has inline debt ${inlineDebt}`);
+      }
+      if (owner !== figure && blockDebt > tolerance) {
+        problems.push(`owner-${index} ${describe(owner)} has block debt ${blockDebt}`);
+      }
+
+      if (owner === figure) continue;
+      const ancestor = nearestOwner(owner.parentElement);
+      if (!ancestor) {
+        problems.push(`owner-${index} ${describe(owner)} has no bounded ancestor`);
+        continue;
+      }
+      const interveningScroller = owner.parentElement?.closest<HTMLElement>(
+        '[data-diagram-scroll]',
+      );
+      const checkInline = !interveningScroller || !ancestor.contains(interveningScroller);
+      if (
+        !within(
+          owner.getBoundingClientRect(),
+          innerRect(ancestor),
+          checkInline,
+          ancestor !== figure,
+        )
+      ) {
+        problems.push(`owner-${index} ${describe(owner)} escapes nearest bounded ancestor`);
+      }
+    }
+
+    for (const [index, cue] of stateSymbols.entries()) {
+      if (!visible(cue)) problems.push(`cue-${index} is not visible`);
+      if (!completeBorder(cue)) problems.push(`cue-${index} lacks four visible borders`);
+      if (clipped(cue)) problems.push(`cue-${index} clips or paint-contains`);
+      if (cue.scrollWidth - cue.clientWidth > tolerance) {
+        problems.push(`cue-${index} has inline debt`);
+      }
+      if (cue.scrollHeight - cue.clientHeight > tolerance) {
+        problems.push(`cue-${index} has block debt`);
+      }
+      const ancestor = nearestOwner(cue.parentElement);
+      if (
+        !ancestor ||
+        !within(cue.getBoundingClientRect(), innerRect(ancestor), true, ancestor !== figure)
+      ) {
+        problems.push(`cue-${index} escapes nearest bounded ancestor`);
+      }
+    }
+
+    const scrollers = Array.from(
+      figure.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+    );
+    for (const [index, scroller] of scrollers.entries()) {
+      const labelledBy = scroller.getAttribute('aria-labelledby')?.trim() ?? '';
+      const directLabel = scroller.getAttribute('aria-label')?.trim() ?? '';
+      const ids = labelledBy.split(/\s+/).filter(Boolean);
+      const resolved =
+        ids.length > 0 &&
+        ids.every((id) => {
+          const matches = document.querySelectorAll<HTMLElement>(`#${CSS.escape(id)}`);
+          return matches.length === 1 && figure.contains(matches[0]!);
+        });
+      if (
+        scroller.getAttribute('role') !== 'region' ||
+        scroller.getAttribute('tabindex') !== '0' ||
+        !scroller.classList.contains('course-diagram__scroll') ||
+        (!directLabel && !resolved)
+      ) {
+        problems.push(`scroller-${index} lacks its shared named-region contract`);
+      }
+      if (
+        scroller.hasAttribute('data-diagram-box') ||
+        scroller.hasAttribute('data-diagram-card')
+      ) {
+        problems.push(`scroller-${index} also claims bounded ownership`);
+      }
+      if (clipped(scroller)) problems.push(`scroller-${index} clips overflow`);
+      if (scroller.scrollHeight - scroller.clientHeight > tolerance) {
+        problems.push(`scroller-${index} has vertical travel`);
+      }
+      if (scroller.querySelector('[data-diagram-scroll]')) {
+        problems.push(`scroller-${index} nests another declared scroller`);
+      }
+    }
+
+    const actualHorizontalScrollOwners = allElements.filter((element) => {
+      if (!visible(element) || element === figure) return false;
+      const style = getComputedStyle(element);
+      return (
+        element.scrollWidth - element.clientWidth > tolerance &&
+        ['auto', 'scroll'].includes(style.overflowX)
+      );
+    });
+    for (const [index, owner] of actualHorizontalScrollOwners.entries()) {
+      if (!owner.hasAttribute('data-diagram-scroll') || !scrollers.includes(owner)) {
+        problems.push(`actual-scroll-owner-${index} ${describe(owner)} is undeclared`);
+      }
+    }
+    const actualVerticalScrollOwners = allElements.filter((element) => {
+      if (ignored(element) || !visible(element) || element === figure) return false;
+      const style = getComputedStyle(element);
+      return (
+        element.scrollHeight - element.clientHeight > tolerance &&
+        ['auto', 'scroll'].includes(style.overflowY)
+      );
+    });
+    for (const [index, owner] of actualVerticalScrollOwners.entries()) {
+      problems.push(`actual-vertical-scroll-owner-${index} ${describe(owner)} is forbidden`);
+    }
+
+    const idrefElements = [
+      figure,
+      ...figure.querySelectorAll<HTMLElement>('[aria-labelledby], [aria-describedby]'),
+    ].filter(
+      (element) =>
+        element.hasAttribute('aria-labelledby') || element.hasAttribute('aria-describedby'),
+    );
+    const referencedIds = new Set<string>();
+    let idrefTokenCount = 0;
+    for (const [index, element] of idrefElements.entries()) {
+      for (const attribute of ['aria-labelledby', 'aria-describedby'] as const) {
+        if (!element.hasAttribute(attribute)) continue;
+        const ids = (element.getAttribute(attribute) ?? '').split(/\s+/).filter(Boolean);
+        if (ids.length === 0) problems.push(`idref-${index} has empty ${attribute}`);
+        for (const id of ids) {
+          referencedIds.add(id);
+          idrefTokenCount += 1;
+          const matches = document.querySelectorAll<HTMLElement>(`#${CSS.escape(id)}`);
+          if (
+            matches.length !== 1 ||
+            !matches[0]?.textContent?.trim() ||
+            !figure.contains(matches[0])
+          ) {
+            problems.push(`idref-${index} ${attribute} does not resolve ${id} exactly once`);
+          }
+        }
+      }
+    }
+
+    const checkPaint = (
+      paint: { bottom: number; left: number; right: number; top: number },
+      parent: HTMLElement,
+      label: string,
+    ) => {
+      const owner = nearestOwner(parent);
+      if (!owner) return;
+      const scroller = parent.closest<HTMLElement>('[data-diagram-scroll]');
+      const checkInline = !scroller || scroller.contains(owner);
+      if (!within(paint, innerRect(owner), checkInline, owner !== figure)) {
+        problems.push(`${label} paints outside ${describe(owner)}`);
+      }
+    };
+
+    const walker = document.createTreeWalker(figure, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      const parent = textNode.parentElement;
+      if (!textNode.textContent?.trim() || !parent || ignored(parent) || !visible(parent)) {
+        continue;
+      }
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      const paints = Array.from(range.getClientRects()).filter(
+        ({ width, height }) => width > 0 && height > 0,
+      );
+      if (paints.length === 0 && !parent.closest('.katex-html')) {
+        problems.push(`${describe(parent)} has no painted text`);
+      }
+      for (const paint of paints) {
+        checkPaint(paint, parent, describe(parent));
+      }
+    }
+    for (const [index, katex] of Array.from(
+      figure.querySelectorAll<HTMLElement>('.katex'),
+    ).entries()) {
+      if (katex.closest('.katex-mathml') || !visible(katex)) continue;
+      if (transparent(getComputedStyle(katex).color)) {
+        problems.push(`katex-${index} has transparent text`);
+      }
+      checkPaint(katex.getBoundingClientRect(), katex, `katex-${index}`);
+    }
+
+    for (const [index, table] of Array.from(
+      figure.querySelectorAll<HTMLTableElement>('table[data-diagram-table]'),
+    ).entries()) {
+      if (getComputedStyle(table).display !== 'table') {
+        problems.push(`table-${index} is not a native table`);
+      }
+      if (!table.tHead || getComputedStyle(table.tHead).display !== 'table-header-group') {
+        problems.push(`table-${index} lost its native header group`);
+      }
+      for (const body of Array.from(table.tBodies)) {
+        if (getComputedStyle(body).display !== 'table-row-group') {
+          problems.push(`table-${index} lost its native body group`);
+        }
+      }
+      for (const [rowIndex, row] of Array.from(table.rows).entries()) {
+        const rowRect = row.getBoundingClientRect();
+        if (getComputedStyle(row).display !== 'table-row') {
+          problems.push(`table-${index} row-${rowIndex} is not a native row`);
+        }
+        for (const [cellIndex, cell] of Array.from(row.cells).entries()) {
+          const cellRect = cell.getBoundingClientRect();
+          if (getComputedStyle(cell).display !== 'table-cell') {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} is not table-cell`);
+          }
+          if (!completeBorder(cell)) {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} lacks four borders`);
+          }
+          if (
+            Math.abs(cellRect.top - rowRect.top) > 1 ||
+            Math.abs(cellRect.bottom - rowRect.bottom) > 1
+          ) {
+            problems.push(`table-${index} row-${rowIndex} cell-${cellIndex} does not fill row`);
+          }
+        }
+      }
+    }
+
+    const rejectionFields = Array.from(
+      figure.querySelectorAll<HTMLElement>(
+        '.rejection-summary > [data-rejection-field]',
+      ),
+    );
+    for (const [index, field] of rejectionFields.entries()) {
+      const direct = Array.from(field.children);
+      if (
+        direct.length !== 2 ||
+        direct[0]?.tagName !== 'DT' ||
+        direct[1]?.tagName !== 'DD' ||
+        !direct[0].hasAttribute('data-rejection-label') ||
+        !direct[1].hasAttribute('data-rejection-value')
+      ) {
+        problems.push(`rejection-field-${index} is not one direct ordered DT/DD pair`);
+      }
+    }
+
+    const fontSizes = allElements.flatMap((element, index) => {
+      if (ignored(element) || !visible(element)) return [];
+      const directText = [...element.childNodes].some(
+        (child) => child.nodeType === Node.TEXT_NODE && Boolean(child.textContent?.trim()),
+      );
+      const isOuterKatex = element.matches('.katex') && !element.closest('.katex-mathml');
+      return directText || isOuterKatex
+        ? [{ key: `${index}:${isOuterKatex ? 'katex' : 'text'}`, pixels: Number.parseFloat(getComputedStyle(element).fontSize) }]
+        : [];
+    });
+    const scrollerTravel = scrollers.map((scroller) => {
+      const client = scroller.clientWidth;
+      const debt = Math.max(0, scroller.scrollWidth - client);
+      return {
+        client,
+        debt,
+        ratio: client > 0 ? debt / client : Number.POSITIVE_INFINITY,
+      };
+    });
+
+    return {
+      actualHorizontalScrollOwnerCount: actualHorizontalScrollOwners.length,
+      actualVerticalScrollOwnerCount: actualVerticalScrollOwners.length,
+      blockBudget: Math.ceil(figure.clientHeight * 0.2),
+      blockDebt: Math.max(0, figure.scrollHeight - figure.clientHeight),
+      borderedOwnerCount: borderedOwners.length,
+      boxCount: markedBoxes.length,
+      cardCount: figure.querySelectorAll('[data-diagram-card]').length,
+      cellCount: cells.length,
+      columnHeaderCount: figure.querySelectorAll('th[scope="col"]').length,
+      cueCount: stateSymbols.length,
+      cueTexts: stateSymbols.map((cue) => cue.textContent?.trim() ?? ''),
+      directOrder: Array.from(figure.children)
+        .filter((element) => !element.hasAttribute('data-diagram-full-view-controls'))
+        .map((element) => `${element.tagName}.${element.className}`),
+      errorOrder: Array.from(figure.querySelectorAll<HTMLElement>('[data-error-kind]')).map(
+        (element) => element.dataset.errorKind,
+      ),
+      fontSizes,
+      groupCount: figure.querySelectorAll('[data-group-indices]').length,
+      idrefElementCount: idrefElements.length,
+      idrefTargetCount: referencedIds.size,
+      idrefTokenCount,
+      inlineDebt: Math.max(0, figure.scrollWidth - figure.clientWidth),
+      mandatoryOwnerCount: mandatoryOwners.size,
+      mappingCount: figure.querySelectorAll('[data-output-coordinate]').length,
+      mappingOrder: Array.from(
+        figure.querySelectorAll<HTMLElement>('[data-output-coordinate]'),
+      ).map((element) => element.dataset.outputCoordinate),
+      maxScrollerTravel: Math.max(0, ...scrollerTravel.map(({ debt }) => debt)),
+      maxScrollerTravelRatio: Math.max(0, ...scrollerTravel.map(({ ratio }) => ratio)),
+      problems: [...new Set(problems)],
+      reductionCount: figure.querySelectorAll('[data-reduction-operation]').length,
+      reductionOrder: Array.from(
+        figure.querySelectorAll<HTMLElement>('[data-reduction-operation]'),
+      ).map((element) => element.dataset.reductionOperation),
+      rejectionFieldCount: rejectionFields.length,
+      rowCount: figure.querySelectorAll('table tr').length,
+      rowHeaderCount: figure.querySelectorAll('th[scope="row"]').length,
+      scrollerCount: scrollers.length,
+      scrollerTravel,
+      tableCount: figure.querySelectorAll('table[data-diagram-table]').length,
+      tbodyCount: figure.querySelectorAll('table tbody').length,
+      tdCount: figure.querySelectorAll('td').length,
+      theadCount: figure.querySelectorAll('table thead').length,
+      viewportHeight: figure.clientHeight,
+    };
+  });
+}
+
+function expectCompleteDiagramGeometry(
+  geometry: Awaited<ReturnType<typeof readDiagramGeometry>>,
+) {
+  expect(geometry.directOrder).toEqual([
+    'FIGCAPTION.course-diagram__caption',
+    'SECTION.broadcast-panel',
+    'SECTION.reductions-panel',
+  ]);
+  expect(geometry.tableCount).toBe(2);
+  expect(geometry.theadCount).toBe(2);
+  expect(geometry.tbodyCount).toBe(2);
+  expect(geometry.rowCount).toBe(13);
+  expect(geometry.cellCount).toBe(58);
+  expect(geometry.columnHeaderCount).toBe(9);
+  expect(geometry.rowHeaderCount).toBe(11);
+  expect(geometry.tdCount).toBe(38);
+  expect(geometry.boxCount).toBe(3);
+  expect(geometry.cardCount).toBe(1);
+  expect(geometry.mandatoryOwnerCount).toBe(62);
+  expect(geometry.borderedOwnerCount).toBe(75);
+  expect(geometry.scrollerCount).toBe(2);
+  expect(geometry.cueCount).toBe(13);
+  expect(geometry.cueTexts).toEqual([
+    '↻',
+    '↻',
+    '↻',
+    '↻',
+    '↻',
+    '↻',
+    '↻',
+    '×',
+    '↓',
+    '↓',
+    '↓',
+    '×',
+    '×',
+  ]);
+  expect(geometry.mappingCount).toBe(6);
+  expect(geometry.mappingOrder).toEqual(['0,0', '0,1', '0,2', '1,0', '1,1', '1,2']);
+  expect(geometry.reductionCount).toBe(3);
+  expect(geometry.reductionOrder).toEqual(['sum', 'mean', 'max']);
+  expect(geometry.groupCount).toBe(7);
+  expect(geometry.errorOrder).toEqual([
+    'incompatible-broadcast',
+    'empty-mean-axis',
+    'empty-max-axis',
+  ]);
+  expect(geometry.rejectionFieldCount).toBe(3);
+  expect(geometry.idrefElementCount).toBe(3);
+  expect(geometry.idrefTargetCount).toBe(4);
+  expect(geometry.idrefTokenCount).toBe(4);
+  expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+  expect(geometry.actualVerticalScrollOwnerCount).toBe(0);
+  expect(geometry.problems).toEqual([]);
+}
+
+function expectFontsNotShrunk(
+  inline: Awaited<ReturnType<typeof readDiagramGeometry>>,
+  full: Awaited<ReturnType<typeof readDiagramGeometry>>,
+) {
+  expect(full.fontSizes.map(({ key }) => key)).toEqual(
+    inline.fontSizes.map(({ key }) => key),
+  );
+  const inlinePixels = new Map(inline.fontSizes.map(({ key, pixels }) => [key, pixels]));
+  for (const sample of full.fontSizes) {
+    expect(sample.pixels + 0.01, sample.key).toBeGreaterThanOrEqual(
+      inlinePixels.get(sample.key) ?? Number.POSITIVE_INFINITY,
+    );
+  }
+}
+
+type FullViewBranch = 'standard' | 'boundary';
+
+async function readFullViewComposition(diagram: Locator) {
+  return diagram.evaluate((root) => {
+    const figure = root as HTMLElement;
+    const rect = (selector: string) => {
+      const element = figure.querySelector<HTMLElement>(selector);
+      if (!element) throw new Error(`Missing full-view composition node ${selector}`);
+      const box = element.getBoundingClientRect();
+      return {
+        bottom: box.bottom,
+        height: box.height,
+        left: box.left,
+        right: box.right,
+        top: box.top,
+        width: box.width,
+      };
+    };
+    return {
+      actions: rect(':scope > [data-diagram-full-view-controls]'),
+      broadcast: rect(':scope > .broadcast-panel'),
+      broadcastError: rect(':scope > .broadcast-panel > .broadcast-error'),
+      broadcastFacts: rect(':scope > .broadcast-panel > .alignment-facts'),
+      broadcastHeading: rect(':scope > .broadcast-panel > h4'),
+      broadcastMapping: rect(':scope > .broadcast-panel > .mapping-scroll'),
+      broadcastNote: rect(':scope > .broadcast-panel > p'),
+      caption: rect(':scope > figcaption'),
+      columns: getComputedStyle(figure).gridTemplateColumns.split(/\s+/).filter(Boolean)
+        .length,
+      direction: getComputedStyle(figure).direction,
+      reductions: rect(':scope > .reductions-panel'),
+      reductionsHeading: rect(':scope > .reductions-panel > h4'),
+      reductionsNote: rect(':scope > .reductions-panel > p'),
+      reductionsTable: rect(':scope > .reductions-panel > .reductions-scroll'),
+      rows: getComputedStyle(figure).gridTemplateRows.split(/\s+/).filter(Boolean).length,
+    };
+  });
+}
+
+function expectCoherentFullView(
+  composition: Awaited<ReturnType<typeof readFullViewComposition>>,
+  branch: FullViewBranch,
+) {
+  type Rect = { bottom: number; height: number; left: number; right: number; top: number; width: number };
+  const inlineBefore = (first: Rect, second: Rect) => {
+    if (composition.direction === 'rtl') {
+      expect(first.left + 1).toBeGreaterThanOrEqual(second.right);
+    } else {
+      expect(first.right).toBeLessThanOrEqual(second.left + 1);
+    }
+  };
+  const verticallyOverlaps = (first: Rect, second: Rect) =>
+    Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top);
+
+  expect(composition.columns).toBe(3);
+  expect(composition.rows).toBe(branch === 'standard' ? 2 : 3);
+  for (const [name, region] of Object.entries(composition).filter(
+    ([name]) => !['columns', 'direction', 'rows'].includes(name),
+  ) as Array<[string, Rect]>) {
+    expect(region.width, `${name} width`).toBeGreaterThan(0);
+    expect(region.height, `${name} height`).toBeGreaterThan(0);
+  }
+
+  inlineBefore(composition.caption, composition.actions);
+  expect(verticallyOverlaps(composition.caption, composition.actions)).toBeGreaterThan(0);
+  expect(
+    Math.min(composition.broadcast.top, composition.reductions.top),
+  ).toBeGreaterThanOrEqual(
+    Math.max(composition.caption.bottom, composition.actions.bottom) - 1,
+  );
+
+  if (branch === 'standard') {
+    inlineBefore(composition.broadcast, composition.reductions);
+    expect(Math.abs(composition.broadcast.top - composition.reductions.top)).toBeLessThanOrEqual(2);
+    expect(composition.reductions.width).toBeGreaterThan(composition.broadcast.width);
+  } else {
+    expect(composition.broadcast.bottom).toBeLessThanOrEqual(composition.reductions.top + 1);
+    expect(Math.abs(composition.broadcast.left - composition.reductions.left)).toBeLessThanOrEqual(2);
+    expect(Math.abs(composition.broadcast.right - composition.reductions.right)).toBeLessThanOrEqual(2);
+    expect(Math.abs(composition.broadcast.width - composition.reductions.width)).toBeLessThanOrEqual(2);
+  }
+
+  for (const leading of [
+    composition.broadcastHeading,
+    composition.broadcastNote,
+    composition.broadcastFacts,
+  ]) {
+    inlineBefore(leading, composition.broadcastMapping);
+  }
+  expect(
+    Math.abs(composition.broadcastHeading.top - composition.broadcastMapping.top),
+  ).toBeLessThanOrEqual(2);
+  expect(composition.broadcastHeading.bottom).toBeLessThanOrEqual(
+    composition.broadcastNote.top + 1,
+  );
+  expect(composition.broadcastNote.bottom).toBeLessThanOrEqual(
+    composition.broadcastFacts.top + 1,
+  );
+  expect(composition.broadcastError.top).toBeGreaterThanOrEqual(
+    Math.max(composition.broadcastFacts.bottom, composition.broadcastMapping.bottom) - 1,
+  );
+
+  expect(composition.reductionsHeading.bottom).toBeLessThanOrEqual(
+    composition.reductionsNote.top + 1,
+  );
+  if (branch === 'standard') {
+    expect(composition.reductionsNote.bottom).toBeLessThanOrEqual(
+      composition.reductionsTable.top + 1,
+    );
+  } else {
+    inlineBefore(composition.reductionsHeading, composition.reductionsTable);
+    inlineBefore(composition.reductionsNote, composition.reductionsTable);
+    expect(
+      Math.abs(composition.reductionsHeading.top - composition.reductionsTable.top),
+    ).toBeLessThanOrEqual(2);
+  }
+}
+
+function expectStandardTravel(
+  geometry: Awaited<ReturnType<typeof readDiagramGeometry>>,
+) {
+  expect(geometry.blockDebt).toBeLessThanOrEqual(
+    Math.ceil(geometry.viewportHeight * GEOMETRY_LIMITS.standardBlockDebtRatio),
+  );
+  expect(geometry.maxScrollerTravel).toBeLessThanOrEqual(
+    GEOMETRY_LIMITS.standardScrollerTravelPx,
+  );
+  expect(geometry.maxScrollerTravelRatio).toBeLessThanOrEqual(
+    GEOMETRY_LIMITS.standardScrollerTravelRatio,
+  );
+}
+
+async function expectDiagramRecords(diagram: Locator, locale: ChapterLocale) {
+  const localized = copy[locale];
+  await expect(diagram.getByRole('table')).toHaveCount(2);
+  await expect(diagram.getByRole('columnheader')).toHaveCount(9);
+  await expect(diagram.getByRole('rowheader')).toHaveCount(11);
+  await expect(diagram.getByRole('cell')).toHaveCount(38);
+  await expect(diagram.locator(':scope > section[data-diagram-box]')).toHaveCount(2);
+  await expect(diagram.locator('[data-diagram-box]')).toHaveCount(3);
+  await expect(diagram.locator('[data-diagram-card]')).toHaveCount(1);
+  await expect(diagram.locator('[data-diagram-scroll]')).toHaveCount(2);
+
+  await expect(diagram.locator('[data-alignment-id]')).toHaveCount(3);
+  await expect(diagram.locator('[data-alignment-id="tokens"]')).toContainText('[2,3]');
+  await expect(diagram.locator('[data-alignment-id="bias"]')).toContainText('[3]');
+  await expect(diagram.locator('[data-alignment-id="bias"]')).toContainText('[1,3]');
+  await expect(diagram.locator('[data-alignment-id="output"]')).toContainText('[2,3]');
+
+  const maps = diagram.locator('[data-output-coordinate]');
+  await expect(maps).toHaveCount(6);
+  expect(
+    await maps.evaluateAll((rows) =>
+      rows.map((row) => ({
+        left: row.getAttribute('data-left-coordinate'),
+        output: row.getAttribute('data-output-coordinate'),
+        right: row.getAttribute('data-right-coordinate'),
+        value: row.getAttribute('data-result-value'),
+      }))),
+  ).toEqual([
+    { left: '0,0', output: '0,0', right: '0', value: '11.0' },
+    { left: '0,1', output: '0,1', right: '1', value: '22.0' },
+    { left: '0,2', output: '0,2', right: '2', value: '33.0' },
+    { left: '1,0', output: '1,0', right: '0', value: '14.0' },
+    { left: '1,1', output: '1,1', right: '1', value: '25.0' },
+    { left: '1,2', output: '1,2', right: '2', value: '36.0' },
+  ]);
+
+  const reductions = diagram.locator('[data-reduction-operation]');
+  await expect(reductions).toHaveCount(3);
+  expect(
+    await reductions.evaluateAll((rows) =>
+      rows.map((row) => ({
+        axis: row.getAttribute('data-reduction-axis'),
+        groups: Array.from(row.querySelectorAll('[data-group-indices]')).map((group) =>
+          group.getAttribute('data-group-indices'),
+        ),
+        keepDim: row.getAttribute('data-keep-dim'),
+        operation: row.getAttribute('data-reduction-operation'),
+        shape: row.getAttribute('data-output-shape'),
+        values: row.getAttribute('data-reduction-values'),
+      }))),
+  ).toEqual([
+    {
+      axis: '0',
+      groups: ['0,3', '1,4', '2,5'],
+      keepDim: 'no',
+      operation: 'sum',
+      shape: '3',
+      values: '25.0,47.0,69.0',
+    },
+    {
+      axis: '1',
+      groups: ['0,1,2', '3,4,5'],
+      keepDim: 'yes',
+      operation: 'mean',
+      shape: '2,1',
+      values: '22.0,25.0',
+    },
+    {
+      axis: '1',
+      groups: ['0,1,2', '3,4,5'],
+      keepDim: 'no',
+      operation: 'max',
+      shape: '2',
+      values: '33.0,36.0',
+    },
+  ]);
+
+  const errors = diagram.locator('[data-error-kind]');
+  await expect(errors).toHaveCount(3);
+  expect(
+    await errors.evaluateAll((rows) =>
+      rows.map((row) => row.getAttribute('data-error-kind')),
+    ),
+  ).toEqual(['incompatible-broadcast', 'empty-mean-axis', 'empty-max-axis']);
+  await expect(errors.nth(0)).toContainText(localized.incompatibleReason);
+  await expect(errors.nth(1)).toContainText(localized.emptyMeanReason);
+  await expect(errors.nth(2)).toContainText(localized.emptyMaxReason);
+  await expect(errors).toContainText([
+    localized.rejected,
+    localized.rejected,
+    localized.rejected,
+  ]);
+  await expect(errors.nth(1)).toContainText(localized.notApplicable);
+  await expect(errors.nth(2)).toContainText(localized.notApplicable);
+  await expect(
+    diagram.locator(
+      '[data-error-kind="incompatible-broadcast"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText(String.raw`3\ne2`);
 }
 
 async function expectChapterContent(
@@ -352,24 +1083,32 @@ async function expectChapterContent(
   expect(historyText).toContain(localized.vaswaniClaim);
   expect(historyText).toContain(localized.gpt2Claim);
   expect(historyText).toContain(localized.modernLlmRole);
-  expect(historyText).not.toMatch(/Iliffe|Genie|FORTRAN|TypeScript|build instructions|инструкц(?:ии|ия) сборки/i);
+  expect(historyText).not.toMatch(
+    /Iliffe|Genie|FORTRAN|TypeScript|build instructions|инструкц(?:ии|ия) сборки/i,
+  );
   const historyLinks = historyNodes.locator('a');
   await expect(historyLinks).toHaveCount(historySources.length);
-  expect(await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href')))).toEqual(
-    historySources,
-  );
+  expect(
+    await historyLinks.evaluateAll((links) =>
+      links.map((link) => link.getAttribute('href')),
+    ),
+  ).toEqual(historySources);
 
   const lessonText = await readMathAwareText(page.locator('.lesson-body'));
-  for (const evidence of localized.traversalEvidence) {
-    expect(lessonText).toContain(evidence);
-  }
+  for (const evidence of localized.traversalEvidence) expect(lessonText).toContain(evidence);
 
   const formula = page
     .locator('.katex-display')
-    .filter({ has: page.locator('annotation[encoding="application/x-tex"]', { hasText: formulaLatex }) });
+    .filter({
+      has: page.locator('annotation[encoding="application/x-tex"]', {
+        hasText: formulaLatex,
+      }),
+    });
   await expect(formula).toHaveCount(1);
   await expect(formula).toHaveCSS('direction', 'ltr');
-  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
+  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(
+    formulaLatex,
+  );
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
@@ -378,7 +1117,9 @@ async function expectChapterContent(
   );
   await expect(highlighted).toHaveCount(expectedRustRegions.length);
   expect(
-    await highlighted.locator('code').evaluateAll((blocks) => blocks.map((block) => block.textContent)),
+    await highlighted.locator('code').evaluateAll((blocks) =>
+      blocks.map((block) => block.textContent),
+    ),
   ).toEqual(expectedRustSources);
   expect(
     await rustSources.evaluateAll((sources) =>
@@ -387,14 +1128,14 @@ async function expectChapterContent(
   ).toEqual(expectedRustRegions.map(([, region]) => region));
   for (const evidence of await highlighted.evaluateAll((blocks) =>
     blocks.map((block) => ({
-      tabIndex: block.getAttribute('tabindex'),
-      label: block.getAttribute('aria-label'),
-      direction: block.getAttribute('dir'),
       colors: new Set(
         Array.from(block.querySelectorAll<HTMLElement>('code span[style*="color"]'))
           .map((token) => token.style.color)
           .filter(Boolean),
       ).size,
+      direction: block.getAttribute('dir'),
+      label: block.getAttribute('aria-label'),
+      tabIndex: block.getAttribute('tabindex'),
     })),
   )) {
     expect(evidence.tabIndex).toBe('0');
@@ -403,111 +1144,44 @@ async function expectChapterContent(
     expect(evidence.colors).toBeGreaterThan(1);
   }
 
-  await expectVisualizationDecision(page, { decision: 'useful', id: 'broadcasting-reductions' });
-  const diagram = page.locator('figure[data-visualization-id="broadcasting-reductions"]');
+  await expectVisualizationDecision(page, {
+    decision: 'useful',
+    id: 'broadcasting-reductions',
+  });
+  const diagram = page.locator(
+    'figure[data-visualization-id="broadcasting-reductions"]',
+  );
   await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
   await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
   for (const heading of localized.diagramSections) {
     await expect(diagram.getByRole('heading', { name: heading })).toBeVisible();
   }
-  await expect(diagram.locator(':scope > section[data-diagram-box]')).toHaveCount(2);
-  await expect(diagram.locator('table[data-diagram-table]')).toHaveCount(2);
-  await expect(diagram.locator('[data-alignment-id]')).toHaveCount(3);
-  await expect(diagram.locator('[data-alignment-id="tokens"]')).toContainText('[2,3]');
-  await expect(diagram.locator('[data-alignment-id="bias"]')).toContainText('[3]');
-  await expect(diagram.locator('[data-alignment-id="bias"]')).toContainText('[1,3]');
-  await expect(diagram.locator('[data-alignment-id="output"]')).toContainText('[2,3]');
-
-  const maps = diagram.locator('[data-output-coordinate]');
-  await expect(maps).toHaveCount(6);
-  expect(
-    await maps.evaluateAll((rows) =>
-      rows.map((row) => ({
-        output: row.getAttribute('data-output-coordinate'),
-        left: row.getAttribute('data-left-coordinate'),
-        right: row.getAttribute('data-right-coordinate'),
-        value: row.getAttribute('data-result-value'),
-      }))),
-  ).toEqual([
-    { output: '0,0', left: '0,0', right: '0', value: '11.0' },
-    { output: '0,1', left: '0,1', right: '1', value: '22.0' },
-    { output: '0,2', left: '0,2', right: '2', value: '33.0' },
-    { output: '1,0', left: '1,0', right: '0', value: '14.0' },
-    { output: '1,1', left: '1,1', right: '1', value: '25.0' },
-    { output: '1,2', left: '1,2', right: '2', value: '36.0' },
-  ]);
-
-  const reductions = diagram.locator('[data-reduction-operation]');
-  await expect(reductions).toHaveCount(3);
-  expect(
-    await reductions.evaluateAll((rows) =>
-      rows.map((row) => ({
-        operation: row.getAttribute('data-reduction-operation'),
-        axis: row.getAttribute('data-reduction-axis'),
-        keepDim: row.getAttribute('data-keep-dim'),
-        shape: row.getAttribute('data-output-shape'),
-        values: row.getAttribute('data-reduction-values'),
-        groups: Array.from(row.querySelectorAll('[data-group-indices]')).map((group) =>
-          group.getAttribute('data-group-indices'),
-        ),
-      }))),
-  ).toEqual([
-    { operation: 'sum', axis: '0', keepDim: 'no', shape: '3', values: '25.0,47.0,69.0', groups: ['0,3', '1,4', '2,5'] },
-    { operation: 'mean', axis: '1', keepDim: 'yes', shape: '2,1', values: '22.0,25.0', groups: ['0,1,2', '3,4,5'] },
-    { operation: 'max', axis: '1', keepDim: 'no', shape: '2', values: '33.0,36.0', groups: ['0,1,2', '3,4,5'] },
-  ]);
-
-  const errors = diagram.locator('[data-error-kind]');
-  await expect(errors).toHaveCount(3);
-  expect(await errors.evaluateAll((rows) => rows.map((row) => row.getAttribute('data-error-kind')))).toEqual([
-    'incompatible-broadcast',
-    'empty-mean-axis',
-    'empty-max-axis',
-  ]);
-  await expect(errors.nth(0)).toContainText(localized.incompatibleReason);
-  await expect(errors.nth(1)).toContainText(localized.emptyMeanReason);
-  await expect(errors.nth(2)).toContainText(localized.emptyMaxReason);
-  await expect(errors).toContainText([localized.rejected, localized.rejected, localized.rejected]);
-  await expect(errors.nth(1)).toContainText(localized.notApplicable);
-  await expect(errors.nth(2)).toContainText(localized.notApplicable);
-  await expect(
-    diagram.locator(
-      '[data-error-kind="incompatible-broadcast"] annotation[encoding="application/x-tex"]',
-    ),
-  ).toHaveText(String.raw`3\ne2`);
+  await expectDiagramRecords(diagram, locale);
   await settle(page);
   await expectRejectionFieldRows(
     diagram,
     localized.rejectionLabels,
     `${locale} ${narrow ? 'narrow' : 'desktop'}`,
   );
+  expectCompleteDiagramGeometry(await readDiagramGeometry(diagram));
 
   expect(
     await diagram.locator('code, bdi').evaluateAll((nodes) =>
-      nodes.every((node) => window.getComputedStyle(node).direction === 'ltr'),
+      nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
     ),
   ).toBe(true);
   const regions = diagram.locator('[data-diagram-scroll]');
-  await expect(regions).toHaveCount(2);
   for (const region of await regions.all()) {
     await region.focus();
     await expect(region).toBeFocused();
     if (narrow) {
-      const widths = await region.evaluate((node) => ({ client: node.clientWidth, scroll: node.scrollWidth }));
+      const widths = await region.evaluate((node) => ({
+        client: node.clientWidth,
+        scroll: node.scrollWidth,
+      }));
       expect(widths.scroll).toBeGreaterThan(widths.client);
     }
   }
-  expect(
-    await diagram.locator('[data-diagram-box]').evaluateAll((boxes) =>
-      boxes
-        .map((box) => ({
-          label: (box as HTMLElement).className,
-          inlineDebt: (box as HTMLElement).scrollWidth - (box as HTMLElement).clientWidth,
-          blockDebt: (box as HTMLElement).scrollHeight - (box as HTMLElement).clientHeight,
-        }))
-        .filter(({ inlineDebt, blockDebt }) => inlineDebt > 2 || blockDebt > 2),
-    ),
-  ).toEqual([]);
 
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
@@ -520,129 +1194,345 @@ async function expectChapterContent(
   await expectNoOverflowOrClientScripts(page);
 }
 
-test.describe('chapter 10 localized broadcasting-reductions vertical slice', {
-  tag: chapterTag(chapterId),
-}, () => {
-  test('chapter 10 is tenth on every course index with direct equivalent locale routes', async ({ page }) => {
-    for (const locale of chapterLocales) {
-      const localized = copy[locale];
-      const localeDefinition = chapterLocaleDefinitions.find(({ code }) => code === locale);
-      expect(localeDefinition).toBeDefined();
-      const chapters = await readOrderedCourseChapters(page, locale);
-      expect(chapters.length).toBeGreaterThanOrEqual(10);
-      expect(chapters[9]).toEqual(
-        expect.objectContaining({ chapterId, order: 10, title: localized.chapterTitle }),
-      );
-      await expect(page.locator('html')).toHaveAttribute('lang', localeDefinition?.languageTag ?? '');
-      await page.getByRole('link', { name: localized.chapterTitle }).click();
-      await expectLocalizedChapterRoute(page, {
-        chapterId,
-        locale,
-        order: 10,
-        revision: contentRevision,
-        revisionLabel: localized.revisionLabel,
-        title: localized.chapterTitle,
-      });
-      await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
-      await expectNoOverflowOrClientScripts(page);
-    }
-
-    for (const source of chapterLocaleDefinitions) {
-      for (const target of chapterLocaleDefinitions.filter(({ code }) => code !== source.code)) {
-        await page.goto(chapterPath(source.code, chapterId));
-        const switchLink = page.locator(`.locale-switch a[data-locale="${target.code}"]`);
-        await expect(switchLink).not.toHaveAttribute('data-locale-fallback', 'course-index');
-        await switchLink.click();
-        await expect(page).toHaveURL(new RegExp(`${chapterPath(target.code, chapterId)}$`));
-        await expect(page.locator('html')).toHaveAttribute('lang', target.languageTag);
-        await expect(page.getByRole('heading', { level: 1, name: copy[target.code].chapterTitle })).toBeVisible();
-      }
-    }
+async function enterFullViewAndProveReuse(
+  page: Page,
+  diagram: Locator,
+  locale: ChapterLocale,
+) {
+  await page.waitForFunction(
+    () => document.documentElement.dataset.diagramFullViewReady === 'true',
+  );
+  await settle(page);
+  const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+  await expect(toggle).toHaveCount(1);
+  await expect(toggle).toBeVisible();
+  const markup = await staticDiagramMarkup(diagram);
+  const inline = await readDiagramGeometry(diagram);
+  expectCompleteDiagramGeometry(inline);
+  await diagram.evaluate((root) => {
+    (window as typeof window & { __chapterTenFigure?: Element }).__chapterTenFigure = root;
   });
 
-  for (const locale of chapterLocales) {
-    test(`chapter 10 ${locale} renders exact content at desktop and narrow widths`, async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 1000 });
-      const chapters = await readOrderedCourseChapters(page, locale);
-      await page.goto(chapterPath(locale, chapterId));
-      await expectChapterContent(page, locale, chapters, false);
+  await toggle.click();
+  await page.waitForFunction(
+    () =>
+      document.fullscreenElement?.getAttribute('data-visualization-id') ===
+      'broadcasting-reductions',
+  );
+  await settle(page);
+  expect(
+    await diagram.evaluate(
+      (root) =>
+        root === (window as typeof window & { __chapterTenFigure?: Element }).__chapterTenFigure &&
+        document.fullscreenElement === root,
+    ),
+  ).toBe(true);
+  expect(await staticDiagramMarkup(diagram)).toBe(markup);
+  await expectDiagramRecords(diagram, locale);
+  await expectRejectionFieldRows(diagram, copy[locale].rejectionLabels, `${locale} full view`);
+  const full = await readDiagramGeometry(diagram);
+  expectCompleteDiagramGeometry(full);
+  expectFontsNotShrunk(inline, full);
+  return { full, inline, toggle };
+}
 
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapterContent(page, locale, chapters, true);
-    });
-  }
+async function exitFullView(page: Page, toggle: Locator) {
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.fullscreenElement === null);
+  await expect(toggle).toBeFocused();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+}
 
-  test('chapter 10 full view fits both localized panels without substantial travel', async ({ page }) => {
-    await page.setViewportSize({ width: 1366, height: 768 });
-    for (const locale of chapterLocales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await settle(page);
-      const diagram = page.locator('figure[data-visualization-id="broadcasting-reductions"]');
-      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
-      await expect(toggle).toBeVisible();
-      await toggle.click();
-      await page.waitForFunction(
-        () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'broadcasting-reductions',
-      );
-      await settle(page);
-      await expectRejectionFieldRows(diagram, copy[locale].rejectionLabels, `${locale} full view`);
-      const geometry = await diagram.evaluate((node) => ({
-        blockDebt: node.scrollHeight - node.clientHeight,
-        blockBudget: Math.ceil(node.clientHeight * 0.2),
-        inlineDebt: node.scrollWidth - node.clientWidth,
-        regionInlineDebts: Array.from(node.querySelectorAll<HTMLElement>('[data-diagram-scroll]'))
-          .map((region) => region.scrollWidth - region.clientWidth),
-        boxDebts: Array.from(node.querySelectorAll<HTMLElement>('[data-diagram-box]'))
-          .map((box) => ({ inline: box.scrollWidth - box.clientWidth, block: box.scrollHeight - box.clientHeight })),
-      }));
-      expect(geometry.blockDebt).toBeLessThanOrEqual(geometry.blockBudget);
-      expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
-      expect(geometry.regionInlineDebts.every((debt) => debt <= 2)).toBe(true);
-      expect(geometry.boxDebts.every(({ inline, block }) => inline <= 2 && block <= 2)).toBe(true);
-      await page.keyboard.press('Escape');
-      await page.waitForFunction(() => document.fullscreenElement === null);
-    }
-  });
+test.describe(
+  'chapter 10 localized broadcasting-reductions vertical slice',
+  { tag: chapterTag(chapterId) },
+  () => {
+    test.describe.configure({ mode: 'serial' });
 
-  for (const locale of chapterLocales) {
-    test(`chapter 10 ${locale} retains reuse, reduction, and rejection cues in forced colors`, async ({ page }) => {
-      const localized = copy[locale];
-      await page.emulateMedia({ forcedColors: 'active' });
-      await page.goto(chapterPath(locale, chapterId));
-      const diagram = page.locator('figure[data-visualization-id="broadcasting-reductions"]');
-      await expect(diagram.locator('[data-alignment-id="bias"] > .state-symbol')).toHaveText('↻');
-      await expect(diagram.locator('[data-reduction-operation] .state-symbol')).toHaveText(['↓', '↓', '↓']);
-      await expect(diagram.locator('[data-error-kind] .state-symbol')).toHaveText(['×', '×', '×']);
-      await expect(diagram.locator('[data-error-kind]')).toContainText([
-        localized.incompatibleReason,
-        localized.emptyMeanReason,
-        localized.emptyMaxReason,
-      ]);
-      await expectNoOverflowOrClientScripts(page);
-    });
-  }
-
-  test('both localized diagrams remain complete without JavaScript', async ({ browser }) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      viewport: { width: 1280, height: 900 },
-    });
-    const page = await context.newPage();
-    try {
+    test('chapter 10 is tenth on every course index with direct equivalent locale routes', async ({
+      page,
+    }) => {
       for (const locale of chapterLocales) {
-        await page.goto(chapterPath(locale, chapterId));
-        const diagram = page.locator('figure[data-visualization-id="broadcasting-reductions"]');
-        await expect(diagram).toHaveCount(1);
-        await expect(diagram.locator('table[data-diagram-table]')).toHaveCount(2);
-        await expect(diagram.locator('[data-output-coordinate]')).toHaveCount(6);
-        await expect(diagram.locator('[data-reduction-operation]')).toHaveCount(3);
-        await expect(diagram.locator('[data-error-kind]')).toHaveCount(3);
-        await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
+        const localized = copy[locale];
+        const localeDefinition = chapterLocaleDefinitions.find(({ code }) => code === locale);
+        expect(localeDefinition).toBeDefined();
+        const chapters = await readOrderedCourseChapters(page, locale);
+        expect(chapters.length).toBeGreaterThanOrEqual(10);
+        expect(chapters[9]).toEqual(
+          expect.objectContaining({ chapterId, order: 10, title: localized.chapterTitle }),
+        );
+        await expect(page.locator('html')).toHaveAttribute(
+          'lang',
+          localeDefinition?.languageTag ?? '',
+        );
+        await page.getByRole('link', { name: localized.chapterTitle }).click();
+        await expectLocalizedChapterRoute(page, {
+          chapterId,
+          locale,
+          order: 10,
+          revision: contentRevision,
+          revisionLabel: localized.revisionLabel,
+          title: localized.chapterTitle,
+        });
+        await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
         await expectNoOverflowOrClientScripts(page);
       }
-    } finally {
-      await context.close();
+
+      for (const source of chapterLocaleDefinitions) {
+        for (const target of chapterLocaleDefinitions.filter(
+          ({ code }) => code !== source.code,
+        )) {
+          await page.goto(chapterPath(source.code, chapterId));
+          const switchLink = page.locator(`.locale-switch a[data-locale="${target.code}"]`);
+          await expect(switchLink).not.toHaveAttribute(
+            'data-locale-fallback',
+            'course-index',
+          );
+          await switchLink.click();
+          await expect(page).toHaveURL(
+            new RegExp(`${chapterPath(target.code, chapterId)}$`),
+          );
+          await expect(page.locator('html')).toHaveAttribute('lang', target.languageTag);
+          await expect(
+            page.getByRole('heading', {
+              level: 1,
+              name: copy[target.code].chapterTitle,
+            }),
+          ).toBeVisible();
+        }
+      }
+    });
+
+    for (const locale of chapterLocales) {
+      test(`chapter 10 ${locale} renders exact content and geometry at desktop and narrow widths`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        const chapters = await readOrderedCourseChapters(page, locale);
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapterContent(page, locale, chapters, false);
+
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapterContent(page, locale, chapters, true);
+      });
     }
-  });
-});
+
+    test('both locales reuse the semantic figure in the standard bounded full view', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1366, height: 768 });
+      for (const locale of chapterLocales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="broadcasting-reductions"]',
+        );
+        const { full, toggle } = await enterFullViewAndProveReuse(page, diagram, locale);
+        expectCoherentFullView(await readFullViewComposition(diagram), 'standard');
+        expectStandardTravel(full);
+        await exitFullView(page, toggle);
+        await expectNoOverflowOrClientScripts(page);
+      }
+    });
+
+    test('the exact minimum eligible surface uses the coherent sequential boundary branch', async ({
+      browser,
+      browserName,
+    }, testInfo) => {
+      const baseURL = testInfo.project.use.baseURL;
+      if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
+      const context = await browser.newContext({
+        baseURL,
+        screen: {
+          width: GEOMETRY_LIMITS.chromiumBoundaryWidth,
+          height: GEOMETRY_LIMITS.chromiumBoundaryHeight,
+        },
+        viewport: {
+          width: GEOMETRY_LIMITS.chromiumBoundaryWidth,
+          height: GEOMETRY_LIMITS.chromiumBoundaryHeight,
+        },
+      });
+      const page = await context.newPage();
+
+      try {
+        for (const locale of chapterLocales) {
+          await page.goto(chapterPath(locale, chapterId));
+          const diagram = page.locator(
+            'figure[data-visualization-id="broadcasting-reductions"]',
+          );
+          const { full, toggle } = await enterFullViewAndProveReuse(page, diagram, locale);
+          const surface = await page.evaluate(() => ({
+            innerHeight,
+            innerWidth,
+            screenHeight: screen.height,
+            screenWidth: screen.width,
+          }));
+          expect(surface.screenWidth).toBe(GEOMETRY_LIMITS.chromiumBoundaryWidth);
+          expect(surface.screenHeight).toBe(GEOMETRY_LIMITS.chromiumBoundaryHeight);
+
+          if (browserName === 'chromium') {
+            expect(surface.innerWidth).toBe(GEOMETRY_LIMITS.chromiumBoundaryWidth);
+            expect(surface.innerHeight).toBe(GEOMETRY_LIMITS.chromiumBoundaryHeight);
+            expect(full.viewportHeight).toBe(
+              GEOMETRY_LIMITS.chromiumBoundaryFigureHeight,
+            );
+            expectCoherentFullView(await readFullViewComposition(diagram), 'boundary');
+            expect(full.blockDebt).toBeLessThanOrEqual(
+              GEOMETRY_LIMITS.chromiumBoundaryBlockDebtPx,
+            );
+            expect(full.blockDebt / full.viewportHeight).toBeLessThanOrEqual(
+              GEOMETRY_LIMITS.chromiumBoundaryBlockDebtRatio,
+            );
+            expect(full.maxScrollerTravel).toBeLessThanOrEqual(
+              GEOMETRY_LIMITS.chromiumBoundaryScrollerTravelPx,
+            );
+            expect(full.maxScrollerTravelRatio).toBeLessThanOrEqual(
+              GEOMETRY_LIMITS.chromiumBoundaryScrollerTravelRatio,
+            );
+          } else if (browserName === 'firefox') {
+            expect(surface.innerWidth).toBeGreaterThanOrEqual(1366);
+            expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
+            expectCoherentFullView(await readFullViewComposition(diagram), 'standard');
+            expectStandardTravel(full);
+          } else {
+            throw new Error(`Unsupported Chapter 10 boundary engine: ${browserName}`);
+          }
+          await exitFullView(page, toggle);
+        }
+      } finally {
+        await context.close();
+      }
+    });
+
+    test('Russian preserves every cue, technical direction, and composition in forced colors and RTL', async ({
+      page,
+    }) => {
+      await page.emulateMedia({ forcedColors: 'active' });
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.goto(chapterPath('ru', chapterId));
+      await page.waitForFunction(
+        () => document.documentElement.dataset.diagramFullViewReady === 'true',
+      );
+      const diagram = page.locator(
+        'figure[data-visualization-id="broadcasting-reductions"]',
+      );
+      await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
+      await settle(page);
+
+      const readDirectionAndCues = () =>
+        diagram.evaluate((root) => {
+          const completeBorder = (element: HTMLElement) => {
+            const style = getComputedStyle(element);
+            const widths = [
+              style.borderTopWidth,
+              style.borderRightWidth,
+              style.borderBottomWidth,
+              style.borderLeftWidth,
+            ].map(Number.parseFloat);
+            const styles = [
+              style.borderTopStyle,
+              style.borderRightStyle,
+              style.borderBottomStyle,
+              style.borderLeftStyle,
+            ];
+            return (
+              widths.every((width) => Number.isFinite(width) && width > 0) &&
+              styles.every((value) => !['none', 'hidden'].includes(value))
+            );
+          };
+          const cues = Array.from(root.querySelectorAll<HTMLElement>('.state-symbol'));
+          return {
+            cueBorders: cues.map(completeBorder),
+            cueTexts: cues.map((cue) => cue.textContent?.trim()),
+            direction: getComputedStyle(root).direction,
+            forcedColors: matchMedia('(forced-colors: active)').matches,
+            proseDirections: Array.from(
+              root.querySelectorAll<HTMLElement>('h3, h4, h5, p, li, th, td, dt, dd'),
+            ).map((element) => getComputedStyle(element).direction),
+            technicalDirections: Array.from(
+              root.querySelectorAll<HTMLElement>('code, bdi'),
+            ).map((element) => getComputedStyle(element).direction),
+          };
+        });
+
+      const inline = await readDirectionAndCues();
+      expect(inline.forcedColors).toBe(true);
+      expect(inline.direction).toBe('rtl');
+      expect(inline.cueTexts).toHaveLength(13);
+      expect(inline.cueBorders.every(Boolean)).toBe(true);
+      expect(inline.proseDirections.every((direction) => direction === 'rtl')).toBe(true);
+      expect(inline.technicalDirections.every((direction) => direction === 'ltr')).toBe(true);
+      await expectDiagramRecords(diagram, 'ru');
+      expectCompleteDiagramGeometry(await readDiagramGeometry(diagram));
+
+      const { full, toggle } = await enterFullViewAndProveReuse(page, diagram, 'ru');
+      expectCoherentFullView(await readFullViewComposition(diagram), 'standard');
+      expectStandardTravel(full);
+      const expanded = await readDirectionAndCues();
+      expect(expanded.forcedColors).toBe(true);
+      expect(expanded.direction).toBe('rtl');
+      expect(expanded.cueTexts).toHaveLength(13);
+      expect(expanded.cueBorders.every(Boolean)).toBe(true);
+      expect(expanded.proseDirections.every((direction) => direction === 'rtl')).toBe(true);
+      expect(expanded.technicalDirections.every((direction) => direction === 'ltr')).toBe(true);
+      await exitFullView(page, toggle);
+      await expectNoOverflowOrClientScripts(page);
+    });
+
+    test('both localized static figures remain exact and complete without JavaScript', async ({
+      browser,
+    }, testInfo) => {
+      const baseURL = testInfo.project.use.baseURL;
+      if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
+
+      for (const locale of chapterLocales) {
+        for (const viewport of [
+          { width: 1440, height: 1000 },
+          { width: 390, height: 844 },
+        ]) {
+          const context = await browser.newContext({
+            baseURL,
+            javaScriptEnabled: false,
+            viewport,
+          });
+          const page = await context.newPage();
+          try {
+            await page.goto(chapterPath(locale, chapterId));
+            await page.waitForLoadState('networkidle');
+            const diagram = page.locator(
+              'figure[data-visualization-id="broadcasting-reductions"]',
+            );
+            await expect(diagram).toBeVisible();
+            const rect = await diagram.boundingBox();
+            expect(rect?.width ?? 0).toBeGreaterThan(0);
+            expect(rect?.height ?? 0).toBeGreaterThan(0);
+            await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
+            await expect(diagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+            await expectDiagramRecords(diagram, locale);
+            await expectRejectionFieldRows(
+              diagram,
+              copy[locale].rejectionLabels,
+              `${locale} no-JavaScript ${viewport.width}`,
+            );
+            expectCompleteDiagramGeometry(await readDiagramGeometry(diagram));
+
+            for (const scroller of await diagram.locator('[data-diagram-scroll]').all()) {
+              await scroller.focus();
+              await expect(scroller).toBeFocused();
+              if (viewport.width === 390) {
+                const widths = await scroller.evaluate((node) => ({
+                  client: node.clientWidth,
+                  scroll: node.scrollWidth,
+                }));
+                expect(widths.scroll).toBeGreaterThan(widths.client);
+              }
+            }
+            await expectNoOverflowOrClientScripts(page);
+          } finally {
+            await context.close();
+          }
+        }
+      }
+    });
+  },
+);
