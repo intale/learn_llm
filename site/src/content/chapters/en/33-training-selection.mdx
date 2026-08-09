@@ -2,12 +2,12 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 9,
+  "content_revision": 10,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
   "description": "Learn how a decoder training loop orders backpropagation, gradient clipping, scheduled AdamW updates, graph-free validation, and checkpoint selection without using test data.",
-  "objective": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data.",
+  "objective": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data during this training execution.",
   "worked_inputs": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8.",
   "formula":
     {
@@ -64,7 +64,7 @@
           },
           {
             "symbol": "\\mathcal{L}_{va}",
-            "meaning": "the token-weighted graph-free loss on the validation partition, never the test partition"
+            "meaning": "the token-weighted graph-free loss on the validation partition; this trainer rejects the test partition during the training execution"
           }
         ]
     },
@@ -75,7 +75,7 @@
           "predecessor_kind": "training-practice",
           "limitation": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or an independent rule for choosing among candidate language-model states.",
           "later_advance": "Neural language-model work separated train, validation, and test responsibilities; sequence and Transformer systems added mini-batches, explicit schedules, clipping, and periodic candidates; later text-to-text work stated that validation chooses a checkpoint so test data does not perform model selection.",
-          "modern_llm_role": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for a later once-only evaluation.",
+          "modern_llm_role": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for post-selection evaluation; this course's one-use count belongs to one local evaluator instance.",
           "sources":
             [
               {
@@ -115,7 +115,7 @@
               }
             ]
         },
-      "approach": "Move from fitting and reporting one training state toward predetermined mini-batch updates that produce periodic validation candidates while a separate test partition stays unopened.",
+      "approach": "Move from fitting and reporting one training state toward predetermined mini-batch updates that produce periodic validation candidates while this trainer rejects the separate test partition throughout the training execution.",
       "summary": "The road to modern LLM training combines partition discipline with reproducible batches, finite gradients, norm control, an explicit learning-rate schedule, periodic graph-free validation, and checkpoint selection. These papers use different architectures and recipes, so the course's fixed seed, exact cadence, and earliest-tie rule are local teaching choices rather than universal practice.",
       "rust_source": "rust/demos/ch33-training-selection/src/lib.rs"
     },
@@ -159,7 +159,7 @@
       {
         "path": "rust/demos/ch33-training-selection/src/lib.rs",
         "region": "historical-selection-contrast",
-        "purpose": "Contrast a training-only choice with an independent validation choice without recreating a historical architecture."
+        "purpose": "Contrast a training-only choice with a held-out validation choice without recreating a historical architecture."
       },
       {
         "path": "rust/demos/ch33-training-selection/src/lib.rs",
@@ -182,7 +182,7 @@
       "id": "training-validation-checkpoints",
       "rationale": "A discrete checkpoint plot makes train and validation measurements comparable without inventing values between observations, while the selected validation marker and operation-order cards expose why the chosen state is evidence rather than simply the last update."
     },
-  "decoder_connection": "The cumulative decoder can now execute a complete bounded training plan and return a frozen validation-selected state; Chapter 34 will score that state once on the test partition and compare it fairly with the frozen baseline."
+  "decoder_connection": "The cumulative decoder can now execute a complete bounded training plan and return a frozen validation-selected state; Chapter 34 will give one local evaluator instance post-selection access to the test fixture and compare that state fairly with the frozen baseline."
 }
 ---
 
@@ -240,7 +240,7 @@ export const diagramLabels = {
     checkpoints:
       "The table and markers preserve the exact six-decimal values. Only observations at steps 0, 2, 4, 6, and 8 exist; their visual spacing is presentation, not new arithmetic.",
     proof:
-      "Validation can choose a snapshot but cannot update it, and the test partition remains unread until the next chapter.",
+      "Validation can choose a snapshot but cannot update it; this trainer rejects Test throughout the training execution, before the next chapter creates its local evaluator.",
   },
   scrollers: {
     checkpoints: "Scrollable training and validation checkpoint evidence",
@@ -253,7 +253,8 @@ export const diagramLabels = {
 
 Run every step of a bounded decoder training plan, measure graph-free validation
 loss at fixed checkpoints, and restore the model state saved at the earliest
-checkpoint with minimum validation loss, all without consulting test data. The
+checkpoint with minimum validation loss, all without consulting test data during
+this training execution. The
 worked fixture trains the one-block decoder from the previous chapter:
 vocabulary size $V=5$, residual width
 $d_{\mathrm{model}}=4$, two attention heads, feed-forward width
@@ -379,8 +380,10 @@ $$
 
 The names `Train`, `Validation`, and `Test` are concrete `Partition` variants in
 the program. In the explanation, their roles are conceptual: training fits,
-validation selects, and test evaluates once after selection. A lower training
-loss cannot substitute for held-out validation evidence.
+validation selects, and test supplies evidence after selection. This trainer
+rejects `Test` throughout one training execution; Chapter 34's later one-use
+count belongs to one local evaluator instance. A lower training loss cannot
+substitute for held-out validation evidence.
 
 Parameter identity connects the registry to the computation. Each registry
 entry and its embedding, block, or normalization handle refer to the same
@@ -395,9 +398,9 @@ component handles would still refer to the old node.
 ## From training-only reports to validation-selected LLM checkpoints
 
 Move from fitting and reporting one training state toward predetermined
-mini-batch updates that produce periodic validation candidates while a separate
-test partition stays unopened. These training practices form part of the road
-to modern LLMs.
+mini-batch updates that produce periodic validation candidates while this
+trainer rejects the separate test partition throughout the training execution.
+These training practices form part of the road to modern LLMs.
 
 [A Neural Probabilistic Language Model](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 provides an early example of this separation in a neural language model. Bengio
@@ -440,7 +443,8 @@ that validation chooses a checkpoint so test data does not perform model
 selection. Decoder-only LLM training repeatedly forms token batches,
 differentiates the training objective, controls gradient magnitude, applies a
 step schedule, and measures held-out validation candidates while reserving test
-evidence for a later once-only evaluation.
+evidence for post-selection evaluation; this course's one-use count belongs to
+one local evaluator instance. That count is not a repository-history claim.
 
 These papers use different architectures and recipes. The course's fixed seed,
 exact cadence, eight-step budget, and earliest-tie rule are local teaching
@@ -451,7 +455,7 @@ entry, while a held-out validation trace can choose an earlier one.
 <RustSource
   path="rust/demos/ch33-training-selection/src/lib.rs"
   region="historical-selection-contrast"
-  caption="Contrast selection by training loss with selection by an independent validation trace"
+  caption="Contrast selection by training loss with selection by a held-out validation trace"
   label="Rust source for the Chapter 33 LLM-training history contrast"
 />
 
@@ -591,7 +595,7 @@ caller's model and optimizer remain unchanged even on failure.
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/trainer.rs"
   region="complete-training-loop"
-  caption="Update one persistent decoder, snapshot strict validation improvements, and return the earliest minimum without consulting test data"
+  caption="Update one persistent decoder, snapshot strict validation improvements, and return the earliest minimum while this training execution rejects test data"
   label="Rust source implementing the complete Chapter 33 training loop"
 />
 
@@ -700,14 +704,16 @@ trainer explicitly cleared their raw gradients afterward.
 
 {/* chapter-section:decoder-connection */}
 
-## Freeze the selected decoder for one test pass
+## Freeze the selected decoder before local test evaluation
 
 The cumulative decoder can now execute a complete bounded training plan and
-return a frozen validation-selected state; Chapter 34 will score that state once
-on the test partition and compare it fairly with the frozen baseline.
+return a frozen validation-selected state. Chapter 34 will give one local
+evaluator instance post-selection access to the test fixture and compare that
+state fairly with the frozen baseline.
 
 That next step must not tune the schedule, clipping ceiling, number of updates,
 or checkpoint choice after seeing test results. Chapter 33 ends with model
-selection complete and a verified rejection of `Test` at the training boundary;
-Chapter 34 will open the held-out test partition exactly once for evaluation
-rather than selection.
+selection complete and a verified rejection of `Test` at the training boundary.
+Chapter 34's local evaluator will use its one access for evaluation rather than
+selection. That count applies to one evaluator instance in one execution, not to
+the repository's complete history of checking the fixture.

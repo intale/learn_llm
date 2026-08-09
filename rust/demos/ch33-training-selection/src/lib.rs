@@ -485,7 +485,8 @@ pub fn learner_report() -> Result<String, FixtureError> {
             evidence.history.training_only_step, evidence.history.validation_step
         ),
         format!("replay=bitwise:{}", evidence.replay_bitwise),
-        "next=evaluate the frozen selected state once on test data".to_owned(),
+        "next=evaluate the frozen selected state through one local post-selection test gate"
+            .to_owned(),
     ]);
     Ok(lines.join("\n") + "\n")
 }

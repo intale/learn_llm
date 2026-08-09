@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "locale": "en",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 2,
   "concept_id": "document-level-corpus-partitions",
   "title": "Corpus documents and frozen partitions",
@@ -110,7 +110,7 @@ export const diagramLabels = {
     },
     test: {
       title: 'Test',
-      purpose: 'Used once for final evidence',
+      purpose: 'Reserved for post-selection evidence',
       documentListLabel: 'Test documents',
     },
   },
@@ -188,8 +188,10 @@ $$
 The dotted union says two things at once: the three roles cover the entire corpus,
 and their membership does not overlap. The intersection clause repeats the second
 promise explicitly for every pair of distinct roles. Only the training set may
-teach BPE merges or model parameters. Validation may later guide choices, while
-test remains sealed for the final report.
+teach BPE merges or model parameters. Validation may later guide choices. In the
+demonstrated course execution, test cannot fit or select: Chapter 34 gives one
+local evaluator instance access only after selection. That order does not claim
+that the checked-in fixture has never been read during repository development.
 
 This notation is necessary but not sufficient for the implementation. It says
 nothing about empty roles, byte drift, unknown IDs, source order, provenance pairs,
@@ -253,7 +255,9 @@ large language model.
 Whole-document assignment prevents that particular leakage path. It does not prove
 that the corpus is representative, nor does an ID detect every copied or
 near-duplicate passage. Validation also is not untouched once it guides a decision.
-The test partition, by contrast, is reserved for final evidence in this course.
+The generic test role is post-selection evidence. In this course, the enforceable
+guarantee is narrower: test cannot affect the selected state inside one execution,
+while the checked-in result may be rerun as repository regression evidence.
 
 > **Carry forward:** a clean holdout boundary makes later tokenizer and model measurements interpretable, but it does not make a small corpus representative by itself.
 
@@ -372,8 +376,9 @@ but membership and source order remain unchanged.
   1. The union omits `doc-06`; validation intersects test at `doc-04`. The other
      pairwise intersections are empty. A valid repair assigns `doc-05` and
      `doc-06` to test once each.
-  2. Training counts BPE pairs, validation may choose a checkpoint, and test is
-     used once for final evidence.
+  2. Training counts BPE pairs, validation may choose a checkpoint, and test
+     supplies post-selection evidence. Chapter 34 demonstrates that order through
+     one local evaluator instance.
   3. New IDs do not erase shared source words or surrounding context.
   4. The changed corpus bytes cause a checksum mismatch first. If only the
      recorded checksum were refreshed, coverage validation would then report that
@@ -402,6 +407,8 @@ two sources. Holdout bytes contribute no learned vocabulary or merge rank.
 Each candidate tokenizer or model configuration fits its normalization rules,
 merge statistics, vocabulary, and weights on training documents. Validation may
 compare those training-fitted candidates and select a checkpoint; it contributes
-no fitting counts or gradients. Test neither fits nor selects and is used only for
-the final loss report. This role boundary survives every later chapter, from BPE
+no fitting counts or gradients. Test neither fits nor selects. In the demonstrated
+execution, the local evaluator receives it only after validation selection;
+repository reuse of the known fixture is regression evidence rather than a new
+independent estimate. This role boundary survives every later chapter, from BPE
 through the final decoder comparison.

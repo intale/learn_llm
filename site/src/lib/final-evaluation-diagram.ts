@@ -38,7 +38,12 @@ interface FinalEvaluationComparisonTrace {
   readonly lower_loss: string;
   readonly loss_gap: string;
   readonly same_targets: string;
-  readonly decoder_beats_bigram: string;
+  readonly decoder_lower_on_fixture: string;
+  readonly evidence_scope: string;
+  readonly within_run_selection_isolated: string;
+  readonly fixture_selected_for_ordering: string;
+  readonly independent_generalization_estimate: string;
+  readonly architecture_superiority_evidence: string;
 }
 
 interface FinalEvaluationProofTrace {
@@ -124,7 +129,7 @@ const expectedLines = [
   "PROVENANCE|corpus=ch33-34-synthetic-v1|split=fixed-role-split-v1|tokenizer=literal-u32-v1|vocabulary=5|context=2|documents=test-a,test-b|windows=12|batches=3|targets=24|target_fingerprint=fnv1a64:dac4bb4d76beeb59",
   "SCORE|model=selected-decoder|fit_partition=train|selected_by=validation|targets=24|total_nll=38.584306|mean_nll=1.607679|perplexity=4.991215",
   "SCORE|model=frozen-bigram|fit_partition=train|selected_by=none|targets=24|total_nll=53.681634|mean_nll=2.236735|perplexity=9.362710",
-  "COMPARE|lower_loss=selected-decoder|loss_gap=0.629055|same_targets=true|decoder_beats_bigram=true",
+  "COMPARE|lower_loss=selected-decoder|loss_gap=0.629055|same_targets=true|decoder_lower_on_fixture=true|evidence_scope=fixed-fixture-regression|within_run_selection_isolated=true|fixture_selected_for_ordering=true|independent_generalization_estimate=false|architecture_superiority_evidence=false",
   "PROOF|token_weighted=true|provenance_assertions_match=true|graph_nodes=0|parameters_unchanged=true|gradients_unchanged=true|selection_closed=true",
   "END_FINAL_EVALUATION_TRACE",
 ] as const;
@@ -146,6 +151,19 @@ function exactKeys(
   const expected = [...expectedKeys].sort();
   if (actual.join("|") !== expected.join("|"))
     invalid(label + " has unexpected keys");
+}
+
+function exactOrderedKeys(
+  value: Record<string, unknown>,
+  expectedKeys: readonly string[],
+  label: string,
+): void {
+  const actual = Object.keys(value);
+  if (
+    actual.length !== expectedKeys.length ||
+    actual.some((key, index) => key !== expectedKeys[index])
+  )
+    invalid(label + " has unexpected or reordered keys");
 }
 
 function exactStringKeys(
@@ -282,7 +300,7 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     invalid("trace sentinels changed");
 
   const report = record(lines[1], "REPORT");
-  exactKeys(
+  exactOrderedKeys(
     report,
     [
       "version",
@@ -311,12 +329,12 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     invalid("REPORT does not preserve the final-evaluation boundary");
 
   const gate = record(lines[2], "GATE");
-  exactKeys(gate, ["selection_test_partition_rejected"], "GATE");
+  exactOrderedKeys(gate, ["selection_test_partition_rejected"], "GATE");
   if (required(gate, "selection_test_partition_rejected") !== "true")
     invalid("GATE no longer proves selection rejected the test partition");
 
   const provenance = record(lines[3], "PROVENANCE");
-  exactKeys(
+  exactOrderedKeys(
     provenance,
     [
       "corpus",
@@ -342,7 +360,7 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
   const scores = Object.freeze(
     lines.slice(4, 6).map((line) => {
       const score = record(line, "SCORE");
-      exactKeys(
+      exactOrderedKeys(
         score,
         [
           "model",
@@ -375,21 +393,36 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     invalid("SCORE model order or selection role changed");
 
   const comparison = record(lines[6], "COMPARE");
-  exactKeys(
+  exactOrderedKeys(
     comparison,
-    ["lower_loss", "loss_gap", "same_targets", "decoder_beats_bigram"],
+    [
+      "lower_loss",
+      "loss_gap",
+      "same_targets",
+      "decoder_lower_on_fixture",
+      "evidence_scope",
+      "within_run_selection_isolated",
+      "fixture_selected_for_ordering",
+      "independent_generalization_estimate",
+      "architecture_superiority_evidence",
+    ],
     "COMPARE",
   );
   canonicalDecimal(required(comparison, "loss_gap"), "loss gap");
   if (
     required(comparison, "lower_loss") !== "selected-decoder" ||
     required(comparison, "same_targets") !== "true" ||
-    required(comparison, "decoder_beats_bigram") !== "true"
+    required(comparison, "decoder_lower_on_fixture") !== "true" ||
+    required(comparison, "evidence_scope") !== "fixed-fixture-regression" ||
+    required(comparison, "within_run_selection_isolated") !== "true" ||
+    required(comparison, "fixture_selected_for_ordering") !== "true" ||
+    required(comparison, "independent_generalization_estimate") !== "false" ||
+    required(comparison, "architecture_superiority_evidence") !== "false"
   )
-    invalid("COMPARE changed the bounded fixture conclusion");
+    invalid("COMPARE changed the fixed-fixture evidence boundary");
 
   const proof = record(lines[7], "PROOF");
-  exactKeys(
+  exactOrderedKeys(
     proof,
     [
       "token_weighted",

@@ -1,9 +1,9 @@
 // @ts-ignore Node APIs are available in the Playwright runtime.
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Playwright runtime.
-import { resolve } from 'node:path';
+import { resolve } from "node:path";
 
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Locator } from "@playwright/test";
 
 import {
   CHEAT_SHEET_PAGE_SIZE,
@@ -12,361 +12,696 @@ import {
   sortCheatSheetTerms,
   type CheatSheetCopy,
   type CheatSheetData,
-} from '../../src/lib/cheat-sheets';
-import type { Locale } from '../../src/i18n';
-import { chapterPath } from './chapter-helpers';
+} from "../../src/lib/cheat-sheets";
+import type { Locale } from "../../src/i18n";
+import { chapterPath } from "./chapter-helpers";
 
 declare const process: { cwd(): string };
 
 const englishSheets = [
   {
     chapter: 1,
-    chapterId: '01-text-units',
-    title: 'Text units and vocabulary IDs',
+    chapterId: "01-text-units",
+    title: "Text units and vocabulary IDs",
     terms: [
-      'UTF-8 byte',
-      'Unicode scalar value',
-      'Vocabulary',
-      'Token ID',
-      'Unknown token',
-      'Reversible round trip',
-      'Grapheme cluster',
-      'Subword tokenizer',
+      "UTF-8 byte",
+      "Unicode scalar value",
+      "Vocabulary",
+      "Token ID",
+      "Unknown token",
+      "Reversible round trip",
+      "Grapheme cluster",
+      "Subword tokenizer",
     ],
   },
   {
     chapter: 2,
-    chapterId: '02-corpus-partitions',
-    title: 'Corpus documents and frozen partitions',
+    chapterId: "02-corpus-partitions",
+    title: "Corpus documents and frozen partitions",
     terms: [
-      'Corpus',
-      'Whole document',
-      'Training partition',
-      'Validation partition',
-      'Test partition',
-      'Disjoint split',
-      'Holdout',
-      'Data leakage',
-      'Provenance group',
+      "Corpus",
+      "Whole document",
+      "Training partition",
+      "Validation partition",
+      "Test partition",
+      "Disjoint split",
+      "Holdout",
+      "Data leakage",
+      "Provenance group",
     ],
   },
   {
     chapter: 3,
-    chapterId: '03-learn-bpe-merges',
-    title: 'Learning deterministic BPE merges',
+    chapterId: "03-learn-bpe-merges",
+    title: "Learning deterministic BPE merges",
     terms: [
-      'Byte Pair Encoding (BPE)',
-      'Adjacent-pair candidate',
-      'Candidate count',
-      'Merge round',
-      'Merge rank',
-      'Deterministic tie-break',
-      'Non-overlapping replacement',
-      'Byte expansion',
-      'Document boundary',
+      "Byte Pair Encoding (BPE)",
+      "Adjacent-pair candidate",
+      "Candidate count",
+      "Merge round",
+      "Merge rank",
+      "Deterministic tie-break",
+      "Non-overlapping replacement",
+      "Byte expansion",
+      "Document boundary",
     ],
   },
   {
     chapter: 4,
-    chapterId: '04-apply-bpe-tokenizer',
-    title: 'Applying and reversing a BPE tokenizer',
+    chapterId: "04-apply-bpe-tokenizer",
+    title: "Applying and reversing a BPE tokenizer",
     terms: [
-      'Byte-level BPE tokenizer',
-      'Frozen merge rank',
-      'Canonical encoding',
-      'Content token',
-      'Control token',
-      'BOS and EOS',
-      'Content offset',
-      'Byte fallback',
-      'Byte-exact decoding',
-      'Strict UTF-8 view',
+      "Byte-level BPE tokenizer",
+      "Frozen merge rank",
+      "Canonical encoding",
+      "Content token",
+      "Control token",
+      "BOS and EOS",
+      "Content offset",
+      "Byte fallback",
+      "Byte-exact decoding",
+      "Strict UTF-8 view",
     ],
   },
   {
     chapter: 5,
-    chapterId: '05-autoregressive-examples',
-    title: 'Building autoregressive input–target pairs',
+    chapterId: "05-autoregressive-examples",
+    title: "Building autoregressive input–target pairs",
     terms: [
-      'Autoregressive language model',
-      'Input–target pair',
-      'One-token shift',
-      'Context length',
-      'Stride',
-      'Overlapping pairs',
-      'BOS and EOS boundary tokens',
-      'Causal computation',
-      'Causal mask',
+      "Autoregressive language model",
+      "Input–target pair",
+      "One-token shift",
+      "Context length",
+      "Stride",
+      "Overlapping pairs",
+      "BOS and EOS boundary tokens",
+      "Causal computation",
+      "Causal mask",
     ],
   },
   {
     chapter: 6,
-    chapterId: '06-bigram-baseline',
-    title: 'From transition counts to a bigram model',
+    chapterId: "06-bigram-baseline",
+    title: "From transition counts to a bigram model",
     terms: [
-      'Bigram model',
-      'Transition count',
-      'Context',
-      'Probability row',
-      'Maximum-likelihood estimate (MLE)',
-      'Unobserved successor',
-      'Unseen context',
-      'Add-one smoothing',
-      'Pseudocount',
+      "Bigram model",
+      "Transition count",
+      "Context",
+      "Probability row",
+      "Maximum-likelihood estimate (MLE)",
+      "Unobserved successor",
+      "Unseen context",
+      "Add-one smoothing",
+      "Pseudocount",
     ],
   },
   {
     chapter: 7,
-    chapterId: '07-language-model-metrics',
-    title: 'From assigned probability to perplexity',
+    chapterId: "07-language-model-metrics",
+    title: "From assigned probability to perplexity",
     terms: [
-      'Assigned probability',
-      'Surprise',
-      'Sequence likelihood',
-      'Negative log-likelihood (NLL)',
-      'Mean NLL',
-      'Length normalization',
-      'Nat',
-      'Perplexity',
-      'Empirical cross-entropy',
-      'Argmax',
+      "Assigned probability",
+      "Surprise",
+      "Sequence likelihood",
+      "Negative log-likelihood (NLL)",
+      "Mean NLL",
+      "Length normalization",
+      "Nat",
+      "Perplexity",
+      "Empirical cross-entropy",
+      "Argmax",
     ],
   },
   {
     chapter: 8,
-    chapterId: '08-tensor-storage',
-    title: 'From tensor coordinates to one flat buffer',
+    chapterId: "08-tensor-storage",
+    title: "From tensor coordinates to one flat buffer",
     terms: [
-      'Tensor',
-      'Shape',
-      'Axis',
-      'Rank',
-      'Extent',
-      'Coordinate',
-      'Row-major order',
-      'Element stride',
-      'Offset',
-      'Contiguous storage',
+      "Tensor",
+      "Shape",
+      "Axis",
+      "Rank",
+      "Extent",
+      "Coordinate",
+      "Row-major order",
+      "Element stride",
+      "Offset",
+      "Contiguous storage",
     ],
   },
   {
     chapter: 9,
-    chapterId: '09-tensor-views',
-    title: 'Shared views and explicit tensor copies',
+    chapterId: "09-tensor-views",
+    title: "Shared views and explicit tensor copies",
     terms: [
-      'Tensor view',
-      'Reshape',
-      'Transpose',
-      'Axis permutation',
-      'Slice',
-      'Base offset',
-      'Row-major contiguity',
-      'Materialization',
-      'Query, key, and value (Q/K/V)',
-      'Attention head',
+      "Tensor view",
+      "Reshape",
+      "Transpose",
+      "Axis permutation",
+      "Slice",
+      "Base offset",
+      "Row-major contiguity",
+      "Materialization",
+      "Query, key, and value (Q/K/V)",
+      "Attention head",
     ],
   },
   {
     chapter: 10,
-    chapterId: '10-broadcasting-reductions',
-    title: 'Align compatible shapes, reduce a named axis',
+    chapterId: "10-broadcasting-reductions",
+    title: "Align compatible shapes, reduce a named axis",
     terms: [
-      'Broadcasting',
-      'Trailing-axis alignment',
-      'Singleton axis',
-      'Elementwise operation',
-      'Reduction',
-      'Reduction axis',
-      'Keep dimension',
-      'Feature axis',
-      'Attention softmax',
-      'Feature normalization',
+      "Broadcasting",
+      "Trailing-axis alignment",
+      "Singleton axis",
+      "Elementwise operation",
+      "Reduction",
+      "Reduction axis",
+      "Keep dimension",
+      "Feature axis",
+      "Attention softmax",
+      "Feature normalization",
     ],
   },
   {
     chapter: 11,
-    chapterId: '11-matrix-multiplication',
-    title: 'Multiply rows by columns, then reuse batches',
+    chapterId: "11-matrix-multiplication",
+    title: "Multiply rows by columns, then reuse batches",
     terms: [
-      'Matrix multiplication',
-      'Activation matrix',
-      'Projection weight',
-      'Output cell',
-      'Inner dimension',
-      'Contraction',
-      'Batched matrix multiplication',
-      'Batch broadcasting',
-      'Logical transpose',
-      'Attention score',
+      "Matrix multiplication",
+      "Activation matrix",
+      "Projection weight",
+      "Output cell",
+      "Inner dimension",
+      "Contraction",
+      "Batched matrix multiplication",
+      "Batch broadcasting",
+      "Logical transpose",
+      "Attention score",
     ],
   },
   {
     chapter: 12,
-    chapterId: '12-stable-softmax',
-    title: 'Turn extreme logits into stable probabilities',
-    terms: ['Logit', 'Softmax', 'Maximum shift', 'Normalization group', 'Class axis', 'Log-sum-exp', 'Log-softmax', 'Indexed NLL', 'Overflow', 'Underflow'],
+    chapterId: "12-stable-softmax",
+    title: "Turn extreme logits into stable probabilities",
+    terms: [
+      "Logit",
+      "Softmax",
+      "Maximum shift",
+      "Normalization group",
+      "Class axis",
+      "Log-sum-exp",
+      "Log-softmax",
+      "Indexed NLL",
+      "Overflow",
+      "Underflow",
+    ],
   },
   {
     chapter: 13,
-    chapterId: '13-gradient-checking',
-    title: 'Check gradients before trusting backpropagation',
-    terms: ['Gradient check', 'Central difference', 'Numerical derivative', 'Analytic gradient', 'Step size', 'Truncation error', 'Rounding error', 'Scale-aware error', 'Tolerance', 'Deterministic coordinate sampling'],
+    chapterId: "13-gradient-checking",
+    title: "Check gradients before trusting backpropagation",
+    terms: [
+      "Gradient check",
+      "Central difference",
+      "Numerical derivative",
+      "Analytic gradient",
+      "Step size",
+      "Truncation error",
+      "Rounding error",
+      "Scale-aware error",
+      "Tolerance",
+      "Deterministic coordinate sampling",
+    ],
   },
   {
     chapter: 14,
-    chapterId: '14-scalar-autodiff',
-    title: 'Accumulate gradients through a scalar graph',
-    terms: ['Computation graph', 'Reverse mode', 'Adjoint', 'Operand-use edge', 'Local derivative', 'Reverse topological order', 'Gradient accumulation', 'Backward pass', 'Detach', 'Zeroing gradients'],
+    chapterId: "14-scalar-autodiff",
+    title: "Accumulate gradients through a scalar graph",
+    terms: [
+      "Computation graph",
+      "Reverse mode",
+      "Adjoint",
+      "Operand-use edge",
+      "Local derivative",
+      "Reverse topological order",
+      "Gradient accumulation",
+      "Backward pass",
+      "Detach",
+      "Zeroing gradients",
+    ],
   },
   {
     chapter: 15,
-    chapterId: '15-tensor-autodiff-core',
-    title: 'Reverse tensor operations with edge-local VJPs',
-    terms: ['Tensor autodiff tape', 'Vector-Jacobian product (VJP)', 'Jacobian', 'Operand-use edge', 'Upstream adjoint', 'Parent adjoint', 'Broadcast reversal', 'Reduction VJP', 'Non-scalar seed', 'Graph retention'],
+    chapterId: "15-tensor-autodiff-core",
+    title: "Reverse tensor operations with edge-local VJPs",
+    terms: [
+      "Tensor autodiff tape",
+      "Vector-Jacobian product (VJP)",
+      "Jacobian",
+      "Operand-use edge",
+      "Upstream adjoint",
+      "Parent adjoint",
+      "Broadcast reversal",
+      "Reduction VJP",
+      "Non-scalar seed",
+      "Graph retention",
+    ],
   },
   {
     chapter: 16,
-    chapterId: '16-model-autodiff-ops',
-    title: 'Reverse the operations that turn token IDs into loss',
-    terms: ['Embedding table', 'Row gather', 'Token ID', 'Repeated selector', 'Scatter-add', 'Matrix VJP', 'SiLU', 'Log-softmax', 'Indexed mean NLL', 'Loss-logit gradient'],
+    chapterId: "16-model-autodiff-ops",
+    title: "Reverse the operations that turn token IDs into loss",
+    terms: [
+      "Embedding table",
+      "Row gather",
+      "Token ID",
+      "Repeated selector",
+      "Scatter-add",
+      "Matrix VJP",
+      "SiLU",
+      "Log-softmax",
+      "Indexed mean NLL",
+      "Loss-logit gradient",
+    ],
   },
   {
     chapter: 17,
-    chapterId: '17-parameter-initialization',
-    title: 'Initialize trainable weights reproducibly',
-    terms: ['Parameter initialization', 'Hidden-unit symmetry', 'Fan-in', 'Fan-out', 'Xavier-style initialization', 'Target variance', 'Uniform bound', 'Seed', 'Reproducibility', 'Pseudorandom generator'],
+    chapterId: "17-parameter-initialization",
+    title: "Initialize trainable weights reproducibly",
+    terms: [
+      "Parameter initialization",
+      "Hidden-unit symmetry",
+      "Fan-in",
+      "Fan-out",
+      "Xavier-style initialization",
+      "Target variance",
+      "Uniform bound",
+      "Seed",
+      "Reproducibility",
+      "Pseudorandom generator",
+    ],
   },
   {
     chapter: 18,
-    chapterId: '18-token-embeddings',
-    title: 'Give token IDs trainable vectors',
-    terms: ['Token embedding', 'Embedding table', 'Vocabulary size', 'Embedding width', 'Token ID', 'Direct row lookup', 'One-hot vector', 'Gather operation', 'Repeated-token gradient', 'Scatter-add'],
+    chapterId: "18-token-embeddings",
+    title: "Give token IDs trainable vectors",
+    terms: [
+      "Token embedding",
+      "Embedding table",
+      "Vocabulary size",
+      "Embedding width",
+      "Token ID",
+      "Direct row lookup",
+      "One-hot vector",
+      "Gather operation",
+      "Repeated-token gradient",
+      "Scatter-add",
+    ],
   },
   {
     chapter: 19,
-    chapterId: '19-linear-layers',
+    chapterId: "19-linear-layers",
     title: "Mix each token's features with one learned projection",
-    terms: ['Linear layer', 'Learned projection', 'Input feature width', 'Output feature width', 'Leading axes', 'Weight matrix', 'Bias', 'Affine map', 'Parameter sharing', 'Bias-free projection'],
+    terms: [
+      "Linear layer",
+      "Learned projection",
+      "Input feature width",
+      "Output feature width",
+      "Leading axes",
+      "Weight matrix",
+      "Bias",
+      "Affine map",
+      "Parameter sharing",
+      "Bias-free projection",
+    ],
   },
   {
     chapter: 20,
-    chapterId: '20-swiglu-feed-forward',
-    title: 'Let one learned branch gate another',
-    terms: ['SwiGLU', 'Position-wise feed-forward network', 'Gate projection', 'Up projection', 'Down projection', 'SiLU', 'Sigmoid', 'Elementwise product', 'Feed-forward width', 'Position independence'],
+    chapterId: "20-swiglu-feed-forward",
+    title: "Let one learned branch gate another",
+    terms: [
+      "SwiGLU",
+      "Position-wise feed-forward network",
+      "Gate projection",
+      "Up projection",
+      "Down projection",
+      "SiLU",
+      "Sigmoid",
+      "Elementwise product",
+      "Feed-forward width",
+      "Position independence",
+    ],
   },
   {
     chapter: 21,
-    chapterId: '21-mini-batches',
-    title: 'Count real tokens in every mini-batch',
-    terms: ['Causal window', 'Mini-batch', 'Requested batch capacity', 'Smaller final batch', 'Target occurrence', 'Actual target-token denominator', 'Token-mean gradient', 'Raw accumulator', 'Token-weighted mean', 'No-padding batch'],
+    chapterId: "21-mini-batches",
+    title: "Count real tokens in every mini-batch",
+    terms: [
+      "Causal window",
+      "Mini-batch",
+      "Requested batch capacity",
+      "Smaller final batch",
+      "Target occurrence",
+      "Actual target-token denominator",
+      "Token-mean gradient",
+      "Raw accumulator",
+      "Token-weighted mean",
+      "No-padding batch",
+    ],
   },
   {
     chapter: 22,
-    chapterId: '22-adamw',
-    title: 'Keep decay out of the gradient moments',
-    terms: ['AdamW', 'First gradient moment', 'Second gradient moment', 'Bias correction', 'Adaptive update', 'Decoupled weight decay', 'Learning rate', 'Numerical stabilizer', 'Decay group', 'No-decay group'],
+    chapterId: "22-adamw",
+    title: "Keep decay out of the gradient moments",
+    terms: [
+      "AdamW",
+      "First gradient moment",
+      "Second gradient moment",
+      "Bias correction",
+      "Adaptive update",
+      "Decoupled weight decay",
+      "Learning rate",
+      "Numerical stabilizer",
+      "Decay group",
+      "No-decay group",
+    ],
   },
   {
     chapter: 23,
-    chapterId: '23-neural-ngram',
-    title: 'Train a fixed-context neural language model',
-    terms: ['Neural n-gram', 'Fixed context', 'Token embedding', 'Context concatenation', 'SwiGLU hidden layer', 'Vocabulary projection', 'Next-token logit', 'Indexed mean loss', 'Held-out validation loss', 'Greedy generation'],
+    chapterId: "23-neural-ngram",
+    title: "Train a fixed-context neural language model",
+    terms: [
+      "Neural n-gram",
+      "Fixed context",
+      "Token embedding",
+      "Context concatenation",
+      "SwiGLU hidden layer",
+      "Vocabulary projection",
+      "Next-token logit",
+      "Indexed mean loss",
+      "Held-out validation loss",
+      "Greedy generation",
+    ],
   },
   {
     chapter: 24,
-    chapterId: '24-residual-connections',
-    title: 'Keep an identity path around each learned update',
-    terms: ['Residual connection', 'Identity path', 'Residual branch', 'Residual stream', 'Learned update', 'Exact-shape merge', 'Vector-Jacobian product', 'Upstream adjoint', 'Gradient accumulation', 'Branch Jacobian'],
+    chapterId: "24-residual-connections",
+    title: "Keep an identity path around each learned update",
+    terms: [
+      "Residual connection",
+      "Identity path",
+      "Residual branch",
+      "Residual stream",
+      "Learned update",
+      "Exact-shape merge",
+      "Vector-Jacobian product",
+      "Upstream adjoint",
+      "Gradient accumulation",
+      "Branch Jacobian",
+    ],
   },
   {
     chapter: 25,
-    chapterId: '25-rmsnorm',
-    title: 'Normalize feature scale without centering',
-    terms: ['RMSNorm', 'Mean square', 'Reciprocal RMS', 'Root-mean-square scale', 'Learned gain', 'Epsilon stabilizer', 'Final feature axis', 'Approximate scale invariance', 'Pre-normalization', 'LayerNorm'],
+    chapterId: "25-rmsnorm",
+    title: "Normalize feature scale without centering",
+    terms: [
+      "RMSNorm",
+      "Mean square",
+      "Reciprocal RMS",
+      "Root-mean-square scale",
+      "Learned gain",
+      "Epsilon stabilizer",
+      "Final feature axis",
+      "Approximate scale invariance",
+      "Pre-normalization",
+      "LayerNorm",
+    ],
   },
   {
     chapter: 26,
-    chapterId: '26-qkv-projections',
-    title: 'Create query, key, and value views',
-    terms: ['Query, key, and value projections', 'Hidden-state tensor', 'Model width', 'Head width', 'Query view', 'Key view', 'Value view', 'Self-attention', 'Bias-free projection', 'Independent projection weights'],
+    chapterId: "26-qkv-projections",
+    title: "Create query, key, and value views",
+    terms: [
+      "Query, key, and value projections",
+      "Hidden-state tensor",
+      "Model width",
+      "Head width",
+      "Query view",
+      "Key view",
+      "Value view",
+      "Self-attention",
+      "Bias-free projection",
+      "Independent projection weights",
+    ],
   },
   {
     chapter: 27,
-    chapterId: '27-self-attention',
-    title: 'Compute one unmasked self-attention head',
-    terms: ['Scaled dot-product self-attention', 'Unmasked attention', 'Query', 'Key', 'Value', 'Attention score', 'Query/key width', 'Square-root scaling', 'Row-wise softmax', 'Attention weight', 'Weighted value mixture'],
+    chapterId: "27-self-attention",
+    title: "Compute one unmasked self-attention head",
+    terms: [
+      "Scaled dot-product self-attention",
+      "Unmasked attention",
+      "Query",
+      "Key",
+      "Value",
+      "Attention score",
+      "Query/key width",
+      "Square-root scaling",
+      "Row-wise softmax",
+      "Attention weight",
+      "Weighted value mixture",
+    ],
   },
   {
     chapter: 28,
-    chapterId: '28-causal-masking',
-    title: 'Block future keys with a causal mask',
-    terms: ['Causal mask', 'Inclusive diagonal', 'Additive mask', 'Query row', 'Key column', 'Allowed prefix', 'Blocked future key', 'Causal softmax', 'Shifted decoder input', 'Prefix invariance', 'Position signal'],
+    chapterId: "28-causal-masking",
+    title: "Block future keys with a causal mask",
+    terms: [
+      "Causal mask",
+      "Inclusive diagonal",
+      "Additive mask",
+      "Query row",
+      "Key column",
+      "Allowed prefix",
+      "Blocked future key",
+      "Causal softmax",
+      "Shifted decoder input",
+      "Prefix invariance",
+      "Position signal",
+    ],
   },
   {
     chapter: 29,
-    chapterId: '29-rope',
-    title: 'Turn query and key pairs with RoPE',
-    terms: ['Rotary position embedding (RoPE)', 'Adjacent coordinate pair', 'Rotation matrix', 'Pair frequency', 'Frequency base', 'Absolute position', 'Signed relative position', 'Equal-shift invariance', 'Orthogonal rotation', 'Query-key rotation', 'Causal mask'],
+    chapterId: "29-rope",
+    title: "Turn query and key pairs with RoPE",
+    terms: [
+      "Rotary position embedding (RoPE)",
+      "Adjacent coordinate pair",
+      "Rotation matrix",
+      "Pair frequency",
+      "Frequency base",
+      "Absolute position",
+      "Signed relative position",
+      "Equal-shift invariance",
+      "Orthogonal rotation",
+      "Query-key rotation",
+      "Causal mask",
+    ],
   },
   {
     chapter: 30,
-    chapterId: '30-multi-head-attention',
-    title: 'Keep attention head-local until output mixing',
-    terms: ['Multi-head causal self-attention', 'Packed Q/K/V projections', 'Model width', 'Head count', 'Head width', 'Head split', 'Per-head RoPE', 'Per-head causal attention', 'Head output', 'Head concatenation', 'Output projection'],
+    chapterId: "30-multi-head-attention",
+    title: "Keep attention head-local until output mixing",
+    terms: [
+      "Multi-head causal self-attention",
+      "Packed Q/K/V projections",
+      "Model width",
+      "Head count",
+      "Head width",
+      "Head split",
+      "Per-head RoPE",
+      "Per-head causal attention",
+      "Head output",
+      "Head concatenation",
+      "Output projection",
+    ],
   },
   {
     chapter: 31,
-    chapterId: '31-decoder-block',
-    title: 'Compose a pre-norm decoder block in exact order',
-    terms: ['Pre-normalized decoder block', 'Residual stream', 'Attention RMSNorm', 'Causal multi-head attention', 'First residual merge', 'Feed-forward RMSNorm', 'SwiGLU feed-forward branch', 'Second residual merge', 'Identity path', 'Post-norm order'],
+    chapterId: "31-decoder-block",
+    title: "Compose a pre-norm decoder block in exact order",
+    terms: [
+      "Pre-normalized decoder block",
+      "Residual stream",
+      "Attention RMSNorm",
+      "Causal multi-head attention",
+      "First residual merge",
+      "Feed-forward RMSNorm",
+      "SwiGLU feed-forward branch",
+      "Second residual merge",
+      "Identity path",
+      "Post-norm order",
+    ],
   },
   {
     chapter: 32,
-    chapterId: '32-decoder-model',
-    title: 'Trace one tied table through a decoder stack',
-    terms: ['Decoder stack', 'Decoder depth', 'Distinct decoder blocks', 'Embedding lookup', 'Final RMSNorm', 'Weight tying', 'Tied projection', 'Vocabulary logits', 'Mean indexed negative log likelihood', 'Prefix invariance', 'Tied gradient accumulation'],
+    chapterId: "32-decoder-model",
+    title: "Trace one tied table through a decoder stack",
+    terms: [
+      "Decoder stack",
+      "Decoder depth",
+      "Distinct decoder blocks",
+      "Embedding lookup",
+      "Final RMSNorm",
+      "Weight tying",
+      "Tied projection",
+      "Vocabulary logits",
+      "Mean indexed negative log likelihood",
+      "Prefix invariance",
+      "Tied gradient accumulation",
+    ],
   },
   {
     chapter: 33,
-    chapterId: '33-training-selection',
-    title: 'Select a decoder with validation checkpoints',
-    terms: ['Training mini-batch', 'Partition roles', 'Learning-rate schedule', 'Raw gradient', 'Global-norm clipping', 'Clipped gradient', 'AdamW update', 'Optimizer moment state', 'Graph-free validation loss', 'Checkpoint set', 'Earliest validation minimum', 'Token-weighted mean'],
+    chapterId: "33-training-selection",
+    title: "Select a decoder with validation checkpoints",
+    terms: [
+      "Training mini-batch",
+      "Partition roles",
+      "Learning-rate schedule",
+      "Raw gradient",
+      "Global-norm clipping",
+      "Clipped gradient",
+      "AdamW update",
+      "Optimizer moment state",
+      "Graph-free validation loss",
+      "Checkpoint set",
+      "Earliest validation minimum",
+      "Token-weighted mean",
+    ],
   },
   {
     chapter: 34,
-    chapterId: '34-final-evaluation',
-    title: 'Freeze choices before one final test report',
-    terms: ['Validation-selected checkpoint', 'Frozen selected state', 'Single-use test evaluation boundary', 'Final test evaluation', 'Token-weighted mean NLL', 'Perplexity', 'Aligned target slot', 'Evaluation provenance assertions', 'No-grad evaluation', 'Frozen final evaluation report', 'Frozen bigram', 'Like-for-like targets'],
+    chapterId: "34-final-evaluation",
+    title: "Separate local test isolation from fixture evidence",
+    terms: [
+      "Validation-selected checkpoint",
+      "Frozen selected state",
+      "Single-use test evaluation boundary",
+      "Final test evaluation",
+      "Fixed-fixture regression evidence",
+      "Token-weighted mean NLL",
+      "Perplexity",
+      "Aligned target slot",
+      "Evaluation provenance assertions",
+      "No-grad evaluation",
+      "Frozen final evaluation report",
+      "Frozen bigram",
+      "Like-for-like targets",
+    ],
   },
   {
     chapter: 35,
-    chapterId: '35-checkpoints',
-    title: 'Save every state, resume exactly',
-    terms: ['Versioned decoder checkpoint', 'Checkpoint schema', 'Same-step boundary', 'AdamW optimizer state', 'Continuation RNG state', 'Checkpoint payload record', 'Checkpoint record descriptor', 'Checkpoint payload offset', 'Canonical checkpoint encoding', 'Checkpoint integrity checksum (FNV-1a)', 'Exact round trip', 'Exact resumed update', 'Atomic checkpoint replacement'],
+    chapterId: "35-checkpoints",
+    title: "Save every state, resume exactly",
+    terms: [
+      "Versioned decoder checkpoint",
+      "Checkpoint schema",
+      "Same-step boundary",
+      "AdamW optimizer state",
+      "Continuation RNG state",
+      "Checkpoint payload record",
+      "Checkpoint record descriptor",
+      "Checkpoint payload offset",
+      "Canonical checkpoint encoding",
+      "Checkpoint integrity checksum (FNV-1a)",
+      "Exact round trip",
+      "Exact resumed update",
+      "Atomic checkpoint replacement",
+    ],
   },
   {
     chapter: 36,
-    chapterId: '36-temperature-top-k',
-    title: 'Shape a stable top-k distribution, then draw once',
-    terms: ['Temperature', 'Stable ranking', 'Top-k candidate set', 'Tie-breaking rule', 'Top-k renormalization', 'Max-shifted softmax', 'Removed-token probability', 'Categorical draw', 'Half-open sampling interval', 'Greedy decoding', 'Stochastic top-1', 'RNG-state replay'],
+    chapterId: "36-temperature-top-k",
+    title: "Shape a stable top-k distribution, then draw once",
+    terms: [
+      "Temperature",
+      "Stable ranking",
+      "Top-k candidate set",
+      "Tie-breaking rule",
+      "Top-k renormalization",
+      "Max-shifted softmax",
+      "Removed-token probability",
+      "Categorical draw",
+      "Half-open sampling interval",
+      "Greedy decoding",
+      "Stochastic top-1",
+      "RNG-state replay",
+    ],
   },
   {
     chapter: 37,
-    chapterId: '37-incremental-attention',
-    title: 'Keep the prefix, project only the new row',
-    terms: ['Incremental multi-head attention', 'Layer-bound KV cache', 'Absolute RoPE position', 'Rotated key', 'Unrotated value', 'Current query', 'Logical cache length', 'Cache capacity', 'Candidate key/value pair', 'Full-prefix reference', 'Projection reuse', 'Transactional cache update'],
+    chapterId: "37-incremental-attention",
+    title: "Keep the prefix, project only the new row",
+    terms: [
+      "Incremental multi-head attention",
+      "Layer-bound KV cache",
+      "Absolute RoPE position",
+      "Rotated key",
+      "Unrotated value",
+      "Current query",
+      "Logical cache length",
+      "Cache capacity",
+      "Candidate key/value pair",
+      "Full-prefix reference",
+      "Projection reuse",
+      "Transactional cache update",
+    ],
   },
   {
     chapter: 38,
-    chapterId: '38-cached-generation',
-    title: 'Prefill once, then decode one token at a time',
-    terms: ['Model-wide KV cache', 'Per-layer KV cache', 'Prompt prefill', 'One-token decode', 'Complete-prefix reference', 'Newest-logit equivalence', 'Retained prefix length', 'Attention-score work', 'Context-limit stop', 'EOS stop', 'Coherent cache commit', 'Cached-generation replay', 'Cache reset'],
+    chapterId: "38-cached-generation",
+    title: "Prefill once, then decode one token at a time",
+    terms: [
+      "Model-wide KV cache",
+      "Per-layer KV cache",
+      "Prompt prefill",
+      "One-token decode",
+      "Complete-prefix reference",
+      "Newest-logit equivalence",
+      "Retained prefix length",
+      "Attention-score work",
+      "Context-limit stop",
+      "EOS stop",
+      "Coherent cache commit",
+      "Cached-generation replay",
+      "Cache reset",
+    ],
   },
   {
     chapter: 39,
-    chapterId: '39-end-to-end-llm',
-    title: 'Run the whole tiny LLM',
-    terms: ['End-to-end LLM pipeline', 'Decoder-only LLM', 'Frozen document split', 'Training-only BPE', 'Causal window', 'Bitwise training replay', 'Validation-selected state', 'Selection-isolated final test evaluation', 'Frozen alpha-one bigram baseline', 'Same-target test-loss comparison', 'Exact checkpoint round trip', 'Exact logit probe', 'KV-cached generation', 'Joint sequence probability', 'Autoregressive factorization', 'Next-token conditional distribution'],
+    chapterId: "39-end-to-end-llm",
+    title: "Run the whole tiny LLM",
+    terms: [
+      "End-to-end LLM pipeline",
+      "Decoder-only LLM",
+      "Frozen document split",
+      "Training-only BPE",
+      "Causal window",
+      "Bitwise training replay",
+      "Validation-selected state",
+      "Selection-isolated final test evaluation",
+      "Frozen alpha-one bigram baseline",
+      "Same-target test-loss comparison",
+      "Fixed-fixture regression evidence",
+      "Exact checkpoint round trip",
+      "Exact logit probe",
+      "KV-cached generation",
+      "Joint sequence probability",
+      "Autoregressive factorization",
+      "Next-token conditional distribution",
+    ],
   },
 ] as const;
 
@@ -379,35 +714,31 @@ interface BrowserSheet {
   readonly title: string;
 }
 
-const englishCopy = getCheatSheetCopy('en');
-const russianCopy = getCheatSheetCopy('ru');
+const englishCopy = getCheatSheetCopy("en");
+const russianCopy = getCheatSheetCopy("ru");
 if (!englishCopy || !russianCopy) {
-  throw new Error('Cheat-sheet browser coverage requires English and Russian interface copy.');
+  throw new Error(
+    "Cheat-sheet browser coverage requires English and Russian interface copy.",
+  );
 }
 
-const russianSheetRoot = resolve(
-  process.cwd(),
-  'src/content/cheat-sheets/ru',
-);
+const russianSheetRoot = resolve(process.cwd(), "src/content/cheat-sheets/ru");
 const russianSheets: BrowserSheet[] = existsSync(russianSheetRoot)
   ? readdirSync(russianSheetRoot)
-      .filter((fileName: string) => fileName.endsWith('.json'))
+      .filter((fileName: string) => fileName.endsWith(".json"))
       .sort()
       .map((fileName: string) => {
         const sheet = JSON.parse(
-          readFileSync(resolve(russianSheetRoot, fileName), 'utf8'),
+          readFileSync(resolve(russianSheetRoot, fileName), "utf8"),
         ) as CheatSheetData;
-        if (
-          sheet.locale !== 'ru' ||
-          fileName !== `${sheet.chapter_id}.json`
-        ) {
+        if (sheet.locale !== "ru" || fileName !== `${sheet.chapter_id}.json`) {
           throw new Error(`Invalid Russian cheat-sheet identity: ${fileName}`);
         }
         return {
           chapter: Number.parseInt(sheet.chapter_id.slice(0, 2), 10),
           chapterId: sheet.chapter_id,
           copy: russianCopy,
-          locale: 'ru' as const,
+          locale: "ru" as const,
           terms: sheet.terms.map(({ term }) => term),
           title: sheet.title,
         };
@@ -418,61 +749,171 @@ const sheets: BrowserSheet[] = [
   ...englishSheets.map((sheet) => ({
     ...sheet,
     copy: englishCopy,
-    locale: 'en' as const,
+    locale: "en" as const,
   })),
   ...russianSheets,
 ];
 
+const chapter02BoundaryDefinitions = {
+  en: {
+    term: "Test partition",
+    definition:
+      "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate.",
+  },
+  ru: {
+    term: "Тестовая выборка",
+    definition:
+      "Документы, предназначенные для оценки после завершения обучения и выбора модели. В пределах одного запуска программа обеспечивает эту границу локально; в последующих запусках известный фиксированный пример используют для регрессионной проверки, а не для новой независимой оценки.",
+  },
+} as const;
+
 const chapter34BoundaryDefinitions = {
   en: [
     {
-      term: 'Single-use test evaluation boundary',
-      definition: "A local once-only post-selection protocol that checks the epoch's Test label, caller-assertion consistency, and pre-open model constraints; it consumes local access before inspecting token IDs and cannot establish external lineage or cross-process uniqueness.",
+      term: "Validation-selected checkpoint",
+      definition:
+        "The planned model checkpoint chosen using validation evidence before the local evaluator receives test data in that execution.",
     },
     {
-      term: 'Final test evaluation',
-      definition: 'The reporting-only pass over held-out test data after selection closes; under the course protocol, its result must not be used to choose a checkpoint or tune another decision.',
+      term: "Frozen selected state",
+      definition:
+        "The complete selected decoder snapshot that test scores cannot change inside the demonstrated execution.",
     },
     {
-      term: 'Evaluation provenance assertions',
-      definition: 'Three nonblank caller-supplied corpus, split, and tokenizer identifiers plus a positive context value; equality checks assertion consistency but does not derive or verify the underlying artifacts.',
+      term: "Single-use test evaluation boundary",
+      definition:
+        "A local post-selection protocol that checks the epoch's Test label, caller-assertion consistency, and pre-open model constraints; its one-use count applies to one evaluator instance and cannot establish repository-wide uniqueness or independent generalization.",
     },
     {
-      term: 'Frozen final evaluation report',
-      definition: 'A versioned record of caller-supplied identifiers, checked target evidence, scores, local gate facts, and state-preservation checks, fixed after selection closes; it is not proof of external lineage.',
+      term: "Final test evaluation",
+      definition:
+        "In an untouched protocol, a reporting-only pass after selection closes; this chapter's known and repeatedly checked fixture instead supplies regression evidence.",
     },
     {
-      term: 'Frozen bigram',
-      definition: "In this fixture, an add-one bigram fitted on Chapter 33's exact training token slices and sealed before test access; the generic wrapper itself checks only a Train assertion and a nonzero fitted-document count.",
+      term: "Fixed-fixture regression evidence",
+      definition:
+        "A reproducible result on checked-in test documents. Chapter 34's documents were selected to produce the decoder-lower-than-bigram loss ordering, which is retained to detect changes; the score is neither an independent estimate of generalization nor evidence of architecture superiority.",
+    },
+    {
+      term: "Evaluation provenance assertions",
+      definition:
+        "Three nonblank caller-supplied corpus, split, and tokenizer identifiers plus a positive context value; equality checks assertion consistency but does not derive or verify the underlying artifacts.",
+    },
+    {
+      term: "Frozen final evaluation report",
+      definition:
+        "A versioned record of caller-supplied identifiers, checked target evidence, scores, local gate facts, state-preservation checks, and evidence scope, fixed after selection closes; it proves neither external lineage nor independent generalization.",
+    },
+    {
+      term: "Frozen bigram",
+      definition:
+        "In this fixture, an add-one bigram fitted on Chapter 33's exact training token slices and sealed before test access; the generic wrapper itself checks only a Train assertion and a nonzero fitted-document count.",
+    },
+    {
+      term: "Like-for-like targets",
+      definition:
+        "A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows; fairness within the fixture does not make the fixture independently held out.",
     },
   ],
   ru: [
     {
-      term: 'Граница однократной оценки на тестовой выборке',
-      definition: 'Локальный протокол однократного доступа после выбора модели: до открытия доступа он проверяет метку Test, согласованность заявленных сведений и ограничения модели, а перед чтением ID токенов считает локальный доступ израсходованным; установить внешнее происхождение данных или гарантировать единственность доступа между процессами он не может.',
+      term: "Контрольная точка, выбранная по валидации",
+      definition:
+        "Заранее предусмотренное состояние модели, выбранное по результатам валидации до того, как локальный оценщик получает тестовые данные в этом запуске.",
     },
     {
-      term: 'Итоговая оценка на тестовой выборке',
-      definition: 'Предназначенный только для отчёта проход по отложенным тестовым данным после завершения выбора; по правилам курса результат нельзя использовать, чтобы выбрать другую контрольную точку или изменить иное решение.',
+      term: "Зафиксированное выбранное состояние",
+      definition:
+        "Полный снимок выбранного декодера, который тестовые оценки не могут изменить в пределах показанного запуска.",
     },
     {
-      term: 'Заявленные сведения о происхождении данных и условиях оценки',
-      definition: 'Три непустых идентификатора корпуса, разбиения и токенизатора, заданные вызывающим кодом, и положительное значение длины контекста; проверка совпадения показывает только согласованность строк и не устанавливает, какие корпус, способ разбиения и токенизатор стоят за ними.',
+      term: "Граница однократной оценки на тестовой выборке",
+      definition:
+        "Локальный протокол после выбора модели: он проверяет метку Test, согласованность заявленных сведений и ограничения модели; счётчик однократного доступа относится к одному экземпляру оценщика и не гарантирует единственность доступа в репозитории или независимость оценки способности модели обобщать.",
     },
     {
-      term: 'Неизменяемый итоговый отчёт об оценке',
-      definition: 'Версионируемая запись заданных вызывающим кодом идентификаторов, проверенных целевых позиций, результатов, фактов локального доступа и сохранности состояния, зафиксированная после завершения выбора; она не доказывает внешнее происхождение данных.',
+      term: "Итоговая оценка на тестовой выборке",
+      definition:
+        "В протоколе с ранее не использованными данными — проход только для отчёта после завершения выбора; известный и постоянно проверяемый пример этой главы вместо этого служит регрессионной проверкой.",
     },
     {
-      term: 'Зафиксированная биграммная модель',
-      definition: 'В этом примере — биграммная модель с аддитивным сглаживанием с параметром один, обученная на точных срезах обучающих токенов главы 33 и зафиксированная до доступа к тестовой выборке; универсальная обёртка проверяет лишь заявленную метку Train и ненулевое число обработанных документов.',
+      term: "Результат фиксированного примера для регрессионной проверки",
+      definition:
+        "Воспроизводимый результат на сохранённых в репозитории тестовых документах. Документы главы 34 выбрали так, чтобы потери декодера были ниже потерь биграммной модели; этот порядок сохраняют для обнаружения изменений, поэтому результат не является независимой оценкой способности модели обобщать и не доказывает превосходства архитектуры.",
+    },
+    {
+      term: "Заявленные сведения о происхождении данных и условиях оценки",
+      definition:
+        "Три непустых идентификатора корпуса, разбиения и токенизатора, заданные вызывающим кодом, и положительное значение длины контекста; проверка совпадения показывает только согласованность строк и не устанавливает, какие корпус, способ разбиения и токенизатор стоят за ними.",
+    },
+    {
+      term: "Неизменяемый итоговый отчёт об оценке",
+      definition:
+        "Версионируемая запись заданных вызывающим кодом идентификаторов, проверенных целевых позиций, результатов, фактов локального доступа, сохранности состояния и области применимости, зафиксированная после завершения выбора; она не доказывает ни внешнее происхождение данных, ни независимость оценки способности модели обобщать.",
+    },
+    {
+      term: "Зафиксированная биграммная модель",
+      definition:
+        "В этом примере — биграммная модель с аддитивным сглаживанием с параметром один, обученная на точных срезах обучающих токенов главы 33 и зафиксированная до доступа к тестовой выборке; универсальная обёртка проверяет лишь заявленную метку Train и ненулевое число обработанных документов.",
+    },
+    {
+      term: "Одни и те же целевые позиции",
+      definition:
+        "Сравнение, в котором обе модели оценивают одинаковый упорядоченный набор целевых позиций, включая каждый повтор из перекрывающихся окон декодера; справедливость сравнения внутри примера не делает сами данные независимо отложенными.",
+    },
+  ],
+} as const;
+
+const chapter39EvidenceDefinitions = {
+  en: [
+    {
+      term: "End-to-end LLM pipeline",
+      definition:
+        "The course path that turns frozen documents into BPE tokens and causal batches, trains and selects a decoder before one local fixed-fixture evaluation, restores it, and generates text.",
+    },
+    {
+      term: "Selection-isolated final test evaluation",
+      definition:
+        "One local post-selection pass whose test targets cannot update parameters or feed a result back into model selection inside that execution; the local access count does not establish repository-wide independence.",
+    },
+    {
+      term: "Same-target test-loss comparison",
+      definition:
+        "A fair within-fixture comparison in which the decoder and frozen bigram score the same ordered test target positions; it does not make the fixture independently held out.",
+    },
+    {
+      term: "Fixed-fixture regression evidence",
+      definition:
+        "A known result rerun to detect changes in checked behavior; Chapter 39 permanently checks the decoder-lower ordering, so the gap is neither an independent estimate of generalization nor evidence of architecture superiority.",
+    },
+  ],
+  ru: [
+    {
+      term: "Полный процесс работы LLM",
+      definition:
+        "Путь курса превращает зафиксированные документы в BPE-токены и каузальные пакеты, обучает и выбирает декодер до одной локальной оценки фиксированного примера, восстанавливает его и генерирует текст.",
+    },
+    {
+      term: "Итоговая тестовая оценка, изолированная от выбора",
+      definition:
+        "Один локальный проход после завершения выбора, чьи тестовые цели не могут обновить параметры или повлиять на выбор модели в пределах этого запуска; локальный счётчик доступа не доказывает независимость на уровне всего репозитория.",
+    },
+    {
+      term: "Сравнение тестовых потерь на одних и тех же целевых позициях",
+      definition:
+        "Справедливое сравнение внутри примера, при котором декодер и зафиксированная биграммная модель оценивают одни и те же упорядоченные тестовые целевые позиции; это не делает сам пример независимо отложенным.",
+    },
+    {
+      term: "Результат фиксированного примера для регрессионной проверки",
+      definition:
+        "Известный результат, который повторно запускают для обнаружения изменений проверяемого поведения; в главе 39 постоянно проверяется порядок, при котором потери декодера ниже, поэтому разница не является независимой оценкой способности модели обобщать и не доказывает превосходства архитектуры.",
     },
   ],
 } as const;
 
 function expectedPages(terms: readonly string[], locale: Locale) {
   const sorted = sortCheatSheetTerms(
-    terms.map((term) => ({ definition: 'Browser-test definition.', term })),
+    terms.map((term) => ({ definition: "Browser-test definition.", term })),
     locale,
   );
   return paginateCheatSheetTerms(sorted).map((page) =>
@@ -516,22 +957,22 @@ async function readPaginatedLayout(dialog: Locator) {
       };
     };
     const pageViewport = node.querySelector<HTMLElement>(
-      '[data-cheat-sheet-pages]',
+      "[data-cheat-sheet-pages]",
     );
     const pagination = node.querySelector<HTMLElement>(
-      '[data-cheat-sheet-pagination]',
+      "[data-cheat-sheet-pagination]",
     );
     const status = node.querySelector<HTMLElement>(
-      '[data-cheat-sheet-page-status]',
+      "[data-cheat-sheet-page-status]",
     );
     const previous = node.querySelector<HTMLButtonElement>(
-      '[data-cheat-sheet-previous]',
+      "[data-cheat-sheet-previous]",
     );
     const next = node.querySelector<HTMLButtonElement>(
-      '[data-cheat-sheet-next]',
+      "[data-cheat-sheet-next]",
     );
     if (!pageViewport || !pagination || !status || !previous || !next) {
-      throw new Error('Paginated cheat-sheet controls are incomplete.');
+      throw new Error("Paginated cheat-sheet controls are incomplete.");
     }
 
     return {
@@ -559,7 +1000,9 @@ function expectInside(inner: Bounds, outer: Bounds) {
   expect(inner.bottom).toBeLessThanOrEqual(outer.bottom + 1);
 }
 
-function expectPaginatedShell(layout: Awaited<ReturnType<typeof readPaginatedLayout>>) {
+function expectPaginatedShell(
+  layout: Awaited<ReturnType<typeof readPaginatedLayout>>,
+) {
   expect(layout.dialog.left).toBeGreaterThanOrEqual(0);
   expect(layout.dialog.right).toBeLessThanOrEqual(layout.viewport.width);
   expect(layout.dialog.top).toBeGreaterThanOrEqual(0);
@@ -568,9 +1011,7 @@ function expectPaginatedShell(layout: Awaited<ReturnType<typeof readPaginatedLay
   expect(
     layout.dialogScrollHeight,
     `dialog shell geometry ${JSON.stringify(layout)}`,
-  ).toBeLessThanOrEqual(
-    layout.dialogClientHeight + 1,
-  );
+  ).toBeLessThanOrEqual(layout.dialogClientHeight + 1);
   expect(layout.pageViewportClientHeight).toBeGreaterThan(0);
   expectInside(layout.pageViewport, layout.dialog);
   expectInside(layout.pagination, layout.dialog);
@@ -583,10 +1024,10 @@ async function scrollCurrentTermPageToEnd(pageViewport: Locator) {
   return pageViewport.evaluate((node) => {
     node.scrollTop = node.scrollHeight;
     const lastTerm = node.querySelector(
-      '[data-cheat-sheet-page]:not([hidden]) .cheat-sheet-term:last-child',
+      "[data-cheat-sheet-page]:not([hidden]) .cheat-sheet-term:last-child",
     );
     if (!lastTerm) {
-      throw new Error('The visible cheat-sheet page has no final term.');
+      throw new Error("The visible cheat-sheet page has no final term.");
     }
     const viewportRect = node.getBoundingClientRect();
     const termRect = lastTerm.getBoundingClientRect();
@@ -604,9 +1045,9 @@ async function scrollCurrentTermPageToEnd(pageViewport: Locator) {
 function expectCurrentPageEndReachable(
   reachability: Awaited<ReturnType<typeof scrollCurrentTermPageToEnd>>,
 ) {
-  expect(reachability.scrollTop + reachability.clientHeight).toBeGreaterThanOrEqual(
-    reachability.scrollHeight - 1,
-  );
+  expect(
+    reachability.scrollTop + reachability.clientHeight,
+  ).toBeGreaterThanOrEqual(reachability.scrollHeight - 1);
   expect(reachability.termBottom).toBeGreaterThanOrEqual(
     reachability.viewportTop - 1,
   );
@@ -615,94 +1056,297 @@ function expectCurrentPageEndReachable(
   );
 }
 
+async function readVisibleDialogSafety(dialog: Locator) {
+  return dialog.evaluate((node) => {
+    const root = node as HTMLElement;
+    const bounds = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        bottom: rect.bottom,
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+      };
+    };
+    const colorHasZeroAlpha = (color: string) => {
+      if (color === "transparent") return true;
+      const rgba = color.match(/rgba?\([^)]*[,/]\s*(0(?:\.0+)?%?)\s*\)$/);
+      return rgba
+        ? Number.parseFloat(rgba[1]) === 0
+        : /#[0-9a-f]{6}00$/i.test(color);
+    };
+    const described = (element: HTMLElement) =>
+      element.getAttribute("data-cheat-sheet-pages") !== null
+        ? "pages"
+        : element.className
+            ?.toString()
+            .split(/\s+/)
+            .filter(Boolean)
+            .join(".") || element.tagName.toLowerCase();
+    const authoredElements = [
+      root,
+      ...Array.from(root.querySelectorAll<HTMLElement>("*")),
+    ].filter(
+      (element) =>
+        element.getAttribute("hidden") === null &&
+        element.closest("[hidden]") === null,
+    );
+    const scaledElements: Array<{
+      index: number;
+      owner: string;
+      scale: string;
+      transform: string;
+      zoom: string;
+    }> = [];
+    const concealedElements: Array<{ index: number; owner: string }> = [];
+    for (const [index, element] of authoredElements.entries()) {
+      const style = getComputedStyle(element);
+      const scale = style.getPropertyValue("scale");
+      const zoom = style.getPropertyValue("zoom");
+      if (
+        style.transform !== "none" ||
+        Boolean(scale && scale !== "none") ||
+        Boolean(zoom && zoom !== "normal" && Number.parseFloat(zoom) !== 1)
+      ) {
+        scaledElements.push({
+          index,
+          owner: described(element),
+          scale,
+          transform: style.transform,
+          zoom,
+        });
+      }
+      const opacity = Number.parseFloat(style.opacity);
+      const documentedDisabledOpacity =
+        element.matches(":disabled") && opacity >= 0.5;
+      const webkitMask = style.getPropertyValue("-webkit-mask-image");
+      const lineClamp = style.getPropertyValue("line-clamp");
+      const webkitLineClamp = style.getPropertyValue("-webkit-line-clamp");
+      const concealed =
+        style.display === "none" ||
+        ["hidden", "collapse"].includes(style.visibility) ||
+        (opacity < 0.99 && !documentedDisabledOpacity) ||
+        style.filter !== "none" ||
+        style.clipPath !== "none" ||
+        Boolean(style.maskImage && style.maskImage !== "none") ||
+        Boolean(webkitMask && webkitMask !== "none") ||
+        [style.overflowX, style.overflowY].some((value) =>
+          ["hidden", "clip"].includes(value),
+        ) ||
+        style.textOverflow === "ellipsis" ||
+        Boolean(lineClamp && lineClamp !== "none") ||
+        Boolean(webkitLineClamp && webkitLineClamp !== "none") ||
+        /(?:^|\s)(?:paint|strict|content)(?:\s|$)/.test(style.contain) ||
+        style.contentVisibility === "hidden";
+      if (concealed) {
+        concealedElements.push({ index, owner: described(element) });
+      }
+    }
+
+    const textSamples: Array<{
+      fontSize: number;
+      lineHeight: number;
+      paint: number;
+      role: string;
+      text: string;
+    }> = [];
+    const paintedText: Array<{ left: number; right: number }> = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      const parent = textNode.parentElement;
+      const text = textNode.data
+        .replace(/[\s\u200b-\u200d\ufeff]+/g, " ")
+        .trim();
+      if (
+        !text ||
+        !parent ||
+        parent.getAttribute("hidden") !== null ||
+        parent.closest("[hidden]")
+      ) {
+        continue;
+      }
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      const paint = Array.from(range.getClientRects()).filter(
+        ({ width, height }) => width > 0 && height > 0,
+      );
+      paintedText.push(
+        ...paint.map((rect) => ({ left: rect.left, right: rect.right })),
+      );
+      const style = getComputedStyle(parent);
+      const lineHeight = Number.parseFloat(style.lineHeight);
+      textSamples.push({
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.isFinite(lineHeight) ? lineHeight : 0,
+        paint: paint.length,
+        role: parent.closest("h2")
+          ? "title"
+          : parent.closest(".cheat-sheet-eyebrow")
+            ? "eyebrow"
+            : parent.closest(".cheat-sheet-close")
+              ? "close"
+              : "body",
+        text,
+      });
+      if (colorHasZeroAlpha(style.color) || paint.length === 0) {
+        concealedElements.push({
+          index: textSamples.length - 1,
+          owner: `text:${text.slice(0, 40)}`,
+        });
+      }
+    }
+
+    const descendantVerticalOwners = authoredElements
+      .filter((element) => element !== root)
+      .flatMap((element) => {
+        const style = getComputedStyle(element);
+        const debt = Math.max(0, element.scrollHeight - element.clientHeight);
+        return style.overflowY === "scroll" ||
+          (style.overflowY === "auto" && debt > 1)
+          ? [described(element)]
+          : [];
+      });
+    const descendantHorizontalOwners = authoredElements
+      .filter((element) => element !== root)
+      .flatMap((element) => {
+        const style = getComputedStyle(element);
+        const debt = Math.max(0, element.scrollWidth - element.clientWidth);
+        return style.overflowX === "scroll" ||
+          (style.overflowX === "auto" && debt > 1)
+          ? [described(element)]
+          : [];
+      });
+    const panel = root.querySelector(".cheat-sheet-panel");
+    const visiblePage = root.querySelector(
+      "[data-cheat-sheet-page]:not([hidden])",
+    );
+    const bounded = [
+      panel,
+      visiblePage,
+      root.querySelector("[data-cheat-sheet-pagination]"),
+      root.querySelector("[data-cheat-sheet-page-status]"),
+      root.querySelector("[data-cheat-sheet-previous]"),
+      root.querySelector("[data-cheat-sheet-next]"),
+    ]
+      .filter((element): element is Element => element !== null)
+      .map(bounds);
+
+    return {
+      bodyClientWidth: document.documentElement.clientWidth,
+      bodyScrollWidth: document.documentElement.scrollWidth,
+      bounded,
+      concealedElements,
+      descendantHorizontalOwners,
+      descendantVerticalOwners,
+      dialog: bounds(root),
+      dialogClientWidth: root.clientWidth,
+      dialogScrollWidth: root.scrollWidth,
+      paintedText,
+      rootRem: Number.parseFloat(
+        getComputedStyle(document.documentElement).fontSize,
+      ),
+      scaledElements,
+      textSamples,
+      viewport: { height: window.innerHeight, width: window.innerWidth },
+    };
+  });
+}
+
 for (const sheet of sheets) {
   test.describe(`${sheet.locale.toUpperCase()} Chapter ${sheet.chapter} cheat sheet @cheat-sheet:${sheet.locale}:${sheet.chapterId}`, () => {
-    test('presents sorted page slices with accessible controls and restores focus', async ({ page }) => {
+    test("presents sorted page slices with accessible controls and restores focus", async ({
+      page,
+    }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(chapterPath(sheet.locale, sheet.chapterId));
 
       const termPages = expectedPages(sheet.terms, sheet.locale);
       const sortedTerms = termPages.flat();
-      if (sheet.locale === 'en' && sheet.chapterId === '35-checkpoints') {
+      if (sheet.locale === "en" && sheet.chapterId === "35-checkpoints") {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
         expect(sortedTerms).toEqual([
-          'AdamW optimizer state',
-          'Atomic checkpoint replacement',
-          'Canonical checkpoint encoding',
-          'Checkpoint integrity checksum (FNV-1a)',
-          'Checkpoint payload offset',
-          'Checkpoint payload record',
-          'Checkpoint record descriptor',
-          'Checkpoint schema',
-          'Continuation RNG state',
-          'Exact resumed update',
-          'Exact round trip',
-          'Same-step boundary',
-          'Versioned decoder checkpoint',
+          "AdamW optimizer state",
+          "Atomic checkpoint replacement",
+          "Canonical checkpoint encoding",
+          "Checkpoint integrity checksum (FNV-1a)",
+          "Checkpoint payload offset",
+          "Checkpoint payload record",
+          "Checkpoint record descriptor",
+          "Checkpoint schema",
+          "Continuation RNG state",
+          "Exact resumed update",
+          "Exact round trip",
+          "Same-step boundary",
+          "Versioned decoder checkpoint",
         ]);
       }
-      if (sheet.locale === 'en' && sheet.chapterId === '38-cached-generation') {
+      if (sheet.chapterId === "02-corpus-partitions") {
+        expect(termPages.map((termPage) => termPage.length)).toEqual([9]);
+      }
+      if (sheet.locale === "en" && sheet.chapterId === "38-cached-generation") {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
         expect(sortedTerms).toEqual([
-          'Attention-score work',
-          'Cache reset',
-          'Cached-generation replay',
-          'Coherent cache commit',
-          'Complete-prefix reference',
-          'Context-limit stop',
-          'EOS stop',
-          'Model-wide KV cache',
-          'Newest-logit equivalence',
-          'One-token decode',
-          'Per-layer KV cache',
-          'Prompt prefill',
-          'Retained prefix length',
+          "Attention-score work",
+          "Cache reset",
+          "Cached-generation replay",
+          "Coherent cache commit",
+          "Complete-prefix reference",
+          "Context-limit stop",
+          "EOS stop",
+          "Model-wide KV cache",
+          "Newest-logit equivalence",
+          "One-token decode",
+          "Per-layer KV cache",
+          "Prompt prefill",
+          "Retained prefix length",
         ]);
       }
-      if (sheet.locale === 'en' && sheet.chapterId === '39-end-to-end-llm') {
-        expect(termPages.map((termPage) => termPage.length)).toEqual([10, 6]);
+      if (sheet.locale === "en" && sheet.chapterId === "39-end-to-end-llm") {
+        expect(termPages.map((termPage) => termPage.length)).toEqual([10, 7]);
         expect(sortedTerms).toEqual([
-          'Autoregressive factorization',
-          'Bitwise training replay',
-          'Causal window',
-          'Decoder-only LLM',
-          'End-to-end LLM pipeline',
-          'Exact checkpoint round trip',
-          'Exact logit probe',
-          'Frozen alpha-one bigram baseline',
-          'Frozen document split',
-          'Joint sequence probability',
-          'KV-cached generation',
-          'Next-token conditional distribution',
-          'Same-target test-loss comparison',
-          'Selection-isolated final test evaluation',
-          'Training-only BPE',
-          'Validation-selected state',
+          "Autoregressive factorization",
+          "Bitwise training replay",
+          "Causal window",
+          "Decoder-only LLM",
+          "End-to-end LLM pipeline",
+          "Exact checkpoint round trip",
+          "Exact logit probe",
+          "Fixed-fixture regression evidence",
+          "Frozen alpha-one bigram baseline",
+          "Frozen document split",
+          "Joint sequence probability",
+          "KV-cached generation",
+          "Next-token conditional distribution",
+          "Same-target test-loss comparison",
+          "Selection-isolated final test evaluation",
+          "Training-only BPE",
+          "Validation-selected state",
         ]);
       }
-      const root = page.locator('[data-cheat-sheet]');
-      const trigger = root.getByRole('button', { name: sheet.copy.openLabel });
-      const dialog = root.getByRole('dialog', { name: sheet.title });
-      const fallback = root.locator('[data-cheat-sheet-fallback]');
-      const pages = dialog.locator('[data-cheat-sheet-pages]');
+      const root = page.locator("[data-cheat-sheet]");
+      const trigger = root.getByRole("button", { name: sheet.copy.openLabel });
+      const dialog = root.getByRole("dialog", { name: sheet.title });
+      const fallback = root.locator("[data-cheat-sheet-fallback]");
+      const pages = dialog.locator("[data-cheat-sheet-pages]");
       const visibleTerms = dialog.locator(
-        '[data-cheat-sheet-page]:not([hidden]) dt',
+        "[data-cheat-sheet-page]:not([hidden]) dt",
       );
-      const pagination = dialog.getByRole('navigation', {
+      const pagination = dialog.getByRole("navigation", {
         name: sheet.copy.paginationLabel,
       });
-      const previous = dialog.getByRole('button', {
+      const previous = dialog.getByRole("button", {
         name: sheet.copy.previousLabel,
       });
-      const next = dialog.getByRole('button', { name: sheet.copy.nextLabel });
-      const status = dialog.getByRole('status');
+      const next = dialog.getByRole("button", { name: sheet.copy.nextLabel });
+      const status = dialog.getByRole("status");
       const pagesId = `cheat-sheet-${sheet.chapterId}-pages`;
       const titleId = `cheat-sheet-${sheet.chapterId}-title`;
       const pageStatusId = `cheat-sheet-${sheet.chapterId}-page-status`;
 
       await expect(root).toHaveCount(1);
       await expect(root).toHaveAttribute(
-        'data-cheat-sheet-page-count',
+        "data-cheat-sheet-page-count",
         String(termPages.length),
       );
       await expect(trigger).toBeVisible();
@@ -712,49 +1356,77 @@ for (const sheet of sheets) {
       await trigger.focus();
       await trigger.click();
       await expect(dialog).toBeVisible();
-      await expect(dialog.locator('.cheat-sheet-eyebrow')).toHaveText(
+      await expect(dialog.locator(".cheat-sheet-eyebrow")).toHaveText(
         sheet.copy.eyebrow,
       );
-      await expect(pages).toHaveAttribute('id', pagesId);
-      await expect(dialog.locator('[data-cheat-sheet-page] dt')).toHaveText(
+      await expect(pages).toHaveAttribute("id", pagesId);
+      await expect(dialog.locator("[data-cheat-sheet-page] dt")).toHaveText(
         sortedTerms,
       );
       expect(new Set(sortedTerms).size).toBe(sortedTerms.length);
-      if (sheet.chapterId === '14-scalar-autodiff') {
-        const expectedDefinitions = sheet.locale === 'en'
-          ? {
-              term: 'Adjoint',
-              definition: "A pass-local sensitivity for one tracked node: the selected output's derivative with respect to that node, multiplied by the finite seed installed at the output.",
-            }
-          : {
-              term: 'Сопряжённая величина',
-              definition: 'Чувствительность отслеживаемого узла в текущем проходе: производная выбранного выхода по этому узлу, умноженная на конечную начальную сопряжённую величину, заданную для выхода.',
-            };
-        const entry = dialog.locator('.cheat-sheet-term').filter({
-          has: page.locator('dt', { hasText: expectedDefinitions.term }),
+      if (sheet.chapterId === "14-scalar-autodiff") {
+        const expectedDefinitions =
+          sheet.locale === "en"
+            ? {
+                term: "Adjoint",
+                definition:
+                  "A pass-local sensitivity for one tracked node: the selected output's derivative with respect to that node, multiplied by the finite seed installed at the output.",
+              }
+            : {
+                term: "Сопряжённая величина",
+                definition:
+                  "Чувствительность отслеживаемого узла в текущем проходе: производная выбранного выхода по этому узлу, умноженная на конечную начальную сопряжённую величину, заданную для выхода.",
+              };
+        const entry = dialog.locator(".cheat-sheet-term").filter({
+          has: page.locator("dt", { hasText: expectedDefinitions.term }),
         });
         await expect(entry).toHaveCount(1);
-        await expect(entry.locator('dt')).toHaveText(expectedDefinitions.term);
-        await expect(entry.locator('dd')).toHaveText(
+        await expect(entry.locator("dt")).toHaveText(expectedDefinitions.term);
+        await expect(entry.locator("dd")).toHaveText(
           expectedDefinitions.definition,
         );
       }
-      if (sheet.chapterId === '34-final-evaluation') {
+      if (sheet.chapterId === "02-corpus-partitions") {
+        const expectedDefinition = chapter02BoundaryDefinitions[sheet.locale];
+        const entry = dialog.locator(".cheat-sheet-term").filter({
+          has: page.locator("dt", { hasText: expectedDefinition.term }),
+        });
+        await expect(entry).toHaveCount(1);
+        await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+        await expect(entry.locator("dd")).toHaveText(
+          expectedDefinition.definition,
+        );
+      }
+      if (sheet.chapterId === "34-final-evaluation") {
         const expectedDefinitions = chapter34BoundaryDefinitions[sheet.locale];
         for (const expectedDefinition of expectedDefinitions) {
-          const entry = dialog.locator('.cheat-sheet-term').filter({
-            has: page.locator('dt', { hasText: expectedDefinition.term }),
+          const entry = dialog.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
           });
           await expect(entry).toHaveCount(1);
-          await expect(entry.locator('dt')).toHaveText(expectedDefinition.term);
-          await expect(entry.locator('dd')).toHaveText(
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
+      }
+      if (sheet.chapterId === "39-end-to-end-llm") {
+        for (const expectedDefinition of chapter39EvidenceDefinitions[
+          sheet.locale
+        ]) {
+          const entry = dialog.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
             expectedDefinition.definition,
           );
         }
       }
       await expect(visibleTerms).toHaveText(termPages[0] ?? []);
       await expect(
-        root.getByRole('button', { name: sheet.copy.closeLabel }),
+        root.getByRole("button", { name: sheet.copy.closeLabel }),
       ).toBeFocused();
 
       if (termPages.length === 1) {
@@ -763,21 +1435,21 @@ for (const sheet of sheets) {
         await expect(next).toHaveCount(0);
         await expect(status).toHaveCount(0);
         await expect(dialog).not.toHaveClass(/cheat-sheet-dialog-paginated/);
-        await expect(pages).not.toHaveAttribute('role', 'region');
-        await expect(pages).not.toHaveAttribute('tabindex', '0');
+        await expect(pages).not.toHaveAttribute("role", "region");
+        await expect(pages).not.toHaveAttribute("tabindex", "0");
       } else {
         await expect(pagination).toBeVisible();
         await expect(dialog).toHaveClass(/cheat-sheet-dialog-paginated/);
-        await expect(pages).toHaveAttribute('role', 'region');
-        await expect(pages).toHaveAttribute('tabindex', '0');
-        await expect(pages).toHaveAttribute('aria-labelledby', titleId);
-        await expect(pages).toHaveAttribute('aria-describedby', pageStatusId);
-        await expect(status).toHaveAttribute('id', pageStatusId);
+        await expect(pages).toHaveAttribute("role", "region");
+        await expect(pages).toHaveAttribute("tabindex", "0");
+        await expect(pages).toHaveAttribute("aria-labelledby", titleId);
+        await expect(pages).toHaveAttribute("aria-describedby", pageStatusId);
+        await expect(status).toHaveAttribute("id", pageStatusId);
         await expect(
-          dialog.getByRole('region', { name: sheet.title }),
+          dialog.getByRole("region", { name: sheet.title }),
         ).toHaveCount(1);
-        await expect(previous).toHaveAttribute('aria-controls', pagesId);
-        await expect(next).toHaveAttribute('aria-controls', pagesId);
+        await expect(previous).toHaveAttribute("aria-controls", pagesId);
+        await expect(next).toHaveAttribute("aria-controls", pagesId);
         await expect(previous).toBeDisabled();
         await expect(next).toBeEnabled();
 
@@ -791,7 +1463,9 @@ for (const sheet of sheets) {
         const scrolledLayout = await readPaginatedLayout(dialog);
         expectPaginatedShell(scrolledLayout);
         expect(
-          Math.abs(scrolledLayout.pagination.top - initialLayout.pagination.top),
+          Math.abs(
+            scrolledLayout.pagination.top - initialLayout.pagination.top,
+          ),
         ).toBeLessThanOrEqual(1);
         expect(
           Math.abs(
@@ -807,13 +1481,13 @@ for (const sheet of sheets) {
             sortedTerms.length,
           );
           await expect(root).toHaveAttribute(
-            'data-cheat-sheet-current-page',
+            "data-cheat-sheet-current-page",
             String(pageIndex + 1),
           );
           await expect(visibleTerms).toHaveText(termPages[pageIndex] ?? []);
           await expect(status).toHaveText(pageStatus);
           await expect(
-            dialog.getByRole('group', { name: pageStatus }),
+            dialog.getByRole("group", { name: pageStatus }),
           ).toBeVisible();
           if (pageIndex === 0) {
             await expect(previous).toBeDisabled();
@@ -836,7 +1510,11 @@ for (const sheet of sheets) {
         }
 
         await expect(previous).toBeFocused();
-        for (let pageIndex = termPages.length - 1; pageIndex > 0; pageIndex -= 1) {
+        for (
+          let pageIndex = termPages.length - 1;
+          pageIndex > 0;
+          pageIndex -= 1
+        ) {
           await previous.click();
           await expect(visibleTerms).toHaveText(termPages[pageIndex - 1] ?? []);
           expect(
@@ -849,12 +1527,12 @@ for (const sheet of sheets) {
         expect(beforeClose.scrollTop).toBeGreaterThan(0);
       }
 
-      await page.keyboard.press('Escape');
+      await page.keyboard.press("Escape");
       await expect(dialog).not.toBeVisible();
       await expect(trigger).toBeFocused();
 
       await trigger.click();
-      await expect(root).toHaveAttribute('data-cheat-sheet-current-page', '1');
+      await expect(root).toHaveAttribute("data-cheat-sheet-current-page", "1");
       await expect(visibleTerms).toHaveText(termPages[0] ?? []);
       expect(
         await pages.evaluate((node) => node.scrollTop),
@@ -862,82 +1540,59 @@ for (const sheet of sheets) {
       if (termPages.length > 1) {
         expectPaginatedShell(await readPaginatedLayout(dialog));
       }
-      await root.getByRole('button', { name: sheet.copy.closeLabel }).click();
+      await root.getByRole("button", { name: sheet.copy.closeLabel }).click();
       await expect(dialog).not.toBeVisible();
       await expect(trigger).toBeFocused();
     });
 
-    test('contains every modal page at narrow width and keeps it reachable at short height', async ({
+    test("contains every modal page at narrow width and keeps it reachable at short height", async ({
       page,
     }) => {
       const termPages = expectedPages(sheet.terms, sheet.locale);
+      await page.setViewportSize({ width: 720, height: 900 });
+      await page.goto(chapterPath(sheet.locale, sheet.chapterId));
+      const baselineTrigger = page.getByRole("button", {
+        name: sheet.copy.openLabel,
+      });
+      await baselineTrigger.click();
+      const baselineDialog = page.getByRole("dialog", { name: sheet.title });
+      const baselineNext = baselineDialog.getByRole("button", {
+        name: sheet.copy.nextLabel,
+      });
+      const baselinePages: Array<
+        Awaited<ReturnType<typeof readVisibleDialogSafety>>
+      > = [];
+      for (let pageIndex = 0; pageIndex < termPages.length; pageIndex += 1) {
+        await expect(
+          baselineDialog.locator("[data-cheat-sheet-page]:not([hidden]) dt"),
+        ).toHaveText(termPages[pageIndex] ?? []);
+        baselinePages.push(await readVisibleDialogSafety(baselineDialog));
+        if (pageIndex < termPages.length - 1) await baselineNext.click();
+      }
+      await baselineDialog
+        .getByRole("button", { name: sheet.copy.closeLabel })
+        .click();
+
       await page.setViewportSize({ width: 360, height: 500 });
       await page.goto(chapterPath(sheet.locale, sheet.chapterId));
-      const trigger = page.getByRole('button', { name: sheet.copy.openLabel });
+      const trigger = page.getByRole("button", { name: sheet.copy.openLabel });
       await trigger.click();
 
-      const dialog = page.getByRole('dialog', { name: sheet.title });
-      const pages = dialog.locator('[data-cheat-sheet-pages]');
-      const pagination = dialog.getByRole('navigation', {
+      const dialog = page.getByRole("dialog", { name: sheet.title });
+      const pages = dialog.locator("[data-cheat-sheet-pages]");
+      const pagination = dialog.getByRole("navigation", {
         name: sheet.copy.paginationLabel,
       });
-      const next = dialog.getByRole('button', { name: sheet.copy.nextLabel });
+      const next = dialog.getByRole("button", { name: sheet.copy.nextLabel });
       await expect(dialog).toBeVisible();
 
       for (let pageIndex = 0; pageIndex < termPages.length; pageIndex += 1) {
         await expect(
-          dialog.locator('[data-cheat-sheet-page]:not([hidden]) dt'),
+          dialog.locator("[data-cheat-sheet-page]:not([hidden]) dt"),
         ).toHaveText(termPages[pageIndex] ?? []);
 
-        const geometry = await dialog.evaluate((node) => {
-          const bounds = (element: Element) => {
-            const rect = element.getBoundingClientRect();
-            return {
-              bottom: rect.bottom,
-              left: rect.left,
-              right: rect.right,
-              top: rect.top,
-            };
-          };
-          const dialogRect = bounds(node);
-          const panel = node.querySelector('.cheat-sheet-panel');
-          const visiblePage = node.querySelector(
-            '[data-cheat-sheet-page]:not([hidden])',
-          );
-          const bounded = [
-            panel,
-            visiblePage,
-            node.querySelector('[data-cheat-sheet-pagination]'),
-            node.querySelector('[data-cheat-sheet-page-status]'),
-            node.querySelector('[data-cheat-sheet-previous]'),
-            node.querySelector('[data-cheat-sheet-next]'),
-          ]
-            .filter((element): element is Element => element !== null)
-            .map(bounds);
-          const paintedText = Array.from(
-            node.querySelectorAll(
-              '[data-cheat-sheet-page]:not([hidden]) dt, [data-cheat-sheet-page]:not([hidden]) dd',
-            ),
-          ).flatMap((element) => {
-            const range = document.createRange();
-            range.selectNodeContents(element);
-            return Array.from(range.getClientRects()).map((rect) => ({
-              left: rect.left,
-              right: rect.right,
-            }));
-          });
-
-          return {
-            bodyClientWidth: document.documentElement.clientWidth,
-            bodyScrollWidth: document.documentElement.scrollWidth,
-            bounded,
-            dialog: dialogRect,
-            dialogClientWidth: node.clientWidth,
-            dialogScrollWidth: node.scrollWidth,
-            paintedText,
-            viewport: { height: window.innerHeight, width: window.innerWidth },
-          };
-        });
+        const geometry = await readVisibleDialogSafety(dialog);
+        const baseline = baselinePages[pageIndex];
 
         expect(geometry.bodyScrollWidth).toBeLessThanOrEqual(
           geometry.bodyClientWidth + 1,
@@ -961,6 +1616,31 @@ for (const sheet of sheets) {
           expect(ink.left).toBeGreaterThanOrEqual(geometry.dialog.left - 1);
           expect(ink.right).toBeLessThanOrEqual(geometry.dialog.right + 1);
         }
+        expect(geometry.scaledElements).toEqual([]);
+        expect(geometry.concealedElements).toEqual([]);
+        expect(geometry.descendantHorizontalOwners).toEqual([]);
+        expect(
+          geometry.descendantVerticalOwners.filter(
+            (owner) => owner !== "pages",
+          ),
+        ).toEqual([]);
+        expect(
+          geometry.textSamples.map(({ role, text }) => ({ role, text })),
+        ).toEqual(
+          baseline.textSamples.map(({ role, text }) => ({ role, text })),
+        );
+        for (const [index, sample] of geometry.textSamples.entries()) {
+          const baselineSample = baseline.textSamples[index];
+          const responsiveFloor =
+            sample.role === "title"
+              ? Math.min(baselineSample.fontSize, geometry.rootRem * 1.7)
+              : baselineSample.fontSize;
+          expect(
+            sample.fontSize + 0.01,
+            `${sheet.locale} ${sheet.chapterId} page ${pageIndex + 1} ${sample.role} text ${index} (${sample.text}) font size`,
+          ).toBeGreaterThanOrEqual(responsiveFloor);
+          expect(sample.paint).toBeGreaterThan(0);
+        }
 
         if (termPages.length > 1) {
           await expect(pagination).toBeVisible();
@@ -970,6 +1650,7 @@ for (const sheet of sheets) {
           expectCurrentPageEndReachable(reachability);
           if (reachability.scrollHeight > reachability.clientHeight + 1) {
             expect(reachability.scrollTop).toBeGreaterThan(1);
+            expect(geometry.descendantVerticalOwners).toContain("pages");
           } else {
             expect(reachability.scrollTop).toBeLessThanOrEqual(1);
           }
@@ -991,7 +1672,7 @@ for (const sheet of sheets) {
             node.scrollTop = node.scrollHeight;
             const target = Array.from(
               node.querySelectorAll(
-                '[data-cheat-sheet-page]:not([hidden]) .cheat-sheet-term',
+                "[data-cheat-sheet-page]:not([hidden]) .cheat-sheet-term",
               ),
             ).at(-1);
             const dialogRect = node.getBoundingClientRect();
@@ -1027,7 +1708,7 @@ for (const sheet of sheets) {
         }
       }
 
-      await page.keyboard.press('Escape');
+      await page.keyboard.press("Escape");
       await expect(dialog).not.toBeVisible();
       await trigger.click();
       await expect(dialog).toBeVisible();
@@ -1040,10 +1721,10 @@ for (const sheet of sheets) {
       if (termPages.length > 1) {
         expectPaginatedShell(await readPaginatedLayout(dialog));
       }
-      await dialog.getByRole('button', { name: sheet.copy.closeLabel }).click();
+      await dialog.getByRole("button", { name: sheet.copy.closeLabel }).click();
     });
 
-    test('retains a collapsed semantic disclosure when JavaScript is disabled', async ({
+    test("retains a collapsed semantic disclosure when JavaScript is disabled", async ({
       browser,
     }, testInfo) => {
       const context = await browser.newContext({
@@ -1054,34 +1735,63 @@ for (const sheet of sheets) {
       await page.goto(chapterPath(sheet.locale, sheet.chapterId));
 
       const sortedTerms = expectedPages(sheet.terms, sheet.locale).flat();
-      const root = page.locator('[data-cheat-sheet]');
-      const fallback = root.locator('[data-cheat-sheet-fallback]');
-      await expect(root.locator('[data-cheat-sheet-open]')).toBeHidden();
+      const root = page.locator("[data-cheat-sheet]");
+      const fallback = root.locator("[data-cheat-sheet-fallback]");
+      await expect(root.locator("[data-cheat-sheet-open]")).toBeHidden();
       await expect(fallback).toBeVisible();
-      await expect(fallback).not.toHaveAttribute('open', '');
-      await expect(fallback.locator('summary')).toHaveText(
+      await expect(fallback).not.toHaveAttribute("open", "");
+      await expect(fallback.locator("summary")).toHaveText(
         sheet.copy.fallbackSummary,
       );
-      await fallback.locator('summary').click();
-      await expect(fallback).toHaveAttribute('open', '');
-      await expect(fallback.locator('dt')).toHaveText(sortedTerms);
-      if (sheet.chapterId === '34-final-evaluation') {
+      await fallback.locator("summary").click();
+      await expect(fallback).toHaveAttribute("open", "");
+      await expect(fallback.locator("dt")).toHaveText(sortedTerms);
+      if (sheet.chapterId === "02-corpus-partitions") {
+        const expectedDefinition = chapter02BoundaryDefinitions[sheet.locale];
+        const entry = fallback.locator(".cheat-sheet-term").filter({
+          has: page.locator("dt", { hasText: expectedDefinition.term }),
+        });
+        await expect(entry).toHaveCount(1);
+        await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+        await expect(entry.locator("dd")).toHaveText(
+          expectedDefinition.definition,
+        );
+      }
+      if (sheet.chapterId === "34-final-evaluation") {
         for (const expectedDefinition of chapter34BoundaryDefinitions[
           sheet.locale
         ]) {
-          const entry = fallback.locator('.cheat-sheet-term').filter({
-            has: page.locator('dt', { hasText: expectedDefinition.term }),
+          const entry = fallback.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
           });
           await expect(entry).toHaveCount(1);
-          await expect(entry.locator('dt')).toHaveText(expectedDefinition.term);
-          await expect(entry.locator('dd')).toHaveText(
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
             expectedDefinition.definition,
           );
         }
       }
-      await expect(fallback.locator('[data-cheat-sheet-pagination]')).toHaveCount(0);
-      await expect(fallback.locator('[data-cheat-sheet-page]')).toHaveCount(0);
-      expect(await fallback.locator('dt:visible').count()).toBe(sortedTerms.length);
+      if (sheet.chapterId === "39-end-to-end-llm") {
+        for (const expectedDefinition of chapter39EvidenceDefinitions[
+          sheet.locale
+        ]) {
+          const entry = fallback.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
+      }
+      await expect(
+        fallback.locator("[data-cheat-sheet-pagination]"),
+      ).toHaveCount(0);
+      await expect(fallback.locator("[data-cheat-sheet-page]")).toHaveCount(0);
+      expect(await fallback.locator("dt:visible").count()).toBe(
+        sortedTerms.length,
+      );
       expect(
         await page.evaluate(
           () =>
@@ -1094,20 +1804,20 @@ for (const sheet of sheets) {
   });
 }
 
-test('Chapter 0 and unpublished Russian chapters remain sheet-free', async ({
+test("Chapter 0 and unpublished Russian chapters remain sheet-free", async ({
   page,
 }) => {
-  await page.goto(chapterPath('en', '00-llm-parts'));
-  await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
-  await page.goto(chapterPath('ru', '00-llm-parts'));
-  await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
+  await page.goto(chapterPath("en", "00-llm-parts"));
+  await expect(page.locator("[data-cheat-sheet]")).toHaveCount(0);
+  await page.goto(chapterPath("ru", "00-llm-parts"));
+  await expect(page.locator("[data-cheat-sheet]")).toHaveCount(0);
 
   const publishedRussianChapterIds = new Set(
     russianSheets.map(({ chapterId }) => chapterId),
   );
   for (const sheet of englishSheets) {
     if (publishedRussianChapterIds.has(sheet.chapterId)) continue;
-    await page.goto(chapterPath('ru', sheet.chapterId));
-    await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
+    await page.goto(chapterPath("ru", sheet.chapterId));
+    await expect(page.locator("[data-cheat-sheet]")).toHaveCount(0);
   }
 });

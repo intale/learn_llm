@@ -3,7 +3,7 @@
   "chapter_id": "00-llm-parts",
   "chapter_kind": "orientation",
   "concept_id": "llm-parts",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 0,
   "objective": {
     "en": "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.",
@@ -129,9 +129,11 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 4 is translated directly from the matching English orientation; do not use another locale as an intermediate source.",
+    "Russian revision 5 is translated directly from the matching English orientation; do not use another locale as an intermediate source.",
+    "Canonical English revision 5 has SHA-256 00ef6816f10320cc98ff31d60afd9dffb6798514cfdfbc0f2809d08b60ae495e; the reviewed direct Russian revision 5 has SHA-256 315ea8f2523a8b01a3f3bca8de9f2d399790f698447f2b6e2d725dbecb006bfd.",
     "Keep LLM, BPE, RMSNorm, SwiGLU, Q/K/V, RoPE, AdamW, KV, BOS, EOS, source titles, identifiers, URLs, and diagram topology stable; use established Russian technical forms such as логиты, эмбеддинги, каузальное внимание, функция потерь, контрольная точка, and KV-кэш (кэш ключей и значений) in explanations.",
     "On the Russian detail map, use the published Russian destination for every implementation chapter; if a future chapter has no active Russian route, use a visibly and accessibly marked English destination rather than creating a placeholder route.",
+    "Keep the evaluation node bounded: selection precedes one local evaluator inside an execution, while repository reruns retain the known result only as fixed-fixture regression evidence. Do not describe every rerun as newly unseen, unopened, or independent.",
     "Preserve Chapter 0 as a non-assessed orientation: do not add a formula lesson, implementation sample, predict-first exercise, or checked-answer block."
   ],
   "acceptance_examples": [
@@ -225,6 +227,11 @@ the text and language-model boundary; Chapters 8-23 build numeric and learning
 foundations; Chapters 24-32 assemble the decoder; Chapters 33-38 train, evaluate,
 persist, sample, and cache it; Chapter 39 connects the complete system.
 
+The evaluation node names a post-selection role, not a promise that every
+repository run sees newly unopened data. Inside one execution, the local
+evaluator cannot affect the selected state; repository reruns retain the known
+result only as fixed-fixture regression evidence.
+
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
@@ -236,7 +243,7 @@ and evidence.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English and Russian are the active locales for revision 4. The Russian orientation
+English and Russian are the active locales for revision 5. The Russian orientation
 is translated directly from the matching English source with established technical
 language, while model names, abbreviations, source titles, URLs, and diagram
 relationships remain stable. Keep the historical sequence on the road to modern
@@ -244,7 +251,9 @@ LLMs and keep both pages as overviews rather than turning either into an assesse
 lesson. Every current detail-map destination has an active same-locale page. If a
 future implementation chapter has no active Russian route, the Russian detail map
 may link to a visibly and accessibly marked English destination rather than
-creating a placeholder route.
+creating a placeholder route. Preserve the evaluation-node boundary: selection
+precedes one local evaluator inside an execution, while repository reruns retain
+the known result only as fixed-fixture regression evidence.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

@@ -989,6 +989,11 @@ fn generation_evidence(
 }
 
 /// Runs data partitioning through cached text generation without copying an algorithm.
+///
+/// The checked capstone also retains its decoder-lower score as a fixed-fixture
+/// regression condition. That condition describes the repository's teaching
+/// fixture; it is not a generic evaluator requirement, an independent estimate
+/// of generalization, or evidence of architecture-wide superiority.
 // region:end-to-end-capstone
 pub fn run_capstone(
     corpus_source: &str,
@@ -1073,7 +1078,7 @@ pub fn run_capstone(
     )?;
     require(
         final_evaluation.decoder_has_lower_loss(),
-        "frozen selected decoder does not beat the training-only bigram on test",
+        "fixed capstone fixture no longer records lower decoder loss than its frozen bigram",
     )?;
 
     let rng_state = SplitMix64::from_seed(config.generation_seed()).state();

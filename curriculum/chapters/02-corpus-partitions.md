@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "concept_id": "document-level-corpus-partitions",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 2,
   "objective": {
     "en": "Load a frozen corpus split manifest in Rust and verify that every whole document belongs to exactly one nonempty training, validation, or test partition before any tokenizer statistic is learned.",
@@ -149,11 +149,12 @@
   "translation_notes": [
     "Translate partition by role as «выборка» in Russian teaching prose: «обучающая», «валидационная», and «тестовая выборка»; use «разбиение» for the overall split operation.",
     "Translate holdout data as «отложенные данные», not as a transliterated English noun.",
-    "Validation is not called untouched: it may later guide choices. Only the test partition is reserved for the final report in this course protocol.",
+    "Validation is not called untouched: it may later guide choices. Preserve the generic role in which test is reserved for post-selection reporting, but scope the course guarantee to one execution or one local evaluator instance; the checked-in fixture may be reused across repository development.",
     "Keep document IDs, pair IDs, Rust identifiers, JSON keys, FNV notation, arrays, and deterministic stdout identical in every locale.",
     "State in both lessons that document-level splitting prevents one leakage class but does not prove representativeness or detect unrelated near-duplicates.",
     "Do not translate the technical suffixes tr, va, and te inside the shared formula; explain them in each localized glossary.",
-    "English revision 8 is the canonical semantic source. Russian revision 8 is translated directly from it with source SHA-256 dd6e3b6cd70f6299e84c56061a311ba043908cb27e3d82e3c330d32f57e5d9b3. Keep serde_json::from_str, Corpus::from_json, SplitManifest::from_json, partition, the &str UTF-8 guarantee, and the distinction between format decoding, document invariants, and split invariants explicit in every locale."
+    "English revision 9 is the canonical semantic source with SHA-256 0293c0b191630908fc816be82cbc5d85089cf71813d0f4414bc11a3d1f2a4199. Russian revision 9 is translated directly from it and has SHA-256 f6c5448680e9cc37154292651ec01d2520314f69e5288e69fe97a6e9791ccfe1. Keep serde_json::from_str, Corpus::from_json, SplitManifest::from_json, partition, the &str UTF-8 guarantee, and the distinction between format decoding, document invariants, and split invariants explicit in every locale.",
+    "The English and reviewed Russian Chapter 2 cheat sheets preserve the same nine-term order and have SHA-256 c535f561f5968ba0c0d5b654939adb439f421b40d163af49be43269ae39dcd64 and 655a023d47db59fd993a2c920c77946b1ce1fedf9d4294423de16e33bd61d1f2 respectively; their Test-partition definition distinguishes the generic post-selection role, one-execution enforcement, and later-execution regression reuse."
   ],
   "acceptance_examples": [
     {
@@ -244,8 +245,10 @@ not promise nonempty partitions, preserved order, unchanged bytes, sound provena
 or representative sampling. Rust checks those additional operational invariants.
 
 `D_tr` is the only set allowed to teach a tokenizer or model. `D_va` may later
-guide choices, so it is not called untouched. `D_te` stays sealed until the final
-evaluation chapter.
+guide choices, so it is not called untouched. In the demonstrated course
+execution, `D_te` cannot fit or select: Chapter 34 gives one local evaluator
+instance access only after selection. That within-run order does not claim that
+the checked-in test fixture has never been read during repository development.
 
 <!-- contract-section:history -->
 ## Before reliable holdout discipline
@@ -336,7 +339,7 @@ IDs, counts, and split manifest.
 7. State one guarantee a deterministic valid split still does not provide.
 
 The answers must distinguish complete/disjoint membership from byte identity,
-provenance, order, representativeness, and final-only test use.
+provenance, order, representativeness, and the test role inside one execution.
 
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
@@ -350,8 +353,11 @@ statistics.
 A candidate tokenizer or model configuration must fit its counts, merge ranks,
 vocabulary, and parameters on training documents. Validation may compare those
 training-fitted candidates and select a checkpoint; it contributes no fitting
-counts or gradients. Test neither fits nor selects and is used only for the final
-report. The same role boundary persists through model selection and evaluation.
+counts or gradients. Test neither fits nor selects. In the demonstrated execution,
+its local evaluator receives test data only after validation selection; repeated
+repository checks of the known fixture are regression evidence, not a newly
+independent result. The same role boundary persists through model selection and
+evaluation.
 
 <!-- contract-section:localization -->
 ## Localization notes

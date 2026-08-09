@@ -93,9 +93,13 @@ export interface EndToEndLlmTrace {
     | "decoder"
     | "bigram"
     | "gap"
-    | "decoder_wins"
+    | "decoder_lower_on_fixture"
     | "no_grad"
-    | "unchanged",
+    | "unchanged"
+    | "evidence_scope"
+    | "within_run_selection_isolated"
+    | "independent_generalization_estimate"
+    | "architecture_superiority_evidence",
     string
   > & { documents: string[]; fingerprint: string };
   checkpoint: Record<
@@ -309,9 +313,13 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     "decoder",
     "bigram",
     "gap",
-    "decoder_wins",
+    "decoder_lower_on_fixture",
     "no_grad",
     "unchanged",
+    "evidence_scope",
+    "within_run_selection_isolated",
+    "independent_generalization_estimate",
+    "architecture_superiority_evidence",
   ]);
   const checkpoint = record(lines[9], "CHECKPOINT", [
     "bytes",
@@ -453,9 +461,13 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     replay_bitwise: training.replay_bitwise,
     select_0: selection[0].selected,
     select_1: selection[1].selected,
-    decoder_wins: test.decoder_wins,
+    decoder_lower_on_fixture: test.decoder_lower_on_fixture,
     no_grad: test.no_grad,
     unchanged: test.unchanged,
+    within_run_selection_isolated: test.within_run_selection_isolated,
+    independent_generalization_estimate:
+      test.independent_generalization_estimate,
+    architecture_superiority_evidence: test.architecture_superiority_evidence,
     bytes_roundtrip: checkpoint.bytes_roundtrip,
     model_bits_exact: checkpoint.model_bits_exact,
     optimizer_bits_exact: checkpoint.optimizer_bits_exact,
@@ -555,9 +567,13 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
   if (
     tokenizerRecord.training_only !== "true" ||
     training.replay_bitwise !== "true" ||
-    test.decoder_wins !== "true" ||
+    test.decoder_lower_on_fixture !== "true" ||
     test.no_grad !== "true" ||
     test.unchanged !== "true" ||
+    test.evidence_scope !== "fixed-fixture-regression" ||
+    test.within_run_selection_isolated !== "true" ||
+    test.independent_generalization_estimate !== "false" ||
+    test.architecture_superiority_evidence !== "false" ||
     checkpoint.bytes_roundtrip !== "true" ||
     checkpoint.model_bits_exact !== "true" ||
     checkpoint.optimizer_bits_exact !== "true" ||
@@ -567,7 +583,7 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     generationRecord.decisions_bitwise !== "true" ||
     generationRecord.rng_exact !== "true"
   ) {
-    throw new Error("capstone proof field changed from true");
+    throw new Error("capstone proof or evidence-scope field changed");
   }
 
   return {
@@ -608,9 +624,14 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
       decoder: test.decoder,
       bigram: test.bigram,
       gap: test.gap,
-      decoder_wins: test.decoder_wins,
+      decoder_lower_on_fixture: test.decoder_lower_on_fixture,
       no_grad: test.no_grad,
       unchanged: test.unchanged,
+      evidence_scope: test.evidence_scope,
+      within_run_selection_isolated: test.within_run_selection_isolated,
+      independent_generalization_estimate:
+        test.independent_generalization_estimate,
+      architecture_superiority_evidence: test.architecture_superiority_evidence,
       documents: testDocuments,
       fingerprint: test.fingerprint,
     },

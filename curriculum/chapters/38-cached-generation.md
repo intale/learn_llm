@@ -2,7 +2,7 @@
 {
   "chapter_id": "38-cached-generation",
   "concept_id": "cached-generation",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 38,
   "objective": {
     "en": "Give every decoder block its own KV cache, bind that model-wide state to one exact decoder for a session, and prefill the prompt once. For the exact fixtures, advance all block caches coherently and verify that newest-position logits and generation decisions match complete-prefix references.",
@@ -124,8 +124,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The complete decoder can now bind compatible graph-free K/V state across all blocks for one session, prefill a prompt, and decode selected tokens without receiving the model again. The session keeps using the exact decoder it bound and retains read-only access to its parameter values. After the session ends, a weight update makes the old cache stale, so the updated model needs a newly constructed cache. Chapter 39 will connect this inference path to the full train, evaluate, save, load, and generate pipeline.",
-    "ru": "Теперь полный декодер может на время одного сеанса связать совместимое состояние K/V без графа вычислений во всех блоках с конкретной моделью, обработать промпт и декодировать выбранные токены, не получая модель повторно. Сеанс продолжает использовать тот же декодер и удерживает значения его параметров доступными только для чтения. После завершения сеанса обновление весов делает старый кэш несовместимым, поэтому для обновлённой модели нужно создать новый кэш. Глава 39 соединит этот способ генерации с полным процессом обучения, оценки, сохранения, загрузки и генерации."
+    "en": "The complete decoder can now bind compatible graph-free K/V state across all blocks for one session, prefill a prompt, and decode selected tokens without receiving the model again. The session keeps using the exact decoder it bound and retains read-only access to its parameter values. After the session ends, a weight update makes the old cache stale, so the updated model needs a newly constructed cache. Chapter 39 will connect this inference path to the full pipeline; inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence.",
+    "ru": "Теперь полный декодер может на время одного сеанса связать совместимое состояние K/V без графа вычислений во всех блоках с конкретной моделью, обработать промпт и декодировать выбранные токены, не получая модель повторно. Сеанс продолжает использовать тот же декодер и удерживает значения его параметров доступными только для чтения. После завершения сеанса обновление весов делает старый кэш несовместимым, поэтому для обновлённой модели нужно создать новый кэш. Глава 39 соединит этот способ генерации с полным процессом; в пределах одного запуска тестовые данные не смогут повлиять на выбранное состояние, а сохранённый в репозитории порядок потерь из главы 39, при котором потери декодера ниже, чем у биграммной модели, будет служить только регрессионной проверкой фиксированного примера."
   },
   "terminology": [
     {
@@ -190,10 +190,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 38 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 5 with SHA-256 3ce2cc099cad761c1b5bf1b53bf3fd4ac176af2ed27a95ea298f673602a025a2 and becomes stale whenever that source changes.",
-    "The Russian lesson is a direct meaning-first translation of frozen English revision 5; its SHA-256 is 554a09055f437ef5a7225ff90190fb2b54eaf06ef7b6a9ad99c2d182367856a2; no pivot locale or external translation service was used.",
+    "Chapter 38 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 6 with SHA-256 754f11e4dfdc440fdc41dec54206ed3943fce512fdd99afa90b6ea14f09e00ee and must be refreshed whenever that source changes.",
+    "The Russian lesson is a direct meaning-first translation of frozen English revision 6 with SHA-256 0fbf473747d7b4992e4011974b990912c56747f162f488a1c9c55e250a637d46; no pivot locale or external translation service was used.",
     "The English and Russian Chapter 38 cheat sheets have SHA-256 b69c6bc21d0daf1111309c71fd6a0f99a4309e54bf59a87685024e01028e86cb and bed302f29d875851e339eddcbc4999de8344d2c0d2d2d782fd87c8a3fa041151 respectively and preserve the same thirteen LLM terms without adding session mechanics as separate programming terms.",
     "Preserve KV, K, V, T, t, Theta, Q/K/V, RNG, EOS, tensor shapes, tolerance, source names, URLs, exact trace tokens and values, code identifiers, and the Chapter 39 handoff across both locales.",
+    "In the Chapter 39 handoff, preserve the distinction between test isolation inside one execution and Chapter 39's checked-in decoder-lower-than-bigram loss ordering retained only as fixed-fixture regression evidence; do not call each repository rerun untouched or independently scored, and do not leave ordering ambiguous beside the cached/full-prefix generation comparison.",
     "Formula parity requires the exact shared LaTeX and symbol meanings, the distinct cached retained lengths [1,2,3] versus complete-prefix call lengths [2,3], and the measured 24 versus 52 score values with 28 avoided values; none of these counts is total runtime or speedup.",
     "History parity requires the causal Transformer stack, the explicit previous-K/V incremental interface, the later prompt and sequential-generation stages of LLM serving, every source qualification, and the distinction between cited advances and this course's local correctness policies.",
     "Stop-boundary parity requires EOS, then token limit, then context limit precedence: cached prefill reaches length 1, the first selected 4 is decoded to length 2, and the second 4 is returned before context-limit stops without decoding it; with EOS token 4, [4] is returned and no later decode-token forward runs.",
@@ -505,14 +506,17 @@ and a selected token advances every block coherently only when later logits are
 needed. `prefill`, `decode`, and `reset` use the model already held by that
 session. For the exact restored fixture, cached and complete-prefix generation
 make the same token and sampling decisions and finish with the same RNG state.
-Chapter 39 will connect this path to fresh data partitioning, tokenization,
-training, selection, final evaluation, checkpoint save/load, and decoded text in
-one end-to-end program.
+Chapter 39 will connect this path to data partitioning, tokenization, training,
+selection, within-run local test evaluation, checkpoint save/load, and decoded
+text in one end-to-end program. Inside that execution test cannot affect the
+selected state. Chapter 39's checked-in decoder-lower-than-bigram loss ordering
+is fixed-fixture regression evidence, not a new independent generalization
+estimate when later executions repeat the comparison.
 
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 5 is the canonical source, and English and Russian are the exact
+English revision 6 is the canonical source, and English and Russian are the exact
 active locale set. The Russian lesson was translated directly from the frozen
 English source recorded in `translation_notes`; any later English change in
 meaning or presentation makes that review stale. Keep source names, tensor-axis

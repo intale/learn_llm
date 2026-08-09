@@ -1,20 +1,21 @@
 {
   "chapter_id": "34-final-evaluation",
   "locale": "en",
-  "title": "Freeze choices before one final test report",
-  "description": "A quick reference for validation-selected state, the test-only gate, fair token weighting, caller-supplied provenance assertions, mechanically checked facts, immutable reporting, and like-for-like comparison.",
+  "title": "Separate local test isolation from fixture evidence",
+  "description": "A quick reference for validation-selected state, the local test gate, fair token weighting, fixed-fixture regression scope, caller-supplied provenance assertions, mechanically checked facts, and like-for-like comparison.",
   "terms": [
-    { "term": "Validation-selected checkpoint", "definition": "The planned model checkpoint chosen using validation evidence before any test result is available." },
-    { "term": "Frozen selected state", "definition": "The complete selected decoder snapshot after every model and data choice is sealed; test scores may describe it but cannot change it." },
-    { "term": "Single-use test evaluation boundary", "definition": "A local once-only post-selection protocol that checks the epoch's Test label, caller-assertion consistency, and pre-open model constraints; it consumes local access before inspecting token IDs and cannot establish external lineage or cross-process uniqueness." },
-    { "term": "Final test evaluation", "definition": "The reporting-only pass over held-out test data after selection closes; under the course protocol, its result must not be used to choose a checkpoint or tune another decision." },
+    { "term": "Validation-selected checkpoint", "definition": "The planned model checkpoint chosen using validation evidence before the local evaluator receives test data in that execution." },
+    { "term": "Frozen selected state", "definition": "The complete selected decoder snapshot that test scores cannot change inside the demonstrated execution." },
+    { "term": "Single-use test evaluation boundary", "definition": "A local post-selection protocol that checks the epoch's Test label, caller-assertion consistency, and pre-open model constraints; its one-use count applies to one evaluator instance and cannot establish repository-wide uniqueness or independent generalization." },
+    { "term": "Final test evaluation", "definition": "In an untouched protocol, a reporting-only pass after selection closes; this chapter's known and repeatedly checked fixture instead supplies regression evidence." },
+    { "term": "Fixed-fixture regression evidence", "definition": "A reproducible result on checked-in test documents. Chapter 34's documents were selected to produce the decoder-lower-than-bigram loss ordering, which is retained to detect changes; the score is neither an independent estimate of generalization nor evidence of architecture superiority." },
     { "term": "Token-weighted mean NLL", "definition": "Total negative log likelihood divided by the number of aligned target tokens, so longer documents contribute in proportion to their targets." },
     { "term": "Perplexity", "definition": "The exponential of mean negative log likelihood, expressing average multiplicative uncertainty per target token." },
     { "term": "Aligned target slot", "definition": "One causal input and observed next-token target at a stable document, window, and position, including repetitions from overlapping windows." },
     { "term": "Evaluation provenance assertions", "definition": "Three nonblank caller-supplied corpus, split, and tokenizer identifiers plus a positive context value; equality checks assertion consistency but does not derive or verify the underlying artifacts." },
     { "term": "No-grad evaluation", "definition": "Scoring with graph construction disabled and with decoder parameters and gradient bits verified unchanged afterward." },
-    { "term": "Frozen final evaluation report", "definition": "A versioned record of caller-supplied identifiers, checked target evidence, scores, local gate facts, and state-preservation checks, fixed after selection closes; it is not proof of external lineage." },
+    { "term": "Frozen final evaluation report", "definition": "A versioned record of caller-supplied identifiers, checked target evidence, scores, local gate facts, state-preservation checks, and evidence scope, fixed after selection closes; it proves neither external lineage nor independent generalization." },
     { "term": "Frozen bigram", "definition": "In this fixture, an add-one bigram fitted on Chapter 33's exact training token slices and sealed before test access; the generic wrapper itself checks only a Train assertion and a nonzero fitted-document count." },
-    { "term": "Like-for-like targets", "definition": "A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows." }
+    { "term": "Like-for-like targets", "definition": "A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows; fairness within the fixture does not make the fixture independently held out." }
   ]
 }

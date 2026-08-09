@@ -32,13 +32,9 @@ const russianLessonSource = read(
   "site/src/content/chapters/ru/34-final-evaluation.mdx",
 );
 const coursePlanSource = read("curriculum/course-plan.md");
-const evaluationSource = read(
-  "rust/crates/llm-from-scratch/src/evaluation.rs",
-);
+const evaluationSource = read("rust/crates/llm-from-scratch/src/evaluation.rs");
 const bigramSource = read("rust/crates/llm-from-scratch/src/bigram.rs");
-const selectionSource = read(
-  "rust/demos/ch33-training-selection/src/lib.rs",
-);
+const selectionSource = read("rust/demos/ch33-training-selection/src/lib.rs");
 const demoSource = read("rust/demos/ch34-final-evaluation/src/lib.rs");
 const traceRustSource = read(
   "rust/demos/ch34-final-evaluation/src/diagram_trace.rs",
@@ -59,9 +55,7 @@ function chapterSection(source: string, id: string) {
   return source.slice(contentStart, next < 0 ? source.length : next);
 }
 
-function diagramLabelsFromLesson(
-  source: string,
-): FinalEvaluationDiagramLabels {
+function diagramLabelsFromLesson(source: string): FinalEvaluationDiagramLabels {
   const match = source.match(/export const diagramLabels = (\{[\s\S]*?\n\});/);
   if (!match) throw new Error("missing diagramLabels object");
   return Function(
@@ -177,7 +171,12 @@ describe("Chapter 34 Rust trace parser", () => {
       lower_loss: "selected-decoder",
       loss_gap: "0.629055",
       same_targets: "true",
-      decoder_beats_bigram: "true",
+      decoder_lower_on_fixture: "true",
+      evidence_scope: "fixed-fixture-regression",
+      within_run_selection_isolated: "true",
+      fixture_selected_for_ordering: "true",
+      independent_generalization_estimate: "false",
+      architecture_superiority_evidence: "false",
     });
     expect(trace.proof).toMatchObject({
       token_weighted: "true",
@@ -199,6 +198,38 @@ describe("Chapter 34 Rust trace parser", () => {
       fixture.replace("targets=24", "targets=23"),
       fixture.replace("selected_by=validation", "selected_by=test"),
       fixture.replace("same_targets=true", "same_targets=false"),
+      fixture.replace(
+        "decoder_lower_on_fixture=true",
+        "decoder_lower_on_fixture=false",
+      ),
+      fixture.replace(
+        "evidence_scope=fixed-fixture-regression",
+        "evidence_scope=independent-generalization",
+      ),
+      fixture.replace(
+        "within_run_selection_isolated=true",
+        "within_run_selection_isolated=false",
+      ),
+      fixture.replace(
+        "fixture_selected_for_ordering=true",
+        "fixture_selected_for_ordering=false",
+      ),
+      fixture.replace(
+        "independent_generalization_estimate=false",
+        "independent_generalization_estimate=true",
+      ),
+      fixture.replace(
+        "architecture_superiority_evidence=false",
+        "architecture_superiority_evidence=true",
+      ),
+      fixture.replace(
+        "decoder_lower_on_fixture=true",
+        "decoder_beats_bigram=true",
+      ),
+      fixture.replace(
+        "evidence_scope=fixed-fixture-regression|within_run_selection_isolated=true",
+        "within_run_selection_isolated=true|evidence_scope=fixed-fixture-regression",
+      ),
       fixture.replace(
         "provenance_assertions_match=true",
         "provenance_match=true",
@@ -261,8 +292,12 @@ describe("Chapter 34 static diagram and content boundary", () => {
     );
     expect(componentSource).toContain('data-diagram-style="course-v1"');
     expect(componentSource).not.toMatch(/<script|client:|<dialog/i);
-    expect(componentSource).not.toMatch(/<(?:svg|canvas|path|polyline|line)\b/i);
-    expect(componentSource).not.toMatch(/(?:softmax|matmul|backward|evaluate_once)\s*\(/i);
+    expect(componentSource).not.toMatch(
+      /<(?:svg|canvas|path|polyline|line)\b/i,
+    );
+    expect(componentSource).not.toMatch(
+      /(?:softmax|matmul|backward|evaluate_once)\s*\(/i,
+    );
     expect(parserSource).not.toMatch(/(?:Math\.(?:exp|log)|\.reduce\s*\()/);
     expect(componentSource.match(/<figure\b/g)).toHaveLength(1);
     expect(componentSource.match(/<figcaption\b/g)).toHaveLength(1);
@@ -309,7 +344,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(componentSource).not.toMatch(/@media\s*\(/);
     expect(componentSource).not.toMatch(/overflow-x\s*:/);
     expect(componentSource).not.toMatch(/overflow\s*:\s*(?:hidden|clip)/);
-    expect(componentSource).not.toMatch(/(?:background|border-color|border-radius|outline)\s*:/);
+    expect(componentSource).not.toMatch(
+      /(?:background|border-color|border-radius|outline)\s*:/,
+    );
   });
 
   it("keeps the contract, lesson, formula, source evidence, and locale policy aligned", () => {
@@ -364,7 +401,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     });
     expect(russianLesson.objective).toBe(contract.objective.ru);
     expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
-    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.decoder_connection).toBe(
+      contract.decoder_connection.ru,
+    );
     expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
     expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
     expect(russianLesson.history.llm_evolution).toEqual({
@@ -422,19 +461,31 @@ describe("Chapter 34 static diagram and content boundary", () => {
     ];
     expect(
       lesson.rust_sources.map(
-        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+        ({ path, region }: { path: string; region?: string }) => ({
+          path,
+          region,
+        }),
       ),
     ).toEqual(expectedRustProjections);
     expect(
       russianLesson.rust_sources.map(
-        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+        ({ path, region }: { path: string; region?: string }) => ({
+          path,
+          region,
+        }),
       ),
     ).toEqual(
       lesson.rust_sources.map(
-        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+        ({ path, region }: { path: string; region?: string }) => ({
+          path,
+          region,
+        }),
       ),
     );
-    for (const localizedLabels of [englishDiagramLabels, russianDiagramLabels]) {
+    for (const localizedLabels of [
+      englishDiagramLabels,
+      russianDiagramLabels,
+    ]) {
       expect(() =>
         validateFinalEvaluationDiagramLabels(localizedLabels),
       ).not.toThrow();
@@ -502,11 +553,41 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(russianDiagramLabels.sections.proof).toBe(
       "Отделите заявленные сведения от проверяемых фактов",
     );
+    expect(englishDiagramLabels.title).toBe(
+      "Separate local isolation from fixture evidence",
+    );
+    expect(russianDiagramLabels.title).toBe(
+      "Отделите локальную изоляцию от результата фиксированного примера",
+    );
+    expect(englishDiagramLabels.description).toBe(
+      "Follow training and validation to one local test gate. The evaluator records 24 ordered input/target pairs, while explicit scope cues identify the deliberately selected decoder-lower-than-bigram loss ordering as fixed-fixture regression evidence rather than independent generalization or architecture superiority.",
+    );
+    expect(russianDiagramLabels.description).toBe(
+      "Проследите путь от обучения и выбора по валидации к одному локальному механизму доступа к тестовой выборке. Оценщик сохраняет 24 упорядоченные пары «вход — цель», а явные пометки указывают, что намеренно выбранный порядок потерь, при котором потери декодера ниже потерь биграммной модели, служит регрессионной проверкой фиксированного примера, а не независимой оценкой способности модели обобщать или доказательством общего превосходства архитектуры.",
+    );
+    expect(englishDiagramLabels.cues.lowerLoss).toBe(
+      "Double border: lower loss on the fixed fixture",
+    );
+    expect(russianDiagramLabels.cues.lowerLoss).toBe(
+      "Двойная рамка: меньшие потери на фиксированном примере",
+    );
     expect(englishDiagramLabels.captions.proof).toBe(
       "Corpus, split, and tokenizer strings are caller-supplied; equality checks only their consistency. Context, vocabulary, test targets, state/model identity, and no-grad state preservation are independently checked. The fixture assembly supplies the intended histories.",
     );
     expect(russianDiagramLabels.captions.proof).toBe(
       "Строки корпуса, разбиения и токенизатора задаёт вызывающий код; их совпадение показывает только согласованность метаданных. Длину контекста, словарь, тестовые цели, совпадение состояния с моделью и сохранность состояния при оценке без графа реализация проверяет отдельно. Требуемую историю объектов обеспечивает код сборки примера.",
+    );
+    expect(englishDiagramLabels.captions.comparison).toBe(
+      "The decoder evaluates the epoch separately without a graph, while the bigram reuses the same 24 checked input/target pairs. The double border marks only the lower recorded mean on this fixed regression fixture.",
+    );
+    expect(russianDiagramLabels.captions.comparison).toBe(
+      "Декодер отдельно оценивает исходную эпоху без записи графа вычислений, а биграммная модель использует те же 24 проверенные пары «вход — цель» в том же порядке. Двойная рамка отмечает только меньшее среднее значение на фиксированном примере, сохранённом для регрессионной проверки.",
+    );
+    expect(englishDiagramLabels.scrollers.comparison).toBe(
+      "Scrollable fixed-fixture decoder and bigram scores over the same inspected target order",
+    );
+    expect(russianDiagramLabels.scrollers.comparison).toBe(
+      "Прокручиваемые результаты декодера и биграммной модели на фиксированном примере с одной и той же проверенной последовательностью пар «вход — цель»",
     );
     const proofCards = componentSource.match(
       /<article class="proof-card[\s\S]*?<\/article>/g,
@@ -529,22 +610,38 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
     );
-    expect(contract.content_revision).toBe(5);
-    expect(lesson.content_revision).toBe(5);
-    expect(russianLesson.content_revision).toBe(5);
+    expect(contract.content_revision).toBe(6);
+    expect(lesson.content_revision).toBe(6);
+    expect(russianLesson.content_revision).toBe(6);
+    expect(lesson.title).toBe("Open one local test gate, keep the report");
+    expect(russianLesson.title).toBe(
+      "Передайте тестовую выборку одному локальному оценщику и сохраните отчёт",
+    );
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
     );
     expect(contract.translation_notes).toContain(
       `reviewed Russian SHA-256: ${createHash("sha256").update(russianLessonSource).digest("hex")}`,
     );
-    expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
-      "ab71bcf95e1bcb446d01cd531e9a0aad29dbe8afd03751b38d5c543f99e18e6c",
+    const dworkSource = contract.history.llm_evolution.sources.find(
+      ({ source_url }: { source_url: string }) =>
+        source_url === "https://arxiv.org/abs/1506.02629",
     );
-    expect(
-      createHash("sha256").update(russianLessonSource).digest("hex"),
-    ).toBe(
-      "20d40b3340755af228eea0c4a988623686b481a129def2fe7a6ca4cd65e468ec",
+    expect(dworkSource).toEqual({
+      role: "later",
+      year: 2015,
+      name: "Generalization in Adaptive Data Analysis and Holdout Reuse",
+      source_url: "https://arxiv.org/abs/1506.02629",
+      claim: {
+        en: "Dwork and colleagues show that adaptive repeated reuse of a standard holdout can overfit the holdout itself; this general warning does not establish any fact about this repository's fixture history or scores.",
+        ru: "Дворк и соавторы показывают, что многократное адаптивное использование обычной отложенной выборки может привести к переобучению на самой этой выборке; этот общий вывод не устанавливает фактов об истории или результатах учебного примера из данного репозитория.",
+      },
+    });
+    expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
+      "6870f76a2dc8d2f1bc15ce301d286849d9110f9e7228bcd67466720bd03da7c7",
+    );
+    expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
+      "f003f568bd21b4fa2e96c043b4764779d9b4329258533f478010f08b8c845ce5",
     );
     expect(
       contract.translation_notes.filter((note: string) =>
@@ -567,29 +664,44 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(lessonSource.match(/chapter-section:/g)).toHaveLength(8);
     expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(7);
     expect(lessonSource).toContain(
+      'caption="Encode the modern separation between a validation-selected model and one local test evaluation"',
+    );
+    expect(lessonSource).toContain(
       "<FinalEvaluationDiagram labels={diagramLabels} />",
     );
     expect(normalizedLesson).not.toContain("history of programming languages");
     expect(normalizedLesson).toContain(
-      "does not claim that decoders always beat bigrams",
+      "does not show that decoder architectures are universally superior to bigrams",
     );
-    expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
+    expect(lessonSource).not.toMatch(
+      /TypeScript (?:validates|performs|computes)/,
+    );
     expect(
       existsSync(
-        resolve(repositoryRoot, "site/src/content/chapters/ru/34-final-evaluation.mdx"),
+        resolve(
+          repositoryRoot,
+          "site/src/content/chapters/ru/34-final-evaluation.mdx",
+        ),
       ),
     ).toBe(true);
     expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
     expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(7);
     expect(russianLessonSource).toContain(
+      'caption="Закрепите современное разделение между моделью, выбранной по валидации, и одной локальной оценкой на тестовой выборке"',
+    );
+    expect(russianLessonSource).toContain(
       "<FinalEvaluationDiagram labels={diagramLabels} />",
     );
     expect(lessonSource).toContain("`provenance_assertions_match=true`");
-    expect(russianLessonSource).toContain(
-      "`provenance_assertions_match=true`",
-    );
+    expect(russianLessonSource).toContain("`provenance_assertions_match=true`");
     expect(expectedOutput).toContain("provenance_assertions_match:true");
+    expect(expectedOutput).toContain(
+      "evidence=scope:fixed-fixture-regression within_run_selection_isolated:true fixture_selected_for_ordering:true independent_generalization_estimate:false architecture_superiority_evidence:false",
+    );
     expect(fixture).toContain("provenance_assertions_match=true");
+    expect(fixture).toContain(
+      "decoder_lower_on_fixture=true|evidence_scope=fixed-fixture-regression|within_run_selection_isolated=true|fixture_selected_for_ordering=true|independent_generalization_estimate=false|architecture_superiority_evidence=false",
+    );
     expect(parserSource).toContain("provenance_assertions_match=true");
     for (const source of [
       expectedOutput,
@@ -608,6 +720,48 @@ describe("Chapter 34 static diagram and content boundary", () => {
     }
     expect(traceRustSource).toContain(
       'assert!(!trace.contains("provenance_match="));',
+    );
+    for (const [name, source] of [
+      ["expected output", expectedOutput],
+      ["diagram trace", fixture],
+      ["parser", parserSource],
+      ["component", componentSource],
+      ["English lesson", lessonSource.replace("`decoder_beats_bigram`", "")],
+      [
+        "Russian lesson",
+        russianLessonSource.replace("`decoder_beats_bigram`", ""),
+      ],
+      ["contract", contractSource.replace("`decoder_beats_bigram`", "")],
+      ["demo", demoSource],
+      [
+        "trace writer",
+        traceRustSource.replace(
+          'assert!(!trace.contains("decoder_beats_bigram="));',
+          "",
+        ),
+      ],
+    ] as const) {
+      expect(
+        source,
+        `${name} retains stale architecture-win fields`,
+      ).not.toMatch(/\b(?:decoder_beats_bigram|decoder_wins)\b/);
+    }
+    expect(traceRustSource).toContain(
+      'assert!(!trace.contains("decoder_beats_bigram="));',
+    );
+    expect(lessonSource.match(/\bdecoder_beats_bigram\b/g)).toHaveLength(1);
+    expect(contractSource.match(/\bdecoder_beats_bigram\b/g)).toHaveLength(1);
+    expect(russianLessonSource.match(/\bdecoder_beats_bigram\b/g)).toHaveLength(
+      1,
+    );
+    expect(normalizedLesson).toContain(
+      "the stale name `decoder_beats_bigram` is not current evidence",
+    );
+    expect(contractSource.replace(/\s+/g, " ")).toContain(
+      "the stale name `decoder_beats_bigram` is not current evidence",
+    );
+    expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
+      "прежнее имя `decoder_beats_bigram` не является актуальным свидетельством",
     );
 
     expect(evaluationSource).toContain("region:evaluation-provenance");
@@ -664,9 +818,7 @@ describe("Chapter 34 static diagram and content boundary", () => {
     ]) {
       expect(evaluationSource).toContain(exactDisplay);
     }
-    expect(evaluationSource).not.toContain(
-      "fn require_matching_provenance(",
-    );
+    expect(evaluationSource).not.toContain("fn require_matching_provenance(");
     expect(evaluationSource).toMatch(
       /pub struct SelectedDecoder<'a> \{[\s\S]*?state: &'a DecoderModelState,[\s\S]*?model: &'a DecoderModel,/,
     );
@@ -699,7 +851,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(
       finalEvaluationSource!.indexOf("InspectedTestEpoch::inspect("),
     ).toBeGreaterThan(finalEvaluationSource!.indexOf("self.access_count = 1"));
-    expect(finalEvaluationSource!.indexOf("parameter_bits(model)")).toBeGreaterThan(
+    expect(
+      finalEvaluationSource!.indexOf("parameter_bits(model)"),
+    ).toBeGreaterThan(
       finalEvaluationSource!.indexOf("InspectedTestEpoch::inspect("),
     );
     expect(finalEvaluationSource!.indexOf("evaluate_no_grad(")).toBeGreaterThan(
@@ -710,6 +864,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     );
     expect(finalEvaluationSource).not.toMatch(
       /restore_independent_model|into_model|\.restore\(\)/,
+    );
+    expect(finalEvaluationSource).not.toMatch(
+      /require\([^)]*decoder_has_lower_loss|(?:beats|wins).*bigram/i,
     );
 
     const inspectedSource = evaluationSource.match(
@@ -753,7 +910,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
       /pub fn smoothed_probability\([\s\S]*?\n    \}/,
     )?.[0];
     expect(publicProbabilitySource).toContain("self.count(from, to)?");
-    expect(publicProbabilitySource).toContain("self.smoothing_denominator(from)?");
+    expect(publicProbabilitySource).toContain(
+      "self.smoothing_denominator(from)?",
+    );
 
     const englishRustSection = chapterSection(
       lessonSource,
@@ -790,6 +949,12 @@ describe("Chapter 34 static diagram and content boundary", () => {
       "The Chapter 34 fixture supplies the intended histories at its assembly call sites.",
     );
     expect(englishRustSection).toContain(
+      "The reverse-cycle documents were deliberately selected for the recorded decoder-lower ordering, which the learner program now retains as a regression condition.",
+    );
+    expect(englishRustSection).toContain(
+      "an alternate fixed-sequence diagnostic makes the bigram lower while the same graph-free and unchanged-state guarantees still pass",
+    );
+    expect(englishRustSection).toContain(
       "That concrete assembly evidence is stronger than the generic constructors' labels",
     );
     expect(englishRustSection).toContain(
@@ -803,6 +968,15 @@ describe("Chapter 34 static diagram and content boundary", () => {
     );
     expect(englishExercisesSection).toContain(
       "Reusing the same string hides the first change from these assertion checks; the API does not inspect the tokenizer. Changing only the string creates an assertion mismatch, so the gate stays closed with count",
+    );
+    expect(normalizedLesson).toContain(
+      "These are valid measurements of this fixed teaching fixture and its executable boundary, but they are not an untouched independent estimate of generalization and do not establish architecture-wide decoder superiority.",
+    );
+    expect(normalizedLesson).toContain(
+      "this general warning does not establish any fact about this repository's fixture history or scores",
+    );
+    expect(normalizedLesson).not.toMatch(
+      /course(?:'s)? first and only final test|previously unscored test|proves? (?:independent )?generalization|shows? (?:that )?decoder architectures? (?:always|universally) (?:beat|outperform)/i,
     );
     expect(russianRustSection).toContain(
       "входные данные проверяются на одной границе — при открытии доступа к тестовой эпохе",
@@ -834,6 +1008,23 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(russianExercisesSection).toContain(
       "Повторное использование той же строки скрывает первое изменение от проверки заявленных сведений: API не исследует токенизатор. Изменение самой строки создаёт несовпадение заявленных сведений",
     );
+    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
+    expect(normalizedRussianLesson).toContain(
+      "Тестовые документы намеренно следуют синтетическому обучающему циклу в обратном направлении. Их выбрали именно ради записанного порядка результатов после того, как нейтральная отложенная выборка его не сохранила.",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Значения корректно характеризуют фиксированный учебный пример и исполняемую границу, но не являются независимой оценкой способности модели обобщать на ранее не использованных данных и не доказывают общего превосходства архитектуры декодера.",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Документы с обратным циклом намеренно выбрали так, чтобы значение функции потерь декодера было ниже, и учебная программа сохраняет этот порядок как условие регрессии.",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Универсальный оценщик при этом остаётся нейтральным: на другой фиксированной последовательности значение биграммной модели оказывается ниже, а оценка всё равно выполняется без графа и не меняет биты состояния.",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "этот общий вывод не устанавливает фактов об истории или результатах учебного примера из данного репозитория",
+    );
+    expect(normalizedRussianLesson).not.toMatch(/фикстур/i);
     for (const staleClaim of [
       /matching provenance cannot hide a changed tokenizer/i,
       /matching label cannot hide a changed tokenizer/i,
@@ -860,29 +1051,23 @@ describe("Chapter 34 static diagram and content boundary", () => {
       "caller-supplied provenance assertions",
     );
     expect(normalizedCoursePlan).toContain("facts checked mechanically");
-    expect(normalizedCoursePlan).toContain("fixture assembly evidence");
+    expect(normalizedCoursePlan).toContain(
+      "the concrete fixture has the intended training and selection history",
+    );
     expect(selectionSource).toContain("fixture_training_documents");
     expect(selectionSource).toContain("pub fn learner_evidence");
     const fixtureTrainingSource = selectionSource.match(
       /pub fn fixture_training_documents\(\)[\s\S]*?^\}/m,
     )?.[0];
     expect(fixtureTrainingSource).toBeDefined();
-    expect(fixtureTrainingSource).toContain(
-      '("train-a", TRAIN_A.as_slice())',
-    );
-    expect(fixtureTrainingSource).toContain(
-      '("train-b", TRAIN_B.as_slice())',
-    );
+    expect(fixtureTrainingSource).toContain('("train-a", TRAIN_A.as_slice())');
+    expect(fixtureTrainingSource).toContain('("train-b", TRAIN_B.as_slice())');
     const preparedEpochsSource = selectionSource.match(
       /fn prepared_epochs\(\)[\s\S]*?^\}/m,
     )?.[0];
     expect(preparedEpochsSource).toBeDefined();
-    expect(preparedEpochsSource).toContain(
-      '("train-a", TRAIN_A.as_slice())',
-    );
-    expect(preparedEpochsSource).toContain(
-      '("train-b", TRAIN_B.as_slice())',
-    );
+    expect(preparedEpochsSource).toContain('("train-a", TRAIN_A.as_slice())');
+    expect(preparedEpochsSource).toContain('("train-b", TRAIN_B.as_slice())');
     expect(selectionSource).toMatch(
       /test_partition_rejected = matches!\([\s\S]*?TrainerError::WrongPartition[\s\S]*?actual: Partition::Test/,
     );
@@ -900,6 +1085,72 @@ describe("Chapter 34 static diagram and content boundary", () => {
     );
     expect(learnerEvidenceSource).toMatch(
       /FinalEvaluator::new\(test_epoch\(\)\?, provenance_assertions\.clone\(\)\)/,
+    );
+    expect(demoSource).toContain(
+      "pub const FIXTURE_SELECTED_FOR_ORDERING: bool = true;",
+    );
+    expect(demoSource).toContain(
+      "pub const INDEPENDENT_GENERALIZATION_ESTIMATE: bool = false;",
+    );
+    expect(demoSource).toContain(
+      "pub const ARCHITECTURE_SUPERIORITY_EVIDENCE: bool = false;",
+    );
+    const diagnosticSource = demoSource.match(
+      /fn diagnostic_forward_cycle_can_reverse_order_without_changing_frozen_state\(\) \{([\s\S]*?)\n    \}/,
+    )?.[1];
+    expect(diagnosticSource).toBeDefined();
+    expect(diagnosticSource).toContain(
+      "const DIAGNOSTIC_A: [u32; 9] = [0, 1, 2, 3, 4, 0, 1, 2, 3];",
+    );
+    expect(diagnosticSource).toContain(
+      "const DIAGNOSTIC_B: [u32; 7] = [2, 3, 4, 0, 1, 2, 3];",
+    );
+    expect(diagnosticSource).toContain('"ch34-diagnostic-forward-cycle-v1"');
+    expect(diagnosticSource).toContain('"diagnostic-fixed-test-v1"');
+    expect(
+      diagnosticSource.match(/selected\.result\.selected_state\(\)/g),
+    ).toHaveLength(2);
+    expect(
+      diagnosticSource.match(/selected\.result\.selected_model\(\)/g),
+    ).toHaveLength(2);
+    expect(
+      diagnosticSource.match(/FrozenBigram::new\(&baseline/g),
+    ).toHaveLength(2);
+    expect(diagnosticSource).toContain(
+      "assert!(fixed_report.decoder_has_lower_loss());",
+    );
+    expect(diagnosticSource).toMatch(
+      /assert_eq!\(\s*fixed_report\.target_count\(\),\s*diagnostic_report\.target_count\(\)\s*\);/,
+    );
+    expect(diagnosticSource).toMatch(
+      /assert_ne!\(\s*fixed_report\.target_fingerprint\(\),\s*diagnostic_report\.target_fingerprint\(\)\s*\);/,
+    );
+    expect(diagnosticSource).toMatch(
+      /assert_close\(\s*diagnostic_report\.decoder\(\)\.mean_nll\(\),\s*1\.264_663_083_344_779,?\s*\);/,
+    );
+    expect(diagnosticSource).toContain(
+      "assert_close(diagnostic_report.bigram().mean_nll(), 0.555_719_564_428_732);",
+    );
+    expect(diagnosticSource).toContain(
+      "assert_close(diagnostic_report.loss_gap(), -0.708_943_518_916_047);",
+    );
+    expect(diagnosticSource).toContain(
+      "assert!(!diagnostic_report.decoder_has_lower_loss());",
+    );
+    expect(diagnosticSource).toContain(
+      "assert!(diagnostic_report.loss_gap() < 0.0);",
+    );
+    expect(diagnosticSource).toContain(
+      "assert_eq!(report.recorded_graphs(), 0);",
+    );
+    expect(diagnosticSource).toContain(
+      "assert!(report.parameters_unchanged());",
+    );
+    expect(diagnosticSource).toContain(
+      "assert!(report.gradients_unchanged());",
+    );
+    expect(diagnosticSource).toContain(
+      "explicitly diagnostic distribution is not another",
     );
     expect(learnerEvidenceSource).toContain(
       "selection_test_partition_rejected: selected.test_partition_rejected",

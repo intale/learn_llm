@@ -206,7 +206,7 @@ const partDefinitions: LlmPartTrace[] = [
   {
     id: "evaluation",
     path: "learning",
-    purpose: "Score the frozen selected model once on previously unopened test examples.",
+    purpose: "Score the selected frozen model after selection; retain the known result only as fixed-fixture regression evidence.",
     chapters: ["34-final-evaluation"],
   },
   {

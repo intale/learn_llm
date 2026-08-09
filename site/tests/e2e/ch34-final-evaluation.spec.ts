@@ -24,9 +24,9 @@ const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
 const copy = {
   en: {
     revisionLabel: "Content revision",
-    title: "Open test once, keep the report",
+    title: "Open one local test gate, keep the report",
     description:
-      "Learn how to freeze validation-selected choices, validate and record the ordered test inputs and targets at one final-evaluation gate, distinguish caller-supplied provenance assertions from mechanically checked facts, and compare graph-free decoder and bigram scores fairly.",
+      "Learn how one local final-evaluation gate isolates an already selected state, compare graph-free decoder and bigram scores fairly, and distinguish a deliberately selected fixed regression fixture from independent generalization evidence.",
     headings: [
       "Freeze the comparison before opening test",
       "Average surprise over target tokens",
@@ -37,12 +37,12 @@ const copy = {
       "Classify legal decisions before you run",
       "Carry the selected and evaluated state forward",
     ],
-    diagramTitle: "Freeze choices before final evidence",
+    diagramTitle: "Separate local isolation from fixture evidence",
     diagramDescription:
-      "Follow training and validation to one test gate. Caller-supplied identifiers and role labels are kept distinct from mechanically checked context, state, vocabulary, and target facts. At gate opening, the evaluator records 24 ordered input/target pairs; both model scores enter one immutable report.",
+      "Follow training and validation to one local test gate. The evaluator records 24 ordered input/target pairs, while explicit scope cues identify the deliberately selected decoder-lower-than-bigram loss ordering as fixed-fixture regression evidence rather than independent generalization or architecture superiority.",
     cues: [
       "≡ Equivalence sign: same inspected target order",
-      "║ Double border: lower loss in this fixture",
+      "║ Double border: lower loss on the fixed fixture",
       "× Cross: selection rejected the test partition",
     ],
     detailsFragment: "Dataset access control and a shared audit log",
@@ -62,11 +62,21 @@ const copy = {
       "The evaluator compares those strings for exact equality; it neither derives them nor checks their relationship to the underlying corpus, split construction, or tokenizer. Equal strings can therefore describe different underlying artifacts.",
       "It does not validate selected_step, and it checks selected_validation_loss only for finiteness and nonnegativity.",
       "The Chapter 34 fixture supplies the intended histories at its assembly call sites.",
-      "That concrete assembly evidence is stronger than the generic constructors’ labels",
+      "The reverse-cycle documents were deliberately selected for the recorded decoder-lower ordering, which the learner program now retains as a regression condition.",
+      "an alternate fixed-sequence diagnostic makes the bigram lower while the same graph-free and unchanged-state guarantees still pass",
+      "That concrete assembly evidence is stronger than the generic constructors' labels",
       "First change the tokenizer mapping while reusing the same tokenizer fingerprint string and the same vocabulary/context sizes. Then change only the fingerprint string.",
     ],
     tokenizerAnswerFragment:
       "Reusing the same string hides the first change from these assertion checks; the API does not inspect the tokenizer. Changing only the string creates an assertion mismatch",
+    evidenceBoundaryFragments: [
+      "The test documents deliberately reverse the synthetic training cycle and were selected for that recorded ordering after a neutral holdout did not preserve it.",
+      "The exact ordering is now rerun as a regression condition.",
+      "These are valid measurements of this fixed teaching fixture and its executable boundary, but they are not an untouched independent estimate of generalization and do not establish architecture-wide decoder superiority.",
+      "this general warning does not establish any fact about this repository's fixture history or scores",
+      "evidence=scope:fixed-fixture-regression within_run_selection_isolated:true fixture_selected_for_ordering:true independent_generalization_estimate:false architecture_superiority_evidence:false",
+      "the stale name decoder_beats_bigram is not current evidence",
+    ],
     proofHeading: "Separate assertions from checked facts",
     sectionHeadings: [
       "Give each partition one responsibility",
@@ -77,7 +87,7 @@ const copy = {
       "Train fits parameters",
       "Validation selects the checkpoint",
       "Freeze every decision",
-      "Open one test gate",
+      "Open one local test gate",
       "Keep the report immutable",
     ],
     stageCues: [
@@ -89,7 +99,7 @@ const copy = {
     ],
     sectionCaptions: [
       "The numbered sequence assigns one responsibility to each stage: training fits, validation selects, and the evaluator may inspect test IDs only after every choice is frozen.",
-      "The decoder evaluates the epoch separately without a graph, while the bigram reuses the same 24 checked input/target pairs. The double border marks the lower recorded mean in this fixture.",
+      "The decoder evaluates the epoch separately without a graph, while the bigram reuses the same 24 checked input/target pairs. The double border marks only the lower recorded mean on this fixed regression fixture.",
       "Corpus, split, and tokenizer strings are caller-supplied; equality checks only their consistency. Context, vocabulary, test targets, state/model identity, and no-grad state preservation are independently checked. The fixture assembly supplies the intended histories.",
     ],
     proofLabels: [
@@ -107,18 +117,21 @@ const copy = {
       "Mean test loss",
     ],
     rowHeaders: [
-      "Selected decoder Double border: lower loss in this fixture",
+      "Selected decoder Double border: lower loss on the fixed fixture",
       "Frozen bigram",
     ],
     roleCells: ["Training", "Validation", "Training", "Not selected"],
     scrollerName:
-      "Scrollable decoder and bigram scores over the same inspected target order",
+      "Scrollable fixed-fixture decoder and bigram scores over the same inspected target order",
+    boundaryRustCaption:
+      "Encode the modern separation between a validation-selected model and one local test evaluation",
   },
   ru: {
     revisionLabel: "Версия материала",
-    title: "Откройте доступ к тестовой выборке один раз и сохраните отчёт",
+    title:
+      "Передайте тестовую выборку одному локальному оценщику и сохраните отчёт",
     description:
-      "Разберитесь, как зафиксировать решения, принятые по валидации, при открытии итогового доступа проверить и сохранить упорядоченные пары входных и целевых токенов, отделить заявленные вызывающим кодом сведения от фактов, которые проверяет сама реализация, и честно сравнить оценки декодера и биграммной модели без графа вычислений.",
+      "Разберитесь, как в пределах одного запуска зафиксировать решения, принятые по валидации, проверить и сохранить упорядоченные пары входных и целевых токенов, а затем отделить корректное сравнение на намеренно выбранном фиксированном примере от независимой оценки способности модели обобщать и от доказательства общего превосходства архитектуры.",
     headings: [
       "Зафиксируйте условия сравнения до открытия тестовой выборки",
       "Усредняйте неожиданность по целевым токенам",
@@ -129,18 +142,19 @@ const copy = {
       "Определите допустимые решения до запуска",
       "Сохраните в контрольной точке то же выбранное состояние",
     ],
-    diagramTitle: "Зафиксируйте решения до итоговой оценки",
+    diagramTitle:
+      "Отделите локальную изоляцию от результата фиксированного примера",
     diagramDescription:
-      "Проследите путь от обучения и выбора по валидации к однократному открытию тестовой выборки. Идентификаторы и роли, заданные вызывающим кодом, отделены от фактов, которые проверяет реализация: длины контекста, состояния модели, словаря и целевых позиций. При открытии доступа оценщик сохраняет 24 упорядоченные пары; результаты обеих моделей входят в один неизменяемый отчёт.",
+      "Проследите путь от обучения и выбора по валидации к одному локальному механизму доступа к тестовой выборке. Оценщик сохраняет 24 упорядоченные пары «вход — цель», а явные пометки указывают, что намеренно выбранный порядок потерь, при котором потери декодера ниже потерь биграммной модели, служит регрессионной проверкой фиксированного примера, а не независимой оценкой способности модели обобщать или доказательством общего превосходства архитектуры.",
     cues: [
       "≡ Знак эквивалентности: одна и та же последовательность проверенных пар «вход — цель»",
-      "║ Двойная рамка: меньшие потери в этом примере",
+      "║ Двойная рамка: меньшие потери на фиксированном примере",
       "× Знак ×: при выборе доступ к тестовой выборке был отклонён",
     ],
     detailsFragment: "контроля доступа к набору данных и общего журнала аудита",
     historyFragments: [
       "В ранних исследованиях нейронных языковых моделей постепенно переходили",
-      "Это не означает, что в процитированных работах тестовую выборку запрашивали ровно один раз",
+      "Работа подтверждает разделение трёх ролей, но не утверждает, что к тестовой выборке обращались ровно один раз.",
     ],
     ownershipFragments: [
       "Позже, перед открытием доступа, оценщик сверяет сохранённое состояние с переданным декодером",
@@ -154,11 +168,21 @@ const copy = {
       "Оценщик проверяет точное совпадение этих строк, но сам не вычисляет их и не сверяет с фактическим корпусом, способом разбиения или токенизатором. Поэтому одинаковыми строками можно ошибочно пометить разные данные или токенизаторы.",
       "Значение selected_step не проверяется, а selected_validation_loss проверяется только на конечность и неотрицательность.",
       "В учебном примере главы 34 требуемая история обеспечивается в местах сборки объектов.",
+      "Документы с обратным циклом намеренно выбрали так, чтобы значение функции потерь декодера было ниже, и учебная программа сохраняет этот порядок как условие регрессии.",
+      "на другой фиксированной последовательности значение биграммной модели оказывается ниже, а оценка всё равно выполняется без графа и не меняет биты состояния",
       "Такие места вызова дают больше оснований, чем метки универсальных конструкторов",
       "Сначала измените отображение токенизатора, но повторно используйте прежнюю строку отпечатка и сохраните размеры словаря и контекста. Затем измените только строку отпечатка.",
     ],
     tokenizerAnswerFragment:
       "Повторное использование той же строки скрывает первое изменение от проверки заявленных сведений: API не исследует токенизатор. Изменение самой строки создаёт несовпадение заявленных сведений",
+    evidenceBoundaryFragments: [
+      "Тестовые документы намеренно следуют синтетическому обучающему циклу в обратном направлении. Их выбрали именно ради записанного порядка результатов после того, как нейтральная отложенная выборка его не сохранила.",
+      "Теперь этот точный порядок повторно проверяется как условие регрессии.",
+      "Значения корректно характеризуют фиксированный учебный пример и исполняемую границу, но не являются независимой оценкой способности модели обобщать на ранее не использованных данных и не доказывают общего превосходства архитектуры декодера.",
+      "этот общий вывод не устанавливает фактов об истории или результатах учебного примера из данного репозитория",
+      "evidence=scope:fixed-fixture-regression within_run_selection_isolated:true fixture_selected_for_ordering:true independent_generalization_estimate:false architecture_superiority_evidence:false",
+      "прежнее имя decoder_beats_bigram не является актуальным свидетельством",
+    ],
     proofHeading: "Отделите заявленные сведения от проверяемых фактов",
     sectionHeadings: [
       "Разделите роли выборок",
@@ -169,7 +193,7 @@ const copy = {
       "Обучение подгоняет параметры",
       "Валидация выбирает контрольную точку",
       "Зафиксируйте все решения",
-      "Один раз откройте доступ к тестовой выборке",
+      "Откройте один локальный доступ к тестовой выборке",
       "Сохраните неизменяемый отчёт",
     ],
     stageCues: [
@@ -181,7 +205,7 @@ const copy = {
     ],
     sectionCaptions: [
       "Нумерованная последовательность закрепляет за каждым этапом одну роль: обучение подгоняет параметры, валидация выбирает состояние, а оценщик может прочитать ID тестовых токенов только после фиксации всех решений.",
-      "Декодер отдельно оценивает исходную эпоху без записи графа вычислений, а биграммная модель использует те же 24 проверенные пары «вход — цель» в том же порядке. Двойная рамка отмечает меньшее среднее значение в этом примере.",
+      "Декодер отдельно оценивает исходную эпоху без записи графа вычислений, а биграммная модель использует те же 24 проверенные пары «вход — цель» в том же порядке. Двойная рамка отмечает только меньшее среднее значение на фиксированном примере, сохранённом для регрессионной проверки.",
       "Строки корпуса, разбиения и токенизатора задаёт вызывающий код; их совпадение показывает только согласованность метаданных. Длину контекста, словарь, тестовые цели, совпадение состояния с моделью и сохранность состояния при оценке без графа реализация проверяет отдельно. Требуемую историю объектов обеспечивает код сборки примера.",
     ],
     proofLabels: [
@@ -199,12 +223,14 @@ const copy = {
       "Средние потери на тесте",
     ],
     rowHeaders: [
-      "Выбранный декодер Двойная рамка: меньшие потери в этом примере",
+      "Выбранный декодер Двойная рамка: меньшие потери на фиксированном примере",
       "Зафиксированная биграммная модель",
     ],
     roleCells: ["Обучение", "Валидация", "Обучение", "Нет"],
     scrollerName:
-      "Таблица с прокруткой: оценки декодера и биграммной модели для одной и той же проверенной последовательности пар «вход — цель»",
+      "Прокручиваемые результаты декодера и биграммной модели на фиксированном примере с одной и той же проверенной последовательностью пар «вход — цель»",
+    boundaryRustCaption:
+      "Закрепите современное разделение между моделью, выбранной по валидации, и одной локальной оценкой на тестовой выборке",
   },
 } as const;
 
@@ -266,13 +292,13 @@ async function expectFormulaGeometry(page: Page) {
           const inlineDebt = zeroClientInlineMetric
             ? 0
             : hasMaterialClientBox
-            ? Math.max(0, element.scrollWidth - element.clientWidth)
-            : 0;
+              ? Math.max(0, element.scrollWidth - element.clientWidth)
+              : 0;
           const blockDebt = zeroClientInlineMetric
             ? 0
             : hasMaterialClientBox
-            ? Math.max(0, element.scrollHeight - element.clientHeight)
-            : 0;
+              ? Math.max(0, element.scrollHeight - element.clientHeight)
+              : 0;
           const inertInlineFallback =
             element.matches(".katex") &&
             !element.parentElement?.matches(".katex-display") &&
@@ -451,7 +477,9 @@ async function expectDiagramContainment(page: Page, settle = true) {
       root.querySelectorAll<HTMLElement>("[data-diagram-box]"),
     );
     const tableCells = Array.from(
-      root.querySelectorAll<HTMLElement>("[data-diagram-table] th, [data-diagram-table] td"),
+      root.querySelectorAll<HTMLElement>(
+        "[data-diagram-table] th, [data-diagram-table] td",
+      ),
     );
     const stateSymbols = Array.from(
       root.querySelectorAll<HTMLElement>(".state-symbol"),
@@ -475,13 +503,13 @@ async function expectDiagramContainment(page: Page, settle = true) {
       ]
         .filter(Boolean)
         .join("/");
-      return element.tagName.toLowerCase() + classes + (data ? "[" + data + "]" : "");
+      return (
+        element.tagName.toLowerCase() + classes + (data ? "[" + data + "]" : "")
+      );
     };
     const colorHasZeroAlpha = (color: string) => {
       if (color === "transparent") return true;
-      const commaAlpha = color.match(
-        /^rgba\([^)]*,\s*(0(?:\.0+)?)\s*\)$/,
-      );
+      const commaAlpha = color.match(/^rgba\([^)]*,\s*(0(?:\.0+)?)\s*\)$/);
       if (commaAlpha) return Number.parseFloat(commaAlpha[1]) === 0;
       const slashAlpha = color.match(/\/\s*(0(?:\.0+)?%?)\s*\)$/);
       if (!slashAlpha) return false;
@@ -532,7 +560,9 @@ async function expectDiagramContainment(page: Page, settle = true) {
         problems.push(
           "an unclassified bordered owner bypasses containment: " +
             owner.tagName.toLowerCase() +
-            (owner.className ? "." + String(owner.className).split(/\s+/).join(".") : ""),
+            (owner.className
+              ? "." + String(owner.className).split(/\s+/).join(".")
+              : ""),
         );
       }
     }
@@ -605,9 +635,7 @@ async function expectDiagramContainment(page: Page, settle = true) {
           text &&
           parent &&
           nearestBox === box &&
-          !parent.closest(
-            ".katex-mathml, [data-diagram-full-view-controls]",
-          )
+          !parent.closest(".katex-mathml, [data-diagram-full-view-controls]")
         ) {
           const range = document.createRange();
           range.selectNodeContents(textNode);
@@ -616,9 +644,17 @@ async function expectDiagramContainment(page: Page, settle = true) {
           );
           if (paintRects.length === 0) {
             problems.push(
-              "box " + index + " " + describeElement(box) + " text " +
-                textIndex + " " + JSON.stringify(text) +
-                " in " + describeElement(parent) + " has no positive paint",
+              "box " +
+                index +
+                " " +
+                describeElement(box) +
+                " text " +
+                textIndex +
+                " " +
+                JSON.stringify(text) +
+                " in " +
+                describeElement(parent) +
+                " has no positive paint",
             );
           }
           let ancestor: HTMLElement | null = parent;
@@ -658,15 +694,25 @@ async function expectDiagramContainment(page: Page, settle = true) {
               rect.bottom > innerRect.bottom + 2
             ) {
               problems.push(
-                "box " + index + " " + describeElement(box) + " text " +
-                  textIndex + " " + JSON.stringify(text) + " in " +
-                  describeElement(parent) + " crosses its border; paint=" +
+                "box " +
+                  index +
+                  " " +
+                  describeElement(box) +
+                  " text " +
+                  textIndex +
+                  " " +
+                  JSON.stringify(text) +
+                  " in " +
+                  describeElement(parent) +
+                  " crosses its border; paint=" +
                   JSON.stringify({
                     bottom: rect.bottom,
                     left: rect.left,
                     right: rect.right,
                     top: rect.top,
-                  }) + " inner=" + JSON.stringify(innerRect),
+                  }) +
+                  " inner=" +
+                  JSON.stringify(innerRect),
               );
             }
           }
@@ -682,11 +728,7 @@ async function expectDiagramContainment(page: Page, settle = true) {
       root,
       ...Array.from(root.querySelectorAll<HTMLElement>("*")),
     ].entries()) {
-      if (
-        element.closest(
-          ".katex-mathml, [data-diagram-full-view-controls]",
-        )
-      ) {
+      if (element.closest(".katex-mathml, [data-diagram-full-view-controls]")) {
         continue;
       }
       if (
@@ -696,10 +738,7 @@ async function expectDiagramContainment(page: Page, settle = true) {
         continue;
       }
       const style = getComputedStyle(element);
-      const inlineDebt = Math.max(
-        0,
-        element.scrollWidth - element.clientWidth,
-      );
+      const inlineDebt = Math.max(0, element.scrollWidth - element.clientWidth);
       const blockDebt = Math.max(
         0,
         element.scrollHeight - element.clientHeight,
@@ -718,15 +757,25 @@ async function expectDiagramContainment(page: Page, settle = true) {
         )
       ) {
         problems.push(
-          "element " + index + " " + describeElement(element) +
-            " hides or clips overflow " + style.overflowX + "/" +
-            style.overflowY + " debt=" + inlineDebt + "/" + blockDebt,
+          "element " +
+            index +
+            " " +
+            describeElement(element) +
+            " hides or clips overflow " +
+            style.overflowX +
+            "/" +
+            style.overflowY +
+            " debt=" +
+            inlineDebt +
+            "/" +
+            blockDebt,
         );
       }
       if (concealedStyle(style)) {
         problems.push("element " + index + " conceals paint");
       }
-      const hasMaterialBox = element.clientWidth > 0 && element.clientHeight > 0;
+      const hasMaterialBox =
+        element.clientWidth > 0 && element.clientHeight > 0;
       const elementRect = element.getBoundingClientRect();
       const zeroClientInlineMetric =
         element.clientWidth === 0 &&
@@ -739,7 +788,10 @@ async function expectDiagramContainment(page: Page, settle = true) {
           .length > 0;
       if (!hasMaterialBox && !zeroClientInlineMetric && hasNonblankText) {
         problems.push(
-          "element " + index + " " + describeElement(element) +
+          "element " +
+            index +
+            " " +
+            describeElement(element) +
             " has invalid zero-client geometry",
         );
       }
@@ -751,9 +803,14 @@ async function expectDiagramContainment(page: Page, settle = true) {
         element !== namedScroller
       ) {
         problems.push(
-          "element " + index + " " + describeElement(element) +
-            " is an unapproved inline owner " + style.overflowX +
-            " debt=" + inlineDebt,
+          "element " +
+            index +
+            " " +
+            describeElement(element) +
+            " is an unapproved inline owner " +
+            style.overflowX +
+            " debt=" +
+            inlineDebt,
         );
       }
       if (
@@ -764,9 +821,14 @@ async function expectDiagramContainment(page: Page, settle = true) {
         (element !== root || !isFullscreen)
       ) {
         problems.push(
-          "element " + index + " " + describeElement(element) +
-            " is an unapproved block owner " + style.overflowY +
-            " debt=" + blockDebt,
+          "element " +
+            index +
+            " " +
+            describeElement(element) +
+            " is an unapproved block owner " +
+            style.overflowY +
+            " debt=" +
+            blockDebt,
         );
       }
     }
@@ -800,61 +862,59 @@ async function expectDiagramContainment(page: Page, settle = true) {
           0,
           scroller.scrollWidth - scroller.clientWidth,
         );
-        const edgeRects = [0, 1_000_000, -1_000_000].map(
-          (position) => {
-            scroller.scrollLeft = position;
-            const tableRect = table.getBoundingClientRect();
-            const cells = Array.from(
-              table.querySelectorAll<HTMLElement>("th, td"),
-            );
-            const edgePaintIsReachable = (side: "left" | "right") => {
-              const edgeCells = cells.filter((cell) => {
-                const cellRect = cell.getBoundingClientRect();
-                return side === "left"
-                  ? Math.abs(cellRect.left - tableRect.left) <= 4
-                  : Math.abs(cellRect.right - tableRect.right) <= 4;
-              });
-              const paint = edgeCells.flatMap((cell) => {
-                const walker = document.createTreeWalker(
-                  cell,
-                  NodeFilter.SHOW_TEXT,
-                );
-                const rects: DOMRect[] = [];
-                let textNode = walker.nextNode();
-                while (textNode) {
-                  const parent = textNode.parentElement;
-                  const text = textNode.textContent?.replace(/\s+/g, "") ?? "";
-                  if (text && parent && !parent.closest(".katex-mathml")) {
-                    const range = document.createRange();
-                    range.selectNodeContents(textNode);
-                    rects.push(
-                      ...Array.from(range.getClientRects()).filter(
-                        ({ width, height }) => width > 0 && height > 0,
-                      ),
-                    );
-                  }
-                  textNode = walker.nextNode();
-                }
-                return rects;
-              });
-              return (
-                edgeCells.length > 0 &&
-                paint.length > 0 &&
-                paint.every(
-                  ({ left, right }) =>
-                    left >= visibleLeft - 2 && right <= visibleRight + 2,
-                )
+        const edgeRects = [0, 1_000_000, -1_000_000].map((position) => {
+          scroller.scrollLeft = position;
+          const tableRect = table.getBoundingClientRect();
+          const cells = Array.from(
+            table.querySelectorAll<HTMLElement>("th, td"),
+          );
+          const edgePaintIsReachable = (side: "left" | "right") => {
+            const edgeCells = cells.filter((cell) => {
+              const cellRect = cell.getBoundingClientRect();
+              return side === "left"
+                ? Math.abs(cellRect.left - tableRect.left) <= 4
+                : Math.abs(cellRect.right - tableRect.right) <= 4;
+            });
+            const paint = edgeCells.flatMap((cell) => {
+              const walker = document.createTreeWalker(
+                cell,
+                NodeFilter.SHOW_TEXT,
               );
-            };
-            return {
-              actualScrollLeft: scroller.scrollLeft,
-              left: tableRect.left,
-              leftPaintReachable: edgePaintIsReachable("left"),
-              right: tableRect.right,
-              rightPaintReachable: edgePaintIsReachable("right"),
-            };
-          },
-        );
+              const rects: DOMRect[] = [];
+              let textNode = walker.nextNode();
+              while (textNode) {
+                const parent = textNode.parentElement;
+                const text = textNode.textContent?.replace(/\s+/g, "") ?? "";
+                if (text && parent && !parent.closest(".katex-mathml")) {
+                  const range = document.createRange();
+                  range.selectNodeContents(textNode);
+                  rects.push(
+                    ...Array.from(range.getClientRects()).filter(
+                      ({ width, height }) => width > 0 && height > 0,
+                    ),
+                  );
+                }
+                textNode = walker.nextNode();
+              }
+              return rects;
+            });
+            return (
+              edgeCells.length > 0 &&
+              paint.length > 0 &&
+              paint.every(
+                ({ left, right }) =>
+                  left >= visibleLeft - 2 && right <= visibleRight + 2,
+              )
+            );
+          };
+          return {
+            actualScrollLeft: scroller.scrollLeft,
+            left: tableRect.left,
+            leftPaintReachable: edgePaintIsReachable("left"),
+            right: tableRect.right,
+            rightPaintReachable: edgePaintIsReachable("right"),
+          };
+        });
         scroller.scrollLeft = originalScrollLeft;
         if (
           !edgeRects.some(
@@ -863,7 +923,9 @@ async function expectDiagramContainment(page: Page, settle = true) {
           )
         ) {
           problems.push(
-            "scroller " + index + " left edge is unreachable " +
+            "scroller " +
+              index +
+              " left edge is unreachable " +
               JSON.stringify({
                 clientWidth: scroller.clientWidth,
                 direction: style.direction,
@@ -882,7 +944,9 @@ async function expectDiagramContainment(page: Page, settle = true) {
           )
         ) {
           problems.push(
-            "scroller " + index + " right edge is unreachable " +
+            "scroller " +
+              index +
+              " right edge is unreachable " +
               JSON.stringify({
                 clientWidth: scroller.clientWidth,
                 direction: style.direction,
@@ -915,7 +979,9 @@ async function expectDiagramContainment(page: Page, settle = true) {
         root.scrollTop = originalScrollTop;
       }
       if (!rootEndReachable) {
-        problems.push("fullscreen root cannot reach its final content at scroll end");
+        problems.push(
+          "fullscreen root cannot reach its final content at scroll end",
+        );
       }
     }
     return {
@@ -979,12 +1045,14 @@ async function expectOnePaintRangeForExactValue(
 async function captureAuthoredDiagram(
   diagram: Locator,
 ): Promise<JSHandle<HTMLElement[]>> {
-  return diagram.evaluateHandle((node) => [
-    node as HTMLElement,
-    ...Array.from(node.querySelectorAll<HTMLElement>("*")),
-  ].filter(
-    (element) => !element.closest("[data-diagram-full-view-controls]"),
-  ));
+  return diagram.evaluateHandle((node) =>
+    [
+      node as HTMLElement,
+      ...Array.from(node.querySelectorAll<HTMLElement>("*")),
+    ].filter(
+      (element) => !element.closest("[data-diagram-full-view-controls]"),
+    ),
+  );
 }
 
 async function expectSameAuthoredDiagram(
@@ -1001,7 +1069,8 @@ async function expectSameAuthoredDiagram(
     return {
       connected: before.every((element) => element.isConnected),
       count: current.length,
-      sameIdentity: before.length === current.length &&
+      sameIdentity:
+        before.length === current.length &&
         before.every((element, index) => element === current[index]),
     };
   }, authored);
@@ -1069,9 +1138,7 @@ async function readDiagramPresentation(diagram: Locator) {
       if (
         text &&
         parent &&
-        !parent.closest(
-          ".katex-mathml, [data-diagram-full-view-controls]",
-        )
+        !parent.closest(".katex-mathml, [data-diagram-full-view-controls]")
       ) {
         const range = document.createRange();
         range.selectNodeContents(textNode);
@@ -1131,9 +1198,7 @@ async function readDiagramPresentation(diagram: Locator) {
         ? [{ index, scale, transform: style.transform, zoom }]
         : [];
     });
-    const comparison = root.querySelector<HTMLElement>(
-      "[data-diagram-scroll]",
-    );
+    const comparison = root.querySelector<HTMLElement>("[data-diagram-scroll]");
     const comparisonSection = comparison?.closest<HTMLElement>("section");
     const comparisonRect = comparison?.getBoundingClientRect();
     const comparisonSectionRect = comparisonSection?.getBoundingClientRect();
@@ -1145,8 +1210,7 @@ async function readDiagramPresentation(diagram: Locator) {
     const flag = Array.from(
       root.querySelectorAll<HTMLElement>("code bdi"),
     ).find(
-      (element) =>
-        element.textContent === "provenance_assertions_match=true",
+      (element) => element.textContent === "provenance_assertions_match=true",
     );
     const technicalValues = Array.from(
       root.querySelectorAll<HTMLElement>("code bdi"),
@@ -1171,15 +1235,15 @@ async function readDiagramPresentation(diagram: Locator) {
         blockDebt: zeroClientInlineMetric
           ? 0
           : hasMaterialClientBox
-          ? Math.max(0, element.scrollHeight - element.clientHeight)
-          : 0,
+            ? Math.max(0, element.scrollHeight - element.clientHeight)
+            : 0,
         fragments: paint.length,
         index,
         inlineDebt: zeroClientInlineMetric
           ? 0
           : hasMaterialClientBox
-          ? Math.max(0, element.scrollWidth - element.clientWidth)
-          : 0,
+            ? Math.max(0, element.scrollWidth - element.clientWidth)
+            : 0,
         text: element.textContent?.replace(/\s+/g, " ").trim() ?? "",
         validClientMetrics: hasMaterialClientBox || zeroClientInlineMetric,
       };
@@ -1190,21 +1254,23 @@ async function readDiagramPresentation(diagram: Locator) {
       const rendered = element.querySelector<HTMLElement>(".katex-html");
       const range = document.createRange();
       if (rendered) range.selectNodeContents(rendered);
-      const owner = element.closest<HTMLElement>(
-        "[data-diagram-box], th, td",
-      );
+      const owner = element.closest<HTMLElement>("[data-diagram-box], th, td");
       const ownerRect = owner?.getBoundingClientRect();
       const ownerStyle = owner ? getComputedStyle(owner) : null;
-      const innerRect = ownerRect && ownerStyle
-        ? {
-            bottom:
-              ownerRect.bottom - Number.parseFloat(ownerStyle.borderBottomWidth),
-            left: ownerRect.left + Number.parseFloat(ownerStyle.borderLeftWidth),
-            right:
-              ownerRect.right - Number.parseFloat(ownerStyle.borderRightWidth),
-            top: ownerRect.top + Number.parseFloat(ownerStyle.borderTopWidth),
-          }
-        : null;
+      const innerRect =
+        ownerRect && ownerStyle
+          ? {
+              bottom:
+                ownerRect.bottom -
+                Number.parseFloat(ownerStyle.borderBottomWidth),
+              left:
+                ownerRect.left + Number.parseFloat(ownerStyle.borderLeftWidth),
+              right:
+                ownerRect.right -
+                Number.parseFloat(ownerStyle.borderRightWidth),
+              top: ownerRect.top + Number.parseFloat(ownerStyle.borderTopWidth),
+            }
+          : null;
       const paint = rendered
         ? Array.from(range.getClientRects()).filter(
             ({ width, height }) => width > 0 && height > 0,
@@ -1225,22 +1291,24 @@ async function readDiagramPresentation(diagram: Locator) {
         blockDebt: zeroClientInlineMetric
           ? 0
           : hasMaterialClientBox
-          ? Math.max(0, element.scrollHeight - element.clientHeight)
-          : 0,
+            ? Math.max(0, element.scrollHeight - element.clientHeight)
+            : 0,
         fontSize: Number.parseFloat(elementStyle.fontSize),
         index,
         inlineDebt: zeroClientInlineMetric
           ? 0
           : hasMaterialClientBox
-          ? Math.max(0, element.scrollWidth - element.clientWidth)
-          : 0,
-        paintContained: innerRect !== null && paint.every(
-          (paintRect) =>
-            paintRect.left >= innerRect.left - 2 &&
-            paintRect.right <= innerRect.right + 2 &&
-            paintRect.top >= innerRect.top - 2 &&
-            paintRect.bottom <= innerRect.bottom + 2,
-        ),
+            ? Math.max(0, element.scrollWidth - element.clientWidth)
+            : 0,
+        paintContained:
+          innerRect !== null &&
+          paint.every(
+            (paintRect) =>
+              paintRect.left >= innerRect.left - 2 &&
+              paintRect.right <= innerRect.right + 2 &&
+              paintRect.top >= innerRect.top - 2 &&
+              paintRect.bottom <= innerRect.bottom + 2,
+          ),
         positivePaint: paint.length,
         renderedFontSize: rendered
           ? Number.parseFloat(getComputedStyle(rendered).fontSize)
@@ -1251,11 +1319,7 @@ async function readDiagramPresentation(diagram: Locator) {
     const descendantBlockOwners = Array.from(
       root.querySelectorAll<HTMLElement>("*"),
     ).flatMap((element, index) => {
-      if (
-        element.closest(
-          ".katex-mathml, [data-diagram-full-view-controls]",
-        )
-      ) {
+      if (element.closest(".katex-mathml, [data-diagram-full-view-controls]")) {
         return [];
       }
       if (
@@ -1266,8 +1330,7 @@ async function readDiagramPresentation(diagram: Locator) {
       }
       const debt = Math.max(0, element.scrollHeight - element.clientHeight);
       const overflowY = getComputedStyle(element).overflowY;
-      return overflowY === "scroll" ||
-        (debt > 2 && overflowY === "auto")
+      return overflowY === "scroll" || (debt > 2 && overflowY === "auto")
         ? [
             {
               debt,
@@ -1302,14 +1365,14 @@ async function readDiagramPresentation(diagram: Locator) {
               ),
             }
           : { end: Number.POSITIVE_INFINITY, start: Number.POSITIVE_INFINITY },
-      comparisonRootWidthGap:
-        comparisonSectionRect
-          ? Math.abs(
-              comparisonSectionRect.width -
-                (root.clientWidth - Number.parseFloat(rootStyle.paddingLeft) -
-                  Number.parseFloat(rootStyle.paddingRight)),
-            )
-          : Number.POSITIVE_INFINITY,
+      comparisonRootWidthGap: comparisonSectionRect
+        ? Math.abs(
+            comparisonSectionRect.width -
+              (root.clientWidth -
+                Number.parseFloat(rootStyle.paddingLeft) -
+                Number.parseFloat(rootStyle.paddingRight)),
+          )
+        : Number.POSITIVE_INFINITY,
       descendantBlockOwners,
       flagFontSize: flag
         ? Number.parseFloat(getComputedStyle(flag).fontSize)
@@ -1321,13 +1384,13 @@ async function readDiagramPresentation(diagram: Locator) {
       rootOverflowY: getComputedStyle(root).overflowY,
       scaledElements,
       tableFontSize: comparison
-        ? Number.parseFloat(
-            getComputedStyle(table ?? comparison).fontSize,
-          )
+        ? Number.parseFloat(getComputedStyle(table ?? comparison).fontSize)
         : 0,
       tableInlineFillGap:
         comparison && table
-          ? Math.abs(table.getBoundingClientRect().width - comparison.clientWidth)
+          ? Math.abs(
+              table.getBoundingClientRect().width - comparison.clientWidth,
+            )
           : Number.POSITIVE_INFINITY,
       technicalValues,
       textFragments,
@@ -1359,7 +1422,9 @@ function expectReadableFullView(
   expect(full.scaledElements).toEqual([]);
   expect(full.rootFontSize + 0.01).toBeGreaterThanOrEqual(inline.rootFontSize);
   expect(full.flagFontSize + 0.01).toBeGreaterThanOrEqual(inline.flagFontSize);
-  expect(full.tableFontSize + 0.01).toBeGreaterThanOrEqual(inline.tableFontSize);
+  expect(full.tableFontSize + 0.01).toBeGreaterThanOrEqual(
+    inline.tableFontSize,
+  );
   expect(full.rootFontSize).toBeGreaterThanOrEqual(14);
   expect(full.flagFontSize).toBeGreaterThanOrEqual(12);
   expect(full.tableFontSize).toBeGreaterThanOrEqual(14);
@@ -1399,9 +1464,7 @@ function expectReadableFullView(
     expect(
       formula.renderedFontSize + 0.01,
       `inline formula ${formula.index} rendered font size`,
-    ).toBeGreaterThanOrEqual(
-      inline.inlineMath[formula.index].renderedFontSize,
-    );
+    ).toBeGreaterThanOrEqual(inline.inlineMath[formula.index].renderedFontSize);
     expect(formula.fontSize).toBeGreaterThanOrEqual(12);
     expect(formula.renderedFontSize).toBeGreaterThanOrEqual(12);
     expect(
@@ -1463,7 +1526,9 @@ async function expectLogicalSourceFlow(
       const direction = getComputedStyle(owner).direction;
       const problems: string[] = [];
       if (items.length !== count) {
-        problems.push(`expected ${count} direct items, received ${items.length}`);
+        problems.push(
+          `expected ${count} direct items, received ${items.length}`,
+        );
       }
       if (getComputedStyle(owner).gridAutoFlow.includes("dense")) {
         problems.push("dense grid placement can reorder source evidence");
@@ -1586,9 +1651,9 @@ async function expectScoreTableAllocation(region: Locator) {
   expect(geometry.sectionRootWidthGap).toBeLessThanOrEqual(2);
   expect(geometry.tableWidth + 2).toBeGreaterThanOrEqual(42 * geometry.rootRem);
   if (geometry.inlineDebt <= 2) {
-    expect(Math.abs(geometry.tableWidth - geometry.clientWidth)).toBeLessThanOrEqual(
-      2,
-    );
+    expect(
+      Math.abs(geometry.tableWidth - geometry.clientWidth),
+    ).toBeLessThanOrEqual(2);
   }
   if (!geometry.fullscreen && geometry.viewportWidth <= 400) {
     expect(geometry.inlineDebt).toBeGreaterThan(2);
@@ -1624,9 +1689,7 @@ async function expectDiagramSemantics(
     await expect(diagram.locator(`#${id}`)).toHaveText(text);
   }
   await expect(
-    diagram.locator(
-      ":scope > :not([data-diagram-full-view-controls])",
-    ),
+    diagram.locator(":scope > :not([data-diagram-full-view-controls])"),
   ).toHaveCount(4);
   await expect(diagram.locator(":scope > figcaption")).toHaveCount(1);
 
@@ -1711,14 +1774,12 @@ async function expectDiagramSemantics(
   const selectedRow = table.locator(
     'tbody tr[data-score-model="selected-decoder"]',
   );
-  const bigramRow = table.locator(
-    'tbody tr[data-score-model="frozen-bigram"]',
-  );
+  const bigramRow = table.locator('tbody tr[data-score-model="frozen-bigram"]');
   await expect(selectedRow).toHaveAttribute("data-lower-loss", "true");
   await expect(bigramRow).toHaveAttribute("data-lower-loss", "false");
-  await expect(selectedRow.locator('td[data-fit-partition="train"]')).toHaveCount(
-    1,
-  );
+  await expect(
+    selectedRow.locator('td[data-fit-partition="train"]'),
+  ).toHaveCount(1);
   await expect(
     selectedRow.locator('td[data-selected-by="validation"]'),
   ).toHaveCount(1);
@@ -1748,15 +1809,8 @@ async function expectDiagramSemantics(
       "tokenizer=literal-u32-v1",
       "provenance_assertions_match=true",
     ],
-    [
-      "selection_test_partition",
-      "selection_test_partition_rejected=true",
-    ],
-    [
-      "graph_nodes=0",
-      "parameters_unchanged=true",
-      "gradients_unchanged=true",
-    ],
+    ["selection_test_partition", "selection_test_partition_rejected=true"],
+    ["graph_nodes=0", "parameters_unchanged=true", "gradients_unchanged=true"],
     [
       "fnv1a64:dac4bb4d76beeb59",
       "gate_openings_before=0",
@@ -1775,9 +1829,7 @@ async function expectDiagramSemantics(
   ] as const;
   for (const [index, annotations] of proofAnnotations.entries()) {
     await expect(
-      proofCards
-        .nth(index)
-        .locator('annotation[encoding="application/x-tex"]'),
+      proofCards.nth(index).locator('annotation[encoding="application/x-tex"]'),
     ).toHaveText(annotations);
   }
   const assertionCard = proofCards.nth(0);
@@ -1797,9 +1849,7 @@ async function expectDiagramSemantics(
   const checkedViewCard = proofCards.nth(3);
   await expect(checkedViewCard).toContainText("fnv1a64:dac4bb4d76beeb59");
   await expect(
-    checkedViewCard.locator(
-      'annotation[encoding="application/x-tex"]',
-    ),
+    checkedViewCard.locator('annotation[encoding="application/x-tex"]'),
   ).toHaveText("V=5,\\;T=2,\\;N_{te}=24");
   await expect(checkedViewCard).not.toContainText(
     "provenance_assertions_match=true",
@@ -1818,7 +1868,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 34,
-    revision: 5,
+    revision: 6,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -1863,10 +1913,9 @@ async function expectChapterContent(
   );
   await expect(page.locator(".lesson-body .katex-error")).toHaveCount(0);
 
-  const lessonText = (await page.locator(".lesson-body").innerText()).replace(
-    /\s+/g,
-    " ",
-  );
+  const lessonText = (await page.locator(".lesson-body").innerText())
+    .replace(/[’‘]/g, "'")
+    .replace(/\s+/g, " ");
   for (const fragment of localized.historyFragments) {
     expect(lessonText).toContain(fragment);
   }
@@ -1876,18 +1925,34 @@ async function expectChapterContent(
   for (const fragment of localized.trustBoundaryFragments) {
     expect(lessonText).toContain(fragment);
   }
-  expect(lessonText).toContain(
+  for (const fragment of localized.evidenceBoundaryFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  expect(lessonText).not.toMatch(
     locale === "en"
-      ? "does not claim that decoders always beat bigrams"
-      : "из этого результата нельзя заключать, что декодеры всегда превосходят биграммные модели",
+      ? /course(?:'s)? first and only final test|previously unscored test|proves? (?:independent )?generalization|shows? (?:that )?decoder architectures? (?:always|universally) (?:beat|outperform)/i
+      : /первая и единственная итоговая оценка|ранее не оценивавш|доказывает независимую оценку обобщающей способности|подтверждает универсальное превосходство архитектуры/i,
   );
+  expect(lessonText.match(/\bdecoder_beats_bigram\b/g)).toHaveLength(1);
+  expect(lessonText).not.toMatch(/\bdecoder_wins\b/);
+  if (locale === "ru") {
+    expect(lessonText).not.toMatch(/фикстур/i);
+  }
   await expect(
     page.locator('.lesson-body a[href^="https://www.jmlr.org/"]'),
   ).toHaveCount(2);
   await expect(
     page.locator('.lesson-body a[href^="https://proceedings.neurips.cc/"]'),
   ).toHaveCount(1);
+  await expect(
+    page.locator('.lesson-body a[href="https://arxiv.org/abs/1506.02629"]'),
+  ).toHaveCount(1);
   await expect(page.locator("figure.rust-source")).toHaveCount(7);
+  await expect(
+    page
+      .locator("figure.rust-source figcaption span")
+      .filter({ hasText: localized.boundaryRustCaption }),
+  ).toHaveCount(1);
   await expectVisualizationDecision(page, {
     decision: "useful",
     id: "final-evaluation-boundary",
@@ -1899,12 +1964,16 @@ async function expectChapterContent(
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram.locator("[data-diagram-box]")).toHaveCount(15);
   await expectDiagramSemantics(page, diagram, locale);
-  await expect(diagram.locator('[data-score-model="selected-decoder"] annotation')).toHaveText([
+  await expect(
+    diagram.locator('[data-score-model="selected-decoder"] annotation'),
+  ).toHaveText([
     "N_{te}=24",
     "\\sum_n(-\\log p_n)=38.584306",
     "\\mathcal{L}_{te}=1.607679",
   ]);
-  await expect(diagram.locator('[data-score-model="frozen-bigram"] annotation')).toHaveText([
+  await expect(
+    diagram.locator('[data-score-model="frozen-bigram"] annotation'),
+  ).toHaveText([
     "N_{te}=24",
     "\\sum_n(-\\log p_n)=53.681634",
     "\\mathcal{L}_{te}=2.236735",
@@ -1914,9 +1983,9 @@ async function expectChapterContent(
   await expect(diagram).toContainText("gate_openings_before=0");
   await expect(diagram).toContainText("gate_openings_after=1");
   await expect(diagram).toContainText("graph_nodes=0");
-  await expect(diagram.locator("svg, canvas, path, polyline, line")).toHaveCount(
-    0,
-  );
+  await expect(
+    diagram.locator("svg, canvas, path, polyline, line"),
+  ).toHaveCount(0);
   await expectDiagramContainment(page);
 
   const details = page.locator(".lesson-body details");
@@ -1962,7 +2031,10 @@ test.describe(
         ).toHaveAttribute("href", chapterPath(other, chapterId));
         await expect(
           page.locator(`link[rel="alternate"][hreflang="${other}"]`),
-        ).toHaveAttribute("href", new RegExp(`/${other}/course/${chapterId}/$`));
+        ).toHaveAttribute(
+          "href",
+          new RegExp(`/${other}/course/${chapterId}/$`),
+        );
       }
     });
 
@@ -2005,8 +2077,9 @@ test.describe(
         await toggle.click();
         await page.waitForFunction(
           () =>
-            document.fullscreenElement?.getAttribute("data-visualization-id") ===
-            "final-evaluation-boundary",
+            document.fullscreenElement?.getAttribute(
+              "data-visualization-id",
+            ) === "final-evaluation-boundary",
         );
         await expect(diagram.locator("[data-stage]")).toHaveCount(5);
         await expect(diagram.locator("tbody tr")).toHaveCount(2);
@@ -2068,7 +2141,9 @@ test.describe(
           await expectDiagramSemantics(page, diagram, locale);
           await expectDiagramContainment(page);
           await expectSameAuthoredDiagram(diagram, authored);
-          expect(await readControllerStrippedMarkup(diagram)).toBe(inlineMarkup);
+          expect(await readControllerStrippedMarkup(diagram)).toBe(
+            inlineMarkup,
+          );
           const fullPresentation = await readDiagramPresentation(diagram);
           expectReadableFullView(inlinePresentation, fullPresentation);
           expect(fullPresentation.rootBlockDebt).toBeGreaterThan(2);
@@ -2081,7 +2156,9 @@ test.describe(
           await expect(toggle).toBeFocused();
           await expect(toggle).toHaveAttribute("aria-expanded", "false");
           await expectSameAuthoredDiagram(diagram, authored);
-          expect(await readControllerStrippedMarkup(diagram)).toBe(inlineMarkup);
+          expect(await readControllerStrippedMarkup(diagram)).toBe(
+            inlineMarkup,
+          );
           await authored.dispose();
         }
       } finally {
@@ -2113,7 +2190,9 @@ test.describe(
           "double",
         );
         await expect(
-          diagram.locator('[data-score-model="selected-decoder"] > :first-child'),
+          diagram.locator(
+            '[data-score-model="selected-decoder"] > :first-child',
+          ),
         ).toHaveCSS("border-left-style", "double");
         const forcedEvidence = await diagram
           .locator(".state-symbol")
@@ -2191,12 +2270,17 @@ test.describe(
           'figure[data-visualization-id="final-evaluation-boundary"]',
         );
         await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
-        await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
+        await expect(diagram.locator("h4").first()).toHaveCSS(
+          "direction",
+          "rtl",
+        );
         await expectDiagramSemantics(page, diagram, locale);
         expect(
           await diagram
             .locator("[data-stage]")
-            .evaluateAll((stages) => stages.map((stage) => stage.getAttribute("data-stage"))),
+            .evaluateAll((stages) =>
+              stages.map((stage) => stage.getAttribute("data-stage")),
+            ),
         ).toEqual(["train", "validation", "frozen", "test", "report"]);
         expect(
           await diagram
@@ -2209,7 +2293,10 @@ test.describe(
           '[data-score-model="selected-decoder"] > th[scope="row"]',
         );
         await expect(selectedHeader).toHaveCSS("border-right-style", "double");
-        await expect(selectedHeader).not.toHaveCSS("border-left-style", "double");
+        await expect(selectedHeader).not.toHaveCSS(
+          "border-left-style",
+          "double",
+        );
         await expectDiagramContainment(page);
         await expectNoOverflowOrClientScripts(page);
       }
@@ -2236,25 +2323,23 @@ test.describe(
         await expect(diagram).toHaveCount(1);
         await expect(diagram.locator("[data-diagram-box]")).toHaveCount(15);
         await expectDiagramSemantics(page, diagram, locale);
-        await expect(diagram.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-          0,
-        );
-        await expect(diagram).toContainText(
-          "fnv1a64:dac4bb4d76beeb59",
-        );
+        await expect(
+          diagram.locator("[data-diagram-full-view-toggle]"),
+        ).toHaveCount(0);
+        await expect(diagram).toContainText("fnv1a64:dac4bb4d76beeb59");
         await expectOnePaintRangeForExactValue(
           diagram,
           "provenance_assertions_match=true",
         );
-        const noScriptMainFormula = page.locator(
-          '.lesson-body .katex-display annotation[encoding="application/x-tex"]',
-        ).filter({ hasText: mainFormulaLatex });
+        const noScriptMainFormula = page
+          .locator(
+            '.lesson-body .katex-display annotation[encoding="application/x-tex"]',
+          )
+          .filter({ hasText: mainFormulaLatex });
         await expect(noScriptMainFormula).toHaveCount(1);
         expect(
           normalizeMath((await noScriptMainFormula.textContent()) ?? ""),
-        ).toBe(
-          normalizeMath(mainFormulaLatex),
-        );
+        ).toBe(normalizeMath(mainFormulaLatex));
         await expectDiagramContainment(page, false);
         await expectNoOverflowOrClientScripts(page);
       }

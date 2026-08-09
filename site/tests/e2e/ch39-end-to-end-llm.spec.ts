@@ -20,10 +20,10 @@ const copy = {
     revisionLabel: "Content revision",
     title: "Run the whole tiny LLM",
     description:
-      "Trace a tiny decoder-only language model in Rust from frozen bilingual splits and training-only BPE through validation-selected training, selection-isolated final evaluation, exact checkpoint reload, and KV-cached generation.",
-    diagramTitle: "Keep evidence one-way from text to generated text",
+      "Trace a tiny decoder-only language model in Rust through validation-selected training, locally isolated fixed-fixture evaluation, exact checkpoint reload, and KV-cached generation while keeping regression evidence distinct from generalization.",
+    diagramTitle: "Keep execution one-way and label fixture evidence",
     diagramDescription:
-      "Follow frozen Rust evidence through training-only BPE, selection, test, exact reload, and cached generation.",
+      "Follow frozen Rust evidence through training-only BPE, selection, a locally isolated evaluation of a fixed regression fixture, exact reload, and cached generation.",
     headings: [
       "Predict the boundary before predicting the output",
       "One product connects every next-token decision",
@@ -39,10 +39,10 @@ const copy = {
     scaleBoundary:
       "none of its scale or capability results transfers to this tiny teaching run",
     qualityBoundary:
-      "It does not establish a universal architecture ranking or useful generation quality",
+      "does not establish a universal architecture ranking or useful generation quality",
     detailsFragment: "The literal generated IDs are [260,34,34]",
     selectedCue: "validation-selected state",
-    testCue: "|| local one-use test gate",
+    testCue: "|| one local access in this execution",
     checkpointCue:
       "= bytes, model, optimizer, and tokenizer round-trip exactly; probe logits match",
     generationCue: "= cached and complete-prefix decisions match",
@@ -60,6 +60,17 @@ const copy = {
       "Both generation paths temporarily read that vector through immutable references",
       "GenerationEvidence takes ownership of the same vector",
     ],
+    evidenceBoundaryFragments: [
+      "That ordering is retained across later executions, so it is useful regression evidence. It is not an untouched independent estimate of generalization or evidence of architecture-wide decoder superiority.",
+      "The permanently checked gap is fixed-fixture regression evidence, not causal attribution to context or attention and not an independent generalization estimate.",
+      "this general warning does not establish any fact about the capstone fixture, its score, or its local access count",
+      "decoder_lower_on_fixture:true",
+      "scope:fixed-fixture-regression",
+      "within_run_selection_isolated:true",
+      "independent_generalization_estimate:false",
+      "architecture_superiority_evidence:false",
+      "evidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false",
+    ],
     fullViewOpenLabel: "View diagram full screen",
     fullViewCloseLabel: "Exit full screen",
   },
@@ -67,10 +78,11 @@ const copy = {
     revisionLabel: "Версия материала",
     title: "Запустите небольшую LLM целиком",
     description:
-      "Проследите полный цикл небольшой декодерной языковой модели на Rust: от зафиксированного разбиения двуязычного корпуса и обучения BPE только по обучающей выборке до выбора состояния по валидации, последующей итоговой оценки выбранного состояния, точного восстановления из контрольной точки и генерации с KV-кэшем.",
-    diagramTitle: "Поздние результаты не меняют ранние этапы",
+      "Проследите полный цикл небольшой декодерной языковой модели на Rust: обучение с выбором состояния по валидации, локально изолированную оценку фиксированного примера, точное восстановление из контрольной точки и генерацию с KV-кэшем; при этом не смешивайте регрессионную проверку с независимой оценкой способности модели обобщать.",
+    diagramTitle:
+      "Сохраните односторонний порядок запуска и обозначьте статус результата",
     diagramDescription:
-      "Этапы на Rust: обучение BPE только по обучающим данным, выбор состояния, итоговая оценка, точное восстановление и генерация с кэшем.",
+      "Проследите зафиксированные результаты программы на Rust: обучение BPE только по обучающим данным, выбор состояния, локально изолированная оценка фиксированного примера для регрессионной проверки, точное восстановление и генерация с кэшем.",
     headings: [
       "Сначала предскажите границы доступа, затем результат",
       "Одно произведение связывает все решения о следующем токене",
@@ -88,7 +100,7 @@ const copy = {
     qualityBoundary: "не подтверждает полезное качество генерации",
     detailsFragment: "Точные сгенерированные ID: [260,34,34]",
     selectedCue: "состояние выбрано по валидации",
-    testCue: "|| одна итоговая оценка за запуск",
+    testCue: "|| один локальный доступ в этом запуске",
     checkpointCue:
       "= байты и состояния модели, оптимизатора и токенизатора совпадают; логиты пробы — тоже",
     generationCue: "= решения с KV-кэшем и полным префиксом совпадают",
@@ -107,34 +119,131 @@ const copy = {
       "GenerationEvidence получает его во владение",
       "Перемещение Vec передаёт уже существующий буфер вместо создания копии ID токенов промпта для отчёта",
     ],
+    evidenceBoundaryFragments: [
+      "Этот порядок сохраняется в последующих запусках, поэтому результат полезен для регрессионной проверки. Он не является независимой оценкой способности модели обобщать на ранее не использованных данных и не доказывает общего превосходства архитектуры декодера.",
+      "Постоянно проверяемая разница служит результатом фиксированного примера для регрессионной проверки, а не доказательством причинного влияния контекста или внимания и не независимой оценкой способности модели обобщать.",
+      "этот общий вывод не устанавливает фактов об учебном примере, его результате или локальном счётчике доступа",
+      "decoder_lower_on_fixture:true",
+      "scope:fixed-fixture-regression",
+      "within_run_selection_isolated:true",
+      "independent_generalization_estimate:false",
+      "architecture_superiority_evidence:false",
+      "evidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false",
+      "Прежнее имя decoder_wins не является актуальным свидетельством",
+    ],
     fullViewOpenLabel: "Развернуть схему на весь экран",
     fullViewCloseLabel: "Выйти из полноэкранного режима",
   },
 } as const;
 const evidenceCopy = {
   en: [
-    { id: "encoded-token-counts", label: "Encoded token counts — train / validation / test", value: "[1852,471,444]" },
-    { id: "window-counts", label: "Causal-window counts — train / validation / test", value: "[1820,463,436]" },
-    { id: "evaluation-batch-counts", label: "Evaluation mini-batch counts — train / validation / test", value: "[15,4,4]" },
+    {
+      id: "encoded-token-counts",
+      label: "Encoded token counts — train / validation / test",
+      value: "[1852,471,444]",
+    },
+    {
+      id: "window-counts",
+      label: "Causal-window counts — train / validation / test",
+      value: "[1820,463,436]",
+    },
+    {
+      id: "evaluation-batch-counts",
+      label: "Evaluation mini-batch counts — train / validation / test",
+      value: "[15,4,4]",
+    },
     { id: "reload-probe-text", label: "Reload probe text", value: "At" },
-    { id: "reload-probe-token-ids", label: "Token IDs encoding the reload probe At", value: "[67,118]" },
-    { id: "retained-prefix-lengths", label: "Retained prefix lengths in tokens before successive token choices", value: "[1,2,3]" },
-    { id: "cache-prefill-prompt-tokens", label: "Prompt tokens processed during cache prefill", value: "1" },
-    { id: "one-token-decode-input-tokens", label: "Earlier generated tokens processed one at a time by decode calls to obtain later logits", value: "2" },
-    { id: "cached-attention-score-cells", label: "Cached attention-score cells", value: "1+2+3=6", formula: true },
-    { id: "complete-prefix-attention-score-cells", label: "Calculated complete-prefix attention-score cells", value: "1^2+2^2+3^2=14", formula: true },
+    {
+      id: "reload-probe-token-ids",
+      label: "Token IDs encoding the reload probe At",
+      value: "[67,118]",
+    },
+    {
+      id: "retained-prefix-lengths",
+      label:
+        "Retained prefix lengths in tokens before successive token choices",
+      value: "[1,2,3]",
+    },
+    {
+      id: "cache-prefill-prompt-tokens",
+      label: "Prompt tokens processed during cache prefill",
+      value: "1",
+    },
+    {
+      id: "one-token-decode-input-tokens",
+      label:
+        "Earlier generated tokens processed one at a time by decode calls to obtain later logits",
+      value: "2",
+    },
+    {
+      id: "cached-attention-score-cells",
+      label: "Cached attention-score cells",
+      value: "1+2+3=6",
+      formula: true,
+    },
+    {
+      id: "complete-prefix-attention-score-cells",
+      label: "Calculated complete-prefix attention-score cells",
+      value: "1^2+2^2+3^2=14",
+      formula: true,
+    },
   ],
   ru: [
-    { id: "encoded-token-counts", label: "Число токенов после кодирования — обучение / валидация / тест", value: "[1852,471,444]" },
-    { id: "window-counts", label: "Число каузальных окон — обучение / валидация / тест", value: "[1820,463,436]" },
-    { id: "evaluation-batch-counts", label: "Число мини-пакетов оценки — обучение / валидация / тест", value: "[15,4,4]" },
-    { id: "reload-probe-text", label: "Текст пробы для проверки логитов после восстановления", value: "At" },
-    { id: "reload-probe-token-ids", label: "ID токенов, которыми закодирована проба At", value: "[67,118]" },
-    { id: "retained-prefix-lengths", label: "Длины сохранённых префиксов перед каждым выбором токена (в токенах)", value: "[1,2,3]" },
-    { id: "cache-prefill-prompt-tokens", label: "Число токенов промпта, обработанных при заполнении KV-кэша", value: "1" },
-    { id: "one-token-decode-input-tokens", label: "Число ранее сгенерированных токенов, которые по одному подаются декодеру для вычисления следующих логитов", value: "2" },
-    { id: "cached-attention-score-cells", label: "Число элементов матриц оценок внимания при работе с KV-кэшем", value: "1+2+3=6", formula: true },
-    { id: "complete-prefix-attention-score-cells", label: "Число элементов матриц оценок внимания при эталонном расчёте по полному префиксу", value: "1^2+2^2+3^2=14", formula: true },
+    {
+      id: "encoded-token-counts",
+      label: "Число токенов после кодирования — обучение / валидация / тест",
+      value: "[1852,471,444]",
+    },
+    {
+      id: "window-counts",
+      label: "Число каузальных окон — обучение / валидация / тест",
+      value: "[1820,463,436]",
+    },
+    {
+      id: "evaluation-batch-counts",
+      label: "Число мини-пакетов оценки — обучение / валидация / тест",
+      value: "[15,4,4]",
+    },
+    {
+      id: "reload-probe-text",
+      label: "Текст пробы для проверки логитов после восстановления",
+      value: "At",
+    },
+    {
+      id: "reload-probe-token-ids",
+      label: "ID токенов, которыми закодирована проба At",
+      value: "[67,118]",
+    },
+    {
+      id: "retained-prefix-lengths",
+      label:
+        "Длины сохранённых префиксов перед каждым выбором токена (в токенах)",
+      value: "[1,2,3]",
+    },
+    {
+      id: "cache-prefill-prompt-tokens",
+      label: "Число токенов промпта, обработанных при заполнении KV-кэша",
+      value: "1",
+    },
+    {
+      id: "one-token-decode-input-tokens",
+      label:
+        "Число ранее сгенерированных токенов, которые по одному подаются декодеру для вычисления следующих логитов",
+      value: "2",
+    },
+    {
+      id: "cached-attention-score-cells",
+      label: "Число элементов матриц оценок внимания при работе с KV-кэшем",
+      value: "1+2+3=6",
+      formula: true,
+    },
+    {
+      id: "complete-prefix-attention-score-cells",
+      label:
+        "Число элементов матриц оценок внимания при эталонном расчёте по полному префиксу",
+      value: "1^2+2^2+3^2=14",
+      formula: true,
+    },
   ],
 } as const;
 const stageOrder = [
@@ -150,10 +259,7 @@ const stageOrder = [
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 
-async function expectExplicitEvidence(
-  diagram: Locator,
-  locale: ChapterLocale,
-) {
+async function expectExplicitEvidence(diagram: Locator, locale: ChapterLocale) {
   await expect(diagram.locator("[data-evidence]")).toHaveCount(10);
   for (const expected of evidenceCopy[locale]) {
     const row = diagram.locator(`[data-evidence="${expected.id}"]`);
@@ -288,10 +394,7 @@ async function expectDiagramContainment(page: Page) {
         top: rect.top + Number.parseFloat(style.borderTopWidth),
       };
     };
-    const contains = (
-      outer: ReturnType<typeof innerRect>,
-      inner: DOMRect,
-    ) =>
+    const contains = (outer: ReturnType<typeof innerRect>, inner: DOMRect) =>
       inner.left >= outer.left - 2 &&
       inner.right <= outer.right + 2 &&
       inner.top >= outer.top - 2 &&
@@ -373,7 +476,9 @@ async function expectDiagramContainment(page: Page) {
 
     const scrollers = root.querySelectorAll("[data-diagram-scroll]");
     if (scrollers.length !== 0) {
-      problems.push("the reflowing pipeline must not create a private scroller");
+      problems.push(
+        "the reflowing pipeline must not create a private scroller",
+      );
     }
     if (
       rootRect.left < -2 ||
@@ -389,6 +494,517 @@ async function expectDiagramContainment(page: Page) {
   expect(result.scrollers).toBe(0);
 }
 
+async function readStagePresentation(diagram: Locator) {
+  return diagram.evaluate((node) => {
+    const root = node as HTMLElement;
+    const readableElements = (owner: HTMLElement) =>
+      [owner, ...Array.from(owner.querySelectorAll<HTMLElement>("*"))].filter(
+        (element) => {
+          const rect = element.getBoundingClientRect();
+          const hasDirectText = Array.from(element.childNodes).some(
+            (child) =>
+              child.nodeType === Node.TEXT_NODE &&
+              Boolean(child.textContent?.trim()),
+          );
+          return (
+            rect.width > 0 &&
+            rect.height > 0 &&
+            (hasDirectText || element.matches(".katex, .katex-html")) &&
+            !element.closest(".katex-mathml") &&
+            !element.closest("[data-diagram-full-view-controls]")
+          );
+        },
+      );
+    const minFontSize = (owner: HTMLElement) =>
+      Math.min(
+        ...readableElements(owner).map((element) =>
+          Number.parseFloat(getComputedStyle(element).fontSize),
+        ),
+      );
+    const textSamples: Array<{
+      fontSize: number;
+      lineHeight: number;
+      paint: number;
+      text: string;
+    }> = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const textNode = walker.currentNode as Text;
+      const parent = textNode.parentElement;
+      const text = textNode.data
+        .replace(/[\s\u200b-\u200d\ufeff]+/g, " ")
+        .trim();
+      if (
+        !text ||
+        !parent ||
+        parent.closest(".katex-mathml, [data-diagram-full-view-controls]")
+      ) {
+        continue;
+      }
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      const style = getComputedStyle(parent);
+      const lineHeight = Number.parseFloat(style.lineHeight);
+      textSamples.push({
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.isFinite(lineHeight) ? lineHeight : 0,
+        paint: Array.from(range.getClientRects()).filter(
+          ({ width, height }) => width > 0 && height > 0,
+        ).length,
+        text,
+      });
+    }
+    const stages = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-stage]"),
+    ).map((stage) => {
+      const rect = stage.getBoundingClientRect();
+      const allocations = Array.from(
+        new Set([
+          ...stage.querySelectorAll<HTMLElement>(
+            ":scope > .stage-facts > div, :scope > dl > div, :scope .generation-facts > [data-evidence]",
+          ),
+        ]),
+      );
+      return {
+        id: stage.dataset.stage ?? "",
+        width: rect.width,
+        minFontSize: minFontSize(stage),
+        allocations: allocations.map((allocation, index) => ({
+          key: `${stage.dataset.stage ?? ""}:${index}:${allocation.dataset.evidence ?? ""}`,
+          width: allocation.getBoundingClientRect().width,
+          minFontSize: minFontSize(allocation),
+        })),
+      };
+    });
+    return { stages, textSamples };
+  });
+}
+
+const identityProperty = "__ch39AuthoredNodeIdentity__";
+
+async function markAuthoredNodeIdentity(diagram: Locator, token: string) {
+  return diagram.evaluate(
+    (root, { property, value }) => {
+      const walker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+      );
+      const nodes: Node[] = [root];
+      while (walker.nextNode()) {
+        const candidate = walker.currentNode;
+        const element =
+          candidate.nodeType === Node.ELEMENT_NODE
+            ? (candidate as Element)
+            : candidate.parentElement;
+        if (!element?.closest("[data-diagram-full-view-controls]")) {
+          nodes.push(candidate);
+        }
+      }
+      for (const [index, candidate] of nodes.entries()) {
+        Object.defineProperty(candidate, property, {
+          configurable: true,
+          value: `${value}:${index}`,
+        });
+      }
+      return nodes.length;
+    },
+    { property: identityProperty, value: token },
+  );
+}
+
+async function expectAuthoredNodeIdentity(
+  diagram: Locator,
+  token: string,
+  expectedCount: number,
+) {
+  const result = await diagram.evaluate(
+    (root, { property, value }) => {
+      const walker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+      );
+      const nodes: Node[] = [root];
+      while (walker.nextNode()) {
+        const candidate = walker.currentNode;
+        const element =
+          candidate.nodeType === Node.ELEMENT_NODE
+            ? (candidate as Element)
+            : candidate.parentElement;
+        if (!element?.closest("[data-diagram-full-view-controls]")) {
+          nodes.push(candidate);
+        }
+      }
+      return {
+        count: nodes.length,
+        stable: nodes.every(
+          (candidate, index) =>
+            (candidate as unknown as Record<string, unknown>)[property] ===
+            `${value}:${index}`,
+        ),
+      };
+    },
+    { property: identityProperty, value: token },
+  );
+  expect(result).toEqual({ count: expectedCount, stable: true });
+}
+
+async function clearAuthoredNodeIdentity(diagram: Locator) {
+  await diagram.evaluate((root, property) => {
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+    );
+    delete (root as unknown as Record<string, unknown>)[property];
+    while (walker.nextNode()) {
+      delete (walker.currentNode as unknown as Record<string, unknown>)[
+        property
+      ];
+    }
+  }, identityProperty);
+}
+
+async function readFullViewPresentation(diagram: Locator) {
+  return diagram.evaluate((node) => {
+    const root = node as HTMLElement;
+    const tolerance = 2;
+    const problems: string[] = [];
+    const rootRect = root.getBoundingClientRect();
+    const rootStyle = getComputedStyle(root);
+    const stages = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-stage]"),
+    );
+    const describe = (element: HTMLElement) =>
+      element.dataset.stage ??
+      element.className?.toString().split(/\s+/).filter(Boolean).join(".") ??
+      element.tagName.toLowerCase();
+    const transparent = (color: string) => {
+      if (color === "transparent") return true;
+      const alpha = color.match(/rgba?\([^)]*[,/]\s*(0(?:\.0+)?%?)\s*\)$/);
+      return alpha
+        ? Number.parseFloat(alpha[1]) === 0
+        : /#[0-9a-f]{6}00$/i.test(color);
+    };
+    const concealed = (style: CSSStyleDeclaration) =>
+      style.display === "none" ||
+      style.visibility !== "visible" ||
+      Number.parseFloat(style.opacity) < 0.99 ||
+      style.filter !== "none" ||
+      style.clipPath !== "none" ||
+      Boolean(style.maskImage && style.maskImage !== "none") ||
+      Boolean(
+        style.getPropertyValue("-webkit-mask-image") &&
+        style.getPropertyValue("-webkit-mask-image") !== "none",
+      ) ||
+      [style.overflowX, style.overflowY].some((value) =>
+        ["hidden", "clip"].includes(value),
+      ) ||
+      style.textOverflow === "ellipsis" ||
+      Boolean(
+        style.getPropertyValue("line-clamp") &&
+        style.getPropertyValue("line-clamp") !== "none",
+      ) ||
+      Boolean(
+        style.getPropertyValue("-webkit-line-clamp") &&
+        style.getPropertyValue("-webkit-line-clamp") !== "none",
+      ) ||
+      style.contentVisibility === "hidden" ||
+      /(?:^|\s)(?:paint|strict|content)(?:\s|$)/.test(style.contain);
+
+    const authoredElements = [
+      root,
+      ...Array.from(root.querySelectorAll<HTMLElement>("*")),
+    ].filter(
+      (element) =>
+        !element.closest(".katex-mathml, [data-diagram-full-view-controls]"),
+    );
+    const scaledElements = authoredElements.flatMap((element, index) => {
+      const style = getComputedStyle(element);
+      const scale = style.getPropertyValue("scale");
+      const zoom = style.getPropertyValue("zoom");
+      return style.transform !== "none" ||
+        Boolean(scale && scale !== "none") ||
+        Boolean(zoom && zoom !== "normal" && Number.parseFloat(zoom) !== 1)
+        ? [{ index, scale, transform: style.transform, zoom }]
+        : [];
+    });
+    const concealedElements = authoredElements.flatMap((element, index) => {
+      const style = getComputedStyle(element);
+      const emptyKatexLayoutStrut =
+        element.matches("span.pstrut") &&
+        element.closest(".katex") !== null &&
+        (element.textContent ?? "").trim() === "";
+      return concealed(style) && !emptyKatexLayoutStrut
+        ? [{ index, owner: describe(element) }]
+        : [];
+    });
+    if (scaledElements.length > 0) {
+      problems.push(
+        `authored descendants scale or transform content: ${JSON.stringify(scaledElements)}`,
+      );
+    }
+    if (concealedElements.length > 0) {
+      problems.push(
+        `authored descendants conceal content: ${JSON.stringify(concealedElements)}`,
+      );
+    }
+
+    const structural = [
+      root,
+      ...Array.from(
+        root.querySelectorAll<HTMLElement>(
+          ":scope > figcaption, :scope > section, .course-diagram__card-stack, .pipeline, [data-diagram-box], .stage-facts, .selection-card > dl, .generation-facts",
+        ),
+      ),
+    ].filter(
+      (element) => !element.closest("[data-diagram-full-view-controls]"),
+    );
+    for (const element of structural) {
+      const style = getComputedStyle(element);
+      if (concealed(style)) {
+        problems.push(`${describe(element)} conceals its content`);
+      }
+      if (
+        element !== root &&
+        [style.overflowX, style.overflowY].some((value) =>
+          ["hidden", "clip"].includes(value),
+        )
+      ) {
+        problems.push(`${describe(element)} hides overflow`);
+      }
+    }
+
+    const descendantBlockOwners = Array.from(
+      root.querySelectorAll<HTMLElement>("*"),
+    )
+      .filter((element) => {
+        const overflow = getComputedStyle(element).overflowY;
+        const debt = element.scrollHeight - element.clientHeight;
+        return (
+          !element.closest("[data-diagram-full-view-controls]") &&
+          !element.closest(".katex-mathml") &&
+          (overflow === "scroll" || (overflow === "auto" && debt > tolerance))
+        );
+      })
+      .map(describe);
+    if (descendantBlockOwners.length > 0) {
+      problems.push(
+        `descendants own vertical travel: ${descendantBlockOwners.join(", ")}`,
+      );
+    }
+    const descendantInlineOwners = Array.from(
+      root.querySelectorAll<HTMLElement>("*"),
+    )
+      .filter((element) => {
+        const overflow = getComputedStyle(element).overflowX;
+        const debt = element.scrollWidth - element.clientWidth;
+        return (
+          !element.closest("[data-diagram-full-view-controls]") &&
+          !element.closest(".katex-mathml") &&
+          (overflow === "scroll" || (overflow === "auto" && debt > tolerance))
+        );
+      })
+      .map(describe);
+    if (descendantInlineOwners.length > 0) {
+      problems.push(
+        `descendants own horizontal travel: ${descendantInlineOwners.join(", ")}`,
+      );
+    }
+    const namedScrollerCount = root.querySelectorAll(
+      "[data-diagram-scroll]",
+    ).length;
+    if (namedScrollerCount !== 0) {
+      problems.push(`full view has ${namedScrollerCount} named scrollers`);
+    }
+
+    for (let leftIndex = 0; leftIndex < stages.length; leftIndex += 1) {
+      const left = stages[leftIndex].getBoundingClientRect();
+      for (
+        let rightIndex = leftIndex + 1;
+        rightIndex < stages.length;
+        rightIndex += 1
+      ) {
+        const right = stages[rightIndex].getBoundingClientRect();
+        const inlineOverlap =
+          Math.min(left.right, right.right) - Math.max(left.left, right.left);
+        const blockOverlap =
+          Math.min(left.bottom, right.bottom) - Math.max(left.top, right.top);
+        if (inlineOverlap > tolerance && blockOverlap > tolerance) {
+          problems.push(
+            `${stages[leftIndex].dataset.stage} overlaps ${stages[rightIndex].dataset.stage}`,
+          );
+        }
+      }
+    }
+
+    const direction = rootStyle.direction;
+    for (let index = 1; index < stages.length; index += 1) {
+      const previous = stages[index - 1].getBoundingClientRect();
+      const current = stages[index].getBoundingClientRect();
+      if (current.top < previous.top - tolerance) {
+        problems.push("visual stage order reverses vertically");
+      } else if (Math.abs(current.top - previous.top) <= tolerance) {
+        const reversesInline =
+          direction === "rtl"
+            ? current.right > previous.right + tolerance
+            : current.left < previous.left - tolerance;
+        if (reversesInline) problems.push("visual stage order reverses inline");
+      }
+    }
+
+    const textSamples: Array<{
+      fontSize: number;
+      lineHeight: number;
+      paint: number;
+      text: string;
+    }> = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const text = walker.currentNode as Text;
+      const parent = text.parentElement;
+      if (
+        !parent ||
+        !text.data.trim() ||
+        parent.closest(".katex-mathml") ||
+        parent.closest("[data-diagram-full-view-controls]")
+      )
+        continue;
+      let ancestor: HTMLElement | null = parent;
+      let hidden = false;
+      while (ancestor) {
+        if (concealed(getComputedStyle(ancestor))) hidden = true;
+        if (ancestor === root) break;
+        ancestor = ancestor.parentElement;
+      }
+      const style = getComputedStyle(parent);
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      const paint = Array.from(range.getClientRects()).filter(
+        ({ width, height }) => width > 0 && height > 0,
+      );
+      if (hidden || transparent(style.color) || paint.length === 0) {
+        problems.push(`text is concealed: ${text.data.trim().slice(0, 40)}`);
+      }
+      if (
+        paint.some(
+          (rect) =>
+            rect.left < rootRect.left - tolerance ||
+            rect.right > rootRect.right + tolerance,
+        )
+      ) {
+        problems.push(
+          `text escapes the fullscreen root: ${text.data.trim().slice(0, 40)}`,
+        );
+      }
+      const lineHeight = Number.parseFloat(style.lineHeight);
+      textSamples.push({
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.isFinite(lineHeight) ? lineHeight : 0,
+        paint: paint.length,
+        text: text.data.replace(/[\s\u200b-\u200d\ufeff]+/g, " ").trim(),
+      });
+    }
+
+    const rootInlineDebt = Math.max(0, root.scrollWidth - root.clientWidth);
+    const rootBlockDebt = Math.max(0, root.scrollHeight - root.clientHeight);
+    let rootEndReachable = true;
+    if (rootBlockDebt > tolerance) {
+      if (!["auto", "scroll"].includes(rootStyle.overflowY)) {
+        problems.push("the fullscreen root does not own its vertical travel");
+      }
+      const originalTop = root.scrollTop;
+      root.scrollTop = rootBlockDebt;
+      const lastStage = stages.at(-1)?.getBoundingClientRect();
+      rootEndReachable = Boolean(
+        lastStage &&
+        lastStage.bottom <= root.getBoundingClientRect().bottom + tolerance &&
+        lastStage.bottom >= root.getBoundingClientRect().top - tolerance,
+      );
+      root.scrollTop = originalTop;
+      if (!rootEndReachable) {
+        problems.push("the final stage is not reachable at root scroll end");
+      }
+    } else if (rootStyle.overflowY === "scroll") {
+      problems.push("the debt-free fullscreen root forces vertical scrolling");
+    }
+    if (rootInlineDebt > tolerance) {
+      problems.push("the fullscreen root travels horizontally");
+    }
+
+    const readableElements = (owner: HTMLElement) =>
+      [owner, ...Array.from(owner.querySelectorAll<HTMLElement>("*"))].filter(
+        (element) => {
+          const hasDirectText = Array.from(element.childNodes).some(
+            (child) =>
+              child.nodeType === Node.TEXT_NODE &&
+              Boolean(child.textContent?.trim()),
+          );
+          const rect = element.getBoundingClientRect();
+          return (
+            rect.width > 0 &&
+            rect.height > 0 &&
+            (hasDirectText || element.matches(".katex, .katex-html")) &&
+            !element.closest(".katex-mathml") &&
+            !element.closest("[data-diagram-full-view-controls]")
+          );
+        },
+      );
+    const minFontSize = (owner: HTMLElement) =>
+      Math.min(
+        ...readableElements(owner).map((element) =>
+          Number.parseFloat(getComputedStyle(element).fontSize),
+        ),
+      );
+    const stagePresentation = stages.map((stage) => {
+      const allocations = Array.from(
+        new Set([
+          ...stage.querySelectorAll<HTMLElement>(
+            ":scope > .stage-facts > div, :scope > dl > div, :scope .generation-facts > [data-evidence]",
+          ),
+        ]),
+      );
+      return {
+        id: stage.dataset.stage ?? "",
+        width: stage.getBoundingClientRect().width,
+        minFontSize: minFontSize(stage),
+        allocations: allocations.map((allocation, index) => ({
+          key: `${stage.dataset.stage ?? ""}:${index}:${allocation.dataset.evidence ?? ""}`,
+          width: allocation.getBoundingClientRect().width,
+          minFontSize: minFontSize(allocation),
+        })),
+      };
+    });
+
+    const rootRem = Number.parseFloat(
+      getComputedStyle(document.documentElement).fontSize,
+    );
+    const rootContentWidth =
+      root.clientWidth -
+      Number.parseFloat(rootStyle.paddingLeft) -
+      Number.parseFloat(rootStyle.paddingRight);
+
+    return {
+      descendantBlockOwners,
+      descendantInlineOwners,
+      concealedElements,
+      namedScrollerCount,
+      problems,
+      rootBlockDebt,
+      rootContentWidth,
+      rootEndReachable,
+      rootInlineDebt,
+      rootRem,
+      scaledElements,
+      stagePresentation,
+      stageOrder: stages.map((stage) => stage.dataset.stage ?? ""),
+      textSamples,
+      viewport: {
+        height: window.innerHeight,
+        width: window.innerWidth,
+      },
+    };
+  });
+}
+
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
@@ -399,7 +1015,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 39,
-    revision: 7,
+    revision: 8,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -446,8 +1062,24 @@ async function expectChapterContent(
   for (const fragment of localized.ownershipFragments) {
     expect(lessonText).toContain(fragment);
   }
+  for (const fragment of localized.evidenceBoundaryFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  expect(lessonText).not.toMatch(
+    locale === "en"
+      ? /course(?:'s)? first and only final test|previously unscored test|proves? (?:independent )?generalization|shows? (?:that )?decoder architectures? (?:always|universally) (?:beat|outperform)/i
+      : /первая и единственная итоговая оценка|ранее не оценивавш|доказывает независимую оценку обобщающей способности|подтверждает универсальное превосходство архитектуры/i,
+  );
+  expect(lessonText).not.toMatch(/\bdecoder_beats_bigram\b/);
+  if (locale === "en") {
+    expect(lessonText).not.toMatch(/\bdecoder_wins\b/);
+  } else {
+    expect(lessonText.match(/\bdecoder_wins\b/g)).toHaveLength(1);
+    expect(lessonText).not.toMatch(/фикстур/i);
+  }
   for (const href of [
     "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+    "https://arxiv.org/abs/1506.02629",
     "https://arxiv.org/pdf/1706.03762",
     "https://arxiv.org/pdf/2005.14165",
   ]) {
@@ -472,19 +1104,21 @@ async function expectChapterContent(
   await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
   await expectExplicitEvidence(diagram, locale);
   expect(
-    await diagram.locator("[data-stage]").evaluateAll((cards) =>
-      cards.map((card) => card.getAttribute("data-stage")),
-    ),
+    await diagram
+      .locator("[data-stage]")
+      .evaluateAll((cards) =>
+        cards.map((card) => card.getAttribute("data-stage")),
+      ),
   ).toEqual(stageOrder);
   expect(
-    await diagram.locator("[data-stage-index]").evaluateAll((cards) =>
-      cards.map((card) => card.getAttribute("data-stage-index")),
-    ),
+    await diagram
+      .locator("[data-stage-index]")
+      .evaluateAll((cards) =>
+        cards.map((card) => card.getAttribute("data-stage-index")),
+      ),
   ).toEqual(["1", "2", "3", "4", "5", "6", "7", "8"]);
   await expect(diagram.locator('[data-state="trusted"]')).toHaveCount(5);
-  await expect(diagram.locator('[data-stage="data"]')).toContainText(
-    "8/2/2",
-  );
+  await expect(diagram.locator('[data-stage="data"]')).toContainText("8/2/2");
   await expect(diagram.locator('[data-stage="data"]')).toContainText(
     "fnv1a64:723b071980ae8a22",
   );
@@ -501,10 +1135,9 @@ async function expectChapterContent(
       .last(),
   ).toHaveText("L=1,\\ H=1,\\ D=4");
   await expect(
-    diagram
-      .locator(
-        '[data-stage="selection"] annotation[encoding="application/x-tex"]',
-      ),
+    diagram.locator(
+      '[data-stage="selection"] annotation[encoding="application/x-tex"]',
+    ),
   ).toHaveText([
     "s=0",
     "5.621745486",
@@ -548,26 +1181,24 @@ async function expectChapterContent(
   const decoded = diagram.locator('[data-stage="generation"] q');
   await expect(decoded).toHaveText("т␠␠");
   await expect(decoded).toHaveAccessibleName(localized.decodedTextLabel);
-  await expect(
-    diagram.locator('[data-stage="generation"] small'),
-  ).toHaveText(localized.spaceMarker);
+  await expect(diagram.locator('[data-stage="generation"] small')).toHaveText(
+    localized.spaceMarker,
+  );
   await expect(
     diagram.locator(
       '[data-stage="generation"] annotation[encoding="application/x-tex"]',
     ),
-  ).toHaveText([
-    "\\tau=0.8,\\ k=4",
-    "1+2+3=6",
-    "1^2+2^2+3^2=14",
-  ]);
+  ).toHaveText(["\\tau=0.8,\\ k=4", "1+2+3=6", "1^2+2^2+3^2=14"]);
   await expect(
     diagram
-      .locator('[data-stage="test"] .cue annotation[encoding="application/x-tex"]')
+      .locator(
+        '[data-stage="test"] .cue annotation[encoding="application/x-tex"]',
+      )
       .first(),
   ).toHaveText("3.866087547<3.981342714");
-  await expect(diagram.locator("svg, canvas, path, polyline, line")).toHaveCount(
-    0,
-  );
+  await expect(
+    diagram.locator("svg, canvas, path, polyline, line"),
+  ).toHaveCount(0);
   await expectDiagramContainment(page);
 
   const details = page.locator(".lesson-body details");
@@ -635,96 +1266,202 @@ test.describe(
         await page.setViewportSize({ width: 390, height: 844 });
         await page.reload();
         await expectChapterContent(page, chapters, locale);
+        await expect(
+          page.locator(
+            'figure[data-visualization-id="end-to-end-llm"] [data-diagram-full-view-toggle]',
+          ),
+        ).toHaveCount(0);
       }
     });
 
     test("full view reuses each localized complete pipeline", async ({
       page,
     }) => {
-      await page.setViewportSize({ width: 1280, height: 900 });
-      const controlNames: string[] = [];
-      for (const locale of locales) {
-        await page.goto(chapterPath(locale, chapterId));
-        const diagram = page.locator(
-          'figure[data-visualization-id="end-to-end-llm"]',
-        );
-        await expect(diagram).toHaveCount(1);
-        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
-        await expect(toggle).toHaveCount(1);
-        await expect(toggle).toHaveAccessibleName(
-          copy[locale].fullViewOpenLabel,
-        );
-        controlNames.push((await toggle.getAttribute("aria-label")) ?? "");
-        await toggle.click();
-        await page.waitForFunction(
-          () =>
-            document.fullscreenElement?.getAttribute(
-              "data-visualization-id",
-            ) === "end-to-end-llm",
-        );
-        await expect(toggle).toHaveAccessibleName(
-          copy[locale].fullViewCloseLabel,
-        );
-        await expect(
-          page.locator('figure[data-visualization-id="end-to-end-llm"]'),
-        ).toHaveCount(1);
-        await expect(diagram.locator("[data-stage]")).toHaveCount(8);
-        await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
-        await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
-        await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
-        await expectExplicitEvidence(diagram, locale);
-        await expect(
-          diagram.locator('[data-stage="generation"] code').first(),
-        ).toHaveText("A [67]");
-        await expect(
-          diagram.locator('[data-stage="generation"] q'),
-        ).toHaveText("т␠␠");
-        await expectDiagramContainment(page);
-        const travel = await diagram.evaluate((node) => ({
-          horizontal: node.scrollWidth - node.clientWidth,
-          vertical: node.scrollHeight - node.clientHeight,
-          verticalLimit: Math.ceil(node.clientHeight * 0.12),
-          caption: Math.ceil(
-            node.querySelector("figcaption")?.getBoundingClientRect().height ?? 0,
-          ),
-          sectionHeading: Math.ceil(
-            node.querySelector("section > h4")?.getBoundingClientRect().height ??
-              0,
-          ),
-          sectionDescription: Math.ceil(
-            node
-              .querySelector("section > .course-diagram__card-stack > p")
-              ?.getBoundingClientRect().height ?? 0,
-          ),
-          pipeline: Math.ceil(
-            node.querySelector(".pipeline")?.getBoundingClientRect().height ?? 0,
-          ),
-          stages: Array.from(node.querySelectorAll<HTMLElement>("[data-stage]"))
-            .map((stage) => ({
-              id: stage.dataset.stage,
-              width: Math.ceil(stage.getBoundingClientRect().width),
-              height: Math.ceil(stage.getBoundingClientRect().height),
-              header: Math.ceil(
-                stage.querySelector("header")?.getBoundingClientRect().height ??
-                  0,
+      test.setTimeout(120_000);
+      const requestedViewports = [
+        { width: 1280, height: 900 },
+        { width: 1024, height: 576 },
+      ] as const;
+      const controlNames = new Map<ChapterLocale, string>();
+      for (const requested of requestedViewports) {
+        await page.setViewportSize(requested);
+        for (const locale of locales) {
+          await page.goto(chapterPath(locale, chapterId));
+          const diagram = page.locator(
+            'figure[data-visualization-id="end-to-end-llm"]',
+          );
+          await expect(diagram).toHaveCount(1);
+          const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+          await expect(toggle).toHaveCount(1);
+          await expect(toggle).toHaveAccessibleName(
+            copy[locale].fullViewOpenLabel,
+          );
+          controlNames.set(
+            locale,
+            (await toggle.getAttribute("aria-label")) ?? "",
+          );
+          await page.evaluate(async () => {
+            await document.fonts.ready;
+            await new Promise<void>((resolveFrame) =>
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => resolveFrame()),
               ),
-              facts: Math.ceil(
-                stage
-                  .querySelector(".stage-facts")
-                  ?.getBoundingClientRect().height ?? 0,
+            );
+          });
+          const identityToken = `${locale}-${requested.width}x${requested.height}`;
+          const authoredNodeCount = await markAuthoredNodeIdentity(
+            diagram,
+            identityToken,
+          );
+          expect(authoredNodeCount).toBeGreaterThan(0);
+          const inlinePresentation = await readStagePresentation(diagram);
+          await toggle.click();
+          await page.waitForFunction(
+            () =>
+              document.fullscreenElement?.getAttribute(
+                "data-visualization-id",
+              ) === "end-to-end-llm",
+          );
+          await expect(toggle).toHaveAccessibleName(
+            copy[locale].fullViewCloseLabel,
+          );
+          await expect(
+            page.locator('figure[data-visualization-id="end-to-end-llm"]'),
+          ).toHaveCount(1);
+          await expectAuthoredNodeIdentity(
+            diagram,
+            identityToken,
+            authoredNodeCount,
+          );
+          await expect(diagram.locator("[data-stage]")).toHaveCount(8);
+          await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
+          await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
+          await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
+          await expectExplicitEvidence(diagram, locale);
+          await expect(
+            diagram.locator('[data-stage="generation"] code').first(),
+          ).toHaveText("A [67]");
+          await expect(
+            diagram.locator('[data-stage="generation"] q'),
+          ).toHaveText("т␠␠");
+          await page.evaluate(async () => {
+            await document.fonts.ready;
+            await new Promise<void>((resolveFrame) =>
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => resolveFrame()),
               ),
-            })),
-        }));
-        expect(travel.horizontal).toBe(0);
-        expect(
-          travel.vertical,
-          `${locale} full-view vertical travel must stay within its proportional budget: ${JSON.stringify(travel)}`,
-        ).toBeLessThanOrEqual(travel.verticalLimit);
-        await page.keyboard.press("Escape");
-        await page.waitForFunction(() => document.fullscreenElement === null);
-        await expect(toggle).toBeFocused();
+            );
+          });
+          await expectDiagramContainment(page);
+          const fullPresentation = await readFullViewPresentation(diagram);
+          const diagnostic = `${locale} requested ${requested.width}x${requested.height}, actual ${fullPresentation.viewport.width}x${fullPresentation.viewport.height}`;
+          expect(
+            fullPresentation.problems,
+            `${diagnostic}: ${JSON.stringify(fullPresentation)}`,
+          ).toEqual([]);
+          expect(fullPresentation.scaledElements, diagnostic).toEqual([]);
+          expect(fullPresentation.concealedElements, diagnostic).toEqual([]);
+          expect(fullPresentation.descendantBlockOwners, diagnostic).toEqual(
+            [],
+          );
+          expect(fullPresentation.descendantInlineOwners, diagnostic).toEqual(
+            [],
+          );
+          expect(fullPresentation.namedScrollerCount, diagnostic).toBe(0);
+          expect(
+            fullPresentation.rootInlineDebt,
+            diagnostic,
+          ).toBeLessThanOrEqual(2);
+          expect(
+            fullPresentation.rootBlockDebt,
+            diagnostic,
+          ).toBeGreaterThanOrEqual(0);
+          expect(fullPresentation.rootEndReachable, diagnostic).toBe(true);
+          expect(fullPresentation.stageOrder, diagnostic).toEqual(stageOrder);
+          expect(
+            fullPresentation.stagePresentation.map(({ id }) => id),
+            diagnostic,
+          ).toEqual(inlinePresentation.stages.map(({ id }) => id));
+          expect(
+            fullPresentation.textSamples.map(({ text }) => text),
+            diagnostic,
+          ).toEqual(inlinePresentation.textSamples.map(({ text }) => text));
+          for (const [
+            index,
+            sample,
+          ] of fullPresentation.textSamples.entries()) {
+            const inlineSample = inlinePresentation.textSamples[index];
+            expect(
+              sample.fontSize + 0.01,
+              `${diagnostic}: text ${index} (${sample.text}) font size must not shrink`,
+            ).toBeGreaterThanOrEqual(inlineSample.fontSize);
+            if (sample.lineHeight > 0 && inlineSample.lineHeight > 0) {
+              expect(
+                sample.lineHeight + 0.01,
+                `${diagnostic}: text ${index} (${sample.text}) line height must not shrink`,
+              ).toBeGreaterThanOrEqual(inlineSample.lineHeight);
+            }
+            expect(sample.paint, diagnostic).toBeGreaterThan(0);
+          }
+          for (const [
+            index,
+            fullStage,
+          ] of fullPresentation.stagePresentation.entries()) {
+            const inlineStage = inlinePresentation.stages[index];
+            expect(
+              fullStage.width,
+              `${diagnostic}: ${fullStage.id} full-view width must not squeeze its inline entity`,
+            ).toBeGreaterThanOrEqual(inlineStage.width - 2);
+            if (
+              fullPresentation.rootContentWidth >=
+              32 * fullPresentation.rootRem
+            ) {
+              expect(
+                fullStage.width,
+                `${diagnostic}: ${fullStage.id} must retain the 32rem readable floor`,
+              ).toBeGreaterThanOrEqual(32 * fullPresentation.rootRem - 2);
+            }
+            expect(
+              fullStage.minFontSize,
+              `${diagnostic}: ${fullStage.id} full-view text and math must not shrink`,
+            ).toBeGreaterThanOrEqual(inlineStage.minFontSize - 0.01);
+            expect(
+              fullStage.allocations.map(({ key }) => key),
+              diagnostic,
+            ).toEqual(inlineStage.allocations.map(({ key }) => key));
+            for (const [
+              allocationIndex,
+              fullAllocation,
+            ] of fullStage.allocations.entries()) {
+              const inlineAllocation = inlineStage.allocations[allocationIndex];
+              expect(
+                fullAllocation.width,
+                `${diagnostic}: ${fullAllocation.key} inner allocation must not squeeze`,
+              ).toBeGreaterThanOrEqual(inlineAllocation.width - 2);
+              expect(
+                fullAllocation.minFontSize,
+                `${diagnostic}: ${fullAllocation.key} inner text and math must not shrink`,
+              ).toBeGreaterThanOrEqual(inlineAllocation.minFontSize - 0.01);
+            }
+          }
+          await expectAuthoredNodeIdentity(
+            diagram,
+            identityToken,
+            authoredNodeCount,
+          );
+          await page.keyboard.press("Escape");
+          await page.waitForFunction(() => document.fullscreenElement === null);
+          await expectAuthoredNodeIdentity(
+            diagram,
+            identityToken,
+            authoredNodeCount,
+          );
+          await clearAuthoredNodeIdentity(diagram);
+          await expect(toggle).toBeFocused();
+        }
       }
-      expect(new Set(controlNames).size).toBe(locales.length);
+      expect(controlNames.size).toBe(locales.length);
+      expect(new Set(controlNames.values()).size).toBe(locales.length);
     });
 
     test("localized text and redundant boundaries survive forced colors", async ({
@@ -780,17 +1517,17 @@ test.describe(
           "rtl",
         );
         expect(
-          await diagram.locator("[data-stage]").evaluateAll((cards) =>
-            cards.map((card) => card.getAttribute("data-stage")),
-          ),
+          await diagram
+            .locator("[data-stage]")
+            .evaluateAll((cards) =>
+              cards.map((card) => card.getAttribute("data-stage")),
+            ),
         ).toEqual(stageOrder);
         expect(
           await diagram
             .locator("code, bdi, [data-inline-math]")
             .evaluateAll((nodes) =>
-              nodes.every(
-                (node) => getComputedStyle(node).direction === "ltr",
-              ),
+              nodes.every((node) => getComputedStyle(node).direction === "ltr"),
             ),
         ).toBe(true);
         const decoded = diagram.locator('[data-stage="generation"] q');
@@ -828,9 +1565,7 @@ test.describe(
           page.locator('figure[data-visualization-id="end-to-end-llm"]'),
           locale,
         );
-        await expect(page.locator('[data-stage="test"]')).toContainText(
-          "1744",
-        );
+        await expect(page.locator('[data-stage="test"]')).toContainText("1744");
         await expect(page.locator('[data-stage="test"]')).toContainText(
           "0.115255167",
         );
@@ -849,11 +1584,7 @@ test.describe(
           page.locator(
             '[data-stage="generation"] annotation[encoding="application/x-tex"]',
           ),
-        ).toHaveText([
-          "\\tau=0.8,\\ k=4",
-          "1+2+3=6",
-          "1^2+2^2+3^2=14",
-        ]);
+        ).toHaveText(["\\tau=0.8,\\ k=4", "1+2+3=6", "1^2+2^2+3^2=14"]);
         await expectDiagramContainment(page);
         await expectNoOverflowOrClientScripts(page);
       }

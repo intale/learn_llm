@@ -21,7 +21,8 @@ const copy = {
     title: "Prefill once, then advance one token",
     description:
       "Learn how one KV cache per decoder block and one checked model/cache session support prompt prefill followed by coherent one-token decoding, then compare newest-position logits and generation decisions with complete-prefix references.",
-    diagramTitle: "Prefill every layer for the prompt; decode every layer together",
+    diagramTitle:
+      "Prefill every layer for the prompt; decode every layer together",
     diagramDescription:
       "The exact Rust trace follows a two-token prompt and one later token through two distinct decoder-block caches, checks newest-position logits within tolerance, and compares measured attention-score work plus stopping and reset behavior.",
     headings: [
@@ -51,14 +52,23 @@ const copy = {
       "Each operation still checks the facts that can change from call to call",
     revisionMismatchFragment:
       "A later attempt to bind the old cache returns ModelParameterRevisionMismatch",
-    resetBindingFragment:
-      "retaining the same model/cache relationship",
+    resetBindingFragment: "retaining the same model/cache relationship",
     constantTimeFragment: "Cached attention is not constant-time",
     historyPolicyFragment:
       "requirements of this implementation, not policies stated by the cited papers",
     historyCountFragment: "this exact schedule avoids",
     contextBoundaryFragment:
       "selected from those logits and returned, then context-limit stops before decoding it",
+    handoffFragments: [
+      "Chapter 39 will connect this inference path to the full pipeline; inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence.",
+      "That within-run boundary does not turn Chapter 39's checked-in decoder-versus-bigram result into a new independent generalization estimate when later executions repeat the comparison.",
+    ],
+    staleScopeClaims: [
+      "evaluate untouched data",
+      "every repository run scores newly unseen data",
+      "the checked-in fixture has never been read",
+      "each run is a new independent generalization estimate",
+    ],
     fullViewOpenLabel: "View diagram full screen",
     fullViewCloseLabel: "Exit full screen",
   },
@@ -98,8 +108,7 @@ const copy = {
       "При каждом вызове по-прежнему проверяются условия, которые могут измениться",
     revisionMismatchFragment:
       "Следующая попытка связать старый кэш с этой моделью возвращает ModelParameterRevisionMismatch",
-    resetBindingFragment:
-      "сохраняя ту же связь модели и кэша",
+    resetBindingFragment: "сохраняя ту же связь модели и кэша",
     constantTimeFragment: "Время расчёта внимания не становится постоянным",
     historyPolicyFragment:
       "требования данной реализации, а не правила, установленные цитируемыми статьями",
@@ -107,6 +116,16 @@ const copy = {
       "в этой заданной последовательности вызовов не вычисляются",
     contextBoundaryFragment:
       "выбирается из полученных логитов и возвращается, после чего ограничение контекста останавливает генерацию до его декодирования",
+    handoffFragments: [
+      "Глава 39 соединит этот способ генерации с полным процессом; в пределах одного запуска тестовые данные не смогут повлиять на выбранное состояние, а сохранённый в репозитории порядок потерь из главы 39, при котором потери декодера ниже, чем у биграммной модели, будет служить только регрессионной проверкой фиксированного примера.",
+      "Эта граница внутри запуска не превращает сохранённый в главе 39 результат сравнения декодера с биграммной моделью в новую независимую оценку, когда в последующих запусках это сравнение повторяют.",
+    ],
+    staleScopeClaims: [
+      "оценит его на нетронутых данных",
+      "при каждом запуске оцениваются ранее не использованные данные",
+      "сохранённый пример никогда прежде не открывали",
+      "каждый запуск даёт новую независимую оценку",
+    ],
     fullViewOpenLabel: "Развернуть схему на весь экран",
     fullViewCloseLabel: "Выйти из полноэкранного режима",
   },
@@ -308,7 +327,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 38,
-    revision: 5,
+    revision: 6,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -348,10 +367,9 @@ async function expectChapterContent(
   await expect(page.locator(".lesson-body .katex-error")).toHaveCount(0);
   await expectFormulaGeometry(page);
 
-  const lessonText = (await page.locator(".lesson-body").innerText()).replace(
-    /\s+/g,
-    " ",
-  );
+  const lessonText = (await page.locator(".lesson-body").innerText())
+    .replace(/[’‘]/g, "'")
+    .replace(/\s+/g, " ");
   expect(lessonText).toContain(localized.constantTimeFragment);
   expect(lessonText).toContain(localized.historyPolicyFragment);
   expect(lessonText).toContain(localized.historyCountFragment);
@@ -361,6 +379,12 @@ async function expectChapterContent(
   expect(lessonText).toContain(localized.liveBorrowFragment);
   expect(lessonText).toContain(localized.dynamicChecksFragment);
   expect(lessonText).toContain(localized.revisionMismatchFragment);
+  for (const fragment of localized.handoffFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  for (const staleClaim of localized.staleScopeClaims) {
+    expect(lessonText).not.toContain(staleClaim);
+  }
   for (const href of [
     "https://arxiv.org/pdf/1706.03762",
     "https://arxiv.org/pdf/1911.02150",

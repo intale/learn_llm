@@ -18633,3 +18633,312 @@ claim and prove both the bounded API and the correctly assembled fixture.
 
 **Affected step and run:** `bound-ch34-evaluation-provenance-claims`,
 `20260809T130957Z-bound-ch34-evaluation-provenance-claims-01`.
+
+## 2026-08-09 - Treat Chapter 34 and 39 test scores as fixed-fixture regression evidence
+
+**Status:** Accepted during preflight for
+`qualify-ch34-ch39-holdout-evidence` before product files were edited.
+
+**Context:** The executable ordering inside the capstone is sound. Training-only
+BPE learning, parameter updates, two deterministic training replays, and
+validation selection finish before the Chapter 39 run constructs its test epoch.
+The local evaluator begins with access count zero, scores once without a gradient
+graph, and verifies unchanged parameter and gradient bits. Test examples therefore
+cannot change the already selected model state inside that execution.
+
+That local guarantee is not the same as an untouched repository-level estimate.
+The Chapter 34 reverse-cycle test documents were deliberately chosen because a
+neutral synthetic holdout did not preserve the planned decoder-lower ordering.
+Chapter 39 permanently rejects a change when its exact frozen comparison no
+longer records the decoder below the bigram. The resulting numbers are valid for
+their fixed teaching fixtures and useful as deterministic regression evidence,
+but they are not independent estimates of generalization and do not establish
+architecture-wide decoder superiority. Earlier Chapter 7 and course-plan prose
+also calls Chapter 34 the course's first or only test evaluation, which is too
+global once repository development history and permanent regression reuse are
+considered.
+
+Dwork, Feldman, Hardt, Pitassi, Reingold, and Roth's 2015 primary paper
+[Generalization in Adaptive Data Analysis and Holdout Reuse](https://arxiv.org/abs/1506.02629)
+states the general reason for this distinction: adaptive repeated reuse can
+overfit the holdout itself. The paper does not characterize this repository's
+fixture, one-use counter, scores, or exact history, so use it only for that
+bounded adaptivity warning.
+
+**Decision:** Advance Chapter 7 to content revision 7, Chapter 34 to revision 6,
+Chapter 39 to revision 8, and the reviewed course plan to revision 71. Refresh
+Russian directly from the final English meaning. Chapter 7 will say only that
+its scorer has no `Test` branch and Chapter 34 later demonstrates one local
+post-selection evaluation of a fixed teaching fixture. Chapters 34 and 39 will
+separate three facts explicitly:
+
+1. within one execution, test examples have no path back to tokenizer learning,
+   optimization, or validation selection;
+2. the exact losses and ordering remain valid observations for the named frozen
+   fixture and are intentionally retained as regression conditions; and
+3. repository-level selection or repeated checking means those observations are
+   neither untouched independent generalization estimates nor universal
+   architecture comparisons.
+
+Keep every existing document, token, target, loss, gap, state bit, graph count,
+checkpoint, and generation result. Keep the generic `FinalEvaluator` neutral to
+which model is lower. Retain decoder-lower requirements only as explicitly named
+fixed-fixture regression conditions in the Chapter 34/39 demos and capstone
+acceptance. Rename learner trace fields from `decoder_beats_bigram` and
+`decoder_wins` to `decoder_lower_on_fixture`, add exact evidence-scope and
+independent-estimate false markers to learner output, and rename errors and tests
+away from universal win language. Add a diagnostic Chapter 34 evaluation on a
+different fixed sequence family that reverses the model ordering while preserving
+the evaluator's graph-free/state-preserving contract; label it a diagnostic, not
+new independent evidence.
+
+Expand the step before publication to the reviewed course plan and locale-plan
+projection; the Chapter 7 contract, English/Russian lessons, and focused tests;
+all four Chapter 34/39 cheat sheets and their shared tests; both chapters' exact
+learner and diagram traces and strict parsers; and the existing focused static
+and browser suites. Preserve shared diagram components and presentation code
+unless rendered validation proves that revised localized labels require a
+geometry correction.
+
+**Consequences:** Learners still see and can reproduce the exact frozen scores,
+and the regression suite still fails if those bytes, facts, or the selected
+fixture ordering change. What changes is the epistemic label: the suite proves
+the checked behavior of a fixed repository fixture, not generalization beyond it.
+Static and browser validation must reject the old global first/only, beats/wins,
+untouched-estimate, or architecture-superiority interpretations; require the
+bounded English/Russian wording and primary-source attribution; and preserve
+readable no-JavaScript, narrow, and full-view surfaces. No dependency, corpus,
+split, model, optimizer, evaluation algorithm, checkpoint, sampler, shared
+presentation module, or lockfile changes.
+
+**Affected step and run:** `qualify-ch34-ch39-holdout-evidence`,
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Bind the Chapter 33 learner report to the local test gate
+
+**Status:** Accepted during the final cross-surface audit for
+`qualify-ch34-ch39-holdout-evidence`, before the Chapter 33 learner-report bytes
+were edited.
+
+**Context:** Chapter 33 revision 10 now states the correct boundary in its
+English/Russian prose: the selected state reaches one local post-selection test
+gate, and the repository may rerun the known fixture as a regression check. Its
+course-owned Rust learner report and exact expected output still ended with the
+older unqualified instruction to evaluate the selected state “once on test
+data.” That separate executable surface could preserve the repository-global
+interpretation after the lesson correction.
+
+**Decision:** Add the Chapter 33 learner-report implementation and exact output
+to the active step before edits. Replace only that handoff with an explicit one
+local post-selection test gate, project the same exact line into the contract,
+and extend the already-declared focused tests. Preserve all training,
+validation-selection, clipping, replay, model, optimizer, trace, and numeric
+bytes.
+
+**Consequences:** Chapter 33 prose and executable evidence now hand off to
+Chapter 34 with the same enforceable scope. The change does not alter training
+or evaluation behavior and does not claim repository-wide test uniqueness.
+
+**Affected step and run:** `qualify-ch34-ch39-holdout-evidence`,
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Keep long localized sheet copy in the existing inner viewport
+
+**Status:** Accepted during final rendered validation for
+`qualify-ch34-ch39-holdout-evidence`, before the shared cheat-sheet component was
+edited.
+
+**Context:** The revised Russian Chapter 34 and 39 definitions are materially
+longer than their English source. At 360 by 500 CSS pixels, the paginated modal's
+four grid rows reserve separate space for the header, description, term viewport,
+and pagination. Header, localized description, pagination, and padding can exceed
+the 482-pixel dialog content height, collapsing the only flexible term viewport
+to zero and moving pagination outside the dialog in both Chromium and Firefox.
+The copy is semantically required and must not be shortened unnaturally, hidden,
+clipped, or rendered at a smaller size.
+
+**Decision:** Add `site/src/components/CheatSheet.astro` to the active step before
+editing it. Keep one dialog, one semantic term tree, fixed header and pagination,
+and the existing keyboard-reachable inner pages region. Move the complete sheet
+description into that pages region ahead of the current page slice, and reduce
+the paginated panel to three rows: header, `minmax(0, 1fr)` inner viewport, and
+pagination. The inner region owns vertical travel for the description and term
+content; the dialog shell must not scroll. Preserve focus, Escape, page reset,
+wide layout, no-JavaScript disclosure, accessible naming and description, and
+all font sizes.
+
+**Consequences:** Long localized descriptions and definitions remain complete at
+short narrow viewports, while pagination stays visible and operable. Users may
+scroll the smallest meaningful body region instead of the dialog shell. Shared
+modal structure changes for every paginated sheet, so the complete English and
+Russian sheet browser matrix must pass in Chromium and Firefox before this run
+can complete. No lesson meaning, term order, dependency, model behavior, or
+static fallback content changes.
+
+**Affected step and run:** `qualify-ch34-ch39-holdout-evidence`,
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Keep the Chapter 2 reference sheet inside the same evidence boundary
+
+**Status:** Accepted during cross-surface localization audit for
+`qualify-ch34-ch39-holdout-evidence`, before the Chapter 2 sheets were edited.
+
+**Context:** The Chapter 2 lesson now distinguishes the ideal post-selection test
+role from this repository's known, regression-reused fixture, but its separate
+cheat-sheet modal still defines the test partition as sealed documents used for
+final evidence. The Russian modal makes the same unqualified promise. A learner
+can open that reference directly from the revised page, so leaving it stale would
+publish two conflicting definitions on one route.
+
+**Decision:** Add both localized Chapter 2 cheat sheets before edits. Preserve the
+nine-term order and concise role definitions, but define the generic test role as
+post-selection evidence and state that this course enforces isolation inside one
+execution while rerunning its known fixture for regression checking. Refresh
+Russian directly from the final English definition. Extend the already-declared
+shared static and browser sheet tests to bind the exact English/Russian definition
+in the JavaScript dialog and no-JavaScript fallback.
+
+**Consequences:** The lesson and reference modal now teach one boundary. Training
+and validation definitions, document split, corpus bytes, sheets for other
+chapters, shared modal behavior, pagination, focus, Escape, narrow scrolling, and
+no-JavaScript disclosure remain unchanged. No dependency, runtime algorithm,
+model, score, or presentation component changes.
+
+**Affected step and run:** `qualify-ch34-ch39-holdout-evidence`,
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Reflow the longer Chapter 39 evidence instead of budgeting root height
+
+**Status:** Accepted during rendered-policy preflight for
+`qualify-ch34-ch39-holdout-evidence`, before the Chapter 39 component was edited.
+
+**Context:** The corrected evidence labels make Chapter 39's English and Russian
+cards longer. Its existing fullscreen breakpoint packs multiple stages into one
+row and uses dense six- and twelve-track generation grids. The browser test then
+requires root vertical travel to remain within twelve percent of the viewport.
+That height budget rewards narrow cards and heavy wrapping even though the shared
+full-view root is allowed to continue vertically. This is the same squeezed-row
+failure the user rejected in Chapters 6 and 7.
+
+**Decision:** Add `EndToEndLlmDiagram.astro` to this step before layout edits.
+In full view, allocate whole semantic cards and record groups at readable widths,
+using fewer columns or one column where the longer localized evidence requires
+it. Permit unrestricted root-owned vertical continuation; do not introduce a
+descendant vertical scroller, hide overflow, shrink text, change DOM/AT order, or
+duplicate the figure. Replace the stale proportional root-height assertion with
+same-surface entity-width, font, containment, non-overlap, source-order, and
+owner checks in the already-declared Chapter 39 E2E suite.
+
+**Consequences:** Full view may be taller and the shared root may scroll, which is
+intentional. Cards, formulas, checkpoint facts, generation records, and Russian
+labels receive readable allocations before any intrinsic horizontal fallback.
+Ordinary and narrow static HTML, all exact values, semantics, shared controls,
+forced colors, RTL, no-JavaScript behavior, and the sole sanctioned horizontal
+owners remain covered. No algorithm, score, evidence meaning, dependency, or
+shared presentation module changes.
+
+**Affected step and run:** `qualify-ch34-ch39-holdout-evidence`,
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Make the Chapter 0 course map use the bounded test-evidence claim
+
+**Status:** Accepted during the final whole-course map audit for
+`qualify-ch34-ch39-holdout-evidence`, before Chapter 0 product files were edited.
+
+**Context:** The Chapter 0 map points directly to Chapter 34 but still says the
+selected model is scored once on previously unopened or unseen test examples.
+That language correctly suggests the order inside the demonstrated execution,
+yet it reads as repository-history evidence on the course's entry page. The
+fixture is checked in, its Chapter 34 distribution was selected for an ordering,
+and the result is rerun as a regression condition.
+
+**Decision:** Expand the active step to the Chapter 0 contract, English/Russian
+lessons, diagram-data projection, and focused static/browser tests before edits.
+Advance Chapter 0 from content revision 4 to 5 and refresh Russian directly.
+Describe evaluation as scoring the fixed teaching fixture only after selection
+inside that run. Keep the selected-to-frozen-to-score process, diagram structure,
+all other LLM-part explanations, and the orientation chapter's no-cheat-sheet
+policy unchanged.
+
+**Consequences:** The first course map and the detailed evaluation chapters no
+longer disagree about what “unseen” or “unopened” proves. The diagram continues
+to teach the correct execution order without promoting it into an untouched
+repository-level generalization estimate. Exact bilingual source, parser, static,
+browser, no-JavaScript, and full-view checks cover the revised label; no model,
+fixture, algorithm, score, dependency, or shared presentation code changes.
+
+**Affected step and run:** `qualify-ch34-ch39-holdout-evidence`,
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Qualify every course-specific sealed-test promise at its actual scope
+
+**Status:** Accepted during the running cross-course claim audit for
+`qualify-ch34-ch39-holdout-evidence`, before the newly discovered Chapter 2, 33,
+and 38 product files were edited.
+
+**Context:** Correcting Chapters 7, 34, and 39 exposed the same repository-global
+implication at three earlier handoffs. Chapter 33 calls the later comparison
+once-only and says the test partition remains unopened; Chapter 38 promises to
+evaluate untouched data; Chapter 2 applies sealed and final-only wording to this
+course rather than only defining the ideal partition role. Those statements are
+true as rules inside the demonstrated execution—training, tokenizer learning,
+optimization, and validation selection do not inspect the test epoch, and one
+local evaluator instance consumes its access once—but they are not true as
+claims that the checked-in fixture or score was never inspected, selected, or
+reused during repository development.
+
+**Decision:** Expand the active step before these product edits to the Chapter 2,
+33, and 38 contracts, English/Russian lessons, and focused static/browser tests.
+Advance their content revisions from 8 to 9, 9 to 10, and 5 to 6 respectively,
+refresh Russian directly from the final English meaning, and bind exact hashes.
+Keep the pedagogical three-way partition protocol: training fits, validation
+selects, and test is excluded from those operations inside a run. Qualify every
+course-specific sealed, unopened, untouched, final-only, or once-only statement
+as a within-execution or one-evaluator-instance guarantee. Do not change corpus
+bytes, partition assignments, tokenizer behavior, training, evaluation,
+checkpointing, generation, diagrams, Rust results, or generic definitions that
+already state only the intended role.
+
+**Consequences:** The course presents one coherent evidence boundary from data
+partitioning through the capstone. Learners can still implement the ideal
+protocol and verify the runtime isolation, while no earlier handoff asks them to
+mistake a deliberately selected and permanently checked repository fixture for
+an untouched independent estimate. Validation expands to the three direct
+bilingual projections and their focused static/browser suites; no new dependency,
+model, score, or layout mechanism enters scope.
+
+**Affected step and run:** `qualify-ch34-ch39-holdout-evidence`,
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.
+
+## 2026-08-09 - Project Chapter 34's current reviewed evidence scope without rewriting its run history
+
+**Status:** Accepted after the final scheduler preflight for
+`qualify-ch34-ch39-holdout-evidence`.
+
+**Context:** Chapter 34 revision 6 changes the chapter's reviewed outcome itself:
+the comparison is now explicitly one local post-selection gate over a fixed
+teaching fixture, not a claim that the checked-in test partition or its score was
+previously uninspected at repository scope. The course-plan validator intentionally
+projects each current reviewed outcome into the linked implementation step's
+top-level objective and first acceptance item. Restoring the revision-4 wording
+there made the validator fail even though every completed run record remained
+unchanged. This differs from the 2026-08-06 revision-4 decision, where the reviewed
+outcome had not changed.
+
+**Decision:** Project the exact current Chapter 34 outcome into only the top-level
+objective and first acceptance item of `implement-ch34-final-evaluation`: evaluate
+the frozen selected decoder through one local post-selection gate and compare it
+fairly with the frozen bigram on a fixed teaching fixture. Preserve every completed
+run record, input fingerprint, artifact checksum, command, validation result, note,
+status, timestamp, budget record, and original commit byte for byte. This is a
+current scheduler/content projection, not a relabeling, resumption, or reuse of the
+completed implementation run.
+
+**Consequences:** The scheduler, course plan, contract, and learner-facing evidence
+scope agree while immutable execution history remains intact. The active corrective
+step still owns the semantic change and all new validation. No algorithm, fixture,
+score, dependency, completed-run artifact, or historical result changes.
+
+**Affected steps and run:** `implement-ch34-final-evaluation`,
+`qualify-ch34-ch39-holdout-evidence`, and
+`20260809T153648Z-qualify-ch34-ch39-holdout-evidence-01`.

@@ -1,4 +1,7 @@
-use crate::{FixtureError, VOCABULARY_SIZE, learner_evidence};
+use crate::{
+    ARCHITECTURE_SUPERIORITY_EVIDENCE, FIXED_FIXTURE_EVIDENCE_SCOPE, FIXTURE_SELECTED_FOR_ORDERING,
+    FixtureError, INDEPENDENT_GENERALIZATION_ESTIMATE, VOCABULARY_SIZE, learner_evidence,
+};
 
 // region:final-evaluation-trace
 /// Emits the exact static evidence consumed by the Chapter 34 figure.
@@ -12,7 +15,7 @@ GATE|selection_test_partition_rejected={}\n\
 PROVENANCE|corpus={}|split={}|tokenizer={}|vocabulary={}|context={}|documents={}|windows={}|batches={}|targets={}|target_fingerprint={}\n\
 SCORE|model=selected-decoder|fit_partition=train|selected_by=validation|targets={}|total_nll={:.6}|mean_nll={:.6}|perplexity={:.6}\n\
 SCORE|model=frozen-bigram|fit_partition=train|selected_by=none|targets={}|total_nll={:.6}|mean_nll={:.6}|perplexity={:.6}\n\
-COMPARE|lower_loss=selected-decoder|loss_gap={:.6}|same_targets=true|decoder_beats_bigram={}\n\
+COMPARE|lower_loss=selected-decoder|loss_gap={:.6}|same_targets=true|decoder_lower_on_fixture={}|evidence_scope={}|within_run_selection_isolated={}|fixture_selected_for_ordering={}|independent_generalization_estimate={}|architecture_superiority_evidence={}\n\
 PROOF|token_weighted={}|provenance_assertions_match={}|graph_nodes={}|parameters_unchanged={}|gradients_unchanged={}|selection_closed={}\n\
 END_FINAL_EVALUATION_TRACE\n",
         report.version(),
@@ -40,6 +43,11 @@ END_FINAL_EVALUATION_TRACE\n",
         report.bigram().perplexity(),
         report.loss_gap(),
         report.decoder_has_lower_loss(),
+        FIXED_FIXTURE_EVIDENCE_SCOPE,
+        evidence.within_run_selection_isolated,
+        FIXTURE_SELECTED_FOR_ORDERING,
+        INDEPENDENT_GENERALIZATION_ESTIMATE,
+        ARCHITECTURE_SUPERIORITY_EVIDENCE,
         evidence.token_weighted,
         evidence.provenance_assertions_match,
         report.recorded_graphs(),
@@ -67,7 +75,13 @@ mod tests {
         assert!(trace.contains("selection_test_partition_rejected=true"));
         assert!(trace.contains("targets=24"));
         assert!(trace.contains("target_fingerprint=fnv1a64:dac4bb4d76beeb59"));
-        assert!(trace.contains("decoder_beats_bigram=true"));
+        assert!(trace.contains("decoder_lower_on_fixture=true"));
+        assert!(trace.contains("evidence_scope=fixed-fixture-regression"));
+        assert!(trace.contains("within_run_selection_isolated=true"));
+        assert!(trace.contains("fixture_selected_for_ordering=true"));
+        assert!(trace.contains("independent_generalization_estimate=false"));
+        assert!(trace.contains("architecture_superiority_evidence=false"));
+        assert!(!trace.contains("decoder_beats_bigram="));
         assert!(trace.contains("provenance_assertions_match=true"));
         assert!(!trace.contains("provenance_match="));
     }

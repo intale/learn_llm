@@ -2,15 +2,15 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 39,
   "objective": {
-    "en": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
-    "ru": "Запустить одну детерминированную двуязычную декодерную LLM и проследить весь путь: от заранее закреплённых ролей документов через обучение BPE только по обучающей выборке и выбор состояния по валидации до одной локальной итоговой оценки на тестовой выборке, точного восстановления из контрольной точки и генерации текста с кэшем."
+    "en": "Run one deterministic bilingual decoder-only LLM through training-only BPE, validation selection, one local fixed-fixture evaluation, exact checkpoint reload, and cached generation while distinguishing within-run isolation from repository regression evidence.",
+    "ru": "Запустить одну детерминированную двуязычную декодерную LLM по всей цепочке: обучение BPE только по обучающей выборке, выбор состояния по валидации, одна локальная оценка фиксированного примера, точное восстановление из контрольной точки и генерация с кэшем; при этом отличить изоляцию выбора в пределах запуска от регрессионной проверки на уровне репозитория."
   },
   "worked_inputs": {
-    "en": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, compare the decoder and frozen bigram on the same 1,744 test targets, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
-    "ru": "Использовать сохранённое в репозитории разбиение двуязычного корпуса на восемь, два и два документа; получить восемь правил BPE-слияния только по обучающей выборке; выполнить 32 обновления одноблочного декодера с 1188 параметрами; выбрать состояние со значением функции потерь на валидации 3.889531885; сопоставить декодер и зафиксированную биграммную модель на одних и тех же 1744 тестовых целевых позициях; точно восстановить состояние из контрольной точки и логиты для пробы At; продолжить промпт A идентификаторами токенов 260, 34 и 34, которые декодируются в кириллическую букву т и два пробела."
+    "en": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, retain the decoder-lower ordering on the same 1,744 test targets as a permanent fixed-fixture regression condition, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
+    "ru": "Использовать сохранённое в репозитории разбиение двуязычного корпуса на восемь, два и два документа; получить восемь правил BPE-слияния только по обучающей выборке; выполнить 32 обновления одноблочного декодера с 1188 параметрами; выбрать состояние со значением функции потерь на валидации 3.889531885; сохранить как постоянное условие регрессионной проверки фиксированного примера порядок результатов на тех же 1744 тестовых целевых позициях, при котором потери декодера ниже потерь зафиксированной биграммной модели; точно восстановить состояние из контрольной точки и логиты для пробы At; продолжить промпт A идентификаторами токенов 260, 34 и 34, которые декодируются в кириллическую букву т и два пробела."
   },
   "formula": {
     "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
@@ -69,8 +69,8 @@
           "ru": "В нейронных языковых моделях начали совместно обучать распределённые представления токенов и функции вероятности, учитывающие более длинный контекст; Transformer ввёл маскированное самовнимание, а последующие авторегрессионные языковые модели на основе Transformer масштабировали эту цель обучения."
       },
       "modern_llm_role": {
-          "en": "This course capstone combines training-only tokenizer learning, causal next-token updates, validation-selected state, selection-isolated final evaluation, exact checkpoint round-trip, and stateful generation; these are local evidence rules, not requirements of the cited papers.",
-          "ru": "Завершающий пример курса объединяет обучение токенизатора только по обучающей выборке, обучение декодера предсказывать следующий токен в каузальном порядке, выбор состояния по валидации, итоговую оценку после выбора, точное сохранение и восстановление контрольной точки и генерацию, которая сохраняет состояние между шагами. Это правила проверки внутри данной программы, а не требования цитируемых статей."
+          "en": "This course capstone combines training-only tokenizer learning, causal next-token updates, validation-selected state, within-execution selection isolation, fixed-fixture regression evaluation, exact checkpoint round-trip, and stateful generation; these are local evidence rules, not requirements of the cited papers.",
+          "ru": "Завершающий пример курса объединяет обучение токенизатора только по обучающей выборке, каузальные обновления для предсказания следующего токена, состояние, выбранное по валидации, изоляцию выбора в пределах запуска, регрессионную проверку фиксированного примера, точное сохранение и восстановление контрольной точки и генерацию, которая сохраняет состояние между шагами. Это локальные правила работы со свидетельствами, а не требования цитируемых статей."
       },
       "sources": [
         {
@@ -81,6 +81,16 @@
           "claim": {
               "en": "Bengio and colleagues describe traditional n-gram generalization through short overlapping sequences and show a neural probability function that learns distributed word representations and benefits from longer contexts; their model is not a Transformer or this course pipeline.",
               "ru": "Бенжио и соавторы описывают, как традиционные n-граммные модели обобщают наблюдения, опираясь на короткие перекрывающиеся фрагменты, и показывают нейронную вероятностную функцию, которая совместно обучается с распределёнными представлениями слов и даёт лучший результат при более длинном контексте; их модель не является Transformer и не охватывает все этапы программы из этого курса."
+          }
+        },
+        {
+          "role": "later",
+          "year": 2015,
+          "name": "Generalization in Adaptive Data Analysis and Holdout Reuse",
+          "source_url": "https://arxiv.org/abs/1506.02629",
+          "claim": {
+              "en": "Dwork and colleagues show that adaptive repeated reuse of a standard holdout can overfit that holdout; this general warning does not establish any fact about the capstone fixture, its score, or its local access count.",
+              "ru": "Дворк и соавторы показывают, что многократное адаптивное использование обычной отложенной выборки может привести к переобучению на самой этой выборке; этот общий вывод не устанавливает фактов об учебном примере, его результате или локальном счётчике доступа."
           }
         },
         {
@@ -106,14 +116,14 @@
       ]
     },
     "approach": {
-      "en": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the measured gap as fixture evidence rather than causal attribution.",
-      "ru": "Сопоставить биграммную модель со сглаживанием α=1, обученную только по обучающей выборке, и каузальный декодер с контекстом из четырёх токенов, выбранный по валидации, на одних и тех же целевых позициях из тестовой выборки; измеренную разницу считать наблюдением для этого примера, а не доказательством причинного влияния архитектуры."
+      "en": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the permanently checked gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture superiority.",
+      "ru": "Сопоставить биграммную модель со сглаживанием α=1, обученную только по обучающей выборке, и каузальный декодер с контекстом из четырёх токенов, выбранный по валидации, на одних и тех же целевых позициях из тестовой выборки; постоянно проверяемую разницу считать результатом фиксированного примера для регрессионной проверки, а не доказательством причинного влияния, независимой оценкой способности модели обобщать или свидетельством превосходства архитектуры."
     },
     "summary": {
-      "en": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local end-to-end responsibility boundaries at inspectable scale without treating one tiny loss win as a general quality claim.",
-      "ru": "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые представления и маскированное самовнимание позволили моделям обрабатывать более длинный контекст, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. В завершающем примере можно проследить, какие данные доступны каждому этапу и за какое решение он отвечает; один небольшой выигрыш по функции потерь не превращается в общий вывод о качестве."
+      "en": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local responsibility boundaries while treating its known decoder-lower ordering only as fixed-fixture regression evidence.",
+      "ru": "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые признаки и маскированное самовнимание сделали возможными более длинные обучаемые вычисления, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает локальные границы ответственности, а известный порядок, при котором потери декодера ниже, представлен лишь как результат фиксированного примера для регрессионной проверки."
     },
-    "rust_contrast": "Derive the one-token bigram context, four-token decoder context, 1,744 shared targets, losses 3.981342714 and 3.866087547, and gap 0.115255167 from the final run evidence; the comparison describes this fixture rather than isolating a causal effect."
+    "rust_contrast": "Derive the one-token bigram context, four-token decoder context, 1,744 shared targets, losses 3.981342714 and 3.866087547, and gap 0.115255167 from the final run evidence; retain the ordering only as fixed-fixture regression evidence rather than a causal effect, independent generalization estimate, or architecture ranking."
   },
   "rust": {
     "package": "ch39-end-to-end-llm",
@@ -122,19 +132,19 @@
       "rust/demos/ch39-end-to-end-llm/src/lib.rs",
       "rust/demos/ch39-end-to-end-llm/src/main.rs"
     ],
-    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_wins:true no_grad:true unchanged:true\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167\nnext=inspect, modify, test, and extend the complete decoder\n"
+    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_lower_on_fixture:true no_grad:true unchanged:true\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167\nnext=inspect, modify, test, and extend the complete decoder\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "end-to-end-llm",
     "rationale": {
-      "en": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation. Local labels state training/validation/test order for every partition count and separately bind the reload-probe text, its token IDs, retained prefix lengths, the prompt-token cache-prefill count, and the one-token decode input count to their values.",
-      "ru": "Один нумерованный процесс слева направо делает информационную границу явной: тестовые мини-пакеты формируются только после обучения и выбора по валидации, затем точное восстановление из контрольной точки предшествует генерации с кэшем. Каждая подпись связывает стоящее рядом число или список с его смыслом. Для данных по выборкам она указывает порядок «обучение / валидация / тест». Отдельные строки связывают со значениями текст пробы для проверки восстановления, ID токенов этой пробы, длины сохранённых префиксов, число токенов промпта при заполнении KV-кэша и число ранее сгенерированных токенов, которые затем по одному подаются декодеру."
+      "en": "One numbered left-to-right process makes the within-execution information boundary visible: the run materializes test batches only after training and validation selection, labels the known ordering as fixed-fixture regression evidence, and then proceeds through exact checkpoint round-trip and cached generation. Local labels bind every count and probe to its value without implying independent generalization.",
+      "ru": "Один нумерованный процесс слева направо делает видимой информационную границу в пределах запуска: тестовые мини-пакеты формируются только после обучения и выбора по валидации, известный порядок результатов обозначается как регрессионная проверка фиксированного примера, а затем программа точно восстанавливает контрольную точку и выполняет генерацию с кэшем. Локальные подписи связывают каждое число и пробу с их значением, не создавая впечатления независимой оценки способности модели обобщать."
     }
   },
   "decoder_connection": {
-    "en": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local final evaluator receives test batches, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text.",
-    "ru": "Теперь все части курса участвуют в одной работающей программе: зафиксированный двуязычный корпус превращается в BPE-токены и каузальные пакеты; валидационная выборка определяет состояние декодера до передачи тестовых пакетов объекту FinalEvaluator; байты контрольной точки и сохранённое состояние точно восстанавливаются; отдельная проба At побитово воспроизводит логиты; генерация с кэшем из A возвращает декодированный текст."
+    "en": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local evaluator receives test batches, the known test ordering is retained only as fixed-fixture regression evidence, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text.",
+    "ru": "Теперь все части курса участвуют в одной работающей программе: зафиксированный двуязычный корпус превращается в BPE-токены и каузальные пакеты; валидационная выборка определяет состояние декодера до передачи тестовых пакетов локальному оценщику; известный порядок тестовых результатов сохраняется только для регрессионной проверки фиксированного примера; байты контрольной точки и сохранённое состояние точно восстанавливаются; отдельная проба At побитово воспроизводит логиты; генерация с кэшем из A возвращает декодированный текст."
   },
   "terminology": [
     {
@@ -158,6 +168,11 @@
       "ru": "локальная однократная итоговая оценка"
     },
     {
+      "concept_id": "fixed-fixture-regression-evidence",
+      "en": "fixed-fixture regression evidence",
+      "ru": "результат фиксированного примера для регрессионной проверки"
+    },
+    {
       "concept_id": "frozen-bigram-baseline",
       "en": "frozen bigram baseline",
       "ru": "зафиксированная биграммная базовая модель"
@@ -174,7 +189,8 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 7 is a direct, meaning-first translation of frozen English revision 7 with SHA-256 e8a4aa5312332e3ec56c9f02fd147d0b2aa099bd70882d9c367a67f681505c39; the Russian lesson SHA-256 is e8f9a0604756b0132101890e9126b33ca7ab247c88383c5c7c4d20dc5fbcb07b; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
+    "Russian revision 8 is a direct, meaning-first translation of frozen English revision 8 with SHA-256 51ff9e5ac4170c3f6fed85d005c43c67ac236cbbd71b4d4417f400e9c84cba1f; the Russian lesson SHA-256 is a63e50b4d95c7779bf6ecd6737b99297ed712931d11d4eaa02aa4b8969dacd37; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
+    "The English and reviewed Russian Chapter 39 cheat sheets have SHA-256 6349fd914f1e7fe92ad9f3eb161cf0cff4f94daabcf97e45cc21b5e13ce09c7e and 43ba6037e9aa38f903d193ca2f0399005881d9ac0d6a61d61e74d6bda59d51e8 respectively.",
     "Preserve BPE, LLM, AdamW, BOS, EOS, KV, RNG, token IDs, hashes, tensor shapes, exact losses, source titles, formulas, links, and trace grammar.",
     "Keep the general autoregressive factorization distinct from this retained four-token context C=4 and keep the local selection-isolated test boundary distinct from a global claim that test data has never been read anywhere.",
     "The checkpoint claim covers byte-for-byte re-encoding and exact model, optimizer, tokenizer, step, and RNG state; the separate At probe must not be confused with generation from prompt A.",
@@ -183,7 +199,8 @@
     "The generated learner-visible output is Cyrillic т followed by two spaces, rendered as т␠␠ where the spaces must be visible; it demonstrates shared byte-tokenizer decoding, not translation quality.",
     "Keep the history on the path from count n-gram language models through learned distributed representations and masked self-attention to scaled autoregressive LLMs; scope paper claims to their sources and local evidence policies to this implementation.",
     "Prefer natural Russian mathematical and technical prose, including полный цикл работы LLM, состояние, выбранное по валидации, зафиксированная биграммная базовая модель, and продолжение с KV-кэшем; reject literal calques and mixed-language learner prose.",
-    "Any later semantic or presentation change to English revision 7 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Preserve the evidence scope: test cannot affect the selected state inside one execution, while the repository permanently checks the known decoder-lower ordering only as fixed-fixture regression evidence; do not translate that ordering as independent generalization or architecture superiority, and avoid the Russian calque «фикстура».",
+    "Any later semantic or presentation change to English revision 8 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
   ],
   "acceptance_examples": [
     {
@@ -200,7 +217,7 @@
     },
     {
       "input": "Materialize context-four test batches and open the local final evaluator after selection",
-      "expected": "Before moving the complete test epoch into FinalEvaluator, the capstone records its 436-window and four-mini-batch counts. The evaluator then owns that epoch and first verifies that the retained selected state and matching selected model agree exactly. One local access scores 1,744 identical decoder and bigram target slots, with losses 3.866087547 and 3.981342714 and gap 0.115255167."
+      "expected": "Before moving the complete test epoch into FinalEvaluator, the capstone records its 436-window and four-mini-batch counts. The evaluator then owns that epoch and first verifies that the retained selected state and matching selected model agree exactly. One local access scores 1,744 identical decoder and bigram target slots, with losses 3.866087547 and 3.981342714 and gap 0.115255167. The decoder-lower ordering is a permanent fixed-fixture regression condition, not an independent generalization estimate or architecture-superiority result."
     },
     {
       "input": "Save and reload the selected state",
@@ -233,6 +250,12 @@ one head, feed-forward width four, four-token context, 1,188 parameters, and 32
 updates. It does not claim useful prose quality, broad generalization, production
 throughput, distributed training, or the scale of a deployed LLM.
 
+Inside each execution, test examples cannot affect tokenizer learning, parameter
+updates, or the validation-selected state. At repository level, however, the
+exact decoder-lower ordering is permanently checked. It is fixed-fixture
+regression evidence, not an untouched independent estimate of generalization or
+evidence of architecture-wide superiority.
+
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
 
@@ -248,7 +271,10 @@ Seed 39 initializes and orders two complete training replays. Both select step
 mini-batches and give them to one local final evaluator. Each of 436 test windows
 contains four target slots, so $N_{\mathrm{test}}=436\cdot4=1744$. The selected
 decoder reaches loss 3.866087547; the alpha-one bigram fitted to the same training
-partition reaches 3.981342714.
+partition reaches 3.981342714. These remain valid observations for the fixed
+fixture. Their ordering is now a permanent regression condition, so it must not
+be presented as a fresh independent generalization estimate each time it is
+rerun.
 
 The selected state is saved and reloaded. Re-encoding reproduces the checkpoint
 bytes; model and optimizer bits, BPE ranks, step, and random state remain exact;
@@ -279,8 +305,10 @@ while this bounded fixture presents at most the last $C=4$ earlier tokens; and
 $\prod_{t=1}^{T}$ multiplies the conditional terms.
 
 Training minimizes the negative logarithm of those next-token probabilities.
-Validation chooses among trained states. Test loss checks the already frozen
-choice; it does not feed another update or selection.
+Validation chooses among trained states. Inside this execution, test loss checks
+the already frozen choice; it does not feed another update or selection. That
+local direction of information flow does not determine the repository-level
+evidence status of a repeatedly checked result.
 
 <!-- contract-section:history -->
 ## From count contexts to autoregressive Transformer LLMs
@@ -290,6 +318,11 @@ describe successful n-gram models as generalizing through short overlapping
 sequences, then learn distributed word representations jointly with a neural
 probability function. Their experiments show an advantage from longer context.
 That model predates the Transformer and does not specify this course pipeline.
+
+[Dwork and colleagues](https://arxiv.org/abs/1506.02629) show that repeated
+adaptive reuse of a standard holdout can overfit the holdout itself. That is a
+general evidence warning, not a claim about this capstone's score, fixture
+history, or local access count.
 
 [Vaswani and colleagues](https://arxiv.org/pdf/1706.03762) replace recurrence and
 convolution with the Transformer. Their decoder masks self-attention so a
@@ -308,6 +341,12 @@ features and attention. Both score the same test-reserved targets, where this
 one selected run reports a lower decoder loss. Because the models differ in
 several ways, that observation describes the capstone fixture rather than
 isolating a causal effect or establishing universal Transformer superiority.
+
+The repository now checks that same ordering permanently. It remains a valid
+measurement on the fixed fixture and a useful regression condition, but it is
+not an untouched independent estimate of generalization. The local evaluator's
+access count of one describes one execution, not the repository's complete
+history of using the known result.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -330,6 +369,15 @@ parameter bit, then consumes its permission and scores the borrowed decoder and
 frozen bigram on identical targets without a graph or mutation. This is a
 boundary owned by the capstone run, not global access control over repository
 data. Later report assembly retains only the two counts, not a cloned epoch.
+
+The demo and pipeline keep the decoder-lower relation as an explicitly named
+fixed-fixture regression condition; `FinalEvaluator` itself remains neutral to
+which model is lower. The learner output and trace use
+`decoder_lower_on_fixture:true` together with
+`scope:fixed-fixture-regression`, `within_run_selection_isolated:true`,
+`independent_generalization_estimate:false`, and
+`architecture_superiority_evidence:false`. The stale token `decoder_wins` is not
+current evidence.
 
 The report derives the displayed count of 1,188 learned scalars by calling
 `primary.selected_state().scalar_count()`. That method computes the count by
@@ -360,8 +408,9 @@ described above. Invalid corpus input fails before training or file creation.
 
 One semantic figure follows the exact Rust trace through data, tokenizer,
 batches, decoder training, validation selection, the local one-use test gate,
-checkpoint reload, and cached generation. The test card appears after the
-selected-state boundary rather than beside training.
+fixed-fixture regression scope, checkpoint reload, and cached generation. The
+test card appears after the selected-state boundary rather than beside training,
+and its ordering is not presented as independent generalization evidence.
 
 Numbered cards establish the ordinary transformation order, double borders mark
 selection and local test boundaries, and equality cues identify exact checkpoint
@@ -384,7 +433,8 @@ calculated complete-prefix attention-score counts also have separate labels.
 3. What validation evidence chooses step 32?
 4. Can test loss change the selected step?
 5. How do 436 test windows become 1,744 scored targets for each model?
-6. Which loss is lower, and by how much?
+6. Which loss is lower, by how much, and what evidence scope does that ordering
+   have?
 7. Which checkpoint facts are exact, and which claim belongs only to probe `At`?
 8. Which three token IDs follow prompt `A`?
 9. Why is the generated Cyrillic character not evidence of translation quality?
@@ -393,7 +443,9 @@ calculated complete-prefix attention-score counts also have separate labels.
 Checks: training documents only; 1,188 parameters; step 32 validation loss
 3.889531885 is below step 0 at 5.628342353; no, selection finishes before the
 local evaluator receives test batches; $436\cdot4=1744$ identical targets each;
-decoder 3.866087547 is lower than bigram 3.981342714 by 0.115255167; bytes,
+decoder 3.866087547 is lower than bigram 3.981342714 by 0.115255167 on the fixed
+fixture, where the ordering is regression evidence rather than independent
+generalization or architecture superiority; bytes,
 model and optimizer bits, BPE ranks, step, and RNG state are exact while only
 the explicit `At` probe checks logits; 260, 34, and 34; it is one deterministic
 sample from a tiny bilingual corpus; and this fixture's complete same-seed
@@ -406,7 +458,8 @@ toolchain.
 The course now ends with one functioning decoder-only language-model program.
 Text is partitioned before tokenizer learning; BPE tokens become causal batches;
 the decoder trains with reverse-mode gradients and AdamW; validation selects;
-the capstone's local evaluator consumes test evidence once after selection;
+the capstone's local evaluator consumes test evidence once after selection in
+that execution, while the known ordering remains a fixed-fixture regression;
 versioned bytes restore the selected model and optimizer exactly; an `At` probe
 checks reloaded logits; and generation from `A` uses one KV cache per block.
 
@@ -417,10 +470,13 @@ contract changed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 7 is the canonical semantic source; Russian revision 7 is
+English revision 8 is the canonical semantic source; Russian revision 8 is
 published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
-links, and trace grammar. Keep probe `At` distinct from generation prompt `A`.
+links, and trace grammar. Preserve the distinction between within-execution
+selection isolation and repository-level regression reuse, and never translate
+fixed teaching fixture with the calque «фикстура». Keep probe `At` distinct from
+generation prompt `A`.
 Cyrillic т followed by two spaces is learner-visible exact output, rendered as
 т␠␠ so the spaces remain visible; it is not a translated label or a quality
 claim. Keep the history on the road from n-gram language models through learned
@@ -434,7 +490,8 @@ English and revalidated.
 
 The frontmatter freezes corpus and split identities, training-only tokenizer
 provenance, architecture and parameter count, batch shapes, same-seed replay,
-validation selection, one-time test losses, checkpoint bytes, generated token
+validation selection, local test access, fixed-fixture regression scope,
+checkpoint bytes, generated token
 IDs, decoded text, and cached/reference equality. The declared Rust, content,
 formula, SEO, static-link, Chromium, and Firefox gates must all pass before this
 final chapter is published.

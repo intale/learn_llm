@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "concept_id": "language-model-metrics",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 7,
   "objective": {
     "en": "Compute average negative log-likelihood and perplexity from the probabilities assigned to observed target tokens.",
@@ -87,8 +87,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The course can now compute mean NLL and perplexity for its unchanged smoothed bigram on training and validation without refitting the model. The Chapter 7 bigram scorer accepts only those two partitions. Chapters 8–22 build the tensor, differentiation, and optimization machinery needed to lower mean NLL; Chapter 34 performs the first test-set evaluation.",
-    "ru": "Теперь мы можем вычислить среднее NLL и перплексию по вероятностям, которые неизменная сглаженная биграммная модель приписывает целевым токенам обучающей и валидационной выборок. Во время расчёта метрик модель не изменяется и не обучается заново, а интерфейс оценки биграммной модели в главе 7 позволяет выбрать только обучающую или валидационную выборку. В главе 8 начнётся реализация численного ядра: значения тензора будут храниться в плоском Vec<f64>, а координаты — преобразовываться в смещения. В главах 8–22 мы реализуем тензоры, дифференцирование и оптимизацию, необходимые для снижения значения этой метрики. В главе 34 мы впервые вычислим её на тестовой выборке."
+    "en": "The course can now compute mean NLL and perplexity for its unchanged smoothed bigram on training and validation without refitting the model. The Chapter 7 bigram scorer accepts only those two partitions. Chapters 8–22 build the tensor, differentiation, and optimization machinery needed to lower mean NLL; Chapter 34 later demonstrates one local post-selection evaluation of a fixed teaching fixture.",
+    "ru": "Теперь мы можем вычислить среднее NLL и перплексию по вероятностям, которые неизменная сглаженная биграммная модель приписывает целевым токенам обучающей и валидационной выборок. Во время расчёта метрик модель не изменяется и не обучается заново, а интерфейс оценки биграммной модели в главе 7 позволяет выбрать только обучающую или валидационную выборку. В главе 8 начнётся реализация численного ядра: значения тензора будут храниться в плоском Vec<f64>, а координаты — преобразовываться в смещения. В главах 8–22 мы реализуем тензоры, дифференцирование и оптимизацию, необходимые для снижения значения этой метрики. В главе 34 позднее будет показана одна локальная оценка фиксированного учебного примера после завершения выбора модели."
   },
   "terminology": [
     {
@@ -142,13 +142,13 @@
     "Describe p_t(z_t) with an explicit clause such as «вероятность, которую модель приписала наблюдаемому целевому токену». Avoid «назначенная вероятность», «присвоенная вероятность», and any wording that makes it an empirical token frequency.",
     "State target weighting as an action: sum surprise over every target token in every document and divide by the total number of target tokens. Do not use «число целей» or an unqualified «среднее по документам».",
     "State boundaries in complete sentences: BOS supplies only the first context, EOS is the final target, documents remain separate, and no EOS→BOS transition is created.",
-    "In spoken prose use «обучающая выборка» and «валидационная выборка». Preserve Train, Validation, train, and validation only inside exact Rust/API/trace evidence. Say explicitly that the Chapter 7 metric API has no Test scoring choice and that Chapter 34 first scores the test set.",
+    "In spoken prose use «обучающая выборка» and «валидационная выборка». Preserve Train, Validation, train, and validation only inside exact Rust/API/trace evidence. Say explicitly that the Chapter 7 metric API has no Test scoring choice and that Chapter 34 later demonstrates one local post-selection evaluation of a fixed teaching fixture; do not call that later score the repository's first, only, or previously unscored test result.",
     "Permit a direct perplexity comparison only when tokenizer, vocabulary semantics, document-boundary convention, conditioning protocol, and exact evaluated targets are the same.",
     "Distinguish valid p=0 evidence, which produces positive infinity, from malformed input: empty input, NaN, infinite input probabilities, and probabilities outside [0,1]. Add-alpha smoothing makes this fitted bigram's queried probabilities positive but does not change the generic zero rule.",
     "Describe product underflow as values falling below the representable f64 range and rounding to zero. Describe the shared-argmax case only as a teaching contrast; do not invent a chronology in which accuracy was universally replaced by perplexity.",
     "Keep NLL, PPL, BOS, EOS, argmax, f64, Vec<f64>, token IDs, Rust identifiers, trace keywords, numeric values, URLs, paths, formulas, and train/validation trace labels as isolated left-to-right technical evidence. Do not import English word order into the surrounding Russian sentence.",
-    "Make both handoffs explicit: Chapter 8 begins flat Vec<f64> tensor storage and coordinate-to-offset indexing, Chapters 8–22 build the numerical and optimization machinery, and Chapter 34 owns the first test evaluation.",
-    "English revision 6 is the canonical semantic source. Russian revision 6 is refreshed directly from it with source SHA-256 beb369b6723749bc0a06b815cbbfd58a2f8b1c88a25150430a73780fad8f8e45. The metric prose, values, and corpus checksum are unchanged; the visible loader call now receives Chapter 2's ordinary JSON corpus as &str while train/validation scoring remains identical."
+    "Make both handoffs explicit: Chapter 8 begins flat Vec<f64> tensor storage and coordinate-to-offset indexing, Chapters 8–22 build the numerical and optimization machinery, and Chapter 34 later demonstrates one local post-selection evaluation of a fixed teaching fixture.",
+    "English revision 7 is the canonical semantic source with SHA-256 75b7e773ea37047b353f7e82d18b8da4ec8a7615cb981bbe9446c33a9a69d516. Russian revision 7 was refreshed directly from it and has SHA-256 5ebb33ac1e32cf234c8eec1ce23f8d76f0726abada95a7bdd5a2ac4c7866a739. The metric prose, values, corpus checksum, formulas, Rust behavior, and train/validation scoring remain unchanged; only the repository-global Chapter 34 handoff is narrowed."
   ],
   "acceptance_examples": [
     {
@@ -205,8 +205,8 @@ wrapped training documents and scores the separately stored training and
 validation documents without refitting. BOS is context only, EOS is the final
 target, and no transition crosses a document boundary. The chapter does not teach
 logits, tensors, gradients, optimization, model selection, or a test score.
-`ScoredPartition` has only `Train` and `Validation`; Chapter 34 owns the first
-test evaluation.
+`ScoredPartition` has only `Train` and `Validation`; Chapter 34 later demonstrates
+one local post-selection evaluation of a fixed teaching fixture.
 
 Comparisons are meaningful only when the tokenizer, vocabulary meaning, boundary
 convention, conditioning protocol, and exact evaluation targets are the same.
@@ -438,8 +438,10 @@ Chapter 8 starts the numerical engine by storing tensor values in one flat
 `Vec<f64>` and mapping coordinates to offsets. Chapters 8–22 build the tensor,
 differentiation, and optimization machinery needed to improve the reported
 metric. Chapter 33 selects a checkpoint using validation loss only. Chapter 34
-then evaluates that frozen selected state once on the previously unscored test
-partition—the course's first and only final test evaluation.
+then demonstrates one local post-selection evaluation of that frozen state on a
+fixed teaching fixture. This handoff describes the order inside that execution,
+and makes no claim about how often the fixed result has been used during
+repository development.
 
 <!-- contract-section:localization -->
 ## Localization notes

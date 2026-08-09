@@ -22,7 +22,7 @@
     },
     {
       "term": "Test partition",
-      "definition": "Sealed documents used for final reported evidence after fitting and model selection are complete."
+      "definition": "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate."
     },
     {
       "term": "Disjoint split",

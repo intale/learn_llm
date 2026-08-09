@@ -22,6 +22,9 @@ const read = (path: string) =>
 const fixture = read("rust/demos/ch39-end-to-end-llm/diagram-trace.txt");
 const expectedOutput = read("rust/demos/ch39-end-to-end-llm/expected.txt");
 const component = read("site/src/components/chapters/EndToEndLlmDiagram.astro");
+const parserSource = read("site/src/lib/end-to-end-llm-diagram.ts");
+const demoSource = read("rust/demos/ch39-end-to-end-llm/src/lib.rs");
+const mainSource = read("rust/demos/ch39-end-to-end-llm/src/main.rs");
 const contractSource = read("curriculum/chapters/39-end-to-end-llm.md");
 const englishLessonSource = read(
   "site/src/content/chapters/en/39-end-to-end-llm.mdx",
@@ -82,8 +85,7 @@ const labels: EndToEndLlmDiagramLabels = {
     cachePrefillPromptTokens: "cache prefill prompt tokens",
     oneTokenDecodeInputTokens: "one-token decode input tokens",
     cachedAttentionScoreCells: "cached attention score cells",
-    completePrefixAttentionScoreCells:
-      "complete-prefix attention score cells",
+    completePrefixAttentionScoreCells: "complete-prefix attention score cells",
   },
   cues: {
     trainingOnly: "training only",
@@ -184,9 +186,13 @@ describe("Chapter 39 Rust trace parser", () => {
       decoder: "3.866087547",
       bigram: "3.981342714",
       gap: "0.115255167",
-      decoder_wins: "true",
+      decoder_lower_on_fixture: "true",
       no_grad: "true",
       unchanged: "true",
+      evidence_scope: "fixed-fixture-regression",
+      within_run_selection_isolated: "true",
+      independent_generalization_estimate: "false",
+      architecture_superiority_evidence: "false",
     });
     expect(trace.checkpoint).toEqual({
       bytes: "30994",
@@ -243,8 +249,43 @@ describe("Chapter 39 Rust trace parser", () => {
       fixture.replace("training_only=true", "training_only=false"),
     ],
     [
-      "decoder no longer wins",
-      fixture.replace("decoder_wins=true", "decoder_wins=false"),
+      "fixed fixture ordering changed",
+      fixture.replace(
+        "decoder_lower_on_fixture=true",
+        "decoder_lower_on_fixture=false",
+      ),
+    ],
+    [
+      "stale universal-win field",
+      fixture.replace("decoder_lower_on_fixture=true", "decoder_wins=true"),
+    ],
+    [
+      "evidence scope changed",
+      fixture.replace(
+        "evidence_scope=fixed-fixture-regression",
+        "evidence_scope=independent-generalization",
+      ),
+    ],
+    [
+      "within-run isolation changed",
+      fixture.replace(
+        "within_run_selection_isolated=true",
+        "within_run_selection_isolated=false",
+      ),
+    ],
+    [
+      "independent-estimate claim changed",
+      fixture.replace(
+        "independent_generalization_estimate=false",
+        "independent_generalization_estimate=true",
+      ),
+    ],
+    [
+      "architecture-superiority claim changed",
+      fixture.replace(
+        "architecture_superiority_evidence=false",
+        "architecture_superiority_evidence=true",
+      ),
     ],
     [
       "reload differs",
@@ -305,6 +346,17 @@ describe("Chapter 39 Rust trace parser", () => {
   ])("rejects %s", (_name, mutation) => {
     expect(() => parseEndToEndLlmTrace(mutation)).toThrow();
   });
+
+  it("reports compound proof and evidence-scope drift accurately", () => {
+    expect(() =>
+      parseEndToEndLlmTrace(
+        fixture.replace(
+          "architecture_superiority_evidence=false",
+          "architecture_superiority_evidence=true",
+        ),
+      ),
+    ).toThrow(/capstone proof or evidence-scope field changed/);
+  });
 });
 
 describe("Chapter 39 diagram labels and component contract", () => {
@@ -350,7 +402,9 @@ describe("Chapter 39 diagram labels and component contract", () => {
       "cached-attention-score-cells",
       "complete-prefix-attention-score-cells",
     ]) {
-      expect(component.match(new RegExp(`data-evidence="${evidence}"`, "g"))).toHaveLength(1);
+      expect(
+        component.match(new RegExp(`data-evidence="${evidence}"`, "g")),
+      ).toHaveLength(1);
     }
     expect(component).toContain("parseEndToEndLlmTrace(traceSource)");
     expect(component).toContain("validateEndToEndLlmDiagramLabels(labels)");
@@ -370,6 +424,38 @@ describe("Chapter 39 diagram labels and component contract", () => {
     expect(component).toContain("@media (forced-colors: active)");
   });
 
+  it("gives full view readable card floors and root-owned vertical continuation", () => {
+    const css = component.replace(/\s+/g, " ");
+    const fullscreen =
+      "figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen";
+    expect(css).toContain(
+      `${fullscreen} { align-content: start; align-items: start; }`,
+    );
+    expect(css).toContain(
+      `${fullscreen} .pipeline.course-diagram__grid { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; }`,
+    );
+    expect(css).toContain("@container course-diagram (min-width: 68rem)");
+    expect(css).toContain("repeat(auto-fit, minmax(min(100%, 32rem), 1fr))");
+    expect(css).toContain(
+      ".stage-card[data-stage='selection'], .stage-card[data-stage='generation'] ) { grid-column: 1 / -1; }",
+    );
+    expect(css).toContain(
+      ".selection-card > dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }",
+    );
+    expect(css).toContain("repeat(auto-fit, minmax(min(100%, 22rem), 1fr))");
+    expect(css).not.toContain("display: contents");
+    expect(css).not.toMatch(
+      /repeat\(12,\s*minmax|grid-template-columns:\s*repeat\(6/,
+    );
+    const fullViewDeclarations = Array.from(
+      css.matchAll(
+        /figure\.course-diagram\.end-to-end-llm-diagram\[data-diagram-style='course-v1'\]:fullscreen[^{}]*\{([^}]*)\}/g,
+      ),
+      (match: RegExpMatchArray) => match[1],
+    ).join(" ");
+    expect(fullViewDeclarations).not.toMatch(/flex:\s*1\s+0\s+(?:23|49)%/);
+  });
+
   it("adds no private script, hydration, scroller, or expansion tree", () => {
     expect(component).not.toMatch(/<script\b/);
     expect(component).not.toMatch(/client:/);
@@ -379,7 +465,7 @@ describe("Chapter 39 diagram labels and component contract", () => {
 });
 
 describe("Chapter 39 bilingual lesson and evidence contract", () => {
-  it("publishes one exact revision-7 English/Russian lesson set", () => {
+  it("publishes one exact revision-8 English/Russian lesson set", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(englishLessonSource),
@@ -402,14 +488,14 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract).toMatchObject({
       chapter_id: "39-end-to-end-llm",
       concept_id: "end-to-end-llm",
-      content_revision: 7,
+      content_revision: 8,
       order: 39,
     });
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      "direct, meaning-first translation of frozen English revision 7",
+      "direct, meaning-first translation of frozen English revision 8",
     );
     expect(contract.translation_notes.join(" ")).toContain(
       `SHA-256 ${createHash("sha256").update(englishLessonSource).digest("hex")}`,
@@ -417,6 +503,29 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract.translation_notes.join(" ")).toContain(
       `Russian lesson SHA-256 is ${createHash("sha256").update(russianLessonSource).digest("hex")}`,
     );
+    expect(createHash("sha256").update(englishLessonSource).digest("hex")).toBe(
+      "51ff9e5ac4170c3f6fed85d005c43c67ac236cbbd71b4d4417f400e9c84cba1f",
+    );
+    expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
+      "a63e50b4d95c7779bf6ecd6737b99297ed712931d11d4eaa02aa4b8969dacd37",
+    );
+    expect(lessons.ru.history.summary).toBe(
+      "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые признаки и маскированное самовнимание сделали возможными более длинные обучаемые вычисления, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает локальные границы ответственности, а известный порядок, при котором потери декодера ниже, представлен лишь как результат фиксированного примера для регрессионной проверки.",
+    );
+    const dworkSource = contract.history.llm_evolution.sources.find(
+      ({ source_url }: { source_url: string }) =>
+        source_url === "https://arxiv.org/abs/1506.02629",
+    );
+    expect(dworkSource).toEqual({
+      role: "later",
+      year: 2015,
+      name: "Generalization in Adaptive Data Analysis and Holdout Reuse",
+      source_url: "https://arxiv.org/abs/1506.02629",
+      claim: {
+        en: "Dwork and colleagues show that adaptive repeated reuse of a standard holdout can overfit that holdout; this general warning does not establish any fact about the capstone fixture, its score, or its local access count.",
+        ru: "Дворк и соавторы показывают, что многократное адаптивное использование обычной отложенной выборки может привести к переобучению на самой этой выборке; этот общий вывод не устанавливает фактов об учебном примере, его результате или локальном счётчике доступа.",
+      },
+    });
 
     const localizedRecords = [
       contract.objective,
@@ -461,6 +570,11 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         ru: "локальная однократная итоговая оценка",
       },
       {
+        concept_id: "fixed-fixture-regression-evidence",
+        en: "fixed-fixture regression evidence",
+        ru: "результат фиксированного примера для регрессионной проверки",
+      },
+      {
         concept_id: "frozen-bigram-baseline",
         en: "frozen bigram baseline",
         ru: "зафиксированная биграммная базовая модель",
@@ -480,22 +594,22 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.en).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "en",
-      content_revision: 7,
+      content_revision: 8,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Run the whole tiny LLM",
       description:
-        "Trace a tiny decoder-only language model in Rust from frozen bilingual splits and training-only BPE through validation-selected training, selection-isolated final evaluation, exact checkpoint reload, and KV-cached generation.",
+        "Trace a tiny decoder-only language model in Rust through validation-selected training, locally isolated fixed-fixture evaluation, exact checkpoint reload, and KV-cached generation while keeping regression evidence distinct from generalization.",
     });
     expect(lessons.ru).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "ru",
-      content_revision: 7,
+      content_revision: 8,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Запустите небольшую LLM целиком",
       description:
-        "Проследите полный цикл небольшой декодерной языковой модели на Rust: от зафиксированного разбиения двуязычного корпуса и обучения BPE только по обучающей выборке до выбора состояния по валидации, последующей итоговой оценки выбранного состояния, точного восстановления из контрольной точки и генерации с KV-кэшем.",
+        "Проследите полный цикл небольшой декодерной языковой модели на Rust: обучение с выбором состояния по валидации, локально изолированную оценку фиксированного примера, точное восстановление из контрольной точки и генерацию с KV-кэшем; при этом не смешивайте регрессионную проверку с независимой оценкой способности модели обобщать.",
     });
 
     for (const locale of ["en", "ru"] as const) {
@@ -613,7 +727,9 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       /SelectedDecoder::new\([\s\S]*?primary\.selected_state\(\),[\s\S]*?primary\.selected_model\(\),/,
     );
     const evaluationIndex = capstoneSource!.indexOf("evaluator.evaluate_once(");
-    const checkpointIndex = capstoneSource!.indexOf("Checkpoint::from_snapshot(");
+    const checkpointIndex = capstoneSource!.indexOf(
+      "Checkpoint::from_snapshot(",
+    );
     const intoModelIndex = capstoneSource!.indexOf("loaded.into_model()");
     const probeIndex = capstoneSource!.indexOf(
       "logits_bits(primary.selected_model(), &logit_probe_ids)",
@@ -635,6 +751,66 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(capstoneSource).not.toMatch(
       /DecoderModelState::capture|restore_model|restore_independent_model|\.restore\(\)/,
     );
+    const firstTrainingIndex = capstoneSource!.indexOf(
+      "let primary = training_once(&prepared, config)?;",
+    );
+    const replayTrainingIndex = capstoneSource!.indexOf(
+      "let replay = training_once(&prepared, config)?;",
+    );
+    const selectedStateIndex = capstoneSource!.indexOf(
+      "primary.selected_state(),",
+    );
+    const testEpochIndex = capstoneSource!.indexOf("let test_epoch = epoch(");
+    expect(firstTrainingIndex).toBeGreaterThan(-1);
+    expect(replayTrainingIndex).toBeGreaterThan(firstTrainingIndex);
+    expect(selectedStateIndex).toBeGreaterThan(replayTrainingIndex);
+    expect(testEpochIndex).toBeGreaterThan(selectedStateIndex);
+    expect(evaluationIndex).toBeGreaterThan(testEpochIndex);
+    expect(pipelineSource).toContain(
+      "The checked capstone also retains its decoder-lower score as a fixed-fixture",
+    );
+    expect(pipelineSource).toContain(
+      "it is not a generic evaluator requirement, an independent estimate",
+    );
+    expect(capstoneSource).toContain(
+      '"fixed capstone fixture no longer records lower decoder loss than its frozen bigram"',
+    );
+    expect(demoSource).toContain(
+      "fn records_the_fixed_fixture_loss_order_after_one_local_test_access()",
+    );
+    expect(demoSource).toContain(
+      'assert_eq!(FIXED_FIXTURE_EVIDENCE_SCOPE, "fixed-fixture-regression");',
+    );
+    expect(demoSource).toContain(
+      "assert!(!INDEPENDENT_GENERALIZATION_ESTIMATE);",
+    );
+    expect(demoSource).toContain(
+      "assert!(!ARCHITECTURE_SUPERIORITY_EVIDENCE);",
+    );
+    const normalizedEnglishLesson = englishLessonSource.replace(/\s+/g, " ");
+    expect(normalizedEnglishLesson).toContain(
+      "That ordering is retained across later executions, so it is useful regression evidence. It is not an untouched independent estimate of generalization or evidence of architecture-wide decoder superiority.",
+    );
+    expect(normalizedEnglishLesson).toContain(
+      "The permanently checked gap is fixed-fixture regression evidence, not causal attribution to context or attention and not an independent generalization estimate.",
+    );
+    expect(normalizedEnglishLesson).toContain(
+      "this general warning does not establish any fact about the capstone fixture, its score, or its local access count",
+    );
+    expect(normalizedEnglishLesson).not.toMatch(
+      /course(?:'s)? first and only final test|previously unscored test|proves? (?:independent )?generalization|shows? (?:that )?decoder architectures? (?:always|universally) (?:beat|outperform)/i,
+    );
+    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
+    expect(normalizedRussianLesson).toContain(
+      "Этот порядок сохраняется в последующих запусках, поэтому результат полезен для регрессионной проверки. Он не является независимой оценкой способности модели обобщать на ранее не использованных данных и не доказывает общего превосходства архитектуры декодера.",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Постоянно проверяемая разница служит результатом фиксированного примера для регрессионной проверки, а не доказательством причинного влияния контекста или внимания и не независимой оценкой способности модели обобщать.",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "этот общий вывод не устанавливает фактов об учебном примере, его результате или локальном счётчике доступа",
+    );
+    expect(normalizedRussianLesson).not.toMatch(/фикстур/i);
   });
 
   it("moves final-use containers after retaining their report evidence", () => {
@@ -697,7 +873,8 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       `tokenizer=layout:${trace.tokenizer.layout} requested:${trace.tokenizer.requested} learned:${trace.tokenizer.learned} training_only:${trace.tokenizer.training_only} vocabulary:${trace.tokenizer.vocabulary} encoded_tokens:[${trace.tokenizer.encoded.join(",")}]`,
       `model=layers:${trace.model.layers} heads:${trace.model.heads} width:${trace.model.width} feed_forward:${trace.model.feed_forward} context:${trace.batches.context} parameters:${trace.model.parameters} update_batch_size:${trace.batches.update_batch_size} evaluation_batch_size:${trace.batches.evaluation_batch_size} windows:[${trace.batches.windows.join(",")}] evaluation_batches:[${trace.batches.evaluation_batches.join(",")}]`,
       `training=updates:${trace.training.updates} seed:${trace.training.seed} checkpoints:${initial.step}:${initial.train}/${initial.validation}/candidate;${selected.step}:${selected.train}/${selected.validation}/selected selected:${selected.step} validation:${selected.validation} optimizer:${trace.checkpoint.optimizer} replay_bitwise:${trace.training.replay_bitwise}`,
-      `test=access:${trace.test.access} documents:[${trace.test.documents.join(",")}] windows:${trace.test.windows} batches:${trace.test.batches} targets:${trace.test.targets} fingerprint:${trace.test.fingerprint} decoder:${trace.test.decoder} bigram:${trace.test.bigram} gap:${trace.test.gap} decoder_wins:${trace.test.decoder_wins} no_grad:${trace.test.no_grad} unchanged:${trace.test.unchanged}`,
+      `test=access:${trace.test.access} documents:[${trace.test.documents.join(",")}] windows:${trace.test.windows} batches:${trace.test.batches} targets:${trace.test.targets} fingerprint:${trace.test.fingerprint} decoder:${trace.test.decoder} bigram:${trace.test.bigram} gap:${trace.test.gap} decoder_lower_on_fixture:${trace.test.decoder_lower_on_fixture} no_grad:${trace.test.no_grad} unchanged:${trace.test.unchanged}`,
+      `evidence=scope:${trace.test.evidence_scope} within_run_selection_isolated:${trace.test.within_run_selection_isolated} independent_generalization_estimate:${trace.test.independent_generalization_estimate} architecture_superiority_evidence:${trace.test.architecture_superiority_evidence}`,
       `checkpoint=bytes:${trace.checkpoint.bytes} header:${trace.checkpoint.header} records:${trace.checkpoint.records} checksum:${trace.checkpoint.checksum} selected:${trace.checkpoint.selected} optimizer:${trace.checkpoint.optimizer} rng:${trace.checkpoint.rng} bytes_roundtrip:${trace.checkpoint.bytes_roundtrip} model_bits_exact:${trace.checkpoint.model_bits_exact} optimizer_bits_exact:${trace.checkpoint.optimizer_bits_exact} tokenizer_exact:${trace.checkpoint.tokenizer_exact} logit_probe:${trace.checkpoint.logit_probe} logit_probe_ids:[${trace.checkpoint.logit_probe_ids.join(",")}] prompt_logits_bitwise:${trace.checkpoint.prompt_logits_bitwise}`,
       `generation=prompt:${trace.generation.prompt} prompt_ids:[${trace.generation.prompt_ids.join(",")}] temperature:${trace.generation.temperature} top_k:${trace.generation.top_k} seed:${trace.generation.seed} generated:[${trace.generation.generated.join(",")}] text:${JSON.stringify(trace.generation.text)} prefixes:[${trace.generation.prefixes.join(",")}] stop:${trace.generation.stop} prefill:${trace.generation.prefill} decode:${trace.generation.decode} final_cache:${trace.generation.final_cache} cached_scores:${trace.generation.cached_scores} calculated_complete_prefix_scores:${trace.generation.calculated_complete_prefix_scores} rng_initial:${trace.generation.rng_initial} rng_final:${trace.generation.rng_final} tokens_exact:${trace.generation.tokens_exact} decisions_bitwise:${trace.generation.decisions_bitwise} rng_exact:${trace.generation.rng_exact}`,
       `history=targets:${trace.history.targets} bigram_context:${trace.history.bigram_context} decoder_context:${trace.history.decoder_context} bigram:${trace.history.bigram} decoder:${trace.history.decoder} gap:${trace.history.gap}`,
@@ -706,6 +883,34 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       "next=inspect, modify, test, and extend the complete decoder",
     );
     expect(fixture).toMatch(/END\|next=student-owned-decoder\r?\n$/);
+    expect(fixture).toContain(
+      "decoder_lower_on_fixture=true|no_grad=true|unchanged=true|evidence_scope=fixed-fixture-regression|within_run_selection_isolated=true|independent_generalization_estimate=false|architecture_superiority_evidence=false",
+    );
+    for (const [name, source] of [
+      ["expected output", expectedOutput],
+      ["diagram trace", fixture],
+      ["component", component],
+      ["parser", parserSource],
+      ["demo", demoSource],
+      ["main", mainSource],
+      ["English lesson", englishLessonSource],
+      ["Russian lesson", russianLessonSource.replace("`decoder_wins`", "")],
+      ["contract", contractSource.replace("`decoder_wins`", "")],
+      ["pipeline", pipelineSource],
+    ] as const) {
+      expect(
+        source,
+        `${name} retains stale architecture-win fields`,
+      ).not.toMatch(/\b(?:decoder_wins|decoder_beats_bigram)\b/);
+    }
+    expect(contractSource.match(/\bdecoder_wins\b/g)).toHaveLength(1);
+    expect(russianLessonSource.match(/\bdecoder_wins\b/g)).toHaveLength(1);
+    expect(contractSource.replace(/\s+/g, " ")).toContain(
+      "The stale token `decoder_wins` is not current evidence.",
+    );
+    expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
+      "Прежнее имя `decoder_wins` не является актуальным свидетельством.",
+    );
   });
 
   it("renders shared formulas and localized diagram accessibility copy explicitly", () => {
@@ -716,11 +921,13 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     };
     const accessibleDiagramText = {
       en: [
-        'title: "Keep evidence one-way from text to generated text"',
-        'description: "Follow frozen Rust evidence through training-only BPE, selection, test, exact reload, and cached generation."',
+        'title: "Keep execution one-way and label fixture evidence"',
+        'description: "Follow frozen Rust evidence through training-only BPE, selection, a locally isolated evaluation of a fixed regression fixture, exact reload, and cached generation."',
+        'test: "Score the fixed fixture locally"',
+        'gap: "Fixed-fixture loss gap"',
+        'oneTime: "one local access in this execution"',
         'decodedText: "Cyrillic т followed by two generated spaces"',
         'spaceMarker: "Each ␠ marks one generated space."',
-        'encodedTokens: "Encoded token counts — train / validation / test"',
         'windows: "Causal-window counts — train / validation / test"',
         'evaluationBatches: "Evaluation mini-batch counts — train / validation / test"',
         'logitProbeText: "Reload probe text"',
@@ -730,11 +937,14 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'oneTokenDecodeInputTokens: "Earlier generated tokens processed one at a time by decode calls to obtain later logits"',
         'cachedAttentionScoreCells: "Cached attention-score cells"',
         'completePrefixAttentionScoreCells: "Calculated complete-prefix attention-score cells"',
-        'pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the local one-use test gate, and exact replay boundaries."',
+        'pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the locally isolated evaluation of the fixed regression fixture, and exact replay boundaries."',
       ],
       ru: [
-        'title: "Поздние результаты не меняют ранние этапы"',
-        'description: "Этапы на Rust: обучение BPE только по обучающим данным, выбор состояния, итоговая оценка, точное восстановление и генерация с кэшем."',
+        'title: "Сохраните односторонний порядок запуска и обозначьте статус результата"',
+        'description: "Проследите зафиксированные результаты программы на Rust: обучение BPE только по обучающим данным, выбор состояния, локально изолированная оценка фиксированного примера для регрессионной проверки, точное восстановление и генерация с кэшем."',
+        'test: "Локально оцените фиксированный пример"',
+        'gap: "Разница потерь на фиксированном примере"',
+        'oneTime: "один локальный доступ в этом запуске"',
         'decodedText: "кириллическая т и два сгенерированных пробела"',
         'spaceMarker: "␠ — сгенерированный пробел."',
         'encodedTokens: "Число токенов после кодирования — обучение / валидация / тест"',
@@ -748,7 +958,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'cachedAttentionScoreCells: "Число элементов матриц оценок внимания при работе с KV-кэшем"',
         'completePrefixAttentionScoreCells: "Число элементов матриц оценок внимания при эталонном расчёте по полному префиксу"',
         'cachedMatch: "решения с KV-кэшем и полным префиксом совпадают"',
-        'pipeline: "Номера задают порядок. Двойные рамки отмечают BPE только по обучающим данным, выбор по валидации, одну итоговую оценку за запуск и точное воспроизведение."',
+        'pipeline: "Номера задают порядок. Двойные рамки отмечают BPE только по обучающим данным, выбор по валидации, локально изолированную оценку фиксированного примера для регрессионной проверки и точное воспроизведение."',
       ],
     };
 
@@ -795,9 +1005,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(englishLessonSource).not.toContain(
       'evaluationBatches: "Evaluation mini-batches by partition"',
     );
-    expect(russianLessonSource).not.toContain(
-      'windows: "Окна по выборкам"',
-    );
+    expect(russianLessonSource).not.toContain('windows: "Окна по выборкам"');
   });
 
   it("rejects literal Russian calques, authoring leakage, and mojibake", () => {

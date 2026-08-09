@@ -2,11 +2,11 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 9,
+  "content_revision": 10,
   "order": 33,
   "objective": {
-    "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data.",
-    "ru": "Выполнить все шаги плана обучения декодера с заранее заданным числом обновлений, измерить потери на валидационной выборке без записи графа в фиксированных контрольных точках и восстановить состояние модели, сохранённое в самой ранней точке с минимальными потерями, не обращаясь при этом к тестовым данным."
+    "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data during this training execution.",
+    "ru": "Выполнить все шаги плана обучения декодера с заранее заданным числом обновлений, измерить потери на валидационной выборке без записи графа в фиксированных контрольных точках и восстановить состояние модели, сохранённое в самой ранней точке с минимальными потерями, не обращаясь к тестовым данным в пределах этого запуска обучения."
   },
   "worked_inputs": {
     "en": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8.",
@@ -77,8 +77,8 @@
       },
       {
         "symbol": "\\mathcal{L}_{va}",
-        "en": "the token-weighted graph-free loss on the validation partition, never the test partition",
-        "ru": "взвешенная по токенам функция потерь на валидационной, но не тестовой выборке, вычисленная без записи графа"
+        "en": "the token-weighted graph-free loss on the validation partition; this trainer rejects the test partition during the training execution",
+        "ru": "взвешенная по токенам функция потерь на валидационной выборке без записи графа; в пределах запуска обучения реализация цикла обучения отклоняет тестовую выборку"
       }
     ]
   },
@@ -94,8 +94,8 @@
         "ru": "В работах по нейронным языковым моделям роли обучающей, валидационной и тестовой выборок были разделены; системы для последовательностей и Transformer добавили мини-пакеты, явные расписания, ограничение нормы и периодически сохраняемые состояния; в более поздних работах с преобразованием текста в текст прямо указано, что контрольную точку выбирают по валидации, не используя тестовые данные для выбора модели."
       },
       "modern_llm_role": {
-        "en": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for a later once-only evaluation.",
-        "ru": "При обучении LLM только с декодером многократно формируют пакеты токенов, дифференцируют обучающую цель, контролируют величину градиента, применяют расписание скорости обучения и оценивают состояния-кандидаты на отложенной валидационной выборке, оставляя результаты на тестовой выборке для последующей однократной оценки."
+        "en": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for post-selection evaluation; this course's one-use count belongs to one local evaluator instance.",
+        "ru": "При обучении LLM только с декодером многократно формируют пакеты токенов, дифференцируют обучающую цель, контролируют величину градиента, применяют расписание скорости обучения и оценивают состояния-кандидаты на отложенной валидационной выборке, оставляя тестовые данные для оценки после выбора; счётчик однократного доступа в этом курсе относится к одному локальному экземпляру оценщика."
       },
       "sources": [
         {
@@ -151,14 +151,14 @@
       ]
     },
     "approach": {
-      "en": "Move from fitting and reporting one training state toward predetermined mini-batch updates that produce periodic validation candidates while a separate test partition stays unopened.",
-      "ru": "Следующий этап — перейти от подгонки модели и отчёта по одному обученному состоянию к заранее заданным обновлениям на мини-пакетах. Такие обновления периодически создают состояния-кандидаты для валидации, а отдельная тестовая выборка остаётся закрытой."
+      "en": "Move from fitting and reporting one training state toward predetermined mini-batch updates that produce periodic validation candidates while this trainer rejects the separate test partition throughout the training execution.",
+      "ru": "Следующий этап — перейти от подгонки модели и отчёта по одному обученному состоянию к заранее заданным обновлениям на мини-пакетах. Такие обновления периодически создают состояния-кандидаты для валидации, а в пределах запуска реализация цикла обучения отклоняет отдельную тестовую выборку."
     },
     "summary": {
       "en": "The road to modern LLM training combines partition discipline with reproducible batches, finite gradients, norm control, an explicit learning-rate schedule, periodic graph-free validation, and checkpoint selection. These papers use different architectures and recipes, so the course's fixed seed, exact cadence, and earliest-tie rule are local teaching choices rather than universal practice.",
       "ru": "Путь к современному обучению LLM объединяет строгое разделение ролей выборок, воспроизводимые пакеты, конечные градиенты, контроль нормы, явное расписание скорости обучения, периодическую валидацию без записи графа и выбор контрольной точки. В этих работах используются разные архитектуры и схемы обучения, поэтому фиксированное начальное значение генератора, точно заданная периодичность и выбор самой ранней точки при равенстве — локальные учебные решения, а не общепринятая практика."
     },
-    "rust_contrast": "Run a tiny training-only trace whose last loss would win if training loss chose the state, contrast it with an earlier validation minimum, then prove that the cumulative decoder trainer accepts only Train for updates and Validation for selection while Test is rejected before mutation."
+    "rust_contrast": "Run a tiny training-only trace whose last loss would win if training loss chose the state, contrast it with an earlier held-out validation minimum, then prove that the cumulative decoder trainer accepts only Train for updates and Validation for selection while Test is rejected before mutation."
   },
   "rust": {
     "package": "ch33-training-selection",
@@ -171,7 +171,7 @@
       "rust/demos/ch33-training-selection/src/main.rs",
       "rust/demos/ch33-training-selection/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=33-training-selection\nconfig=vocabulary:5 model_width:4 layers:1 heads:2 context:2 parameters:144 updates:8 batch:2 clip_norm:0.350000\norder=forward>backward>finite-check>clip>adamw-step>zero-grad\nschedule=[0.040000,0.040000,0.025000,0.025000,0.015000,0.015000,0.008000,0.008000]\ncheckpoint=step:0 train_loss:2.095016 validation_loss:1.918167 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:2 train_loss:1.562026 validation_loss:1.696310 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:4 train_loss:1.453259 validation_loss:1.687788 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:6 train_loss:1.369832 validation_loss:1.642599 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:8 train_loss:1.322897 validation_loss:1.595297 selected:true train_graphs:0 validation_graphs:0\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true snapshot:true\nclipping=observed:true max_norm:0.350000 finite:true nodes_preserved:true cleared:true\nownership=input_model_unchanged:true input_optimizer_unchanged:true selected_restored:true\nselection_contrast=training_only_step:2 validation_step:1\nreplay=bitwise:true\nnext=evaluate the frozen selected state once on test data\n"
+    "expected_output": "chapter=33-training-selection\nconfig=vocabulary:5 model_width:4 layers:1 heads:2 context:2 parameters:144 updates:8 batch:2 clip_norm:0.350000\norder=forward>backward>finite-check>clip>adamw-step>zero-grad\nschedule=[0.040000,0.040000,0.025000,0.025000,0.015000,0.015000,0.008000,0.008000]\ncheckpoint=step:0 train_loss:2.095016 validation_loss:1.918167 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:2 train_loss:1.562026 validation_loss:1.696310 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:4 train_loss:1.453259 validation_loss:1.687788 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:6 train_loss:1.369832 validation_loss:1.642599 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:8 train_loss:1.322897 validation_loss:1.595297 selected:true train_graphs:0 validation_graphs:0\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true snapshot:true\nclipping=observed:true max_norm:0.350000 finite:true nodes_preserved:true cleared:true\nownership=input_model_unchanged:true input_optimizer_unchanged:true selected_restored:true\nselection_contrast=training_only_step:2 validation_step:1\nreplay=bitwise:true\nnext=evaluate the frozen selected state through one local post-selection test gate\n"
   },
   "visualization": {
     "decision": "useful",
@@ -182,8 +182,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder can now execute a complete bounded training plan and return a frozen validation-selected state; Chapter 34 will score that state once on the test partition and compare it fairly with the frozen baseline.",
-    "ru": "К этому этапу декодер умеет выполнить полный план обучения с заранее заданным числом шагов и вернуть зафиксированное состояние, выбранное по валидации. В главе 34 это состояние будет один раз оценено на тестовой выборке и корректно сопоставлено с зафиксированной базовой моделью."
+    "en": "The cumulative decoder can now execute a complete bounded training plan and return a frozen validation-selected state; Chapter 34 will give one local evaluator instance post-selection access to the test fixture and compare that state fairly with the frozen baseline.",
+    "ru": "К этому этапу декодер умеет выполнить полный план обучения с заранее заданным числом шагов и вернуть зафиксированное состояние, выбранное по валидации. В главе 34 один локальный экземпляр оценщика получит доступ к фиксированным тестовым данным после выбора и корректно сопоставит это состояние с зафиксированной базовой моделью."
   },
   "terminology": [
     {
@@ -218,10 +218,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 9 is translated directly from canonical English revision 9; semantic, terminology, anti-calque, monolingual, accessibility, source-order, and rendered reviews must be complete before publication.",
-    "canonical English SHA-256: 19de8acfdf11b59521117980a70b62d64e4e1364b171c4c2257b25b9f5ad42a2",
+    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 10 is translated directly from canonical English revision 10; semantic, terminology, anti-calque, monolingual, accessibility, source-order, and rendered reviews must be complete before publication.",
+    "Canonical English revision 10 has SHA-256 b041347b7a802434e1c98e9cf0c27f691a25fdcd7a8dc8f6222e4b7fde11d85e; the reviewed direct Russian revision 10 has SHA-256 0f92c02317714ca5a1be2b0321b5b2bb2c864b203df55aadf44c8877b11c6821.",
     "Translate mini-batch as «мини-пакет», global-norm gradient clipping as «ограничение общей нормы градиента», and graph-free evaluation as «оценка без записи графа вычислений»; describe raw and clipped gradients as gradients before and after norm clipping rather than using a literal calque.",
-    "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test.",
+    "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test. Scope Test rejection to this trainer and this training execution, and scope the later one-use count to one local FinalEvaluator instance rather than repository history.",
+    "Describe validation evidence as held-out from parameter fitting, not as epistemically independent: use held-out validation trace in English and natural wording about an отложенная валидационная выборка in Russian.",
     "Preserve the distinction between the ordinary AdamW method accepting a scheduled rate plus one clipping factor and returning the new optimizer step number, and Chapter 22's explicitly requested trace containing per-parameter records; never imply that AdamW returns parameter leaves.",
     "Translate g_s as the conceptual all-parameter raw gradient, alpha_s as «единый множитель ограничения общей нормы», and g tilde as «градиент после ограничения общей нормы, по которому AdamW обновляет оба момента». Preserve that scaling happens before the second-moment square and never scales decoupled decay.",
     "Preserve the live transaction order: AdamW validates every prospective parameter value and moment, acquires every parameter-value write guard, commits into the existing nodes together with optimizer state, returns the new step number, and only then the trainer explicitly clears the raw gradients on those same nodes.",
@@ -426,7 +427,7 @@ those are explicit local choices for reproducible evidence.
 
 The Rust historical probe makes the selection responsibility executable. A
 three-point training trace keeps falling and would choose its last state if
-training loss were allowed to judge itself. A validation trace reaches its
+training loss were allowed to judge itself. A held-out validation trace reaches its
 minimum one candidate earlier. The cumulative trainer then enforces the real
 partition types instead of trusting a comment or a programming-language
 convention.
@@ -558,10 +559,12 @@ loss chooses among candidates. Test loss does neither in this chapter.
 ## Decoder connection and handoff
 
 The course now owns a reproducible training path from token windows to one
-validation-selected decoder state. The output is frozen and test-unseen. Chapter
-34 will open the held-back test partition once, compute a token-weighted loss for
-this selected decoder, and compare it with the frozen bigram under identical
-tokenizer and corpus provenance. It will not tune, stop, or reselect the model.
+validation-selected decoder state. This training execution rejects `Test` before
+selection completes. Chapter 34 will give one local evaluator instance access to
+the held-back test fixture, compute a token-weighted loss for this selected
+decoder, and compare it with the frozen bigram under identical tokenizer and
+corpus provenance. That evaluator cannot tune, stop, or reselect the model; its
+local access count does not describe the repository's full fixture history.
 
 <!-- contract-section:localization -->
 ## Localization boundary
@@ -571,8 +574,9 @@ translation of the same revision. Both locales publish complete lessons and
 reciprocal routes. Any later English change makes the Russian review stale until
 the three partition roles, strict operation order, formula notation, exact trace
 tokens and parameter names, numerical fixtures, earliest-tie rule, accessible
-marker meanings, and the distinction between validation selection and once-only
-test evaluation have been refreshed from English and reviewed again. The review
+marker meanings, and the distinction between validation selection and one local
+post-selection test evaluation have been refreshed from English and reviewed
+again. The review
 must also preserve the all-parameter norm, one shared clipping factor, scaling
 before the second-moment square, AdamW's whole-set commit into the existing
 parameter nodes, the persistent working decoder and optimizer, explicit

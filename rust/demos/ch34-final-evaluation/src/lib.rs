@@ -24,6 +24,10 @@ pub const TOKENIZER_FINGERPRINT: &str = "literal-u32-v1";
 pub const BIGRAM_ALPHA: f64 = 1.0;
 pub const TEST_BATCH_SIZE: usize = 4;
 pub const RUNTIME_LIMIT_MS: u128 = 12_000;
+pub const FIXED_FIXTURE_EVIDENCE_SCOPE: &str = "fixed-fixture-regression";
+pub const FIXTURE_SELECTED_FOR_ORDERING: bool = true;
+pub const INDEPENDENT_GENERALIZATION_ESTIMATE: bool = false;
+pub const ARCHITECTURE_SUPERIORITY_EVIDENCE: bool = false;
 
 pub const TEST_A: [u32; 9] = [4, 3, 2, 1, 0, 4, 3, 2, 1];
 pub const TEST_B: [u32; 7] = [3, 2, 1, 0, 4, 3, 2];
@@ -108,15 +112,19 @@ pub fn fixture_provenance_assertions() -> Result<EvaluationProvenance, FixtureEr
     .map_err(Into::into)
 }
 
-fn test_epoch() -> Result<MiniBatchEpoch, FixtureError> {
-    let documents = [
-        BatchDocument::new("test-a", Partition::Test, &TEST_A)?,
-        BatchDocument::new("test-b", Partition::Test, &TEST_B)?,
-    ];
+fn test_epoch_from_documents(documents: &[(&str, &[u32])]) -> Result<MiniBatchEpoch, FixtureError> {
+    let documents = documents
+        .iter()
+        .map(|(id, token_ids)| BatchDocument::new(id, Partition::Test, token_ids))
+        .collect::<Result<Vec<_>, _>>()?;
     let windows = CausalWindowConfig::new(CONTEXT_LENGTH, 1)
         .map_err(|_| FixtureError::Invariant("fixed window configuration changed"))?;
     let batches = MiniBatchConfig::new(TEST_BATCH_SIZE, BatchOrder::Sequential)?;
     MiniBatchEpoch::build(Partition::Test, &documents, windows, batches).map_err(Into::into)
+}
+
+fn test_epoch() -> Result<MiniBatchEpoch, FixtureError> {
+    test_epoch_from_documents(&[("test-a", TEST_A.as_slice()), ("test-b", TEST_B.as_slice())])
 }
 
 // region:learner-evidence
@@ -130,6 +138,7 @@ pub struct LearnerEvidence {
     pub baseline_transitions: u64,
     pub token_weighted: bool,
     pub provenance_assertions_match: bool,
+    pub within_run_selection_isolated: bool,
 }
 
 /// Builds both frozen candidates before opening one owned test evaluator.
@@ -197,7 +206,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     )?;
     require(
         report.decoder_has_lower_loss(),
-        "selected decoder no longer beats the fixture baseline",
+        "fixed Chapter 34 fixture no longer records lower decoder loss than its bigram",
     )?;
     let token_weighted = [report.decoder(), report.bigram()]
         .into_iter()
@@ -210,6 +219,16 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         provenance_assertions_match,
         "report provenance assertions no longer match the fixture assertions",
     )?;
+    let within_run_selection_isolated = selected.test_partition_rejected
+        && gate_openings_before == 0
+        && report.access_count() == 1
+        && report.recorded_graphs() == 0
+        && report.parameters_unchanged()
+        && report.gradients_unchanged();
+    require(
+        within_run_selection_isolated,
+        "within-run selection isolation evidence changed",
+    )?;
 
     Ok(LearnerEvidence {
         report,
@@ -220,6 +239,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         baseline_transitions: baseline.fitted_transitions(),
         token_weighted,
         provenance_assertions_match,
+        within_run_selection_isolated,
     })
 }
 // endregion:learner-evidence
@@ -237,6 +257,7 @@ test=documents:{} windows:{} batches:{} targets:{} gate_openings_before:{} gate_
 decoder=mean_nll:{:.6} perplexity:{:.6} total_nll:{:.6} graphs:{} parameters_unchanged:{} gradients_unchanged:{}\n\
 bigram=mean_nll:{:.6} perplexity:{:.6} total_nll:{:.6}\n\
 comparison=lower_loss:selected-decoder gap:{:.6} same_targets:true\n\
+evidence=scope:{} within_run_selection_isolated:{} fixture_selected_for_ordering:{} independent_generalization_estimate:{} architecture_superiority_evidence:{}\n\
 proof=token_weighted:{} provenance_assertions_match:{} selection_closed:{} report_version:{}\n\
 next=serialize the selected evaluated state in a versioned checkpoint\n",
         report.selected_step(),
@@ -267,6 +288,11 @@ next=serialize the selected evaluated state in a versioned checkpoint\n",
         report.bigram().perplexity(),
         report.bigram().total_nll(),
         report.loss_gap(),
+        FIXED_FIXTURE_EVIDENCE_SCOPE,
+        evidence.within_run_selection_isolated,
+        FIXTURE_SELECTED_FOR_ORDERING,
+        INDEPENDENT_GENERALIZATION_ESTIMATE,
+        ARCHITECTURE_SUPERIORITY_EVIDENCE,
         evidence.token_weighted,
         evidence.provenance_assertions_match,
         evidence.selection_test_partition_rejected,
@@ -312,7 +338,7 @@ mod tests {
     }
 
     #[test]
-    fn exact_fixture_scores_are_token_weighted_and_decoder_is_lower_locally() {
+    fn exact_fixed_fixture_regression_is_token_weighted_and_decoder_is_lower_locally() {
         let report = learner_evidence().unwrap().report;
         assert_close(report.decoder().mean_nll(), 1.607_679_405_796_684_1);
         assert_close(report.decoder().perplexity(), 4.991_215_193_147_303);
@@ -322,6 +348,96 @@ mod tests {
         assert!(report.decoder_has_lower_loss());
         assert_eq!(report.decoder().target_count(), 24);
         assert_eq!(report.bigram().target_count(), 24);
+    }
+
+    #[test]
+    fn diagnostic_forward_cycle_can_reverse_order_without_changing_frozen_state() {
+        const DIAGNOSTIC_A: [u32; 9] = [0, 1, 2, 3, 4, 0, 1, 2, 3];
+        const DIAGNOSTIC_B: [u32; 7] = [2, 3, 4, 0, 1, 2, 3];
+
+        let selected = selection_evidence().unwrap();
+        let fixed_provenance = fixture_provenance_assertions().unwrap();
+        let training_documents = fixture_training_documents();
+        let baseline = BigramModel::fit_training_documents(
+            VOCABULARY_SIZE,
+            BIGRAM_ALPHA,
+            training_documents.iter().map(|(_, tokens)| *tokens),
+        )
+        .unwrap();
+        let fixed_decoder = SelectedDecoder::new(
+            selected.result.selected_state(),
+            selected.result.selected_model(),
+            selected.result.selected_step(),
+            selected.result.selected_validation_loss(),
+            Partition::Validation,
+            &fixed_provenance,
+        )
+        .unwrap();
+        let fixed_bigram =
+            FrozenBigram::new(&baseline, Partition::Train, &fixed_provenance).unwrap();
+
+        let mut fixed_evaluator =
+            FinalEvaluator::new(test_epoch().unwrap(), fixed_provenance.clone()).unwrap();
+        let fixed_report = fixed_evaluator
+            .evaluate_once(fixed_decoder, fixed_bigram)
+            .unwrap();
+
+        // This second, explicitly diagnostic distribution is not another
+        // independent estimate. It demonstrates only that the same frozen
+        // candidates need not retain their ordering on different evidence.
+        let diagnostic_documents = [
+            ("diagnostic-forward-a", DIAGNOSTIC_A.as_slice()),
+            ("diagnostic-forward-b", DIAGNOSTIC_B.as_slice()),
+        ];
+        let diagnostic_provenance = EvaluationProvenance::new(
+            "ch34-diagnostic-forward-cycle-v1",
+            "diagnostic-fixed-test-v1",
+            TOKENIZER_FINGERPRINT,
+            CONTEXT_LENGTH,
+        )
+        .unwrap();
+        let diagnostic_decoder = SelectedDecoder::new(
+            selected.result.selected_state(),
+            selected.result.selected_model(),
+            selected.result.selected_step(),
+            selected.result.selected_validation_loss(),
+            Partition::Validation,
+            &diagnostic_provenance,
+        )
+        .unwrap();
+        let diagnostic_bigram =
+            FrozenBigram::new(&baseline, Partition::Train, &diagnostic_provenance).unwrap();
+        let mut diagnostic_evaluator = FinalEvaluator::new(
+            test_epoch_from_documents(&diagnostic_documents).unwrap(),
+            diagnostic_provenance.clone(),
+        )
+        .unwrap();
+        let diagnostic_report = diagnostic_evaluator
+            .evaluate_once(diagnostic_decoder, diagnostic_bigram)
+            .unwrap();
+
+        assert!(fixed_report.decoder_has_lower_loss());
+        assert_eq!(
+            fixed_report.target_count(),
+            diagnostic_report.target_count()
+        );
+        assert_ne!(
+            fixed_report.target_fingerprint(),
+            diagnostic_report.target_fingerprint()
+        );
+        assert_close(
+            diagnostic_report.decoder().mean_nll(),
+            1.264_663_083_344_779,
+        );
+        assert_close(diagnostic_report.bigram().mean_nll(), 0.555_719_564_428_732);
+        assert_close(diagnostic_report.loss_gap(), -0.708_943_518_916_047);
+        assert!(!diagnostic_report.decoder_has_lower_loss());
+        assert!(diagnostic_report.loss_gap() < 0.0);
+        for report in [fixed_report, diagnostic_report] {
+            assert_eq!(report.recorded_graphs(), 0);
+            assert!(report.parameters_unchanged());
+            assert!(report.gradients_unchanged());
+        }
     }
 
     #[test]

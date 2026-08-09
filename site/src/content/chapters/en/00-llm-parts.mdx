@@ -3,7 +3,7 @@
   "chapter_id": "00-llm-parts",
   "chapter_kind": "orientation",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 0,
   "concept_id": "llm-parts",
   "title": "A map of a modern LLM",
@@ -142,7 +142,7 @@ export const diagramLabels = {
     },
     evaluation: {
       name: "Evaluation",
-      purpose: "Score the selected frozen model on unseen evaluation examples.",
+      purpose: "Score the selected frozen model after selection; retain the known result only as fixed-fixture regression evidence.",
     },
     checkpoint: {
       name: "Checkpoint",
@@ -191,7 +191,7 @@ export const diagramLabels = {
     weightFeedback: "Updated weights feed the shared forward path on the next training step.",
     cacheRelationship: "Decoder attention reads and extends this cache during generation.",
     numericRelationship: "Tensor operations run every block; autodiff records learning.",
-    evaluationRelationship: "Selected weights → frozen model → final test score.",
+    evaluationRelationship: "Selected weights → one local evaluator → fixed-fixture report.",
     checkpointRelationship: "Model and training state ↔ saved checkpoint.",
   },
   cues: {
@@ -289,6 +289,11 @@ baseline, and language-model metrics. Chapters 8 through 23 build the numeric an
 learning foundation. Chapters 24 through 32 assemble the decoder. Chapters 33
 through 38 train, evaluate, persist, sample, and cache it. Chapter 39 runs the
 whole tiny LLM.
+
+The evaluation node names a post-selection role, not a promise that every
+repository run sees newly unopened data. Inside one execution, the local
+evaluator cannot affect the selected state; repository reruns retain the known
+result only as fixed-fixture regression evidence.
 
 {/* chapter-section:decoder-connection */}
 

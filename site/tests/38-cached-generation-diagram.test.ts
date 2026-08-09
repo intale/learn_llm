@@ -422,7 +422,7 @@ describe("Chapter 38 diagram label contract", () => {
 });
 
 describe("Chapter 38 lesson localization contract", () => {
-  it("keeps both active lessons semantically aligned with revision 5", () => {
+  it("keeps both active lessons semantically aligned with revision 6", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(lessonSource),
@@ -442,18 +442,26 @@ describe("Chapter 38 lesson localization contract", () => {
       order: 38,
       activeLocales: ["en", "ru"],
     });
-    expect(contract.content_revision).toBe(5);
+    expect(contract.content_revision).toBe(6);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set {en, ru}",
     );
     const canonicalEnglishHash =
-      "3ce2cc099cad761c1b5bf1b53bf3fd4ac176af2ed27a95ea298f673602a025a2";
+      "754f11e4dfdc440fdc41dec54206ed3943fce512fdd99afa90b6ea14f09e00ee";
+    const reviewedRussianHash =
+      "0fbf473747d7b4992e4011974b990912c56747f162f488a1c9c55e250a637d46";
     expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
       canonicalEnglishHash,
     );
-    expect(contract.translation_notes.join(" ")).toContain(
-      `SHA-256 ${canonicalEnglishHash}`,
+    expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
+      reviewedRussianHash,
+    );
+    expect(contract.translation_notes).toContain(
+      `Chapter 38 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 6 with SHA-256 ${canonicalEnglishHash} and must be refreshed whenever that source changes.`,
+    );
+    expect(contract.translation_notes).toContain(
+      `The Russian lesson is a direct meaning-first translation of frozen English revision 6 with SHA-256 ${reviewedRussianHash}; no pivot locale or external translation service was used.`,
     );
 
     const localizedRecords = [
@@ -489,7 +497,7 @@ describe("Chapter 38 lesson localization contract", () => {
       expect(lesson).toMatchObject({
         chapter_id: contract.chapter_id,
         locale,
-        content_revision: 5,
+        content_revision: 6,
         order: contract.order,
         concept_id: contract.concept_id,
         objective: localized(contract.objective),
@@ -576,6 +584,24 @@ describe("Chapter 38 lesson localization contract", () => {
     const normalizedEnglish = lessonSource.replace(/\s+/g, " ");
     const normalizedRussian = russianLessonSource.replace(/\s+/g, " ");
     expect(normalizedEnglish).toContain(
+      "inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence",
+    );
+    expect(normalizedEnglish).toContain(
+      "That within-run boundary does not turn Chapter 39's checked-in decoder-versus-bigram result into a new independent generalization estimate when later executions repeat the comparison.",
+    );
+    expect(normalizedRussian).toContain(
+      "в пределах одного запуска тестовые данные не смогут повлиять на выбранное состояние, а сохранённый в репозитории порядок потерь из главы 39, при котором потери декодера ниже, чем у биграммной модели, будет служить только регрессионной проверкой фиксированного примера",
+    );
+    expect(normalizedRussian).toContain(
+      "Эта граница внутри запуска не превращает сохранённый в главе 39 результат сравнения декодера с биграммной моделью в новую независимую оценку, когда в последующих запусках это сравнение повторяют.",
+    );
+    expect(normalizedEnglish).not.toMatch(
+      /evaluate untouched data|every repository run scores newly unseen data|the checked-in fixture has never been read|each run is a new independent generalization estimate/i,
+    );
+    expect(normalizedRussian).not.toMatch(
+      /оценит его на нетронутых данных|при каждом запуске оцениваются ранее не использованные данные|сохранённый пример никогда прежде не открывали|каждый запуск даёт новую независимую оценку/i,
+    );
+    expect(normalizedEnglish).toContain(
       "Before inference, `cache.bind(&model)` checks that evidence and returns a `DecoderKvSession` for one exact model/cache pair",
     );
     expect(normalizedEnglish).toContain(
@@ -587,9 +613,7 @@ describe("Chapter 38 lesson localization contract", () => {
     expect(normalizedEnglish).toContain(
       "Each operation still checks the facts that can change from call to call",
     );
-    expect(normalizedEnglish).toContain(
-      "returns `ParameterValueBorrowed`",
-    );
+    expect(normalizedEnglish).toContain("returns `ParameterValueBorrowed`");
     expect(normalizedEnglish).toContain(
       "A later attempt to bind the old cache returns `ModelParameterRevisionMismatch`",
     );
@@ -608,15 +632,11 @@ describe("Chapter 38 lesson localization contract", () => {
     expect(normalizedRussian).toContain(
       "При каждом вызове по-прежнему проверяются условия, которые могут измениться",
     );
-    expect(normalizedRussian).toContain(
-      "возвращает `ParameterValueBorrowed`",
-    );
+    expect(normalizedRussian).toContain("возвращает `ParameterValueBorrowed`");
     expect(normalizedRussian).toContain(
       "Следующая попытка связать старый кэш с этой моделью возвращает `ModelParameterRevisionMismatch`",
     );
-    expect(normalizedRussian).toContain(
-      "текущая связь между моделью и кэшем",
-    );
+    expect(normalizedRussian).toContain("текущая связь между моделью и кэшем");
   });
 
   it("keeps persistent bind checks out of the model-bound row path", () => {
@@ -627,9 +647,7 @@ describe("Chapter 38 lesson localization contract", () => {
       "_parameter_value_guards: Vec<Ref<'model, Tensor>>",
     );
     expect(decoderCacheSource).toContain("model: &'model DecoderModel");
-    expect(decoderCacheSource).toContain(
-      "cache: &'cache mut DecoderKvCache",
-    );
+    expect(decoderCacheSource).toContain("cache: &'cache mut DecoderKvCache");
 
     const cacheApi = sourceSlice(
       decoderCacheSource,
@@ -674,12 +692,8 @@ describe("Chapter 38 lesson localization contract", () => {
       "impl DecoderKvSession<'_, '_> {",
       "\nfn valid_token(",
     );
-    expect(sessionApi).toContain(
-      "pub fn prefill(&mut self, prompt: &[u32])",
-    );
-    expect(sessionApi).toContain(
-      "pub fn decode(&mut self, token_id: u32)",
-    );
+    expect(sessionApi).toContain("pub fn prefill(&mut self, prompt: &[u32])");
+    expect(sessionApi).toContain("pub fn decode(&mut self, token_id: u32)");
     expect(sessionApi).toContain("pub fn reset(&mut self)");
     expect(sessionApi).toContain("pub fn cache(&self) -> &DecoderKvCache");
     expect(sessionApi).not.toContain("DecoderModel");
@@ -699,9 +713,9 @@ describe("Chapter 38 lesson localization contract", () => {
     expect(forwardToken.indexOf("let next_len = checked_add")).toBeLessThan(
       forwardToken.indexOf("ticket.commit(cache)"),
     );
-    expect(forwardToken.indexOf("let next_work = self.cache.next_work")).toBeLessThan(
-      forwardToken.indexOf("ticket.commit(cache)"),
-    );
+    expect(
+      forwardToken.indexOf("let next_work = self.cache.next_work"),
+    ).toBeLessThan(forwardToken.indexOf("ticket.commit(cache)"));
 
     expect(incrementalAttentionSource).toContain(
       "pub(crate) fn prepare_incremental_bound",

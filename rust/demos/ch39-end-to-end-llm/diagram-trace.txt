@@ -6,7 +6,7 @@ MODEL|layers=1|heads=1|width=4|feed_forward=4|parameters=1188
 TRAINING|updates=32|seed=39|replay_bitwise=true
 SELECT|step=0|train=5.621745486|validation=5.628342353|selected=false
 SELECT|step=32|train=3.855502695|validation=3.889531885|selected=true
-TEST|access=1|documents=en-winter-window,ru-winter-window|windows=436|batches=4|targets=1744|fingerprint=fnv1a64:77b836869f848986|decoder=3.866087547|bigram=3.981342714|gap=0.115255167|decoder_wins=true|no_grad=true|unchanged=true
+TEST|access=1|documents=en-winter-window,ru-winter-window|windows=436|batches=4|targets=1744|fingerprint=fnv1a64:77b836869f848986|decoder=3.866087547|bigram=3.981342714|gap=0.115255167|decoder_lower_on_fixture=true|no_grad=true|unchanged=true|evidence_scope=fixed-fixture-regression|within_run_selection_isolated=true|independent_generalization_estimate=false|architecture_superiority_evidence=false
 CHECKPOINT|bytes=30994|header=2418|records=34|checksum=fnv1a64:67aeaaea603b291f|selected=32|optimizer=32|rng=0x0000000000000026|bytes_roundtrip=true|model_bits_exact=true|optimizer_bits_exact=true|tokenizer_exact=true|logit_probe=At|logit_probe_ids=67,118|prompt_logits_bitwise=true
 GENERATE|prompt=A|prompt_ids=67|temperature=0.8|top_k=4|seed=38|generated=260,34,34|text="т  "|prefixes=1,2,3|stop=token-limit|prefill=1|decode=2|final_cache=3|cached_scores=6|calculated_complete_prefix_scores=14|rng_initial=0x0000000000000026|rng_final=0xdaa66d2c7ddf7465|tokens_exact=true|decisions_bitwise=true|rng_exact=true
 HISTORY|targets=1744|bigram_context=1|decoder_context=4|bigram=3.981342714|decoder=3.866087547|gap=0.115255167

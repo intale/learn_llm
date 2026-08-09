@@ -55,9 +55,9 @@ function frontmatter(source: string) {
 }
 
 function sourceRegion(source: string, region: string): string {
-  const match = source.match(new RegExp(
-    `// region:${region}([\\s\\S]*?)// endregion:${region}`,
-  ));
+  const match = source.match(
+    new RegExp(`// region:${region}([\\s\\S]*?)// endregion:${region}`),
+  );
   if (!match) throw new Error(`missing Rust source region ${region}`);
   return match[1];
 }
@@ -377,6 +377,16 @@ describe("Chapter 33 static diagram and content boundary", () => {
     const englishDiagramLabels = diagramLabelsFromLesson(lessonSource);
     const russianDiagramLabels = diagramLabelsFromLesson(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
+    const localTestGateLine =
+      "next=evaluate the frozen selected state through one local post-selection test gate";
+    expect(expectedOutput.trimEnd().split("\n").at(-1)).toBe(localTestGateLine);
+    expect(demoSource).toContain(`"${localTestGateLine}"`);
+    expect(createHash("sha256").update(expectedOutput).digest("hex")).toBe(
+      "22ad9e85f1e8fe036ef9ae1731dbc3f82e3723102e91b21755e4e7da4e6639ba",
+    );
+    expect(createHash("sha256").update(demoSource).digest("hex")).toBe(
+      "e7c3c69fb8dd4c610a84b59c81a192a418ddbf0db18d7c2aa39ff10d66d84bab",
+    );
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
       symbols: contract.formula.symbols.map(
@@ -422,7 +432,9 @@ describe("Chapter 33 static diagram and content boundary", () => {
     });
     expect(russianLesson.objective).toBe(contract.objective.ru);
     expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
-    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.decoder_connection).toBe(
+      contract.decoder_connection.ru,
+    );
     expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
     expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
     expect(russianLesson.history.llm_evolution).toEqual({
@@ -450,11 +462,17 @@ describe("Chapter 33 static diagram and content boundary", () => {
     ]).toEqual(contract.rust.sources);
     expect(
       russianLesson.rust_sources.map(
-        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+        ({ path, region }: { path: string; region?: string }) => ({
+          path,
+          region,
+        }),
       ),
     ).toEqual(
       lesson.rust_sources.map(
-        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+        ({ path, region }: { path: string; region?: string }) => ({
+          path,
+          region,
+        }),
       ),
     );
     expect([
@@ -462,7 +480,10 @@ describe("Chapter 33 static diagram and content boundary", () => {
         russianLesson.rust_sources.map(({ path }: { path: string }) => path),
       ),
     ]).toEqual(contract.rust.sources);
-    for (const localizedLabels of [englishDiagramLabels, russianDiagramLabels]) {
+    for (const localizedLabels of [
+      englishDiagramLabels,
+      russianDiagramLabels,
+    ]) {
       expect(() =>
         validateTrainingSelectionDiagramLabels(localizedLabels),
       ).not.toThrow();
@@ -486,11 +507,17 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(9);
-    expect(lesson.content_revision).toBe(9);
-    expect(russianLesson.content_revision).toBe(9);
+    expect(contract.content_revision).toBe(10);
+    expect(lesson.content_revision).toBe(10);
+    expect(russianLesson.content_revision).toBe(10);
     expect(contract.translation_notes).toContain(
-      `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
+      `Canonical English revision 10 has SHA-256 ${createHash("sha256").update(lessonSource).digest("hex")}; the reviewed direct Russian revision 10 has SHA-256 ${createHash("sha256").update(russianLessonSource).digest("hex")}.`,
+    );
+    expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
+      "b041347b7a802434e1c98e9cf0c27f691a25fdcd7a8dc8f6222e4b7fde11d85e",
+    );
+    expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
+      "0f92c02317714ca5a1be2b0321b5b2bb2c864b203df55aadf44c8877b11c6821",
     );
     expect(coursePlanSource).not.toContain("s^\\*");
     expect(contractSource).not.toContain("s^\\*");
@@ -524,19 +551,56 @@ describe("Chapter 33 static diagram and content boundary", () => {
       /byte for byte|final newline|page parses|static diagram|implementation languages/i,
     );
     expect(coursePlanSource).toContain(
-      "Content revision 9 applies the shared borrowed name-and-shape layout contract to stable parameter leaves",
+      "Content revision 4 defines stable parameter names, list order, and component shapes as one reusable borrowed decoder-layout contract",
     );
     for (const fragment of [
       "The layout check neither copies a tensor buffer nor creates component handles",
       "Passing it means that the leaf list has a valid layout; it does not yet mean that live decoder aliases exist",
       "Only this binding step re-establishes one embedding node for both lookup and output projection",
-    ]) expect(normalizedLesson).toContain(fragment);
+    ])
+      expect(normalizedLesson).toContain(fragment);
     const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
     for (const fragment of [
       "При этой проверке буферы тензоров не копируются, а компоненты ещё не связываются с параметрами",
       "Успешная проверка означает только, что список имеет допустимую схему",
       "Только эта привязка снова делает один узел эмбеддинга общим для выбора строк и выходной проекции",
-    ]) expect(normalizedRussianLesson).toContain(fragment);
+    ])
+      expect(normalizedRussianLesson).toContain(fragment);
+
+    expect(englishDiagramLabels.captions.proof).toBe(
+      "Validation can choose a snapshot but cannot update it; this trainer rejects Test throughout the training execution, before the next chapter creates its local evaluator.",
+    );
+    expect(russianDiagramLabels.captions.proof).toBe(
+      "Валидация может выбрать сохранённое состояние, но не обновить его; реализация цикла обучения отклоняет Test на протяжении запуска, прежде чем в следующей главе будет создан локальный оценщик.",
+    );
+    for (const fragment of [
+      "This trainer rejects `Test` throughout one training execution; Chapter 34's later one-use count belongs to one local evaluator instance.",
+      "this course's one-use count belongs to one local evaluator instance. That count is not a repository-history claim.",
+      "That count applies to one evaluator instance in one execution, not to the repository's complete history of checking the fixture.",
+    ])
+      expect(normalizedLesson).toContain(fragment);
+    for (const fragment of [
+      "Реализация цикла обучения отклоняет `Test` на протяжении одного запуска обучения; счётчик однократного доступа в главе 34 относится к одному локальному экземпляру оценщика.",
+      "счётчик однократного доступа в этом курсе относится к одному локальному экземпляру оценщика. Этот счётчик не описывает всю историю репозитория.",
+      "Этот счётчик относится к одному экземпляру оценщика в одном запуске, а не ко всей истории проверок фиксированного набора тестовых данных в репозитории.",
+    ])
+      expect(normalizedRussianLesson).toContain(fragment);
+    for (const source of [
+      normalizedLesson,
+      contractSource.replace(/\s+/g, " "),
+    ]) {
+      expect(source).not.toMatch(
+        /separate test partition stays unopened|later once-only evaluation|score that state once on the test partition|open the held-out test partition exactly once/i,
+      );
+    }
+    for (const source of [
+      normalizedRussianLesson,
+      contractSource.replace(/\s+/g, " "),
+    ]) {
+      expect(source).not.toMatch(
+        /тестовая выборка остаётся закрытой|последующей однократной оценки|будет один раз оценено на тестовой выборке|откроет отложенную тестовую выборку ровно один раз|при каждом запуске оцениваются ранее не использованные данные|сохранённый пример никогда прежде не открывали/i,
+      );
+    }
 
     expect(trainerSource).toContain("region:training-plan");
     expect(trainerSource).toContain("region:no-grad-evaluation");
@@ -590,11 +654,17 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(completeLoopSource).toContain(
       "selected_state.restore_independent_model()?",
     );
-    expect(completeLoopSource).not.toMatch(/DecoderModelState::capture|\.restore\(\)/);
-    expect(completeLoopSource).toContain("clear_and_verify_gradients(&model)?;");
+    expect(completeLoopSource).not.toMatch(
+      /DecoderModelState::capture|\.restore\(\)/,
+    );
+    expect(completeLoopSource).toContain(
+      "clear_and_verify_gradients(&model)?;",
+    );
     expect(completeLoopSource).toContain("parameter_nodes_preserved: true");
     expect(trainerSource).not.toContain("clipped_parameter_copy");
-    expect(trainerSource).toContain("if optimizer_step != expected_optimizer_step");
+    expect(trainerSource).toContain(
+      "if optimizer_step != expected_optimizer_step",
+    );
     expect(trainerSource).not.toContain("optimizer_step.step()");
     expect(normalizedLesson).toContain(
       "That working decoder and optimizer then persist through all eight updates",
@@ -635,7 +705,9 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(parameterRebuildSource).toContain(
       "validate_parameter_layout(config, parameters.as_slice())?;",
     );
-    expect(parameterRebuildSource.match(/validate_parameter_layout/g)).toHaveLength(1);
+    expect(
+      parameterRebuildSource.match(/validate_parameter_layout/g),
+    ).toHaveLength(1);
     expect(decoderSource).toContain(
       "Ordinary optimizer steps instead update the existing leaves",
     );

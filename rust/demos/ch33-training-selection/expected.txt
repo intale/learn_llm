@@ -12,4 +12,4 @@ clipping=observed:true max_norm:0.350000 finite:true nodes_preserved:true cleare
 ownership=input_model_unchanged:true input_optimizer_unchanged:true selected_restored:true
 selection_contrast=training_only_step:2 validation_step:1
 replay=bitwise:true
-next=evaluate the frozen selected state once on test data
+next=evaluate the frozen selected state through one local post-selection test gate

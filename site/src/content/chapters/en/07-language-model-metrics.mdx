@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 7,
   "concept_id": "language-model-metrics",
   "title": "From assigned probability to perplexity",
@@ -83,7 +83,7 @@
     "id": "language-model-metrics",
     "rationale": "A diagram built from Rust-computed trace values lets learners follow each observed target probability into surprise, sum those surprises, divide by the target count, and obtain mean NLL and perplexity while keeping the weighting denominator visible."
   },
-  "decoder_connection": "The course can now compute mean NLL and perplexity for its unchanged smoothed bigram on training and validation without refitting the model. The Chapter 7 bigram scorer accepts only those two partitions. Chapters 8–22 build the tensor, differentiation, and optimization machinery needed to lower mean NLL; Chapter 34 performs the first test-set evaluation."
+  "decoder_connection": "The course can now compute mean NLL and perplexity for its unchanged smoothed bigram on training and validation without refitting the model. The Chapter 7 bigram scorer accepts only those two partitions. Chapters 8–22 build the tensor, differentiation, and optimization machinery needed to lower mean NLL; Chapter 34 later demonstrates one local post-selection evaluation of a fixed teaching fixture."
 }
 ---
 
@@ -595,8 +595,11 @@ Chapters 8–22 build the tensor, differentiation, and optimization machinery
 that later models need in order to improve mean NLL.
 
 Chapter 33 will train the complete decoder and select one state using validation
-loss only. Chapter 34 will freeze that state, evaluate it once on the previously
-unscored test targets, and compare it with the retained bigram model. A fair
+loss only. Chapter 34 will freeze that state and demonstrate one local
+post-selection evaluation on a fixed teaching fixture, comparing it with the
+retained bigram model. That describes the order inside the demonstrated
+execution; it makes no claim about how often the fixed result has been used
+during repository development. A fair
 comparison requires both models to use the same tokenizer, the same mapping from
 token IDs to token values, the same exact target set, the same document-boundary
 and context-construction rules, and the same source data. Chapter 7 supplies the

@@ -2,15 +2,15 @@
 {
   "chapter_id": "34-final-evaluation",
   "concept_id": "final-evaluation",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 34,
   "objective": {
-    "en": "Evaluate the frozen validation-selected decoder through one test-only gate, validate and record the ordered test input/target positions, aggregate every target token fairly, and compare the result with a frozen bigram fitted on the same training tokens.",
-    "ru": "Оценить зафиксированный декодер, выбранный по валидации, через механизм однократного доступа только к тестовой выборке; проверить и сохранить упорядоченные пары входных и целевых токенов; усреднить потери по всем целевым токенам; затем сравнить результат с зафиксированной биграммной моделью, обученной на тех же обучающих токенах."
+    "en": "Evaluate the frozen validation-selected decoder through one local test-only gate, validate and record the ordered test input/target positions, aggregate every target token fairly, and compare it with a frozen bigram while identifying the deliberately selected comparison as fixed-fixture regression evidence.",
+    "ru": "Оценить зафиксированный декодер, выбранный по валидации, через один локальный механизм доступа только к тестовой выборке; проверить и сохранить упорядоченные пары входных и целевых токенов; усреднить потери по всем целевым токенам; затем сравнить декодер с зафиксированной биграммной моделью и явно обозначить, что намеренно выбранное сравнение служит регрессионной проверкой фиксированного учебного примера."
   },
   "worked_inputs": {
-    "en": "Score two fixed reverse-cycle test documents of nine and seven token IDs with the Chapter 33 context-two decoder and an alpha-one bigram fitted on the exact same two training documents; in one immutable report compare both models over the same ordered 24 target-token positions, each paired with its aligned input token.",
-    "ru": "Оценить два фиксированных тестовых документа длиной девять и семь ID токенов; их последовательности идут в направлении, обратном синтетическому обучающему циклу. Использовать декодер из главы 33 с контекстом длины два и биграммную модель с аддитивным сглаживанием с параметром один, обученную ровно на тех же двух обучающих документах; в одном неизменяемом отчёте сравнить обе модели на одной и той же последовательности из 24 целевых позиций, каждой из которых сопоставлен входной токен."
+    "en": "Score two fixed reverse-cycle test documents of nine and seven token IDs, deliberately selected for the recorded decoder-lower ordering, with the Chapter 33 context-two decoder and an alpha-one bigram fitted on the exact same two training documents; in one immutable report compare both models over the same ordered 24 target-token positions, each paired with its aligned input token.",
+    "ru": "Оценить два фиксированных тестовых документа длиной девять и семь ID токенов, намеренно выбранных так, чтобы значение функции потерь декодера было ниже; использовать декодер из главы 33 с контекстом длины два и биграммную модель с аддитивным сглаживанием с параметром один, обученную ровно на тех же двух обучающих документах; в одном неизменяемом отчёте сравнить обе модели на одной и той же последовательности из 24 целевых позиций, каждой из которых сопоставлен входной токен."
   },
   "formula": {
     "latex": "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
@@ -66,16 +66,16 @@
     "llm_evolution": {
       "predecessor_kind": "evaluation-method",
       "limitation": {
-        "en": "Training scores judge data the model already fitted, while repeatedly inspecting one holdout gradually turns that holdout into another selection signal.",
-        "ru": "Результат на обучающей выборке измеряет качество на данных, к которым модель уже подгоняла параметры. Если многократно проверять модель на одной и той же отложенной выборке, эта выборка постепенно превращается в ещё один источник решений о модели."
+        "en": "Training scores judge data the model already fitted, while adaptive repeated reuse of one holdout can overfit that holdout and destroys its status as untouched independent evidence.",
+        "ru": "Результат на обучающей выборке измеряет качество на данных, к которым модель уже подгоняла параметры, а многократное адаптивное использование одной отложенной выборки может привести к переобучению на ней и лишить результат статуса независимого свидетельства."
       },
       "later_advance": {
         "en": "Neural language-model studies separated fitting, validation-driven choices, and test reporting; large transfer studies made validation checkpoint choice operationally explicit, while web-scale pretraining added dataset-overlap and provenance audits to the evaluation boundary.",
         "ru": "В исследованиях нейронных языковых моделей стали отдельно подгонять параметры, принимать решения по валидации и сообщать итоговый результат на тестовой выборке. В крупных работах по переносу обучения выбор контрольной точки по результатам валидации сделали явной частью процесса, а при предобучении на веб-данных к итоговой оценке добавили поиск пересечений между наборами данных и проверку их происхождения."
       },
       "modern_llm_role": {
-        "en": "A trustworthy final LLM comparison freezes model and data decisions, scores like-for-like targets without a gradient graph, records provenance, and treats the held-out result as evidence rather than permission to tune again.",
-        "ru": "Для надёжного итогового сравнения LLM заранее фиксируют решения о модели и данных, оценивают сопоставимые целевые позиции без записи графа вычислений, сохраняют сведения о происхождении данных и используют результат на отложенной выборке только для итогового вывода, а не как повод снова настраивать модель."
+        "en": "A trustworthy final LLM comparison freezes model and data decisions before scoring, records provenance, and distinguishes an untouched estimate from a known fixed fixture retained for regression checking.",
+        "ru": "Для надёжного итогового сравнения LLM решения о модели и данных фиксируют до оценки, сохраняют сведения о происхождении данных и отличают независимую оценку на ранее не использованных данных от известного фиксированного примера, сохранённого для регрессионной проверки."
       },
       "sources": [
         {
@@ -86,6 +86,16 @@
           "claim": {
             "en": "Bengio and colleagues use separate training, validation, and test portions, use validation for model choices and early stopping, and then report test perplexity for an early neural language model.",
             "ru": "Бенжио и соавторы используют отдельные обучающую, валидационную и тестовую части данных, опираются на валидацию при выборе модели и ранней остановке, а затем приводят тестовую перплексию ранней нейронной языковой модели."
+          }
+        },
+        {
+          "role": "later",
+          "year": 2015,
+          "name": "Generalization in Adaptive Data Analysis and Holdout Reuse",
+          "source_url": "https://arxiv.org/abs/1506.02629",
+          "claim": {
+            "en": "Dwork and colleagues show that adaptive repeated reuse of a standard holdout can overfit the holdout itself; this general warning does not establish any fact about this repository's fixture history or scores.",
+            "ru": "Дворк и соавторы показывают, что многократное адаптивное использование обычной отложенной выборки может привести к переобучению на самой этой выборке; этот общий вывод не устанавливает фактов об истории или результатах учебного примера из данного репозитория."
           }
         },
         {
@@ -111,12 +121,12 @@
       ]
     },
     "approach": {
-      "en": "Move from training-set reporting and repeatedly consulted holdouts toward a frozen three-role protocol: training fits, validation selects, and test supplies one final comparison.",
-      "ru": "Перейдите от отчётов по обучающей выборке и многократной проверки на одних и тех же отложенных данных к протоколу с тремя заранее закреплёнными ролями: обучение подгоняет параметры, валидация выбирает состояние, а тестовая выборка даёт одно итоговое сравнение."
+      "en": "Move from training-set reporting and adaptively consulted holdouts toward a three-role protocol, while distinguishing that ideal from this repository's known fixed fixture: training fits, validation selects, and one local evaluator scores only after selection.",
+      "ru": "Перейдите от отчётов по обучающей выборке и адаптивного обращения к одним и тем же отложенным данным к протоколу с тремя ролями, одновременно отличая этот идеал от известного фиксированного примера в репозитории: обучение подгоняет параметры, валидация выбирает состояние, а один локальный оценщик выполняет оценку только после выбора."
     },
     "summary": {
-      "en": "The road to modern LLM evaluation combines three-way role separation with checkpoint discipline and data-overlap audits. This chapter uses a deliberately strict one-gate rule to make the boundary observable; it does not claim that the cited papers used exactly one test query, and a local gate cannot replace real dataset governance.",
-      "ru": "Современная оценка LLM сочетает разделение ролей данных, дисциплину выбора контрольной точки и поиск пересечений между наборами данных. В этой главе границу делает видимой намеренно строгое правило: локальный доступ к тестовой выборке открывается только один раз. Это не означает, что в процитированных работах тестовую выборку запрашивали ровно один раз; локальный механизм не заменяет управление доступом к реальным наборам данных."
+      "en": "The road to modern LLM evaluation combines three-way role separation with checkpoint discipline, adaptive-holdout caution, and data-overlap audits. This chapter's local gate proves within-execution selection isolation, while its deliberately chosen and repeatedly checked comparison is fixed-fixture regression evidence, not an untouched independent estimate of generalization.",
+      "ru": "Современная оценка LLM сочетает разделение трёх ролей данных, дисциплину выбора контрольной точки, осторожность при многократном использовании отложенной выборки и поиск пересечений между наборами данных. Локальный механизм этой главы доказывает, что в пределах одного запуска тестовые примеры не могут повлиять на выбор состояния; намеренно выбранное и постоянно проверяемое сравнение служит регрессионной проверкой фиксированного примера, а не независимой оценкой способности модели обобщать на ранее не использованных данных."
     },
     "rust_contrast": "Use the typed evaluator and fixture to distinguish matching caller-supplied provenance assertions from mechanically checked context, state, vocabulary, and target facts, while demonstrating a consumed-on-open Test boundary, graph-free scoring, and an immutable versioned report; keep historical paper claims in sourced prose rather than hardcoded boolean records."
   },
@@ -129,19 +139,19 @@
       "rust/demos/ch34-final-evaluation/src/main.rs",
       "rust/demos/ch34-final-evaluation/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=34-final-evaluation\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true\nprovenance=corpus:ch33-34-synthetic-v1 split:fixed-role-split-v1 tokenizer:literal-u32-v1 vocabulary:5 context:2\nbaseline=alpha:1.000000 fitted_partition:train documents:2 transitions:22 frozen:true\ntest=documents:2 windows:12 batches:3 targets:24 gate_openings_before:0 gate_openings_after:1 fingerprint:fnv1a64:dac4bb4d76beeb59\ndecoder=mean_nll:1.607679 perplexity:4.991215 total_nll:38.584306 graphs:0 parameters_unchanged:true gradients_unchanged:true\nbigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634\ncomparison=lower_loss:selected-decoder gap:0.629055 same_targets:true\nproof=token_weighted:true provenance_assertions_match:true selection_closed:true report_version:1\nnext=serialize the selected evaluated state in a versioned checkpoint\n"
+    "expected_output": "chapter=34-final-evaluation\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true\nprovenance=corpus:ch33-34-synthetic-v1 split:fixed-role-split-v1 tokenizer:literal-u32-v1 vocabulary:5 context:2\nbaseline=alpha:1.000000 fitted_partition:train documents:2 transitions:22 frozen:true\ntest=documents:2 windows:12 batches:3 targets:24 gate_openings_before:0 gate_openings_after:1 fingerprint:fnv1a64:dac4bb4d76beeb59\ndecoder=mean_nll:1.607679 perplexity:4.991215 total_nll:38.584306 graphs:0 parameters_unchanged:true gradients_unchanged:true\nbigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634\ncomparison=lower_loss:selected-decoder gap:0.629055 same_targets:true\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true fixture_selected_for_ordering:true independent_generalization_estimate:false architecture_superiority_evidence:false\nproof=token_weighted:true provenance_assertions_match:true selection_closed:true report_version:1\nnext=serialize the selected evaluated state in a versioned checkpoint\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "final-evaluation-boundary",
     "rationale": {
-      "en": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and separate assertion/checked-fact cards show that both models use the same inspected input/target order without turning the result into another model-selection step.",
-      "ru": "Единая последовательность движения информации наглядно разделяет подгонку параметров, выбор и итоговую оценку. Точная таблица с результатами двух моделей и отдельные карточки заявленных сведений и проверяемых фактов показывают, что обе модели используют одну и ту же последовательность входных и целевых позиций, а численный результат не становится ещё одним шагом выбора модели."
+      "en": "One information-flow sequence makes the within-execution fit/select/evaluate boundary visible, while an exact two-row score table and evidence-scope cues show that both models use the same inspected input/target order and that the known decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence.",
+      "ru": "Единая последовательность движения информации наглядно показывает границу между подгонкой параметров, выбором и оценкой в пределах одного запуска. Точная таблица из двух строк и явные пометки области применимости показывают, что обе модели используют одну и ту же проверенную последовательность пар «вход — цель», а известный порядок потерь, при котором потери декодера ниже потерь биграммной модели, сохраняется только для регрессионной проверки фиксированного примера."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance.",
-    "ru": "К этому этапу у декодера есть состояние, выбранное по валидации, и неизменяемый итоговый отчёт по тем же целевым позициям. В главе 35 мы сериализуем именно то выбранное состояние, которое оценили здесь, а вместе с ним — токенизатор, конфигурацию, состояние оптимизатора и состояние генератора псевдослучайных чисел."
+    "en": "The cumulative decoder now has one validation-selected state and one immutable fixed-fixture regression report on shared targets; Chapter 35 will serialize the same selected state that this chapter evaluated, together with its tokenizer, configuration, optimizer, and RNG provenance.",
+    "ru": "К этому этапу у декодера есть состояние, выбранное по валидации, и неизменяемый отчёт о регрессионной проверке фиксированного примера на общих целевых позициях. В главе 35 мы сериализуем именно то выбранное состояние, которое оценили здесь, а вместе с ним — токенизатор, конфигурацию, состояние оптимизатора и состояние генератора псевдослучайных чисел."
   },
   "terminology": [
     {
@@ -170,6 +180,11 @@
       "ru": "неизменяемый итоговый отчёт об оценке"
     },
     {
+      "concept_id": "fixed-fixture-regression-evidence",
+      "en": "fixed-fixture regression evidence",
+      "ru": "результат фиксированного примера для регрессионной проверки"
+    },
+    {
       "concept_id": "benchmark-contamination",
       "en": "benchmark contamination",
       "ru": "пересечение тестового набора с данными предобучения"
@@ -191,13 +206,15 @@
     }
   ],
   "translation_notes": [
-    "Chapter 34 has the exact active locale set {en, ru}. English content revision 5 is the canonical semantic source; Russian is translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: ab71bcf95e1bcb446d01cd531e9a0aad29dbe8afd03751b38d5c543f99e18e6c",
-    "reviewed Russian SHA-256: 20d40b3340755af228eea0c4a988623686b481a129def2fe7a6ca4cd65e468ec",
+    "Chapter 34 has the exact active locale set {en, ru}. English content revision 6 is the canonical semantic source; Russian is translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 6870f76a2dc8d2f1bc15ce301d286849d9110f9e7228bcd67466720bd03da7c7",
+    "reviewed Russian SHA-256: f003f568bd21b4fa2e96c043b4764779d9b4329258533f478010f08b8c845ce5",
+    "The English and reviewed Russian Chapter 34 cheat sheets have SHA-256 f2418a4615bcc7067379949fad18e3cbc5e02c33056016777d40a15aaad05674 and 2ec2f61b14f8ddb2f0588a79d75800357eb2a1e7644466a1e1a8d10768018f1b respectively.",
     "Preserve the distinct Train, Validation, and Test responsibilities; test is not a synonym for validation.",
     "Preserve theta_{s^*}, s^*, L_te, N_te, x_n, y_n, natural-log notation, exact trace tokens, fingerprints, and numeric lexemes.",
     "Translate exactly once as a strict course protocol with a documented local-gate limit, not as a universal historical claim. Preserve that the one-use resource is permission to inspect the test epoch, while SelectedDecoder borrows both the retained selected state and the matching already isolated model.",
     "Preserve the three-way distinction between caller-supplied provenance and role assertions, facts mechanically checked by the evaluator, and stronger assembly evidence supplied by the concrete Chapter 33/34 fixture; never translate matching identifier strings as verified actual lineage.",
+    "Preserve the evidence-scope distinction: within one execution test cannot affect the selected state; the Chapter 34 documents were deliberately selected for the recorded ordering; their known result is retained for fixed-fixture regression checking, not as an independent generalization estimate or evidence of architecture superiority. In Russian use natural wording about a fixed teaching example and regression checking, not the calque «фикстура».",
     "Preserve that one inspection means one input-validation boundary at gate opening, not one physical memory pass: the private non-mutable inspected view couples evidence to checked pairs, each batch checks alignment then each input ID then its target ID, decoder scoring remains a separate no-grad traversal, and every public raw-ID API retains its checks.",
     "Programming language names may identify source provenance only where relevant; the history must stay on the road to trustworthy modern LLM evaluation."
   ],
@@ -220,7 +237,11 @@
     },
     {
       "input": "Compare the selected decoder and alpha-one bigram",
-      "expected": "The gate-opening inspection records the ordered input/target slots with fingerprint fnv1a64:dac4bb4d76beeb59. The decoder evaluates the original epoch without a graph; the bigram reuses the stored checked indices. This fixture reports mean losses 1.607679 and 2.236735."
+      "expected": "The gate-opening inspection records the ordered input/target slots with fingerprint fnv1a64:dac4bb4d76beeb59. The decoder evaluates the original epoch without a graph; the bigram reuses the stored checked indices. This deliberately selected fixed fixture reports mean losses 1.607679 and 2.236735 as regression evidence, not an independent estimate of generalization."
+    },
+    {
+      "input": "Run the alternate fixed-sequence diagnostic",
+      "expected": "The same evaluator guarantees remain graph-free and state-preserving while the bigram is lower than the decoder, demonstrating that the generic evaluator does not require decoder superiority and that the primary ordering belongs only to its named fixture."
     },
     {
       "input": "Open the gate with mismatched input/target lengths or an out-of-range token ID",
@@ -242,7 +263,7 @@
 }
 ---
 
-# Chapter 34: Open test once, keep the report
+# Chapter 34: Open one local test gate, keep the report
 
 <!-- contract-section:scope -->
 ## Scope
@@ -253,14 +274,22 @@ provenance assertions, a frozen selected-decoder view, a frozen training-only
 bigram view, one test-only
 gate, one private inspected view that binds report evidence to checked
 input/target indices, graph-free token-weighted decoder scoring, and an immutable
-versioned report comparing both models over the same ordered positions.
+versioned report comparing both models over the same ordered positions. The
+local gate proves that test examples cannot change the already selected state
+inside this execution; it does not make the checked-in result an untouched
+repository-level estimate.
 
-The test result cannot update parameters, change a schedule, stop training, pick
+Inside this execution, the test result cannot update parameters, change a
+schedule, stop training, pick
 a different checkpoint, alter the tokenizer, or choose a new baseline. A second
 call through the same gate is rejected. The local Rust type demonstrates the
 information boundary but cannot make globally unique data access unforgeable; a
 real evaluation process also needs access control, audit logs, and dataset
-governance. Checkpoint serialization, loading, generation, sampling, and caching
+governance. The reverse-cycle documents were deliberately selected for the
+recorded decoder-lower ordering, which is now rerun as a fixed-fixture regression
+condition. Its scores are not independent evidence of generalization or
+architecture-wide decoder superiority. Checkpoint serialization, loading,
+generation, sampling, and caching
 remain outside this chapter.
 
 <!-- contract-section:worked-inputs -->
@@ -287,9 +316,11 @@ the unweighted mean of two document losses.
 
 The final report records decoder loss $1.607679$ and bigram loss $2.236735$.
 The selected decoder is lower by $0.629055$ in this fixture. The documents use
-reversed synthetic transitions that shift away from the training cycle, so this
-is evidence about the executable boundary and this fixture only. It does not
-show that a decoder universally beats a bigram.
+reversed synthetic transitions that shift away from the training cycle and were
+deliberately selected for that ordering. The exact comparison is now retained as
+a regression condition. It is valid evidence about the executable boundary and
+this fixed teaching fixture, but it is not an untouched independent estimate of
+generalization and does not show architecture-wide decoder superiority.
 
 <!-- contract-section:formula -->
 ## Formula and symbols
@@ -301,8 +332,9 @@ $$
 \sum_{n=1}^{N_{te}}\log p_{\theta_{s^*}}(y_n\mid x_n).
 $$
 
-$\theta_{s^*}$ is frozen before the test opens. $s^*$ is the validation-selected
-checkpoint and cannot be recomputed from test loss. $x_n$ is the available
+$\theta_{s^*}$ is frozen before the local test gate opens in this execution.
+$s^*$ is the validation-selected checkpoint and cannot be recomputed from test
+loss inside that execution. $x_n$ is the available
 causal input at target slot $n$, and $y_n$ is its observed next-token target.
 $p_{\theta_{s^*}}(y_n\mid x_n)$ is the probability assigned to that target.
 $\log$ is the natural logarithm, so $\mathcal{L}_{te}$ is measured in nats per
@@ -332,6 +364,13 @@ validation with model choices and early stopping, and then reports test
 perplexity. The paper supports role separation; it does not say that the test
 was queried exactly once or that the split was frozen before tokenizer learning.
 
+[Dwork et al.](https://arxiv.org/abs/1506.02629) analyze adaptive data analysis
+and show that repeated adaptive reuse of a standard holdout can overfit the
+holdout itself. That result supplies the general warning: a holdout label does
+not preserve an independent estimate after its results enter later choices. The
+paper does not describe this repository, its local counter, its fixture choice,
+or either recorded loss.
+
 [Raffel et al.](https://www.jmlr.org/papers/volume21/20-074/20-074.pdf)
 make checkpoint responsibility operational at larger transfer-learning scale.
 T5 saves candidates, selects by validation performance, and generally reports
@@ -348,10 +387,15 @@ paper does not prove that contamination necessarily caused a score increase.
 
 Together these sources motivate three distinct responsibilities and stronger
 provenance checks on the road to modern LLM evaluation. Training scores and
-repeatedly inspected holdouts cannot be trusted as independent final evidence.
-The evaluator therefore adopts a stricter teaching policy: freeze every decision,
-open one typed test gate, and keep its result as an immutable report. That policy
-belongs to this course; it is not attributed to the papers.
+adaptively reused holdouts cannot be trusted as independent final evidence. The
+evaluator therefore adopts a strict local teaching policy: freeze every decision
+inside one execution, open one typed test gate, and keep its result as an
+immutable report. The repository-level evidence needs a separate label. Its
+reverse-cycle documents were deliberately selected for the recorded ordering,
+and the same ordering is repeatedly checked, so the scores are fixed-fixture
+regression evidence rather than an untouched independent generalization estimate.
+Those policies and repository facts belong to this course; they are not
+attributed to the papers.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -388,6 +432,17 @@ $1$. Even an alignment, token-range, or later numerical error therefore leaves
 the gate consumed, and a retry returns `AlreadyEvaluated`. This is an API protocol
 within one owner, not a claim that a caller cannot construct a second owner from
 separately copied data.
+
+The Chapter 34 learner program retains the decoder-lower relationship as an
+explicit fixed-fixture regression condition, not as a generic evaluator rule.
+Its report records `scope:fixed-fixture-regression`,
+`within_run_selection_isolated:true`, `fixture_selected_for_ordering:true`,
+`independent_generalization_estimate:false`, and
+`architecture_superiority_evidence:false`. The diagram trace uses
+`decoder_lower_on_fixture=true`; the stale name `decoder_beats_bigram` is not
+current evidence. An alternate fixed-sequence diagnostic makes the bigram lower
+while preserving graph-free scoring and unchanged model bits, demonstrating that
+the reusable evaluator itself is neutral to model ordering.
 
 `InspectedTestEpoch` and its fields are private to the evaluation module. The
 current module constructs the type only through `inspect`, exposes no mutation
@@ -426,7 +481,8 @@ scores, the selected step, and proof flags behind getters only. Tests cover ever
 role/provenance assertion error and the documented matching-assertion adversary,
 empty and mismatched epochs, vocabulary and token bounds, consumed-on-error
 behavior, uneven batches, exact token weighting, target alignment, bit preservation,
-deterministic replay, exact fixture numbers, and the fixture-specific lower loss.
+deterministic replay, exact fixture numbers, the fixture-specific lower loss,
+the explicit evidence-scope markers, and the reversed-order diagnostic.
 
 <!-- contract-section:visualization -->
 ## Visualization decision
@@ -442,7 +498,9 @@ occupies one named, keyboard-reachable shared scroll region at narrow widths.
 Four check cards distinguish matching caller-supplied identifiers from the
 independently checked context, vocabulary, target, state/model, and graph-free
 facts; they also show closed selection and one inspected view bound to one
-report. Every bounded card
+report. Local diagram copy names the decoder-lower relation as a fixed-fixture
+regression condition and rejects independent-generalization and
+architecture-superiority interpretations. Every bounded card
 has four visible borders and contains its text and formula ink.
 
 The figure is complete static HTML derived from the Rust trace. It uses the shared
@@ -467,12 +525,20 @@ full-view control.
    string. Predict which change this API detects before the gate opens.
 6. Force an out-of-range token during the gate-opening inspection. Predict why
    the call fails and why a retry through that evaluator is still forbidden.
-7. Compare mean losses $1.607679$ and $2.236735$. State the bounded conclusion
-   and the unjustified universal conclusion.
+7. Compare mean losses $1.607679$ and $2.236735$. State the bounded fixed-fixture
+   conclusion and explain why neither independent generalization nor universal
+   architecture superiority follows.
 8. Spot the limitation: two separate processes each construct a fresh local
    evaluator over copied test data. What external control is missing?
 
-The central misconception is that test data is simply more validation data.
+The central misconception is that one local access count makes a repository-level
+score untouched. Training fits parameters, validation chooses among planned
+candidates, and the local test gate cannot feed a result back inside this
+execution. But this fixture's documents were deliberately selected for their
+ordering and are now checked repeatedly, so the score is regression evidence,
+not an independent estimate of generalization.
+
+A related misconception is that test data is simply more validation data.
 Training fits parameters, validation chooses among planned candidates, and test
 supplies final evidence. Once test evidence changes a choice, it has become part
 of selection and a new untouched test set is needed for an independent claim.
@@ -480,9 +546,11 @@ of selection and a new untouched test set is needed for an independent claim.
 <!-- contract-section:decoder-connection -->
 ## Decoder connection and handoff
 
-The course now owns a validation-selected decoder state plus one immutable final
-report that compares it with a frozen training-only baseline on identical test
-targets. Evaluation records no graph and changes no model bits. Chapter 35 will
+The course now owns a validation-selected decoder state plus one immutable
+fixed-fixture regression report that compares it with a frozen training-only
+baseline on identical test targets. Evaluation records no graph and changes no
+model bits inside the execution; the report is not an independent generalization
+estimate. Chapter 35 will
 serialize this exact selected and evaluated state together with its tokenizer,
 configuration, optimizer, RNG, and version metadata so loading can reproduce its
 logits and one resumed update.
@@ -493,12 +561,16 @@ logits and one resumed update.
 English is the canonical semantic source and Russian is an active direct
 translation of the same revision. Both locales publish complete lessons and
 reciprocal routes. Any later English change makes the Russian review stale until
-the three partition roles, exact-once course-policy caveat, fixture-specific
+the three partition roles, local single-use evaluator boundary, fixture-specific
 distribution-shift caveat, formula notation, token and document counts,
 fingerprints, trace tokens, numeric lexemes, lower-loss cue, private inspected
 view, alignment/input/target error order, checked public API boundary, separate
 decoder traversal, physical-pass caveat, and the difference between final
 evidence and model selection have been refreshed from English and reviewed again.
+They must also preserve the distinction between within-execution isolation and
+repository-level fixed-fixture regression evidence, the deliberate selection of
+the reverse-cycle documents for ordering, and the false independent-generalization
+and architecture-superiority flags.
 Both locales must also preserve the distinction between caller-supplied
 provenance/role assertions, mechanically checked runtime facts, and the concrete
 fixture's stronger assembly evidence.
@@ -515,7 +587,8 @@ matching assertions, independently checked context/state/vocabulary facts,
 consumed-on-open behavior, identical
 target ordering, first-error precedence, checked-index reuse, public raw-ID
 checks, token weighting, graph freedom, bit preservation, immutable report,
-exact fixture scores, deterministic replay, and bounded runtime; learner
+exact fixture scores, evidence-scope flags, the reversed-order diagnostic,
+deterministic replay, and bounded runtime; learner
 stdout and the nine-line diagram trace match frozen files byte for byte; both
 localized lessons project this contract with reciprocal locale routes; and the
 production static site passes formula, SEO, sitemap, link, responsive,

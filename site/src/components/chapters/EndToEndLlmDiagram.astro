@@ -325,37 +325,60 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     padding-inline-start: 0.55rem;
   }
 
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen {
+    align-content: start;
+    align-items: start;
+  }
+
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+    > section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--diagram-gap);
+  }
+
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+    > section
+    > :is(h4, .course-diagram__card-stack) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+    > section
+    > .course-diagram__card-stack {
+    display: grid;
+  }
+
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+    .pipeline.course-diagram__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+    .stage-card[data-stage='generation'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+    :is(.selection-card > dl, .stage-facts) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+    .generation-facts
+    > :is(
+      [data-evidence='retained-prefix-lengths'],
+      [data-evidence='cache-prefill-prompt-tokens'],
+      [data-evidence='one-token-decode-input-tokens']
+    ) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   @container course-diagram (min-width: 68rem) {
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      > section {
-      display: grid;
-      grid-template-columns: minmax(14rem, 0.35fr) minmax(0, 1fr);
-      gap: var(--diagram-gap);
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      > section > h4 {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      > section > .course-diagram__card-stack {
-      display: contents;
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      > section > .course-diagram__card-stack > p {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      > section > .course-diagram__card-stack > .pipeline {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
-
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']
       .pipeline.course-diagram__grid {
       display: flex;
@@ -393,63 +416,30 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      .stage-card[data-stage='test'] {
-      flex: 1 0 23%;
+      .pipeline.course-diagram__grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 32rem), 1fr));
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      .stage-card[data-stage='generation'] {
-      flex: 1 0 49%;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      :is(
+        .stage-card[data-stage='selection'],
+        .stage-card[data-stage='generation']
+      ) {
+      grid-column: 1 / -1;
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      .stage-card[data-stage='generation']
-      > :is(header, .cue) {
-      grid-column: span 3;
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      .stage-card[data-stage='generation']
-      > :is(p:nth-of-type(3), p:nth-of-type(5)) {
-      grid-column: span 2;
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      .selection-card
-      > dl {
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      :is([data-stage='batches'], [data-stage='checkpoint'])
-      .stage-facts {
+      .selection-card > dl {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
       .generation-facts {
       grid-column: 1 / -1;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      .generation-facts
-      > :is(
-        [data-evidence='retained-prefix-lengths'],
-        [data-evidence='cache-prefill-prompt-tokens'],
-        [data-evidence='cached-attention-score-cells']
-      ) {
-      grid-column: span 2;
-    }
-
-    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
-      .generation-facts
-      > :is(
-        [data-evidence='one-token-decode-input-tokens'],
-        [data-evidence='complete-prefix-attention-score-cells']
-      ) {
-      grid-column: span 3;
+      grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
@@ -459,7 +449,6 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
       grid-template-columns: minmax(0, 1fr);
       align-content: start;
     }
-
   }
 
   @container course-diagram (max-width: 42rem) {

@@ -7,6 +7,9 @@ use llm_from_scratch::generation::sampling::GenerationStop;
 use llm_from_scratch::pipeline::{CapstoneConfig, CapstoneRun, PipelineError, run_capstone};
 
 pub const RUNTIME_LIMIT_MS: u128 = 150_000;
+pub const FIXED_FIXTURE_EVIDENCE_SCOPE: &str = "fixed-fixture-regression";
+pub const INDEPENDENT_GENERALIZATION_ESTIMATE: bool = false;
+pub const ARCHITECTURE_SUPERIORITY_EVIDENCE: bool = false;
 const CORPUS_JSON: &str = include_str!("../../../data/tiny-bilingual-corpus.json");
 const SPLITS: &str = include_str!("../../../data/splits.json");
 
@@ -46,6 +49,16 @@ fn require(condition: bool, message: &'static str) -> Result<(), FixtureError> {
     } else {
         Err(FixtureError::Invariant(message))
     }
+}
+
+fn within_run_selection_isolated(evidence: &CapstoneRun) -> bool {
+    // `run_capstone` completes replay and validation selection before it builds
+    // the test epoch; these report fields check the later one-use local gate.
+    let evaluation = evidence.final_evaluation();
+    evaluation.access_count() == 1
+        && evaluation.recorded_graphs() == 0
+        && evaluation.parameters_unchanged()
+        && evaluation.gradients_unchanged()
 }
 
 struct TemporaryCheckpoint(PathBuf);
@@ -106,7 +119,11 @@ pub fn learner_evidence() -> Result<CapstoneRun, FixtureError> {
     )?;
     require(
         evidence.final_evaluation().decoder_has_lower_loss(),
-        "selected decoder no longer beats the frozen bigram",
+        "fixed capstone fixture no longer records lower decoder loss than its frozen bigram",
+    )?;
+    require(
+        within_run_selection_isolated(&evidence),
+        "within-run selection isolation evidence changed",
     )?;
     require(
         evidence.training().replay_bitwise(),
@@ -245,7 +262,7 @@ pub fn learner_report() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         report,
-        "test=access:{} documents:[{}] windows:{} batches:{} targets:{} fingerprint:{} decoder:{:.9} bigram:{:.9} gap:{:.9} decoder_wins:{} no_grad:{} unchanged:{}",
+        "test=access:{} documents:[{}] windows:{} batches:{} targets:{} fingerprint:{} decoder:{:.9} bigram:{:.9} gap:{:.9} decoder_lower_on_fixture:{} no_grad:{} unchanged:{}",
         evaluation.access_count(),
         string_list(evaluation.test_document_ids()),
         evaluation.window_count(),
@@ -258,6 +275,15 @@ pub fn learner_report() -> Result<String, FixtureError> {
         evaluation.decoder_has_lower_loss(),
         evaluation.recorded_graphs() == 0,
         evaluation.parameters_unchanged() && evaluation.gradients_unchanged(),
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "evidence=scope:{} within_run_selection_isolated:{} independent_generalization_estimate:{} architecture_superiority_evidence:{}",
+        FIXED_FIXTURE_EVIDENCE_SCOPE,
+        within_run_selection_isolated(&evidence),
+        INDEPENDENT_GENERALIZATION_ESTIMATE,
+        ARCHITECTURE_SUPERIORITY_EVIDENCE,
     )
     .unwrap();
     writeln!(
@@ -399,7 +425,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     }
     writeln!(
         trace,
-        "TEST|access={}|documents={}|windows={}|batches={}|targets={}|fingerprint={}|decoder={:.9}|bigram={:.9}|gap={:.9}|decoder_wins={}|no_grad={}|unchanged={}",
+        "TEST|access={}|documents={}|windows={}|batches={}|targets={}|fingerprint={}|decoder={:.9}|bigram={:.9}|gap={:.9}|decoder_lower_on_fixture={}|no_grad={}|unchanged={}|evidence_scope={}|within_run_selection_isolated={}|independent_generalization_estimate={}|architecture_superiority_evidence={}",
         evaluation.access_count(),
         string_list(evaluation.test_document_ids()),
         evaluation.window_count(),
@@ -412,6 +438,10 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
         evaluation.decoder_has_lower_loss(),
         evaluation.recorded_graphs() == 0,
         evaluation.parameters_unchanged() && evaluation.gradients_unchanged(),
+        FIXED_FIXTURE_EVIDENCE_SCOPE,
+        within_run_selection_isolated(&evidence),
+        INDEPENDENT_GENERALIZATION_ESTIMATE,
+        ARCHITECTURE_SUPERIORITY_EVIDENCE,
     )
     .unwrap();
     writeln!(
@@ -510,7 +540,7 @@ mod tests {
     }
 
     #[test]
-    fn opens_test_once_and_beats_the_training_only_bigram() {
+    fn records_the_fixed_fixture_loss_order_after_one_local_test_access() {
         let report = evidence().final_evaluation();
         assert_eq!(report.access_count(), 1);
         assert_eq!(
@@ -527,6 +557,10 @@ mod tests {
         assert_eq!(report.recorded_graphs(), 0);
         assert!(report.parameters_unchanged());
         assert!(report.gradients_unchanged());
+        assert!(within_run_selection_isolated(evidence()));
+        assert_eq!(FIXED_FIXTURE_EVIDENCE_SCOPE, "fixed-fixture-regression");
+        assert!(!INDEPENDENT_GENERALIZATION_ESTIMATE);
+        assert!(!ARCHITECTURE_SUPERIORITY_EVIDENCE);
     }
 
     #[test]

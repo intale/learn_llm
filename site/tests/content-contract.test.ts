@@ -1,28 +1,43 @@
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import * as nodeFs from "node:fs";
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { tmpdir } from 'node:os';
+import { tmpdir } from "node:os";
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { join, resolve } from 'node:path';
+import { join, resolve } from "node:path";
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from "vitest";
 
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import * as chapterContractChecks from "../../scripts/check-chapter-contract.mjs";
+// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import * as coursePlanChecks from "../../scripts/check-course-plan.mjs";
+// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import * as siteContentChecks from "../../scripts/check-site-content.mjs";
+// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import * as staticLinkChecks from "../../scripts/check-static-links.mjs";
+// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import { validateChapterLocaleConfiguration } from "../../scripts/chapter-locale-config.mjs";
+// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import { validateLocaleConfiguration } from "../../scripts/locale-config.mjs";
 import {
+  findChapterNeighbors,
+  orderChapterTargets,
+} from "../src/lib/chapter-navigation";
+
+const { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } = nodeFs;
+const {
   validateChapterContractIntegration,
   validateChapterContractText,
   validateContractLesson,
   validateExpectedOutput,
-} from '../../scripts/check-chapter-contract.mjs';
-// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
-import {
+} = chapterContractChecks;
+const {
   deriveScheduledStepIds,
   validateCoursePlanText,
   validateImplementedContracts,
   validateLedgerText,
-} from '../../scripts/check-course-plan.mjs';
-// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
-import {
+} = coursePlanChecks;
+const {
   findPublishableChapterSets,
   validateCatalogParity,
   validateChapterDocument,
@@ -30,20 +45,8 @@ import {
   validateChapterLocaleSet,
   validatePublishedContractSequence,
   validatePublishedChapterSequence,
-} from '../../scripts/check-site-content.mjs';
-// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
-import {
-  auditStaticSite,
-  referenceCandidates,
-} from '../../scripts/check-static-links.mjs';
-// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
-import { validateChapterLocaleConfiguration } from '../../scripts/chapter-locale-config.mjs';
-// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
-import { validateLocaleConfiguration } from '../../scripts/locale-config.mjs';
-import {
-  findChapterNeighbors,
-  orderChapterTargets,
-} from '../src/lib/chapter-navigation';
+} = siteContentChecks;
+const { auditStaticSite, referenceCandidates } = staticLinkChecks;
 
 declare const process: { cwd(): string };
 
@@ -61,21 +64,27 @@ function replaceOnce(source: string, search: string, replacement: string) {
 }
 
 function repositoryRoot() {
-  return resolve(process.cwd(), '..');
+  return resolve(process.cwd(), "..");
+}
+
+function jsonFrontmatter(source: string): Record<string, unknown> {
+  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) throw new Error("missing JSON frontmatter");
+  return JSON.parse(match[1]) as Record<string, unknown>;
 }
 
 const LANGUAGE_BOUNDARY_CHAPTERS = [
-  '08-tensor-storage',
-  '09-tensor-views',
-  '10-broadcasting-reductions',
-  '11-matrix-multiplication',
-  '12-stable-softmax',
-  '13-gradient-checking',
-  '14-scalar-autodiff',
-  '15-tensor-autodiff-core',
-  '16-model-autodiff-ops',
-  '17-parameter-initialization',
-  '18-token-embeddings',
+  "08-tensor-storage",
+  "09-tensor-views",
+  "10-broadcasting-reductions",
+  "11-matrix-multiplication",
+  "12-stable-softmax",
+  "13-gradient-checking",
+  "14-scalar-autodiff",
+  "15-tensor-autodiff-core",
+  "16-model-autodiff-ops",
+  "17-parameter-initialization",
+  "18-token-embeddings",
 ] as const;
 
 const UNJUSTIFIED_LANGUAGE_ACTOR_PATTERNS = [
@@ -92,29 +101,26 @@ const UNJUSTIFIED_LANGUAGE_ACTOR_PATTERNS = [
 
 function canonicalContract() {
   const root = repositoryRoot();
-  const path = join(root, 'curriculum/chapters/01-text-units.md');
-  return validateChapterContractText(readFileSync(path, 'utf8'), {
-    sourceName: 'curriculum/chapters/01-text-units.md',
+  const path = join(root, "curriculum/chapters/01-text-units.md");
+  return validateChapterContractText(readFileSync(path, "utf8"), {
+    sourceName: "curriculum/chapters/01-text-units.md",
   });
 }
 
-function canonicalLesson(locale: 'en' | 'ru') {
+function canonicalLesson(locale: "en" | "ru") {
   const path = join(
     repositoryRoot(),
-    'site/src/content/chapters',
+    "site/src/content/chapters",
     locale,
-    '01-text-units.mdx',
+    "01-text-units.mdx",
   );
-  return validateChapterDocument(readFileSync(path, 'utf8'), {
+  return validateChapterDocument(readFileSync(path, "utf8"), {
     sourceName: `${locale}/01-text-units.mdx`,
     checkSourceFiles: false,
   });
 }
 
-function canonicalLessonSection(
-  locale: 'en' | 'ru',
-  section: string,
-): string {
+function canonicalLessonSection(locale: "en" | "ru", section: string): string {
   const body = canonicalLesson(locale).body;
   const marker = `{/* chapter-section:${section} */}`;
   const start = body.indexOf(marker);
@@ -122,132 +128,151 @@ function canonicalLessonSection(
     throw new Error(`${locale} Chapter 1 is missing section ${section}`);
   }
   const contentStart = start + marker.length;
-  const next = body.indexOf('{/* chapter-section:', contentStart);
+  const next = body.indexOf("{/* chapter-section:", contentStart);
   return body
     .slice(contentStart, next === -1 ? body.length : next)
-    .replace(/\s+/g, ' ')
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-function chapterMetadata(locale: string = 'en') {
-  const english = locale === 'en';
-  const russian = locale === 'ru';
+function chapterMetadata(locale: string = "en") {
+  const english = locale === "en";
+  const russian = locale === "ru";
   const localized = (englishText: string, russianText: string) =>
-    english ? englishText : russian ? russianText : `[${locale}] ${englishText}`;
+    english
+      ? englishText
+      : russian
+        ? russianText
+        : `[${locale}] ${englishText}`;
   return {
-    chapter_id: '01-text-units',
+    chapter_id: "01-text-units",
     locale,
     content_revision: 1,
     order: 1,
-    concept_id: 'text-units',
-    title: localized('Text units', 'Единицы текста'),
+    concept_id: "text-units",
+    title: localized("Text units", "Единицы текста"),
     description: localized(
-      'Map text to stable IDs.',
-      'Преобразуйте текст в устойчивые ID.',
+      "Map text to stable IDs.",
+      "Преобразуйте текст в устойчивые ID.",
     ),
     objective: localized(
-      'Implement an observable mapping.',
-      'Реализуйте наблюдаемое отображение.',
+      "Implement an observable mapping.",
+      "Реализуйте наблюдаемое отображение.",
     ),
     worked_inputs: localized(
-      'Use one tiny fixed input and predict its IDs.',
-      'Используйте один небольшой фиксированный вход и предскажите его ID.',
+      "Use one tiny fixed input and predict its IDs.",
+      "Используйте один небольшой фиксированный вход и предскажите его ID.",
     ),
     formula: {
-      latex: 'i = V(t)',
+      latex: "i = V(t)",
       symbols: [
         {
-          symbol: 't',
-          meaning: localized('text unit', 'единица текста'),
+          symbol: "t",
+          meaning: localized("text unit", "единица текста"),
         },
         {
-          symbol: 'i',
-          meaning: localized('vocabulary ID', 'ID словаря'),
+          symbol: "i",
+          meaning: localized("vocabulary ID", "ID словаря"),
         },
       ],
     },
     history: {
-      approach: localized('Whitespace splitting', 'Разбиение по пробелам'),
-      summary: localized('Words came first.', 'Сначала использовали слова.'),
-      rust_source: 'rust/demos/ch01-text-units/src/main.rs',
+      approach: localized("Whitespace splitting", "Разбиение по пробелам"),
+      summary: localized("Words came first.", "Сначала использовали слова."),
+      rust_source: "rust/demos/ch01-text-units/src/main.rs",
     },
     rust_sources: [
       {
-        path: 'rust/demos/ch01-text-units/src/main.rs',
-        purpose: localized('Runnable contrast', 'Исполняемое сравнение'),
+        path: "rust/demos/ch01-text-units/src/main.rs",
+        purpose: localized("Runnable contrast", "Исполняемое сравнение"),
       },
     ],
     visualization: {
-      decision: 'useful' as const,
-      id: 'text-units',
-      rationale: localized('Shows each mapping.', 'Показывает каждое отображение.'),
+      decision: "useful" as const,
+      id: "text-units",
+      rationale: localized(
+        "Shows each mapping.",
+        "Показывает каждое отображение.",
+      ),
     },
     decoder_connection: localized(
-      'The resulting IDs become the discrete input to the decoder.',
-      'Полученные ID становятся дискретным входом декодера.',
+      "The resulting IDs become the discrete input to the decoder.",
+      "Полученные ID становятся дискретным входом декодера.",
     ),
   };
 }
 
 const EARLIER_HISTORY_URL =
-  'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf';
+  "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf";
 const LATER_HISTORY_URL =
-  'https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf';
+  "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf";
 
-function contractLlmEvolution(locales: readonly string[] = ['en', 'ru']) {
+function contractLlmEvolution(locales: readonly string[] = ["en", "ru"]) {
   const localized = (text: string) =>
     Object.fromEntries(locales.map((locale) => [locale, `${locale}: ${text}`]));
   return {
-    predecessor_kind: 'language-model',
-    limitation: localized('the fixed context cannot represent all prior positions'),
-    later_advance: localized('self-attention exposes the full prefix'),
-    modern_llm_role: localized('tensor views implement attention layouts'),
+    predecessor_kind: "language-model",
+    limitation: localized(
+      "the fixed context cannot represent all prior positions",
+    ),
+    later_advance: localized("self-attention exposes the full prefix"),
+    modern_llm_role: localized("tensor views implement attention layouts"),
     sources: [
       {
-        role: 'earlier',
+        role: "earlier",
         year: 2003,
-        name: 'A Neural Probabilistic Language Model',
+        name: "A Neural Probabilistic Language Model",
         source_url: EARLIER_HISTORY_URL,
-        claim: localized('the model concatenates a fixed number of earlier word features'),
+        claim: localized(
+          "the model concatenates a fixed number of earlier word features",
+        ),
       },
       {
-        role: 'later',
+        role: "later",
         year: 2017,
-        name: 'Attention Is All You Need',
+        name: "Attention Is All You Need",
         source_url: LATER_HISTORY_URL,
-        claim: localized('multi-head attention projects and rearranges Q, K, and V'),
+        claim: localized(
+          "multi-head attention projects and rearranges Q, K, and V",
+        ),
       },
     ],
   };
 }
 
-function lessonLlmEvolution(locale: string = 'en') {
+function lessonLlmEvolution(locale: string = "en") {
   const localized = (text: string) => `${locale}: ${text}`;
   return {
-    predecessor_kind: 'language-model',
-    limitation: localized('the fixed context cannot represent all prior positions'),
-    later_advance: localized('self-attention exposes the full prefix'),
-    modern_llm_role: localized('tensor views implement attention layouts'),
+    predecessor_kind: "language-model",
+    limitation: localized(
+      "the fixed context cannot represent all prior positions",
+    ),
+    later_advance: localized("self-attention exposes the full prefix"),
+    modern_llm_role: localized("tensor views implement attention layouts"),
     sources: [
       {
-        role: 'earlier',
+        role: "earlier",
         year: 2003,
-        name: 'A Neural Probabilistic Language Model',
+        name: "A Neural Probabilistic Language Model",
         source_url: EARLIER_HISTORY_URL,
-        claim: localized('the model concatenates a fixed number of earlier word features'),
+        claim: localized(
+          "the model concatenates a fixed number of earlier word features",
+        ),
       },
       {
-        role: 'later',
+        role: "later",
         year: 2017,
-        name: 'Attention Is All You Need',
+        name: "Attention Is All You Need",
         source_url: LATER_HISTORY_URL,
-        claim: localized('multi-head attention projects and rearranges Q, K, and V'),
+        claim: localized(
+          "multi-head attention projects and rearranges Q, K, and V",
+        ),
       },
     ],
   };
 }
 
-function lessonMetadataWithLlmEvolution(locale: string = 'en', order = 10) {
+function lessonMetadataWithLlmEvolution(locale: string = "en", order = 10) {
   const data = chapterMetadata(locale);
   return {
     ...data,
@@ -259,47 +284,47 @@ function lessonMetadataWithLlmEvolution(locale: string = 'en', order = 10) {
   };
 }
 
-function chapterBody(formula = 'i = V(t)') {
+function chapterBody(formula = "i = V(t)") {
   return [
-    '{/* chapter-section:worked-example */}',
-    '## Worked example',
-    'Predict the stable IDs for one tiny input, then compare every intermediate representation.',
-    '{/* chapter-section:formula */}',
-    '## Formula',
-    '$$',
+    "{/* chapter-section:worked-example */}",
+    "## Worked example",
+    "Predict the stable IDs for one tiny input, then compare every intermediate representation.",
+    "{/* chapter-section:formula */}",
+    "## Formula",
+    "$$",
     formula,
-    '$$',
-    'Apply one deterministic vocabulary lookup at each sequence position and inspect the result.',
-    '{/* chapter-section:symbol-glossary */}',
-    '## Symbols',
-    '| Symbol | Meaning |',
-    '| :--- | :--- |',
-    '| $t$ | the input text unit used at this position |',
-    '| $i$ | the resulting stable vocabulary identifier |',
-    '{/* chapter-section:history */}',
-    '## History',
-    'Contrast whitespace splitting with smaller units and explain the earlier method’s limitation.',
-    '{/* chapter-section:rust-implementation */}',
-    '## Rust',
-    'Run the dependency-free implementation and inspect the exact deterministic output before editing it.',
+    "$$",
+    "Apply one deterministic vocabulary lookup at each sequence position and inspect the result.",
+    "{/* chapter-section:symbol-glossary */}",
+    "## Symbols",
+    "| Symbol | Meaning |",
+    "| :--- | :--- |",
+    "| $t$ | the input text unit used at this position |",
+    "| $i$ | the resulting stable vocabulary identifier |",
+    "{/* chapter-section:history */}",
+    "## History",
+    "Contrast whitespace splitting with smaller units and explain the earlier method’s limitation.",
+    "{/* chapter-section:rust-implementation */}",
+    "## Rust",
+    "Run the dependency-free implementation and inspect the exact deterministic output before editing it.",
     '<RustSource path="rust/demos/ch01-text-units/src/main.rs" caption="Runnable source" label="Rust source code" />',
-    '{/* chapter-section:visualization */}',
-    '## Visualization',
-    'Trace the same position through every representation using labels in addition to color.',
-    '<FixtureDiagram />',
-    '{/* chapter-section:exercises */}',
-    '## Exercises',
-    '1. Predict the output before running the example.',
-    '2. Explain which common boundary mistake changes the result.',
-    '<details><summary>Check the predictions</summary>',
-    '1. The fixed example preserves every known unit.',
-    '2. The mistaken boundary changes the observable sequence.',
-    '</details>',
-    '{/* chapter-section:decoder-connection */}',
-    '## Decoder connection',
-    'The verified integer sequence becomes the explicit boundary consumed by the cumulative decoder.',
-    '',
-  ].join('\n');
+    "{/* chapter-section:visualization */}",
+    "## Visualization",
+    "Trace the same position through every representation using labels in addition to color.",
+    "<FixtureDiagram />",
+    "{/* chapter-section:exercises */}",
+    "## Exercises",
+    "1. Predict the output before running the example.",
+    "2. Explain which common boundary mistake changes the result.",
+    "<details><summary>Check the predictions</summary>",
+    "1. The fixed example preserves every known unit.",
+    "2. The mistaken boundary changes the observable sequence.",
+    "</details>",
+    "{/* chapter-section:decoder-connection */}",
+    "## Decoder connection",
+    "The verified integer sequence becomes the explicit boundary consumed by the cumulative decoder.",
+    "",
+  ].join("\n");
 }
 
 function bodyWithHistoryCitations(
@@ -307,7 +332,7 @@ function bodyWithHistoryCitations(
   evolution = lessonLlmEvolution(),
 ) {
   return body.replace(
-    '{/* chapter-section:rust-implementation */}',
+    "{/* chapter-section:rust-implementation */}",
     [
       evolution.limitation,
       evolution.later_advance,
@@ -315,55 +340,55 @@ function bodyWithHistoryCitations(
       ...evolution.sources.map(
         (source) => `[${source.claim}](${source.source_url})`,
       ),
-      '{/* chapter-section:rust-implementation */}',
-    ].join('\n'),
+      "{/* chapter-section:rust-implementation */}",
+    ].join("\n"),
   );
 }
 
 function contractSource(data: unknown, body: string) {
-  return ['---', JSON.stringify(data, null, 2), '---', body].join('\n');
+  return ["---", JSON.stringify(data, null, 2), "---", body].join("\n");
 }
 
 function chapterSource(
   data = chapterMetadata(),
   body = chapterBody(data.formula.latex),
 ) {
-  return ['---', JSON.stringify(data, null, 2), '---', '', body].join('\n');
+  return ["---", JSON.stringify(data, null, 2), "---", "", body].join("\n");
 }
 
 function parsedChapter(
   locale: string,
-  supportedLocales: readonly string[] = ['en', 'ru'],
+  supportedLocales: readonly string[] = ["en", "ru"],
 ) {
   return validateChapterDocument(chapterSource(chapterMetadata(locale)), {
-    sourceName: locale + ' fixture',
+    sourceName: locale + " fixture",
     checkSourceFiles: false,
     supportedLocales,
   });
 }
 
-describe('localized chapter documents', () => {
-  it('accepts the complete ordered contract and declared Rust source reference', () => {
-    const result = parsedChapter('en');
+describe("localized chapter documents", () => {
+  it("accepts the complete ordered contract and declared Rust source reference", () => {
+    const result = parsedChapter("en");
 
-    expect(result.data.chapter_id).toBe('01-text-units');
+    expect(result.data.chapter_id).toBe("01-text-units");
     expect(result.references).toEqual([
       expect.objectContaining({
-        path: 'rust/demos/ch01-text-units/src/main.rs',
+        path: "rust/demos/ch01-text-units/src/main.rs",
         region: undefined,
       }),
     ]);
   });
 
-  it('keeps the corrected trace boundaries independent of frontend tooling and language-as-actor claims', () => {
+  it("keeps the corrected trace boundaries independent of frontend tooling and language-as-actor claims", () => {
     for (const chapterId of LANGUAGE_BOUNDARY_CHAPTERS) {
       const source = readFileSync(
         join(
           repositoryRoot(),
-          'site/src/content/chapters/en',
+          "site/src/content/chapters/en",
           `${chapterId}.mdx`,
         ),
-        'utf8',
+        "utf8",
       );
 
       for (const pattern of UNJUSTIFIED_LANGUAGE_ACTOR_PATTERNS) {
@@ -372,16 +397,16 @@ describe('localized chapter documents', () => {
     }
   });
 
-  it('rejects build and presentation-contract vocabulary in learner prose', () => {
+  it("rejects build and presentation-contract vocabulary in learner prose", () => {
     for (const leak of [
-      'Follow the build instructions to choose this evidence.',
-      'This chapter registers no course diagram.',
-      'This page remains complete static HTML.',
-      'The chapter adds no private scroller, hydration directive, or duplicated presentation tree.',
+      "Follow the build instructions to choose this evidence.",
+      "This chapter registers no course diagram.",
+      "This page remains complete static HTML.",
+      "The chapter adds no private scroller, hydration directive, or duplicated presentation tree.",
       "The site's shared code-block overflow treatment handles the evidence.",
     ]) {
       const body = chapterBody().replace(
-        'Trace the same position through every representation using labels in addition to color.',
+        "Trace the same position through every representation using labels in addition to color.",
         leak,
       );
       expect(() =>
@@ -392,9 +417,9 @@ describe('localized chapter documents', () => {
     }
   });
 
-  it('rejects control characters introduced by malformed formula escapes', () => {
+  it("rejects control characters introduced by malformed formula escapes", () => {
     const corrupted = chapterSource(chapterMetadata()).replace(
-      'Trace the same position',
+      "Trace the same position",
       `Trace \u0008ar{x} from the same position`,
     );
     expect(() =>
@@ -402,10 +427,10 @@ describe('localized chapter documents', () => {
     ).toThrow(/prohibited control character/);
   });
 
-  it('rejects missing sections and Rust paths outside the allowlist', () => {
+  it("rejects missing sections and Rust paths outside the allowlist", () => {
     const missingSection = chapterBody().replace(
-      '{/* chapter-section:exercises */}',
-      '',
+      "{/* chapter-section:exercises */}",
+      "",
     );
     expect(() =>
       validateChapterDocument(
@@ -417,8 +442,8 @@ describe('localized chapter documents', () => {
     ).toThrow(/section markers/);
 
     const unsafe = chapterMetadata();
-    unsafe.history.rust_source = '../secret.rs';
-    unsafe.rust_sources[0].path = '../secret.rs';
+    unsafe.history.rust_source = "../secret.rs";
+    unsafe.rust_sources[0].path = "../secret.rs";
     expect(() =>
       validateChapterDocument(chapterSource(unsafe), {
         checkSourceFiles: false,
@@ -441,36 +466,42 @@ describe('localized chapter documents', () => {
       'data-path="rust/demos/ch01-text-units/src/main.rs"',
     );
     expect(() =>
-      validateChapterDocument(chapterSource(chapterMetadata(), misleadingDataPath), {
-        checkSourceFiles: false,
-      }),
+      validateChapterDocument(
+        chapterSource(chapterMetadata(), misleadingDataPath),
+        {
+          checkSourceFiles: false,
+        },
+      ),
     ).toThrow(/RustSource> path must be a string literal/);
   });
 
-  it('rejects empty teaching shells and misplaced section evidence', () => {
+  it("rejects empty teaching shells and misplaced section evidence", () => {
     const emptyWorkedExample = replaceOnce(
       chapterBody(),
-      'Predict the stable IDs for one tiny input, then compare every intermediate representation.',
-      '',
+      "Predict the stable IDs for one tiny input, then compare every intermediate representation.",
+      "",
     );
     expect(() =>
-      validateChapterDocument(chapterSource(chapterMetadata(), emptyWorkedExample), {
-        checkSourceFiles: false,
-      }),
+      validateChapterDocument(
+        chapterSource(chapterMetadata(), emptyWorkedExample),
+        {
+          checkSourceFiles: false,
+        },
+      ),
     ).toThrow(/worked-example section lacks meaningful teaching evidence/);
 
-    const formulaDrift = replaceOnce(chapterBody(), 'i = V(t)', 'i = V(x)');
+    const formulaDrift = replaceOnce(chapterBody(), "i = V(t)", "i = V(x)");
     expect(() =>
       validateChapterDocument(chapterSource(chapterMetadata(), formulaDrift), {
         checkSourceFiles: false,
       }),
     ).toThrow(/must display formula\.latex exactly once/);
 
-    const formulaBlock = ['$$', 'i = V(t)', '$$'].join('\n');
+    const formulaBlock = ["$$", "i = V(t)", "$$"].join("\n");
     for (const hiddenFormula of [
-      ['~~~text', '$$', 'i = V(t)', '$$', '~~~~'].join('\n'),
-      ['    $$', '    i = V(t)', '    $$'].join('\n'),
-      '{/* $$ i = V(t) $$ */}',
+      ["~~~text", "$$", "i = V(t)", "$$", "~~~~"].join("\n"),
+      ["    $$", "    i = V(t)", "    $$"].join("\n"),
+      "{/* $$ i = V(t) $$ */}",
     ]) {
       const hiddenFormulaBody = replaceOnce(
         chapterBody(),
@@ -487,7 +518,8 @@ describe('localized chapter documents', () => {
 
     const rustTag =
       '<RustSource path="rust/demos/ch01-text-units/src/main.rs" caption="Runnable source" label="Rust source code" />';
-    const misplacedRust = rustTag + '\n' + replaceOnce(chapterBody(), rustTag, '');
+    const misplacedRust =
+      rustTag + "\n" + replaceOnce(chapterBody(), rustTag, "");
     expect(() =>
       validateChapterDocument(chapterSource(chapterMetadata(), misplacedRust), {
         checkSourceFiles: false,
@@ -495,8 +527,8 @@ describe('localized chapter documents', () => {
     ).toThrow(/rust-implementation section must contain/);
 
     for (const hiddenRust of [
-      ['~~~mdx', rustTag, '~~~~'].join('\n'),
-      '{/* ' + rustTag + ' */}',
+      ["~~~mdx", rustTag, "~~~~"].join("\n"),
+      "{/* " + rustTag + " */}",
     ]) {
       const hiddenRustBody = replaceOnce(chapterBody(), rustTag, hiddenRust);
       expect(() =>
@@ -509,18 +541,21 @@ describe('localized chapter documents', () => {
 
     const uncheckedExercises = chapterBody().replace(
       /<details>[\s\S]*?<\/details>/,
-      '',
+      "",
     );
     expect(() =>
-      validateChapterDocument(chapterSource(chapterMetadata(), uncheckedExercises), {
-        checkSourceFiles: false,
-      }),
+      validateChapterDocument(
+        chapterSource(chapterMetadata(), uncheckedExercises),
+        {
+          checkSourceFiles: false,
+        },
+      ),
     ).toThrow(/checked answers/);
 
     const answersOnlyNumbering = replaceOnce(
       chapterBody(),
-      '1. Predict the output before running the example.',
-      'Predict the output before running the example.',
+      "1. Predict the output before running the example.",
+      "Predict the output before running the example.",
     );
     expect(() =>
       validateChapterDocument(
@@ -531,7 +566,7 @@ describe('localized chapter documents', () => {
 
     const emptyAnswers = chapterBody().replace(
       /<details>[\s\S]*?<\/details>/,
-      '<details><summary>Check the predictions</summary></details>',
+      "<details><summary>Check the predictions</summary></details>",
     );
     expect(() =>
       validateChapterDocument(chapterSource(chapterMetadata(), emptyAnswers), {
@@ -540,101 +575,111 @@ describe('localized chapter documents', () => {
     ).toThrow(/substantive ordered answer/);
   });
 
-  it('publishes only complete, same-revision configured locale sets', () => {
-    const english = parsedChapter('en');
-    const russian = parsedChapter('ru');
+  it("publishes only complete, same-revision configured locale sets", () => {
+    const english = parsedChapter("en");
+    const russian = parsedChapter("ru");
 
-    expect(findPublishableChapterSets([english], ['en', 'ru'], 'en')).toEqual([]);
+    expect(findPublishableChapterSets([english], ["en", "ru"], "en")).toEqual(
+      [],
+    );
     expect(
-      findPublishableChapterSets([english, russian], ['en', 'ru'], 'en'),
+      findPublishableChapterSets([english, russian], ["en", "ru"], "en"),
     ).toHaveLength(1);
 
-    const staleData = chapterMetadata('ru');
+    const staleData = chapterMetadata("ru");
     staleData.content_revision = 2;
     const staleRussian = validateChapterDocument(chapterSource(staleData), {
       checkSourceFiles: false,
     });
     expect(
-      findPublishableChapterSets([english, staleRussian], ['en', 'ru'], 'en'),
+      findPublishableChapterSets([english, staleRussian], ["en", "ru"], "en"),
     ).toEqual([]);
   });
 
-  it('requires exactly one translation for every locale in a synthetic three-locale set', () => {
-    const configured = ['en', 'ru', 'es'];
+  it("requires exactly one translation for every locale in a synthetic three-locale set", () => {
+    const configured = ["en", "ru", "es"];
     const documents = configured.map((locale) =>
       parsedChapter(locale, configured),
     );
 
-    const complete = validateChapterLocaleSet(documents, configured, 'en');
-    expect(Object.keys(complete.byLocale).sort()).toEqual([...configured].sort());
+    const complete = validateChapterLocaleSet(documents, configured, "en");
+    expect(Object.keys(complete.byLocale).sort()).toEqual(
+      [...configured].sort(),
+    );
     expect(
-      findPublishableChapterSets(documents, configured, 'en'),
+      findPublishableChapterSets(documents, configured, "en"),
     ).toHaveLength(1);
     expect(() =>
-      validateChapterLocaleSet(documents.slice(0, 2), configured, 'en'),
+      validateChapterLocaleSet(documents.slice(0, 2), configured, "en"),
     ).toThrow(/exactly one es source/);
     expect(() =>
-      validateChapterLocaleSet([...documents, documents[2]], configured, 'en'),
+      validateChapterLocaleSet([...documents, documents[2]], configured, "en"),
     ).toThrow(/exactly one es source/);
 
     const stale = structuredClone(documents[2]);
     stale.data.content_revision = 2;
     expect(() =>
-      validateChapterLocaleSet([documents[0], documents[1], stale], configured, 'en'),
+      validateChapterLocaleSet(
+        [documents[0], documents[1], stale],
+        configured,
+        "en",
+      ),
     ).toThrow(/revision/);
 
     const drifted = structuredClone(documents[2]);
-    drifted.data.formula.latex = 'i = W(t)';
+    drifted.data.formula.latex = "i = W(t)";
     expect(() =>
       validateChapterLocaleSet(
         [documents[0], documents[1], drifted],
         configured,
-        'en',
+        "en",
       ),
     ).toThrow(/locale-neutral/);
   });
 
-  it('allows intentionally shared technical titles and worked inputs', () => {
-    const english = parsedChapter('en');
-    const russianData = chapterMetadata('ru');
+  it("allows intentionally shared technical titles and worked inputs", () => {
+    const english = parsedChapter("en");
+    const russianData = chapterMetadata("ru");
     russianData.title = english.data.title;
     const russian = validateChapterDocument(chapterSource(russianData), {
       checkSourceFiles: false,
     });
     expect(() =>
-      validateChapterLocaleSet([english, russian], ['en', 'ru'], 'en'),
+      validateChapterLocaleSet([english, russian], ["en", "ru"], "en"),
     ).not.toThrow();
 
     const contract = canonicalContract();
     const sharedInputContract = structuredClone(contract.data);
     sharedInputContract.worked_inputs.ru = sharedInputContract.worked_inputs.en;
     const source = [
-      '---',
+      "---",
       JSON.stringify(sharedInputContract, null, 2),
-      '---',
+      "---",
       contract.body,
-    ].join('\n');
+    ].join("\n");
     expect(() =>
-      validateChapterContractText(source, { sourceName: 'shared-input contract' }),
+      validateChapterContractText(source, {
+        sourceName: "shared-input contract",
+      }),
     ).not.toThrow();
   });
 
-  it('detects drift in locale-neutral formula metadata', () => {
-    const english = parsedChapter('en');
-    const russianData = chapterMetadata('ru');
-    russianData.formula.latex = 'different';
+  it("detects drift in locale-neutral formula metadata", () => {
+    const english = parsedChapter("en");
+    const russianData = chapterMetadata("ru");
+    russianData.formula.latex = "different";
     const russian = validateChapterDocument(chapterSource(russianData), {
       checkSourceFiles: false,
     });
 
     expect(() =>
-      validateChapterLocaleSet([english, russian], ['en', 'ru'], 'en'),
+      validateChapterLocaleSet([english, russian], ["en", "ru"], "en"),
     ).toThrow(/locale-neutral/);
   });
 });
 
-describe('LLM-evolution history contract', () => {
-  it('requires the structured road-to-LLMs record for corrected 8-9 and Chapter 10+', () => {
+describe("LLM-evolution history contract", () => {
+  it("requires the structured road-to-LLMs record for corrected 8-9 and Chapter 10+", () => {
     const canonical = canonicalContract();
     const orderNineContract = structuredClone(canonical.data);
     orderNineContract.order = 9;
@@ -697,7 +742,7 @@ describe('LLM-evolution history contract', () => {
     expect(() =>
       validateChapterDocument(
         chapterSource(
-          lessonMetadataWithLlmEvolution('en', 10),
+          lessonMetadataWithLlmEvolution("en", 10),
           bodyWithHistoryCitations(),
         ),
         { checkSourceFiles: false },
@@ -707,7 +752,7 @@ describe('LLM-evolution history contract', () => {
     expect(() =>
       validateChapterDocument(
         chapterSource(
-          lessonMetadataWithLlmEvolution('en', 9),
+          lessonMetadataWithLlmEvolution("en", 9),
           bodyWithHistoryCitations(),
         ),
         { checkSourceFiles: false },
@@ -715,7 +760,7 @@ describe('LLM-evolution history contract', () => {
     ).not.toThrow();
   });
 
-  it('rejects incomplete, programming-centric, or weakly sourced records', () => {
+  it("rejects incomplete, programming-centric, or weakly sourced records", () => {
     const canonical = canonicalContract();
     const incompleteContract = structuredClone(canonical.data);
     incompleteContract.order = 10;
@@ -728,7 +773,7 @@ describe('LLM-evolution history contract', () => {
     ).toThrow(/limitation locale keys must be exactly en, ru/);
 
     const invalidKind = lessonMetadataWithLlmEvolution();
-    invalidKind.history.llm_evolution.predecessor_kind = 'programming-language';
+    invalidKind.history.llm_evolution.predecessor_kind = "programming-language";
     expect(() =>
       validateChapterDocument(
         chapterSource(invalidKind, bodyWithHistoryCitations()),
@@ -737,7 +782,9 @@ describe('LLM-evolution history contract', () => {
     ).toThrow(/predecessor_kind must be one of/);
 
     const extraField = lessonMetadataWithLlmEvolution();
-    Object.assign(extraField.history.llm_evolution, { unrelated_history: 'FORTRAN' });
+    Object.assign(extraField.history.llm_evolution, {
+      unrelated_history: "FORTRAN",
+    });
     expect(() =>
       validateChapterDocument(
         chapterSource(extraField, bodyWithHistoryCitations()),
@@ -747,7 +794,7 @@ describe('LLM-evolution history contract', () => {
 
     const insecureSource = lessonMetadataWithLlmEvolution();
     insecureSource.history.llm_evolution.sources[0].source_url =
-      'http://example.com/earlier';
+      "http://example.com/earlier";
     expect(() =>
       validateChapterDocument(
         chapterSource(insecureSource, bodyWithHistoryCitations()),
@@ -757,7 +804,7 @@ describe('LLM-evolution history contract', () => {
 
     const duplicateSource = lessonMetadataWithLlmEvolution();
     duplicateSource.history.llm_evolution.sources[1].source_url =
-      EARLIER_HISTORY_URL + '#second-claim';
+      EARLIER_HISTORY_URL + "#second-claim";
     expect(() =>
       validateChapterDocument(
         chapterSource(duplicateSource, bodyWithHistoryCitations()),
@@ -767,7 +814,7 @@ describe('LLM-evolution history contract', () => {
 
     const credentialedSource = lessonMetadataWithLlmEvolution();
     credentialedSource.history.llm_evolution.sources[0].source_url =
-      'https://reader:secret@example.com/paper';
+      "https://reader:secret@example.com/paper";
     expect(() =>
       validateChapterDocument(
         chapterSource(credentialedSource, bodyWithHistoryCitations()),
@@ -776,7 +823,7 @@ describe('LLM-evolution history contract', () => {
     ).toThrow(/source_url must be an absolute HTTPS URL/);
 
     const missingLaterRole = lessonMetadataWithLlmEvolution();
-    missingLaterRole.history.llm_evolution.sources[1].role = 'earlier';
+    missingLaterRole.history.llm_evolution.sources[1].role = "earlier";
     expect(() =>
       validateChapterDocument(
         chapterSource(missingLaterRole, bodyWithHistoryCitations()),
@@ -785,27 +832,24 @@ describe('LLM-evolution history contract', () => {
     ).toThrow(/requires role later/);
   });
 
-  it('requires rendered source links and locale-neutral source identity', () => {
+  it("requires rendered source links and locale-neutral source identity", () => {
     const missingCitationBody = bodyWithHistoryCitations().replace(
       LATER_HISTORY_URL,
-      'https://example.com/intentionally-not-the-declared-source',
+      "https://example.com/intentionally-not-the-declared-source",
     );
     expect(() =>
       validateChapterDocument(
-        chapterSource(
-          lessonMetadataWithLlmEvolution(),
-          missingCitationBody,
-        ),
+        chapterSource(lessonMetadataWithLlmEvolution(), missingCitationBody),
         { checkSourceFiles: false },
       ),
     ).toThrow(/history section must cite declared LLM-evolution source/);
 
     const bareUrlsOnly = chapterBody().replace(
-      '{/* chapter-section:rust-implementation */}',
+      "{/* chapter-section:rust-implementation */}",
       [
         `Bare source text is not a citation: ${EARLIER_HISTORY_URL} ${LATER_HISTORY_URL}`,
-        '{/* chapter-section:rust-implementation */}',
-      ].join('\n'),
+        "{/* chapter-section:rust-implementation */}",
+      ].join("\n"),
     );
     expect(() =>
       validateChapterDocument(
@@ -820,23 +864,20 @@ describe('LLM-evolution history contract', () => {
     );
     expect(() =>
       validateChapterDocument(
-        chapterSource(
-          lessonMetadataWithLlmEvolution(),
-          codeOnlyEarlierLink,
-        ),
+        chapterSource(lessonMetadataWithLlmEvolution(), codeOnlyEarlierLink),
         { checkSourceFiles: false },
       ),
     ).toThrow(/history section must cite declared LLM-evolution source/);
 
     const english = validateChapterDocument(
       chapterSource(
-        lessonMetadataWithLlmEvolution('en'),
+        lessonMetadataWithLlmEvolution("en"),
         bodyWithHistoryCitations(),
       ),
       { checkSourceFiles: false },
     );
-    const russianData = lessonMetadataWithLlmEvolution('ru');
-    russianData.history.llm_evolution.sources[0].name = 'Drifted source name';
+    const russianData = lessonMetadataWithLlmEvolution("ru");
+    russianData.history.llm_evolution.sources[0].name = "Drifted source name";
     const russian = validateChapterDocument(
       chapterSource(
         russianData,
@@ -848,18 +889,18 @@ describe('LLM-evolution history contract', () => {
       { checkSourceFiles: false },
     );
     expect(() =>
-      validateChapterLocaleSet([english, russian], ['en', 'ru'], 'en'),
+      validateChapterLocaleSet([english, russian], ["en", "ru"], "en"),
     ).toThrow(/locale-neutral/);
   });
 
-  it('rejects links without the visible structured LLM narrative', () => {
+  it("rejects links without the visible structured LLM narrative", () => {
     const linksOnly = chapterBody().replace(
-      '{/* chapter-section:rust-implementation */}',
+      "{/* chapter-section:rust-implementation */}",
       [
         `[Earlier source](${EARLIER_HISTORY_URL})`,
         `[Later source](${LATER_HISTORY_URL})`,
-        '{/* chapter-section:rust-implementation */}',
-      ].join('\n'),
+        "{/* chapter-section:rust-implementation */}",
+      ].join("\n"),
     );
     expect(() =>
       validateChapterDocument(
@@ -869,13 +910,13 @@ describe('LLM-evolution history contract', () => {
     ).toThrow(/history section must render history\.llm_evolution\.limitation/);
   });
 
-  it('compares rendered inline math before punctuation as visible history prose', () => {
+  it("compares rendered inline math before punctuation as visible history prose", () => {
     const data = lessonMetadataWithLlmEvolution();
     data.history.llm_evolution.sources[0].claim =
-      'en: scores use y=b+Wx+U tanh(d+Hx), making projection explicit';
+      "en: scores use y=b+Wx+U tanh(d+Hx), making projection explicit";
     const renderedEvolution = structuredClone(data.history.llm_evolution);
     renderedEvolution.sources[0].claim =
-      'en: scores use $y=b+Wx+U \\tanh(d+Hx)$, making projection explicit';
+      "en: scores use $y=b+Wx+U \\tanh(d+Hx)$, making projection explicit";
     const renderedBody = bodyWithHistoryCitations(
       chapterBody(),
       renderedEvolution,
@@ -889,16 +930,15 @@ describe('LLM-evolution history contract', () => {
 
     expect(() =>
       validateChapterDocument(
-        chapterSource(
-          data,
-          renderedBody.replace('d+Hx', 'd+Kx'),
-        ),
+        chapterSource(data, renderedBody.replace("d+Hx", "d+Kx")),
         { checkSourceFiles: false },
       ),
-    ).toThrow(/history section must render history\.llm_evolution\.sources\[0\]\.claim/);
+    ).toThrow(
+      /history section must render history\.llm_evolution\.sources\[0\]\.claim/,
+    );
   });
 
-  it('keeps localized LLM-history claims aligned with the chapter contract', () => {
+  it("keeps localized LLM-history claims aligned with the chapter contract", () => {
     const canonical = canonicalContract();
     const contractData = structuredClone(canonical.data);
     contractData.order = 10;
@@ -907,10 +947,10 @@ describe('LLM-evolution history contract', () => {
       contractSource(contractData, canonical.body),
     );
 
-    const canonicalEnglish = canonicalLesson('en');
+    const canonicalEnglish = canonicalLesson("en");
     const lessonData = structuredClone(canonicalEnglish.data);
     lessonData.order = 10;
-    lessonData.history.llm_evolution = lessonLlmEvolution('en');
+    lessonData.history.llm_evolution = lessonLlmEvolution("en");
     const lesson = validateChapterDocument(
       chapterSource(
         lessonData,
@@ -922,14 +962,14 @@ describe('LLM-evolution history contract', () => {
       validateContractLesson(
         contract.data,
         lesson,
-        'en',
-        'site/src/content/chapters/en/01-text-units.mdx',
+        "en",
+        "site/src/content/chapters/en/01-text-units.mdx",
       ),
     ).not.toThrow();
 
     const driftedData = structuredClone(lesson.data);
     driftedData.history.llm_evolution.modern_llm_role =
-      'A different connection to modern LLMs.';
+      "A different connection to modern LLMs.";
     const drifted = validateChapterDocument(
       chapterSource(
         driftedData,
@@ -944,40 +984,169 @@ describe('LLM-evolution history contract', () => {
       validateContractLesson(
         contract.data,
         drifted,
-        'en',
-        'site/src/content/chapters/en/01-text-units.mdx',
+        "en",
+        "site/src/content/chapters/en/01-text-units.mdx",
       ),
     ).toThrow(/history.*differs from the contract/);
   });
 });
 
-describe('curriculum and catalog contracts', () => {
-  it('keeps the checked-in chapter template structurally valid', () => {
-    const template = readFileSync(
-      resolve(process.cwd(), '../curriculum/chapter-template.md'),
-      'utf8',
+describe("curriculum and catalog contracts", () => {
+  it("projects holdout-evidence plan revision 71 and the exact bilingual chapter revisions", () => {
+    const root = repositoryRoot();
+    const plan = jsonFrontmatter(
+      readFileSync(join(root, "curriculum/course-plan.md"), "utf8"),
     );
-    const result = validateChapterContractText(template, {
-      sourceName: 'chapter-template.md',
-      supportedLocales: ['en', 'ru'],
-    });
+    const projection = JSON.parse(
+      readFileSync(join(root, "site/src/i18n/chapter-locales.json"), "utf8"),
+    ) as {
+      planRevision: number;
+      chapters: Array<{
+        chapterId: string;
+        order: number;
+        activeLocales: string[];
+      }>;
+    };
+    expect(plan.plan_revision).toBe(71);
+    expect(projection.planRevision).toBe(71);
 
-    expect(result.data.visualization.decision).toBe('useful');
-    expect(Object.keys(result.data.objective)).toEqual(['en', 'ru']);
+    for (const [chapterId, order, revision] of [
+      ["00-llm-parts", 0, 5],
+      ["02-corpus-partitions", 2, 9],
+      ["07-language-model-metrics", 7, 7],
+      ["33-training-selection", 33, 10],
+      ["34-final-evaluation", 34, 6],
+      ["38-cached-generation", 38, 6],
+      ["39-end-to-end-llm", 39, 8],
+    ] as const) {
+      expect(
+        projection.chapters.find((chapter) => chapter.chapterId === chapterId),
+      ).toEqual({
+        chapterId,
+        order,
+        activeLocales: ["en", "ru"],
+      });
+      const contract = jsonFrontmatter(
+        readFileSync(join(root, `curriculum/chapters/${chapterId}.md`), "utf8"),
+      );
+      expect(contract.content_revision).toBe(revision);
+      for (const locale of ["en", "ru"]) {
+        const lesson = jsonFrontmatter(
+          readFileSync(
+            join(root, `site/src/content/chapters/${locale}/${chapterId}.mdx`),
+            "utf8",
+          ),
+        );
+        expect(lesson).toMatchObject({
+          chapter_id: chapterId,
+          locale,
+          content_revision: revision,
+          order,
+        });
+      }
+    }
   });
 
-  it('keeps localization review mandatory without a pre-publication approval pause', () => {
+  it("keeps the course handoffs and holdout claims local and evidence-scoped", () => {
+    const root = repositoryRoot();
+    const localizedSources = [
+      "00-llm-parts",
+      "02-corpus-partitions",
+      "07-language-model-metrics",
+      "33-training-selection",
+      "34-final-evaluation",
+      "38-cached-generation",
+      "39-end-to-end-llm",
+    ].flatMap((chapterId) =>
+      ["en", "ru"].map((locale) => ({
+        locale,
+        source: readFileSync(
+          join(root, `site/src/content/chapters/${locale}/${chapterId}.mdx`),
+          "utf8",
+        ).replace(/\s+/g, " "),
+      })),
+    );
+
+    const bannedEnglishClaims = [
+      /Chapter 34 (?:owns|performs) the first/i,
+      /Chapter 34 first scores/i,
+      /course(?:'s)? first and only final test/i,
+      /previously unscored test/i,
+      /(?:this (?:score|result|fixture)|the score) (?:is|provides) an untouched independent (?:estimate|measurement)/i,
+      /(?:this (?:score|result)|the comparison) (?:proves|establishes|demonstrates) architecture(?:-wide)? (?:decoder|Transformer) superiority/i,
+    ];
+    const bannedRussianClaims = [
+      /В главе 34 мы впервые вычислим/i,
+      /глава 34 впервые оцени/i,
+      /первая и единственная итоговая оценка/i,
+      /ранее не оценивавш/i,
+      /(?:этот результат|эта оценка) является независимой оценкой способности модели обобщать/i,
+      /(?:этот результат|это сравнение) (?:доказывает|подтверждает) общее превосходство архитектуры/i,
+    ];
+    for (const { locale, source } of localizedSources) {
+      for (const claim of locale === "en"
+        ? bannedEnglishClaims
+        : bannedRussianClaims) {
+        expect(source).not.toMatch(claim);
+      }
+    }
+
+    for (const chapterId of ["34-final-evaluation", "39-end-to-end-llm"]) {
+      const expected = readFileSync(
+        join(root, `rust/demos/ch${chapterId}/expected.txt`),
+        "utf8",
+      );
+      const trace = readFileSync(
+        join(root, `rust/demos/ch${chapterId}/diagram-trace.txt`),
+        "utf8",
+      );
+      expect(trace).toContain("decoder_lower_on_fixture=true");
+      expect(expected).toContain("scope:fixed-fixture-regression");
+      expect(trace).toContain("evidence_scope=fixed-fixture-regression");
+      expect(expected).toContain("within_run_selection_isolated:true");
+      expect(trace).toContain("within_run_selection_isolated=true");
+      expect(expected).toContain("independent_generalization_estimate:false");
+      expect(expected).toContain("architecture_superiority_evidence:false");
+      expect(trace).toContain("independent_generalization_estimate=false");
+      expect(trace).toContain("architecture_superiority_evidence=false");
+      expect(`${expected}\n${trace}`).not.toMatch(
+        /\b(?:decoder_wins|decoder_beats_bigram)\b/,
+      );
+      if (chapterId === "34-final-evaluation") {
+        expect(expected).toContain("fixture_selected_for_ordering:true");
+        expect(trace).toContain("fixture_selected_for_ordering=true");
+      } else {
+        expect(expected).toContain("decoder_lower_on_fixture:true");
+      }
+    }
+  });
+
+  it("keeps the checked-in chapter template structurally valid", () => {
+    const template = readFileSync(
+      resolve(process.cwd(), "../curriculum/chapter-template.md"),
+      "utf8",
+    );
+    const result = validateChapterContractText(template, {
+      sourceName: "chapter-template.md",
+      supportedLocales: ["en", "ru"],
+    });
+
+    expect(result.data.visualization.decision).toBe("useful");
+    expect(Object.keys(result.data.objective)).toEqual(["en", "ru"]);
+  });
+
+  it("keeps localization review mandatory without a pre-publication approval pause", () => {
     const root = repositoryRoot();
     const policyPaths = [
-      'README.md',
-      'AGENTS.md',
-      '.agents/skills/localize-llm-course/SKILL.md',
-      'SKILLS.md',
-      'curriculum/README.md',
-      'curriculum/chapters/05-autoregressive-examples.md',
-      'curriculum/chapters/06-bigram-baseline.md',
-      'curriculum/chapters/07-language-model-metrics.md',
-      'curriculum/course-plan.md',
+      "README.md",
+      "AGENTS.md",
+      ".agents/skills/localize-llm-course/SKILL.md",
+      "SKILLS.md",
+      "curriculum/README.md",
+      "curriculum/chapters/05-autoregressive-examples.md",
+      "curriculum/chapters/06-bigram-baseline.md",
+      "curriculum/chapters/07-language-model-metrics.md",
+      "curriculum/course-plan.md",
     ];
     const blockingApprovalPatterns = [
       /must (?:explicitly )?approve/i,
@@ -991,31 +1160,31 @@ describe('curriculum and catalog contracts', () => {
     ];
 
     for (const path of policyPaths) {
-      const source = readFileSync(join(root, path), 'utf8');
+      const source = readFileSync(join(root, path), "utf8");
       for (const pattern of blockingApprovalPatterns) {
         expect(source, `${path} contains ${pattern}`).not.toMatch(pattern);
       }
     }
 
     for (const path of [
-      'README.md',
-      'AGENTS.md',
-      '.agents/skills/localize-llm-course/SKILL.md',
-      'SKILLS.md',
-      'curriculum/README.md',
-      'curriculum/course-plan.md',
+      "README.md",
+      "AGENTS.md",
+      ".agents/skills/localize-llm-course/SKILL.md",
+      "SKILLS.md",
+      "curriculum/README.md",
+      "curriculum/course-plan.md",
     ]) {
-      expect(readFileSync(join(root, path), 'utf8')).toMatch(
+      expect(readFileSync(join(root, path), "utf8")).toMatch(
         /user review(?:s)?[\s\S]{0,80}(?:after delivery|follows delivery)/i,
       );
     }
   });
 
-  it('keeps the Chapter 0 orientation exception narrow and non-assessed', () => {
+  it("keeps the Chapter 0 orientation exception narrow and non-assessed", () => {
     const root = repositoryRoot();
-    const contractPath = join(root, 'curriculum/chapters/00-llm-parts.md');
+    const contractPath = join(root, "curriculum/chapters/00-llm-parts.md");
     const lessonNames = Object.fromEntries(
-      ['en', 'ru'].map((locale) => [
+      ["en", "ru"].map((locale) => [
         locale,
         `site/src/content/chapters/${locale}/00-llm-parts.mdx`,
       ]),
@@ -1026,18 +1195,18 @@ describe('curriculum and catalog contracts', () => {
         join(root, path),
       ]),
     );
-    const contractSource = readFileSync(contractPath, 'utf8');
+    const contractSource = readFileSync(contractPath, "utf8");
     const lessonSources = Object.fromEntries(
       Object.entries(lessonPaths).map(([locale, path]) => [
         locale,
-        readFileSync(path, 'utf8'),
+        readFileSync(path, "utf8"),
       ]),
     );
     const lessonSource = lessonSources.en;
 
     const orientationContract = validateChapterContractText(contractSource, {
       sourceName: contractPath,
-      supportedLocales: ['en', 'ru'],
+      supportedLocales: ["en", "ru"],
     });
     expect(
       validateChapterContractIntegration(orientationContract, {
@@ -1045,10 +1214,10 @@ describe('curriculum and catalog contracts', () => {
         sourceName: contractPath,
       }).visualizationComponent,
     ).toEqual([
-      'site/src/components/chapters/LlmSystemDiagram.astro',
-      'site/src/components/chapters/LlmPartsDiagram.astro',
+      "site/src/components/chapters/LlmSystemDiagram.astro",
+      "site/src/components/chapters/LlmPartsDiagram.astro",
     ]);
-    for (const locale of ['en', 'ru'] as const) {
+    for (const locale of ["en", "ru"] as const) {
       const lesson = validateChapterDocument(lessonSources[locale], {
         sourceName: lessonNames[locale],
         checkSourceFiles: false,
@@ -1070,20 +1239,20 @@ describe('curriculum and catalog contracts', () => {
     );
     expect(() =>
       validateChapterContractText(movedOrientation, {
-        sourceName: 'moved orientation',
-        supportedLocales: ['en', 'ru'],
+        sourceName: "moved orientation",
+        supportedLocales: ["en", "ru"],
       }),
     ).toThrow(/only 00-llm-parts at order zero/);
 
     const disguisedLesson = replaceOnce(
       contractSource,
       '  "chapter_kind": "orientation",\n',
-      '',
+      "",
     );
     expect(() =>
       validateChapterContractText(disguisedLesson, {
-        sourceName: 'disguised orientation',
-        supportedLocales: ['en', 'ru'],
+        sourceName: "disguised orientation",
+        supportedLocales: ["en", "ru"],
       }),
     ).toThrow(/formula must be an object|rust must be an object/);
 
@@ -1094,22 +1263,24 @@ describe('curriculum and catalog contracts', () => {
     );
     expect(() =>
       validateChapterDocument(borrowedFormula, {
-        sourceName: 'formula-bearing orientation',
+        sourceName: "formula-bearing orientation",
         checkSourceFiles: false,
       }),
     ).toThrow(/orientation formula must be null/);
 
     const assessedOrientation = replaceOnce(
       lessonSource,
-      '{/* chapter-section:course-path */}',
-      '{/* chapter-section:exercises */}',
+      "{/* chapter-section:course-path */}",
+      "{/* chapter-section:exercises */}",
     );
     expect(() =>
       validateChapterDocument(assessedOrientation, {
-        sourceName: 'assessed orientation',
+        sourceName: "assessed orientation",
         checkSourceFiles: false,
       }),
-    ).toThrow(/overview, history, visualization, course-path, decoder-connection/);
+    ).toThrow(
+      /overview, history, visualization, course-path, decoder-connection/,
+    );
 
     const duplicateVisualizationId = replaceOnce(
       lessonSource,
@@ -1118,7 +1289,7 @@ describe('curriculum and catalog contracts', () => {
     );
     expect(() =>
       validateChapterDocument(duplicateVisualizationId, {
-        sourceName: 'duplicate orientation visualization',
+        sourceName: "duplicate orientation visualization",
         checkSourceFiles: false,
       }),
     ).toThrow(/visualization IDs must be unique|orientation must register/);
@@ -1126,156 +1297,170 @@ describe('curriculum and catalog contracts', () => {
     const missingDetailDiagram = replaceOnce(
       lessonSource,
       '\n<LlmPartsDiagram labels={diagramLabels} locale="en" />',
-      '',
+      "",
     );
     expect(() =>
       validateChapterDocument(missingDetailDiagram, {
-        sourceName: 'missing detail diagram',
+        sourceName: "missing detail diagram",
         checkSourceFiles: false,
       }),
     ).toThrow(/useful visualization must be invoked inside its section/);
 
     const duplicatedSystemDiagram = replaceOnce(
       lessonSource,
-      '<LlmSystemDiagram labels={diagramLabels} />',
-      '<LlmSystemDiagram labels={diagramLabels} />\n\n<LlmSystemDiagram labels={diagramLabels} />',
+      "<LlmSystemDiagram labels={diagramLabels} />",
+      "<LlmSystemDiagram labels={diagramLabels} />\n\n<LlmSystemDiagram labels={diagramLabels} />",
     );
     expect(() =>
       validateChapterDocument(duplicatedSystemDiagram, {
-        sourceName: 'duplicated system diagram',
+        sourceName: "duplicated system diagram",
         checkSourceFiles: false,
       }),
     ).toThrow(/useful visualization must be invoked inside its section/);
 
-    const normalLesson = canonicalLesson('en');
+    const normalLesson = canonicalLesson("en");
     const missingLessonFormula = structuredClone(normalLesson.data);
     missingLessonFormula.formula = null;
     expect(() =>
-      validateChapterMetadata(missingLessonFormula, 'formula-free implementation lesson'),
+      validateChapterMetadata(
+        missingLessonFormula,
+        "formula-free implementation lesson",
+      ),
     ).toThrow(/formula must be an object/);
   });
 
-  it('requires learner-facing equations to use rendered math instead of code styling', () => {
-    const agents = readFileSync(resolve(repositoryRoot(), 'AGENTS.md'), 'utf8');
-    const playbook = readFileSync(resolve(repositoryRoot(), 'SKILLS.md'), 'utf8');
+  it("requires learner-facing equations to use rendered math instead of code styling", () => {
+    const agents = readFileSync(resolve(repositoryRoot(), "AGENTS.md"), "utf8");
+    const playbook = readFileSync(
+      resolve(repositoryRoot(), "SKILLS.md"),
+      "utf8",
+    );
 
     expect(agents).toContain(
-      'Every learner-facing mathematical expression or equation must use the site',
+      "Every learner-facing mathematical expression or equation must use the site",
     );
-    expect(agents).toContain('use `$...$` for inline notation and `$$...$$`');
-    expect(agents).toContain('components must emit equivalent server-rendered math');
+    expect(agents).toContain("use `$...$` for inline notation and `$$...$$`");
     expect(agents).toContain(
-      'Do not present mathematics as ordinary text or a code span.',
+      "components must emit equivalent server-rendered math",
     );
-    expect(playbook).toContain('Route every learner-facing mathematical');
+    expect(agents).toContain(
+      "Do not present mathematics as ordinary text or a code span.",
+    );
+    expect(playbook).toContain("Route every learner-facing mathematical");
     expect(playbook).toContain(
-      'inline notation in `$...$` and display notation in `$$...$$`',
+      "inline notation in `$...$` and display notation in `$$...$$`",
     );
-    expect(playbook).toContain('Source tests must reject math-shaped code spans');
+    expect(playbook).toContain(
+      "Source tests must reject math-shaped code spans",
+    );
   });
 
-  it('requires every localized contract field for a synthetic third locale', () => {
+  it("requires every localized contract field for a synthetic third locale", () => {
     const canonical = canonicalContract();
     const contract = structuredClone(canonical.data);
-    contract.objective.es = 'Objetivo localizado';
-    contract.worked_inputs.es = 'Entradas localizadas';
+    contract.objective.es = "Objetivo localizado";
+    contract.worked_inputs.es = "Entradas localizadas";
     for (const symbol of contract.formula.symbols) {
       symbol.es = `Significado de ${symbol.symbol}`;
     }
-    contract.history.approach.es = 'Enfoque histórico';
-    contract.history.summary.es = 'Resumen histórico';
-    contract.visualization.rationale.es = 'Justificación visual';
-    contract.decoder_connection.es = 'Conexión con el decodificador';
+    contract.history.approach.es = "Enfoque histórico";
+    contract.history.summary.es = "Resumen histórico";
+    contract.visualization.rationale.es = "Justificación visual";
+    contract.decoder_connection.es = "Conexión con el decodificador";
     for (const term of contract.terminology) {
       term.es = `Término ${term.concept_id}`;
     }
     const source = [
-      '---',
+      "---",
       JSON.stringify(contract, null, 2),
-      '---',
+      "---",
       canonical.body,
-    ].join('\n');
+    ].join("\n");
 
     expect(() =>
       validateChapterContractText(source, {
-        sourceName: 'three-locale contract',
-        supportedLocales: ['en', 'ru', 'es'],
+        sourceName: "three-locale contract",
+        supportedLocales: ["en", "ru", "es"],
       }),
     ).not.toThrow();
 
     delete contract.decoder_connection.es;
     expect(() =>
       validateChapterContractText(
-        ['---', JSON.stringify(contract, null, 2), '---', canonical.body].join(
-          '\n',
+        ["---", JSON.stringify(contract, null, 2), "---", canonical.body].join(
+          "\n",
         ),
         {
-          sourceName: 'incomplete three-locale contract',
-          supportedLocales: ['en', 'ru', 'es'],
+          sourceName: "incomplete three-locale contract",
+          supportedLocales: ["en", "ru", "es"],
         },
       ),
     ).toThrow(/decoder_connection locale keys must be exactly en, es, ru/);
   });
 
-  it('keeps every configured message catalog in exact key parity', () => {
-    expect(validateCatalogParity(resolve(process.cwd(), '..'))).toBeGreaterThan(
+  it("keeps every configured message catalog in exact key parity", () => {
+    expect(validateCatalogParity(resolve(process.cwd(), ".."))).toBeGreaterThan(
       0,
     );
   });
 
-  it('fails closed when a newly configured locale lacks a complete catalog', () => {
-    const root = mkdtempSync(join(tmpdir(), 'learn-llm-catalogs-'));
+  it("fails closed when a newly configured locale lacks a complete catalog", () => {
+    const root = mkdtempSync(join(tmpdir(), "learn-llm-catalogs-"));
     temporaryDirectories.push(root);
-    const directory = join(root, 'site/src/i18n');
-    const catalogDirectory = join(directory, 'catalogs');
+    const directory = join(root, "site/src/i18n");
+    const catalogDirectory = join(directory, "catalogs");
     mkdirSync(catalogDirectory, { recursive: true });
     writeFileSync(
-      join(directory, 'locales.json'),
+      join(directory, "locales.json"),
       JSON.stringify({
-        defaultLocale: 'en',
+        defaultLocale: "en",
         locales: {
-          en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
-          es: { languageTag: 'es', nativeName: 'Español', direction: 'ltr' },
+          en: { languageTag: "en", nativeName: "English", direction: "ltr" },
+          es: { languageTag: "es", nativeName: "Español", direction: "ltr" },
         },
       }),
     );
     writeFileSync(
-      join(directory, 'messages.ts'),
+      join(directory, "messages.ts"),
       "export const messageKeys = [\n  'title',\n  'subtitle',\n] as const;\n",
     );
     writeFileSync(
-      join(catalogDirectory, 'en.json'),
-      JSON.stringify({ title: 'Title', subtitle: 'Subtitle' }),
+      join(catalogDirectory, "en.json"),
+      JSON.stringify({ title: "Title", subtitle: "Subtitle" }),
     );
 
-    expect(() => validateCatalogParity(root)).toThrow(/missing catalog.*es\.json/);
+    expect(() => validateCatalogParity(root)).toThrow(
+      /missing catalog.*es\.json/,
+    );
     writeFileSync(
-      join(catalogDirectory, 'es.json'),
-      JSON.stringify({ title: 'Título', extra: 'No' }),
+      join(catalogDirectory, "es.json"),
+      JSON.stringify({ title: "Título", extra: "No" }),
     );
     expect(() => validateCatalogParity(root)).toThrow(/catalog keys differ/);
 
     writeFileSync(
-      join(catalogDirectory, 'es.json'),
-      JSON.stringify({ title: 'Título', subtitle: '   ' }),
+      join(catalogDirectory, "es.json"),
+      JSON.stringify({ title: "Título", subtitle: "   " }),
     );
     expect(() => validateCatalogParity(root)).toThrow(
       /subtitle must be a non-empty string/,
     );
 
     writeFileSync(
-      join(catalogDirectory, 'es.json'),
+      join(catalogDirectory, "es.json"),
       '{"title":"Uno","title":"Dos","subtitle":"Subtítulo"}',
     );
-    expect(() => validateCatalogParity(root)).toThrow(/contains duplicate keys/);
+    expect(() => validateCatalogParity(root)).toThrow(
+      /contains duplicate keys/,
+    );
   });
 
-  it('rejects plan-body, ledger, and implemented-prefix drift', () => {
+  it("rejects plan-body, ledger, and implemented-prefix drift", () => {
     const root = repositoryRoot();
-    const planPath = join(root, 'curriculum/course-plan.md');
-    const statePath = join(root, 'BUILD_STATE.yaml');
-    const planSource = readFileSync(planPath, 'utf8');
-    const stateSource = readFileSync(statePath, 'utf8');
+    const planPath = join(root, "curriculum/course-plan.md");
+    const statePath = join(root, "BUILD_STATE.yaml");
+    const planSource = readFileSync(planPath, "utf8");
+    const stateSource = readFileSync(statePath, "utf8");
     const metadata = validateCoursePlanText(planSource, planPath);
 
     expect(() =>
@@ -1284,8 +1469,8 @@ describe('curriculum and catalog contracts', () => {
 
     const missingIntroductionBuild = replaceOnce(
       stateSource,
-      '  - build_id: introduce-ch00-llm-map',
-      '  - build_id: missing-ch00-llm-map',
+      "  - build_id: introduce-ch00-llm-map",
+      "  - build_id: missing-ch00-llm-map",
     );
     expect(() =>
       validateLedgerText(missingIntroductionBuild, metadata, statePath),
@@ -1293,30 +1478,30 @@ describe('curriculum and catalog contracts', () => {
 
     const missingStandaloneBuild = replaceOnce(
       stateSource,
-      '  - build_id: activate-ch00-russian-localization',
-      '  - build_id: missing-ch00-russian-localization',
+      "  - build_id: activate-ch00-russian-localization",
+      "  - build_id: missing-ch00-russian-localization",
     );
     expect(() =>
       validateLedgerText(missingStandaloneBuild, metadata, statePath),
     ).toThrow(/missing build activate-ch00-russian-localization/);
 
     const standaloneBuildStart = stateSource.indexOf(
-      '  - build_id: activate-ch00-russian-localization',
+      "  - build_id: activate-ch00-russian-localization",
     );
     expect(standaloneBuildStart).toBeGreaterThan(-1);
     const wrongStandaloneStep =
       stateSource.slice(0, standaloneBuildStart) +
       replaceOnce(
         stateSource.slice(standaloneBuildStart),
-        '      - id: activate-ch00-russian-localization',
-        '      - id: wrong-ch00-russian-localization',
+        "      - id: activate-ch00-russian-localization",
+        "      - id: wrong-ch00-russian-localization",
       );
     expect(() =>
       validateLedgerText(wrongStandaloneStep, metadata, statePath),
     ).toThrow(/must own exactly activate-ch00-russian-localization/);
 
     const replacementBuildStart = stateSource.indexOf(
-      '  - build_id: revise-ch00-orientation',
+      "  - build_id: revise-ch00-orientation",
     );
     expect(replacementBuildStart).toBeGreaterThan(-1);
     const mutateReplacementBuild = (before: string, after: string) =>
@@ -1324,8 +1509,8 @@ describe('curriculum and catalog contracts', () => {
       replaceOnce(stateSource.slice(replacementBuildStart), before, after);
 
     const missingReplacementBuild = mutateReplacementBuild(
-      '  - build_id: revise-ch00-orientation',
-      '  - build_id: missing-revise-ch00-orientation',
+      "  - build_id: revise-ch00-orientation",
+      "  - build_id: missing-revise-ch00-orientation",
     );
     expect(() =>
       validateLedgerText(missingReplacementBuild, metadata, statePath),
@@ -1333,17 +1518,17 @@ describe('curriculum and catalog contracts', () => {
 
     const introductionDependencyDrift = mutateReplacementBuild(
       [
-        '      - id: revise-ch00-orientation',
+        "      - id: revise-ch00-orientation",
         '        objective: "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part."',
-        '        depends_on:',
-        '          - implement-ch39-end-to-end-llm',
-      ].join('\n'),
+        "        depends_on:",
+        "          - implement-ch39-end-to-end-llm",
+      ].join("\n"),
       [
-        '      - id: revise-ch00-orientation',
+        "      - id: revise-ch00-orientation",
         '        objective: "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part."',
-        '        depends_on:',
-        '          - implement-ch38-cached-generation',
-      ].join('\n'),
+        "        depends_on:",
+        "          - implement-ch38-cached-generation",
+      ].join("\n"),
     );
     expect(() =>
       validateLedgerText(introductionDependencyDrift, metadata, statePath),
@@ -1351,16 +1536,16 @@ describe('curriculum and catalog contracts', () => {
 
     const missingIntroductionOutput = mutateReplacementBuild(
       [
-        '        outputs:',
+        "        outputs:",
         '          - "curriculum/course-plan.md"',
         '          - "curriculum/README.md"',
         '          - "curriculum/chapters/00-llm-parts.md"',
-      ].join('\n'),
+      ].join("\n"),
       [
-        '        outputs:',
+        "        outputs:",
         '          - "curriculum/course-plan.md"',
         '          - "curriculum/README.md"',
-      ].join('\n'),
+      ].join("\n"),
     );
     expect(() =>
       validateLedgerText(missingIntroductionOutput, metadata, statePath),
@@ -1377,26 +1562,26 @@ describe('curriculum and catalog contracts', () => {
     expect(() =>
       validateImplementedContracts(metadata, [
         {
-          path: '00-llm-parts.md',
+          path: "00-llm-parts.md",
           data: validateChapterContractText(
             readFileSync(
-              join(root, 'curriculum/chapters/00-llm-parts.md'),
-              'utf8',
+              join(root, "curriculum/chapters/00-llm-parts.md"),
+              "utf8",
             ),
             {
-              sourceName: 'curriculum/chapters/00-llm-parts.md',
-              supportedLocales: ['en', 'ru'],
+              sourceName: "curriculum/chapters/00-llm-parts.md",
+              supportedLocales: ["en", "ru"],
             },
           ).data,
         },
-        { path: '01-text-units.md', data: canonicalContract().data },
+        { path: "01-text-units.md", data: canonicalContract().data },
       ]),
     ).not.toThrow();
 
     const staleAudit = replaceOnce(
       planSource,
-      'The revision-2 repair replaced',
-      'One defect remains; a later step replaces',
+      "The revision-2 repair replaced",
+      "One defect remains; a later step replaces",
     );
     expect(() => validateCoursePlanText(staleAudit)).toThrow(
       /must describe the completed revision-2 repair/,
@@ -1431,7 +1616,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 70',
+      '"plan_revision": 71',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1449,8 +1634,8 @@ describe('curriculum and catalog contracts', () => {
 
     const programmingHistoryRegression = replaceOnce(
       planSource,
-      'official GPT-2 code',
-      'FORTRAN and NumPy array history',
+      "official GPT-2 code",
+      "FORTRAN and NumPy array history",
     );
     expect(() => validateCoursePlanText(programmingHistoryRegression)).toThrow(
       /history must follow the road to modern LLMs/,
@@ -1458,8 +1643,8 @@ describe('curriculum and catalog contracts', () => {
 
     const missingCorrectiveThreshold = replaceOnce(
       planSource,
-      'Corrected content revisions of Chapters 8 and 9',
-      'Only future chapters',
+      "Corrected content revisions of Chapters 8 and 9",
+      "Only future chapters",
     );
     expect(() => validateCoursePlanText(missingCorrectiveThreshold)).toThrow(
       /shared LLM-history policy must cover corrected Chapters 8-9/,
@@ -1468,49 +1653,51 @@ describe('curriculum and catalog contracts', () => {
     const finalPlacement = replaceOnce(
       planSource,
       [
-        '      {',
+        "      {",
         '        "step_id": "generalize-localization-infrastructure",',
         '        "before_chapter": "02-corpus-partitions"',
-        '      }',
-      ].join('\n'),
+        "      }",
+      ].join("\n"),
       [
-        '      {',
+        "      {",
         '        "step_id": "generalize-localization-infrastructure",',
         '        "before_chapter": "02-corpus-partitions"',
-        '      },',
-        '      {',
+        "      },",
+        "      {",
         '        "step_id": "activate-locale-ar-eg",',
         '        "after_chapter": "39-end-to-end-llm"',
-        '      }',
-      ].join('\n'),
+        "      }",
+      ].join("\n"),
     );
     const finalPlacementMetadata = validateCoursePlanText(
       finalPlacement,
-      'post-course locale activation plan',
+      "post-course locale activation plan",
     );
-    const finalPlacementStepIds = deriveScheduledStepIds(finalPlacementMetadata);
-    expect(finalPlacementStepIds.indexOf('activate-locale-ar-eg')).toBe(
-      finalPlacementStepIds.indexOf('implement-ch39-end-to-end-llm') + 1,
+    const finalPlacementStepIds = deriveScheduledStepIds(
+      finalPlacementMetadata,
     );
-    expect(finalPlacementStepIds.indexOf('activate-locale-ar-eg')).toBeLessThan(
-      finalPlacementStepIds.indexOf('activate-ch00-russian-localization'),
+    expect(finalPlacementStepIds.indexOf("activate-locale-ar-eg")).toBe(
+      finalPlacementStepIds.indexOf("implement-ch39-end-to-end-llm") + 1,
+    );
+    expect(finalPlacementStepIds.indexOf("activate-locale-ar-eg")).toBeLessThan(
+      finalPlacementStepIds.indexOf("activate-ch00-russian-localization"),
     );
 
     const ambiguousPlacement = replaceOnce(
       planSource,
       [
-        '      {',
+        "      {",
         '        "step_id": "generalize-localization-infrastructure",',
         '        "before_chapter": "02-corpus-partitions"',
-        '      }',
-      ].join('\n'),
+        "      }",
+      ].join("\n"),
       [
-        '      {',
+        "      {",
         '        "step_id": "generalize-localization-infrastructure",',
         '        "before_chapter": "02-corpus-partitions",',
         '        "after_chapter": "01-text-units"',
-        '      }',
-      ].join('\n'),
+        "      }",
+      ].join("\n"),
     );
     expect(() => validateCoursePlanText(ambiguousPlacement)).toThrow(
       /exactly one of before_chapter or after_chapter/,
@@ -1518,8 +1705,8 @@ describe('curriculum and catalog contracts', () => {
 
     const dependencyDrift = replaceOnce(
       planSource,
-      '- **Depends on:** `01-text-units`.',
-      '- **Depends on:** `39-end-to-end-llm`.',
+      "- **Depends on:** `01-text-units`.",
+      "- **Depends on:** `39-end-to-end-llm`.",
     );
     expect(() => validateCoursePlanText(dependencyDrift)).toThrow(
       /body dependency mismatch/,
@@ -1527,8 +1714,8 @@ describe('curriculum and catalog contracts', () => {
 
     const visualizationDrift = replaceOnce(
       planSource,
-      '- **Visualization:** Not useful —',
-      '- **Visualization:** Useful —',
+      "- **Visualization:** Not useful —",
+      "- **Visualization:** Useful —",
     );
     expect(() => validateCoursePlanText(visualizationDrift)).toThrow(
       /body visualization decision mismatch/,
@@ -1555,17 +1742,17 @@ describe('curriculum and catalog contracts', () => {
     const invalidatedDependencyDrift = replaceOnce(
       stateSource,
       [
-        '      - id: harden-diagram-containment-full-view',
+        "      - id: harden-diagram-containment-full-view",
         '        objective: "Guarantee that ordinary content stays inside every bounded diagram box and expose full view for every registered desktop diagram."',
-        '        depends_on:',
-        '          - standardize-course-diagram-full-view',
-      ].join('\n'),
+        "        depends_on:",
+        "          - standardize-course-diagram-full-view",
+      ].join("\n"),
       [
-        '      - id: harden-diagram-containment-full-view',
+        "      - id: harden-diagram-containment-full-view",
         '        objective: "Guarantee that ordinary content stays inside every bounded diagram box and expose full view for every registered desktop diagram."',
-        '        depends_on:',
-        '          - standardize-course-diagram-design-system',
-      ].join('\n'),
+        "        depends_on:",
+        "          - standardize-course-diagram-design-system",
+      ].join("\n"),
     );
     expect(() =>
       validateLedgerText(invalidatedDependencyDrift, metadata),
@@ -1574,33 +1761,29 @@ describe('curriculum and catalog contracts', () => {
     );
   });
 
-  it('aggregates scheduled lesson activation without rewriting implementation history', () => {
+  it("aggregates scheduled lesson activation without rewriting implementation history", () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
-      join(root, 'curriculum/course-plan.md'),
-      'utf8',
+      join(root, "curriculum/course-plan.md"),
+      "utf8",
     );
-    const stateSource = readFileSync(join(root, 'BUILD_STATE.yaml'), 'utf8');
+    const stateSource = readFileSync(join(root, "BUILD_STATE.yaml"), "utf8");
     const localeConfiguration = validateLocaleConfiguration({
-      defaultLocale: 'en',
+      defaultLocale: "en",
       locales: {
-        en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
-        ru: { languageTag: 'ru', nativeName: 'Русский', direction: 'ltr' },
-        es: { languageTag: 'es', nativeName: 'Español', direction: 'ltr' },
+        en: { languageTag: "en", nativeName: "English", direction: "ltr" },
+        ru: { languageTag: "ru", nativeName: "Русский", direction: "ltr" },
+        es: { languageTag: "es", nativeName: "Español", direction: "ltr" },
       },
     });
     const deferredPlanSource = replaceOnce(
       planSource,
       '    "deferred_locales": [],',
-      [
-        '    "deferred_locales": [',
-        '      "es"',
-        '    ],',
-      ].join('\n'),
+      ['    "deferred_locales": [', '      "es"', "    ],"].join("\n"),
     );
     const metadata = validateCoursePlanText(
       deferredPlanSource,
-      'synthetic three-locale plan',
+      "synthetic three-locale plan",
       localeConfiguration,
     );
     const mutateLedgerStep = (
@@ -1612,7 +1795,7 @@ describe('curriculum and catalog contracts', () => {
       const marker = `      - id: ${stepId}\n`;
       const start = source.indexOf(marker);
       expect(start).toBeGreaterThan(-1);
-      const next = source.indexOf('\n      - id: ', start + marker.length);
+      const next = source.indexOf("\n      - id: ", start + marker.length);
       const end = next === -1 ? source.length : next;
       return (
         source.slice(0, start) +
@@ -1623,42 +1806,40 @@ describe('curriculum and catalog contracts', () => {
 
     expect(
       stateSource.slice(
-        stateSource.indexOf('      - id: implement-ch08-tensor-storage\n'),
+        stateSource.indexOf("      - id: implement-ch08-tensor-storage\n"),
         stateSource.indexOf(
-          '\n      - id: ',
-          stateSource.indexOf('      - id: implement-ch08-tensor-storage\n') +
+          "\n      - id: ",
+          stateSource.indexOf("      - id: implement-ch08-tensor-storage\n") +
             1,
         ),
       ),
-    ).not.toContain(
-      'site/src/content/chapters/ru/08-tensor-storage.mdx',
-    );
+    ).not.toContain("site/src/content/chapters/ru/08-tensor-storage.mdx");
     expect(() =>
       validateLedgerText(
         stateSource,
         metadata,
-        'synthetic three-locale ledger',
+        "synthetic three-locale ledger",
         localeConfiguration,
       ),
     ).not.toThrow();
 
     const missingActiveLocaleOutput = mutateLedgerStep(
       stateSource,
-      'activate-ch08-russian-localization',
+      "activate-ch08-russian-localization",
       `          - "site/src/content/chapters/ru/08-tensor-storage.mdx"\n`,
-      '',
+      "",
     );
     const missingActiveLocale = mutateLedgerStep(
       missingActiveLocaleOutput,
-      'activate-ch08-russian-localization',
+      "activate-ch08-russian-localization",
       `          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage"\n`,
-      '',
+      "",
     );
     expect(() =>
       validateLedgerText(
         missingActiveLocale,
         metadata,
-        'missing active Chapter 8 locale ledger',
+        "missing active Chapter 8 locale ledger",
         localeConfiguration,
       ),
     ).toThrow(
@@ -1667,65 +1848,67 @@ describe('curriculum and catalog contracts', () => {
 
     const extraDeferredLocaleOutput = mutateLedgerStep(
       stateSource,
-      'implement-ch08-tensor-storage',
+      "implement-ch08-tensor-storage",
       `          - "site/src/content/chapters/en/08-tensor-storage.mdx"\n`,
       [
         `          - "site/src/content/chapters/en/08-tensor-storage.mdx"`,
         `          - "site/src/content/chapters/es/08-tensor-storage.mdx"`,
-        '',
-      ].join('\n'),
+        "",
+      ].join("\n"),
     );
     const extraDeferredLocale = mutateLedgerStep(
       extraDeferredLocaleOutput,
-      'implement-ch08-tensor-storage',
+      "implement-ch08-tensor-storage",
       `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"\n`,
       [
         `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"`,
         `          - "npm --prefix site run check:chapter -- --locale es --chapter 08-tensor-storage"`,
-        '',
-      ].join('\n'),
+        "",
+      ].join("\n"),
     );
     expect(() =>
       validateLedgerText(
         extraDeferredLocale,
         metadata,
-        'extra deferred Chapter 8 locale ledger',
+        "extra deferred Chapter 8 locale ledger",
         localeConfiguration,
       ),
-    ).toThrow(/must not own a locale outside the chapter-active locales en, ru/);
+    ).toThrow(
+      /must not own a locale outside the chapter-active locales en, ru/,
+    );
 
     const missingReferenceLocaleOutput = mutateLedgerStep(
       stateSource,
-      'implement-ch08-tensor-storage',
-      'site/src/content/chapters/en/08-tensor-storage.mdx',
-      'site/src/content/chapters/ru/08-tensor-storage.mdx',
+      "implement-ch08-tensor-storage",
+      "site/src/content/chapters/en/08-tensor-storage.mdx",
+      "site/src/content/chapters/ru/08-tensor-storage.mdx",
     );
     const missingReferenceLocale = mutateLedgerStep(
       missingReferenceLocaleOutput,
-      'implement-ch08-tensor-storage',
-      'npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage',
-      'npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage',
+      "implement-ch08-tensor-storage",
+      "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage",
+      "npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage",
     );
     expect(() =>
       validateLedgerText(
         missingReferenceLocale,
         metadata,
-        'missing reference Chapter 8 locale ledger',
+        "missing reference Chapter 8 locale ledger",
         localeConfiguration,
       ),
     ).toThrow(/implement-ch08-tensor-storage must own the reference locale en/);
 
     const outputCheckMismatch = mutateLedgerStep(
       stateSource,
-      'activate-ch08-russian-localization',
-      './course run npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage',
-      './course run npm --prefix site run check:chapter -- --locale es --chapter 08-tensor-storage',
+      "activate-ch08-russian-localization",
+      "./course run npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage",
+      "./course run npm --prefix site run check:chapter -- --locale es --chapter 08-tensor-storage",
     );
     expect(() =>
       validateLedgerText(
         outputCheckMismatch,
         metadata,
-        'mismatched Chapter 8 activation ledger',
+        "mismatched Chapter 8 activation ledger",
         localeConfiguration,
       ),
     ).toThrow(
@@ -1740,7 +1923,7 @@ describe('curriculum and catalog contracts', () => {
     expect(() =>
       validateCoursePlanText(
         uncoveredChapter,
-        'gapped synthetic chapter-locale plan',
+        "gapped synthetic chapter-locale plan",
         localeConfiguration,
       ),
     ).toThrow(/chapter locale ranges must cover every chapter exactly once/);
@@ -1748,7 +1931,7 @@ describe('curriculum and catalog contracts', () => {
     expect(() =>
       validateCoursePlanText(
         planSource,
-        'unacknowledged synthetic registry expansion',
+        "unacknowledged synthetic registry expansion",
         localeConfiguration,
       ),
     ).toThrow(
@@ -1756,9 +1939,9 @@ describe('curriculum and catalog contracts', () => {
     );
   });
 
-  it('keeps repeated localized terminology mappings stable across contracts', () => {
+  it("keeps repeated localized terminology mappings stable across contracts", () => {
     const plan = validateCoursePlanText(
-      readFileSync(join(repositoryRoot(), 'curriculum/course-plan.md'), 'utf8'),
+      readFileSync(join(repositoryRoot(), "curriculum/course-plan.md"), "utf8"),
     );
     const contracts = plan.chapters.slice(0, 3).map(
       (
@@ -1767,7 +1950,7 @@ describe('curriculum and catalog contracts', () => {
           formula: string;
           order: number;
           primary_module: string | null;
-          visualization: 'useful' | 'not-useful';
+          visualization: "useful" | "not-useful";
         },
         index: number,
       ) => ({
@@ -1779,10 +1962,7 @@ describe('curriculum and catalog contracts', () => {
           formula: { latex: chapter.formula },
           rust: {
             sources: chapter.primary_module
-              ? [
-                  'rust/crates/llm-from-scratch/src/' +
-                    chapter.primary_module,
-                ]
+              ? ["rust/crates/llm-from-scratch/src/" + chapter.primary_module]
               : [],
           },
           visualization: { decision: chapter.visualization },
@@ -1790,16 +1970,16 @@ describe('curriculum and catalog contracts', () => {
             index === 0
               ? [
                   {
-                    concept_id: 'intro-term',
-                    en: 'intro term',
-                    ru: 'вводный термин',
+                    concept_id: "intro-term",
+                    en: "intro term",
+                    ru: "вводный термин",
                   },
                 ]
               : [
                   {
-                    concept_id: 'shared-term',
-                    en: index === 1 ? 'stable term' : 'drifted term',
-                    ru: 'устойчивый термин',
+                    concept_id: "shared-term",
+                    en: index === 1 ? "stable term" : "drifted term",
+                    ru: "устойчивый термин",
                   },
                 ],
         },
@@ -1811,44 +1991,44 @@ describe('curriculum and catalog contracts', () => {
     );
   });
 
-  it('ties each contract to every lesson, its useful diagram, and exact stdout', () => {
+  it("ties each contract to every lesson, its useful diagram, and exact stdout", () => {
     const contract = canonicalContract();
     const integration = validateChapterContractIntegration(contract, {
       repositoryRoot: repositoryRoot(),
-      sourceName: '01-text-units contract',
+      sourceName: "01-text-units contract",
     });
     expect(integration.visualizationComponent).toBe(
-      'site/src/components/chapters/TextUnitsDiagram.astro',
+      "site/src/components/chapters/TextUnitsDiagram.astro",
     );
 
-    const english = canonicalLesson('en');
+    const english = canonicalLesson("en");
     expect(() =>
       validateContractLesson(
         contract.data,
         english,
-        'en',
-        'site/src/content/chapters/en/01-text-units.mdx',
+        "en",
+        "site/src/content/chapters/en/01-text-units.mdx",
       ),
     ).not.toThrow();
 
     const driftedData = structuredClone(english.data);
-    driftedData.objective = 'A different objective.';
+    driftedData.objective = "A different objective.";
     const driftedLesson = validateChapterDocument(
       chapterSource(driftedData, english.body),
-      { sourceName: 'drifted English lesson', checkSourceFiles: false },
+      { sourceName: "drifted English lesson", checkSourceFiles: false },
     );
     expect(() =>
-      validateContractLesson(contract.data, driftedLesson, 'en'),
+      validateContractLesson(contract.data, driftedLesson, "en"),
     ).toThrow(/differs from the contract/);
 
     const historyDrift = structuredClone(english.data);
-    historyDrift.history.approach = 'An unrelated historical approach';
+    historyDrift.history.approach = "An unrelated historical approach";
     const driftedHistoryLesson = validateChapterDocument(
       chapterSource(historyDrift, english.body),
-      { sourceName: 'drifted-history lesson', checkSourceFiles: false },
+      { sourceName: "drifted-history lesson", checkSourceFiles: false },
     );
     expect(() =>
-      validateContractLesson(contract.data, driftedHistoryLesson, 'en'),
+      validateContractLesson(contract.data, driftedHistoryLesson, "en"),
     ).toThrow(/history.*differs from the contract/);
 
     const wrongDiagram = validateChapterDocument(
@@ -1856,25 +2036,25 @@ describe('curriculum and catalog contracts', () => {
         english.data,
         replaceOnce(
           english.body,
-          '../../../components/chapters/TextUnitsDiagram.astro',
-          '../../../components/chapters/CorpusPartitionsDiagram.astro',
+          "../../../components/chapters/TextUnitsDiagram.astro",
+          "../../../components/chapters/CorpusPartitionsDiagram.astro",
         ),
       ),
-      { sourceName: 'wrong-diagram lesson', checkSourceFiles: false },
+      { sourceName: "wrong-diagram lesson", checkSourceFiles: false },
     );
     expect(() =>
       validateContractLesson(
         contract.data,
         wrongDiagram,
-        'en',
-        'site/src/content/chapters/en/01-text-units.mdx',
+        "en",
+        "site/src/content/chapters/en/01-text-units.mdx",
       ),
     ).toThrow(/chapter-specific component/);
 
-    const diagramInvocation = '<TextUnitsDiagram labels={diagramLabels} />';
+    const diagramInvocation = "<TextUnitsDiagram labels={diagramLabels} />";
     for (const hiddenDiagram of [
-      ['~~~mdx', diagramInvocation, '~~~~'].join('\n'),
-      '{/* ' + diagramInvocation + ' */}',
+      ["~~~mdx", diagramInvocation, "~~~~"].join("\n"),
+      "{/* " + diagramInvocation + " */}",
     ]) {
       const hiddenDiagramLesson = {
         ...english,
@@ -1884,8 +2064,8 @@ describe('curriculum and catalog contracts', () => {
         validateContractLesson(
           contract.data,
           hiddenDiagramLesson,
-          'en',
-          'site/src/content/chapters/en/01-text-units.mdx',
+          "en",
+          "site/src/content/chapters/en/01-text-units.mdx",
         ),
       ).toThrow(/must import and invoke exactly one/);
     }
@@ -1896,20 +2076,20 @@ describe('curriculum and catalog contracts', () => {
           english.data,
           replaceOnce(
             english.body,
-            '<TextUnitsDiagram labels={diagramLabels} />',
-            '',
+            "<TextUnitsDiagram labels={diagramLabels} />",
+            "",
           ),
         ),
-        { sourceName: 'missing-diagram lesson', checkSourceFiles: false },
+        { sourceName: "missing-diagram lesson", checkSourceFiles: false },
       ),
     ).toThrow(/useful visualization must be invoked inside its section/);
 
     const expected = readFileSync(
-      join(repositoryRoot(), 'rust/demos/ch01-text-units/expected.txt'),
-      'utf8',
+      join(repositoryRoot(), "rust/demos/ch01-text-units/expected.txt"),
+      "utf8",
     );
     expect(validateExpectedOutput(contract.data, expected)).toBe(true);
-    expect(() => validateExpectedOutput(contract.data, expected + 'x')).toThrow(
+    expect(() => validateExpectedOutput(contract.data, expected + "x")).toThrow(
       /byte-for-byte/,
     );
     expect(() =>
@@ -1917,11 +2097,11 @@ describe('curriculum and catalog contracts', () => {
     ).toThrow(/byte-for-byte/);
   });
 
-  it('keeps the Chapter 1 scalar vocabulary local while carrying the mapping boundary into BPE', () => {
+  it("keeps the Chapter 1 scalar vocabulary local while carrying the mapping boundary into BPE", () => {
     const contract = canonicalContract();
     expect(contract.data.content_revision).toBe(6);
 
-    for (const locale of ['en', 'ru'] as const) {
+    for (const locale of ["en", "ru"] as const) {
       const lesson = canonicalLesson(locale);
       expect(lesson.data.content_revision).toBe(6);
       expect(() =>
@@ -1934,103 +2114,107 @@ describe('curriculum and catalog contracts', () => {
       ).not.toThrow();
     }
 
-    const englishRust = canonicalLessonSection('en', 'rust-implementation');
+    const englishRust = canonicalLessonSection("en", "rust-implementation");
     for (const evidence of [
-      'This `Vocabulary` is defined only in the `ch01-text-units` demo',
-      'the cumulative `llm-from-scratch` crate neither imports nor extends it',
-      'freeze one mapping between token IDs and represented units',
-      'make encoding deterministic',
-      'decode represented units exactly',
-      'coverage versus sequence-length tradeoff',
+      "This `Vocabulary` is defined only in the `ch01-text-units` demo",
+      "the cumulative `llm-from-scratch` crate neither imports nor extends it",
+      "freeze one mapping between token IDs and represented units",
+      "make encoding deterministic",
+      "decode represented units exactly",
+      "coverage versus sequence-length tradeoff",
     ]) {
       expect(englishRust).toContain(evidence);
     }
 
-    const englishHandoff = canonicalLessonSection('en', 'decoder-connection');
+    const englishHandoff = canonicalLessonSection("en", "decoder-connection");
     for (const evidence of [
-      'does not contribute the concrete Rust ID type or token table',
-      'one token for each of the 256 possible byte values',
-      'learned merge tokens that may represent several bytes',
-      'new token-ID namespace',
+      "does not contribute the concrete Rust ID type or token table",
+      "one token for each of the 256 possible byte values",
+      "learned merge tokens that may represent several bytes",
+      "new token-ID namespace",
       "does not reuse Chapter 1's rule that an unseen scalar becomes `<UNK>`",
-      'replaced, not extended',
+      "replaced, not extended",
     ]) {
       expect(englishHandoff).toContain(evidence);
     }
 
-    const russianRust = canonicalLessonSection('ru', 'rust-implementation');
+    const russianRust = canonicalLessonSection("ru", "rust-implementation");
     for (const evidence of [
-      'Тип `Vocabulary` определён только в демонстрационном пакете `ch01-text-units`',
-      'основная библиотека `llm-from-scratch` его не импортирует и не расширяет',
-      'зафиксировать соответствие между ID токенов и представляемыми ими единицами',
-      'при одинаковом входе получать одинаковые ID',
-      'точно восстанавливать при декодировании единицы, представленные в словаре',
-      'компромисс между охватом текста и длиной последовательности',
+      "Тип `Vocabulary` определён только в демонстрационном пакете `ch01-text-units`",
+      "основная библиотека `llm-from-scratch` его не импортирует и не расширяет",
+      "зафиксировать соответствие между ID токенов и представляемыми ими единицами",
+      "при одинаковом входе получать одинаковые ID",
+      "точно восстанавливать при декодировании единицы, представленные в словаре",
+      "компромисс между охватом текста и длиной последовательности",
     ]) {
       expect(russianRust).toContain(evidence);
     }
 
-    const russianHandoff = canonicalLessonSection('ru', 'decoder-connection');
+    const russianHandoff = canonicalLessonSection("ru", "decoder-connection");
     for (const evidence of [
-      'Конкретный тип ID в Rust и таблица токенов из учебного примера не переходят',
-      'каждому из 256 возможных значений байта будет соответствовать отдельный токен',
-      'токены слияний смогут представлять последовательности из нескольких байтов',
-      'собственное пространство ID токенизатора',
-      'не наследует правило главы 1',
-      'учебный `Vocabulary` будет заменён, а не расширен',
+      "Конкретный тип ID в Rust и таблица токенов из учебного примера не переходят",
+      "каждому из 256 возможных значений байта будет соответствовать отдельный токен",
+      "токены слияний смогут представлять последовательности из нескольких байтов",
+      "собственное пространство ID токенизатора",
+      "не наследует правило главы 1",
+      "учебный `Vocabulary` будет заменён, а не расширен",
     ]) {
       expect(russianHandoff).toContain(evidence);
     }
   });
 });
 
-describe('published order and chapter navigation', () => {
+describe("published order and chapter navigation", () => {
   const targets = [
-    { chapterId: '03-third', order: 3, title: 'Third' },
-    { chapterId: '00-intro', order: 0, title: 'Intro' },
-    { chapterId: '01-first', order: 1, title: 'First' },
-    { chapterId: '02-second', order: 2, title: 'Second' },
+    { chapterId: "03-third", order: 3, title: "Third" },
+    { chapterId: "00-intro", order: 0, title: "Intro" },
+    { chapterId: "01-first", order: 1, title: "First" },
+    { chapterId: "02-second", order: 2, title: "Second" },
   ];
 
-  it('orders shuffled chapters and returns first, middle, and last neighbors', () => {
+  it("orders shuffled chapters and returns first, middle, and last neighbors", () => {
     expect(
       orderChapterTargets(targets).map((target) => target.chapterId),
-    ).toEqual(['00-intro', '01-first', '02-second', '03-third']);
-    expect(findChapterNeighbors(targets, '00-intro')).toEqual(
+    ).toEqual(["00-intro", "01-first", "02-second", "03-third"]);
+    expect(findChapterNeighbors(targets, "00-intro")).toEqual(
       expect.objectContaining({ previous: null, next: targets[2] }),
     );
-    expect(findChapterNeighbors(targets, '01-first')).toEqual(
+    expect(findChapterNeighbors(targets, "01-first")).toEqual(
       expect.objectContaining({ previous: targets[1], next: targets[3] }),
     );
-    expect(findChapterNeighbors(targets, '02-second')).toEqual(
+    expect(findChapterNeighbors(targets, "02-second")).toEqual(
       expect.objectContaining({ previous: targets[2], next: targets[0] }),
     );
-    expect(findChapterNeighbors(targets, '03-third')).toEqual(
+    expect(findChapterNeighbors(targets, "03-third")).toEqual(
       expect.objectContaining({ previous: targets[3], next: null }),
     );
   });
 
-  it('rejects ambiguous navigation and noncontiguous publication data', () => {
+  it("rejects ambiguous navigation and noncontiguous publication data", () => {
     expect(() =>
-      orderChapterTargets([...targets, { ...targets[0], title: 'Duplicate' }]),
+      orderChapterTargets([...targets, { ...targets[0], title: "Duplicate" }]),
     ).toThrow(/duplicate chapter navigation ID/);
     expect(() =>
       orderChapterTargets([
         ...targets,
-        { chapterId: '04-fourth', order: 3, title: 'Fourth' },
+        { chapterId: "04-fourth", order: 3, title: "Fourth" },
       ]),
     ).toThrow(/duplicate chapter navigation order/);
-    expect(() => findChapterNeighbors(targets, '04-missing')).toThrow(
+    expect(() => findChapterNeighbors(targets, "04-missing")).toThrow(
       /absent from published navigation/,
     );
     expect(() =>
       orderChapterTargets([
         ...targets,
-        { chapterId: '04-negative', order: -1, title: 'Negative' },
+        { chapterId: "04-negative", order: -1, title: "Negative" },
       ]),
     ).toThrow(/invalid chapter navigation order/);
 
-    const localeSet = (chapterId: string, order: number, conceptId: string) => ({
+    const localeSet = (
+      chapterId: string,
+      order: number,
+      conceptId: string,
+    ) => ({
       chapterId,
       reference: {
         data: {
@@ -2044,30 +2228,30 @@ describe('published order and chapter navigation', () => {
     });
     expect(() =>
       validatePublishedChapterSequence([
-        localeSet('01-first', 1, 'first'),
-        localeSet('03-third', 3, 'third'),
+        localeSet("01-first", 1, "first"),
+        localeSet("03-third", 3, "third"),
       ]),
     ).toThrow(/contiguous ordered prefix/);
     expect(() =>
       validatePublishedChapterSequence([
-        localeSet('01-first', 1, 'shared'),
-        localeSet('02-second', 2, 'shared'),
+        localeSet("01-first", 1, "shared"),
+        localeSet("02-second", 2, "shared"),
       ]),
     ).toThrow(/duplicate published concept_id/);
 
     expect(() =>
       validatePublishedContractSequence(
         [
-          localeSet('01-first', 1, 'first'),
-          localeSet('02-unplanned', 2, 'second'),
+          localeSet("01-first", 1, "first"),
+          localeSet("02-unplanned", 2, "second"),
         ],
         [
           {
             data: {
-              chapter_id: '01-first',
+              chapter_id: "01-first",
               content_revision: 1,
               order: 1,
-              concept_id: 'first',
+              concept_id: "first",
             },
           },
         ],
@@ -2076,14 +2260,14 @@ describe('published order and chapter navigation', () => {
 
     expect(() =>
       validatePublishedContractSequence(
-        [localeSet('01-first', 1, 'drifted-concept')],
+        [localeSet("01-first", 1, "drifted-concept")],
         [
           {
             data: {
-              chapter_id: '01-first',
+              chapter_id: "01-first",
               content_revision: 1,
               order: 1,
-              concept_id: 'first',
+              concept_id: "first",
             },
           },
         ],
@@ -2092,114 +2276,110 @@ describe('published order and chapter navigation', () => {
   });
 });
 
-describe('static link and locale audit', () => {
-  it('audits selective chapter equivalents and a deferred-locale fallback', () => {
-    const root = mkdtempSync(join(tmpdir(), 'learn-llm-selective-locales-'));
+describe("static link and locale audit", () => {
+  it("audits selective chapter equivalents and a deferred-locale fallback", () => {
+    const root = mkdtempSync(join(tmpdir(), "learn-llm-selective-locales-"));
     temporaryDirectories.push(root);
     const configuration = validateLocaleConfiguration({
-      defaultLocale: 'en',
+      defaultLocale: "en",
       locales: {
-        en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
-        ru: { languageTag: 'ru', nativeName: 'Русский', direction: 'ltr' },
+        en: { languageTag: "en", nativeName: "English", direction: "ltr" },
+        ru: { languageTag: "ru", nativeName: "Русский", direction: "ltr" },
       },
     });
     const chapterConfiguration = validateChapterLocaleConfiguration(
       {
         schemaVersion: 1,
-        planId: 'fixture-plan',
+        planId: "fixture-plan",
         planRevision: 1,
-        policyId: 'fixture-policy',
-        referenceLocale: 'en',
+        policyId: "fixture-policy",
+        referenceLocale: "en",
         chapters: [
           {
-            chapterId: '01-first',
+            chapterId: "01-first",
             order: 1,
-            activeLocales: ['en', 'ru'],
+            activeLocales: ["en", "ru"],
           },
           {
-            chapterId: '02-second',
+            chapterId: "02-second",
             order: 2,
-            activeLocales: ['en'],
+            activeLocales: ["en"],
           },
         ],
       },
       configuration,
-      'selective fixture',
+      "selective fixture",
     );
     const globalAlternates = (suffix: string) =>
       [
         `<link rel="alternate" hreflang="en" href="/en${suffix}">`,
         `<link rel="alternate" hreflang="ru" href="/ru${suffix}">`,
         '<link rel="alternate" hreflang="x-default" href="/">',
-      ].join('');
-    const page = (
-      locale: 'en' | 'ru',
-      head: string,
-      body: string,
-    ) =>
+      ].join("");
+    const page = (locale: "en" | "ru", head: string, body: string) =>
       `<html lang="${locale}" dir="ltr"><head>${head}</head><body>${body}</body></html>`;
 
-    mkdirSync(join(root, 'en/course/01-first'), { recursive: true });
-    mkdirSync(join(root, 'ru/course/01-first'), { recursive: true });
-    mkdirSync(join(root, 'en/course/02-second'), { recursive: true });
+    mkdirSync(join(root, "en/course/01-first"), { recursive: true });
+    mkdirSync(join(root, "ru/course/01-first"), { recursive: true });
+    mkdirSync(join(root, "en/course/02-second"), { recursive: true });
     const selectiveHtmlPaths = [
-      join(root, 'index.html'),
-      join(root, 'en/index.html'),
-      join(root, 'ru/index.html'),
-      join(root, 'en/course/index.html'),
-      join(root, 'ru/course/index.html'),
-      join(root, 'en/course/01-first/index.html'),
-      join(root, 'ru/course/01-first/index.html'),
-      join(root, 'en/course/02-second/index.html'),
+      join(root, "index.html"),
+      join(root, "en/index.html"),
+      join(root, "ru/index.html"),
+      join(root, "en/course/index.html"),
+      join(root, "ru/course/index.html"),
+      join(root, "en/course/01-first/index.html"),
+      join(root, "ru/course/01-first/index.html"),
+      join(root, "en/course/02-second/index.html"),
     ];
     writeFileSync(
-      join(root, 'index.html'),
+      join(root, "index.html"),
       '<html lang="mul" dir="ltr"><head>' +
-        globalAlternates('/') +
+        globalAlternates("/") +
         '</head><body><a href="/en/">English</a><a href="/ru/">Русский</a></body></html>',
     );
-    for (const locale of ['en', 'ru'] as const) {
-      const alternate = locale === 'en' ? 'ru' : 'en';
+    for (const locale of ["en", "ru"] as const) {
+      const alternate = locale === "en" ? "ru" : "en";
       writeFileSync(
-        join(root, locale, 'index.html'),
+        join(root, locale, "index.html"),
         page(
           locale,
-          globalAlternates('/'),
+          globalAlternates("/"),
           `<a href="/${alternate}/">language</a><a href="/${locale}/course/">course</a>`,
         ),
       );
       writeFileSync(
-        join(root, locale, 'course/index.html'),
+        join(root, locale, "course/index.html"),
         page(
           locale,
-          globalAlternates('/course/'),
+          globalAlternates("/course/"),
           `<a href="/${alternate}/course/">language</a>`,
         ),
       );
       writeFileSync(
-        join(root, locale, 'course/01-first/index.html'),
+        join(root, locale, "course/01-first/index.html"),
         page(
           locale,
           [
             '<link rel="alternate" hreflang="en" href="/en/course/01-first/">',
             '<link rel="alternate" hreflang="ru" href="/ru/course/01-first/">',
             '<link rel="alternate" hreflang="x-default" href="/">',
-          ].join(''),
+          ].join(""),
           `<a href="/${alternate}/course/01-first/">language</a>`,
         ),
       );
     }
-    const englishOnlyPath = join(root, 'en/course/02-second/index.html');
+    const englishOnlyPath = join(root, "en/course/02-second/index.html");
     const fallbackAnchor =
       '<a data-locale="ru" data-locale-fallback="course-index" lang="ru" ' +
       'hreflang="ru" dir="ltr" aria-label="Русский: course index" ' +
       'href="/ru/course/">Русский</a>';
     const validEnglishOnly = page(
-      'en',
+      "en",
       [
         '<link rel="alternate" hreflang="en" href="/en/course/02-second/">',
         '<link rel="alternate" hreflang="x-default" href="/">',
-      ].join(''),
+      ].join(""),
       fallbackAnchor,
     );
     writeFileSync(englishOnlyPath, validEnglishOnly);
@@ -2210,11 +2390,14 @@ describe('static link and locale audit', () => {
       }),
     ).toEqual(expect.objectContaining({ htmlCount: 8 }));
 
-    const projectBase = '/learn_llm/';
+    const projectBase = "/learn_llm/";
     for (const path of selectiveHtmlPaths) {
       writeFileSync(
         path,
-        readFileSync(path, 'utf8').replaceAll('href="/', `href="${projectBase}`),
+        readFileSync(path, "utf8").replaceAll(
+          'href="/',
+          `href="${projectBase}`,
+        ),
       );
     }
     expect(
@@ -2226,7 +2409,10 @@ describe('static link and locale audit', () => {
     for (const path of selectiveHtmlPaths) {
       writeFileSync(
         path,
-        readFileSync(path, 'utf8').replaceAll(`href="${projectBase}`, 'href="/'),
+        readFileSync(path, "utf8").replaceAll(
+          `href="${projectBase}`,
+          'href="/',
+        ),
       );
     }
 
@@ -2258,7 +2444,7 @@ describe('static link and locale audit', () => {
 
     writeFileSync(
       englishOnlyPath,
-      validEnglishOnly.replace(fallbackAnchor, ''),
+      validEnglishOnly.replace(fallbackAnchor, ""),
     );
     expect(() =>
       auditStaticSite(root, configuration, {
@@ -2266,11 +2452,11 @@ describe('static link and locale audit', () => {
       }),
     ).toThrow(/exactly one fallback link for ru/);
 
-    mkdirSync(join(root, 'ru/course/02-second'), { recursive: true });
+    mkdirSync(join(root, "ru/course/02-second"), { recursive: true });
     writeFileSync(
-      join(root, 'ru/course/02-second/index.html'),
+      join(root, "ru/course/02-second/index.html"),
       page(
-        'ru',
+        "ru",
         '<link rel="alternate" hreflang="en" href="/en/course/02-second/"><link rel="alternate" hreflang="x-default" href="/">',
         '<a href="/en/course/02-second/">English</a>',
       ),
@@ -2283,22 +2469,22 @@ describe('static link and locale audit', () => {
     ).toThrow(/generated chapter route is inactive for locale ru/);
   });
 
-  it('audits a complete synthetic three-locale route and alternate matrix', () => {
-    const root = mkdtempSync(join(tmpdir(), 'learn-llm-three-locales-'));
+  it("audits a complete synthetic three-locale route and alternate matrix", () => {
+    const root = mkdtempSync(join(tmpdir(), "learn-llm-three-locales-"));
     temporaryDirectories.push(root);
     const configuration = validateLocaleConfiguration({
-      defaultLocale: 'en',
+      defaultLocale: "en",
       locales: {
-        en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
-        'pt-br': {
-          languageTag: 'pt-BR',
-          nativeName: 'Português (Brasil)',
-          direction: 'ltr',
+        en: { languageTag: "en", nativeName: "English", direction: "ltr" },
+        "pt-br": {
+          languageTag: "pt-BR",
+          nativeName: "Português (Brasil)",
+          direction: "ltr",
         },
-        'ar-eg': {
-          languageTag: 'ar-EG',
-          nativeName: 'العربية (مصر)',
-          direction: 'rtl',
+        "ar-eg": {
+          languageTag: "ar-EG",
+          nativeName: "العربية (مصر)",
+          direction: "rtl",
         },
       },
     });
@@ -2309,7 +2495,7 @@ describe('static link and locale audit', () => {
           ({ code, languageTag }: { code: string; languageTag: string }) =>
             `<link rel="alternate" hreflang="${languageTag}" href="/${code}${suffix}">`,
         )
-        .join('') + '<link rel="alternate" hreflang="x-default" href="/">';
+        .join("") + '<link rel="alternate" hreflang="x-default" href="/">';
     const localeLinks = (current: string, suffix: string) =>
       definitions
         .filter(({ code }: { code: string }) => code !== current)
@@ -2317,39 +2503,39 @@ describe('static link and locale audit', () => {
           ({ code, nativeName }: { code: string; nativeName: string }) =>
             `<a href="/${code}${suffix}">${nativeName}</a>`,
         )
-        .join('');
+        .join("");
 
     writeFileSync(
-      join(root, 'index.html'),
+      join(root, "index.html"),
       '<html lang="mul" dir="ltr"><head>' +
-        alternateMarkup('/') +
-        '</head><body>' +
+        alternateMarkup("/") +
+        "</head><body>" +
         definitions
           .map(
             ({ code, nativeName }: { code: string; nativeName: string }) =>
               `<a href="/${code}/">${nativeName}</a>`,
           )
-          .join('') +
-        '</body></html>',
+          .join("") +
+        "</body></html>",
     );
     for (const definition of definitions) {
-      mkdirSync(join(root, definition.code, 'course'), { recursive: true });
+      mkdirSync(join(root, definition.code, "course"), { recursive: true });
       writeFileSync(
-        join(root, definition.code, 'index.html'),
+        join(root, definition.code, "index.html"),
         `<html lang="${definition.languageTag}" dir="${definition.direction}"><head>` +
-          alternateMarkup('/') +
-          '</head><body>' +
-          localeLinks(definition.code, '/') +
+          alternateMarkup("/") +
+          "</head><body>" +
+          localeLinks(definition.code, "/") +
           `<a href="/${definition.code}/course/">Course</a>` +
-          '</body></html>',
+          "</body></html>",
       );
       writeFileSync(
-        join(root, definition.code, 'course/index.html'),
+        join(root, definition.code, "course/index.html"),
         `<html lang="${definition.languageTag}" dir="${definition.direction}"><head>` +
-          alternateMarkup('/course/') +
-          '</head><body>' +
-          localeLinks(definition.code, '/course/') +
-          '</body></html>',
+          alternateMarkup("/course/") +
+          "</head><body>" +
+          localeLinks(definition.code, "/course/") +
+          "</body></html>",
       );
     }
 
@@ -2357,8 +2543,8 @@ describe('static link and locale audit', () => {
       expect.objectContaining({ htmlCount: 7 }),
     );
 
-    const arabicHome = join(root, 'ar-eg/index.html');
-    const validArabicHome = readFileSync(arabicHome, 'utf8');
+    const arabicHome = join(root, "ar-eg/index.html");
+    const validArabicHome = readFileSync(arabicHome, "utf8");
     writeFileSync(
       arabicHome,
       validArabicHome.replace('dir="rtl"', 'dir="ltr"'),
@@ -2368,12 +2554,12 @@ describe('static link and locale audit', () => {
     );
     writeFileSync(arabicHome, validArabicHome);
 
-    const arabicCourse = join(root, 'ar-eg/course/index.html');
+    const arabicCourse = join(root, "ar-eg/course/index.html");
     writeFileSync(
       arabicCourse,
-      readFileSync(arabicCourse, 'utf8').replace(
+      readFileSync(arabicCourse, "utf8").replace(
         '<a href="/pt-br/course/">Português (Brasil)</a>',
-        '',
+        "",
       ),
     );
     expect(() => auditStaticSite(root, configuration)).toThrow(
@@ -2382,29 +2568,29 @@ describe('static link and locale audit', () => {
 
     writeFileSync(
       arabicCourse,
-      readFileSync(arabicCourse, 'utf8').replace(
-        '</body>',
+      readFileSync(arabicCourse, "utf8").replace(
+        "</body>",
         '<a href="/pt-br/course/">Português (Brasil)</a></body>',
       ),
     );
-    const rootIndex = join(root, 'index.html');
-    const validRoot = readFileSync(rootIndex, 'utf8');
+    const rootIndex = join(root, "index.html");
+    const validRoot = readFileSync(rootIndex, "utf8");
     writeFileSync(
       rootIndex,
-      validRoot.replace('<a href="/pt-br/">Português (Brasil)</a>', ''),
+      validRoot.replace('<a href="/pt-br/">Português (Brasil)</a>', ""),
     );
     expect(() => auditStaticSite(root, configuration)).toThrow(
       /root language chooser must link to \/pt-br\//,
     );
 
     writeFileSync(rootIndex, validRoot);
-    const englishHome = join(root, 'en/index.html');
-    const validEnglishHome = readFileSync(englishHome, 'utf8');
+    const englishHome = join(root, "en/index.html");
+    const validEnglishHome = readFileSync(englishHome, "utf8");
     writeFileSync(
       englishHome,
       validEnglishHome.replace(
         '<link rel="alternate" hreflang="pt-BR" href="/pt-br/">',
-        '',
+        "",
       ),
     );
     expect(() => auditStaticSite(root, configuration)).toThrow(
@@ -2414,7 +2600,7 @@ describe('static link and locale audit', () => {
     writeFileSync(
       englishHome,
       validEnglishHome.replace(
-        '</head>',
+        "</head>",
         '<link rel="alternate" hreflang="pt-BR" href="/pt-br/"></head>',
       ),
     );
@@ -2423,64 +2609,64 @@ describe('static link and locale audit', () => {
     );
   });
 
-  it('requires localized course entry links and rejects a missing local asset', () => {
-    const root = mkdtempSync(join(tmpdir(), 'learn-llm-links-'));
+  it("requires localized course entry links and rejects a missing local asset", () => {
+    const root = mkdtempSync(join(tmpdir(), "learn-llm-links-"));
     temporaryDirectories.push(root);
-    mkdirSync(join(root, 'en/course'), { recursive: true });
-    mkdirSync(join(root, 'ru/course'), { recursive: true });
+    mkdirSync(join(root, "en/course"), { recursive: true });
+    mkdirSync(join(root, "ru/course"), { recursive: true });
 
     const alternates = [
       '<link rel="alternate" hreflang="en" href="/en/">',
       '<link rel="alternate" hreflang="ru" href="/ru/">',
       '<link rel="alternate" hreflang="x-default" href="/">',
-    ].join('');
+    ].join("");
     const courseAlternates = [
       '<link rel="alternate" hreflang="en" href="/en/course/">',
       '<link rel="alternate" hreflang="ru" href="/ru/course/">',
       '<link rel="alternate" hreflang="x-default" href="/">',
-    ].join('');
+    ].join("");
     writeFileSync(
-      join(root, 'index.html'),
+      join(root, "index.html"),
       '<html lang="mul" dir="ltr"><head>' +
         alternates +
         '<link rel="stylesheet" href="/style.css"></head>' +
         '<body><a href="/en/">English</a><a href="/ru/">Русский</a></body></html>',
     );
     writeFileSync(
-      join(root, 'en/index.html'),
+      join(root, "en/index.html"),
       '<html lang="en" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/ru/">Русский</a>' +
         '<a href="/en/course/">Course</a></body></html>',
     );
     writeFileSync(
-      join(root, 'ru/index.html'),
+      join(root, "ru/index.html"),
       '<html lang="ru" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/en/">English</a>' +
         '<a href="/ru/course/">Курс</a></body></html>',
     );
     writeFileSync(
-      join(root, 'en/course/index.html'),
+      join(root, "en/course/index.html"),
       '<html lang="en" dir="ltr"><head>' +
         courseAlternates +
         '</head><body><a href="/ru/course/">Русский</a></body></html>',
     );
     writeFileSync(
-      join(root, 'ru/course/index.html'),
+      join(root, "ru/course/index.html"),
       '<html lang="ru" dir="ltr"><head>' +
         courseAlternates +
         '</head><body><a href="/en/course/">English</a></body></html>',
     );
-    writeFileSync(root + '/style.css', '@font-face{src:url("/font.woff2")}');
-    writeFileSync(root + '/font.woff2', '');
+    writeFileSync(root + "/style.css", '@font-face{src:url("/font.woff2")}');
+    writeFileSync(root + "/font.woff2", "");
 
     expect(auditStaticSite(root)).toEqual(
       expect.objectContaining({ htmlCount: 5 }),
     );
 
     writeFileSync(
-      join(root, 'en/index.html'),
+      join(root, "en/index.html"),
       '<html lang="en" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/ru/">Русский</a></body></html>',
@@ -2490,14 +2676,14 @@ describe('static link and locale audit', () => {
     );
 
     writeFileSync(
-      join(root, 'en/index.html'),
+      join(root, "en/index.html"),
       '<html lang="en" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/ru/">Русский</a>' +
         '<a href="/en/course/">Course</a></body></html>',
     );
     writeFileSync(
-      join(root, 'ru/index.html'),
+      join(root, "ru/index.html"),
       '<html lang="ru" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/en/">English</a></body></html>',
@@ -2507,14 +2693,14 @@ describe('static link and locale audit', () => {
     );
 
     writeFileSync(
-      join(root, 'ru/index.html'),
+      join(root, "ru/index.html"),
       '<html lang="ru" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/en/">English</a>' +
         '<a href="/ru/course/">Курс</a></body></html>',
     );
     writeFileSync(
-      join(root, 'en/index.html'),
+      join(root, "en/index.html"),
       '<html lang="en" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/ru/">Русский</a>' +
@@ -2524,25 +2710,25 @@ describe('static link and locale audit', () => {
     expect(() => auditStaticSite(root)).toThrow(/missing\.svg/);
   });
 
-  it('audits a project-site base and rejects root references that escape it', () => {
-    const root = mkdtempSync(join(tmpdir(), 'learn-llm-project-base-'));
+  it("audits a project-site base and rejects root references that escape it", () => {
+    const root = mkdtempSync(join(tmpdir(), "learn-llm-project-base-"));
     temporaryDirectories.push(root);
-    const basePath = '/learn_llm/';
-    mkdirSync(join(root, 'en/course'), { recursive: true });
-    mkdirSync(join(root, 'ru/course'), { recursive: true });
+    const basePath = "/learn_llm/";
+    mkdirSync(join(root, "en/course"), { recursive: true });
+    mkdirSync(join(root, "ru/course"), { recursive: true });
 
     const alternates = [
       `<link rel="alternate" hreflang="en" href="${basePath}en/">`,
       `<link rel="alternate" hreflang="ru" href="${basePath}ru/">`,
       `<link rel="alternate" hreflang="x-default" href="${basePath}">`,
-    ].join('');
+    ].join("");
     const courseAlternates = [
       `<link rel="alternate" hreflang="en" href="${basePath}en/course/">`,
       `<link rel="alternate" hreflang="ru" href="${basePath}ru/course/">`,
       `<link rel="alternate" hreflang="x-default" href="${basePath}">`,
-    ].join('');
+    ].join("");
     writeFileSync(
-      join(root, 'index.html'),
+      join(root, "index.html"),
       '<html lang="mul" dir="ltr"><head>' +
         alternates +
         `<link rel="stylesheet" href="${basePath}style.css"></head>` +
@@ -2550,51 +2736,51 @@ describe('static link and locale audit', () => {
         `<a href="${basePath}ru/">Русский</a></body></html>`,
     );
     writeFileSync(
-      join(root, 'en/index.html'),
+      join(root, "en/index.html"),
       '<html lang="en" dir="ltr"><head>' +
         alternates +
         `</head><body><a href="${basePath}ru/">Русский</a>` +
         `<a href="${basePath}en/course/">Course</a></body></html>`,
     );
     writeFileSync(
-      join(root, 'ru/index.html'),
+      join(root, "ru/index.html"),
       '<html lang="ru" dir="ltr"><head>' +
         alternates +
         `</head><body><a href="${basePath}en/">English</a>` +
         `<a href="${basePath}ru/course/">Курс</a></body></html>`,
     );
     writeFileSync(
-      join(root, 'en/course/index.html'),
+      join(root, "en/course/index.html"),
       '<html lang="en" dir="ltr"><head>' +
         courseAlternates +
         `</head><body><a href="${basePath}ru/course/">Русский</a></body></html>`,
     );
     writeFileSync(
-      join(root, 'ru/course/index.html'),
+      join(root, "ru/course/index.html"),
       '<html lang="ru" dir="ltr"><head>' +
         courseAlternates +
         `</head><body><a href="${basePath}en/course/">English</a></body></html>`,
     );
     writeFileSync(
-      join(root, 'style.css'),
+      join(root, "style.css"),
       `@font-face{src:url("${basePath}font.woff2")}`,
     );
-    writeFileSync(join(root, 'font.woff2'), '');
+    writeFileSync(join(root, "font.woff2"), "");
 
     expect(auditStaticSite(root, undefined, { basePath })).toEqual(
       expect.objectContaining({ htmlCount: 5 }),
     );
-    expect(referenceCandidates(`${basePath}en/`, 'index.html', basePath)).toEqual([
-      'en/index.html',
-    ]);
-    expect(referenceCandidates('/en/', 'index.html', basePath)).toEqual({
+    expect(
+      referenceCandidates(`${basePath}en/`, "index.html", basePath),
+    ).toEqual(["en/index.html"]);
+    expect(referenceCandidates("/en/", "index.html", basePath)).toEqual({
       error: `escapes configured site base ${basePath}`,
     });
 
-    const englishHome = join(root, 'en/index.html');
+    const englishHome = join(root, "en/index.html");
     writeFileSync(
       englishHome,
-      readFileSync(englishHome, 'utf8').replace(
+      readFileSync(englishHome, "utf8").replace(
         `href="${basePath}ru/"`,
         'href="/ru/"',
       ),

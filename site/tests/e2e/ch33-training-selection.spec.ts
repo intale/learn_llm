@@ -29,7 +29,7 @@ const copy = {
       "Represent the complete training plan explicitly in Rust",
       "Read measured checkpoints without inventing a curve",
       "Test the information boundary and state ownership",
-      "Freeze the selected decoder for one test pass",
+      "Freeze the selected decoder before local test evaluation",
     ],
     diagramTitle: "Separate updates from validation-based selection",
     diagramDescription:
@@ -46,6 +46,19 @@ const copy = {
       parameterNodes: "Original parameter nodes preserved",
       gradients: "Raw gradients explicitly cleared",
     },
+    proofCaption:
+      "Validation can choose a snapshot but cannot update it; this trainer rejects Test throughout the training execution, before the next chapter creates its local evaluator.",
+    scopeFragments: [
+      "This trainer rejects Test throughout one training execution; Chapter 34's later one-use count belongs to one local evaluator instance.",
+      "this course's one-use count belongs to one local evaluator instance. That count is not a repository-history claim.",
+      "That count applies to one evaluator instance in one execution, not to the repository's complete history of checking the fixture.",
+    ],
+    staleScopeClaims: [
+      "a separate test partition stays unopened",
+      "a later once-only evaluation",
+      "score that state once on the test partition",
+      "open the held-out test partition exactly once",
+    ],
     historyFragments: [
       "These training practices form part of the road to modern LLMs",
       "local teaching choices, not universal properties of LLM training",
@@ -77,7 +90,7 @@ const copy = {
       "Явно задайте полный план обучения в Rust",
       "Читайте только измеренные точки и не дорисовывайте кривую",
       "Проверьте информационную границу и владение состоянием",
-      "Зафиксируйте выбранный декодер для одной тестовой оценки",
+      "Зафиксируйте выбранный декодер до локальной тестовой оценки",
     ],
     diagramTitle: "Разделите обновление параметров и выбор модели по валидации",
     diagramDescription:
@@ -94,6 +107,19 @@ const copy = {
       parameterNodes: "Исходные узлы параметров сохранены",
       gradients: "Исходные градиенты явно обнулены",
     },
+    proofCaption:
+      "Валидация может выбрать сохранённое состояние, но не обновить его; реализация цикла обучения отклоняет Test на протяжении запуска, прежде чем в следующей главе будет создан локальный оценщик.",
+    scopeFragments: [
+      "Реализация цикла обучения отклоняет Test на протяжении одного запуска обучения; счётчик однократного доступа в главе 34 относится к одному локальному экземпляру оценщика.",
+      "счётчик однократного доступа в этом курсе относится к одному локальному экземпляру оценщика. Этот счётчик не описывает всю историю репозитория.",
+      "Этот счётчик относится к одному экземпляру оценщика в одном запуске, а не ко всей истории проверок фиксированного набора тестовых данных в репозитории.",
+    ],
+    staleScopeClaims: [
+      "отдельная тестовая выборка остаётся закрытой",
+      "для последующей однократной оценки",
+      "будет один раз оценено на тестовой выборке",
+      "откроет отложенную тестовую выборку ровно один раз",
+    ],
     historyFragments: [
       "Эти приёмы — часть пути к современным LLM",
       "локальные учебные решения, а не общепринятая практика",
@@ -343,7 +369,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 9,
+    revision: 10,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -380,10 +406,9 @@ async function expectChapterContent(
   await expect(page.locator(".lesson-body .katex-error")).toHaveCount(0);
   await expectFormulaGeometry(page);
 
-  const lessonText = (await page.locator(".lesson-body").innerText()).replace(
-    /\s+/g,
-    " ",
-  );
+  const lessonText = (await page.locator(".lesson-body").innerText())
+    .replace(/[’‘]/g, "'")
+    .replace(/\s+/g, " ");
   for (const fragment of localized.historyFragments) {
     expect(lessonText).toContain(fragment);
   }
@@ -392,6 +417,12 @@ async function expectChapterContent(
   }
   for (const fragment of localized.implementationFragments) {
     expect(lessonText).toContain(fragment);
+  }
+  for (const fragment of localized.scopeFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  for (const staleClaim of localized.staleScopeClaims) {
+    expect(lessonText).not.toContain(staleClaim);
   }
   await expect(
     page.locator('.lesson-body a[href^="https://www.jmlr.org/"]'),
@@ -414,6 +445,9 @@ async function expectChapterContent(
   );
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram).toHaveAttribute("data-no-interpolation", "true");
+  await expect(diagram.locator(".proof-section > p")).toHaveText(
+    localized.proofCaption,
+  );
   await expect(diagram.locator("[data-operation-order]")).toHaveCount(6);
   await expect(diagram.locator(".measurement-point")).toHaveCount(10);
   await expect(
@@ -435,7 +469,9 @@ async function expectChapterContent(
   expect(
     await diagram
       .locator("svg, canvas, path, polyline, line")
-      .evaluateAll((nodes) => nodes.filter((node) => !node.closest(".katex")).length),
+      .evaluateAll(
+        (nodes) => nodes.filter((node) => !node.closest(".katex")).length,
+      ),
   ).toBe(0);
   await expect(
     diagram.locator('[data-checkpoint-row="0"] annotation'),
@@ -470,9 +506,7 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(6);
-  await expect(details).toContainText(
-    localized.detailsFragment,
-  );
+  await expect(details).toContainText(localized.detailsFragment);
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(
@@ -509,7 +543,10 @@ test.describe(
         ).toHaveAttribute("href", chapterPath(other, chapterId));
         await expect(
           page.locator(`link[rel="alternate"][hreflang="${other}"]`),
-        ).toHaveAttribute("href", new RegExp(`/${other}/course/${chapterId}/$`));
+        ).toHaveAttribute(
+          "href",
+          new RegExp(`/${other}/course/${chapterId}/$`),
+        );
       }
     });
 
@@ -551,8 +588,9 @@ test.describe(
         await toggle.click();
         await page.waitForFunction(
           () =>
-            document.fullscreenElement?.getAttribute("data-visualization-id") ===
-            "training-validation-checkpoints",
+            document.fullscreenElement?.getAttribute(
+              "data-visualization-id",
+            ) === "training-validation-checkpoints",
         );
         await page.evaluate(() => document.fonts.ready);
         const after = await diagram.evaluate((node) => ({
@@ -672,9 +710,9 @@ test.describe(
         await expect(page.locator(".measurement-point")).toHaveCount(10);
         await expect(page.locator("[data-checkpoint-row]")).toHaveCount(5);
         await expect(page.locator(".selected-point")).toHaveCount(1);
-        await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-          0,
-        );
+        await expect(
+          page.locator("[data-diagram-full-view-toggle]"),
+        ).toHaveCount(0);
         await expectDiagramContainment(page);
         await expectNoOverflowOrClientScripts(page);
       }

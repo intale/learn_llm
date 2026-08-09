@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 70,
+  "plan_revision": 71,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -38,7 +38,7 @@
     "numeric_core": "dependency-free f64 tensors and two-stage reverse-mode tensor autodiff",
     "decoder": "pre-norm causal decoder with RMSNorm, RoPE, multi-head attention, SwiGLU, residual connections, and tied token/output weights",
     "bias_policy": "generic Linear supports optional bias; target attention, SwiGLU, and vocabulary projections are bias-free",
-    "training": "deterministic mini-batches and AdamW on a bundled original bilingual corpus; validation selects and the previously unscored test partition supplies final reports",
+    "training": "deterministic mini-batches and AdamW on a bundled original bilingual corpus; validation selects before one local evaluator scores each fixed test fixture, whose checked result is regression evidence rather than an untouched generalization estimate",
     "inference": "temperature/top-k sampling, versioned checkpoints, per-layer incremental attention, and model-wide key/value caching",
     "runtime": "bounded CPU-only reference implementation"
   },
@@ -804,8 +804,10 @@ that implements the concept being taught.
 The generic affine layer supports optional bias so the historical perceptron example
 is honest. The target decoder is consistently bias-free in Q/K/V, attention output,
 SwiGLU, and vocabulary projections. It uses tied token/output weights. Documents are
-partitioned before BPE learning; validation selects a state; the test set is
-scored only once for final evidence. Fixed-length batches require BOS/EOS but no PAD.
+partitioned before BPE learning; validation selects a state before a local
+evaluator receives test data. The checked-in test scores are fixed-fixture
+regression evidence, not untouched independent estimates of generalization.
+Fixed-length batches require BOS/EOS but no PAD.
 
 The course excludes dropout, padding-heavy serving, mixed precision, distributed
 training, quantization, mixture of experts, retrieval, instruction/preference tuning,
@@ -967,7 +969,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `00-llm-parts`
 - **Implementation step:** `revise-ch00-orientation`
-- **Localization status:** Content revision 4 aligns the Russian orientation with the current Chapter 0-39 Russian route projection and refreshes the detailed-map explanation directly from English; revision 3's meaning-first localization remains recorded by `activate-ch00-russian-localization`.
+- **Localization status:** Content revision 5 keeps the course map concise while bounding its evaluation node to one local post-selection evaluator inside an execution and naming repository reuse as fixed-fixture regression evidence; Russian is refreshed directly from the matching English revision.
 - **Depends on:** none; this orientation names completed course parts but introduces no implementation prerequisite.
 - **Outcome:** Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.
 - **Scope boundary:** Build a mental map of inference and learning without pre-teaching tensor arithmetic, optimization derivations, implementation internals, or production extensions.
@@ -999,7 +1001,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `02-corpus-partitions`
 - **Implementation step:** `implement-ch02-corpus-partitions`
-- **Revision status:** Content revision 4 preserves the document-split protocol while making the implementation attribution, byte-identity limit, Russian mathematical explanation, and learner-facing diagram prose precise under the current localization rules.
+- **Revision status:** Content revision 9 preserves the generic post-selection role of test data while scoping the course guarantee to one execution or one local evaluator instance and identifying reuse of the checked-in fixture as regression evidence; Russian is refreshed directly from the matching English revision.
 - **Depends on:** `01-text-units`.
 - **Outcome:** Partition an original bilingual corpus into disjoint train, validation, and test documents before learning any tokenizer or model statistic.
 - **Scope boundary:** Teach document identity, provenance, deterministic manifests, boundary preservation, and the roles of train/validation/test; defer byte-token IDs and autoregressive windows. Split whole documents, never lines or tokens derived from them.
@@ -1079,7 +1081,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `07-language-model-metrics`
 - **Implementation step:** `implement-ch07-language-model-metrics`
-- **Revision status:** Content revision 4 preserves the corrected metric teaching and exact Rust evidence while keeping localized single-word causal connectors intact in inline, narrow, and full-view diagram layouts; revision 3's SEO, source-locator, formula, accessibility, and evidence repairs remain in force.
+- **Revision status:** Content revision 7 removes repository-global first/only and previously-unscored language from the Chapter 34 handoff: Chapter 7 itself still exposes no `Test` scoring branch, while Chapter 34 later demonstrates one local post-selection evaluation of a fixed teaching fixture. Its formulas, values, Rust behavior, diagram, and direct Russian projection remain unchanged.
 - **Depends on:** `06-bigram-baseline`.
 - **Outcome:** Compute average negative log-likelihood and perplexity for predicted token distributions.
 - **Scope boundary:** Teach sequence likelihood in log space, mean cross-entropy, zero-probability handling, and separate train/validation reporting; defer logits, gradients, and every test-set score.
@@ -1495,7 +1497,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `33-training-selection`
 - **Implementation step:** `implement-ch33-training-selection`
-- **Revision status:** Content revision 9 applies the shared borrowed name-and-shape layout contract to stable parameter leaves before reconstruction binds them into live decoder components and re-establishes the tied embedding/output node; revision 8's explicit snapshot, copy, move, transaction, and gradient-clearing boundaries and direct Russian refresh remain in force.
+- **Revision status:** Content revision 10 preserves the stable parameter-layout, snapshot, transaction, and selection mechanics while scoping rejection of test data to this training execution and Chapter 34's one-use count to one local evaluator instance rather than repository history; Russian is refreshed directly from the matching English revision.
 - **Depends on:** `32-decoder-model`.
 - **Outcome:** Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data.
 - **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic no-grad validation, and best-state selection; defer final test comparison and generation.
@@ -1505,22 +1507,22 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Visualization:** Useful — plot discrete train/validation checkpoints and mark the selected step without drawing invented values between observations.
 - **Practice:** Order the training operations, identify which partition may choose hyperparameters, and predict the effect of uncleared gradients.
 - **Integration evidence:** Exact batch/step order, finite gradients, clipping, schedule checkpoints, decreasing train loss, validation-only selection, no graph during validation, determinism, and runtime ceiling pass.
-- **Handoff:** Chapter 34 evaluates the frozen selected state once on the previously unscored test partition.
+- **Handoff:** Chapter 34 evaluates the frozen selected state through one local post-selection gate on a fixed teaching fixture.
 
-## 34. Once-only test evaluation and baseline comparison
+## 34. Local single-use test evaluation and fixed-fixture baseline comparison
 
 - **Chapter ID:** `34-final-evaluation`
 - **Implementation step:** `implement-ch34-final-evaluation`
-- **Revision status:** Content revision 5 distinguishes caller-supplied corpus, split, tokenizer, and partition-role assertions from context, vocabulary, target, and exact state/model facts that the evaluator checks mechanically; it also identifies the stronger Chapter 33/34 fixture assembly evidence and records that equal assertion strings cannot prove external lineage. Revision 4's one local test gate, private inspected view, checked input/target order, crate-private bigram reuse, and direct Russian projection remain in force.
+- **Revision status:** Content revision 6 preserves the local one-use evaluator and exact losses while identifying the deliberately selected reverse-cycle comparison as fixed-fixture regression evidence, not an untouched independent estimate of generalization or evidence of architecture-wide superiority. It adds the bounded adaptive-holdout warning from Dwork et al. (2015), explicit evidence-scope markers, a reversed-order diagnostic, and a direct Russian refresh; revision 5's caller-assertion boundary remains in force.
 - **Depends on:** `33-training-selection`.
-- **Outcome:** Evaluate the frozen selected decoder once on the previously unscored test partition and compare it fairly with the frozen bigram.
-- **Scope boundary:** Teach no-grad evaluation, token-weighted aggregation, separation of model selection from final evidence, exact equality of caller-supplied provenance assertions, and the independently checked context, state, vocabulary, and target facts. Explain why the concrete fixture has the intended training and selection history without claiming that the reusable API derives corpus, split, tokenizer, fit, selection, or holdout lineage. Do not tune, stop, or select on test results.
+- **Outcome:** Evaluate the frozen selected decoder through one local post-selection gate and compare it fairly with the frozen bigram on a fixed teaching fixture.
+- **Scope boundary:** Teach no-grad evaluation, token-weighted aggregation, separation of within-execution model selection from test scoring, exact equality of caller-supplied provenance assertions, and the independently checked context, state, vocabulary, and target facts. Explain why the concrete fixture has the intended training and selection history without claiming that the reusable API derives corpus, split, tokenizer, fit, selection, or holdout lineage. State that the reverse-cycle documents were deliberately chosen for the recorded model ordering and are now regression-tested, so the result is neither an untouched independent generalization estimate nor architecture-superiority evidence. Do not feed test results back into selection inside the demonstrated execution.
 - **Formula:** `\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}\sum_{n=1}^{N_{te}}\log p_{\theta_{s^*}}(y_n\mid x_n)`.
-- **Historical contrast:** Contrast training-set scores and repeatedly inspected holdouts with a three-way experimental protocol and a single final test comparison.
+- **Historical contrast:** Contrast training-set scores and adaptively reused holdouts with a three-way experimental protocol; use [Dwork et al. (2015)](https://arxiv.org/abs/1506.02629) only for the general warning that adaptive repeated holdout reuse can overfit the holdout, not for any repository-specific fact.
 - **Rust contribution:** Add a private inspected test-epoch view that binds report evidence to ordered checked input/target indices, a crate-private bigram path that reuses those indices, retained public raw-ID checks, and a separate graph-free decoder path.
 - **Visualization:** Useful — show the train/validation/test information flow, a numeric two-model test-loss comparison, caller-supplied identifier and role assertions, and the facts checked mechanically by the evaluator, not a decorative chart.
-- **Practice:** Classify decisions as legal before or after opening the test result and compute a token-weighted loss from unequal documents.
-- **Integration evidence:** Gate opening preserves alignment-before-input-before-target error precedence, the private view and crate-private bigram path reuse one checked order, public raw-ID calls remain checked, decoder evaluation creates no tape, parameters remain byte-identical, aggregation is token-weighted, training/selection traces contain no test access, caller-supplied provenance assertions match, context/state/vocabulary/targets pass independent checks, an adversarial test proves that equal assertions alone do not establish lineage, and the frozen decoder has lower loss on the fixed fixture.
+- **Practice:** Classify decisions as legal before or after local gate opening, compute a token-weighted loss from unequal documents, and distinguish a fixed-fixture regression result from an independent estimate of generalization.
+- **Integration evidence:** Gate opening preserves alignment-before-input-before-target error precedence, the private view and crate-private bigram path reuse one checked order, public raw-ID calls remain checked, decoder evaluation creates no tape, parameters remain byte-identical, aggregation is token-weighted, training/selection traces contain no test access, caller-supplied provenance assertions match, context/state/vocabulary/targets pass independent checks, an adversarial test proves that equal assertions alone do not establish lineage, the selected decoder has lower loss on the named fixed fixture, a diagnostic sequence family reverses that ordering without changing evaluator guarantees, and exact evidence markers classify the checked result as within-run selection-isolated regression evidence rather than independent generalization or architecture superiority.
 - **Handoff:** Chapter 35 serializes the exact selected and evaluated state for reproducible inference.
 
 ## 35. Parameter serialization and reproducible checkpoints
@@ -1585,7 +1587,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Practice:** Assign cache ownership for a three-block model and compare uncached versus cached attention-score counts.
 - **Integration evidence:** Fixture newest-position logits match complete-prefix references within tolerance; restored cached and complete-prefix paths match selected tokens, sampling draws, final RNG state, and stops; bind-time configuration/parameter/layer checks, retained read guards, AdamW write exclusion and rollback, post-drop stale-cache rejection, dynamic operation checks, measured score tensors, multi-layer isolation, prefill, append, reset, and overflow pass.
 - **Handoff:** Chapter 39 proves the complete course as one train/evaluate/save/load/cached-generate program.
-- **Revision status:** Content revision 5 separates reusable `DecoderKvCache` storage and captured compatibility evidence from a live `DecoderKvSession`; checks stable model/cache relationships once per session; retains read-only borrows that block AdamW without partial updates; keeps prompt, phase, token, capacity, counter, and prepared-ticket checks per operation; and requires a fresh cache after a post-session parameter update. Russian is refreshed directly from the frozen English revision.
+- **Revision status:** Content revision 6 preserves the cache/session correctness boundary and qualifies the Chapter 39 handoff: test cannot affect the selected state inside one execution, while the checked-in decoder-lower-than-bigram loss ordering in Chapter 39 is retained only as fixed-fixture regression evidence rather than a new independent estimate on each repository run. Russian is refreshed directly from the frozen English revision.
 
 ## 39. Capstone: an end-to-end tiny LLM
 
@@ -1593,15 +1595,15 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Implementation step:** `implement-ch39-end-to-end-llm`
 - **Depends on:** `38-cached-generation`.
 - **Outcome:** Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust.
-- **Scope boundary:** Synthesize the existing corpus, tokenizer, tensor/autodiff, model, optimizer, evaluation, checkpoint, and generation APIs; introduce no hidden framework, new model concept, or test-set tuning.
+- **Scope boundary:** Synthesize the existing corpus, tokenizer, tensor/autodiff, model, optimizer, evaluation, checkpoint, and generation APIs; introduce no hidden framework or new model concept. Preserve the true within-execution boundary—test cannot affect the already selected state—while identifying the permanently checked model ordering as fixed-fixture regression evidence rather than untouched independent generalization or architecture superiority.
 - **Formula:** `P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`.
-- **Historical contrast:** Compare the training-only one-token bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the loss gap as fixture evidence rather than causal attribution.
+- **Historical contrast:** Compare the training-only one-token bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the permanently checked loss gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture-wide superiority; apply Dwork et al.'s adaptive-holdout warning only to the general evidence boundary.
 - **Rust contribution:** Add the documented capstone CLI and acceptance harness; invoke the cumulative APIs for one bounded deterministic train/select/evaluate/save/load/generate run, record test counts before moving the epoch into its one-use evaluator, derive parameter evidence from the validation-selected state, and move prompt IDs into final evidence only after both generation paths finish borrowing them.
 - **Visualization:** Useful — render the complete static text → tokens → batches → decoder → loss/update and prompt → cached generation → text pipeline.
-- **Practice:** Ask students to predict split provenance, batch and target arithmetic, parameter count, validation selection, test baseline ordering, exact checkpoint fields, the distinct `At` logit probe, and seeded output before executing the capstone.
-- **Integration evidence:** On the frozen CPU fixture, validation selects before test mini-batches are materialized; one local evaluator compares the decoder and bigram on 1,744 identical targets; checkpoint bytes, model, optimizer, tokenizer, step, and RNG round-trip exactly; logits for probe `At` match bit for bit; cached and complete-prefix generation from `A` with temperature 0.8, top-k 4, and seed 38 agrees on `[260,34,34]`, draws, stop, and final RNG state; and two training runs match by bit pattern.
+- **Practice:** Ask students to predict split provenance, batch and target arithmetic, parameter count, validation selection, fixed-fixture baseline ordering and its evidence limits, exact checkpoint fields, the distinct `At` logit probe, and seeded output before executing the capstone.
+- **Integration evidence:** On the frozen CPU fixture, validation selects before test mini-batches are materialized; one local evaluator compares the decoder and bigram on 1,744 identical targets; exact markers classify the retained ordering as fixed-fixture regression evidence and reject independent-generalization or architecture-superiority interpretations; checkpoint bytes, model, optimizer, tokenizer, step, and RNG round-trip exactly; logits for probe `At` match bit for bit; cached and complete-prefix generation from `A` with temperature 0.8, top-k 4, and seed 38 agrees on `[260,34,34]`, draws, stop, and final RNG state; and two training runs match by bit pattern.
 - **Handoff:** The student now owns every component required to inspect, modify, test, and extend a functional decoder-only LLM.
-- **Revision status:** Content revision 7 preserves the complete measured capstone while making final ownership explicit: test counts are retained before the epoch moves into `FinalEvaluator`, the parameter count is derived from the actual validation-selected state, one prompt-ID vector is borrowed by both generation paths and then moved into report evidence, and the deliberate checkpoint snapshots remain unchanged. Russian is refreshed directly from the frozen English revision.
+- **Revision status:** Content revision 8 preserves every measured capstone value while separating local selection isolation from repository-level evidence: the exact decoder-lower ordering is a permanent fixed-fixture regression condition, not an untouched independent estimate of generalization or evidence of architecture-wide superiority. It adds bounded Dwork attribution, explicit scope markers, and a direct Russian refresh; revision 7's ownership and checkpoint guarantees remain unchanged.
 
 
 ## Primary architecture anchors

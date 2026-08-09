@@ -2,13 +2,13 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "en",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 39,
   "concept_id": "end-to-end-llm",
   "title": "Run the whole tiny LLM",
-  "description": "Trace a tiny decoder-only language model in Rust from frozen bilingual splits and training-only BPE through validation-selected training, selection-isolated final evaluation, exact checkpoint reload, and KV-cached generation.",
-  "objective": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
-  "worked_inputs": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, compare the decoder and frozen bigram on the same 1,744 test targets, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
+  "description": "Trace a tiny decoder-only language model in Rust through validation-selected training, locally isolated fixed-fixture evaluation, exact checkpoint reload, and KV-cached generation while keeping regression evidence distinct from generalization.",
+  "objective": "Run one deterministic bilingual decoder-only LLM through training-only BPE, validation selection, one local fixed-fixture evaluation, exact checkpoint reload, and cached generation while distinguishing within-run isolation from repository regression evidence.",
+  "worked_inputs": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, retain the decoder-lower ordering on the same 1,744 test targets as a permanent fixed-fixture regression condition, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
   "formula": {
     "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
     "symbols": [
@@ -51,7 +51,7 @@
       "predecessor_kind": "language-model",
       "limitation": "A count-based bigram estimates the next token from one preceding token and cannot share statistical strength through learned features or use the longer causal prefix.",
       "later_advance": "Neural language models learned distributed token features and longer-context probability functions; the Transformer supplied masked self-attention, and later autoregressive Transformer language models scaled that training objective.",
-      "modern_llm_role": "This course capstone combines training-only tokenizer learning, causal next-token updates, validation-selected state, selection-isolated final evaluation, exact checkpoint round-trip, and stateful generation; these are local evidence rules, not requirements of the cited papers.",
+      "modern_llm_role": "This course capstone combines training-only tokenizer learning, causal next-token updates, validation-selected state, within-execution selection isolation, fixed-fixture regression evaluation, exact checkpoint round-trip, and stateful generation; these are local evidence rules, not requirements of the cited papers.",
       "sources": [
         {
           "role": "earlier",
@@ -59,6 +59,13 @@
           "name": "A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": "Bengio and colleagues describe traditional n-gram generalization through short overlapping sequences and show a neural probability function that learns distributed word representations and benefits from longer contexts; their model is not a Transformer or this course pipeline."
+        },
+        {
+          "role": "later",
+          "year": 2015,
+          "name": "Generalization in Adaptive Data Analysis and Holdout Reuse",
+          "source_url": "https://arxiv.org/abs/1506.02629",
+          "claim": "Dwork and colleagues show that adaptive repeated reuse of a standard holdout can overfit that holdout; this general warning does not establish any fact about the capstone fixture, its score, or its local access count."
         },
         {
           "role": "later",
@@ -76,8 +83,8 @@
         }
       ]
     },
-    "approach": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the measured gap as fixture evidence rather than causal attribution.",
-    "summary": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local end-to-end responsibility boundaries at inspectable scale without treating one tiny loss win as a general quality claim.",
+    "approach": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the permanently checked gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture superiority.",
+    "summary": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local responsibility boundaries while treating its known decoder-lower ordering only as fixed-fixture regression evidence.",
     "rust_source": "rust/demos/ch39-end-to-end-llm/src/lib.rs"
   },
   "rust_sources": [
@@ -104,9 +111,9 @@
   "visualization": {
     "decision": "useful",
     "id": "end-to-end-llm",
-    "rationale": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation. Local labels state training/validation/test order for every partition count and separately bind the reload-probe text, its token IDs, retained prefix lengths, the prompt-token cache-prefill count, and the one-token decode input count to their values."
+    "rationale": "One numbered left-to-right process makes the within-execution information boundary visible: the run materializes test batches only after training and validation selection, labels the known ordering as fixed-fixture regression evidence, and then proceeds through exact checkpoint round-trip and cached generation. Local labels bind every count and probe to its value without implying independent generalization."
   },
-  "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local final evaluator receives test batches, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text."
+  "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local evaluator receives test batches, the known test ordering is retained only as fixed-fixture regression evidence, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text."
 }
 ---
 
@@ -114,8 +121,8 @@ import RustSource from "../../../components/RustSource.astro";
 import EndToEndLlmDiagram from "../../../components/chapters/EndToEndLlmDiagram.astro";
 
 export const diagramLabels = {
-  title: "Keep evidence one-way from text to generated text",
-  description: "Follow frozen Rust evidence through training-only BPE, selection, test, exact reload, and cached generation.",
+  title: "Keep execution one-way and label fixture evidence",
+  description: "Follow frozen Rust evidence through training-only BPE, selection, a locally isolated evaluation of a fixed regression fixture, exact reload, and cached generation.",
   sections: {
     pipeline: "Follow the complete program in order",
   },
@@ -125,7 +132,7 @@ export const diagramLabels = {
     batches: "Build causal windows",
     model: "Train one decoder block",
     selection: "Select by validation",
-    test: "Open final evidence once",
+    test: "Score the fixed fixture locally",
     checkpoint: "Save and reload",
     generation: "Generate with the KV cache",
   },
@@ -144,7 +151,7 @@ export const diagramLabels = {
     targets: "Identical final targets",
     decoderLoss: "Decoder loss",
     bigramLoss: "Bigram loss",
-    gap: "Loss advantage",
+    gap: "Fixed-fixture loss gap",
     bytes: "Checkpoint bytes",
     records: "Tensor records",
     logitProbeText: "Reload probe text",
@@ -163,14 +170,14 @@ export const diagramLabels = {
     trainingOnly: "no validation or test text contributes a merge",
     candidate: "initial candidate",
     selected: "validation-selected state",
-    oneTime: "local one-use test gate",
+    oneTime: "one local access in this execution",
     exact: "bytes, model, optimizer, and tokenizer round-trip exactly; probe logits match",
     cachedMatch: "cached and complete-prefix decisions match",
     decodedText: "Cyrillic т followed by two generated spaces",
     spaceMarker: "Each ␠ marks one generated space.",
   },
   captions: {
-    pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the local one-use test gate, and exact replay boundaries.",
+    pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the locally isolated evaluation of the fixed regression fixture, and exact replay boundaries.",
   },
 };
 
@@ -210,7 +217,10 @@ $$
 
 The decoder and frozen alpha-one bigram score those same $1744$ targets. Decoder
 loss is $3.866087547$, while the bigram reaches $3.981342714$, a gap of
-$0.115255167$ in favor of this decoder run.
+$0.115255167$ on this fixed fixture. That ordering is retained across later
+executions, so it is useful regression evidence. It is not an untouched
+independent estimate of generalization or evidence of architecture-wide decoder
+superiority.
 
 The $30994$-byte checkpoint re-encodes to the same bytes and restores the model,
 optimizer, tokenizer, and random state exactly. A separate probe
@@ -244,6 +254,8 @@ prefix in the general factorization; this bounded decoder actually receives at
 most the retained last $C=4$ earlier tokens. A frozen split makes the
 experimental promise parallel to the mathematical one: test-reserved documents
 cannot affect tokenizer learning, updates, or validation selection in this run.
+That within-execution boundary does not make a known result independently held
+out again when the repository reruns it.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -271,6 +283,12 @@ A count-based bigram estimates the next token from one preceding token and canno
 [A Neural Probabilistic Language Model](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 supports this bounded claim: Bengio and colleagues describe traditional n-gram generalization through short overlapping sequences and show a neural probability function that learns distributed word representations and benefits from longer contexts; their model is not a Transformer or this course pipeline.
 
+[Generalization in Adaptive Data Analysis and Holdout Reuse](https://arxiv.org/abs/1506.02629)
+supplies the evidence warning. Dwork and colleagues show that adaptive repeated
+reuse of a standard holdout can overfit that holdout; this general warning does
+not establish any fact about the capstone fixture, its score, or its local access
+count.
+
 [Attention Is All You Need](https://arxiv.org/pdf/1706.03762) supports a later
 boundary: Vaswani and colleagues define the Transformer and mask decoder self-attention so a position cannot read later positions; their published architecture is an encoder-decoder model and does not define this course data, checkpoint, or generation policy.
 
@@ -284,23 +302,28 @@ this tiny teaching run.
 Neural language models learned distributed token features and longer-context probability functions; the Transformer supplied masked self-attention, and later autoregressive Transformer language models scaled that training objective.
 
 This course capstone combines training-only tokenizer learning, causal
-next-token updates, validation-selected state, selection-isolated final
-evaluation, exact checkpoint round-trip, and stateful generation; these are
-local evidence rules, not requirements of the cited papers.
+next-token updates, validation-selected state, within-execution selection
+isolation, fixed-fixture regression evaluation, exact checkpoint round-trip, and
+stateful generation; these are local evidence rules, not requirements of the
+cited papers.
 
 Compare the training-only alpha-one bigram with the validation-selected
-four-token causal decoder on identical test-reserved targets. The measured gap
-is evidence about this fixture, not causal attribution to context or attention.
+four-token causal decoder on identical test-reserved targets. The permanently
+checked gap is fixed-fixture regression evidence, not causal attribution to
+context or attention and not an independent generalization estimate.
 
 Count n-grams provided a strong short-context baseline; learned distributed
 features and masked self-attention made longer learned computation possible, and
 scaled autoregressive Transformers became one major family of modern LLMs. This
 capstone demonstrates local end-to-end responsibility boundaries at inspectable
-scale without treating one tiny loss win as a general quality claim.
+scale while treating the known decoder-lower ordering only as a regression
+condition for this fixed fixture.
 
 The executable contrast is narrow: one-token count context against a four-token
-causal decoder on this frozen corpus. A lower loss verifies this fixture. It does
-not establish a universal architecture ranking or useful generation quality.
+causal decoder on this frozen corpus. The lower loss verifies the retained
+fixed-fixture ordering. It is not an untouched independent estimate of
+generalization and does not establish a universal architecture ranking or useful
+generation quality.
 
 <RustSource
   path="rust/demos/ch39-end-to-end-llm/src/lib.rs"
@@ -338,6 +361,14 @@ this run, not a claim that the repository globally prevents other code from
 reading the corpus. Later report assembly retains only the two counts, not a
 cloned epoch.
 
+The pipeline retains the decoder-lower relation as an explicitly named
+fixed-fixture regression condition; `FinalEvaluator` itself remains neutral to
+which model is lower. The learner evidence uses
+`decoder_lower_on_fixture:true` and records
+`scope:fixed-fixture-regression`, `within_run_selection_isolated:true`,
+`independent_generalization_estimate:false`, and
+`architecture_superiority_evidence:false`.
+
 The report derives the displayed count of $1188$ learned scalars by calling
 `primary.selected_state().scalar_count()`. That method computes the count by
 summing the lengths of the parameter tensors in the retained graph-free state
@@ -374,9 +405,10 @@ for the report.
 />
 
 The runnable evidence requires every final claim together. It rejects a changed
-test ordering, a non-winning frozen comparison in this fixture, a replay with
-different bits, altered checkpoint state or probe logits, or any cached sampling
-divergence.
+test ordering, a changed decoder-lower fixed-fixture regression condition, a
+replay with different bits, altered checkpoint state or probe logits, or any
+cached sampling divergence. That requirement protects known fixture behavior; it
+does not promote the ordering into independent generalization evidence.
 
 <RustSource
   path="rust/demos/ch39-end-to-end-llm/src/lib.rs"
@@ -394,7 +426,8 @@ data=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 do
 tokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]
 model=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]
 training=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true
-test=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_wins:true no_grad:true unchanged:true
+test=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_lower_on_fixture:true no_grad:true unchanged:true
+evidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false
 checkpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true
 generation=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:"т  " prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true
 history=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167
@@ -414,7 +447,8 @@ next=inspect, modify, test, and extend the complete decoder
 The figure begins with fixed document roles and training-only tokenizer learning.
 It then follows causal windows into the decoder and places the validation-selected
 state before a double-marked local test gate. Test loss has no path back to an
-update or selection in this run.
+update or selection in this run. The test card labels the known ordering as a
+fixed-fixture regression condition, not independent generalization evidence.
 
 The last two stages ask different equality questions. Checkpoint reload preserves
 saved bytes plus model, optimizer, tokenizer, step, and RNG state exactly; logits
@@ -439,17 +473,19 @@ $1^2+2^2+3^2=14$.
 3. What evidence chooses step $32$?
 4. May the test loss change that choice?
 5. How do $436$ test windows become $1744$ scored target positions?
-6. What is the measured test-loss gap?
+6. What is the measured test-loss gap, and what evidence scope does its ordering
+   have?
 7. Which checkpoint facts are exact, and which claim belongs only to probe <code>At</code>?
 8. Which literal token IDs follow prompt <code>A</code>?
 9. Why is decoded <code>т␠␠</code> not evidence of translation quality?
 10. What does the second seed-$39$ training run prove?
 
-Misconception: an end-to-end run may use test repeatedly for selection because
-every component is deterministic. Determinism makes repetition reproducible; it
-does not turn test data into valid selection evidence. This run freezes the
-state first, materializes test batches afterward, and records one access through
-its owned evaluator.
+Misconception: `access:1` means the repository has used this test result only
+once. The count belongs to one evaluator instance inside one execution. This run
+freezes the state first and materializes test batches afterward, so test cannot
+affect that selected state. Later executions reuse the known ordering for
+regression checking; determinism makes that repeated comparison reproducible,
+not independent.
 
 <details>
 <summary>Check the ten predictions</summary>
@@ -461,7 +497,9 @@ its owned evaluator.
 4. No. Final test evidence arrives after selection and performs no update.
 5. Each of the $436$ windows has $C=4$ target slots, so
    $436\cdot4=1744$; both models score those same positions.
-6. $3.981342714-3.866087547=0.115255167$ in favor of this decoder run.
+6. $3.981342714-3.866087547=0.115255167$ on the fixed fixture. Its permanently
+   checked decoder-lower ordering is regression evidence, not an untouched
+   independent estimate of generalization or architecture superiority.
 7. Re-encoded bytes, model and optimizer bits, BPE ranks, selected step, and RNG
    state are exact; only logits for the explicit <code>At</code> probe are compared.
 8. The literal generated IDs are <code>[260,34,34]</code>.
@@ -477,8 +515,9 @@ its owned evaluator.
 
 Every course component now participates in one functional program: frozen
 bilingual data becomes BPE tokens and causal batches; validation selects the
-decoder before the local final evaluator receives test batches; checkpoint bytes
-and state round-trip exactly; the separate <code>At</code> probe reproduces
+decoder before the local final evaluator receives test batches; the known
+decoder-lower ordering remains only fixed-fixture regression evidence;
+checkpoint bytes and state round-trip exactly; the separate <code>At</code> probe reproduces
 logits bit for bit; and cached generation from <code>A</code> returns decoded
 text.
 
