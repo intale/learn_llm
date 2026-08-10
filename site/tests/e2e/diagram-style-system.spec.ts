@@ -365,12 +365,18 @@ async function auditFigure(
         }
       }
     }
+    const rootStyle = getComputedStyle(root);
     if (
-      getComputedStyle(root)
-        .getPropertyValue("--course-diagram-style-version")
-        .trim() !== "course-v1"
+      rootStyle.getPropertyValue("--course-diagram-style-version").trim() !==
+      "course-v1"
     ) {
       errors.push("shared module version is not applied");
+    }
+    if (
+      matchMedia("(forced-colors: active)").matches &&
+      rootStyle.borderTopColor !== rootStyle.color
+    ) {
+      errors.push("forced-colors frame border does not follow current text");
     }
 
     const scrollRegions = [
@@ -409,6 +415,38 @@ async function auditFigure(
     const all = [root, ...root.querySelectorAll<HTMLElement>("*")].filter(
       (element) => visible(element) && !element.closest(".visually-hidden"),
     );
+    const rootFontSize = Number.parseFloat(getComputedStyle(root).fontSize);
+    const ordinaryTextFloor = rootFontSize * 0.875;
+    const floorRoles = [
+      ...new Set(
+        root.querySelectorAll<HTMLElement>(
+          [
+            ".course-diagram__card-stack > h5",
+            ".course-diagram__card-heading > :is(h5, h6)",
+            ":is(h5, h6).course-diagram__card-heading",
+            "dt",
+            ".cue-list > li",
+            "small",
+            "code",
+            "bdi",
+          ].join(", "),
+        ),
+      ),
+    ].filter(
+      (element) =>
+        visible(element) &&
+        !element.closest(
+          '.katex-mathml, .visually-hidden, [aria-hidden="true"]',
+        ),
+    );
+    for (const element of floorRoles) {
+      const fontSize = Number.parseFloat(getComputedStyle(element).fontSize);
+      if (!Number.isFinite(fontSize) || fontSize + 0.01 < ordinaryTextFloor) {
+        errors.push(
+          `${describe(element)} uses ${fontSize.toFixed(2)}px text below the ${ordinaryTextFloor.toFixed(2)}px ordinary-role floor`,
+        );
+      }
+    }
     const hasCompleteBorder = (element: HTMLElement) => {
       const style = getComputedStyle(element);
       const widths = [
@@ -640,10 +678,13 @@ async function auditFigure(
         ),
       );
     };
-    const firstCard = root.querySelector(
-      "[data-diagram-card][data-diagram-box]",
+    const firstCard =
+      root.querySelector(
+        ":scope > section[data-diagram-card][data-diagram-box]",
+      ) ?? root.querySelector("[data-diagram-card][data-diagram-box]");
+    const firstSection = root.querySelector(
+      ":scope > section:not([data-diagram-card][data-diagram-box])",
     );
-    const firstSection = root.querySelector(":scope > section");
     const firstTable = root.querySelector("table[data-diagram-table]");
     const firstScroll = root.querySelector("[data-diagram-scroll]");
 
@@ -1153,24 +1194,8 @@ test.describe("course diagram style system", { tag: "@diagram-style" }, () => {
   test("the shared system remains legible and contained in forced colors", async ({
     page,
   }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(300_000);
     await page.emulateMedia({ forcedColors: "active" });
-    const focused = referenceRoutes.filter(
-      ({ order }) => order === 12 || order === 13,
-    );
-    await auditRoutes(page, desktop, focused);
-    for (const route of focused) {
-      await gotoLocalizedRoute(page, route);
-      await settle(page);
-      const colors = await figureFor(page, route).evaluate((figure) => {
-        const style = getComputedStyle(figure);
-        return {
-          background: style.backgroundColor,
-          border: style.borderTopColor,
-          color: style.color,
-        };
-      });
-      expect(colors.border).toBe(colors.color);
-    }
+    await auditRoutes(page, desktop);
   });
 });

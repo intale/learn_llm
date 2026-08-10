@@ -175,7 +175,7 @@
 
 .host :global(figure.course-diagram[data-diagram-style='course-v1'] dt) {
   color: var(--diagram-muted);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 750;
   line-height: 1.3;
 }
@@ -261,6 +261,26 @@
   ) {
   min-inline-size: 0;
   margin: 0;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
+      .course-diagram__card-heading
+      > :is(h5, h6)
+  ),
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
+      :is(h5, h6).course-diagram__card-heading
+  ),
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
+      .course-diagram__card-stack
+      > h5
+  ) {
+  font-size: inherit;
 }
 
 .host
@@ -428,6 +448,10 @@
   margin-block-start: 0.25rem;
 }
 
+.host :global(figure.course-diagram[data-diagram-style='course-v1'] small) {
+  font-size: inherit;
+}
+
 .host
   :global(
     figure.course-diagram[data-diagram-style='course-v1']
@@ -438,6 +462,11 @@
   unicode-bidi: isolate;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] :is(code, bdi)) {
+  font-size: max(0.875rem, 0.9em);
 }
 
 .host
@@ -464,7 +493,7 @@
   border-radius: 999px;
   background: var(--diagram-surface-raised);
   color: var(--diagram-ink);
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   line-height: 1.25;
 }
 

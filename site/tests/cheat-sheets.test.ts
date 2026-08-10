@@ -866,11 +866,14 @@ const expectedSheets = {
         "checked-in eight/two/two bilingual document split",
       ],
       ["Training-only BPE", "training-only BPE"],
-      ["Causal window", "causal windows"],
+      [
+        "Overlapping window-target slot",
+        "A window-target slot is identified by its document, window start, and position inside the window",
+      ],
       ["Bitwise training replay", "compares every training event"],
       [
         "Validation-selected state",
-        "validation selects the decoder before the local evaluator receives test batches",
+        "validation selects the decoder before the local final evaluator receives test batches",
       ],
       [
         "Selection-isolated final test evaluation",
@@ -880,7 +883,10 @@ const expectedSheets = {
         "Frozen alpha-one bigram baseline",
         "alpha-one bigram from the same training tokens",
       ],
-      ["Same-target test-loss comparison", "identical test-reserved targets"],
+      [
+        "Window-slot mean NLL and perplexity",
+        "Their reported values are mean NLL in nats per slot",
+      ],
       [
         "Fixed-fixture regression evidence",
         "fixed-fixture regression evidence",
@@ -1209,8 +1215,8 @@ const exactDefinitions = {
       "A fixed assignment of whole documents to training, validation, and test roles, preventing test-reserved text from influencing tokenizer learning, parameter updates, or selection.",
     "Training-only BPE":
       "A byte-pair tokenizer whose merge ranks are learned only from training documents, then frozen and applied unchanged to validation and test documents.",
-    "Causal window":
-      "A fixed-context input–target slice whose positions predict aligned next tokens using only the allowed earlier-token context.",
+    "Overlapping window-target slot":
+      "One causal target position identified by document, stride-one window start, and position inside that window. The same within-document transition occurrence can appear in as many as four slots, with the decoder seeing one, two, three, or four in-window context tokens.",
     "Bitwise training replay":
       "A repeat of the frozen training run with identical data, initialization, batch order, and arithmetic environment that reproduces every recorded training event and gradient diagnostic, the selected checkpoint, every final model value, and the final optimizer state bit for bit.",
     "Validation-selected state":
@@ -1218,11 +1224,11 @@ const exactDefinitions = {
     "Selection-isolated final test evaluation":
       "One local post-selection pass whose test targets cannot update parameters or feed a result back into model selection inside that execution; the local access count does not establish repository-wide independence.",
     "Frozen alpha-one bigram baseline":
-      "An add-one-smoothed, one-token-context model fitted only on training tokens and frozen before it scores the final test targets.",
-    "Same-target test-loss comparison":
-      "A fair within-fixture comparison in which the decoder and frozen bigram score the same ordered test target positions; it does not make the fixture independently held out.",
+      "An add-one-smoothed, one-token-context model fitted only on training tokens and frozen before it scores the final ordered test slots.",
+    "Window-slot mean NLL and perplexity":
+      "Chapter 39 averages NLL over the same 1,744 overlapping window-target slots for both models, in nats per slot; exponentiating gives dimensionless window-slot perplexity. A separate metric would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; its numeric mean NLL and perplexity are not reported.",
     "Fixed-fixture regression evidence":
-      "A known result rerun to detect changes in checked behavior; Chapter 39 permanently checks the decoder-lower ordering, so the gap is neither an independent estimate of generalization nor evidence of architecture superiority.",
+      "A known result rerun to detect changes in checked behavior; later executions retain the lower decoder window-slot mean NLL as a regression condition, so the gap is neither an independent estimate of generalization nor evidence of architecture superiority.",
     "Exact checkpoint round trip":
       "Saving and loading the selected state so checkpoint bytes, model and optimizer bits, BPE ranks, selected step, and RNG state all reproduce exactly.",
     "Exact logit probe":
@@ -1494,7 +1500,6 @@ describe("English chapter cheat-sheet content", () => {
     const expectedSortedTerms = [
       "Autoregressive factorization",
       "Bitwise training replay",
-      "Causal window",
       "Decoder-only LLM",
       "End-to-end LLM pipeline",
       "Exact checkpoint round trip",
@@ -1505,20 +1510,21 @@ describe("English chapter cheat-sheet content", () => {
       "Joint sequence probability",
       "KV-cached generation",
       "Next-token conditional distribution",
-      "Same-target test-loss comparison",
+      "Overlapping window-target slot",
       "Selection-isolated final test evaluation",
       "Training-only BPE",
       "Validation-selected state",
+      "Window-slot mean NLL and perplexity",
     ];
 
     expect(pages.map((page) => page.length)).toEqual([10, 7]);
     expect(pages.flat().map(({ term }) => term)).toEqual(expectedSortedTerms);
     expect(new Set(pages.flat().map(({ term }) => term)).size).toBe(17);
     expect(localizedSheetSha256("en", "39-end-to-end-llm.json")).toBe(
-      "6349fd914f1e7fe92ad9f3eb161cf0cff4f94daabcf97e45cc21b5e13ce09c7e",
+      "90b1610666270ef7a3cba38e1070f3d666080a6a8487515b4478c7917918b0b0",
     );
     expect(localizedSheetSha256("ru", "39-end-to-end-llm.json")).toBe(
-      "43ba6037e9aa38f903d193ca2f0399005881d9ac0d6a61d61e74d6bda59d51e8",
+      "21db369c97bdb443a17320b108b37e22b302d0a73c9da91ec85c1bcfb852a2fa",
     );
   });
 
@@ -1529,6 +1535,9 @@ describe("English chapter cheat-sheet content", () => {
         resolve(root, "src/content/chapters/en", expected.lesson),
         "utf8",
       );
+      const normalizedLesson = lesson
+        .replace(/<\/?code>/g, "")
+        .replace(/\s+/g, " ");
 
       expect(sheet.chapter_id).toBe(chapterId);
       expect(sheet.locale).toBe("en");
@@ -1543,7 +1552,7 @@ describe("English chapter cheat-sheet content", () => {
       ).toBe(sheet.terms.length);
 
       expected.entries.forEach(([, evidence], index) => {
-        expect(lesson).toContain(evidence);
+        expect(normalizedLesson).toContain(evidence.replace(/\s+/g, " "));
         expect(sheet.terms[index]?.definition.trim()).toBe(
           sheet.terms[index]?.definition,
         );
@@ -1732,17 +1741,19 @@ describe("Russian chapter cheat-sheet localization", () => {
   it("keeps the Chapter 39 fixed-example regression scope explicit in Russian", () => {
     const sheet = readLocalizedSheet("ru", "39-end-to-end-llm.json");
     expect(sheet.description).toBe(
-      "Краткая памятка о декодерной LLM: авторегрессионная вероятность, зафиксированные роли данных, побитовое воспроизведение обучения, изоляция выбора в пределах запуска, регрессионная проверка фиксированного примера, точное восстановление и KV-кэш.",
+      "Краткая памятка о декодерной LLM: авторегрессионная вероятность, зафиксированные роли данных, метрика по целевым позициям перекрывающихся окон, побитовое воспроизведение обучения, регрессионная проверка фиксированного примера, точное восстановление и KV-кэш.",
     );
     const expected = {
       "Полный процесс работы LLM":
         "Путь курса превращает зафиксированные документы в BPE-токены и каузальные пакеты, обучает и выбирает декодер до одной локальной оценки фиксированного примера, восстанавливает его и генерирует текст.",
       "Итоговая тестовая оценка, изолированная от выбора":
         "Один локальный проход после завершения выбора, чьи тестовые цели не могут обновить параметры или повлиять на выбор модели в пределах этого запуска; локальный счётчик доступа не доказывает независимость на уровне всего репозитория.",
-      "Сравнение тестовых потерь на одних и тех же целевых позициях":
-        "Справедливое сравнение внутри примера, при котором декодер и зафиксированная биграммная модель оценивают одни и те же упорядоченные тестовые целевые позиции; это не делает сам пример независимо отложенным.",
+      "Целевая позиция перекрывающегося окна":
+        "Одна каузальная целевая позиция, заданная документом, началом окна с шагом 1 и положением внутри окна. Один переход внутри документа может входить в результат до четырёх раз; в этих позициях декодеру доступны один, два, три или четыре токена контекста.",
+      "Среднее NLL и перплексия по позициям окон":
+        "В главе 39 обе модели оценивают одни и те же 1744 целевые позиции перекрывающихся окон: NLL усредняется в натах на позицию окна, а его экспонента даёт безразмерную перплексию. Отдельная метрика оценивала бы каждый из 442 переходов внутри документов один раз, передавала бы декодеру максимально доступный каузальный префикс не длиннее четырёх токенов и использовала бы только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся.",
       "Результат фиксированного примера для регрессионной проверки":
-        "Известный результат, который повторно запускают для обнаружения изменений проверяемого поведения; в главе 39 постоянно проверяется порядок, при котором потери декодера ниже, поэтому разница не является независимой оценкой способности модели обобщать и не доказывает превосходства архитектуры.",
+        "Известный результат, который повторно запускают для обнаружения изменений проверяемого поведения; в последующих запусках более низкое среднее NLL декодера по позициям окон сохраняется как условие регрессионной проверки, поэтому разница не является независимой оценкой способности модели обобщать и не доказывает превосходства архитектуры.",
     } as const;
     for (const [term, definition] of Object.entries(expected)) {
       expect(sheet.terms.find((entry) => entry.term === term)?.definition).toBe(

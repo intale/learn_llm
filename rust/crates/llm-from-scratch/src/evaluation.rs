@@ -5,6 +5,7 @@
 //! consistency; it does not derive data or model lineage from the underlying
 //! corpus, tokenizer, selection run, or bigram fit.
 
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
 
@@ -487,10 +488,12 @@ pub struct FinalEvaluationReport {
     selected_validation_loss: f64,
     provenance: EvaluationProvenance,
     test_document_ids: Vec<String>,
-    target_fingerprint: String,
+    window_slot_fingerprint: String,
     window_count: usize,
     batch_count: usize,
-    target_count: usize,
+    window_target_slot_count: usize,
+    document_transition_occurrence_count: usize,
+    transition_multiplicity_counts: Vec<usize>,
     decoder: ModelScore,
     bigram: ModelScore,
     access_count: u8,
@@ -521,7 +524,12 @@ impl FinalEvaluationReport {
     }
 
     pub fn target_fingerprint(&self) -> &str {
-        &self.target_fingerprint
+        self.window_slot_fingerprint()
+    }
+
+    /// Fingerprints the ordered overlapping window-target slots that both models score.
+    pub fn window_slot_fingerprint(&self) -> &str {
+        &self.window_slot_fingerprint
     }
 
     pub const fn window_count(&self) -> usize {
@@ -533,7 +541,22 @@ impl FinalEvaluationReport {
     }
 
     pub const fn target_count(&self) -> usize {
-        self.target_count
+        self.window_target_slot_count()
+    }
+
+    /// Counts the overlapping window-target slots in the reported mean.
+    pub const fn window_target_slot_count(&self) -> usize {
+        self.window_target_slot_count
+    }
+
+    /// Counts document-position occurrences represented by the slots, without overlap repetition.
+    pub const fn document_transition_occurrence_count(&self) -> usize {
+        self.document_transition_occurrence_count
+    }
+
+    /// At index `m - 1`, stores how many transition occurrences appear in `m` slots.
+    pub fn transition_multiplicity_counts(&self) -> &[usize] {
+        &self.transition_multiplicity_counts
     }
 
     pub const fn decoder(&self) -> ModelScore {
@@ -573,8 +596,10 @@ impl FinalEvaluationReport {
 #[derive(Debug)]
 struct TestEvidence {
     document_ids: Vec<String>,
-    target_fingerprint: String,
-    target_count: usize,
+    window_slot_fingerprint: String,
+    window_target_slot_count: usize,
+    document_transition_occurrence_count: usize,
+    transition_multiplicity_counts: Vec<usize>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -642,7 +667,8 @@ fn append_checked_aligned_tokens(
 impl<'a> InspectedTestEpoch<'a> {
     fn inspect(epoch: &'a MiniBatchEpoch, vocabulary_size: usize) -> Result<Self, EvaluationError> {
         let mut document_ids = Vec::new();
-        let mut target_count = 0_usize;
+        let mut window_target_slot_count = 0_usize;
+        let mut transition_multiplicities = BTreeMap::<(String, usize), usize>::new();
         let mut fingerprint = 14_695_981_039_346_656_037_u64;
         let checked_pair_count = epoch
             .batches()
@@ -676,21 +702,45 @@ impl<'a> InspectedTestEpoch<'a> {
                 let targets = batch
                     .target_row(row)
                     .expect("batch row is constructed from complete targets");
-                for (&input, &target) in inputs.iter().zip(targets) {
+                for (slot, (&input, &target)) in inputs.iter().zip(targets).enumerate() {
                     fnv1a_bytes(&mut fingerprint, &input.to_le_bytes());
                     fnv1a_bytes(&mut fingerprint, &target.to_le_bytes());
-                    target_count += 1;
+                    window_target_slot_count += 1;
+                    let absolute_target_position = origin.start() + slot + 1;
+                    *transition_multiplicities
+                        .entry((origin.document_id().to_owned(), absolute_target_position))
+                        .or_default() += 1;
                 }
             }
         }
 
-        debug_assert_eq!(target_count, checked_pairs.len());
+        let document_transition_occurrence_count = transition_multiplicities.len();
+        let maximum_multiplicity = transition_multiplicities
+            .values()
+            .copied()
+            .max()
+            .unwrap_or(0);
+        let mut transition_multiplicity_counts = vec![0_usize; maximum_multiplicity];
+        for multiplicity in transition_multiplicities.into_values() {
+            transition_multiplicity_counts[multiplicity - 1] += 1;
+        }
+        debug_assert_eq!(window_target_slot_count, checked_pairs.len());
+        debug_assert_eq!(
+            window_target_slot_count,
+            transition_multiplicity_counts
+                .iter()
+                .enumerate()
+                .map(|(index, count)| (index + 1) * count)
+                .sum::<usize>()
+        );
         Ok(Self {
             epoch,
             evidence: TestEvidence {
                 document_ids,
-                target_fingerprint: format!("fnv1a64:{fingerprint:016x}"),
-                target_count,
+                window_slot_fingerprint: format!("fnv1a64:{fingerprint:016x}"),
+                window_target_slot_count,
+                document_transition_occurrence_count,
+                transition_multiplicity_counts,
             },
             checked_pairs,
         })
@@ -943,11 +993,11 @@ impl FinalEvaluator {
             measured.mean_loss().exp(),
         )?;
         let bigram_score = score_bigram(bigram.model(), &inspected)?;
-        if inspected.evidence().target_count != measured.token_count()
-            || inspected.evidence().target_count != bigram_score.target_count()
+        if inspected.evidence().window_target_slot_count != measured.token_count()
+            || inspected.evidence().window_target_slot_count != bigram_score.target_count()
         {
             return Err(EvaluationError::TargetCountMismatch {
-                expected: inspected.evidence().target_count,
+                expected: inspected.evidence().window_target_slot_count,
                 decoder: measured.token_count(),
                 bigram: bigram_score.target_count(),
             });
@@ -960,10 +1010,12 @@ impl FinalEvaluator {
             selected_validation_loss: decoder.selected_validation_loss(),
             provenance: self.provenance.clone(),
             test_document_ids: evidence.document_ids,
-            target_fingerprint: evidence.target_fingerprint,
+            window_slot_fingerprint: evidence.window_slot_fingerprint,
             window_count: self.test_epoch.window_count(),
             batch_count: self.test_epoch.batch_count(),
-            target_count: evidence.target_count,
+            window_target_slot_count: evidence.window_target_slot_count,
+            document_transition_occurrence_count: evidence.document_transition_occurrence_count,
+            transition_multiplicity_counts: evidence.transition_multiplicity_counts,
             decoder: decoder_score,
             bigram: bigram_score,
             access_count: self.access_count,
@@ -1272,6 +1324,13 @@ mod tests {
         assert_eq!(report.window_count(), 7);
         assert_eq!(report.batch_count(), 3);
         assert_eq!(report.target_count(), 14);
+        assert_eq!(report.window_target_slot_count(), 14);
+        assert_eq!(report.document_transition_occurrence_count(), 9);
+        assert_eq!(report.transition_multiplicity_counts(), [4, 5]);
+        assert_eq!(
+            report.target_fingerprint(),
+            report.window_slot_fingerprint()
+        );
         assert_eq!(report.decoder().target_count(), report.target_count());
         assert_eq!(report.bigram().target_count(), report.target_count());
         assert!(report.decoder().mean_nll().is_finite());
@@ -1579,7 +1638,9 @@ mod tests {
         let reversed_inspection = InspectedTestEpoch::inspect(&reversed, 5).unwrap();
         let first_evidence = first_inspection.evidence();
         let reversed_evidence = reversed_inspection.evidence();
-        assert_eq!(first_evidence.target_count, 14);
+        assert_eq!(first_evidence.window_target_slot_count, 14);
+        assert_eq!(first_evidence.document_transition_occurrence_count, 9);
+        assert_eq!(first_evidence.transition_multiplicity_counts, [4, 5]);
         assert_eq!(first_inspection.checked_pairs().len(), 14);
         assert_eq!(
             first_inspection.checked_pairs().first(),
@@ -1596,12 +1657,12 @@ mod tests {
             })
         );
         assert_eq!(
-            first_evidence.target_fingerprint,
-            repeated.evidence().target_fingerprint
+            first_evidence.window_slot_fingerprint,
+            repeated.evidence().window_slot_fingerprint
         );
         assert_ne!(
-            first_evidence.target_fingerprint,
-            reversed_evidence.target_fingerprint
+            first_evidence.window_slot_fingerprint,
+            reversed_evidence.window_slot_fingerprint
         );
     }
 }

@@ -1,4 +1,4 @@
-END_TO_END_LLM_TRACE_V2
+END_TO_END_LLM_TRACE_V3
 DATA|checksum=fnv1a64:723b071980ae8a22|split=fixed-paired-document-holdout-v1|train=8|validation=2|test=2|train_ids=en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden|validation_ids=en-night-station,ru-night-station|test_ids=en-winter-window,ru-winter-window
 TOKENIZER|layout=1|requested=8|learned=8|vocabulary=266|training_only=true|training_ids=en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden|encoded=1852,471,444
 BATCHES|context=4|update_batch_size=16|evaluation_batch_size=128|windows=1820,463,436|evaluation_batches=15,4,4
@@ -6,8 +6,11 @@ MODEL|layers=1|heads=1|width=4|feed_forward=4|parameters=1188
 TRAINING|updates=32|seed=39|replay_bitwise=true
 SELECT|step=0|train=5.621745486|validation=5.628342353|selected=false
 SELECT|step=32|train=3.855502695|validation=3.889531885|selected=true
-TEST|access=1|documents=en-winter-window,ru-winter-window|windows=436|batches=4|targets=1744|fingerprint=fnv1a64:77b836869f848986|decoder=3.866087547|bigram=3.981342714|gap=0.115255167|decoder_lower_on_fixture=true|no_grad=true|unchanged=true|evidence_scope=fixed-fixture-regression|within_run_selection_isolated=true|independent_generalization_estimate=false|architecture_superiority_evidence=false
+TEST|access=1|documents=en-winter-window,ru-winter-window|stride=1|windows=436|batches=4|window_target_slots=1744|document_transition_occurrences=442|transition_multiplicity_counts=1x4,2x4,3x4,4x430|window_slot_fingerprint=fnv1a64:77b836869f848986|no_grad=true|unchanged=true
+SLOT_METRIC|unit=overlapping-window-target-slot|decoder_window_slot_mean_nll_nats=3.866087547|decoder_window_slot_perplexity=47.755180205|bigram_window_slot_mean_nll_nats=3.981342714|bigram_window_slot_perplexity=53.588940583|window_slot_gap_nats=0.115255167|comparison_slot_set=shared-ordered-window-slots|decoder_lower_on_fixture=true
+TRANSITION_METRIC|unit=within-document-next-token-transition|count=442|context_policy=longest-available-causal-prefix-up-to-4|newest_position_only=true|reported=false|mean_nll=not-reported|perplexity=not-reported
+EVIDENCE|scope=fixed-fixture-regression|within_run_selection_isolated=true|independent_generalization_estimate=false|architecture_superiority_evidence=false
 CHECKPOINT|bytes=30994|header=2418|records=34|checksum=fnv1a64:67aeaaea603b291f|selected=32|optimizer=32|rng=0x0000000000000026|bytes_roundtrip=true|model_bits_exact=true|optimizer_bits_exact=true|tokenizer_exact=true|logit_probe=At|logit_probe_ids=67,118|prompt_logits_bitwise=true
 GENERATE|prompt=A|prompt_ids=67|temperature=0.8|top_k=4|seed=38|generated=260,34,34|text="т  "|prefixes=1,2,3|stop=token-limit|prefill=1|decode=2|final_cache=3|cached_scores=6|calculated_complete_prefix_scores=14|rng_initial=0x0000000000000026|rng_final=0xdaa66d2c7ddf7465|tokens_exact=true|decisions_bitwise=true|rng_exact=true
-HISTORY|targets=1744|bigram_context=1|decoder_context=4|bigram=3.981342714|decoder=3.866087547|gap=0.115255167
+HISTORY|window_slot_unit=overlapping-window-target-slot|window_target_slots=1744|document_transition_occurrences=442|bigram_context_tokens=1|decoder_context_capacity=4|decoder_window_slot_context_lengths=1,2,3,4|bigram_window_slot_mean_nll_nats=3.981342714|decoder_window_slot_mean_nll_nats=3.866087547|window_slot_gap_nats=0.115255167
 END|next=student-owned-decoder

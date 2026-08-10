@@ -26,10 +26,17 @@ export interface EndToEndLlmDiagramLabels {
     parameters: string;
     trainLoss: string;
     validationLoss: string;
-    targets: string;
-    decoderLoss: string;
-    bigramLoss: string;
-    gap: string;
+    windowSlots: string;
+    distinctTransitions: string;
+    transitionMultiplicity: string;
+    decoderSlotMeanNll: string;
+    decoderSlotPerplexity: string;
+    bigramSlotMeanNll: string;
+    bigramSlotPerplexity: string;
+    slotGap: string;
+    transitionMetric: string;
+    decoderContextCapacity: string;
+    decoderSlotContextLengths: string;
     bytes: string;
     records: string;
     logitProbeText: string;
@@ -49,6 +56,8 @@ export interface EndToEndLlmDiagramLabels {
     candidate: string;
     selected: string;
     oneTime: string;
+    sharedSlots: string;
+    transitionMetricNotReported: string;
     exact: string;
     cachedMatch: string;
     decodedText: string;
@@ -58,7 +67,10 @@ export interface EndToEndLlmDiagramLabels {
 }
 
 export interface EndToEndLlmTrace {
-  data: Record<"checksum" | "split" | "train" | "validation" | "test", string> & {
+  data: Record<
+    "checksum" | "split" | "train" | "validation" | "test",
+    string
+  > & {
     train_ids: string[];
     validation_ids: string[];
     test_ids: string[];
@@ -87,21 +99,45 @@ export interface EndToEndLlmTrace {
   training: Record<"updates" | "seed" | "replay_bitwise", string>;
   test: Record<
     | "access"
+    | "stride"
     | "windows"
     | "batches"
-    | "targets"
-    | "decoder"
-    | "bigram"
-    | "gap"
-    | "decoder_lower_on_fixture"
+    | "window_target_slots"
+    | "document_transition_occurrences"
+    | "transition_multiplicity_counts"
+    | "window_slot_fingerprint"
     | "no_grad"
-    | "unchanged"
-    | "evidence_scope"
+    | "unchanged",
+    string
+  > & { documents: string[] };
+  slotMetric: Record<
+    | "unit"
+    | "decoder_window_slot_mean_nll_nats"
+    | "decoder_window_slot_perplexity"
+    | "bigram_window_slot_mean_nll_nats"
+    | "bigram_window_slot_perplexity"
+    | "window_slot_gap_nats"
+    | "comparison_slot_set"
+    | "decoder_lower_on_fixture",
+    string
+  >;
+  transitionMetric: Record<
+    | "unit"
+    | "count"
+    | "context_policy"
+    | "newest_position_only"
+    | "reported"
+    | "mean_nll"
+    | "perplexity",
+    string
+  >;
+  evidence: Record<
+    | "scope"
     | "within_run_selection_isolated"
     | "independent_generalization_estimate"
     | "architecture_superiority_evidence",
     string
-  > & { documents: string[]; fingerprint: string };
+  >;
   checkpoint: Record<
     | "bytes"
     | "header"
@@ -142,12 +178,15 @@ export interface EndToEndLlmTrace {
     text: string;
   };
   history: Record<
-    | "targets"
-    | "bigram_context"
-    | "decoder_context"
-    | "bigram"
-    | "decoder"
-    | "gap",
+    | "window_slot_unit"
+    | "window_target_slots"
+    | "document_transition_occurrences"
+    | "bigram_context_tokens"
+    | "decoder_context_capacity"
+    | "decoder_window_slot_context_lengths"
+    | "bigram_window_slot_mean_nll_nats"
+    | "decoder_window_slot_mean_nll_nats"
+    | "window_slot_gap_nats",
     string
   >;
 }
@@ -217,14 +256,72 @@ const requireRng = (value: string, field: string): string => {
 
 const list = (value: string, width: number, field: string): string[] => {
   const values = value.split(",");
-  if (values.length !== width || values.some((entry) => !integer.test(entry))) {
+  if (
+    values.length !== width ||
+    values.some(
+      (entry) => !integer.test(entry) || !Number.isSafeInteger(Number(entry)),
+    )
+  ) {
     throw new Error(field + " must contain " + width + " unsigned integers");
   }
   return values;
 };
 
+const requireInteger = (
+  value: string,
+  field: string,
+  options: { positive?: boolean } = {},
+): string => {
+  const numeric = Number(value);
+  if (
+    !integer.test(value) ||
+    !Number.isSafeInteger(numeric) ||
+    (options.positive && numeric === 0)
+  ) {
+    throw new Error(
+      field +
+        (options.positive
+          ? " must be a positive safe integer"
+          : " must be an unsigned safe integer"),
+    );
+  }
+  return value;
+};
+
+const multiplicityCounts = (
+  value: string,
+  context: number,
+): Array<{ multiplicity: number; transitions: number }> => {
+  const entries = value.split(",").map((entry) => {
+    const match = entry.match(/^([1-9]\d*)x([1-9]\d*)$/);
+    if (!match) {
+      throw new Error(
+        "transition_multiplicity_counts must use multiplicity x count records",
+      );
+    }
+    const multiplicity = Number(match[1]);
+    const transitions = Number(match[2]);
+    if (
+      !Number.isSafeInteger(multiplicity) ||
+      !Number.isSafeInteger(transitions)
+    ) {
+      throw new Error("transition multiplicities must be safe integers");
+    }
+    return { multiplicity, transitions };
+  });
+  if (
+    entries.length !== context ||
+    entries.some(({ multiplicity }, index) => multiplicity !== index + 1)
+  ) {
+    throw new Error(
+      "transition_multiplicity_counts must cover each context length in order",
+    );
+  }
+  return entries;
+};
+
 const requireDecimal = (value: string, field: string): string => {
-  if (!decimal.test(value)) {
+  if (!decimal.test(value) || !Number.isFinite(Number(value))) {
     throw new Error(field + " must be a nonnegative decimal");
   }
   return value;
@@ -256,9 +353,9 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
   }
   const lines = source.replace(/\r?\n$/, "").split(/\r?\n/);
   if (
-    lines.length !== 13 ||
-    lines[0] !== "END_TO_END_LLM_TRACE_V2" ||
-    lines[12] !== "END|next=student-owned-decoder"
+    lines.length !== 16 ||
+    lines[0] !== "END_TO_END_LLM_TRACE_V3" ||
+    lines[15] !== "END|next=student-owned-decoder"
   ) {
     throw new Error("end-to-end trace envelope changed");
   }
@@ -306,22 +403,42 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
   const test = record(lines[8], "TEST", [
     "access",
     "documents",
+    "stride",
     "windows",
     "batches",
-    "targets",
-    "fingerprint",
-    "decoder",
-    "bigram",
-    "gap",
-    "decoder_lower_on_fixture",
+    "window_target_slots",
+    "document_transition_occurrences",
+    "transition_multiplicity_counts",
+    "window_slot_fingerprint",
     "no_grad",
     "unchanged",
-    "evidence_scope",
+  ]);
+  const slotMetric = record(lines[9], "SLOT_METRIC", [
+    "unit",
+    "decoder_window_slot_mean_nll_nats",
+    "decoder_window_slot_perplexity",
+    "bigram_window_slot_mean_nll_nats",
+    "bigram_window_slot_perplexity",
+    "window_slot_gap_nats",
+    "comparison_slot_set",
+    "decoder_lower_on_fixture",
+  ]);
+  const transitionMetric = record(lines[10], "TRANSITION_METRIC", [
+    "unit",
+    "count",
+    "context_policy",
+    "newest_position_only",
+    "reported",
+    "mean_nll",
+    "perplexity",
+  ]);
+  const evidence = record(lines[11], "EVIDENCE", [
+    "scope",
     "within_run_selection_isolated",
     "independent_generalization_estimate",
     "architecture_superiority_evidence",
   ]);
-  const checkpoint = record(lines[9], "CHECKPOINT", [
+  const checkpoint = record(lines[12], "CHECKPOINT", [
     "bytes",
     "header",
     "records",
@@ -337,7 +454,7 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     "logit_probe_ids",
     "prompt_logits_bitwise",
   ]);
-  const generationRecord = record(lines[10], "GENERATE", [
+  const generationRecord = record(lines[13], "GENERATE", [
     "prompt",
     "prompt_ids",
     "temperature",
@@ -358,13 +475,16 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     "decisions_bitwise",
     "rng_exact",
   ]);
-  const history = record(lines[11], "HISTORY", [
-    "targets",
-    "bigram_context",
-    "decoder_context",
-    "bigram",
-    "decoder",
-    "gap",
+  const history = record(lines[14], "HISTORY", [
+    "window_slot_unit",
+    "window_target_slots",
+    "document_transition_occurrences",
+    "bigram_context_tokens",
+    "decoder_context_capacity",
+    "decoder_window_slot_context_lengths",
+    "bigram_window_slot_mean_nll_nats",
+    "decoder_window_slot_mean_nll_nats",
+    "window_slot_gap_nats",
   ]);
 
   const trainIds = stringList(data.train_ids, Number(data.train), "train_ids");
@@ -390,6 +510,15 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     test.documents,
     Number(data.test),
     "test documents",
+  );
+  const decoderWindowSlotContextLengths = list(
+    history.decoder_window_slot_context_lengths,
+    Number(batchRecord.context),
+    "decoder_window_slot_context_lengths",
+  );
+  const transitionMultiplicityCounts = multiplicityCounts(
+    test.transition_multiplicity_counts,
+    Number(batchRecord.context),
   );
   const logitProbeIds = list(checkpoint.logit_probe_ids, 2, "logit_probe_ids");
   const promptIds = list(generationRecord.prompt_ids, 1, "prompt_ids");
@@ -417,9 +546,12 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     selection_step_0: selection[0].step,
     selection_step_1: selection[1].step,
     access: test.access,
+    stride: test.stride,
     test_windows: test.windows,
     test_batches: test.batches,
-    targets: test.targets,
+    window_target_slots: test.window_target_slots,
+    document_transition_occurrences: test.document_transition_occurrences,
+    transition_metric_count: transitionMetric.count,
     checkpoint_bytes: checkpoint.bytes,
     checkpoint_header: checkpoint.header,
     checkpoint_records: checkpoint.records,
@@ -433,13 +565,65 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     cached_scores: generationRecord.cached_scores,
     calculated_complete_prefix_scores:
       generationRecord.calculated_complete_prefix_scores,
-    history_targets: history.targets,
-    bigram_context: history.bigram_context,
-    decoder_context: history.decoder_context,
+    history_window_target_slots: history.window_target_slots,
+    history_document_transition_occurrences:
+      history.document_transition_occurrences,
+    bigram_context_tokens: history.bigram_context_tokens,
+    decoder_context_capacity: history.decoder_context_capacity,
   })) {
-    if (!integer.test(value)) {
-      throw new Error(field + " must be an unsigned integer");
-    }
+    requireInteger(value, field);
+  }
+  for (const [field, value] of Object.entries({
+    train_documents: data.train,
+    validation_documents: data.validation,
+    test_documents: data.test,
+    tokenizer_layout: tokenizerRecord.layout,
+    requested_merges: tokenizerRecord.requested,
+    learned_merges: tokenizerRecord.learned,
+    vocabulary: tokenizerRecord.vocabulary,
+    context: batchRecord.context,
+    update_batch_size: batchRecord.update_batch_size,
+    evaluation_batch_size: batchRecord.evaluation_batch_size,
+    layers: model.layers,
+    heads: model.heads,
+    width: model.width,
+    feed_forward: model.feed_forward,
+    parameters: model.parameters,
+    updates: training.updates,
+    test_access: test.access,
+    stride: test.stride,
+    test_windows: test.windows,
+    test_batches: test.batches,
+    window_target_slots: test.window_target_slots,
+    document_transition_occurrences: test.document_transition_occurrences,
+    transition_metric_count: transitionMetric.count,
+    checkpoint_bytes: checkpoint.bytes,
+    checkpoint_header: checkpoint.header,
+    checkpoint_records: checkpoint.records,
+    selected_step: checkpoint.selected,
+    optimizer_step: checkpoint.optimizer,
+    top_k: generationRecord.top_k,
+    prefill: generationRecord.prefill,
+    final_cache: generationRecord.final_cache,
+    cached_scores: generationRecord.cached_scores,
+    calculated_complete_prefix_scores:
+      generationRecord.calculated_complete_prefix_scores,
+    history_window_target_slots: history.window_target_slots,
+    history_document_transition_occurrences:
+      history.document_transition_occurrences,
+    bigram_context_tokens: history.bigram_context_tokens,
+    decoder_context_capacity: history.decoder_context_capacity,
+  })) {
+    requireInteger(value, field, { positive: true });
+  }
+  if (
+    [...encoded, ...windows, ...evaluationBatches].some(
+      (value) => Number(value) <= 0,
+    )
+  ) {
+    throw new Error(
+      "partition token, window, and batch counts must be positive",
+    );
   }
   for (const [field, value] of Object.entries({
     temperature: generationRecord.temperature,
@@ -447,12 +631,18 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     selection_validation_0: selection[0].validation,
     selection_train_1: selection[1].train,
     selection_validation_1: selection[1].validation,
-    decoder: test.decoder,
-    bigram: test.bigram,
-    gap: test.gap,
-    history_bigram: history.bigram,
-    history_decoder: history.decoder,
-    history_gap: history.gap,
+    decoder_window_slot_mean_nll_nats:
+      slotMetric.decoder_window_slot_mean_nll_nats,
+    decoder_window_slot_perplexity: slotMetric.decoder_window_slot_perplexity,
+    bigram_window_slot_mean_nll_nats:
+      slotMetric.bigram_window_slot_mean_nll_nats,
+    bigram_window_slot_perplexity: slotMetric.bigram_window_slot_perplexity,
+    window_slot_gap_nats: slotMetric.window_slot_gap_nats,
+    history_bigram_window_slot_mean_nll_nats:
+      history.bigram_window_slot_mean_nll_nats,
+    history_decoder_window_slot_mean_nll_nats:
+      history.decoder_window_slot_mean_nll_nats,
+    history_window_slot_gap_nats: history.window_slot_gap_nats,
   })) {
     requireDecimal(value, field);
   }
@@ -461,13 +651,16 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     replay_bitwise: training.replay_bitwise,
     select_0: selection[0].selected,
     select_1: selection[1].selected,
-    decoder_lower_on_fixture: test.decoder_lower_on_fixture,
+    decoder_lower_on_fixture: slotMetric.decoder_lower_on_fixture,
     no_grad: test.no_grad,
     unchanged: test.unchanged,
-    within_run_selection_isolated: test.within_run_selection_isolated,
+    newest_position_only: transitionMetric.newest_position_only,
+    transition_metric_reported: transitionMetric.reported,
+    within_run_selection_isolated: evidence.within_run_selection_isolated,
     independent_generalization_estimate:
-      test.independent_generalization_estimate,
-    architecture_superiority_evidence: test.architecture_superiority_evidence,
+      evidence.independent_generalization_estimate,
+    architecture_superiority_evidence:
+      evidence.architecture_superiority_evidence,
     bytes_roundtrip: checkpoint.bytes_roundtrip,
     model_bits_exact: checkpoint.model_bits_exact,
     optimizer_bits_exact: checkpoint.optimizer_bits_exact,
@@ -480,31 +673,75 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     requireBoolean(value, field);
   }
   requireHash(data.checksum, "corpus checksum");
-  requireHash(test.fingerprint, "test fingerprint");
+  requireHash(test.window_slot_fingerprint, "window-slot fingerprint");
   requireHash(checkpoint.checksum, "checkpoint checksum");
   requireRng(checkpoint.rng, "checkpoint RNG");
   requireRng(generationRecord.rng_initial, "initial generation RNG");
   requireRng(generationRecord.rng_final, "final generation RNG");
 
   if (
+    test.stride !== "1" ||
+    test.windows !== "436" ||
+    test.batches !== "4" ||
+    test.window_target_slots !== "1744" ||
+    test.document_transition_occurrences !== "442" ||
+    test.transition_multiplicity_counts !== "1x4,2x4,3x4,4x430" ||
+    test.window_slot_fingerprint !== "fnv1a64:77b836869f848986" ||
+    slotMetric.decoder_window_slot_mean_nll_nats !== "3.866087547" ||
+    slotMetric.decoder_window_slot_perplexity !== "47.755180205" ||
+    slotMetric.bigram_window_slot_mean_nll_nats !== "3.981342714" ||
+    slotMetric.bigram_window_slot_perplexity !== "53.588940583" ||
+    slotMetric.window_slot_gap_nats !== "0.115255167"
+  ) {
+    throw new Error("the frozen Chapter 39 window-slot fixture changed");
+  }
+
+  if (
     tokenizerTrainingIds.join(",") !== trainIds.join(",") ||
     tokenizerRecord.training_only !== "true" ||
     tokenizerRecord.requested !== tokenizerRecord.learned
   ) {
-    throw new Error("tokenizer provenance disagrees with the training partition");
+    throw new Error(
+      "tokenizer provenance disagrees with the training partition",
+    );
   }
   if (
     testDocuments.join(",") !== testIds.join(",") ||
+    test.stride !== "1" ||
     test.windows !== windows[2] ||
     test.batches !== evaluationBatches[2] ||
-    Number(test.targets) !== Number(test.windows) * Number(batchRecord.context) ||
+    Number(test.window_target_slots) !==
+      Number(test.windows) * Number(batchRecord.context) ||
+    Number(test.document_transition_occurrences) !==
+      Number(encoded[2]) - testDocuments.length ||
     evaluationBatches.some(
       (count, index) =>
         Number(count) !==
-        Math.ceil(Number(windows[index]) / Number(batchRecord.evaluation_batch_size)),
+        Math.ceil(
+          Number(windows[index]) / Number(batchRecord.evaluation_batch_size),
+        ),
     )
   ) {
-    throw new Error("final targets disagree with the isolated evaluation batches");
+    throw new Error(
+      "final window slots or transitions disagree with the isolated evaluation batches",
+    );
+  }
+  const multiplicityTransitionCount = transitionMultiplicityCounts.reduce(
+    (sum, { transitions }) => sum + transitions,
+    0,
+  );
+  const multiplicitySlotCount = transitionMultiplicityCounts.reduce(
+    (sum, { multiplicity, transitions }) => sum + multiplicity * transitions,
+    0,
+  );
+  if (
+    multiplicityTransitionCount !==
+      Number(test.document_transition_occurrences) ||
+    multiplicitySlotCount !== Number(test.window_target_slots)
+  ) {
+    throw new Error(
+      "transition multiplicities disagree with transition and window-slot denominators",
+    );
   }
   if (
     test.access !== "1" ||
@@ -516,26 +753,63 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     checkpoint.selected !== selection[1].step ||
     checkpoint.optimizer !== selection[1].step
   ) {
-    throw new Error("selection and final evaluation do not preserve their boundary");
+    throw new Error(
+      "selection and final evaluation do not preserve their boundary",
+    );
   }
-  const decoderLoss = Number(test.decoder);
-  const bigramLoss = Number(test.bigram);
-  const lossGap = Number(test.gap);
+  const decoderLoss = Number(slotMetric.decoder_window_slot_mean_nll_nats);
+  const decoderPerplexity = Number(slotMetric.decoder_window_slot_perplexity);
+  const bigramLoss = Number(slotMetric.bigram_window_slot_mean_nll_nats);
+  const bigramPerplexity = Number(slotMetric.bigram_window_slot_perplexity);
+  const lossGap = Number(slotMetric.window_slot_gap_nats);
+  // Both the mean NLL and its exponential are serialized to nine decimals.
+  const perplexityRoundingTolerance = 5e-8;
   if (
     !(decoderLoss < bigramLoss) ||
-    Math.abs(bigramLoss - decoderLoss - lossGap) > 1e-9
+    Math.abs(bigramLoss - decoderLoss - lossGap) > 1e-9 ||
+    Math.abs(Math.exp(decoderLoss) - decoderPerplexity) >
+      perplexityRoundingTolerance ||
+    Math.abs(Math.exp(bigramLoss) - bigramPerplexity) >
+      perplexityRoundingTolerance ||
+    slotMetric.unit !== "overlapping-window-target-slot" ||
+    slotMetric.comparison_slot_set !== "shared-ordered-window-slots" ||
+    slotMetric.decoder_lower_on_fixture !== "true"
   ) {
-    throw new Error("test losses and reported gap do not agree");
+    throw new Error("window-slot metrics and reported comparison do not agree");
   }
   if (
-    history.targets !== test.targets ||
-    history.bigram_context !== "1" ||
-    history.decoder_context !== batchRecord.context ||
-    history.bigram !== test.bigram ||
-    history.decoder !== test.decoder ||
-    history.gap !== test.gap
+    transitionMetric.unit !== "within-document-next-token-transition" ||
+    transitionMetric.count !== test.document_transition_occurrences ||
+    transitionMetric.context_policy !==
+      `longest-available-causal-prefix-up-to-${batchRecord.context}` ||
+    transitionMetric.newest_position_only !== "true" ||
+    transitionMetric.reported !== "false" ||
+    transitionMetric.mean_nll !== "not-reported" ||
+    transitionMetric.perplexity !== "not-reported"
   ) {
-    throw new Error("historical contrast disagrees with measured test evidence");
+    throw new Error(
+      "the conventional transition metric boundary is incomplete or mislabeled",
+    );
+  }
+  if (
+    history.window_slot_unit !== slotMetric.unit ||
+    history.window_target_slots !== test.window_target_slots ||
+    history.document_transition_occurrences !==
+      test.document_transition_occurrences ||
+    history.bigram_context_tokens !== "1" ||
+    history.decoder_context_capacity !== batchRecord.context ||
+    decoderWindowSlotContextLengths.some(
+      (value, index) => Number(value) !== index + 1,
+    ) ||
+    history.bigram_window_slot_mean_nll_nats !==
+      slotMetric.bigram_window_slot_mean_nll_nats ||
+    history.decoder_window_slot_mean_nll_nats !==
+      slotMetric.decoder_window_slot_mean_nll_nats ||
+    history.window_slot_gap_nats !== slotMetric.window_slot_gap_nats
+  ) {
+    throw new Error(
+      "historical contrast disagrees with the measured window-slot evidence",
+    );
   }
   const attentionLanes = Number(model.layers) * Number(model.heads);
   const cachedScores = prefixes.reduce((sum, value) => sum + Number(value), 0);
@@ -545,7 +819,9 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
   );
   if (
     generationRecord.stop !== "token-limit" ||
-    prefixes.some((value, index) => Number(value) !== promptIds.length + index) ||
+    prefixes.some(
+      (value, index) => Number(value) !== promptIds.length + index,
+    ) ||
     Number(generationRecord.prefill) !== promptIds.length ||
     Number(generationRecord.decode) !== generated.length - 1 ||
     Number(generationRecord.final_cache) !==
@@ -562,18 +838,22 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     generationRecord.prompt !== "A" ||
     logitProbeIds.join(",") === promptIds.join(",")
   ) {
-    throw new Error("checkpoint probe and generation prompt must remain distinct");
+    throw new Error(
+      "checkpoint probe and generation prompt must remain distinct",
+    );
   }
   if (
     tokenizerRecord.training_only !== "true" ||
     training.replay_bitwise !== "true" ||
-    test.decoder_lower_on_fixture !== "true" ||
+    slotMetric.decoder_lower_on_fixture !== "true" ||
     test.no_grad !== "true" ||
     test.unchanged !== "true" ||
-    test.evidence_scope !== "fixed-fixture-regression" ||
-    test.within_run_selection_isolated !== "true" ||
-    test.independent_generalization_estimate !== "false" ||
-    test.architecture_superiority_evidence !== "false" ||
+    transitionMetric.newest_position_only !== "true" ||
+    transitionMetric.reported !== "false" ||
+    evidence.scope !== "fixed-fixture-regression" ||
+    evidence.within_run_selection_isolated !== "true" ||
+    evidence.independent_generalization_estimate !== "false" ||
+    evidence.architecture_superiority_evidence !== "false" ||
     checkpoint.bytes_roundtrip !== "true" ||
     checkpoint.model_bits_exact !== "true" ||
     checkpoint.optimizer_bits_exact !== "true" ||
@@ -583,7 +863,7 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     generationRecord.decisions_bitwise !== "true" ||
     generationRecord.rng_exact !== "true"
   ) {
-    throw new Error("capstone proof or evidence-scope field changed");
+    throw new Error("capstone proof or metric-scope field changed");
   }
 
   return {
@@ -618,23 +898,20 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     selection: selection as EndToEndLlmTrace["selection"],
     test: {
       access: test.access,
+      documents: testDocuments,
+      stride: test.stride,
       windows: test.windows,
       batches: test.batches,
-      targets: test.targets,
-      decoder: test.decoder,
-      bigram: test.bigram,
-      gap: test.gap,
-      decoder_lower_on_fixture: test.decoder_lower_on_fixture,
+      window_target_slots: test.window_target_slots,
+      document_transition_occurrences: test.document_transition_occurrences,
+      transition_multiplicity_counts: test.transition_multiplicity_counts,
+      window_slot_fingerprint: test.window_slot_fingerprint,
       no_grad: test.no_grad,
       unchanged: test.unchanged,
-      evidence_scope: test.evidence_scope,
-      within_run_selection_isolated: test.within_run_selection_isolated,
-      independent_generalization_estimate:
-        test.independent_generalization_estimate,
-      architecture_superiority_evidence: test.architecture_superiority_evidence,
-      documents: testDocuments,
-      fingerprint: test.fingerprint,
     },
+    slotMetric: slotMetric as EndToEndLlmTrace["slotMetric"],
+    transitionMetric: transitionMetric as EndToEndLlmTrace["transitionMetric"],
+    evidence: evidence as EndToEndLlmTrace["evidence"],
     checkpoint: {
       bytes: checkpoint.bytes,
       header: checkpoint.header,
@@ -704,7 +981,15 @@ export const validateEndToEndLlmDiagramLabels = (
   };
   const root = exactKeys(
     labels,
-    ["title", "description", "sections", "stages", "fields", "cues", "captions"],
+    [
+      "title",
+      "description",
+      "sections",
+      "stages",
+      "fields",
+      "cues",
+      "captions",
+    ],
     "labels",
   );
   nonblank(root.title, "labels.title");
@@ -733,10 +1018,17 @@ export const validateEndToEndLlmDiagramLabels = (
       "parameters",
       "trainLoss",
       "validationLoss",
-      "targets",
-      "decoderLoss",
-      "bigramLoss",
-      "gap",
+      "windowSlots",
+      "distinctTransitions",
+      "transitionMultiplicity",
+      "decoderSlotMeanNll",
+      "decoderSlotPerplexity",
+      "bigramSlotMeanNll",
+      "bigramSlotPerplexity",
+      "slotGap",
+      "transitionMetric",
+      "decoderContextCapacity",
+      "decoderSlotContextLengths",
       "bytes",
       "records",
       "logitProbeText",
@@ -756,6 +1048,8 @@ export const validateEndToEndLlmDiagramLabels = (
       "candidate",
       "selected",
       "oneTime",
+      "sharedSlots",
+      "transitionMetricNotReported",
       "exact",
       "cachedMatch",
       "decodedText",

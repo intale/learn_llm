@@ -10,6 +10,9 @@ pub const RUNTIME_LIMIT_MS: u128 = 150_000;
 pub const FIXED_FIXTURE_EVIDENCE_SCOPE: &str = "fixed-fixture-regression";
 pub const INDEPENDENT_GENERALIZATION_ESTIMATE: bool = false;
 pub const ARCHITECTURE_SUPERIORITY_EVIDENCE: bool = false;
+pub const WINDOW_SLOT_UNIT: &str = "overlapping-window-target-slot";
+pub const SHARED_WINDOW_SLOT_SET: &str = "shared-ordered-window-slots";
+pub const DOCUMENT_TRANSITION_UNIT: &str = "within-document-next-token-transition";
 const CORPUS_JSON: &str = include_str!("../../../data/tiny-bilingual-corpus.json");
 const SPLITS: &str = include_str!("../../../data/splits.json");
 
@@ -83,26 +86,33 @@ impl Drop for TemporaryCheckpoint {
 }
 
 // region:historical-contrast
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct HistoricalContrast {
+    pub window_slot_unit: &'static str,
+    pub window_target_slots: usize,
+    pub document_transition_occurrences: usize,
     pub bigram_context_tokens: usize,
-    pub decoder_context_tokens: usize,
-    pub shared_test_targets: usize,
-    pub bigram_mean_nll: f64,
-    pub decoder_mean_nll: f64,
-    pub loss_gap: f64,
+    pub decoder_context_capacity: usize,
+    pub decoder_window_slot_context_lengths: Vec<usize>,
+    pub bigram_window_slot_mean_nll_nats: f64,
+    pub decoder_window_slot_mean_nll_nats: f64,
+    pub window_slot_gap_nats: f64,
 }
 
 /// Measures the fixture's short-context baseline against its causal decoder.
 pub fn historical_contrast(evidence: &CapstoneRun) -> HistoricalContrast {
     let evaluation = evidence.final_evaluation();
+    let decoder_context_capacity = evidence.training().model_config().max_positions();
     HistoricalContrast {
+        window_slot_unit: WINDOW_SLOT_UNIT,
+        window_target_slots: evaluation.window_target_slot_count(),
+        document_transition_occurrences: evaluation.document_transition_occurrence_count(),
         bigram_context_tokens: 1,
-        decoder_context_tokens: evidence.training().model_config().max_positions(),
-        shared_test_targets: evaluation.target_count(),
-        bigram_mean_nll: evaluation.bigram().mean_nll(),
-        decoder_mean_nll: evaluation.decoder().mean_nll(),
-        loss_gap: evaluation.loss_gap(),
+        decoder_context_capacity,
+        decoder_window_slot_context_lengths: (1..=decoder_context_capacity).collect(),
+        bigram_window_slot_mean_nll_nats: evaluation.bigram().mean_nll(),
+        decoder_window_slot_mean_nll_nats: evaluation.decoder().mean_nll(),
+        window_slot_gap_nats: evaluation.loss_gap(),
     }
 }
 // endregion:historical-contrast
@@ -167,6 +177,15 @@ fn string_list(values: &[String]) -> String {
     values.join(",")
 }
 
+fn transition_multiplicity_counts(values: &[usize]) -> String {
+    values
+        .iter()
+        .enumerate()
+        .map(|(index, count)| format!("{}x{count}", index + 1))
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
 fn stop_name(stop: GenerationStop) -> &'static str {
     match stop {
         GenerationStop::Eos => "eos",
@@ -199,10 +218,14 @@ fn checkpoint_summary(evidence: &CapstoneRun) -> String {
 
 pub fn learner_report() -> Result<String, FixtureError> {
     let evidence = learner_evidence()?;
+    Ok(learner_report_for(&evidence))
+}
+
+fn learner_report_for(evidence: &CapstoneRun) -> String {
     let config = CapstoneConfig::tiny();
     let evaluation = evidence.final_evaluation();
     let generation = evidence.generation();
-    let history = historical_contrast(&evidence);
+    let history = historical_contrast(evidence);
     let encoded = evidence.tokenizer().encoded_tokens();
     let windows = evidence.training().window_counts();
     let batches = evidence.training().batch_counts();
@@ -253,7 +276,7 @@ pub fn learner_report() -> Result<String, FixtureError> {
         "training=updates:{} seed:{} checkpoints:{} selected:{} validation:{:.9} optimizer:{} replay_bitwise:{}",
         config.updates(),
         config.seed(),
-        checkpoint_summary(&evidence),
+        checkpoint_summary(evidence),
         evidence.training().selected_step(),
         evidence.training().selected_validation_loss(),
         evidence.training().optimizer_step(),
@@ -262,26 +285,46 @@ pub fn learner_report() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         report,
-        "test=access:{} documents:[{}] windows:{} batches:{} targets:{} fingerprint:{} decoder:{:.9} bigram:{:.9} gap:{:.9} decoder_lower_on_fixture:{} no_grad:{} unchanged:{}",
+        "test=access:{} documents:[{}] stride:{} windows:{} batches:{} window_target_slots:{} document_transition_occurrences:{} transition_multiplicity_counts:[{}] window_slot_fingerprint:{} no_grad:{} unchanged:{}",
         evaluation.access_count(),
         string_list(evaluation.test_document_ids()),
+        config.window_stride(),
         evaluation.window_count(),
         evaluation.batch_count(),
-        evaluation.target_count(),
-        evaluation.target_fingerprint(),
-        evaluation.decoder().mean_nll(),
-        evaluation.bigram().mean_nll(),
-        evaluation.loss_gap(),
-        evaluation.decoder_has_lower_loss(),
+        evaluation.window_target_slot_count(),
+        evaluation.document_transition_occurrence_count(),
+        transition_multiplicity_counts(evaluation.transition_multiplicity_counts()),
+        evaluation.window_slot_fingerprint(),
         evaluation.recorded_graphs() == 0,
         evaluation.parameters_unchanged() && evaluation.gradients_unchanged(),
     )
     .unwrap();
     writeln!(
         report,
+        "slot_metric=unit:{} decoder_window_slot_mean_nll_nats:{:.9} decoder_window_slot_perplexity:{:.9} bigram_window_slot_mean_nll_nats:{:.9} bigram_window_slot_perplexity:{:.9} window_slot_gap_nats:{:.9} comparison_slot_set:{} decoder_lower_on_fixture:{}",
+        WINDOW_SLOT_UNIT,
+        evaluation.decoder().mean_nll(),
+        evaluation.decoder().perplexity(),
+        evaluation.bigram().mean_nll(),
+        evaluation.bigram().perplexity(),
+        evaluation.loss_gap(),
+        SHARED_WINDOW_SLOT_SET,
+        evaluation.decoder_has_lower_loss(),
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "transition_metric=unit:{} count:{} context_policy:longest-available-causal-prefix-up-to-{} newest_position_only:true reported:false mean_nll:not-reported perplexity:not-reported",
+        DOCUMENT_TRANSITION_UNIT,
+        evaluation.document_transition_occurrence_count(),
+        config.context_length(),
+    )
+    .unwrap();
+    writeln!(
+        report,
         "evidence=scope:{} within_run_selection_isolated:{} independent_generalization_estimate:{} architecture_superiority_evidence:{}",
         FIXED_FIXTURE_EVIDENCE_SCOPE,
-        within_run_selection_isolated(&evidence),
+        within_run_selection_isolated(evidence),
         INDEPENDENT_GENERALIZATION_ESTIMATE,
         ARCHITECTURE_SUPERIORITY_EVIDENCE,
     )
@@ -331,13 +374,16 @@ pub fn learner_report() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         report,
-        "history=targets:{} bigram_context:{} decoder_context:{} bigram:{:.9} decoder:{:.9} gap:{:.9}",
-        history.shared_test_targets,
+        "history=window_slot_unit:{} window_target_slots:{} document_transition_occurrences:{} bigram_context_tokens:{} decoder_context_capacity:{} decoder_window_slot_context_lengths:[{}] bigram_window_slot_mean_nll_nats:{:.9} decoder_window_slot_mean_nll_nats:{:.9} window_slot_gap_nats:{:.9}",
+        history.window_slot_unit,
+        history.window_target_slots,
+        history.document_transition_occurrences,
         history.bigram_context_tokens,
-        history.decoder_context_tokens,
-        history.bigram_mean_nll,
-        history.decoder_mean_nll,
-        history.loss_gap,
+        history.decoder_context_capacity,
+        usize_list(&history.decoder_window_slot_context_lengths),
+        history.bigram_window_slot_mean_nll_nats,
+        history.decoder_window_slot_mean_nll_nats,
+        history.window_slot_gap_nats,
     )
     .unwrap();
     writeln!(
@@ -345,11 +391,15 @@ pub fn learner_report() -> Result<String, FixtureError> {
         "next=inspect, modify, test, and extend the complete decoder"
     )
     .unwrap();
-    Ok(report)
+    report
 }
 
 pub fn diagram_trace() -> Result<String, FixtureError> {
     let evidence = learner_evidence()?;
+    Ok(diagram_trace_for(&evidence))
+}
+
+fn diagram_trace_for(evidence: &CapstoneRun) -> String {
     let config = CapstoneConfig::tiny();
     let evaluation = evidence.final_evaluation();
     let generation = evidence.generation();
@@ -357,7 +407,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     let windows = evidence.training().window_counts();
     let batches = evidence.training().batch_counts();
     let mut trace = String::new();
-    writeln!(trace, "END_TO_END_LLM_TRACE_V2").unwrap();
+    writeln!(trace, "END_TO_END_LLM_TRACE_V3").unwrap();
     writeln!(
         trace,
         "DATA|checksum={}|split={}|train={}|validation={}|test={}|train_ids={}|validation_ids={}|test_ids={}",
@@ -425,21 +475,46 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     }
     writeln!(
         trace,
-        "TEST|access={}|documents={}|windows={}|batches={}|targets={}|fingerprint={}|decoder={:.9}|bigram={:.9}|gap={:.9}|decoder_lower_on_fixture={}|no_grad={}|unchanged={}|evidence_scope={}|within_run_selection_isolated={}|independent_generalization_estimate={}|architecture_superiority_evidence={}",
+        "TEST|access={}|documents={}|stride={}|windows={}|batches={}|window_target_slots={}|document_transition_occurrences={}|transition_multiplicity_counts={}|window_slot_fingerprint={}|no_grad={}|unchanged={}",
         evaluation.access_count(),
         string_list(evaluation.test_document_ids()),
+        config.window_stride(),
         evaluation.window_count(),
         evaluation.batch_count(),
-        evaluation.target_count(),
-        evaluation.target_fingerprint(),
-        evaluation.decoder().mean_nll(),
-        evaluation.bigram().mean_nll(),
-        evaluation.loss_gap(),
-        evaluation.decoder_has_lower_loss(),
+        evaluation.window_target_slot_count(),
+        evaluation.document_transition_occurrence_count(),
+        transition_multiplicity_counts(evaluation.transition_multiplicity_counts()),
+        evaluation.window_slot_fingerprint(),
         evaluation.recorded_graphs() == 0,
         evaluation.parameters_unchanged() && evaluation.gradients_unchanged(),
+    )
+    .unwrap();
+    writeln!(
+        trace,
+        "SLOT_METRIC|unit={}|decoder_window_slot_mean_nll_nats={:.9}|decoder_window_slot_perplexity={:.9}|bigram_window_slot_mean_nll_nats={:.9}|bigram_window_slot_perplexity={:.9}|window_slot_gap_nats={:.9}|comparison_slot_set={}|decoder_lower_on_fixture={}",
+        WINDOW_SLOT_UNIT,
+        evaluation.decoder().mean_nll(),
+        evaluation.decoder().perplexity(),
+        evaluation.bigram().mean_nll(),
+        evaluation.bigram().perplexity(),
+        evaluation.loss_gap(),
+        SHARED_WINDOW_SLOT_SET,
+        evaluation.decoder_has_lower_loss(),
+    )
+    .unwrap();
+    writeln!(
+        trace,
+        "TRANSITION_METRIC|unit={}|count={}|context_policy=longest-available-causal-prefix-up-to-{}|newest_position_only=true|reported=false|mean_nll=not-reported|perplexity=not-reported",
+        DOCUMENT_TRANSITION_UNIT,
+        evaluation.document_transition_occurrence_count(),
+        config.context_length(),
+    )
+    .unwrap();
+    writeln!(
+        trace,
+        "EVIDENCE|scope={}|within_run_selection_isolated={}|independent_generalization_estimate={}|architecture_superiority_evidence={}",
         FIXED_FIXTURE_EVIDENCE_SCOPE,
-        within_run_selection_isolated(&evidence),
+        within_run_selection_isolated(evidence),
         INDEPENDENT_GENERALIZATION_ESTIMATE,
         ARCHITECTURE_SUPERIORITY_EVIDENCE,
     )
@@ -487,20 +562,23 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
         generation.rng_state_exact(),
     )
     .unwrap();
-    let history = historical_contrast(&evidence);
+    let history = historical_contrast(evidence);
     writeln!(
         trace,
-        "HISTORY|targets={}|bigram_context={}|decoder_context={}|bigram={:.9}|decoder={:.9}|gap={:.9}",
-        history.shared_test_targets,
+        "HISTORY|window_slot_unit={}|window_target_slots={}|document_transition_occurrences={}|bigram_context_tokens={}|decoder_context_capacity={}|decoder_window_slot_context_lengths={}|bigram_window_slot_mean_nll_nats={:.9}|decoder_window_slot_mean_nll_nats={:.9}|window_slot_gap_nats={:.9}",
+        history.window_slot_unit,
+        history.window_target_slots,
+        history.document_transition_occurrences,
         history.bigram_context_tokens,
-        history.decoder_context_tokens,
-        history.bigram_mean_nll,
-        history.decoder_mean_nll,
-        history.loss_gap,
+        history.decoder_context_capacity,
+        usize_list(&history.decoder_window_slot_context_lengths),
+        history.bigram_window_slot_mean_nll_nats,
+        history.decoder_window_slot_mean_nll_nats,
+        history.window_slot_gap_nats,
     )
     .unwrap();
     writeln!(trace, "END|next=student-owned-decoder").unwrap();
-    Ok(trace)
+    trace
 }
 
 #[cfg(test)]
@@ -540,6 +618,18 @@ mod tests {
     }
 
     #[test]
+    fn generated_stdout_and_trace_match_the_frozen_files_byte_for_byte() {
+        assert_eq!(
+            learner_report_for(evidence()),
+            include_str!("../expected.txt")
+        );
+        assert_eq!(
+            diagram_trace_for(evidence()),
+            include_str!("../diagram-trace.txt")
+        );
+    }
+
+    #[test]
     fn records_the_fixed_fixture_loss_order_after_one_local_test_access() {
         let report = evidence().final_evaluation();
         assert_eq!(report.access_count(), 1);
@@ -549,18 +639,27 @@ mod tests {
         );
         assert!(report.decoder_has_lower_loss());
         assert_eq!(report.target_count(), 1_744);
+        assert_eq!(report.window_target_slot_count(), 1_744);
+        assert_eq!(report.document_transition_occurrence_count(), 442);
+        assert_eq!(report.transition_multiplicity_counts(), [4, 4, 4, 430]);
         assert_eq!(report.target_fingerprint(), "fnv1a64:77b836869f848986");
+        assert_eq!(report.window_slot_fingerprint(), "fnv1a64:77b836869f848986");
         assert!((report.decoder().mean_nll() - 3.866_087_547).abs() < 5e-10);
         assert!((report.bigram().mean_nll() - 3.981_342_714).abs() < 5e-10);
+        assert_eq!(
+            report.decoder().perplexity().to_bits(),
+            report.decoder().mean_nll().exp().to_bits()
+        );
+        assert_eq!(
+            report.bigram().perplexity().to_bits(),
+            report.bigram().mean_nll().exp().to_bits()
+        );
         assert!((report.loss_gap() - 0.115_255_167).abs() < 5e-10);
         assert!(report.loss_gap() > 0.0);
         assert_eq!(report.recorded_graphs(), 0);
         assert!(report.parameters_unchanged());
         assert!(report.gradients_unchanged());
         assert!(within_run_selection_isolated(evidence()));
-        assert_eq!(FIXED_FIXTURE_EVIDENCE_SCOPE, "fixed-fixture-regression");
-        assert!(!INDEPENDENT_GENERALIZATION_ESTIMATE);
-        assert!(!ARCHITECTURE_SUPERIORITY_EVIDENCE);
     }
 
     #[test]
@@ -612,11 +711,14 @@ mod tests {
     #[test]
     fn historical_contrast_stays_on_the_road_to_modern_llms() {
         let contrast = historical_contrast(evidence());
+        assert_eq!(contrast.window_slot_unit, WINDOW_SLOT_UNIT);
+        assert_eq!(contrast.window_target_slots, 1_744);
+        assert_eq!(contrast.document_transition_occurrences, 442);
         assert_eq!(contrast.bigram_context_tokens, 1);
-        assert_eq!(contrast.decoder_context_tokens, 4);
-        assert_eq!(contrast.shared_test_targets, 1_744);
-        assert!((contrast.bigram_mean_nll - 3.981_342_714).abs() < 5e-10);
-        assert!((contrast.decoder_mean_nll - 3.866_087_547).abs() < 5e-10);
-        assert!((contrast.loss_gap - 0.115_255_167).abs() < 5e-10);
+        assert_eq!(contrast.decoder_context_capacity, 4);
+        assert_eq!(contrast.decoder_window_slot_context_lengths, [1, 2, 3, 4]);
+        assert!((contrast.bigram_window_slot_mean_nll_nats - 3.981_342_714).abs() < 5e-10);
+        assert!((contrast.decoder_window_slot_mean_nll_nats - 3.866_087_547).abs() < 5e-10);
+        assert!((contrast.window_slot_gap_nats - 0.115_255_167).abs() < 5e-10);
     }
 }

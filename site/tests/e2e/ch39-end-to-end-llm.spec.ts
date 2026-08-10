@@ -8,6 +8,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type CourseChapterLink,
 } from "./chapter-helpers";
@@ -20,10 +21,10 @@ const copy = {
     revisionLabel: "Content revision",
     title: "Run the whole tiny LLM",
     description:
-      "Trace a tiny decoder-only language model in Rust through validation-selected training, locally isolated fixed-fixture evaluation, exact checkpoint reload, and KV-cached generation while keeping regression evidence distinct from generalization.",
+      "Trace a tiny decoder-only language model in Rust through validation-selected training, a fixed-fixture comparison over overlapping window-target slots, exact reload, and KV-cached generation. Distinguish that comparison from the unreported policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution; numeric NLL and PPL are not reported for that policy.",
     diagramTitle: "Keep execution one-way and label fixture evidence",
     diagramDescription:
-      "Follow frozen Rust evidence through training-only BPE, selection, a locally isolated evaluation of a fixed regression fixture, exact reload, and cached generation.",
+      "Follow frozen Rust evidence through training-only BPE, selection, and a locally isolated comparison over 1,744 overlapping window-target slots. A separate unreported metric would score 442 within-document transition occurrences once each with the longest available causal prefix capped at four tokens and only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then follow exact reload and cached generation.",
     headings: [
       "Predict the boundary before predicting the output",
       "One product connects every next-token decision",
@@ -39,10 +40,14 @@ const copy = {
     scaleBoundary:
       "none of its scale or capability results transfers to this tiny teaching run",
     qualityBoundary:
-      "does not establish a universal architecture ranking or useful generation quality",
+      "not an untouched independent estimate of generalization, a universal architecture ranking, or evidence of useful generation quality",
     detailsFragment: "The literal generated IDs are [260,34,34]",
+    questionSix:
+      "What is the measured slot mean-NLL gap, how is window-slot perplexity related to each model's slot mean NLL, and what evidence scope does the ordering have?",
     selectedCue: "validation-selected state",
     testCue: "|| one local access in this execution",
+    sharedSlotsCue:
+      "= both models score the same ordered slots, including repetitions",
     checkpointCue:
       "= bytes, model, optimizer, and tokenizer round-trip exactly; probe logits match",
     generationCue: "= cached and complete-prefix decisions match",
@@ -61,8 +66,8 @@ const copy = {
       "GenerationEvidence takes ownership of the same vector",
     ],
     evidenceBoundaryFragments: [
-      "That ordering is retained across later executions, so it is useful regression evidence. It is not an untouched independent estimate of generalization or evidence of architecture-wide decoder superiority.",
-      "The permanently checked gap is fixed-fixture regression evidence, not causal attribution to context or attention and not an independent generalization estimate.",
+      "The lower decoder slot mean-NLL ordering is retained across later executions, so it is useful regression evidence. It is not an untouched independent estimate of generalization or evidence of architecture-wide decoder superiority.",
+      "The mean-NLL gap retained by later executions is fixed-fixture regression evidence, not causal attribution to context or attention and not an independent generalization estimate.",
       "this general warning does not establish any fact about the capstone fixture, its score, or its local access count",
       "decoder_lower_on_fixture:true",
       "scope:fixed-fixture-regression",
@@ -78,11 +83,11 @@ const copy = {
     revisionLabel: "Версия материала",
     title: "Запустите небольшую LLM целиком",
     description:
-      "Проследите полный цикл небольшой декодерной языковой модели на Rust: обучение с выбором состояния по валидации, локально изолированную оценку фиксированного примера, точное восстановление из контрольной точки и генерацию с KV-кэшем; при этом не смешивайте регрессионную проверку с независимой оценкой способности модели обобщать.",
+      "Проследите полный цикл небольшой декодерной языковой модели на Rust: обучение с выбором по валидации, сравнение по целевым позициям перекрывающихся окон, точное восстановление и генерацию с KV-кэшем. Отдельное правило оценивало бы каждый из 442 переходов внутри документов один раз, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся.",
     diagramTitle:
       "Сохраните односторонний порядок запуска и обозначьте статус результата",
     diagramDescription:
-      "Проследите зафиксированные результаты программы на Rust: обучение BPE только по обучающим данным, выбор состояния, локально изолированная оценка фиксированного примера для регрессионной проверки, точное восстановление и генерация с кэшем.",
+      "Проследите зафиксированные результаты программы на Rust: обучение BPE только по обучающим данным, выбор состояния и локально изолированное сравнение по 1744 целевым позициям перекрывающихся окон. Отдельное правило оценивало бы 442 перехода внутри документов по одному разу, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Затем проследите точное восстановление и генерацию с кэшем.",
     headings: [
       "Сначала предскажите границы доступа, затем результат",
       "Одно произведение связывает все решения о следующем токене",
@@ -97,10 +102,15 @@ const copy = {
       "Частотная биграммная модель оценивает следующий токен только по одному предыдущему токену",
     scaleBoundary:
       "Результаты по масштабу и возможностям этой модели нельзя переносить на небольшой учебный запуск",
-    qualityBoundary: "не подтверждает полезное качество генерации",
+    qualityBoundary:
+      "не доказательство общего превосходства одной архитектуры и не подтверждение полезного качества генерации",
     detailsFragment: "Точные сгенерированные ID: [260,34,34]",
+    questionSix:
+      "Чему равна измеренная разница средних NLL по позициям окон, как перплексия связана со средним NLL каждой модели и какова область применимости этого порядка результатов?",
     selectedCue: "состояние выбрано по валидации",
     testCue: "|| один локальный доступ в этом запуске",
+    sharedSlotsCue:
+      "= обе модели оценивают один и тот же упорядоченный набор позиций, включая повторы",
     checkpointCue:
       "= байты и состояния модели, оптимизатора и токенизатора совпадают; логиты пробы — тоже",
     generationCue: "= решения с KV-кэшем и полным префиксом совпадают",
@@ -108,9 +118,9 @@ const copy = {
     spaceMarker: "␠ — сгенерированный пробел.",
     ownershipFragments: [
       "SelectedDecoder получает неизменяемые ссылки на оба объекта",
-      "отдельно сохраняет два нужных для отчёта числа",
+      "сохраняет нужные для отчёта сведения, включая",
       "передаёт владение всем набором объекту FinalEvaluator",
-      "При последующей сборке отчёта используются только заранее сохранённые два числа, поэтому копия всего набора тестовых мини-пакетов не нужна",
+      "При последующей сборке отчёта используются вычисленные числа и сведения о метрике, поэтому копия всего набора тестовых мини-пакетов не нужна",
       "primary.selected_state().scalar_count()",
       "Метод не читает заранее сохранённый счётчик и не создаёт ещё один декодер только ради подсчёта",
       "Checkpoint::from_snapshot намеренно копирует выбранное состояние без графа вычислений и состояние оптимизатора",
@@ -120,8 +130,8 @@ const copy = {
       "Перемещение Vec передаёт уже существующий буфер вместо создания копии ID токенов промпта для отчёта",
     ],
     evidenceBoundaryFragments: [
-      "Этот порядок сохраняется в последующих запусках, поэтому результат полезен для регрессионной проверки. Он не является независимой оценкой способности модели обобщать на ранее не использованных данных и не доказывает общего превосходства архитектуры декодера.",
-      "Постоянно проверяемая разница служит результатом фиксированного примера для регрессионной проверки, а не доказательством причинного влияния контекста или внимания и не независимой оценкой способности модели обобщать.",
+      "Порядок результатов сохраняется в последующих запусках, поэтому он полезен для регрессионной проверки. Это не независимая оценка способности модели обобщать на ранее не использованных данных и не доказательство общего превосходства архитектуры декодера.",
+      "Разницу средних NLL, сохраняемую при последующих запусках, используют для регрессионной проверки фиксированного примера; она не доказывает причинного влияния контекста или внимания и не является независимой оценкой способности модели обобщать.",
       "этот общий вывод не устанавливает фактов об учебном примере, его результате или локальном счётчике доступа",
       "decoder_lower_on_fixture:true",
       "scope:fixed-fixture-regression",
@@ -144,13 +154,75 @@ const evidenceCopy = {
     },
     {
       id: "window-counts",
-      label: "Causal-window counts — train / validation / test",
+      label: "Overlapping stride-one window counts — train / validation / test",
       value: "[1820,463,436]",
     },
     {
       id: "evaluation-batch-counts",
       label: "Evaluation mini-batch counts — train / validation / test",
       value: "[15,4,4]",
+    },
+    {
+      id: "window-target-slot-count",
+      label: "Overlapping window-target slots",
+      value: "1744",
+    },
+    {
+      id: "document-transition-occurrence-count",
+      label: "Within-document transition occurrences",
+      value: "442",
+    },
+    {
+      id: "transition-multiplicity-counts",
+      label: "Transition occurrence multiplicities — 1× / 2× / 3× / 4×",
+      value: "[1x4,2x4,3x4,4x430]",
+    },
+    {
+      id: "decoder-window-slot-mean-nll",
+      label: "Decoder mean NLL — nats per slot",
+      value: "3.866087547",
+      formula: true,
+    },
+    {
+      id: "decoder-window-slot-perplexity",
+      label: "Decoder window-slot perplexity — dimensionless",
+      value: "47.755180205",
+      formula: true,
+    },
+    {
+      id: "bigram-window-slot-mean-nll",
+      label: "Bigram mean NLL — nats per slot",
+      value: "3.981342714",
+      formula: true,
+    },
+    {
+      id: "bigram-window-slot-perplexity",
+      label: "Bigram window-slot perplexity — dimensionless",
+      value: "53.588940583",
+      formula: true,
+    },
+    {
+      id: "window-slot-mean-nll-gap",
+      label: "Fixed-fixture mean-NLL gap — nats per slot",
+      value: "0.115255167",
+      formula: true,
+    },
+    {
+      id: "decoder-context-capacity",
+      label: "Decoder context capacity",
+      value: "4",
+    },
+    {
+      id: "decoder-window-slot-context-lengths",
+      label: "Actual decoder slot context lengths",
+      value: "[1,2,3,4]",
+    },
+    {
+      id: "transition-metric-status",
+      label:
+        "Once per transition — longest causal prefix capped at four tokens; newest position only",
+      value:
+        "442 within-document occurrences once each; longest causal prefix capped at four tokens; newest position only; numeric mean NLL and PPL not reported",
     },
     { id: "reload-probe-text", label: "Reload probe text", value: "At" },
     {
@@ -196,13 +268,76 @@ const evidenceCopy = {
     },
     {
       id: "window-counts",
-      label: "Число каузальных окон — обучение / валидация / тест",
+      label:
+        "Число перекрывающихся окон с шагом 1 — обучение / валидация / тест",
       value: "[1820,463,436]",
     },
     {
       id: "evaluation-batch-counts",
       label: "Число мини-пакетов оценки — обучение / валидация / тест",
       value: "[15,4,4]",
+    },
+    {
+      id: "window-target-slot-count",
+      label: "Целевые позиции перекрывающихся окон",
+      value: "1744",
+    },
+    {
+      id: "document-transition-occurrence-count",
+      label: "Переходы внутри документов в заданных позициях",
+      value: "442",
+    },
+    {
+      id: "transition-multiplicity-counts",
+      label: "Число переходов с кратностью 1× / 2× / 3× / 4×",
+      value: "[1x4,2x4,3x4,4x430]",
+    },
+    {
+      id: "decoder-window-slot-mean-nll",
+      label: "Среднее NLL декодера, в натах на позицию окна",
+      value: "3.866087547",
+      formula: true,
+    },
+    {
+      id: "decoder-window-slot-perplexity",
+      label: "Безразмерная перплексия декодера по позициям окон",
+      value: "47.755180205",
+      formula: true,
+    },
+    {
+      id: "bigram-window-slot-mean-nll",
+      label: "Среднее NLL биграммной модели, в натах на позицию окна",
+      value: "3.981342714",
+      formula: true,
+    },
+    {
+      id: "bigram-window-slot-perplexity",
+      label: "Безразмерная перплексия биграммной модели по позициям окон",
+      value: "53.588940583",
+      formula: true,
+    },
+    {
+      id: "window-slot-mean-nll-gap",
+      label: "Разница средних NLL, в натах на позицию окна",
+      value: "0.115255167",
+      formula: true,
+    },
+    {
+      id: "decoder-context-capacity",
+      label: "Максимальная длина контекста декодера",
+      value: "4",
+    },
+    {
+      id: "decoder-window-slot-context-lengths",
+      label: "Фактические длины контекста в позициях окон",
+      value: "[1,2,3,4]",
+    },
+    {
+      id: "transition-metric-status",
+      label:
+        "Каждый переход один раз — максимально доступный каузальный префикс не длиннее четырёх токенов; только последняя позиция",
+      value:
+        "442 перехода внутри документов по одному разу; максимально доступный каузальный префикс не длиннее четырёх токенов; только последняя позиция; числовые значения среднего NLL и перплексии по этому правилу не приводятся",
     },
     {
       id: "reload-probe-text",
@@ -260,7 +395,7 @@ const stageOrder = [
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 
 async function expectExplicitEvidence(diagram: Locator, locale: ChapterLocale) {
-  await expect(diagram.locator("[data-evidence]")).toHaveCount(10);
+  await expect(diagram.locator("[data-evidence]")).toHaveCount(21);
   for (const expected of evidenceCopy[locale]) {
     const row = diagram.locator(`[data-evidence="${expected.id}"]`);
     await expect(row).toHaveCount(1);
@@ -379,11 +514,183 @@ async function expectDiagramContainment(page: Page) {
   );
   const result = await diagram.evaluate((node) => {
     const root = node as HTMLElement;
+    const tolerance = 2;
     const rootRect = root.getBoundingClientRect();
     const problems: string[] = [];
     const boxes = Array.from(
       root.querySelectorAll<HTMLElement>("[data-diagram-box]"),
     );
+    const label = (element: HTMLElement) =>
+      `${element.tagName.toLowerCase()}${
+        element.dataset.stage ? `[data-stage="${element.dataset.stage}"]` : ""
+      }.${element.className?.toString().split(/\s+/).filter(Boolean).join(".")}`;
+    const colorAlpha = (color: string) => {
+      const normalized = color.trim().toLowerCase();
+      if (normalized === "transparent") return 0;
+      const hex = normalized.match(/^#[0-9a-f]{6}([0-9a-f]{2})$/i);
+      if (hex) return Number.parseInt(hex[1], 16) / 255;
+      const slashAlpha = normalized.match(/\/\s*([0-9]*\.?[0-9]+%?)\s*\)$/);
+      const commaAlpha = normalized.match(
+        /^rgba\([^)]*,\s*([0-9]*\.?[0-9]+%?)\s*\)$/,
+      );
+      const alpha = slashAlpha?.[1] ?? commaAlpha?.[1];
+      if (!alpha) return 1;
+      const numeric = Number.parseFloat(alpha);
+      return alpha.endsWith("%") ? numeric / 100 : numeric;
+    };
+    const colorIsConcealed = (color: string) => colorAlpha(color) < 0.99;
+    const colorIsInvisible = (color: string) => colorAlpha(color) <= 0;
+    const inactiveInlineKatexScroller = (
+      element: HTMLElement,
+      style: CSSStyleDeclaration,
+    ) =>
+      element.matches("span.katex") &&
+      style.overflowX === "auto" &&
+      style.overflowY === "hidden" &&
+      element.scrollWidth <= element.clientWidth + tolerance &&
+      element.scrollHeight <= element.clientHeight + tolerance;
+    const concealed = (element: HTMLElement, style: CSSStyleDeclaration) => {
+      const opacity = Number.parseFloat(style.opacity);
+      const maskImage = style.getPropertyValue("mask-image");
+      const webkitMaskImage = style.getPropertyValue("-webkit-mask-image");
+      const clipsOverflow = [style.overflowX, style.overflowY].some((value) =>
+        ["hidden", "clip"].includes(value),
+      );
+      return (
+        element.hasAttribute("hidden") ||
+        style.display === "none" ||
+        ["hidden", "collapse"].includes(style.visibility) ||
+        (Number.isFinite(opacity) && opacity < 0.99) ||
+        colorIsConcealed(style.color) ||
+        style.filter !== "none" ||
+        style.clipPath !== "none" ||
+        (maskImage !== "" && maskImage !== "none") ||
+        (webkitMaskImage !== "" && webkitMaskImage !== "none") ||
+        (clipsOverflow && !inactiveInlineKatexScroller(element, style)) ||
+        style.textOverflow === "ellipsis" ||
+        Boolean(
+          style.getPropertyValue("line-clamp") &&
+          style.getPropertyValue("line-clamp") !== "none",
+        ) ||
+        Boolean(
+          style.getPropertyValue("-webkit-line-clamp") &&
+          style.getPropertyValue("-webkit-line-clamp") !== "none",
+        ) ||
+        style.contentVisibility === "hidden" ||
+        /(?:^|\s)(?:paint|strict|content)(?:\s|$)/.test(style.contain)
+      );
+    };
+    const authoredElements = [
+      root,
+      ...Array.from(root.querySelectorAll<HTMLElement>("*")),
+    ].filter((element) => {
+      if (element.closest(".katex-mathml, [data-diagram-full-view-controls]")) {
+        return false;
+      }
+      const katex = element.closest(".katex");
+      if (!katex || element.classList.contains("katex")) return true;
+      return (
+        Boolean(element.closest(".katex-html")) &&
+        Boolean(element.textContent?.trim())
+      );
+    });
+    for (const element of authoredElements) {
+      const style = getComputedStyle(element);
+      if (concealed(element, style)) {
+        problems.push(`${label(element)} conceals authored content`);
+      }
+      const scale = style.getPropertyValue("scale");
+      const zoom = Number.parseFloat(style.getPropertyValue("zoom"));
+      if (
+        style.transform !== "none" ||
+        (scale !== "" && scale !== "none") ||
+        (Number.isFinite(zoom) && Math.abs(zoom - 1) > 0.001)
+      ) {
+        problems.push(`${label(element)} scales authored content`);
+      }
+      const inlineDebt = element.scrollWidth - element.clientWidth;
+      const blockDebt = element.scrollHeight - element.clientHeight;
+      if (
+        element !== root &&
+        !inactiveInlineKatexScroller(element, style) &&
+        ((["auto", "scroll"].includes(style.overflowX) &&
+          inlineDebt > tolerance) ||
+          (["auto", "scroll"].includes(style.overflowY) &&
+            blockDebt > tolerance))
+      ) {
+        problems.push(`${label(element)} owns unapproved travel`);
+      }
+    }
+    const hasFourSidedBorder = (element: HTMLElement) => {
+      const style = getComputedStyle(element);
+      const widths = [
+        style.borderTopWidth,
+        style.borderRightWidth,
+        style.borderBottomWidth,
+        style.borderLeftWidth,
+      ].map(Number.parseFloat);
+      const styles = [
+        style.borderTopStyle,
+        style.borderRightStyle,
+        style.borderBottomStyle,
+        style.borderLeftStyle,
+      ];
+      const colors = [
+        style.borderTopColor,
+        style.borderRightColor,
+        style.borderBottomColor,
+        style.borderLeftColor,
+      ];
+      return (
+        widths.every((width) => width > 0) &&
+        styles.every((value) => !["none", "hidden"].includes(value)) &&
+        colors.every((color) => !colorIsInvisible(color))
+      );
+    };
+    const directSections = Array.from(
+      root.querySelectorAll<HTMLElement>(":scope > section"),
+    );
+    const expectedBorderedOwners = [root, ...directSections, ...boxes];
+    const expectedBorderedOwnerSet = new Set(expectedBorderedOwners);
+    const borderedOwners = [
+      root,
+      ...Array.from(root.querySelectorAll<HTMLElement>("*")),
+    ].filter(
+      (element) =>
+        !element.closest("[data-diagram-full-view-controls]") &&
+        hasFourSidedBorder(element),
+    );
+    const borderedOwnerSet = new Set(borderedOwners);
+    for (const expected of expectedBorderedOwners) {
+      if (!borderedOwnerSet.has(expected)) {
+        problems.push(`${label(expected)} lacks a visible four-sided border`);
+      }
+    }
+    for (const owner of borderedOwners) {
+      if (!expectedBorderedOwnerSet.has(owner)) {
+        problems.push(
+          `${label(owner)} is an unclassified bordered content owner`,
+        );
+      }
+      const inlineDebt = owner.scrollWidth - owner.clientWidth;
+      const blockDebt = owner.scrollHeight - owner.clientHeight;
+      const fullscreenRootOwnsVerticalTravel =
+        owner === root && document.fullscreenElement === root;
+      if (inlineDebt > tolerance) {
+        problems.push(`${label(owner)} has uncontained inline border debt`);
+      }
+      if (blockDebt > tolerance && !fullscreenRootOwnsVerticalTravel) {
+        problems.push(`${label(owner)} has uncontained block border debt`);
+      }
+    }
+    const nearestBorderedOwner = (element: HTMLElement | null) => {
+      let current = element;
+      while (current && current !== root.parentElement) {
+        if (borderedOwnerSet.has(current)) return current;
+        current = current.parentElement;
+      }
+      return null;
+    };
     const innerRect = (box: HTMLElement) => {
       const rect = box.getBoundingClientRect();
       const style = getComputedStyle(box);
@@ -395,10 +702,10 @@ async function expectDiagramContainment(page: Page) {
       };
     };
     const contains = (outer: ReturnType<typeof innerRect>, inner: DOMRect) =>
-      inner.left >= outer.left - 2 &&
-      inner.right <= outer.right + 2 &&
-      inner.top >= outer.top - 2 &&
-      inner.bottom <= outer.bottom + 2;
+      inner.left >= outer.left - tolerance &&
+      inner.right <= outer.right + tolerance &&
+      inner.top >= outer.top - tolerance &&
+      inner.bottom <= outer.bottom + tolerance;
 
     for (const [index, box] of boxes.entries()) {
       const style = getComputedStyle(box);
@@ -414,9 +721,16 @@ async function expectDiagramContainment(page: Page) {
         style.borderBottomStyle,
         style.borderLeftStyle,
       ];
+      const colors = [
+        style.borderTopColor,
+        style.borderRightColor,
+        style.borderBottomColor,
+        style.borderLeftColor,
+      ];
       if (
         widths.some((width) => !(width > 0)) ||
-        styles.some((value) => ["none", "hidden"].includes(value))
+        styles.some((value) => ["none", "hidden"].includes(value)) ||
+        colors.some(colorIsInvisible)
       ) {
         problems.push(`box ${index} lacks a four-sided border`);
       }
@@ -426,17 +740,6 @@ async function expectDiagramContainment(page: Page) {
       ) {
         problems.push(`box ${index} does not contain its content`);
       }
-      if (
-        [style.overflowX, style.overflowY].some((value) =>
-          ["hidden", "clip"].includes(value),
-        )
-      ) {
-        problems.push(`box ${index} hides overflow`);
-      }
-      if (style.contain.split(/\s+/).includes("paint")) {
-        problems.push(`box ${index} uses paint containment`);
-      }
-
       const edges = innerRect(box);
       const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
       let textNode = walker.nextNode();
@@ -444,11 +747,27 @@ async function expectDiagramContainment(page: Page) {
       while (textNode) {
         const text = textNode.textContent?.trim() ?? "";
         const parent = textNode.parentElement;
-        if (text && parent && parent.closest("[data-diagram-box]") === box) {
+        if (
+          text &&
+          parent &&
+          !parent.closest(".katex-mathml, [data-diagram-full-view-controls]") &&
+          parent.closest("[data-diagram-box]") === box
+        ) {
           const range = document.createRange();
           range.selectNodeContents(textNode);
-          for (const rect of Array.from(range.getClientRects())) {
-            if (rect.width > 0 && !contains(edges, rect)) {
+          const rects = Array.from(range.getClientRects()).filter(
+            ({ width, height }) => width > 0 && height > 0,
+          );
+          if (
+            rects.length === 0 ||
+            colorIsConcealed(getComputedStyle(parent).color)
+          ) {
+            problems.push(
+              `box ${index} text ${textIndex} has no visible paint`,
+            );
+          }
+          for (const rect of rects) {
+            if (!contains(edges, rect)) {
               problems.push(
                 `box ${index} text ${textIndex} crosses its inner border`,
               );
@@ -474,6 +793,72 @@ async function expectDiagramContainment(page: Page) {
       }
     }
 
+    const textSamples: Array<{
+      fontSize: number;
+      lineHeight: number;
+      responsiveCaptionTitle: boolean;
+      text: string;
+    }> = [];
+    const captionTitle = root.querySelector<HTMLElement>(
+      ":scope > .course-diagram__caption > h3",
+    );
+    const rootWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (rootWalker.nextNode()) {
+      const textNode = rootWalker.currentNode as Text;
+      const parent = textNode.parentElement;
+      const text = textNode.data
+        .replace(/[\s\u200b-\u200d\ufeff]+/g, " ")
+        .trim();
+      if (
+        !text ||
+        !parent ||
+        parent.closest(".katex-mathml, [data-diagram-full-view-controls]")
+      ) {
+        continue;
+      }
+      const range = document.createRange();
+      range.selectNodeContents(textNode);
+      const paint = Array.from(range.getClientRects()).filter(
+        ({ width, height }) => width > 0 && height > 0,
+      );
+      const style = getComputedStyle(parent);
+      const typographyOwner = parent.closest<HTMLElement>(".katex") ?? parent;
+      const typographyStyle = getComputedStyle(typographyOwner);
+      let ancestor: HTMLElement | null = parent;
+      let hiddenByAncestor = false;
+      while (ancestor) {
+        if (concealed(ancestor, getComputedStyle(ancestor))) {
+          hiddenByAncestor = true;
+        }
+        if (ancestor === root) break;
+        ancestor = ancestor.parentElement;
+      }
+      if (
+        hiddenByAncestor ||
+        colorIsConcealed(style.color) ||
+        paint.length === 0
+      ) {
+        problems.push(`text has no visible paint: ${text.slice(0, 48)}`);
+      }
+      const nearestOwner = nearestBorderedOwner(parent);
+      if (!nearestOwner) {
+        problems.push(`text lacks a bordered owner: ${text.slice(0, 48)}`);
+      }
+      const boundary = innerRect(nearestOwner ?? root);
+      if (paint.some((rect) => !contains(boundary, rect))) {
+        problems.push(
+          `painted text crosses its nearest box: ${text.slice(0, 48)}`,
+        );
+      }
+      const lineHeight = Number.parseFloat(typographyStyle.lineHeight);
+      textSamples.push({
+        fontSize: Number.parseFloat(typographyStyle.fontSize),
+        lineHeight: Number.isFinite(lineHeight) ? lineHeight : 0,
+        responsiveCaptionTitle: captionTitle?.contains(parent) ?? false,
+        text,
+      });
+    }
+
     const scrollers = root.querySelectorAll("[data-diagram-scroll]");
     if (scrollers.length !== 0) {
       problems.push(
@@ -481,17 +866,36 @@ async function expectDiagramContainment(page: Page) {
       );
     }
     if (
-      rootRect.left < -2 ||
-      rootRect.right > document.documentElement.clientWidth + 2 ||
-      root.scrollWidth > root.clientWidth + 2
+      rootRect.left < -tolerance ||
+      rootRect.right > document.documentElement.clientWidth + tolerance ||
+      root.scrollWidth > root.clientWidth + tolerance
     ) {
       problems.push("figure escapes its inline or fullscreen boundary");
     }
-    return { boxCount: boxes.length, problems, scrollers: scrollers.length };
+    return {
+      boxCount: boxes.length,
+      borderedOwnerCount: borderedOwners.length,
+      directSectionCount: directSections.length,
+      problems,
+      rootRem: Number.parseFloat(
+        getComputedStyle(document.documentElement).fontSize,
+      ),
+      scrollers: scrollers.length,
+      textSamples,
+    };
   });
   expect(result.problems).toEqual([]);
   expect(result.boxCount).toBe(8);
+  expect(result.directSectionCount).toBe(1);
+  expect(result.borderedOwnerCount).toBe(10);
   expect(result.scrollers).toBe(0);
+  for (const sample of result.textSamples) {
+    expect(
+      sample.fontSize + 0.01,
+      `${sample.text} must retain the diagram text-size floor`,
+    ).toBeGreaterThanOrEqual(result.rootRem * 0.875);
+  }
+  return result;
 }
 
 async function readStagePresentation(diagram: Locator) {
@@ -677,46 +1081,73 @@ async function readFullViewPresentation(diagram: Locator) {
       element.dataset.stage ??
       element.className?.toString().split(/\s+/).filter(Boolean).join(".") ??
       element.tagName.toLowerCase();
-    const transparent = (color: string) => {
-      if (color === "transparent") return true;
-      const alpha = color.match(/rgba?\([^)]*[,/]\s*(0(?:\.0+)?%?)\s*\)$/);
-      return alpha
-        ? Number.parseFloat(alpha[1]) === 0
-        : /#[0-9a-f]{6}00$/i.test(color);
+    const colorAlpha = (color: string) => {
+      const normalized = color.trim().toLowerCase();
+      if (normalized === "transparent") return 0;
+      const hex = normalized.match(/^#[0-9a-f]{6}([0-9a-f]{2})$/i);
+      if (hex) return Number.parseInt(hex[1], 16) / 255;
+      const slashAlpha = normalized.match(/\/\s*([0-9]*\.?[0-9]+%?)\s*\)$/);
+      const commaAlpha = normalized.match(
+        /^rgba\([^)]*,\s*([0-9]*\.?[0-9]+%?)\s*\)$/,
+      );
+      const alpha = slashAlpha?.[1] ?? commaAlpha?.[1];
+      if (!alpha) return 1;
+      const numeric = Number.parseFloat(alpha);
+      return alpha.endsWith("%") ? numeric / 100 : numeric;
     };
-    const concealed = (style: CSSStyleDeclaration) =>
-      style.display === "none" ||
-      style.visibility !== "visible" ||
-      Number.parseFloat(style.opacity) < 0.99 ||
-      style.filter !== "none" ||
-      style.clipPath !== "none" ||
-      Boolean(style.maskImage && style.maskImage !== "none") ||
-      Boolean(
-        style.getPropertyValue("-webkit-mask-image") &&
-        style.getPropertyValue("-webkit-mask-image") !== "none",
-      ) ||
-      [style.overflowX, style.overflowY].some((value) =>
-        ["hidden", "clip"].includes(value),
-      ) ||
-      style.textOverflow === "ellipsis" ||
-      Boolean(
-        style.getPropertyValue("line-clamp") &&
-        style.getPropertyValue("line-clamp") !== "none",
-      ) ||
-      Boolean(
-        style.getPropertyValue("-webkit-line-clamp") &&
-        style.getPropertyValue("-webkit-line-clamp") !== "none",
-      ) ||
-      style.contentVisibility === "hidden" ||
-      /(?:^|\s)(?:paint|strict|content)(?:\s|$)/.test(style.contain);
+    const colorIsConcealed = (color: string) => colorAlpha(color) < 0.99;
+    const concealed = (element: HTMLElement, style: CSSStyleDeclaration) => {
+      const inactiveInlineKatexScroller =
+        element.matches("span.katex") &&
+        style.overflowX === "auto" &&
+        style.overflowY === "hidden" &&
+        element.scrollWidth <= element.clientWidth + tolerance &&
+        element.scrollHeight <= element.clientHeight + tolerance;
+      return (
+        element.hasAttribute("hidden") ||
+        style.display === "none" ||
+        ["hidden", "collapse"].includes(style.visibility) ||
+        Number.parseFloat(style.opacity) < 0.99 ||
+        colorIsConcealed(style.color) ||
+        style.filter !== "none" ||
+        style.clipPath !== "none" ||
+        Boolean(style.maskImage && style.maskImage !== "none") ||
+        Boolean(
+          style.getPropertyValue("-webkit-mask-image") &&
+          style.getPropertyValue("-webkit-mask-image") !== "none",
+        ) ||
+        ([style.overflowX, style.overflowY].some((value) =>
+          ["hidden", "clip"].includes(value),
+        ) &&
+          !inactiveInlineKatexScroller) ||
+        style.textOverflow === "ellipsis" ||
+        Boolean(
+          style.getPropertyValue("line-clamp") &&
+          style.getPropertyValue("line-clamp") !== "none",
+        ) ||
+        Boolean(
+          style.getPropertyValue("-webkit-line-clamp") &&
+          style.getPropertyValue("-webkit-line-clamp") !== "none",
+        ) ||
+        style.contentVisibility === "hidden" ||
+        /(?:^|\s)(?:paint|strict|content)(?:\s|$)/.test(style.contain)
+      );
+    };
 
     const authoredElements = [
       root,
       ...Array.from(root.querySelectorAll<HTMLElement>("*")),
-    ].filter(
-      (element) =>
-        !element.closest(".katex-mathml, [data-diagram-full-view-controls]"),
-    );
+    ].filter((element) => {
+      if (element.closest(".katex-mathml, [data-diagram-full-view-controls]")) {
+        return false;
+      }
+      const katex = element.closest(".katex");
+      if (!katex || element.classList.contains("katex")) return true;
+      return (
+        Boolean(element.closest(".katex-html")) &&
+        Boolean(element.textContent?.trim())
+      );
+    });
     const scaledElements = authoredElements.flatMap((element, index) => {
       const style = getComputedStyle(element);
       const scale = style.getPropertyValue("scale");
@@ -729,11 +1160,7 @@ async function readFullViewPresentation(diagram: Locator) {
     });
     const concealedElements = authoredElements.flatMap((element, index) => {
       const style = getComputedStyle(element);
-      const emptyKatexLayoutStrut =
-        element.matches("span.pstrut") &&
-        element.closest(".katex") !== null &&
-        (element.textContent ?? "").trim() === "";
-      return concealed(style) && !emptyKatexLayoutStrut
+      return concealed(element, style)
         ? [{ index, owner: describe(element) }]
         : [];
     });
@@ -760,7 +1187,7 @@ async function readFullViewPresentation(diagram: Locator) {
     );
     for (const element of structural) {
       const style = getComputedStyle(element);
-      if (concealed(style)) {
+      if (concealed(element, style)) {
         problems.push(`${describe(element)} conceals its content`);
       }
       if (
@@ -871,7 +1298,7 @@ async function readFullViewPresentation(diagram: Locator) {
       let ancestor: HTMLElement | null = parent;
       let hidden = false;
       while (ancestor) {
-        if (concealed(getComputedStyle(ancestor))) hidden = true;
+        if (concealed(ancestor, getComputedStyle(ancestor))) hidden = true;
         if (ancestor === root) break;
         ancestor = ancestor.parentElement;
       }
@@ -881,7 +1308,7 @@ async function readFullViewPresentation(diagram: Locator) {
       const paint = Array.from(range.getClientRects()).filter(
         ({ width, height }) => width > 0 && height > 0,
       );
-      if (hidden || transparent(style.color) || paint.length === 0) {
+      if (hidden || colorIsConcealed(style.color) || paint.length === 0) {
         problems.push(`text is concealed: ${text.data.trim().slice(0, 40)}`);
       }
       if (
@@ -1015,7 +1442,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 39,
-    revision: 8,
+    revision: 9,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -1033,11 +1460,17 @@ async function expectChapterContent(
   for (const expected of [
     "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
     "C=4",
-    "N_{\\mathrm{test}}=W_{\\mathrm{test}}C=436\\cdot4=1744",
+    "N_{\\mathrm{slot}}=W_{\\mathrm{test}}C=436\\cdot4=1744",
+    "4\\cdot1+4\\cdot2+4\\cdot3+430\\cdot4=1744",
+    "\\operatorname{PPL}_{\\mathrm{slot}}=\\exp\\!\\left(\\mathcal L_{\\mathrm{slot}}\\right)",
+    "N_{\\mathrm{transition}}=\\sum_{d\\in\\mathcal D_{\\mathrm{test}}}\\left(\\lvert z^{(d)}\\rvert-1\\right)=444-2=442",
+    "\\mathcal L_{\\mathrm{slot}}=-\\frac{1}{N_{\\mathrm{slot}}}\\sum_{i=1}^{N_{\\mathrm{slot}}}\\log P_\\theta(z_i\\mid c_i)",
     "\\tau=0.8",
     "k=4",
     "3.981342714-3.866087547=0.115255167",
     "3.866087547<3.981342714",
+    "47.755180205",
+    "53.588940583",
     "1+2+3=6",
     "1^2+2^2+3^2=14",
   ]) {
@@ -1059,6 +1492,19 @@ async function expectChapterContent(
   expect(lessonText).toContain(localized.historyLimitation);
   expect(lessonText).toContain(localized.scaleBoundary);
   expect(lessonText).toContain(localized.qualityBoundary);
+  const exerciseQuestions = page
+    .locator(".lesson-body > ol")
+    .last()
+    .locator(":scope > li");
+  await expect(exerciseQuestions).toHaveCount(10);
+  expect(await readMathAwareText(exerciseQuestions.nth(5))).toBe(
+    localized.questionSix,
+  );
+  expect(lessonText).not.toMatch(
+    locale === "en"
+      ? /measured slot mean-NLL gap, how is window-slot perplexity related to (?:it|the (?:mean-NLL )?gap)/i
+      : /измеренная разница средних NLL[^?]*как с ней связана перплексия/i,
+  );
   for (const fragment of localized.ownershipFragments) {
     expect(lessonText).toContain(fragment);
   }
@@ -1153,8 +1599,21 @@ async function expectChapterContent(
     "3.889531885",
   );
   await expect(diagram.locator('[data-stage="test"]')).toContainText("1744");
+  await expect(diagram.locator('[data-stage="test"]')).toContainText("442");
+  await expect(diagram.locator('[data-stage="test"]')).toContainText(
+    "[1x4,2x4,3x4,4x430]",
+  );
   await expect(diagram.locator('[data-stage="test"]')).toContainText(
     "0.115255167",
+  );
+  await expect(diagram.locator('[data-stage="test"]')).toContainText(
+    "47.755180205",
+  );
+  await expect(diagram.locator('[data-stage="test"]')).toContainText(
+    "53.588940583",
+  );
+  await expect(diagram.locator('[data-stage="test"] .cue').nth(1)).toHaveText(
+    localized.sharedSlotsCue,
   );
   await expect(diagram.locator('[data-stage="checkpoint"]')).toContainText(
     "30994",
@@ -1199,7 +1658,7 @@ async function expectChapterContent(
   await expect(
     diagram.locator("svg, canvas, path, polyline, line"),
   ).toHaveCount(0);
-  await expectDiagramContainment(page);
+  const diagramPresentation = await expectDiagramContainment(page);
 
   const details = page.locator(".lesson-body details");
   await expect(details).toHaveCount(1);
@@ -1218,6 +1677,7 @@ async function expectChapterContent(
     ),
   ).toHaveCount(0);
   await expectNoOverflowOrClientScripts(page);
+  return diagramPresentation;
 }
 
 test.describe(
@@ -1262,10 +1722,63 @@ test.describe(
         const chapters = await readOrderedCourseChapters(page, locale);
         await page.setViewportSize({ width: 1440, height: 1000 });
         await page.goto(chapterPath(locale, chapterId));
-        await expectChapterContent(page, chapters, locale);
+        const desktop = await expectChapterContent(page, chapters, locale);
         await page.setViewportSize({ width: 390, height: 844 });
         await page.reload();
-        await expectChapterContent(page, chapters, locale);
+        const narrow = await expectChapterContent(page, chapters, locale);
+        expect(narrow.textSamples.map(({ text }) => text)).toEqual(
+          desktop.textSamples.map(({ text }) => text),
+        );
+        expect(
+          narrow.textSamples.map(
+            ({ responsiveCaptionTitle }) => responsiveCaptionTitle,
+          ),
+        ).toEqual(
+          desktop.textSamples.map(
+            ({ responsiveCaptionTitle }) => responsiveCaptionTitle,
+          ),
+        );
+        const desktopCaptionTitles = desktop.textSamples.filter(
+          ({ responsiveCaptionTitle }) => responsiveCaptionTitle,
+        );
+        const narrowCaptionTitles = narrow.textSamples.filter(
+          ({ responsiveCaptionTitle }) => responsiveCaptionTitle,
+        );
+        expect(desktopCaptionTitles.map(({ text }) => text)).toEqual([
+          copy[locale].diagramTitle,
+        ]);
+        expect(narrowCaptionTitles.map(({ text }) => text)).toEqual([
+          copy[locale].diagramTitle,
+        ]);
+        for (const [index, narrowSample] of narrow.textSamples.entries()) {
+          const desktopSample = desktop.textSamples[index];
+          if (narrowSample.responsiveCaptionTitle) {
+            for (const [surface, sample, rootRem] of [
+              ["desktop", desktopSample, desktop.rootRem],
+              ["narrow", narrowSample, narrow.rootRem],
+            ] as const) {
+              expect(
+                sample.fontSize + 0.01,
+                `${locale} ${surface} caption title must retain its 1.3rem role floor`,
+              ).toBeGreaterThanOrEqual(rootRem * 1.3);
+              expect(
+                sample.lineHeight + 0.01,
+                `${locale} ${surface} caption title line height must retain its 1.15 role ratio`,
+              ).toBeGreaterThanOrEqual(sample.fontSize * 1.15);
+            }
+            continue;
+          }
+          expect(
+            narrowSample.fontSize + 0.01,
+            `${locale} narrow text ${index} (${narrowSample.text}) must not shrink`,
+          ).toBeGreaterThanOrEqual(desktopSample.fontSize);
+          if (desktopSample.lineHeight > 0) {
+            expect(
+              narrowSample.lineHeight + 0.01,
+              `${locale} narrow text ${index} (${narrowSample.text}) line height must not shrink`,
+            ).toBeGreaterThanOrEqual(desktopSample.lineHeight);
+          }
+        }
         await expect(
           page.locator(
             'figure[data-visualization-id="end-to-end-llm"] [data-diagram-full-view-toggle]',

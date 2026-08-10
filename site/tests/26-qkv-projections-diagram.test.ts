@@ -268,6 +268,15 @@ describe('Chapter 26 static diagram boundary', () => {
     expect(componentSource).not.toContain('<svg');
   });
 
+  it('gives each projection branch an unconcealed grid formatting context', () => {
+    const branchItemRule = componentSource.match(/\.branch-grid\s*>\s*li\s*\{([^}]*)\}/);
+    expect(branchItemRule, 'missing the direct branch-list-item rule').not.toBeNull();
+    expect(branchItemRule?.[1].replace(/\s+/g, ' ').trim()).toBe(
+      'display: grid; min-inline-size: 0;',
+    );
+    expect(componentSource).not.toMatch(/overflow(?:-[xy])?\s*:\s*(?:hidden|clip)\b/);
+  });
+
   it('keeps contract, lesson, Rust evidence, formula, history, and locale policy aligned', () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);

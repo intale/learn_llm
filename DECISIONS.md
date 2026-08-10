@@ -19006,3 +19006,1049 @@ containment browser gates.
 **Affected steps and run:** `implement-ch35-checkpoints`,
 `define-ch35-checkpoint-resume-scope`, and
 `20260809T185416Z-define-ch35-checkpoint-resume-scope-01`.
+
+## 2026-08-09 - Name Chapter 39's overlapping-window metric and leave corpus perplexity unreported
+
+**Status:** Accepted during preflight for
+`distinguish-ch39-window-slot-perplexity`, before product or test edits.
+
+**Context:** Chapter 39 reports decoder loss `3.866087547` and bigram loss
+`3.981342714` over 1,744 values described only as test targets or target
+positions. The test corpus contains 444 encoded tokens in two separate
+documents, so it has 442 within-document next-token transition occurrences.
+The evaluation path instead builds 436 stride-one windows of context length
+four and averages all four aligned targets from every window. Its denominator
+is therefore 1,744 overlapping window-target slots. Interior document
+transitions recur up to four times and, for the decoder, those occurrences can
+have one, two, three, or four tokens of context inside their window. The number
+`3.866087547` is mean negative log-likelihood in natural-log nats per slot; its
+exponential is the corresponding dimensionless window-slot perplexity. It is
+not itself perplexity and is not a corpus score that counts each transition
+once.
+
+**Decision:** Preserve the existing final-evaluation slot order, model values,
+and one local post-selection gate. Make the evaluator and Chapter 39 evidence
+name the scored unit, ordered slot fingerprint, 1,744 slot count, 442 distinct
+document-position transition count, and multiplicity distribution explicitly.
+Print mean NLL in nats per slot and its exponential as window-slot perplexity
+for both models. Retain the fair comparison because the decoder and frozen
+bigram score the identical ordered slot sequence.
+
+Do not add a second numeric once-per-transition score in this correction. Name
+that conventional corpus metric as not reported, while stating its denominator
+and policy precisely: score each of the 442 within-document transition
+occurrences once, using the longest available causal prefix capped at four
+tokens and only the newest-position distribution. Do not call transition
+occurrences unique token pairs, because identical token-ID pairs may recur.
+Advance Chapter 39 to content revision 9 and the reviewed course-plan/locale
+projection from 72 to 73. Expand ownership before edits to the bilingual
+Chapter 39 cheat sheets and the shared content, sheet, and formula gates that
+publish or freeze the old ambiguous wording.
+
+**Consequences:** Existing training, selected state, final-evaluation model
+calls, test-access count, fixed-fixture ordering, checkpoint, and generation
+bytes remain unchanged. Evaluation metadata and locked tests make coordinated
+denominator, identity, multiplicity, unit, and mean/perplexity mutations fail
+loudly. Learners can distinguish a window-slot training/evaluation objective
+from conventional once-per-transition corpus perplexity without being shown an
+invented or silently policy-dependent second result. English remains canonical;
+Russian is refreshed directly under the localization workflow and both
+rendered surfaces must pass Chromium and Firefox at ordinary, narrow, and full
+view.
+
+**Affected step and run:** `distinguish-ch39-window-slot-perplexity`,
+`20260809T213836Z-distinguish-ch39-window-slot-perplexity-01`.
+
+## 2026-08-10 - Record the Chapter 39 temporary validation registry cache fill
+
+**Status:** Accepted immediately after the unexpected external access was
+detected; this supersedes only the active run's preflight expectation that no
+network input would be needed.
+
+**Context:** The first focused Rust validation used a newly built temporary
+Docker `source` target rather than the repository's final course-check image.
+Its uncached source layer ran the existing lockfile-pinned `npm ci` step twice.
+The first disposable Cargo test container also updated the crates.io index and
+downloaded the existing lockfile-pinned serde and procedural-macro graph. Quiet
+later Cargo runs may have repeated that cache fill. No package manifest,
+lockfile, dependency feature, Dockerfile, course source, or learner-facing
+choice changed as a result. The exact commands and both intermediate image IDs
+are preserved in the active run record.
+
+**Decision:** Treat this as a recorded, bounded validation-resource deviation,
+not as a new product input or dependency decision. Reuse only the already
+locked dependency graph, retain the two temporary image identities as
+intermediate evidence, and make the final frozen-image Rust, site, and browser
+replays network-disabled. Any dependency or lockfile change would require a new
+decision and fresh fingerprint rather than being absorbed into this exception.
+
+**Consequences:** The active run honestly records external npm and crates.io
+access that preflight expected to avoid. Reproducibility still rests on the
+committed lockfiles, unchanged dependency allowlists, exact final workspace
+image, and network-disabled acceptance replay—not on mutable registry state.
+
+**Affected step and run:** `distinguish-ch39-window-slot-perplexity`,
+`20260809T213836Z-distinguish-ch39-window-slot-perplexity-01`.
+
+## 2026-08-10 - Enforce the shared diagram text floor in ordinary roles
+
+**Status:** Accepted after the first exact Chromium replay failed and before
+the shared style or corrective test bytes were edited. This supersedes only
+the completed source-freeze assumption that the first immutable image was a
+publishable browser candidate.
+
+**Context:** Exact Chromium rendering of Chapter 39 exposed three distinct
+facts. First, the lesson-copy test read raw browser text and expected an ASCII
+apostrophe even though the typography pipeline correctly rendered a smart
+apostrophe. Second, its new border audit treated any alpha below 0.99 as
+invisible, even though the shared design deliberately uses visible one-pixel
+solid borders at alpha 0.22 and 0.42. Third, each stage title is an `h5` inside
+the shared `course-diagram__card-heading` role, and the browser's user-agent
+heading rule reduced it to 13.28px, below the diagram contract's 14px text
+floor. Continuing the exact computed-style inventory found the same defect
+class in 23 definition terms at 12.8px, one nested technical token at 11.52px,
+and one `small` label at 13.33px. The shared cue role also declared 0.82rem even
+though Chapter 39 did not instantiate it. The first two failures are test
+classification defects; the below-floor ordinary text roles are a genuine
+shared presentation defect.
+
+**Decision:** Preserve failed browser attempt 01 and its exact image, snapshot,
+collection, result, and error contexts. Start a new run rather than changing a
+declared byte behind the first image's evidence. Normalize the exact exercise
+copy through the existing math-aware text projection. Detect a border as visible
+when all four sides have positive width, a rendered style, and nonzero color
+alpha; retain the stricter alpha threshold for authored text. Add
+`font-size: inherit` to shared card-stack `h5` headings and to shared
+card-heading `h5`/`h6` headings whether the role is on their parent or on the
+heading itself, so those semantic headings cannot inherit browser-default
+shrinkage; preserve the intentionally larger `h3` hierarchy and the already
+inherited `h4` size. Raise shared `dt` and cue text to 0.875rem, let `small`
+inherit its surrounding ordinary text floor (including the table's 0.875rem
+floor), and keep inline `code`/`bdi` at their intended 0.9em only when that
+remains at least 0.875rem.
+
+Expand ownership before editing to `site/src/styles/diagram.module.css`, its
+shared static contract, and the complete all-diagram browser contract. Bind
+every floor rule statically, retain Chapter 39's 14px rendered floor, and run
+the complete English/Russian diagram-style matrix at desktop, narrow, full
+view, localized pages, and forced colors in both Chromium and Firefox. Do not
+move typography into the Chapter 39 component or make the deliberately subtle
+shared borders opaque.
+
+**Consequences:** Every affected semantic heading, definition term, cue,
+small label, and inline technical token meets the shared diagram text floor.
+The change only increases below-floor ordinary text; it does not shrink, clip,
+truncate, conceal, recolor, or introduce a private scroller. Because these
+selectors are shared across the bilingual course, the localization rendered
+review must revalidate complete target-language containment rather than infer
+it from Chapter 39 English. Any overflow exposed by the corrected font size is
+a product defect, not permission to weaken the floor.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260809T213836Z-distinguish-ch39-window-slot-perplexity-01`, and
+`20260809T231946Z-distinguish-ch39-window-slot-perplexity-02`.
+
+## 2026-08-10 - Quarantine an unused Playwright 1.58.2 audit pull
+
+**Status:** Accepted immediately after the delegated corrective-run audit
+reported the resource deviation and before candidate freeze or publication.
+
+**Context:** A read-only diagnostic intended to inspect the preserved run-01
+browser volume named `mcr.microsoft.com/playwright:v1.58.2-noble` instead of
+the repository-pinned Playwright 1.61.1 image. Docker therefore pulled the
+previously absent image even though the command also requested `--network
+none`. The daemon now holds image
+`sha256:35524db2ea7f14c0c4a6a5639fb8b6996144e873b1b9ac0ccbba3577c382a40d`,
+repository digest
+`mcr.microsoft.com/playwright@sha256:6446946a1d9fd62d9ae501312a2d76a43ee688542b21622056a372959b65d63d`,
+and size 2,390,436,754 bytes. The audit observed no container reach creation or
+execution from that image, and no validation result uses it. Product,
+dependency, lockfile, snapshot, and ledger bytes were not changed by the pull.
+
+**Decision:** Treat the 1.58.2 image as an unused quarantined artifact, not a
+tool input or reusable cache. Continue every browser collection and runtime
+with the pinned Playwright 1.61.1 digest already recorded by the repository,
+`--pull=never`, and `--network none`. Before completion, prove that no container
+uses the accidental image, remove its exact tag/image, and prove its absence.
+Preserve the exact failed command and image identity in run 02 rather than
+hiding the deviation.
+
+**Consequences:** The corrective run remains reproducible from the frozen
+workspace and pinned browser image, but final cleanup must reclaim the
+2.39-gigabyte unused pull in addition to both run-scoped browser volumes. Any
+future unpinned browser reference is a new policy failure, not permission to
+reuse this image.
+
+**Affected step and run:** `distinguish-ch39-window-slot-perplexity`,
+`20260809T231946Z-distinguish-ch39-window-slot-perplexity-02`.
+
+## 2026-08-10 - Preserve responsive diagram captions while checking text floors
+
+**Status:** Accepted after immutable run 02 reached the rebuilt Chromium matrix
+and before any run 03 source or test byte was edited.
+
+**Context:** The complete Chapter 39 Chromium selection passed five cases and
+failed one. The failing text sample was exactly the direct semantic caption
+title, `:scope > .course-diagram__caption > h3`. The shared presentation module
+deliberately sizes that title with `clamp(1.3rem, 3cqi, 1.65rem)`, so the same
+English title measured 23.5566 px with a 27.09 px line height at the desktop
+figure width and 20.8 px with a 23.92 px line height at the narrow figure width.
+Russian followed the same rule. The Chapter 39 test had incorrectly required
+every narrow text sample to equal or exceed its desktop pixel size. The shared
+diagram contract instead treats desktop and narrow as distinct responsive
+surfaces, while requiring ordinary-role floors, complete paint, containment,
+and no transform-based scaling. Full view is a different same-viewport
+enhancement and already passed the stricter inline-to-fullscreen no-shrink check:
+the title grew from 23.5566/27.09 px to 26.4/30.36 px.
+
+**Decision:** Preserve the shared responsive caption CSS. In Chapter 39's
+desktop-to-narrow comparison, tag only the exact direct caption-title owner and
+require exactly one tagged sample whose text equals the localized diagram title.
+Require that sample on both surfaces to remain at least 1.3 root rem with a
+line height of at least 1.15 times its computed font size. Keep desktop-size and
+line-height identity for every other text sample. Retain the existing universal
+0.875rem ordinary-text floor, text-sequence identity, paint, border,
+containment, concealment, transform/scale/zoom, and nearest-owner checks. Do not
+extend the exception by index, heading tag, or ancestry, and do not change the
+same-viewport inline-to-fullscreen no-shrink assertions.
+
+**Consequences:** Responsive title hierarchy remains readable without forcing a
+desktop heading size into a 390 px surface. A caption regression below its
+authored 1.3rem minimum still fails, every non-caption sample still fails on
+narrow-screen shrinkage, and full view cannot shrink any text. Immutable run 02,
+its 5-pass/1-fail report, image, and volume remain failed evidence; run 03 must
+rebuild and replay both engines from new exact bytes.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260809T231946Z-distinguish-ch39-window-slot-perplexity-02`, and
+`20260810T001248Z-distinguish-ch39-window-slot-perplexity-03`.
+
+## 2026-08-10 - Classify dual-role diagram sections by their shared card skin
+
+**Status:** Accepted after immutable run 03 reached the complete Chromium
+diagram-style matrix and before any run 04 candidate byte was edited.
+
+**Context:** Run 03 passed all six Chapter 39 cases, all six Chapter 39 sheet
+cases, all four selected formula cases, and seven of ten complete diagram-style
+cases before three presentation modes reported that Chapter 5's section style
+differed from the shared baseline. The first Chapter 5 direct section is not a
+plain panel: like its three partition siblings, it explicitly carries
+`data-diagram-card` and `data-diagram-box`. The shared card rule therefore
+correctly wins over the direct-section panel rule. Exact Chromium measurements
+show the pure-panel baseline at 14.1339 px padding, 12 px radius, and
+`rgb(251, 250, 246)` background, while the dual-role Chapter 5 section uses the
+shared-card 12 px padding, 10 px radius, and `rgb(253, 252, 249)` background.
+Its card signature matches the shared card baseline; its border and text color
+remain shared. The browser test nevertheless selected every direct `section`
+as a plain-panel signature, so it misclassified authored shared-role markup.
+
+**Decision:** Preserve the Chapter 5 product markup and the shared CSS. In the
+complete diagram-style browser audit, derive the panel signature only from a
+direct section that does not carry `data-diagram-card`. Derive the card
+signature first from a direct section carrying both shared card and box markers,
+falling back to the first ordinary shared card only when no such dual-role
+section exists. Keep every existing signature property, cross-route comparison,
+geometry, containment, floor, forced-colors, and full-view assertion. Do not
+skip Chapter 5, weaken equality, or add a chapter-specific exception.
+
+**Consequences:** Plain panels are compared only with the shared panel skin,
+and explicit dual-role sections are compared with the shared card skin that
+actually owns their computed presentation. Removing a card marker, introducing
+private card chrome, or changing either shared skin still fails. Immutable run
+03, its 23-pass/3-fail Chromium result, exact image, volume, and stopped rendered
+probe remain failed evidence; run 04 must fingerprint the selector-only test
+change, rebuild exact evidence, and replay both engines completely.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T001248Z-distinguish-ch39-window-slot-perplexity-03`, and the new run 04.
+
+## 2026-08-10 - Give Chapter 26 QKV branch items their own formatting context
+
+**Status:** Accepted after immutable run 09 completed Chromium and reproduced a
+sequence-dependent Firefox overflow defect, before expanding scope or editing
+the Chapter 26 component.
+
+**Context:** The strengthened Chapter 39 rendered audit completed all English
+and Russian Chromium surfaces, then Firefox stopped at the narrow Chapter 26
+QKV figure. The named `branches-scroller` retained 613px of intentional,
+reachable horizontal travel, but its height changed from `client/scroll =
+946/946` on a fresh load to stable `946/955` and `946/954` after the exact prior
+navigation sequence. Its frame remained well inside the projection section,
+the page and figure had no inline debt, and every reported code, definition
+term, and isolated technical range remained inside its branch card. Those
+fifteen paint messages were cascades from the one real vertical-scroll finding.
+
+Read-only Firefox instrumentation localized the extra scroll extent to the
+three `.branch-grid > li` elements. Their default `display:list-item`
+formatting propagated visible descendant overflow even though authored glyph
+paint did not cross a border. Applying `display:grid` to those list items made
+the scroller, grid, and all branch cards report equal client and scroll heights
+in English and Russian Firefox, preserved every measured rectangle, and was
+geometry-neutral in Chromium. Scrolling, additional animation frames, wider
+tolerances, altered scrollbar gutters, marker removal, grid-width changes, and
+clipping or hidden overflow do not provide the required correction.
+
+**Decision:** Expand the active step before product edits to own
+`QkvProjectionsDiagram.astro` and its focused static and browser tests. Add a
+component-local grid formatting context to the existing `.branch-grid > li`
+geometry rule while retaining `min-inline-size: 0`. Bind the computed list-item
+role and zero vertical scroller debt in the focused Chapter 26 tests, and retain
+the complete shared diagram and run-scoped sequence audits. Do not change
+Chapter 26 learner copy, formulas, trace, locale revision, shared skin, palette,
+typography, scroll semantics, or horizontal grid width.
+
+**Consequences:** The three Q/K/V cards keep the same semantic list, dimensions,
+order, borders, and 57rem horizontal relationship, but Firefox no longer
+propagates descendant overflow into an unintended vertical scroll range. The
+correction introduces no clipping, concealment, truncation, scaling, or private
+scroll owner. Because a product byte and three newly declared outputs change,
+the ce08 image and run 04 product evidence become pre-correction evidence only;
+a new immutable image, complete site/Rust/static replay, focused Chapter 26
+checks, and full Chromium/Firefox rendered and localization matrices are
+required. English remains the unchanged canonical semantic source, and the
+Russian surface must be rendered again rather than inferred safe.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T030337Z-distinguish-ch39-window-slot-perplexity-09`, and the new run 10.
+
+## 2026-08-10 - Tile oversized rendered-audit pages instead of shrinking them
+
+**Status:** Accepted after immutable run 10 reached the final Firefox
+rendered/localization capture and before any run 11 diagnostic byte is written.
+
+**Context:** Run 10's corrected Chapter 26 product passes the complete exact
+Rust, site, static, Chromium, and Firefox gates. Its frozen rendered probe also
+passes all thirteen adversaries and every audited product surface in Chromium.
+Firefox completes the same product assertions through the English
+no-JavaScript page, then rejects the Russian no-JavaScript `fullPage` screenshot
+because one output bitmap would exceed Firefox's 32,767-pixel protocol limit.
+The no-JavaScript page and figure audits report no semantic, containment,
+overflow, concealment, scale, or travel problem before capture. Exact evidence
+measures the successful English Firefox page at 26,055px tall, while the
+corresponding Russian page is naturally taller; Chromium's complete Russian
+artifact is 34,506px. Making Russian text smaller, clipping the page, weakening
+the audit, or treating a missing capture as success would violate the course's
+localization and rendered-evidence rules.
+
+**Decision:** Preserve run 10 as failed and create a new diagnostic-only run.
+Keep every product assertion and the separate no-JavaScript sheet capture
+unchanged. Replace only the oversized no-JavaScript full-page bitmap with a
+deterministic series of contiguous document-coordinate tiles, each no taller
+than 8,192px. Record and require a stable positive document width and height,
+exact ordered coverage of `[0, documentHeight)` with no gap or overlap, positive
+tile dimensions, and a final tile ending at the measured document height.
+Generate the same tiled evidence in Chromium and Firefox so cross-engine review
+uses one capture policy. Any height change during capture, missing tile,
+out-of-order interval, or screenshot failure remains fail-loud.
+
+Reuse the immutable e1b7 product image and its exact 28-file manifest only after
+the new run fingerprints and reverifies canonical, staging, image, and fresh
+volume equality. Do not reuse the failed run's browser volume. Re-run the
+changed probe once per engine and repeat the exhaustive JSON, tile, contact-sheet,
+original-resolution, localization, and final integrity reviews before
+completion.
+
+**Consequences:** Long Russian pages remain at their natural readable size and
+the audit gains inspectable complete-page evidence without depending on one
+browser-specific maximum bitmap dimension. Product, lesson, formula, trace,
+locale revision, and static-site bytes do not change; only run-scoped diagnostic
+capture bytes and their manifests change. Run 10's complete product matrices
+remain valid immutable evidence for the same exact product image, while run 11
+must independently prove the new tiling logic and both rendered runtimes.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T033540Z-distinguish-ch39-window-slot-perplexity-10`, and the new run 11.
+
+## 2026-08-10 - Capture rendered pages through their stable viewport formatting context
+
+**Status:** Accepted after immutable run 11 stopped at its first Chromium
+capture and the capture primitive was isolated read-only, before any run 12
+diagnostic byte is written.
+
+**Context:** Run 11 applied its new stability gate to the first ordinary English
+page as well as to the oversized no-JavaScript surface. The page passed its
+semantic and geometry audits and emitted the same `1440x14547` PNG as the
+known-good run 10 capture, byte for byte. Immediately afterward, however, the
+document height persisted at `14680`, an increase of 133px, so the new gate
+correctly stopped Chromium and prevented Firefox from starting.
+
+Pinned read-only reproduction exonerates product CSS, asynchronous readiness,
+and animation suppression. Both allowed and disabled animation modes reproduce
+the transition, while a viewport screenshot and a manual viewport-height round
+trip leave the document at 14,547px. Chromium's full-page document capture
+changes the effective platform monospace used by long Rust-caption/code text
+from `WenQuanYi Zen Hei Mono` to `Liberation Mono` despite the same computed
+font stack. One 61-glyph path widens from 366px to about 439.27px; its rendered
+code width grows from about 375.59px to 448.88px and its caption gains about
+36.91px of wrapping. Related wraps add about 52.19px before the diagram, the
+Chapter 39 figure gains about 43.69px, and the main/root total increases by
+132.78px, rounded to the observed 133px. This is an invasive full-page capture
+state, not learner layout under the configured viewport.
+
+**Decision:** Preserve run 11 as failed and create a fresh diagnostic-only run.
+Remove `fullPage` capture from the run-scoped probe entirely. Capture every
+ordinary and no-JavaScript page through its actual configured responsive
+viewport: freeze positive stable document/client dimensions after fonts and two
+animation frames; divide `[0, documentHeight)` into ordered positive intervals
+whose height does not exceed the current client height (and therefore remains
+below the existing 8,192px ceiling); scroll to each exact interval start; and
+take a viewport-relative clip at `x=0`, `y=0`, `width=clientWidth`, and the
+interval height. When the final remainder is shorter than the viewport,
+rebalance the predecessor and make the final interval
+`[documentHeight-clientHeight, documentHeight)` so every start is reachable.
+
+Require the actual scroll position, unchanged geometry before and after each
+capture, exact PNG/IHDR dimensions, test-wide filename uniqueness, adjacent
+gapless and nonoverlapping coverage, the independently reachable document end,
+and restoration to `scrollY=0`. Use the same algorithm in Chromium and Firefox.
+Keep all product assertions, the separate sheet/figure captures, the exact
+product image, and every canonical byte unchanged. Do not adopt the 133px
+post-capture state, relax stability, suppress wrapping, substitute a font,
+resize the viewport, or treat a missing page interval as acceptable.
+
+**Consequences:** Rendered evidence is more granular but represents one stable
+responsive formatting context rather than a browser-specific full-page
+compositor side effect. Long Russian pages remain naturally sized, and ordinary
+pages no longer mutate before their subsequent figure evidence is captured.
+Run 12 must fingerprint the exact run 11 failure/classification, prove the
+interval algorithm and viewport-relative coordinate semantics, collect one
+probe per engine, create a fresh snapshot volume, and execute Chromium then
+Firefox without retry before any cleanup or completion.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T042607Z-distinguish-ch39-window-slot-perplexity-11`, and the new run 12.
+
+## 2026-08-10 - Select the run-scoped browser through Playwright's browser option
+
+**Status:** Accepted after immutable run 12 stopped before starting Chromium or
+creating a test result, and before any run 13 command or volume is created.
+
+**Context:** Run 12 successfully froze and audited the viewport-relative capture
+probe, exact product reuse, and a fresh 28-file snapshot. Its first browser
+command then passed `--project=chromium`. The run-scoped Playwright configuration
+defines one unnamed project, so the CLI rejected that selector and listed the
+empty project name. No browser process, test attempt, metrics record, screenshot,
+or product assertion ran, and the fail-fast contract correctly prevented a retry
+and prevented Firefox from starting. The already frozen Chromium and Firefox
+collection commands select the engines with `--browser=chromium` and
+`--browser=firefox`; neither collection defines or depends on a named project.
+
+**Decision:** Preserve run 12 as failed and create a fresh command-only run. Reuse
+the exact `1225e2df...` probe, its verified six-entry bundle, immutable e1b7
+product image, 28-file manifest, and run 10 green product evidence only after a
+new fingerprint and equality preflight. Freeze the exact Chromium and Firefox
+argument vectors before creating the new snapshot. Each vector must name the
+single probe path, select its engine with `--browser`, use one worker, zero
+retries, one maximum failure, and external reporters/output; it must contain no
+`--project` option. Compare these locked selectors and test counts with the
+existing collection JSON, then execute Chromium once followed by Firefox once
+under the existing network-none, fail-fast, postseal, exhaustive evidence, and
+bilingual-review policy.
+
+Create a fresh labeled `-13` snapshot after proving it absent and copy the exact
+image once. Preserve `-12` and every earlier run and volume until the new run
+passes. Do not change a product byte, learner copy, localization, formula, trace,
+test assertion, capture helper, tolerance, browser version, or viewport in order
+to correct this orchestration error.
+
+**Consequences:** The next runtime attempt exercises the already audited probe
+and product rather than changing either one. Run 12 remains durable evidence of
+the selector mistake and clean snapshot restoration, while run 13 must provide
+new command-lock, fresh-volume, Chromium, Firefox, rendered/localization,
+postseal, cleanup, and completion evidence. The build remains at 20 spent until
+the step succeeds.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T050406Z-distinguish-ch39-window-slot-perplexity-12`, and the new run 13.
+
+## 2026-08-10 - Bind the browser command executable to the runtime image
+
+**Status:** Accepted after immutable run 13 stopped at OCI process creation and
+before any run 14 fingerprint, command lock, volume, or browser execution.
+
+**Context:** Run 13 corrected the Playwright engine selector and mechanically
+bound the rest of each argv to the final collection record. The collection ran
+inside the e1b7 workspace image, where Node was recorded as
+`/usr/local/bin/node`. The browser runtime uses the separately pinned
+Playwright 1.61.1 image. OCI could not create the first Chromium process because
+that absolute path is absent there, returned status 127, and stopped before a
+container process, browser, test, result, metric, or screenshot existed. The
+fail-fast policy prevented command substitution, retry, and Firefox execution.
+
+Read-only inspection of the exact pinned runtime image resolves `node` to the
+regular executable `/usr/bin/node`, mode 0755, size 123,459,976 bytes, SHA-256
+`62d66443847de1f527f74afe715900b12884ace52136dc9cd8e91e61acc2f527`,
+version `v24.17.0`; `/usr/local/bin/node` is absent. The mounted workspace's
+Playwright launcher is the executable symlink
+`node_modules/.bin/playwright -> ../@playwright/test/cli.js`; its resolved
+1.61.1 CLI has a portable `#!/usr/bin/env node` shebang. Using `npx` would add
+unneeded resolver behavior and is less exact than invoking the verified runtime
+Node binary with that unchanged launcher.
+
+**Decision:** Preserve run 13 as failed and create a fresh command-only run.
+Derive the next Chromium and Firefox argv from the already correct run 13 lock,
+replacing only argv element zero with `/usr/bin/node`. Keep the launcher, test
+path, `--browser` selectors, worker/retry/failure settings, external output,
+reporters, environment, mounts, order, product image, and frozen probe exact.
+The new command validator must prove that the sole argv delta is element zero,
+reject both `/usr/local/bin/node` and every `--project` form, and bind the exact
+runtime executable facts above.
+
+Before creating the fresh snapshot, run a browser-free, network-disabled check
+inside the pinned Playwright image for `/usr/bin/node --version`, binary
+identity, absence of `/usr/local/bin/node`, and the mounted launcher's symlink,
+resolved hash, shebang, executable mode, and Playwright 1.61.1 package identity.
+After the fresh copy, an exact browser-free `--version` or collection gate may
+prove that the locked prefix and mounted launcher execute together. Only then
+may the single Chromium attempt begin, followed by Firefox only after Chromium
+passes. Preserve `-13` and every earlier volume until complete success; create a
+fresh labeled `-14` after proving it absent.
+
+**Consequences:** The next run corrects only an environment-specific executable
+path; no learner, product, probe, assertion, viewport, tolerance, formula,
+trace, dependency, or browser-version byte changes. Run 13 remains durable
+evidence of the pre-process portability error and clean snapshot restoration.
+Run 14 must independently provide executable/launcher locks, fresh-volume,
+Chromium, Firefox, rendered/localization, postseal, cleanup, completion, and
+commit evidence. The build stays at 20 spent until success.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T053123Z-distinguish-ch39-window-slot-perplexity-13`, and the new run 14.
+
+## 2026-08-10 - Bind no-JavaScript capture to one stable document identity
+
+**Status:** Accepted after immutable run 14 stopped at its first no-JavaScript
+capture and before any run 15 diagnostic byte is written.
+
+**Context:** Run 14 proved the corrected runtime command, launched Chromium, and
+completed the adversarial gates, ordinary English/Russian desktop and narrow
+pages, shared routes, full view, forced colors, RTL, and cheat-sheet captures.
+On the first English no-JavaScript page, the response, page audit, figure audit,
+absence of the full-view control, and localized terminology checks passed. The
+capture helper then called the ordinary asynchronous `settle()` sequence
+(`document.fonts.ready` plus two animation frames) and Playwright reported that
+the execution context was destroyed by a navigation. Retry zero and the
+single-failure boundary stopped Chromium and prevented Firefox from launching.
+
+The frozen run did not record main-frame navigation events, so the source of
+that navigation is underdetermined and must not be labeled a product defect.
+Static inspection finds the canonical slash URL, no meta refresh, plain fallback
+summary markup, and no executable page script in a context created with
+`javaScriptEnabled: false`. Catching the exception, retrying evaluation, adding
+an arbitrary delay, or weakening geometry checks would hide document replacement
+rather than proving which document was captured.
+
+**Decision:** Preserve run 14 as failed and create a fresh diagnostic-only run.
+Keep the existing asynchronous `settle()` byte-identical for JavaScript-enabled
+pages. Allow the shared page-capture helper to receive an explicit readiness
+function, and use a no-JavaScript-specific readiness/identity gate only for the
+two fallback pages. After `waitForLoadState('load')`, perform one synchronous
+page-world read requiring `document.readyState === 'complete'`,
+`document.fonts.status === 'loaded'`, the exact locale-specific canonical URL,
+and a positive document identity token containing `href` and
+`performance.timeOrigin`. Do not await `document.fonts.ready` or animation
+frames inside the no-JavaScript document.
+
+Record main-frame `framenavigated` URLs around each no-JavaScript `goto` and
+require exactly one expected new-document navigation for that locale, with no
+navigation event during page capture. Carry the identity token through every
+geometry read and compare it before and after each screenshot, the maximum-scroll
+proof, and restoration. Retain every existing URL/response, page, figure,
+no-toggle, text, formula, geometry, scroll, PNG/IHDR, filename, interval coverage,
+end-reachability, and restoration assertion. A context loss, second navigation,
+same-URL reload (different `timeOrigin`), URL drift, incomplete readiness, font
+status change, geometry change, or identity change remains a hard failure; never
+catch or retry it.
+
+Freeze a source lock proving all product assertions and the JavaScript-enabled
+path are unchanged. Add negative gates for ordinary settle on no-JavaScript,
+JavaScript accidentally enabled, missing ready/font/URL/time-origin/navigation
+checks, catch/retry logic, and any product-assertion delta. Reuse the exact e1b7
+product image and the proven run 14 executable/command lock only after a new
+fingerprint and checksum audit; create fresh labeled `-15` after proving it and
+never-used `-06` absent. Execute Chromium once and Firefox once only under the
+existing fail-fast rendered/localization policy.
+
+**Consequences:** The diagnostic distinguishes one stable fallback document from
+a replaced context without inventing a timeout or relaxing product acceptance.
+No product, learner, localization, formula, trace, viewport, tolerance,
+dependency, or browser-version byte changes. Run 14 remains immutable partial
+evidence, including its 183 screenshots and exact pre-failure coverage. Run 15
+must independently validate the new no-JavaScript source locks, fresh snapshot,
+both browsers, complete tiled evidence, localization review, postseal, cleanup,
+completion, and commit. The build remains at 20 spent until success.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T055216Z-distinguish-ch39-window-slot-perplexity-14`, and the new run 15.
+
+## 2026-08-10 - Correct the run 14 capture boundary to the recorded observation
+
+**Status:** Accepted as an append-only precision correction before any run 15
+browser attempt.
+
+**Context:** The preceding no-JavaScript capture decision says that Playwright's
+execution context was destroyed "by a navigation" and then discusses the source
+of that navigation. Run 14 recorded only Playwright's generic
+execution-context-destroyed error. It did not record main-frame navigation
+telemetry, and its own classification correctly says that the cause is
+underdetermined. The stronger wording therefore exceeds the preserved evidence.
+
+**Decision:** Supersede only that causal wording. The exact observation is that
+the first English no-JavaScript capture's asynchronous settle reported
+execution-context destruction, with no navigation telemetry; Chromium stopped
+with retry zero and Firefox did not start. Navigation, reload, document
+replacement, browser readiness behavior, and product behavior remain hypotheses
+until an instrumented run distinguishes them. Preserve all run 14 bytes and the
+fail-loud run 15 identity checks.
+
+**Consequences:** No product, probe, artifact, validation, lifecycle, or queue
+fact changes. Future summaries and acceptance decisions must not attribute the
+run 14 failure to navigation unless new recorded evidence establishes that
+cause.
+
+**Affected step and runs:** `distinguish-ch39-window-slot-perplexity`,
+`20260810T055216Z-distinguish-ch39-window-slot-perplexity-14`, and
+`20260810T063745Z-distinguish-ch39-window-slot-perplexity-15`.
+
+## 2026-08-10 - Make a laptop-feasible functional LLM the course endpoint
+
+**Status:** Accepted from the user's high-priority curriculum correction and
+explicit queue-disposition approval.
+
+**Context:** The current 40-chapter path is a coherent from-first-principles
+reference implementation, but its capstone is an integration proof: eight BPE
+merges, one width-four one-head block, a context of four, 1,188 parameters, 32
+updates, twelve curated documents, CPU-only `f64` scalar kernels, deterministic
+fixtures, and no claim of useful prose or generalization. Read across the whole
+course, its title and final objective can nevertheless imply that this endpoint
+is representative of building and operating a real LLM.
+
+The user's audit identifies material omissions in data preparation, tokenizer
+behavior, variable-length batches and padding, accelerator training, complete
+trainer resume, modern attention, realistic evaluation, decoding, KV-cache
+serving, post-training, applications, safety, quantization, and distributed or
+mixture-of-experts systems. A preliminary independent inventory also finds no
+device/dtype abstraction, packed-document isolation, standard model/tokenizer
+interchange, memory-mapped or sharded weights, gradient accumulation, activation
+checkpointing, warmup/decay scheduling, throughput and memory budgets,
+multi-seed uncertainty, task benchmarks, streaming Unicode-safe output,
+structured/constrained generation, continuous batching, cache allocation and
+eviction, cancellation/backpressure, LoRA-style adaptation, retrieval/tool
+boundaries, or operational observability. These are not all required inside the
+same minimal implementation, but they must be taught, implemented, or explicitly
+bounded before the course can claim a functional modern-LLM endpoint.
+
+**Decision:** Preserve Chapters 0--39 and their course-owned Rust as the
+**reference core**: they illuminate each algorithm with small exact values and
+remain valuable executable evidence. They are no longer the final claim. After
+the current Chapter 39 metric correction, the remaining independent
+theory/evidence corrections, their closure, and the Chapter 2 BPE cheat-sheet
+prerequisite are complete, append a new audit-first build whose observable
+endpoint is a production-shaped, laptop-feasible functional LLM path.
+
+That build must begin with a course-wide capability audit rather than treating
+the supplied list as exhaustive. Its design step must then insert exact,
+independently verifiable implementation and bilingual-content steps before its
+guarded closure. At minimum the designed path must cover:
+
+- licensed, provenance-recorded, filtered, deduplicated, decontaminated,
+  sharded/streamed data with scalable tokenization and quality evidence;
+- production-shaped tokenizer controls, padding, variable-length batching,
+  packing, loss masks, and document-isolation masks;
+- a Rust accelerator path with explicit device, dtype, memory, mixed-precision,
+  accumulation, checkpointing, clipping, schedule, and deterministic-state
+  contracts, while retaining the scalar reference path as the oracle;
+- modern attention/context choices, including at least grouped-query or
+  equivalent KV sharing, exact memory-efficient attention plumbing, rotary
+  context policy, padding masks, and bounded long-context behavior;
+- full-job atomic checkpoint/resume containing corpus/tokenizer identity, data
+  cursor and shuffle state, every RNG, optimizer/scaler/schedule state, policies,
+  validation history, and an interrupted-versus-uninterrupted equivalence proof;
+- conventional corpus evaluation plus multiple seeds or uncertainty, held-out
+  and contamination evidence, task-level behavior, memorization/privacy and
+  safety checks, and explicit metric denominators;
+- standard configuration/tokenizer/weight interchange, memory-bounded loading,
+  quantized local inference, Unicode-safe streaming, modern sampling and
+  constrained/structured output;
+- request batching, continuous scheduling, bounded/paged KV ownership, prefix
+  reuse and eviction, cancellation/backpressure, and observable local serving;
+- supervised/chat adaptation, role templates and loss masks, parameter-efficient
+  tuning, preference/safety evaluation, retrieval, tools, and prompt-injection or
+  trust-boundary handling; and
+- clearly labeled advanced extensions for distributed data/tensor/pipeline
+  execution and mixture-of-experts when full multi-device execution cannot be
+  honestly validated on the target laptop.
+
+The hardware acceptance floor is one laptop with an RTX 4070-class GPU and an
+8 GB VRAM budget. The course need not train a competitive general-purpose model
+from scratch. It must, however, demonstrate two honest endpoints: a small
+narrow-domain model trained and resumed locally far enough to exhibit evaluated
+held-out behavior, and an interoperable open small pretrained model adapted and
+served locally to exercise capabilities that a laptop cannot economically learn
+from scratch. Every resource, dataset, license, download, duration, peak host
+RAM, peak VRAM, throughput, and quality limitation must be recorded. No lesson
+may equate production-shaped functionality with production scale, safety,
+reliability, or state-of-the-art quality.
+
+General-purpose GPU tensor, serialization, networking, compression, and CLI
+libraries may be selected during design as supporting plumbing. They must not
+provide a ready-made transformer, trainer, sampler, cache scheduler, or other
+learner-facing decision. The existing course-owned scalar algorithms remain the
+correctness oracle, and every newly selected dependency must follow the recorded
+role, feature, graph, lock, and allowlist policy. English remains canonical;
+Russian is refreshed directly from each frozen English revision with the
+localization workflow and complete rendered review.
+
+The user explicitly directs the queue to discard unrelated pending work. Mark
+the 23 remaining diagram-only steps from `repair-ch17-full-view-travel` through
+`close-all-diagram-rendering-findings`, `add-arrow-key-chapter-navigation`, and
+the two ledger-compaction steps as `skipped`. Preserve their definitions and
+history; do not claim they were completed. Retain the current Chapter 39 step,
+the five remaining theory corrections plus their closure, and
+`add-ch02-bpe-cheat-sheet-term`. Rewire that BPE content step directly after the
+theory/evidence closure, then place the functional-LLM build at the end of the
+retained queue.
+
+**Consequences:** The current tiny model is not deleted or inflated beyond its
+pedagogical purpose; its positioning becomes honest and it supplies executable
+oracles for the scalable path. The diagram, keyboard-navigation, and ledger
+maintenance containers remain in the ledger with skipped steps under explicit
+human approval. The new build owns the broader audit, extension architecture,
+future exact implementation steps, bilingual publication, laptop GPU evidence,
+and final closure. Network downloads and substantial local CPU/GPU work become
+explicit step inputs and costs rather than hidden validation side effects.
+
+**Affected builds and steps:**
+`repair-and-audit-diagram-rendering-20260808`,
+`add-keyboard-chapter-navigation-20260808`,
+`explain-ch02-bpe-in-cheat-sheet-20260808`,
+`compact-operational-ledgers-20260808`, and
+`extend-course-to-functional-laptop-llm-20260810`.
+
+## 2026-08-10 - Make the functional-laptop acceptance gates fail loudly
+
+**Status:** Accepted during the independent read-only review of the newly queued
+build, before its audit step starts or any product, network, dependency, dataset,
+model, or GPU input changes.
+
+**Context:** The first queue record covers every major capability domain but
+contains several phrases that could admit an educational false pass. A
+learner-facing operation could be external and merely cross-checked; packing
+could omit position semantics or valid-gradient equivalence; "preference
+evaluation" could avoid implementing preference training; "modern sampling"
+and "batched serving" could pass without exact request lifecycle behavior; a
+single seed could be paired with an uncertainty interval; and "deterministic
+resume" could overpromise bitwise equality for nondeterministic GPU reductions.
+The resource contract also needs to distinguish small official-source lookups
+from bulk artifact acquisition and to require an algorithm-qualified
+cryptographic digest.
+
+**Decision:** Course ownership and differential validation are cumulative, not
+alternatives. The course-owned Rust must implement every taught masking,
+packing, position, attention/online-softmax, GQA/KV-sharing, quantization, LoRA,
+preference, sampling, and cache-scheduling decision. A GPU library may provide
+general allocation, transfer, GEMM, storage, and primitive tensor dispatch; the
+accelerated formulation must additionally pass the scalar-reference contract
+and prove that no hidden CPU fallback supplied the result.
+
+Make depth-aware initialization or residual scaling, explicit packed segment
+and position policy, no-cross-document targets/attention, and equivalence of
+unpadded, padded, and packed logits plus valid-token losses and gradients
+mandatory. Require one bounded course-owned direct-preference objective such as
+DPO after LoRA/SFT; reward-model training and PPO-scale RLHF may remain an
+advanced extension. Require multiple fixed training seeds **and** a declared
+spread/uncertainty summary on a resource-bounded profile. Freeze seeds and every
+quality, memory, latency, and equivalence threshold before held-out/test results
+are observed.
+
+For resume, require bitwise continuation from the CPU/reference backend. On the
+GPU, require exact restoration of data cursor, sampler, all RNG streams,
+accumulation state, policy state, and event sequence; use deterministic kernels
+where supported and otherwise a predeclared numeric contract. Do not relabel a
+numeric GPU continuation as bitwise deterministic.
+
+Generation acceptance must test the exact top-p cumulative set, penalties
+without mutation of reusable logits, stop strings spanning token boundaries,
+per-token log probabilities, Unicode-safe streaming, and independent request
+RNG. Serving acceptance must test serial/batched equivalence, continuous
+admission and independent completion, cache ownership isolation,
+cancellation/reclamation, bounded queues, timeouts, slow-client backpressure,
+and observable resource/latency evidence.
+
+Official papers, specifications, licenses, and model/dataset metadata may be
+looked up only in the declared audit and resource-contract steps. A later
+design-created **bulk artifact acquisition** step is the sole phase permitted to
+fetch corpora, model weights, newly locked crates/CUDA artifacts, or other large
+inputs. It must stage partial inputs, record resume/retry provenance, and verify
+SHA-256 identities for source files, weights, tokenizers/configs, license text,
+filter code, and manifests before atomic publication and offline reuse.
+
+Each new queue step owns an executable non-interactive validator rather than a
+prose-only validation label. The design step must replace the guarded closure's
+initial commands and dependency with the exact final implementation matrix
+before it can complete.
+
+**Consequences:** The queued build cannot satisfy the user's request with a
+wrapper around a ready-made model, a padding-only batch, an evaluation-only
+alignment chapter, a single convenient seed, an after-the-fact threshold, or a
+batch-one server labeled production-shaped. These refinements change only the
+pending acceptance ledger; they do not select a dependency, dataset, model, or
+implementation before the audit and resource contract.
+
+**Affected build and steps:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`,
+`define-functional-laptop-llm-resource-contract`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`close-functional-laptop-llm-curriculum-extension`.
+
+## 2026-08-10 - Permit PostgreSQL as persistence plumbing when the capability audit justifies it
+
+**Status:** Accepted from explicit user authorization before the functional
+laptop audit begins.
+
+**Context:** The functional training, evaluation, serving, retrieval, and
+observability path may need durable relational metadata or application state.
+That need has not yet been established: model weights, checkpoints, tokenizer
+artifacts, corpus shards, and reproducible run manifests are often better kept
+as portable immutable files, while concurrent request, evaluation, lineage, or
+retrieval metadata may benefit from transactions and indexed queries. The user
+authorizes the latest PostgreSQL, Dockerfile/Compose integration, required
+extensions, and mature PostgreSQL-related Rust crates; the PostgreSQL protocol
+and general database access are not learner-facing LLM algorithms and need not
+be reimplemented.
+
+As of this decision, PostgreSQL's official version policy lists 18.4 as the
+current stable minor of major 18 and PostgreSQL 19 only as beta. "Latest" means
+the latest stable supported minor resolved when the implementation step is
+fingerprinted, not a floating `latest` image tag and not a beta or release
+candidate.
+
+**Decision:** The capability audit must first identify each datum that needs
+persistence, its ownership, durability, portability, concurrency, retention,
+privacy, backup, and recovery requirements. Prefer immutable files where they
+are the more reproducible contract. If relational persistence is justified,
+the resource contract and design must insert exact database steps that:
+
+- pin the latest stable PostgreSQL minor and immutable container digest at that
+  step's start, record the official version evidence, and forbid an unpinned
+  floating tag;
+- provide repository-owned Dockerfile/Compose configuration, deterministic
+  initialization and migrations, readiness/health checks, least-privilege
+  roles, noncommitted secrets, a durable named volume, explicit resource
+  limits, and network exposure no broader than the learner-run local workflow;
+- install only extensions required by accepted capabilities, with each
+  extension's exact version, source, license, image/build provenance, migration,
+  and compatibility recorded;
+- test clean bootstrap, concurrent access, restart durability, backup/restore,
+  corruption refusal, schema upgrade and rollback, and deletion/retention
+  behavior before publication;
+- keep portable model, tokenizer, corpus, checkpoint, and adapter artifacts
+  reconstructible independently of database internals; and
+- keep the course website deployable as static HTML. PostgreSQL may support a
+  learner-run Rust trainer, evaluator, retrieval lab, or local serving binary,
+  but it is never required to render or host the published course.
+
+Any mature Rust PostgreSQL client, connection pool, migration library, query
+builder, or ORM may be selected as proportional plumbing. The dependency's
+features and complete graph still require pinning, allowlisting, and a recorded
+role. Application-specific schemas and the experiment/resume/request isolation,
+authorization, retention, and recovery invariants remain course-owned Rust and
+tests.
+
+**Consequences:** The course will not handwrite a database protocol or add a
+database merely to appear production-like. It can nevertheless teach and prove
+real durable behavior when a relational store materially improves the accepted
+capability. The exact PostgreSQL version, extensions, Rust crates, schemas, and
+owned paths remain deliberately undecided until the audit and resource contract
+establish the need and reproducibility boundary.
+
+**Affected build and steps:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`,
+`define-functional-laptop-llm-resource-contract`,
+`design-functional-laptop-llm-curriculum-extension`, and any later
+design-created persistence implementation or closure step.
+
+## 2026-08-10 - Teach PostgreSQL through a course-owned persistence boundary
+
+**Status:** Accepted as a clarification of the immediately preceding
+PostgreSQL authorization.
+
+**Context:** The user permits PostgreSQL to be an explicit implementation
+example in the course, provided implementation details are abstracted where
+needed. Treating PostgreSQL only as invisible infrastructure would miss useful
+lessons about durable experiment, evaluation, retrieval, or request state;
+coupling every trainer or serving operation directly to SQL/client types would
+instead obscure the LLM and lifecycle concepts and make deterministic testing
+needlessly dependent on a database process.
+
+**Decision:** If the capability audit selects a relational persistence use
+case, teach PostgreSQL as the concrete reference adapter behind a narrow
+course-owned domain interface. The interface names only required operations and
+their transaction, idempotency, isolation, retention, and recovery semantics.
+Provide a deterministic in-memory or immutable-file implementation as the
+small test oracle, then prove the PostgreSQL implementation has equivalent
+observable behavior, including concurrency and failure cases. Keep model math,
+batching, training, checkpoint artifacts, evaluation denominators, retrieval
+policy, request scheduling, and cache ownership independent of PostgreSQL
+client, SQL, and extension types.
+
+The abstraction must remain proportional: do not invent a universal storage
+framework, hide PostgreSQL-specific capabilities that the lesson intentionally
+teaches, or force every artifact through relational rows. Learner material may
+show schemas, constraints, indexes, transactions, migrations, query plans, and
+extension behavior when they are relevant to the accepted persistence
+requirement. Mature Rust PostgreSQL crates remain authorized plumbing for the
+wire protocol, pooling, migrations, mapping, and query construction.
+
+**Consequences:** Students can inspect a real, durable PostgreSQL implementation
+and still understand which invariants belong to the LLM system rather than to a
+particular database. Deterministic unit tests remain fast and offline; Compose
+integration, recovery, and concurrency tests validate the concrete adapter; the
+published site stays static.
+
+**Affected build and steps:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`define-functional-laptop-llm-resource-contract`,
+`design-functional-laptop-llm-curriculum-extension`, and any design-created
+persistence lesson, Rust adapter, integration, or closure step.
+
+## 2026-08-10 - Use Firefox as the sole browser-validation engine
+
+**Status:** Accepted from explicit user direction while the Chapter 39 run 15
+browser matrix was in progress.
+
+**Context:** The repository has historically required both Chromium and Firefox
+for rendered and browser validation, and Playwright currently defaults to
+Chromium when no project is selected. During run 15, Chromium had already
+completed successfully before the user directed that every browser-required
+test use only Firefox. Firefox had not started at that policy boundary. The
+subsequent sole-required Firefox attempt failed once on a diagnostic
+font-readiness timing assumption; that failure and the earlier Chromium pass
+remain immutable chronological evidence.
+
+**Decision:** From the user's policy timestamp onward, Firefox is the only
+browser that may be required, configured, collected, or launched by a current
+or future browser-validation gate. Chromium and WebKit are not fallback,
+secondary, smoke, or parity requirements. Existing completed, failed,
+interrupted, invalidated, and skipped run histories remain byte-for-byte
+historical evidence and must not be rewritten; a historical Chromium result
+cannot satisfy a new Firefox gate.
+
+Finish the current Chapter 39 correction with a fresh Firefox-only run. Then
+complete and commit the independent
+`enforce-firefox-only-browser-validation` step before the remaining theory and
+functional-laptop curriculum work. That step must configure one explicit
+Firefox Playwright project, make the canonical end-to-end script select it,
+remove live dual-engine requirements from authoring/localization rules,
+chapter contracts, active and pending ledger criteria, and engine-conditional
+test branches, and add a fail-loud policy test. It must exclude immutable run
+history, past decisions, archived audits, and skipped step definitions from
+mechanical rewriting.
+
+**Consequences:** Browser validation becomes cheaper and has one unambiguous
+engine contract. Cross-engine portability is no longer claimed or tested.
+Desktop, narrow, no-JavaScript, forced-colors, direction-sensitive,
+accessibility, containment, full-view, and localization coverage remain
+required where applicable; only the browser engine changes. The Chapter 39
+run 15 Chromium pass is retained solely as pre-policy evidence, while its
+Firefox failure requires a new diagnostic-only Firefox run without retrying or
+relabeling run 15.
+
+**Affected build and steps:**
+`repair-and-audit-diagram-rendering-20260808`,
+`distinguish-ch39-window-slot-perplexity`,
+`enforce-firefox-only-browser-validation`, every retained pending browser-gated
+step, and `extend-course-to-functional-laptop-llm-20260810`.
+
+## 2026-08-10 - Support interactive course UI only with JavaScript enabled
+
+**Status:** Accepted from explicit user direction while the Firefox-only
+Chapter 39 run 16 was awaiting its first no-JavaScript font-ready boundary.
+
+**Context:** The published course is built as complete static HTML, so crawlers
+and other non-interactive consumers receive the lesson text, formulas, semantic
+figures, links, and metadata without a server application. The repository also
+maintained a second browser acceptance path with JavaScript disabled, including
+special cheat-sheet fallback UI and repeated no-JavaScript rendered captures.
+That path added substantial runtime and timing complexity without representing
+a supported learner interaction mode. The user explicitly removed support and
+testing for no-JavaScript UI environments.
+
+**Decision:** Browser-facing course UI is supported only when JavaScript is
+enabled. Remove current and future `javaScriptEnabled: false` browser cases,
+no-JavaScript-only capture/readiness/navigation helpers, special interactive
+fallback markup and copy, and live authoring or chapter-contract requirements
+for a separate no-JavaScript UI. Do not replace them with another disabled-
+script smoke test. The static production build, built-HTML content/formula/
+figure assertions, link/SEO checks, and semantic HTML remain the crawler-facing
+guarantee; they do not claim interactive behavior without JavaScript.
+
+Preserve immutable historical run artifacts and ledger history. Interrupt run
+16 rather than failing or retrying it because its acceptance was superseded
+during the only Firefox attempt. Finish the current Chapter 39 correction in a
+fresh Firefox-only run whose rendered probe contains only JavaScript-enabled
+desktop, narrow, full-view, forced-colors, direction-sensitive, accessibility,
+containment, localization, and cheat-sheet surfaces. Fold the repository-wide
+policy and canonical-test cleanup into
+`enforce-firefox-only-browser-validation`; do not add a separate recurring
+no-JavaScript validation step.
+
+**Consequences:** The course keeps its static deployment and crawlable lesson
+content while eliminating a learner UI mode the product does not support.
+Accessibility, keyboard operation, localization, responsive containment, and
+progressive full-view behavior remain mandatory in the supported JavaScript-
+enabled Firefox environment. Earlier decisions that required no-JavaScript
+browser/fallback validation are superseded only for future and live policy;
+their historical evidence is not rewritten.
+
+**Affected build and steps:**
+`repair-and-audit-diagram-rendering-20260808`,
+`distinguish-ch39-window-slot-perplexity`,
+`enforce-firefox-only-browser-validation`, every retained pending browser-gated
+step, and `extend-course-to-functional-laptop-llm-20260810`.
+
+## 2026-08-10 - Add a bounded transient-network retry runner, not a new skill
+
+**Status:** Accepted from explicit user direction for subsequent queued work.
+
+**Context:** Later functional-LLM steps may fetch official specifications,
+licensed datasets, model artifacts, crates, CUDA components, or PostgreSQL
+images under their declared resource contracts. Repeating an entire agent run
+after a transient DNS, connection, timeout, rate-limit, or service failure is
+costly. A general retry wrapper can reduce that cost, but indiscriminate retry
+would hide deterministic test failures, browser defects, authentication and
+license refusals, checksum mismatches, out-of-memory failures, or invalid
+commands.
+
+**Decision:** Implement one repository-owned command runner plus concise
+instructions; a separate Codex skill is unnecessary. The runner executes an
+argv array directly without `eval` or shell reparsing, captures every attempt's
+stdout/stderr and exit code, uses a small explicit maximum and deterministic
+capped backoff, and retries only when a fail-closed classifier positively
+identifies a transient network condition. The allowlist may cover temporary
+DNS resolution, connect/reset/transport/TLS timeouts, and HTTP 408, 425, 429,
+500, 502, 503, or 504. Explicit denials take precedence for assertions, compile
+or type errors, browser failures, signals/interruption, OOM, authentication or
+authorization, 401/403/404, license/policy refusal, and checksum or integrity
+failure, even if the log also contains network-looking text.
+
+Test the runner with deterministic local fake commands: prove attempt counts,
+backoff decisions, argv preservation, per-attempt logs, final output/exit
+propagation, success after an allowed transient failure, exhaustion, and every
+non-retry class without making a network request. Networked steps must opt in
+explicitly and retain their own provenance, checksum, partial-download, and
+atomic-publication rules; the runner never makes an otherwise forbidden
+network input permissible.
+
+**Consequences:** Subsequent declared network operations can survive bounded
+transient infrastructure faults without concealing product or evidence
+failures. The implementation is ordinary repository tooling governed by
+AGENTS.md and its tests, not persistent conversational behavior or a broad
+automatic retry policy.
+
+**Affected build and steps:**
+`repair-and-audit-diagram-rendering-20260808`,
+`add-bounded-network-retry-runner`, and all later steps that explicitly declare
+and invoke the runner.

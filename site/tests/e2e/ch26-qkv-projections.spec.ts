@@ -169,8 +169,14 @@ async function expectFormulaGeometry(page: Page) {
   expect(problems).toEqual([]);
 }
 
-async function expectDiagramContainment(page: Page, _narrow: boolean) {
+async function expectDiagramContainment(page: Page, narrow: boolean) {
   const diagram = page.locator('figure[data-visualization-id="qkv-projections"]');
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+  });
   const result = await diagram.evaluate((node) => ({
     clientWidth: node.clientWidth,
     scrollWidth: node.scrollWidth,
@@ -188,6 +194,21 @@ async function expectDiagramContainment(page: Page, _narrow: boolean) {
     expect(card.scrollHeight).toBeLessThanOrEqual(card.clientHeight + 2);
     expect(card.scrollWidth).toBeLessThanOrEqual(card.clientWidth + 2);
   }
+
+  const branchItems = diagram.locator('.branch-grid > li');
+  await expect(branchItems).toHaveCount(3);
+  expect(
+    await branchItems.evaluateAll((items) =>
+      items.map((item) => ({
+        display: getComputedStyle(item).display,
+        role: item.querySelector<HTMLElement>('[data-qkv-role]')?.dataset.qkvRole,
+      })),
+    ),
+  ).toEqual([
+    { display: 'grid', role: 'query' },
+    { display: 'grid', role: 'key' },
+    { display: 'grid', role: 'value' },
+  ]);
 
   const scrollers = diagram.locator(
     '.input-values-scroller, .branches-scroller, .history-scroller, .input-gradient-scroller, .gradients-scroller',
@@ -211,6 +232,35 @@ async function expectDiagramContainment(page: Page, _narrow: boolean) {
     }),
   );
   expect(scrollerProblems).toEqual([]);
+
+  if (narrow) {
+    const branchScroller = diagram.locator('.branches-scroller');
+    const branchScrollMetrics = await branchScroller.evaluate((node) => {
+      const scroller = node as HTMLElement;
+      const originalScrollTop = scroller.scrollTop;
+      scroller.scrollTop = scroller.scrollHeight;
+      const maxScrollTop = scroller.scrollTop;
+      scroller.scrollTop = originalScrollTop;
+      return {
+        ariaLabel: scroller.getAttribute('aria-label'),
+        clientHeight: scroller.clientHeight,
+        clientWidth: scroller.clientWidth,
+        maxScrollTop,
+        overflowX: getComputedStyle(scroller).overflowX,
+        role: scroller.getAttribute('role'),
+        scrollHeight: scroller.scrollHeight,
+        scrollWidth: scroller.scrollWidth,
+        tabIndex: scroller.tabIndex,
+      };
+    });
+    expect(branchScrollMetrics.role).toBe('region');
+    expect(branchScrollMetrics.ariaLabel).toBeTruthy();
+    expect(branchScrollMetrics.tabIndex).toBe(0);
+    expect(['auto', 'scroll']).toContain(branchScrollMetrics.overflowX);
+    expect(branchScrollMetrics.scrollWidth).toBeGreaterThan(branchScrollMetrics.clientWidth);
+    expect(branchScrollMetrics.scrollHeight).toBe(branchScrollMetrics.clientHeight);
+    expect(branchScrollMetrics.maxScrollTop).toBe(0);
+  }
 
   for (const scroller of await scrollers.all()) {
     await scroller.focus();

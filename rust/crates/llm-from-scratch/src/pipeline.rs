@@ -1,5 +1,6 @@
 //! One bounded data-to-text pipeline assembled from the course's cumulative APIs.
 
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
 use std::path::Path;
@@ -36,6 +37,7 @@ pub struct CapstoneConfig {
     feed_forward_width: usize,
     layers: usize,
     context_length: usize,
+    window_stride: usize,
     update_batch_size: usize,
     evaluation_batch_size: usize,
     updates: usize,
@@ -59,6 +61,7 @@ impl CapstoneConfig {
             feed_forward_width: 4,
             layers: 1,
             context_length: 4,
+            window_stride: 1,
             update_batch_size: 16,
             evaluation_batch_size: 128,
             updates: 32,
@@ -95,6 +98,10 @@ impl CapstoneConfig {
 
     pub const fn context_length(self) -> usize {
         self.context_length
+    }
+
+    pub const fn window_stride(self) -> usize {
+        self.window_stride
     }
 
     pub const fn update_batch_size(self) -> usize {
@@ -666,6 +673,7 @@ fn epoch(
     encoded: &EncodedCorpusPartitions,
     partition: Partition,
     context_length: usize,
+    window_stride: usize,
     batch_size: usize,
     order: BatchOrder,
 ) -> Result<MiniBatchEpoch, PipelineError> {
@@ -676,7 +684,7 @@ fn epoch(
         .collect::<Vec<_>>();
     let windows = map(
         PipelineStage::Batches,
-        CausalWindowConfig::new(context_length, 1),
+        CausalWindowConfig::new(context_length, window_stride),
     )?;
     let batches = map(
         PipelineStage::Batches,
@@ -686,6 +694,29 @@ fn epoch(
         PipelineStage::Batches,
         MiniBatchEpoch::build(partition, &documents, windows, batches),
     )
+}
+
+fn epoch_matches_window_stride(epoch: &MiniBatchEpoch, expected_stride: usize) -> bool {
+    let mut starts_by_document = BTreeMap::<&str, Vec<usize>>::new();
+    for batch in epoch.batches() {
+        for origin in batch.provenance() {
+            starts_by_document
+                .entry(origin.document_id())
+                .or_default()
+                .push(origin.start());
+        }
+    }
+    starts_by_document
+        .values_mut()
+        .all(|starts| starts_match_window_stride(starts, expected_stride))
+}
+
+fn starts_match_window_stride(starts: &mut [usize], expected_stride: usize) -> bool {
+    starts.sort_unstable();
+    starts.first() == Some(&0)
+        && starts
+            .windows(2)
+            .all(|pair| pair[1] - pair[0] == expected_stride)
 }
 
 struct PreparedTraining {
@@ -714,6 +745,7 @@ fn prepare_training(
         &data.encoded,
         Partition::Train,
         config.context_length(),
+        config.window_stride(),
         config.update_batch_size(),
         BatchOrder::Shuffled {
             seed: config.seed(),
@@ -723,6 +755,7 @@ fn prepare_training(
         &data.encoded,
         Partition::Train,
         config.context_length(),
+        config.window_stride(),
         config.evaluation_batch_size(),
         BatchOrder::Sequential,
     )?;
@@ -730,6 +763,7 @@ fn prepare_training(
         &data.encoded,
         Partition::Validation,
         config.context_length(),
+        config.window_stride(),
         config.evaluation_batch_size(),
         BatchOrder::Sequential,
     )?;
@@ -1064,8 +1098,14 @@ pub fn run_capstone(
         &data.encoded,
         Partition::Test,
         config.context_length(),
+        config.window_stride(),
         config.evaluation_batch_size(),
         BatchOrder::Sequential,
+    )?;
+    require(
+        config.window_stride() == 1
+            && epoch_matches_window_stride(&test_epoch, config.window_stride()),
+        "the Chapter 39 evaluation must retain complete stride-one windows",
     )?;
     let test_window_count = test_epoch.window_count();
     let test_batch_count = test_epoch.batch_count();
@@ -1080,6 +1120,33 @@ pub fn run_capstone(
     let final_evaluation = map(
         PipelineStage::FinalEvaluation,
         evaluator.evaluate_once(decoder, frozen_bigram),
+    )?;
+    let expected_window_target_slots = test_window_count
+        .checked_mul(config.context_length())
+        .ok_or_else(|| PipelineError::invariant("test window-target slot count overflowed"))?;
+    let expected_document_transition_occurrences = data
+        .encoded
+        .documents(Partition::Test)
+        .iter()
+        .map(|document| document.token_ids().len().saturating_sub(1))
+        .sum::<usize>();
+    let multiplicity_slot_count = final_evaluation
+        .transition_multiplicity_counts()
+        .iter()
+        .enumerate()
+        .map(|(index, count)| (index + 1) * count)
+        .sum::<usize>();
+    let multiplicity_transition_count = final_evaluation
+        .transition_multiplicity_counts()
+        .iter()
+        .sum::<usize>();
+    require(
+        final_evaluation.window_target_slot_count() == expected_window_target_slots
+            && final_evaluation.document_transition_occurrence_count()
+                == expected_document_transition_occurrences
+            && multiplicity_slot_count == expected_window_target_slots
+            && multiplicity_transition_count == expected_document_transition_occurrences,
+        "test window slots, document transitions, and overlap multiplicities disagree",
     )?;
     require(
         final_evaluation.decoder_has_lower_loss(),
@@ -1200,6 +1267,7 @@ mod tests {
         assert_eq!(config.feed_forward_width(), 4);
         assert_eq!(config.layers(), 1);
         assert_eq!(config.context_length(), 4);
+        assert_eq!(config.window_stride(), 1);
         assert_eq!(config.update_batch_size(), 16);
         assert_eq!(config.evaluation_batch_size(), 128);
         assert_eq!(config.updates(), 32);
@@ -1207,6 +1275,15 @@ mod tests {
         assert_eq!(config.generation_temperature().to_bits(), 0.8_f64.to_bits());
         assert_eq!(config.generation_top_k(), 4);
         assert_eq!(config.generation_tokens(), 3);
+    }
+
+    #[test]
+    fn stride_invariant_rejects_missing_shifted_and_duplicate_window_starts() {
+        assert!(starts_match_window_stride(&mut [2, 0, 1, 3], 1));
+        assert!(!starts_match_window_stride(&mut [], 1));
+        assert!(!starts_match_window_stride(&mut [1, 2, 3], 1));
+        assert!(!starts_match_window_stride(&mut [0, 2, 3], 1));
+        assert!(!starts_match_window_stride(&mut [0, 1, 1, 2], 1));
     }
 
     #[test]

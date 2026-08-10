@@ -688,12 +688,12 @@ const englishSheets = [
       "Decoder-only LLM",
       "Frozen document split",
       "Training-only BPE",
-      "Causal window",
+      "Overlapping window-target slot",
       "Bitwise training replay",
       "Validation-selected state",
       "Selection-isolated final test evaluation",
       "Frozen alpha-one bigram baseline",
-      "Same-target test-loss comparison",
+      "Window-slot mean NLL and perplexity",
       "Fixed-fixture regression evidence",
       "Exact checkpoint round trip",
       "Exact logit probe",
@@ -1014,14 +1014,19 @@ const chapter39EvidenceDefinitions = {
         "One local post-selection pass whose test targets cannot update parameters or feed a result back into model selection inside that execution; the local access count does not establish repository-wide independence.",
     },
     {
-      term: "Same-target test-loss comparison",
+      term: "Overlapping window-target slot",
       definition:
-        "A fair within-fixture comparison in which the decoder and frozen bigram score the same ordered test target positions; it does not make the fixture independently held out.",
+        "One causal target position identified by document, stride-one window start, and position inside that window. The same within-document transition occurrence can appear in as many as four slots, with the decoder seeing one, two, three, or four in-window context tokens.",
+    },
+    {
+      term: "Window-slot mean NLL and perplexity",
+      definition:
+        "Chapter 39 averages NLL over the same 1,744 overlapping window-target slots for both models, in nats per slot; exponentiating gives dimensionless window-slot perplexity. A separate metric would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; its numeric mean NLL and perplexity are not reported.",
     },
     {
       term: "Fixed-fixture regression evidence",
       definition:
-        "A known result rerun to detect changes in checked behavior; Chapter 39 permanently checks the decoder-lower ordering, so the gap is neither an independent estimate of generalization nor evidence of architecture superiority.",
+        "A known result rerun to detect changes in checked behavior; later executions retain the lower decoder window-slot mean NLL as a regression condition, so the gap is neither an independent estimate of generalization nor evidence of architecture superiority.",
     },
   ],
   ru: [
@@ -1036,14 +1041,19 @@ const chapter39EvidenceDefinitions = {
         "Один локальный проход после завершения выбора, чьи тестовые цели не могут обновить параметры или повлиять на выбор модели в пределах этого запуска; локальный счётчик доступа не доказывает независимость на уровне всего репозитория.",
     },
     {
-      term: "Сравнение тестовых потерь на одних и тех же целевых позициях",
+      term: "Целевая позиция перекрывающегося окна",
       definition:
-        "Справедливое сравнение внутри примера, при котором декодер и зафиксированная биграммная модель оценивают одни и те же упорядоченные тестовые целевые позиции; это не делает сам пример независимо отложенным.",
+        "Одна каузальная целевая позиция, заданная документом, началом окна с шагом 1 и положением внутри окна. Один переход внутри документа может входить в результат до четырёх раз; в этих позициях декодеру доступны один, два, три или четыре токена контекста.",
+    },
+    {
+      term: "Среднее NLL и перплексия по позициям окон",
+      definition:
+        "В главе 39 обе модели оценивают одни и те же 1744 целевые позиции перекрывающихся окон: NLL усредняется в натах на позицию окна, а его экспонента даёт безразмерную перплексию. Отдельная метрика оценивала бы каждый из 442 переходов внутри документов один раз, передавала бы декодеру максимально доступный каузальный префикс не длиннее четырёх токенов и использовала бы только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся.",
     },
     {
       term: "Результат фиксированного примера для регрессионной проверки",
       definition:
-        "Известный результат, который повторно запускают для обнаружения изменений проверяемого поведения; в главе 39 постоянно проверяется порядок, при котором потери декодера ниже, поэтому разница не является независимой оценкой способности модели обобщать и не доказывает превосходства архитектуры.",
+        "Известный результат, который повторно запускают для обнаружения изменений проверяемого поведения; в последующих запусках более низкое среднее NLL декодера по позициям окон сохраняется как условие регрессионной проверки, поэтому разница не является независимой оценкой способности модели обобщать и не доказывает превосходства архитектуры.",
     },
   ],
 } as const;
@@ -1449,7 +1459,6 @@ for (const sheet of sheets) {
         expect(sortedTerms).toEqual([
           "Autoregressive factorization",
           "Bitwise training replay",
-          "Causal window",
           "Decoder-only LLM",
           "End-to-end LLM pipeline",
           "Exact checkpoint round trip",
@@ -1460,10 +1469,11 @@ for (const sheet of sheets) {
           "Joint sequence probability",
           "KV-cached generation",
           "Next-token conditional distribution",
-          "Same-target test-loss comparison",
+          "Overlapping window-target slot",
           "Selection-isolated final test evaluation",
           "Training-only BPE",
           "Validation-selected state",
+          "Window-slot mean NLL and perplexity",
         ]);
       }
       const root = page.locator("[data-cheat-sheet]");

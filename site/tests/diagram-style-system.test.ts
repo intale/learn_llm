@@ -145,6 +145,39 @@ describe("course diagram design system", () => {
     expect(module).toContain(".course-diagram__grid");
     expect(module).toContain(".course-diagram__card-stack");
     expect(module).toContain(".course-diagram__card-heading");
+    const semanticCardHeadingRule = cssRules(module).find(
+      ({ selector }) =>
+        selector.includes(".course-diagram__card-heading") &&
+        selector.includes("> :is(h5, h6)") &&
+        selector.includes(":is(h5, h6).course-diagram__card-heading") &&
+        selector.includes(".course-diagram__card-stack") &&
+        selector.includes("> h5"),
+    );
+    expect(semanticCardHeadingRule).toBeDefined();
+    expect(semanticCardHeadingRule?.body).toMatch(/font-size:\s*inherit/);
+    const definitionTermRule = cssRules(module).find(({ selector }) =>
+      selector.includes(
+        "figure.course-diagram[data-diagram-style='course-v1'] dt",
+      ),
+    );
+    expect(definitionTermRule?.body).toMatch(/font-size:\s*0\.875rem/);
+    const smallTextRule = cssRules(module).find(
+      ({ selector }) =>
+        selector.includes(
+          "figure.course-diagram[data-diagram-style='course-v1'] small",
+        ) && !selector.includes("table[data-diagram-table]"),
+    );
+    expect(smallTextRule?.body).toMatch(/font-size:\s*inherit/);
+    const inlineTechnicalRule = cssRules(module).find(({ selector }) =>
+      selector.includes(":is(code, bdi)"),
+    );
+    expect(inlineTechnicalRule?.body).toMatch(
+      /font-size:\s*max\(0\.875rem,\s*0\.9em\)/,
+    );
+    const cueRule = cssRules(module).find(({ selector }) =>
+      selector.includes(".cue-list > li"),
+    );
+    expect(cueRule?.body).toMatch(/font-size:\s*0\.875rem/);
     expect(module).toMatch(/table\[data-diagram-table\][\s\S]*small/);
     expect(module).toContain(".course-diagram__link-list");
     expect(module).toContain(".course-diagram__link-separator");

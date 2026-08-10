@@ -32,6 +32,7 @@ const englishLessonSource = read(
 const russianLessonSource = read(
   "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
 );
+const evaluationSource = read("rust/crates/llm-from-scratch/src/evaluation.rs");
 const pipelineSource = read("rust/crates/llm-from-scratch/src/pipeline.rs");
 const chapterLocaleConfiguration = JSON.parse(
   read("site/src/i18n/chapter-locales.json"),
@@ -69,10 +70,17 @@ const labels: EndToEndLlmDiagramLabels = {
     parameters: "parameters",
     trainLoss: "train loss",
     validationLoss: "validation loss",
-    targets: "targets",
-    decoderLoss: "decoder loss",
-    bigramLoss: "bigram loss",
-    gap: "gap",
+    windowSlots: "window slots",
+    distinctTransitions: "distinct transitions",
+    transitionMultiplicity: "transition multiplicity",
+    decoderSlotMeanNll: "decoder slot mean NLL",
+    decoderSlotPerplexity: "decoder slot perplexity",
+    bigramSlotMeanNll: "bigram slot mean NLL",
+    bigramSlotPerplexity: "bigram slot perplexity",
+    slotGap: "slot gap",
+    transitionMetric: "transition metric",
+    decoderContextCapacity: "decoder context capacity",
+    decoderSlotContextLengths: "decoder slot context lengths",
     bytes: "bytes",
     records: "records",
     logitProbeText: "logit probe text",
@@ -92,6 +100,8 @@ const labels: EndToEndLlmDiagramLabels = {
     candidate: "candidate",
     selected: "selected",
     oneTime: "one time",
+    sharedSlots: "shared slots",
+    transitionMetricNotReported: "transition metric not reported",
     exact: "exact",
     cachedMatch: "cached match",
     decodedText: "decoded text",
@@ -176,20 +186,40 @@ describe("Chapter 39 Rust trace parser", () => {
         selected: "true",
       },
     ]);
-    expect(trace.test).toMatchObject({
+    expect(trace.test).toEqual({
       access: "1",
       documents: ["en-winter-window", "ru-winter-window"],
+      stride: "1",
       windows: "436",
       batches: "4",
-      targets: "1744",
-      fingerprint: "fnv1a64:77b836869f848986",
-      decoder: "3.866087547",
-      bigram: "3.981342714",
-      gap: "0.115255167",
-      decoder_lower_on_fixture: "true",
+      window_target_slots: "1744",
+      document_transition_occurrences: "442",
+      transition_multiplicity_counts: "1x4,2x4,3x4,4x430",
+      window_slot_fingerprint: "fnv1a64:77b836869f848986",
       no_grad: "true",
       unchanged: "true",
-      evidence_scope: "fixed-fixture-regression",
+    });
+    expect(trace.slotMetric).toEqual({
+      unit: "overlapping-window-target-slot",
+      decoder_window_slot_mean_nll_nats: "3.866087547",
+      decoder_window_slot_perplexity: "47.755180205",
+      bigram_window_slot_mean_nll_nats: "3.981342714",
+      bigram_window_slot_perplexity: "53.588940583",
+      window_slot_gap_nats: "0.115255167",
+      comparison_slot_set: "shared-ordered-window-slots",
+      decoder_lower_on_fixture: "true",
+    });
+    expect(trace.transitionMetric).toEqual({
+      unit: "within-document-next-token-transition",
+      count: "442",
+      context_policy: "longest-available-causal-prefix-up-to-4",
+      newest_position_only: "true",
+      reported: "false",
+      mean_nll: "not-reported",
+      perplexity: "not-reported",
+    });
+    expect(trace.evidence).toEqual({
+      scope: "fixed-fixture-regression",
       within_run_selection_isolated: "true",
       independent_generalization_estimate: "false",
       architecture_superiority_evidence: "false",
@@ -232,17 +262,20 @@ describe("Chapter 39 Rust trace parser", () => {
       rng_exact: "true",
     });
     expect(trace.history).toEqual({
-      targets: "1744",
-      bigram_context: "1",
-      decoder_context: "4",
-      bigram: "3.981342714",
-      decoder: "3.866087547",
-      gap: "0.115255167",
+      window_slot_unit: "overlapping-window-target-slot",
+      window_target_slots: "1744",
+      document_transition_occurrences: "442",
+      bigram_context_tokens: "1",
+      decoder_context_capacity: "4",
+      decoder_window_slot_context_lengths: "1,2,3,4",
+      bigram_window_slot_mean_nll_nats: "3.981342714",
+      decoder_window_slot_mean_nll_nats: "3.866087547",
+      window_slot_gap_nats: "0.115255167",
     });
   });
 
   it.each([
-    ["wrong header", fixture.replace("END_TO_END_LLM_TRACE_V2", "TRACE_V3")],
+    ["wrong header", fixture.replace("END_TO_END_LLM_TRACE_V3", "TRACE_V4")],
     ["test opened twice", fixture.replace("TEST|access=1", "TEST|access=2")],
     [
       "tokenizer saw later data",
@@ -262,8 +295,8 @@ describe("Chapter 39 Rust trace parser", () => {
     [
       "evidence scope changed",
       fixture.replace(
-        "evidence_scope=fixed-fixture-regression",
-        "evidence_scope=independent-generalization",
+        "EVIDENCE|scope=fixed-fixture-regression",
+        "EVIDENCE|scope=independent-generalization",
       ),
     ],
     [
@@ -300,9 +333,18 @@ describe("Chapter 39 Rust trace parser", () => {
     ],
     [
       "historical boundary differs",
-      fixture.replace("|decoder_context=4", "|decoder_context=5"),
+      fixture.replace(
+        "|decoder_context_capacity=4",
+        "|decoder_context_capacity=5",
+      ),
     ],
-    ["loss gap differs", fixture.replace("gap=0.115255167", "gap=0.215255167")],
+    [
+      "window-slot gap differs",
+      fixture.replace(
+        "window_slot_gap_nats=0.115255167",
+        "window_slot_gap_nats=0.215255167",
+      ),
+    ],
     [
       "unknown stop reason",
       fixture.replace("stop=token-limit", "stop=unknown"),
@@ -312,8 +354,134 @@ describe("Chapter 39 Rust trace parser", () => {
       fixture.replace(/text="[^"]*"/, "text=not-json"),
     ],
     [
-      "target arithmetic differs",
-      fixture.replace("|targets=1744", "|targets=1743"),
+      "window-slot arithmetic differs",
+      fixture.replace("|window_target_slots=1744", "|window_target_slots=1743"),
+    ],
+    [
+      "window slots and transitions are swapped",
+      fixture.replace(
+        "|window_target_slots=1744|document_transition_occurrences=442",
+        "|window_target_slots=442|document_transition_occurrences=1744",
+      ),
+    ],
+    [
+      "fixture-critical counts become zero",
+      fixture
+        .replace("|windows=436|batches=4", "|windows=0|batches=0")
+        .replace("|window_target_slots=1744", "|window_target_slots=0")
+        .replace(
+          "|document_transition_occurrences=442",
+          "|document_transition_occurrences=0",
+        ),
+    ],
+    [
+      "transition occurrence count differs",
+      fixture.replace(
+        "|document_transition_occurrences=442",
+        "|document_transition_occurrences=443",
+      ),
+    ],
+    [
+      "multiplicity histogram total differs",
+      fixture.replace("1x4,2x4,3x4,4x430", "1x4,2x4,3x5,4x430"),
+    ],
+    [
+      "multiplicity histogram order differs",
+      fixture.replace("1x4,2x4,3x4,4x430", "2x4,1x4,3x4,4x430"),
+    ],
+    ["stride differs", fixture.replace("|stride=1", "|stride=2")],
+    [
+      "window-slot fingerprint differs",
+      fixture.replace(
+        "window_slot_fingerprint=fnv1a64:77b836869f848986",
+        "window_slot_fingerprint=fnv1a64:77b836869f848987",
+      ),
+    ],
+    [
+      "window-slot unit differs",
+      fixture.replace(
+        "unit=overlapping-window-target-slot",
+        "unit=within-document-next-token-transition",
+      ),
+    ],
+    [
+      "comparison slot set differs",
+      fixture.replace(
+        "comparison_slot_set=shared-ordered-window-slots",
+        "comparison_slot_set=different-window-slots",
+      ),
+    ],
+    [
+      "decoder perplexity differs",
+      fixture.replace(
+        "decoder_window_slot_perplexity=47.755180205",
+        "decoder_window_slot_perplexity=47.755180305",
+      ),
+    ],
+    [
+      "bigram perplexity differs",
+      fixture.replace(
+        "bigram_window_slot_perplexity=53.588940583",
+        "bigram_window_slot_perplexity=53.588940683",
+      ),
+    ],
+    [
+      "mean NLL is relabeled as perplexity",
+      fixture.replace(
+        "decoder_window_slot_mean_nll_nats=3.866087547",
+        "decoder_window_slot_mean_nll_nats=47.755180205",
+      ),
+    ],
+    [
+      "transition unit differs",
+      fixture.replace(
+        "TRANSITION_METRIC|unit=within-document-next-token-transition",
+        "TRANSITION_METRIC|unit=overlapping-window-target-slot",
+      ),
+    ],
+    [
+      "transition count differs",
+      fixture.replace(
+        "TRANSITION_METRIC|unit=within-document-next-token-transition|count=442",
+        "TRANSITION_METRIC|unit=within-document-next-token-transition|count=443",
+      ),
+    ],
+    [
+      "transition context policy differs",
+      fixture.replace(
+        "context_policy=longest-available-causal-prefix-up-to-4",
+        "context_policy=fixed-four-token-window",
+      ),
+    ],
+    [
+      "transition newest-position rule differs",
+      fixture.replace(
+        "newest_position_only=true",
+        "newest_position_only=false",
+      ),
+    ],
+    [
+      "transition metric is falsely reported",
+      fixture.replace("|reported=false", "|reported=true"),
+    ],
+    [
+      "transition mean NLL receives a slot value",
+      fixture.replace("|mean_nll=not-reported", "|mean_nll=3.866087547"),
+    ],
+    [
+      "transition perplexity receives a slot value",
+      fixture.replace("|perplexity=not-reported", "|perplexity=47.755180205"),
+    ],
+    [
+      "decoder slot context lengths differ",
+      fixture.replace(
+        "decoder_window_slot_context_lengths=1,2,3,4",
+        "decoder_window_slot_context_lengths=1,2,4,4",
+      ),
+    ],
+    [
+      "stale target aliases return",
+      fixture.replace("window_target_slots=1744", "targets=1744"),
     ],
     [
       "prefix schedule differs",
@@ -329,6 +497,13 @@ describe("Chapter 39 Rust trace parser", () => {
     [
       "record fields are reordered",
       fixture.replace("|train=8|validation=2", "|validation=2|train=8"),
+    ],
+    [
+      "metric records are reordered",
+      fixture.replace(
+        /(SLOT_METRIC[^\r\n]+)\r?\n(TRANSITION_METRIC[^\r\n]+)/,
+        "$2\n$1",
+      ),
     ],
     ["missing field", fixture.replace("|records=34", "")],
     [
@@ -355,7 +530,7 @@ describe("Chapter 39 Rust trace parser", () => {
           "architecture_superiority_evidence=true",
         ),
       ),
-    ).toThrow(/capstone proof or evidence-scope field changed/);
+    ).toThrow(/capstone proof or metric-scope field changed/);
   });
 });
 
@@ -363,9 +538,9 @@ describe("Chapter 39 diagram labels and component contract", () => {
   it("accepts a complete localized label set and rejects nested blanks", () => {
     expect(() => validateEndToEndLlmDiagramLabels(labels)).not.toThrow();
     const blank = cloneLabels();
-    blank.fields.decoderLoss = " ";
+    blank.fields.decoderSlotMeanNll = " ";
     expect(() => validateEndToEndLlmDiagramLabels(blank)).toThrow(
-      /decoderLoss/,
+      /decoderSlotMeanNll/,
     );
     const extra = cloneLabels() as EndToEndLlmDiagramLabels & {
       extra?: string;
@@ -389,11 +564,22 @@ describe("Chapter 39 diagram labels and component contract", () => {
     expect(component).toContain("course-diagram__card-heading");
     expect(component.match(/data-diagram-card/g)).toHaveLength(8);
     expect(component.match(/data-stage-index=/g)).toHaveLength(8);
-    expect(component.match(/data-evidence="/g)).toHaveLength(10);
+    expect(component.match(/data-evidence="/g)).toHaveLength(21);
     for (const evidence of [
       "encoded-token-counts",
       "window-counts",
       "evaluation-batch-counts",
+      "window-target-slot-count",
+      "document-transition-occurrence-count",
+      "transition-multiplicity-counts",
+      "decoder-window-slot-mean-nll",
+      "decoder-window-slot-perplexity",
+      "bigram-window-slot-mean-nll",
+      "bigram-window-slot-perplexity",
+      "window-slot-mean-nll-gap",
+      "decoder-context-capacity",
+      "decoder-window-slot-context-lengths",
+      "transition-metric-status",
       "reload-probe-text",
       "reload-probe-token-ids",
       "retained-prefix-lengths",
@@ -437,7 +623,7 @@ describe("Chapter 39 diagram labels and component contract", () => {
     expect(css).toContain("@container course-diagram (min-width: 68rem)");
     expect(css).toContain("repeat(auto-fit, minmax(min(100%, 32rem), 1fr))");
     expect(css).toContain(
-      ".stage-card[data-stage='selection'], .stage-card[data-stage='generation'] ) { grid-column: 1 / -1; }",
+      ".stage-card[data-stage='selection'], .stage-card[data-stage='test'], .stage-card[data-stage='generation'] ) { grid-column: 1 / -1; }",
     );
     expect(css).toContain(
       ".selection-card > dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }",
@@ -465,7 +651,7 @@ describe("Chapter 39 diagram labels and component contract", () => {
 });
 
 describe("Chapter 39 bilingual lesson and evidence contract", () => {
-  it("publishes one exact revision-8 English/Russian lesson set", () => {
+  it("publishes one exact revision-9 English/Russian lesson set", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(englishLessonSource),
@@ -488,14 +674,14 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract).toMatchObject({
       chapter_id: "39-end-to-end-llm",
       concept_id: "end-to-end-llm",
-      content_revision: 8,
+      content_revision: 9,
       order: 39,
     });
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      "direct, meaning-first translation of frozen English revision 8",
+      "direct, meaning-first translation of frozen English revision 9",
     );
     expect(contract.translation_notes.join(" ")).toContain(
       `SHA-256 ${createHash("sha256").update(englishLessonSource).digest("hex")}`,
@@ -503,14 +689,20 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract.translation_notes.join(" ")).toContain(
       `Russian lesson SHA-256 is ${createHash("sha256").update(russianLessonSource).digest("hex")}`,
     );
+    expect(contract.translation_notes.join(" ")).toContain(
+      "The English and reviewed Russian Chapter 39 cheat sheets have SHA-256 90b1610666270ef7a3cba38e1070f3d666080a6a8487515b4478c7917918b0b0 and 21db369c97bdb443a17320b108b37e22b302d0a73c9da91ec85c1bcfb852a2fa respectively.",
+    );
+    expect(createHash("sha256").update(contractSource).digest("hex")).toBe(
+      "bf0db5d7bae95444752332ab3be98f3b07a6e6ef1c62720dd39b919ca58fec15",
+    );
     expect(createHash("sha256").update(englishLessonSource).digest("hex")).toBe(
-      "51ff9e5ac4170c3f6fed85d005c43c67ac236cbbd71b4d4417f400e9c84cba1f",
+      "6234b3ea092e6a53f74fe8d10fc6ed85c4f2f168192356b4264b502d3fa84f07",
     );
     expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
-      "a63e50b4d95c7779bf6ecd6737b99297ed712931d11d4eaa02aa4b8969dacd37",
+      "83b5b1200a3c7c685552236646bb5d8dc36d1beb16e9de84d9dc6f50710732d7",
     );
     expect(lessons.ru.history.summary).toBe(
-      "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые признаки и маскированное самовнимание сделали возможными более длинные обучаемые вычисления, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает локальные границы ответственности, а известный порядок, при котором потери декодера ниже, представлен лишь как результат фиксированного примера для регрессионной проверки.",
+      "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые признаки и маскированное самовнимание сделали возможными более длинные обучаемые вычисления, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает локальные границы ответственности, а известное более низкое среднее NLL декодера по позициям окон представлено лишь как результат фиксированного примера для регрессионной проверки.",
     );
     const dworkSource = contract.history.llm_evolution.sources.find(
       ({ source_url }: { source_url: string }) =>
@@ -570,6 +762,31 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         ru: "локальная однократная итоговая оценка",
       },
       {
+        concept_id: "overlapping-window-target-slot",
+        en: "overlapping window-target slot",
+        ru: "целевая позиция перекрывающегося окна",
+      },
+      {
+        concept_id: "window-slot-mean-nll",
+        en: "window-slot mean NLL",
+        ru: "среднее NLL по целевым позициям окон",
+      },
+      {
+        concept_id: "window-slot-perplexity",
+        en: "window-slot perplexity",
+        ru: "перплексия по целевым позициям окон",
+      },
+      {
+        concept_id: "within-document-transition-occurrence",
+        en: "within-document transition occurrence",
+        ru: "переход внутри документа в заданной позиции",
+      },
+      {
+        concept_id: "decoder-context-capacity",
+        en: "decoder context capacity",
+        ru: "максимальная длина контекста декодера",
+      },
+      {
         concept_id: "fixed-fixture-regression-evidence",
         en: "fixed-fixture regression evidence",
         ru: "результат фиксированного примера для регрессионной проверки",
@@ -594,22 +811,22 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.en).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "en",
-      content_revision: 8,
+      content_revision: 9,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Run the whole tiny LLM",
       description:
-        "Trace a tiny decoder-only language model in Rust through validation-selected training, locally isolated fixed-fixture evaluation, exact checkpoint reload, and KV-cached generation while keeping regression evidence distinct from generalization.",
+        "Trace a tiny decoder-only language model in Rust through validation-selected training, a fixed-fixture comparison over overlapping window-target slots, exact reload, and KV-cached generation. Distinguish that comparison from the unreported policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution; numeric NLL and PPL are not reported for that policy.",
     });
     expect(lessons.ru).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "ru",
-      content_revision: 8,
+      content_revision: 9,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Запустите небольшую LLM целиком",
       description:
-        "Проследите полный цикл небольшой декодерной языковой модели на Rust: обучение с выбором состояния по валидации, локально изолированную оценку фиксированного примера, точное восстановление из контрольной точки и генерацию с KV-кэшем; при этом не смешивайте регрессионную проверку с независимой оценкой способности модели обобщать.",
+        "Проследите полный цикл небольшой декодерной языковой модели на Rust: обучение с выбором по валидации, сравнение по целевым позициям перекрывающихся окон, точное восстановление и генерацию с KV-кэшем. Отдельное правило оценивало бы каждый из 442 переходов внутри документов один раз, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся.",
     });
 
     for (const locale of ["en", "ru"] as const) {
@@ -741,7 +958,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       "loaded.tokenizer().restore_bpe()",
       "loaded.selected_step()",
       "loaded.optimizer_state()",
-      "loaded.rng_state()",
+      "loaded.sampling_rng_state()",
     ]) {
       const metadataIndex = capstoneSource!.indexOf(metadata);
       expect(metadataIndex).toBeGreaterThan(checkpointIndex);
@@ -778,37 +995,43 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(demoSource).toContain(
       "fn records_the_fixed_fixture_loss_order_after_one_local_test_access()",
     );
-    expect(demoSource).toContain(
-      'assert_eq!(FIXED_FIXTURE_EVIDENCE_SCOPE, "fixed-fixture-regression");',
-    );
-    expect(demoSource).toContain(
-      "assert!(!INDEPENDENT_GENERALIZATION_ESTIMATE);",
-    );
-    expect(demoSource).toContain(
-      "assert!(!ARCHITECTURE_SUPERIORITY_EVIDENCE);",
+    expect(demoSource).toMatch(
+      /"evidence=scope:\{\} within_run_selection_isolated:\{\} independent_generalization_estimate:\{\} architecture_superiority_evidence:\{\}",\s*FIXED_FIXTURE_EVIDENCE_SCOPE,\s*within_run_selection_isolated\(evidence\),\s*INDEPENDENT_GENERALIZATION_ESTIMATE,\s*ARCHITECTURE_SUPERIORITY_EVIDENCE,/,
     );
     const normalizedEnglishLesson = englishLessonSource.replace(/\s+/g, " ");
     expect(normalizedEnglishLesson).toContain(
-      "That ordering is retained across later executions, so it is useful regression evidence. It is not an untouched independent estimate of generalization or evidence of architecture-wide decoder superiority.",
+      "The lower decoder slot mean-NLL ordering is retained across later executions, so it is useful regression evidence. It is not an untouched independent estimate of generalization or evidence of architecture-wide decoder superiority.",
     );
     expect(normalizedEnglishLesson).toContain(
-      "The permanently checked gap is fixed-fixture regression evidence, not causal attribution to context or attention and not an independent generalization estimate.",
+      "The mean-NLL gap retained by later executions is fixed-fixture regression evidence, not causal attribution to context or attention and not an independent generalization estimate.",
     );
     expect(normalizedEnglishLesson).toContain(
       "this general warning does not establish any fact about the capstone fixture, its score, or its local access count",
+    );
+    expect(normalizedEnglishLesson).toContain(
+      "What is the measured slot mean-NLL gap, how is window-slot perplexity related to each model's slot mean NLL, and what evidence scope does the ordering have?",
+    );
+    expect(normalizedEnglishLesson).not.toMatch(
+      /measured slot mean-NLL gap, how is window-slot perplexity related to (?:it|the (?:mean-NLL )?gap)/i,
     );
     expect(normalizedEnglishLesson).not.toMatch(
       /course(?:'s)? first and only final test|previously unscored test|proves? (?:independent )?generalization|shows? (?:that )?decoder architectures? (?:always|universally) (?:beat|outperform)/i,
     );
     const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
     expect(normalizedRussianLesson).toContain(
-      "Этот порядок сохраняется в последующих запусках, поэтому результат полезен для регрессионной проверки. Он не является независимой оценкой способности модели обобщать на ранее не использованных данных и не доказывает общего превосходства архитектуры декодера.",
+      "Порядок результатов сохраняется в последующих запусках, поэтому он полезен для регрессионной проверки. Это не независимая оценка способности модели обобщать на ранее не использованных данных и не доказательство общего превосходства архитектуры декодера.",
     );
     expect(normalizedRussianLesson).toContain(
-      "Постоянно проверяемая разница служит результатом фиксированного примера для регрессионной проверки, а не доказательством причинного влияния контекста или внимания и не независимой оценкой способности модели обобщать.",
+      "Разницу средних NLL, сохраняемую при последующих запусках, используют для регрессионной проверки фиксированного примера; она не доказывает причинного влияния контекста или внимания и не является независимой оценкой способности модели обобщать.",
     );
     expect(normalizedRussianLesson).toContain(
       "этот общий вывод не устанавливает фактов об учебном примере, его результате или локальном счётчике доступа",
+    );
+    expect(normalizedRussianLesson).toContain(
+      "Чему равна измеренная разница средних NLL по позициям окон, как перплексия связана со средним NLL каждой модели и какова область применимости этого порядка результатов?",
+    );
+    expect(normalizedRussianLesson).not.toMatch(
+      /измеренная разница средних NLL[^?]*как с ней связана перплексия/i,
     );
     expect(normalizedRussianLesson).not.toMatch(/фикстур/i);
   });
@@ -856,6 +1079,99 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(generationSource).not.toContain("prompt_ids.clone()");
   });
 
+  it("derives both denominators from one inspected slot stream and tests their exact fixture", () => {
+    const evaluation = evaluationSource.replace(/\s+/g, " ");
+    const pipeline = pipelineSource.replace(/\s+/g, " ");
+    const demo = demoSource.replace(/\s+/g, " ");
+
+    expect(evaluationSource).toContain(
+      "pub const FINAL_EVALUATION_REPORT_VERSION: u32 = 1;",
+    );
+    expect(evaluation).toContain(
+      "for (slot, (&input, &target)) in inputs.iter().zip(targets).enumerate()",
+    );
+    expect(evaluation).toContain("window_target_slot_count += 1;");
+    expect(evaluation).toContain(
+      "let absolute_target_position = origin.start() + slot + 1;",
+    );
+    expect(evaluation).toContain(
+      ".entry((origin.document_id().to_owned(), absolute_target_position)) .or_default() += 1;",
+    );
+    expect(evaluation).toContain(
+      "let document_transition_occurrence_count = transition_multiplicities.len();",
+    );
+    expect(evaluation).toContain(
+      "transition_multiplicity_counts[multiplicity - 1] += 1;",
+    );
+    expect(evaluation).toContain(
+      "window_target_slot_count, transition_multiplicity_counts .iter() .enumerate() .map(|(index, count)| (index + 1) * count) .sum::<usize>()",
+    );
+    expect(evaluation).toContain(
+      "let measured = evaluate_no_grad(model, inspected.epoch())?;",
+    );
+    expect(evaluation).toContain("for pair in inspected.checked_pairs()");
+    expect(evaluation).toContain(
+      "inspected.evidence().window_target_slot_count != measured.token_count() || inspected.evidence().window_target_slot_count != bigram_score.target_count()",
+    );
+    expect(evaluation).toContain(
+      "measured.mean_loss(), measured.mean_loss().exp(),",
+    );
+    expect(evaluation).toContain("metrics.mean_nll(), metrics.perplexity(),");
+    expect(evaluation).toContain(
+      "fn alignment_guard_rejects_length_drift_before_zip_can_truncate()",
+    );
+    expect(evaluation).toContain(
+      "fn evidence_fingerprint_covers_ordered_origins_inputs_and_targets()",
+    );
+    expect(evaluation).toContain(
+      "assert_eq!(first_evidence.window_target_slot_count, 14);",
+    );
+    expect(evaluation).toContain(
+      "assert_eq!(first_evidence.document_transition_occurrence_count, 9);",
+    );
+    expect(evaluation).toContain(
+      "assert_eq!(first_evidence.transition_multiplicity_counts, [4, 5]);",
+    );
+
+    expect(pipeline).toContain(
+      "let expected_window_target_slots = test_window_count .checked_mul(config.context_length())",
+    );
+    expect(pipeline).toContain(
+      ".map(|document| document.token_ids().len().saturating_sub(1)) .sum::<usize>();",
+    );
+    expect(pipeline).toContain(
+      ".map(|(index, count)| (index + 1) * count) .sum::<usize>();",
+    );
+    expect(pipeline).toContain(
+      "multiplicity_transition_count == expected_document_transition_occurrences",
+    );
+
+    expect(demo).toContain(
+      "fn generated_stdout_and_trace_match_the_frozen_files_byte_for_byte()",
+    );
+    expect(demo).toContain(
+      "assert_eq!(report.window_target_slot_count(), 1_744);",
+    );
+    expect(demo).toContain(
+      "assert_eq!(report.document_transition_occurrence_count(), 442);",
+    );
+    expect(demo).toContain(
+      "assert_eq!(report.transition_multiplicity_counts(), [4, 4, 4, 430]);",
+    );
+    expect(demo).toContain(
+      'assert_eq!(report.window_slot_fingerprint(), "fnv1a64:77b836869f848986");',
+    );
+    expect(demo).toContain(
+      "report.decoder().perplexity().to_bits(), report.decoder().mean_nll().exp().to_bits()",
+    );
+    expect(demo).toContain(
+      "report.bigram().perplexity().to_bits(), report.bigram().mean_nll().exp().to_bits()",
+    );
+    expect(demo).toContain(
+      "assert_eq!(contrast.decoder_window_slot_context_lengths, [1, 2, 3, 4]);",
+    );
+  });
+
   it("keeps the contract report and raw diagram trace on the same Rust evidence", () => {
     const contract = frontmatter(contractSource);
     const trace = parseEndToEndLlmTrace(fixture);
@@ -873,19 +1189,32 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       `tokenizer=layout:${trace.tokenizer.layout} requested:${trace.tokenizer.requested} learned:${trace.tokenizer.learned} training_only:${trace.tokenizer.training_only} vocabulary:${trace.tokenizer.vocabulary} encoded_tokens:[${trace.tokenizer.encoded.join(",")}]`,
       `model=layers:${trace.model.layers} heads:${trace.model.heads} width:${trace.model.width} feed_forward:${trace.model.feed_forward} context:${trace.batches.context} parameters:${trace.model.parameters} update_batch_size:${trace.batches.update_batch_size} evaluation_batch_size:${trace.batches.evaluation_batch_size} windows:[${trace.batches.windows.join(",")}] evaluation_batches:[${trace.batches.evaluation_batches.join(",")}]`,
       `training=updates:${trace.training.updates} seed:${trace.training.seed} checkpoints:${initial.step}:${initial.train}/${initial.validation}/candidate;${selected.step}:${selected.train}/${selected.validation}/selected selected:${selected.step} validation:${selected.validation} optimizer:${trace.checkpoint.optimizer} replay_bitwise:${trace.training.replay_bitwise}`,
-      `test=access:${trace.test.access} documents:[${trace.test.documents.join(",")}] windows:${trace.test.windows} batches:${trace.test.batches} targets:${trace.test.targets} fingerprint:${trace.test.fingerprint} decoder:${trace.test.decoder} bigram:${trace.test.bigram} gap:${trace.test.gap} decoder_lower_on_fixture:${trace.test.decoder_lower_on_fixture} no_grad:${trace.test.no_grad} unchanged:${trace.test.unchanged}`,
-      `evidence=scope:${trace.test.evidence_scope} within_run_selection_isolated:${trace.test.within_run_selection_isolated} independent_generalization_estimate:${trace.test.independent_generalization_estimate} architecture_superiority_evidence:${trace.test.architecture_superiority_evidence}`,
+      `test=access:${trace.test.access} documents:[${trace.test.documents.join(",")}] stride:${trace.test.stride} windows:${trace.test.windows} batches:${trace.test.batches} window_target_slots:${trace.test.window_target_slots} document_transition_occurrences:${trace.test.document_transition_occurrences} transition_multiplicity_counts:[${trace.test.transition_multiplicity_counts}] window_slot_fingerprint:${trace.test.window_slot_fingerprint} no_grad:${trace.test.no_grad} unchanged:${trace.test.unchanged}`,
+      `slot_metric=unit:${trace.slotMetric.unit} decoder_window_slot_mean_nll_nats:${trace.slotMetric.decoder_window_slot_mean_nll_nats} decoder_window_slot_perplexity:${trace.slotMetric.decoder_window_slot_perplexity} bigram_window_slot_mean_nll_nats:${trace.slotMetric.bigram_window_slot_mean_nll_nats} bigram_window_slot_perplexity:${trace.slotMetric.bigram_window_slot_perplexity} window_slot_gap_nats:${trace.slotMetric.window_slot_gap_nats} comparison_slot_set:${trace.slotMetric.comparison_slot_set} decoder_lower_on_fixture:${trace.slotMetric.decoder_lower_on_fixture}`,
+      `transition_metric=unit:${trace.transitionMetric.unit} count:${trace.transitionMetric.count} context_policy:${trace.transitionMetric.context_policy} newest_position_only:${trace.transitionMetric.newest_position_only} reported:${trace.transitionMetric.reported} mean_nll:${trace.transitionMetric.mean_nll} perplexity:${trace.transitionMetric.perplexity}`,
+      `evidence=scope:${trace.evidence.scope} within_run_selection_isolated:${trace.evidence.within_run_selection_isolated} independent_generalization_estimate:${trace.evidence.independent_generalization_estimate} architecture_superiority_evidence:${trace.evidence.architecture_superiority_evidence}`,
       `checkpoint=bytes:${trace.checkpoint.bytes} header:${trace.checkpoint.header} records:${trace.checkpoint.records} checksum:${trace.checkpoint.checksum} selected:${trace.checkpoint.selected} optimizer:${trace.checkpoint.optimizer} rng:${trace.checkpoint.rng} bytes_roundtrip:${trace.checkpoint.bytes_roundtrip} model_bits_exact:${trace.checkpoint.model_bits_exact} optimizer_bits_exact:${trace.checkpoint.optimizer_bits_exact} tokenizer_exact:${trace.checkpoint.tokenizer_exact} logit_probe:${trace.checkpoint.logit_probe} logit_probe_ids:[${trace.checkpoint.logit_probe_ids.join(",")}] prompt_logits_bitwise:${trace.checkpoint.prompt_logits_bitwise}`,
       `generation=prompt:${trace.generation.prompt} prompt_ids:[${trace.generation.prompt_ids.join(",")}] temperature:${trace.generation.temperature} top_k:${trace.generation.top_k} seed:${trace.generation.seed} generated:[${trace.generation.generated.join(",")}] text:${JSON.stringify(trace.generation.text)} prefixes:[${trace.generation.prefixes.join(",")}] stop:${trace.generation.stop} prefill:${trace.generation.prefill} decode:${trace.generation.decode} final_cache:${trace.generation.final_cache} cached_scores:${trace.generation.cached_scores} calculated_complete_prefix_scores:${trace.generation.calculated_complete_prefix_scores} rng_initial:${trace.generation.rng_initial} rng_final:${trace.generation.rng_final} tokens_exact:${trace.generation.tokens_exact} decisions_bitwise:${trace.generation.decisions_bitwise} rng_exact:${trace.generation.rng_exact}`,
-      `history=targets:${trace.history.targets} bigram_context:${trace.history.bigram_context} decoder_context:${trace.history.decoder_context} bigram:${trace.history.bigram} decoder:${trace.history.decoder} gap:${trace.history.gap}`,
+      `history=window_slot_unit:${trace.history.window_slot_unit} window_target_slots:${trace.history.window_target_slots} document_transition_occurrences:${trace.history.document_transition_occurrences} bigram_context_tokens:${trace.history.bigram_context_tokens} decoder_context_capacity:${trace.history.decoder_context_capacity} decoder_window_slot_context_lengths:[${trace.history.decoder_window_slot_context_lengths}] bigram_window_slot_mean_nll_nats:${trace.history.bigram_window_slot_mean_nll_nats} decoder_window_slot_mean_nll_nats:${trace.history.decoder_window_slot_mean_nll_nats} window_slot_gap_nats:${trace.history.window_slot_gap_nats}`,
     ]);
     expect(reportLines.at(-1)).toBe(
       "next=inspect, modify, test, and extend the complete decoder",
     );
     expect(fixture).toMatch(/END\|next=student-owned-decoder\r?\n$/);
     expect(fixture).toContain(
-      "decoder_lower_on_fixture=true|no_grad=true|unchanged=true|evidence_scope=fixed-fixture-regression|within_run_selection_isolated=true|independent_generalization_estimate=false|architecture_superiority_evidence=false",
+      "SLOT_METRIC|unit=overlapping-window-target-slot|decoder_window_slot_mean_nll_nats=3.866087547|decoder_window_slot_perplexity=47.755180205|bigram_window_slot_mean_nll_nats=3.981342714|bigram_window_slot_perplexity=53.588940583|window_slot_gap_nats=0.115255167|comparison_slot_set=shared-ordered-window-slots|decoder_lower_on_fixture=true",
     );
+    expect(fixture).toContain(
+      "TRANSITION_METRIC|unit=within-document-next-token-transition|count=442|context_policy=longest-available-causal-prefix-up-to-4|newest_position_only=true|reported=false|mean_nll=not-reported|perplexity=not-reported",
+    );
+    expect(fixture).toContain(
+      "EVIDENCE|scope=fixed-fixture-regression|within_run_selection_isolated=true|independent_generalization_estimate=false|architecture_superiority_evidence=false",
+    );
+    for (const source of [expectedOutput, fixture, component, parserSource]) {
+      expect(source).not.toMatch(
+        /(?:\btargets\b|\bfingerprint\b|\bdecoder\b|\bbigram\b|\bgap\b)[:=](?=\d|fnv1a64)/,
+      );
+    }
     for (const [name, source] of [
       ["expected output", expectedOutput],
       ["diagram trace", fixture],
@@ -922,14 +1251,26 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     const accessibleDiagramText = {
       en: [
         'title: "Keep execution one-way and label fixture evidence"',
-        'description: "Follow frozen Rust evidence through training-only BPE, selection, a locally isolated evaluation of a fixed regression fixture, exact reload, and cached generation."',
+        'description: "Follow frozen Rust evidence through training-only BPE, selection, and a locally isolated comparison over 1,744 overlapping window-target slots. A separate unreported metric would score 442 within-document transition occurrences once each with the longest available causal prefix capped at four tokens and only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then follow exact reload and cached generation."',
         'test: "Score the fixed fixture locally"',
-        'gap: "Fixed-fixture loss gap"',
         'oneTime: "one local access in this execution"',
         'decodedText: "Cyrillic т followed by two generated spaces"',
         'spaceMarker: "Each ␠ marks one generated space."',
-        'windows: "Causal-window counts — train / validation / test"',
+        'windows: "Overlapping stride-one window counts — train / validation / test"',
         'evaluationBatches: "Evaluation mini-batch counts — train / validation / test"',
+        'windowSlots: "Overlapping window-target slots"',
+        'distinctTransitions: "Within-document transition occurrences"',
+        'transitionMultiplicity: "Transition occurrence multiplicities — 1× / 2× / 3× / 4×"',
+        'decoderSlotMeanNll: "Decoder mean NLL — nats per slot"',
+        'decoderSlotPerplexity: "Decoder window-slot perplexity — dimensionless"',
+        'bigramSlotMeanNll: "Bigram mean NLL — nats per slot"',
+        'bigramSlotPerplexity: "Bigram window-slot perplexity — dimensionless"',
+        'slotGap: "Fixed-fixture mean-NLL gap — nats per slot"',
+        'transitionMetric: "Once per transition — longest causal prefix capped at four tokens; newest position only"',
+        'decoderContextCapacity: "Decoder context capacity"',
+        'decoderSlotContextLengths: "Actual decoder slot context lengths"',
+        'sharedSlots: "both models score the same ordered slots, including repetitions"',
+        'transitionMetricNotReported: "442 within-document occurrences once each; longest causal prefix capped at four tokens; newest position only; numeric mean NLL and PPL not reported"',
         'logitProbeText: "Reload probe text"',
         'logitProbeTokenIds: "Token IDs encoding the reload probe"',
         'retainedPrefixLengths: "Retained prefix lengths in tokens before successive token choices"',
@@ -937,19 +1278,31 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'oneTokenDecodeInputTokens: "Earlier generated tokens processed one at a time by decode calls to obtain later logits"',
         'cachedAttentionScoreCells: "Cached attention-score cells"',
         'completePrefixAttentionScoreCells: "Calculated complete-prefix attention-score cells"',
-        'pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the locally isolated evaluation of the fixed regression fixture, and exact replay boundaries."',
+        'pipeline: "Numbers give executable order. The test stage reports the equal-slot comparison. It also marks the separate 442-transition policy—longest causal prefix capped at four tokens, newest-position distribution only—and states that its numeric mean NLL and PPL are not reported. Double borders mark training-only input, validation selection, locally isolated fixed-fixture evaluation, and exact replay boundaries."',
       ],
       ru: [
         'title: "Сохраните односторонний порядок запуска и обозначьте статус результата"',
-        'description: "Проследите зафиксированные результаты программы на Rust: обучение BPE только по обучающим данным, выбор состояния, локально изолированная оценка фиксированного примера для регрессионной проверки, точное восстановление и генерация с кэшем."',
+        'description: "Проследите зафиксированные результаты программы на Rust: обучение BPE только по обучающим данным, выбор состояния и локально изолированное сравнение по 1744 целевым позициям перекрывающихся окон. Отдельное правило оценивало бы 442 перехода внутри документов по одному разу, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Затем проследите точное восстановление и генерацию с кэшем."',
         'test: "Локально оцените фиксированный пример"',
-        'gap: "Разница потерь на фиксированном примере"',
         'oneTime: "один локальный доступ в этом запуске"',
         'decodedText: "кириллическая т и два сгенерированных пробела"',
         'spaceMarker: "␠ — сгенерированный пробел."',
         'encodedTokens: "Число токенов после кодирования — обучение / валидация / тест"',
-        'windows: "Число каузальных окон — обучение / валидация / тест"',
+        'windows: "Число перекрывающихся окон с шагом 1 — обучение / валидация / тест"',
         'evaluationBatches: "Число мини-пакетов оценки — обучение / валидация / тест"',
+        'windowSlots: "Целевые позиции перекрывающихся окон"',
+        'distinctTransitions: "Переходы внутри документов в заданных позициях"',
+        'transitionMultiplicity: "Число переходов с кратностью 1× / 2× / 3× / 4×"',
+        'decoderSlotMeanNll: "Среднее NLL декодера, в натах на позицию окна"',
+        'decoderSlotPerplexity: "Безразмерная перплексия декодера по позициям окон"',
+        'bigramSlotMeanNll: "Среднее NLL биграммной модели, в натах на позицию окна"',
+        'bigramSlotPerplexity: "Безразмерная перплексия биграммной модели по позициям окон"',
+        'slotGap: "Разница средних NLL, в натах на позицию окна"',
+        'transitionMetric: "Каждый переход один раз — максимально доступный каузальный префикс не длиннее четырёх токенов; только последняя позиция"',
+        'decoderContextCapacity: "Максимальная длина контекста декодера"',
+        'decoderSlotContextLengths: "Фактические длины контекста в позициях окон"',
+        'sharedSlots: "обе модели оценивают один и тот же упорядоченный набор позиций, включая повторы"',
+        'transitionMetricNotReported: "442 перехода внутри документов по одному разу; максимально доступный каузальный префикс не длиннее четырёх токенов; только последняя позиция; числовые значения среднего NLL и перплексии по этому правилу не приводятся"',
         'logitProbeText: "Текст пробы для проверки логитов после восстановления"',
         'logitProbeTokenIds: "ID токенов, которыми закодирована проба"',
         'retainedPrefixLengths: "Длины сохранённых префиксов перед каждым выбором токена (в токенах)"',
@@ -958,7 +1311,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'cachedAttentionScoreCells: "Число элементов матриц оценок внимания при работе с KV-кэшем"',
         'completePrefixAttentionScoreCells: "Число элементов матриц оценок внимания при эталонном расчёте по полному префиксу"',
         'cachedMatch: "решения с KV-кэшем и полным префиксом совпадают"',
-        'pipeline: "Номера задают порядок. Двойные рамки отмечают BPE только по обучающим данным, выбор по валидации, локально изолированную оценку фиксированного примера для регрессионной проверки и точное воспроизведение."',
+        'pipeline: "Номера задают порядок. На этапе тестирования показано сравнение по одним и тем же позициям окон. Отдельно обозначено правило для 442 переходов: каждый оценивается один раз, используется максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Двойные рамки отмечают BPE только по обучающим данным, выбор по валидации, локально изолированную оценку фиксированного примера и точное воспроизведение."',
       ],
     };
 
@@ -966,9 +1319,16 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       const source = lessonSources[locale].replace(/\r\n/g, "\n");
       const body = source.replace(/^---\n[\s\S]*?\n---\n/, "");
       expect(body).toContain(`$$\n${contract.formula.latex}\n$$`);
-      expect(body).toContain(
-        "$$\nN_{\\mathrm{test}}=W_{\\mathrm{test}}C=436\\cdot4=1744.\n$$",
-      );
+      for (const formula of [
+        "N_{\\mathrm{slot}}=W_{\\mathrm{test}}C=436\\cdot4=1744.",
+        "4\\cdot1+4\\cdot2+4\\cdot3+430\\cdot4=1744.",
+        "\\operatorname{PPL}_{\\mathrm{slot}}\n=\\exp\\!\\left(\\mathcal L_{\\mathrm{slot}}\\right).",
+        "N_{\\mathrm{transition}}\n=\\sum_{d\\in\\mathcal D_{\\mathrm{test}}}\\left(\\lvert z^{(d)}\\rvert-1\\right)\n=444-2=442.",
+        "\\mathcal L_{\\mathrm{slot}}\n=-\\frac{1}{N_{\\mathrm{slot}}}\n\\sum_{i=1}^{N_{\\mathrm{slot}}}\\log P_\\theta(z_i\\mid c_i).",
+      ]) {
+        expect(body).toContain(`$$\n${formula}\n$$`);
+      }
+      expect(body).not.toContain("N_{\\mathrm{test}}=W_{\\mathrm{test}}C");
       for (const formula of [
         "$C=4$",
         "$\\tau=0.8$",
@@ -1004,6 +1364,9 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     );
     expect(englishLessonSource).not.toContain(
       'evaluationBatches: "Evaluation mini-batches by partition"',
+    );
+    expect(`${englishLessonSource}\n${contractSource}`).not.toMatch(
+      /capped at four(?! tokens)/,
     );
     expect(russianLessonSource).not.toContain('windows: "Окна по выборкам"');
   });

@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
+import { createHash } from "node:crypto";
+// @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
 import * as nodeFs from "node:fs";
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
 import { tmpdir } from "node:os";
@@ -992,16 +994,18 @@ describe("LLM-evolution history contract", () => {
 });
 
 describe("curriculum and catalog contracts", () => {
-  it("projects checkpoint-scope plan revision 72 and the exact bilingual chapter revisions", () => {
+  it("projects metric-scope plan revision 73 and the exact bilingual chapter revisions", () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, "curriculum/course-plan.md"),
       "utf8",
     );
     const plan = jsonFrontmatter(planSource);
-    const projection = JSON.parse(
-      readFileSync(join(root, "site/src/i18n/chapter-locales.json"), "utf8"),
-    ) as {
+    const projectionSource = readFileSync(
+      join(root, "site/src/i18n/chapter-locales.json"),
+      "utf8",
+    );
+    const projection = JSON.parse(projectionSource) as {
       planRevision: number;
       chapters: Array<{
         chapterId: string;
@@ -1009,8 +1013,14 @@ describe("curriculum and catalog contracts", () => {
         activeLocales: string[];
       }>;
     };
-    expect(plan.plan_revision).toBe(72);
-    expect(projection.planRevision).toBe(72);
+    expect(createHash("sha256").update(planSource).digest("hex")).toBe(
+      "117d9fc7c20b62d1f787bcd69f9d93d1de4bedf1b24c8e8ae0ea5bcd2061c797",
+    );
+    expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
+      "6a29d8c542d02550bec739de898acc468eff0102355b8f2440e940f9cd241921",
+    );
+    expect(plan.plan_revision).toBe(73);
+    expect(projection.planRevision).toBe(73);
     expect(planSource).toContain(
       "- **Handoff:** Chapter 35 serializes the trainer-captured selected model and matching optimizer state for reproducible inference; the immutable evaluation report remains separate, and the sampling RNG is initialized independently.",
     );
@@ -1026,6 +1036,25 @@ describe("curriculum and catalog contracts", () => {
     expect(planSource).not.toContain(
       "Save and load a versioned checkpoint that reproduces tokenizer/configuration, parameters, optimizer/RNG state, logits, and one resumed update.",
     );
+    expect(planSource).toContain(
+      "Report the existing test comparison as a mean over overlapping window-target slots; distinguish it from, but do not compute, a corpus metric that would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; numeric mean NLL and perplexity are not reported for that policy.",
+    );
+    expect(planSource).toContain(
+      "`N_{\\mathrm{slot}}=W_{\\mathrm{test}}C=436\\cdot4=1744`; `\\operatorname{PPL}_{\\mathrm{slot}}=\\exp(\\mathcal L_{\\mathrm{slot}})`; and `N_{\\mathrm{transition}}=\\sum_d(|z^{(d)}|-1)=444-2=442`",
+    );
+    expect(planSource).toContain(
+      "The two test documents contain 442 within-document transition occurrences, but the conventional maximal-prefix metric that scores each occurrence once is explicitly not reported.",
+    );
+    expect(planSource).toContain(
+      "Content revision 9 identifies the 1,744 reported observations as overlapping window-target slots, labels the fixed values as mean NLL in nats per slot and their exponentials as dimensionless window-slot perplexities",
+    );
+    expect(planSource).toContain(
+      "mean NLL 3.866087547 and 3.981342714 in nats per slot and dimensionless window-slot perplexities 47.755180205 and 53.588940583",
+    );
+    expect(planSource).toContain(
+      "Four within-document transition occurrences appear in one slot, four in two slots, four in three slots, and 430 in four slots",
+    );
+    expect(planSource).not.toMatch(/1,744 (?:identical|same) targets/);
 
     for (const [chapterId, order, revision] of [
       ["00-llm-parts", 0, 5],
@@ -1035,7 +1064,7 @@ describe("curriculum and catalog contracts", () => {
       ["34-final-evaluation", 34, 7],
       ["35-checkpoints", 35, 5],
       ["38-cached-generation", 38, 6],
-      ["39-end-to-end-llm", 39, 8],
+      ["39-end-to-end-llm", 39, 9],
     ] as const) {
       expect(
         projection.chapters.find((chapter) => chapter.chapterId === chapterId),
@@ -1120,7 +1149,11 @@ describe("curriculum and catalog contracts", () => {
       );
       expect(trace).toContain("decoder_lower_on_fixture=true");
       expect(expected).toContain("scope:fixed-fixture-regression");
-      expect(trace).toContain("evidence_scope=fixed-fixture-regression");
+      expect(trace).toContain(
+        chapterId === "34-final-evaluation"
+          ? "evidence_scope=fixed-fixture-regression"
+          : "EVIDENCE|scope=fixed-fixture-regression",
+      );
       expect(expected).toContain("within_run_selection_isolated:true");
       expect(trace).toContain("within_run_selection_isolated=true");
       expect(expected).toContain("independent_generalization_estimate:false");
@@ -1634,7 +1667,7 @@ describe("curriculum and catalog contracts", () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 72',
+      '"plan_revision": 73',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

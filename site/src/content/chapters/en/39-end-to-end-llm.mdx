@@ -2,13 +2,13 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "en",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 39,
   "concept_id": "end-to-end-llm",
   "title": "Run the whole tiny LLM",
-  "description": "Trace a tiny decoder-only language model in Rust through validation-selected training, locally isolated fixed-fixture evaluation, exact checkpoint reload, and KV-cached generation while keeping regression evidence distinct from generalization.",
-  "objective": "Run one deterministic bilingual decoder-only LLM through training-only BPE, validation selection, one local fixed-fixture evaluation, exact checkpoint reload, and cached generation while distinguishing within-run isolation from repository regression evidence.",
-  "worked_inputs": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, retain the decoder-lower ordering on the same 1,744 test targets as a permanent fixed-fixture regression condition, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
+  "description": "Trace a tiny decoder-only language model in Rust through validation-selected training, a fixed-fixture comparison over overlapping window-target slots, exact reload, and KV-cached generation. Distinguish that comparison from the unreported policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution; numeric NLL and PPL are not reported for that policy.",
+  "objective": "Run one deterministic bilingual decoder-only LLM end to end, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation.",
+  "worked_inputs": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation mean NLL 3.889531885, and compare the decoder with the frozen bigram on the same 1,744 overlapping stride-one window-target slots. Label 3.866087547 and 3.981342714 as mean NLL in nats per slot and 47.755180205 and 53.588940583 as their dimensionless window-slot perplexities. A separate policy would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
   "formula": {
     "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
     "symbols": [
@@ -83,8 +83,8 @@
         }
       ]
     },
-    "approach": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the permanently checked gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture superiority.",
-    "summary": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local responsibility boundaries while treating its known decoder-lower ordering only as fixed-fixture regression evidence.",
+    "approach": "Compare the training-only alpha-one bigram with the validation-selected causal decoder on the same ordered 1,744 overlapping window-target slots. Four tokens is the decoder's context capacity, while its slot predictions use one, two, three, or four in-window context tokens. A separate policy would score each of 442 within-document transition occurrences once, use the longest available causal prefix capped at four tokens and only its newest-position distribution, and report neither numeric mean NLL nor PPL here. Treat the retained slot mean-NLL gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture superiority.",
+    "summary": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local responsibility boundaries while treating its known lower decoder window-slot mean NLL only as fixed-fixture regression evidence.",
     "rust_source": "rust/demos/ch39-end-to-end-llm/src/lib.rs"
   },
   "rust_sources": [
@@ -96,7 +96,7 @@
     {
       "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
       "region": "historical-contrast",
-      "purpose": "Report the measured same-target loss contrast between the one-token bigram and four-token causal decoder."
+      "purpose": "Report the measured window-slot mean-NLL and perplexity contrast, and state that the separate policy—442 within-document transitions once each, longest causal prefix capped at four tokens, newest-position distribution only—has no reported numeric mean NLL or PPL."
     },
     {
       "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
@@ -111,9 +111,9 @@
   "visualization": {
     "decision": "useful",
     "id": "end-to-end-llm",
-    "rationale": "One numbered left-to-right process makes the within-execution information boundary visible: the run materializes test batches only after training and validation selection, labels the known ordering as fixed-fixture regression evidence, and then proceeds through exact checkpoint round-trip and cached generation. Local labels bind every count and probe to its value without implying independent generalization."
+    "rationale": "One numbered process makes the within-execution boundary visible: test batches appear only after selection; the 1,744-slot metric is separated from the policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, without reporting numeric mean NLL or PPL; the known slot ordering is marked as fixed-fixture regression evidence before exact reload and cached generation."
   },
-  "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local evaluator receives test batches, the known test ordering is retained only as fixed-fixture regression evidence, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text."
+  "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and overlapping causal windows; validation selects before both models score the same ordered slots; the separate policy would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, but reports no numeric mean NLL or PPL; checkpoint state reloads exactly; the At probe reproduces logits; and cached generation returns text."
 }
 ---
 
@@ -122,7 +122,7 @@ import EndToEndLlmDiagram from "../../../components/chapters/EndToEndLlmDiagram.
 
 export const diagramLabels = {
   title: "Keep execution one-way and label fixture evidence",
-  description: "Follow frozen Rust evidence through training-only BPE, selection, a locally isolated evaluation of a fixed regression fixture, exact reload, and cached generation.",
+  description: "Follow frozen Rust evidence through training-only BPE, selection, and a locally isolated comparison over 1,744 overlapping window-target slots. A separate unreported metric would score 442 within-document transition occurrences once each with the longest available causal prefix capped at four tokens and only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then follow exact reload and cached generation.",
   sections: {
     pipeline: "Follow the complete program in order",
   },
@@ -140,18 +140,25 @@ export const diagramLabels = {
     documents: "Document counts — train / validation / test",
     vocabulary: "Vocabulary size",
     encodedTokens: "Encoded token counts — train / validation / test",
-    context: "Causal context",
-    windows: "Causal-window counts — train / validation / test",
+    context: "Decoder context capacity",
+    windows: "Overlapping stride-one window counts — train / validation / test",
     updateBatchSize: "Update mini-batch size",
     evaluationBatchSize: "Evaluation mini-batch size",
     evaluationBatches: "Evaluation mini-batch counts — train / validation / test",
     parameters: "Learned parameters",
     trainLoss: "train",
     validationLoss: "validation",
-    targets: "Identical final targets",
-    decoderLoss: "Decoder loss",
-    bigramLoss: "Bigram loss",
-    gap: "Fixed-fixture loss gap",
+    windowSlots: "Overlapping window-target slots",
+    distinctTransitions: "Within-document transition occurrences",
+    transitionMultiplicity: "Transition occurrence multiplicities — 1× / 2× / 3× / 4×",
+    decoderSlotMeanNll: "Decoder mean NLL — nats per slot",
+    decoderSlotPerplexity: "Decoder window-slot perplexity — dimensionless",
+    bigramSlotMeanNll: "Bigram mean NLL — nats per slot",
+    bigramSlotPerplexity: "Bigram window-slot perplexity — dimensionless",
+    slotGap: "Fixed-fixture mean-NLL gap — nats per slot",
+    transitionMetric: "Once per transition — longest causal prefix capped at four tokens; newest position only",
+    decoderContextCapacity: "Decoder context capacity",
+    decoderSlotContextLengths: "Actual decoder slot context lengths",
     bytes: "Checkpoint bytes",
     records: "Tensor records",
     logitProbeText: "Reload probe text",
@@ -171,13 +178,15 @@ export const diagramLabels = {
     candidate: "initial candidate",
     selected: "validation-selected state",
     oneTime: "one local access in this execution",
+    sharedSlots: "both models score the same ordered slots, including repetitions",
+    transitionMetricNotReported: "442 within-document occurrences once each; longest causal prefix capped at four tokens; newest position only; numeric mean NLL and PPL not reported",
     exact: "bytes, model, optimizer, and tokenizer round-trip exactly; probe logits match",
     cachedMatch: "cached and complete-prefix decisions match",
     decodedText: "Cyrillic т followed by two generated spaces",
     spaceMarker: "Each ␠ marks one generated space.",
   },
   captions: {
-    pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the locally isolated evaluation of the fixed regression fixture, and exact replay boundaries.",
+    pipeline: "Numbers give executable order. The test stage reports the equal-slot comparison. It also marks the separate 442-transition policy—longest causal prefix capped at four tokens, newest-position distribution only—and states that its numeric mean NLL and PPL are not reported. Double borders mark training-only input, validation selection, locally isolated fixed-fixture evaluation, and exact replay boundaries.",
   },
 };
 
@@ -191,9 +200,10 @@ training documents may teach BPE merge ranks, update decoder parameters, or fit
 the count baseline. Validation may choose a trained state. Test evidence may do
 neither.
 
-Eight training-only BPE merges produce vocabulary size $266$. With context
-length $C=4$, the encoded partitions produce $1820$, $463$, and $436$ causal
-windows. Updates use mini-batches of $16$ windows; the three evaluation epochs
+Eight training-only BPE merges produce vocabulary size $266$. With decoder
+context capacity $C=4$ and stride one, the encoded partitions produce $1820$,
+$463$, and $436$ overlapping causal windows. Updates use mini-batches of $16$
+windows; the three evaluation epochs
 use mini-batches of at most $128$ windows, so they contain $15$, $4$, and $4$
 mini-batches. The decoder has one block, one head, width $4$, feed-forward width
 $4$, and $1188$ learned scalar parameters.
@@ -208,19 +218,63 @@ Before reading the result, predict:
 
 Both training replays select step $32$ at validation loss $3.889531885$. Only
 after selection does the run materialize test mini-batches and give them to one
-local final evaluator. Every one of the $436$ test windows contributes $C=4$
-target positions:
+local final evaluator. Every one of the $436$ overlapping test windows contributes
+$C=4$ target slots:
 
 $$
-N_{\mathrm{test}}=W_{\mathrm{test}}C=436\cdot4=1744.
+N_{\mathrm{slot}}=W_{\mathrm{test}}C=436\cdot4=1744.
 $$
 
-The decoder and frozen alpha-one bigram score those same $1744$ targets. Decoder
-loss is $3.866087547$, while the bigram reaches $3.981342714$, a gap of
-$0.115255167$ on this fixed fixture. That ordering is retained across later
-executions, so it is useful regression evidence. It is not an untouched
-independent estimate of generalization or evidence of architecture-wide decoder
-superiority.
+A window-target slot is identified by its document, window start, and position
+inside the window. Because adjacent windows overlap, one within-document
+transition occurrence can enter the score in as many as four slots. The decoder
+sees one, two, three, or four in-window context tokens at the four causal slot
+positions; $C=4$ is its capacity, not the context length of every prediction.
+The bigram always uses only the immediately preceding token.
+
+Across the two documents, $4$ transition occurrences appear in one slot, $4$ in
+two slots, $4$ in three slots, and $430$ in four slots. The multiplicities
+recover the reported denominator:
+
+$$
+4\cdot1+4\cdot2+4\cdot3+430\cdot4=1744.
+$$
+
+The decoder and frozen alpha-one bigram score the same ordered $1744$ slots,
+including those repetitions. Their reported values are mean NLL in nats per
+slot: $3.866087547$ for the decoder and $3.981342714$ for the bigram. The
+window-slot perplexity is the exponential of the corresponding mean:
+
+$$
+\operatorname{PPL}_{\mathrm{slot}}
+=\exp\!\left(\mathcal L_{\mathrm{slot}}\right).
+$$
+
+The exact window-slot perplexities are $47.755180205$ for the decoder and
+$53.588940583$ for the bigram. Perplexity is dimensionless.
+
+Thus $3.866087547$ is mean NLL, not perplexity. The mean-NLL gap is
+$0.115255167$ on this fixed fixture. Scoring the same ordered slots makes that
+within-fixture comparison fair for this slot-weighted protocol.
+
+The same two test documents contain $444$ encoded tokens and therefore $442$
+within-document transition occurrences:
+
+$$
+N_{\mathrm{transition}}
+=\sum_{d\in\mathcal D_{\mathrm{test}}}\left(\lvert z^{(d)}\rvert-1\right)
+=444-2=442.
+$$
+
+A conventional once-per-transition metric would score each occurrence once. It
+would present the decoder with the maximal available prefix of at most four
+immediately preceding tokens and use only the distribution at the newest
+position. Chapter 39 does not report that metric's mean NLL or perplexity, so
+the $1744$-slot values must not be read as corpus scores over $442$ transitions.
+
+The lower decoder slot mean-NLL ordering is retained across later executions, so it is useful
+regression evidence. It is not an untouched independent estimate of
+generalization or evidence of architecture-wide decoder superiority.
 
 The $30994$-byte checkpoint re-encodes to the same bytes and restores the model,
 optimizer, tokenizer, and random state exactly. A separate probe
@@ -255,7 +309,24 @@ most the retained last $C=4$ earlier tokens. A frozen split makes the
 experimental promise parallel to the mathematical one: test-reserved documents
 cannot affect tokenizer learning, updates, or validation selection in this run.
 That within-execution boundary does not make a known result independently held
-out again when the repository reruns it.
+out again when a later execution reuses it.
+
+The test comparison instantiates that factorization with an explicit observation
+list. If slot $i$ contains observed target $z_i$ and the context actually visible
+at that slot is $c_i$, then the reported mean is
+
+$$
+\mathcal L_{\mathrm{slot}}
+=-\frac{1}{N_{\mathrm{slot}}}
+\sum_{i=1}^{N_{\mathrm{slot}}}\log P_\theta(z_i\mid c_i).
+$$
+
+This sum has $N_{\mathrm{slot}}=1744$ equally weighted terms. Equal slot weight
+does not mean equal transition weight, because overlap repeats a
+within-document transition occurrence. The separate $442$-term policy would
+score each occurrence once, use the longest available causal prefix capped at
+four tokens and only its newest-position distribution, and report no numeric mean NLL
+or PPL here.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -270,6 +341,14 @@ out again when the repository reruns it.
 - $z_t$ is the observed token at that position.
 - $z_{<t}$ is the earlier causal prefix in the general factorization; this
   fixture presents at most the last $C=4$ earlier tokens to the decoder.
+- $N_{\mathrm{slot}}$ is the number of overlapping window-target slots scored by
+  each model; here it is $1744$.
+- $\mathcal L_{\mathrm{slot}}$ is mean NLL in nats per slot, and
+  $\operatorname{PPL}_{\mathrm{slot}}$ is its dimensionless exponential.
+- $N_{\mathrm{transition}}$ counts $442$ within-document transition occurrences.
+  The separate policy would score each once with the longest available causal
+  prefix capped at four tokens and only its newest-position distribution; its numeric
+  mean NLL and PPL are not reported.
 
 The training step number is not $t$. A step updates $\theta$ from a mini-batch;
 $t$ indexes a token inside the language-model factorization.
@@ -307,23 +386,29 @@ isolation, fixed-fixture regression evaluation, exact checkpoint round-trip, and
 stateful generation; these are local evidence rules, not requirements of the
 cited papers.
 
-Compare the training-only alpha-one bigram with the validation-selected
-four-token causal decoder on identical test-reserved targets. The permanently
-checked gap is fixed-fixture regression evidence, not causal attribution to
-context or attention and not an independent generalization estimate.
+Compare the training-only alpha-one bigram with the validation-selected causal
+decoder on the same ordered overlapping window-target slots. Four tokens is the
+decoder's context capacity; the four slot positions expose one through four
+in-window context tokens. The mean-NLL gap retained by later executions is fixed-fixture
+regression evidence, not causal attribution to context or attention and not an
+independent generalization estimate. Bengio and colleagues' discussion of
+overlapping sequences does not define this course's stride-one slot weighting.
 
 Count n-grams provided a strong short-context baseline; learned distributed
 features and masked self-attention made longer learned computation possible, and
 scaled autoregressive Transformers became one major family of modern LLMs. This
 capstone demonstrates local end-to-end responsibility boundaries at inspectable
-scale while treating the known decoder-lower ordering only as a regression
+scale while treating the known lower decoder window-slot mean NLL only as a regression
 condition for this fixed fixture.
 
-The executable contrast is narrow: one-token count context against a four-token
-causal decoder on this frozen corpus. The lower loss verifies the retained
-fixed-fixture ordering. It is not an untouched independent estimate of
-generalization and does not establish a universal architecture ranking or useful
-generation quality.
+The executable contrast is narrow: a one-token count context and a decoder with
+four-token context capacity score the same $1744$ repeated window slots on this
+frozen corpus. The lower slot mean NLL verifies the retained fixed-fixture
+ordering. The separate policy would score the $442$ transition occurrences once
+each with the longest causal prefix capped at four tokens and only its newest-position
+distribution, but its numeric mean NLL and PPL are not reported. The ordering is
+also not an untouched independent estimate of generalization, a universal
+architecture ranking, or evidence of useful generation quality.
 
 <RustSource
   path="rust/demos/ch39-end-to-end-llm/src/lib.rs"
@@ -355,13 +440,20 @@ opening that local test gate, it verifies that the decoder's configuration,
 ordered names and shapes, and every parameter bit still match the retained
 state; this prevents a changed decoder from being evaluated under stale
 selection metadata without making another model copy. The evaluator then scores
-the borrowed model and consumes its permission. The permission, not either
-borrowed object, is the one-use resource. This is an executable boundary inside
-this run, not a claim that the repository globally prevents other code from
-reading the corpus. Later report assembly retains only the two counts, not a
-cloned epoch.
+the borrowed model and consumes its permission. It compares both models on the
+same ordered $1744$ overlapping window-target slots, including the same repeated
+transition occurrences. The decoder has context capacity four, but its slot
+predictions use actual in-window context lengths $1$, $2$, $3$, and $4$. The
+separate policy would score all $442$ occurrences once each, use the longest
+available causal prefix capped at four tokens and only its newest-position distribution,
+and report no numeric mean NLL or PPL.
 
-The pipeline retains the decoder-lower relation as an explicitly named
+The permission, not either borrowed object, is the one-use resource. This is an
+executable boundary inside this run, not a claim that the repository globally
+prevents other code from reading the corpus. Later report assembly retains the
+derived counts and metric evidence, not a cloned epoch.
+
+The pipeline retains the lower decoder window-slot mean NLL as an explicitly named
 fixed-fixture regression condition; `FinalEvaluator` itself remains neutral to
 which model is lower. The learner evidence uses
 `decoder_lower_on_fixture:true` and records
@@ -405,7 +497,7 @@ for the report.
 />
 
 The runnable evidence requires every final claim together. It rejects a changed
-test ordering, a changed decoder-lower fixed-fixture regression condition, a
+test ordering, a changed lower-decoder slot-metric regression condition, a
 replay with different bits, altered checkpoint state or probe logits, or any
 cached sampling divergence. That requirement protects known fixture behavior; it
 does not promote the ordering into independent generalization evidence.
@@ -426,11 +518,13 @@ data=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 do
 tokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]
 model=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]
 training=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true
-test=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_lower_on_fixture:true no_grad:true unchanged:true
+test=access:1 documents:[en-winter-window,ru-winter-window] stride:1 windows:436 batches:4 window_target_slots:1744 document_transition_occurrences:442 transition_multiplicity_counts:[1x4,2x4,3x4,4x430] window_slot_fingerprint:fnv1a64:77b836869f848986 no_grad:true unchanged:true
+slot_metric=unit:overlapping-window-target-slot decoder_window_slot_mean_nll_nats:3.866087547 decoder_window_slot_perplexity:47.755180205 bigram_window_slot_mean_nll_nats:3.981342714 bigram_window_slot_perplexity:53.588940583 window_slot_gap_nats:0.115255167 comparison_slot_set:shared-ordered-window-slots decoder_lower_on_fixture:true
+transition_metric=unit:within-document-next-token-transition count:442 context_policy:longest-available-causal-prefix-up-to-4 newest_position_only:true reported:false mean_nll:not-reported perplexity:not-reported
 evidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false
 checkpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true
 generation=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:"т  " prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true
-history=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167
+history=window_slot_unit:overlapping-window-target-slot window_target_slots:1744 document_transition_occurrences:442 bigram_context_tokens:1 decoder_context_capacity:4 decoder_window_slot_context_lengths:[1,2,3,4] bigram_window_slot_mean_nll_nats:3.981342714 decoder_window_slot_mean_nll_nats:3.866087547 window_slot_gap_nats:0.115255167
 next=inspect, modify, test, and extend the complete decoder
 ```
 
@@ -447,8 +541,13 @@ next=inspect, modify, test, and extend the complete decoder
 The figure begins with fixed document roles and training-only tokenizer learning.
 It then follows causal windows into the decoder and places the validation-selected
 state before a double-marked local test gate. Test loss has no path back to an
-update or selection in this run. The test card labels the known ordering as a
-fixed-fixture regression condition, not independent generalization evidence.
+update or selection in this run. The test card identifies the $1744$ observations
+as overlapping window-target slots and labels the values as mean NLL in nats per
+slot. The separate policy would score all $442$ within-document transition
+occurrences once each, use the longest causal prefix capped at four tokens and only its
+newest-position distribution, and report no numeric mean NLL or PPL. The known
+ordering remains a fixed-fixture regression condition, not independent
+generalization evidence.
 
 The last two stages ask different equality questions. Checkpoint reload preserves
 saved bytes plus model, optimizer, tokenizer, step, and RNG state exactly; logits
@@ -472,9 +571,10 @@ $1^2+2^2+3^2=14$.
 2. How many decoder parameters receive updates?
 3. What evidence chooses step $32$?
 4. May the test loss change that choice?
-5. How do $436$ test windows become $1744$ scored target positions?
-6. What is the measured test-loss gap, and what evidence scope does its ordering
-   have?
+5. How do $436$ overlapping test windows become $1744$ window-target slots, and
+   why are there only $442$ within-document transition occurrences?
+6. What is the measured slot mean-NLL gap, how is window-slot perplexity related
+   to each model's slot mean NLL, and what evidence scope does the ordering have?
 7. Which checkpoint facts are exact, and which claim belongs only to probe <code>At</code>?
 8. Which literal token IDs follow prompt <code>A</code>?
 9. Why is decoded <code>т␠␠</code> not evidence of translation quality?
@@ -495,11 +595,17 @@ not independent.
 3. Step $32$ has validation loss $3.889531885$, lower than step $0$ at
    $5.628342353$.
 4. No. Final test evidence arrives after selection and performs no update.
-5. Each of the $436$ windows has $C=4$ target slots, so
-   $436\cdot4=1744$; both models score those same positions.
-6. $3.981342714-3.866087547=0.115255167$ on the fixed fixture. Its permanently
-   checked decoder-lower ordering is regression evidence, not an untouched
-   independent estimate of generalization or architecture superiority.
+5. Each of the $436$ stride-one windows has $C=4$ target slots, so
+   $436\cdot4=1744$. Overlap repeats a within-document transition occurrence in
+   as many as four slots. The two separate test documents contain
+   $444-2=442$ such occurrences. The separate policy would score each once, use
+   the longest available causal prefix capped at four tokens and only its newest-position
+   distribution, and report no numeric mean NLL or PPL.
+6. The reported values are mean NLL in nats per slot, and
+   $3.981342714-3.866087547=0.115255167$. Window-slot perplexity is
+   $\exp(\mathcal L_{\mathrm{slot}})$, not either mean-NLL value itself. The
+   lower decoder slot mean-NLL ordering retained by later executions is regression evidence, not an
+   untouched independent estimate of generalization or architecture superiority.
 7. Re-encoded bytes, model and optimizer bits, BPE ranks, selected step, and RNG
    state are exact; only logits for the explicit <code>At</code> probe are compared.
 8. The literal generated IDs are <code>[260,34,34]</code>.
@@ -515,8 +621,12 @@ not independent.
 
 Every course component now participates in one functional program: frozen
 bilingual data becomes BPE tokens and causal batches; validation selects the
-decoder before the local final evaluator receives test batches; the known
-decoder-lower ordering remains only fixed-fixture regression evidence;
+decoder before the local final evaluator receives test batches; both models
+score the same ordered overlapping window-target slots; the separate policy
+would score $442$ within-document transitions once each with the longest causal
+prefix capped at four tokens and only its newest-position distribution, but reports no
+numeric mean NLL or PPL; the known lower decoder slot mean-NLL ordering
+remains only fixed-fixture regression evidence;
 checkpoint bytes and state round-trip exactly; the separate <code>At</code> probe reproduces
 logits bit for bit; and cached generation from <code>A</code> returns decoded
 text.

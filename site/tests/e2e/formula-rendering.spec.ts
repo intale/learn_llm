@@ -1,8 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import chapterLocaleManifest from "../../src/i18n/chapter-locales.json" with {
-  type: "json",
-};
+import chapterLocaleManifest from "../../src/i18n/chapter-locales.json" with { type: "json" };
 import { expectNoOverflowOrClientScripts } from "./chapter-helpers";
 
 const chapterIds = [
@@ -661,7 +659,18 @@ const chapter14To39FormulaLatex: Record<
   "39-end-to-end-llm": [
     String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
     String.raw`C=4`,
-    String.raw`N_{\mathrm{test}}=W_{\mathrm{test}}C=436\cdot4=1744`,
+    String.raw`N_{\mathrm{slot}}=W_{\mathrm{test}}C=436\cdot4=1744`,
+    String.raw`4\cdot1+4\cdot2+4\cdot3+430\cdot4=1744`,
+    String.raw`\operatorname{PPL}_{\mathrm{slot}}`,
+    String.raw`\exp\!\left(\mathcal L_{\mathrm{slot}}\right)`,
+    String.raw`47.755180205`,
+    String.raw`53.588940583`,
+    String.raw`N_{\mathrm{transition}}`,
+    String.raw`\sum_{d\in\mathcal D_{\mathrm{test}}}\left(\lvert z^{(d)}\rvert-1\right)`,
+    String.raw`=444-2=442`,
+    String.raw`\mathcal L_{\mathrm{slot}}`,
+    String.raw`-\frac{1}{N_{\mathrm{slot}}}`,
+    String.raw`\sum_{i=1}^{N_{\mathrm{slot}}}\log P_\theta(z_i\mid c_i)`,
     String.raw`\tau=0.8`,
     String.raw`k=4`,
     String.raw`3.981342714-3.866087547=0.115255167`,
@@ -936,6 +945,11 @@ test.describe("@formula-rendering:Chapter 14-39 active-locale rendered formula c
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,
           ).toBe(true);
+        }
+        if (chapterId === "39-end-to-end-llm") {
+          expect(latex).not.toContain(
+            String.raw`N_{\mathrm{test}}=W_{\mathrm{test}}C=436\cdot4=1744`,
+          );
         }
         if (chapterId === "16-model-autodiff-ops") {
           const diagramLatex = await page

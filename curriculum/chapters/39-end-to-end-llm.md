@@ -2,15 +2,15 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 8,
+  "content_revision": 9,
   "order": 39,
   "objective": {
-    "en": "Run one deterministic bilingual decoder-only LLM through training-only BPE, validation selection, one local fixed-fixture evaluation, exact checkpoint reload, and cached generation while distinguishing within-run isolation from repository regression evidence.",
-    "ru": "Запустить одну детерминированную двуязычную декодерную LLM по всей цепочке: обучение BPE только по обучающей выборке, выбор состояния по валидации, одна локальная оценка фиксированного примера, точное восстановление из контрольной точки и генерация с кэшем; при этом отличить изоляцию выбора в пределах запуска от регрессионной проверки на уровне репозитория."
+    "en": "Run one deterministic bilingual decoder-only LLM end to end, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation.",
+    "ru": "Запустить одну детерминированную двуязычную декодерную LLM по всей цепочке, вывести среднее NLL и перплексию по целевым позициям перекрывающихся тестовых окон, отличить эти 1744 позиции от 442 переходов внутри документов и сохранить границы выбора, регрессионной проверки, восстановления из контрольной точки и генерации с кэшем."
   },
   "worked_inputs": {
-    "en": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, retain the decoder-lower ordering on the same 1,744 test targets as a permanent fixed-fixture regression condition, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
-    "ru": "Использовать сохранённое в репозитории разбиение двуязычного корпуса на восемь, два и два документа; получить восемь правил BPE-слияния только по обучающей выборке; выполнить 32 обновления одноблочного декодера с 1188 параметрами; выбрать состояние со значением функции потерь на валидации 3.889531885; сохранить как постоянное условие регрессионной проверки фиксированного примера порядок результатов на тех же 1744 тестовых целевых позициях, при котором потери декодера ниже потерь зафиксированной биграммной модели; точно восстановить состояние из контрольной точки и логиты для пробы At; продолжить промпт A идентификаторами токенов 260, 34 и 34, которые декодируются в кириллическую букву т и два пробела."
+    "en": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation mean NLL 3.889531885, and compare the decoder with the frozen bigram on the same 1,744 overlapping stride-one window-target slots. Label 3.866087547 and 3.981342714 as mean NLL in nats per slot and 47.755180205 and 53.588940583 as their dimensionless window-slot perplexities. A separate policy would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
+    "ru": "Использовать сохранённое в репозитории разбиение двуязычного корпуса на восемь, два и два документа; получить восемь правил BPE-слияния только по обучающей выборке; выполнить 32 обновления одноблочного декодера с 1188 параметрами; выбрать состояние со средним NLL на валидации 3.889531885; сравнить декодер с зафиксированной биграммной моделью на одних и тех же 1744 целевых позициях перекрывающихся окон с шагом 1. Обозначить 3.866087547 и 3.981342714 как средние значения NLL в натах на целевую позицию окна, а 47.755180205 и 53.588940583 — как соответствующие безразмерные перплексии по позициям окон. Отдельное правило оценивало бы каждый из 442 переходов внутри документов один раз, передавало бы декодеру максимально доступный каузальный префикс не длиннее четырёх токенов и использовало бы только распределение в его последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Затем точно восстановить состояние из контрольной точки и логиты для пробы At и продолжить промпт A идентификаторами токенов 260, 34 и 34, которые декодируются в кириллическую букву т и два пробела."
   },
   "formula": {
     "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
@@ -116,14 +116,14 @@
       ]
     },
     "approach": {
-      "en": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the permanently checked gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture superiority.",
-      "ru": "Сопоставить биграммную модель со сглаживанием α=1, обученную только по обучающей выборке, и каузальный декодер с контекстом из четырёх токенов, выбранный по валидации, на одних и тех же целевых позициях из тестовой выборки; постоянно проверяемую разницу считать результатом фиксированного примера для регрессионной проверки, а не доказательством причинного влияния, независимой оценкой способности модели обобщать или свидетельством превосходства архитектуры."
+      "en": "Compare the training-only alpha-one bigram with the validation-selected causal decoder on the same ordered 1,744 overlapping window-target slots. Four tokens is the decoder's context capacity, while its slot predictions use one, two, three, or four in-window context tokens. A separate policy would score each of 442 within-document transition occurrences once, use the longest available causal prefix capped at four tokens and only its newest-position distribution, and report neither numeric mean NLL nor PPL here. Treat the retained slot mean-NLL gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture superiority.",
+      "ru": "Сопоставить биграммную модель со сглаживанием α=1 и выбранный по валидации каузальный декодер на одних и тех же 1744 упорядоченных целевых позициях перекрывающихся окон. Максимальная длина контекста декодера равна четырём токенам, но в позициях окна ему доступны один, два, три или четыре токена. Отдельное правило оценивало бы каждый из 442 переходов внутри документов один раз, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Разницу средних NLL по позициям окон считать результатом фиксированного примера для регрессионной проверки, а не доказательством причинного влияния, независимой оценкой способности модели обобщать или свидетельством превосходства архитектуры."
     },
     "summary": {
-      "en": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local responsibility boundaries while treating its known decoder-lower ordering only as fixed-fixture regression evidence.",
-      "ru": "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые признаки и маскированное самовнимание сделали возможными более длинные обучаемые вычисления, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает локальные границы ответственности, а известный порядок, при котором потери декодера ниже, представлен лишь как результат фиксированного примера для регрессионной проверки."
+      "en": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local responsibility boundaries while treating its known lower decoder window-slot mean NLL only as fixed-fixture regression evidence.",
+      "ru": "Частотные n-граммы служили сильной базовой моделью с коротким контекстом; обучаемые распределённые признаки и маскированное самовнимание сделали возможными более длинные обучаемые вычисления, а масштабированные авторегрессионные модели на основе Transformer стали одним из основных семейств современных LLM. Завершающий пример показывает локальные границы ответственности, а известное более низкое среднее NLL декодера по позициям окон представлено лишь как результат фиксированного примера для регрессионной проверки."
     },
-    "rust_contrast": "Derive the one-token bigram context, four-token decoder context, 1,744 shared targets, losses 3.981342714 and 3.866087547, and gap 0.115255167 from the final run evidence; retain the ordering only as fixed-fixture regression evidence rather than a causal effect, independent generalization estimate, or architecture ranking."
+    "rust_contrast": "Derive the one-token bigram context, decoder context capacity four with actual slot context lengths one through four, 1,744 shared overlapping window-target slots, mean NLL values 3.981342714 and 3.866087547 in nats per slot, dimensionless window-slot perplexities 53.588940583 and 47.755180205, and mean-NLL gap 0.115255167. State that the separate policy would score each of 442 within-document transition occurrences once with the longest available causal prefix capped at four tokens and only its newest-position distribution, while reporting neither numeric mean NLL nor PPL; retain the slot-weighted ordering only as fixed-fixture regression evidence rather than a causal effect, independent generalization estimate, or architecture ranking."
   },
   "rust": {
     "package": "ch39-end-to-end-llm",
@@ -132,19 +132,19 @@
       "rust/demos/ch39-end-to-end-llm/src/lib.rs",
       "rust/demos/ch39-end-to-end-llm/src/main.rs"
     ],
-    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_lower_on_fixture:true no_grad:true unchanged:true\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167\nnext=inspect, modify, test, and extend the complete decoder\n"
+    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] stride:1 windows:436 batches:4 window_target_slots:1744 document_transition_occurrences:442 transition_multiplicity_counts:[1x4,2x4,3x4,4x430] window_slot_fingerprint:fnv1a64:77b836869f848986 no_grad:true unchanged:true\nslot_metric=unit:overlapping-window-target-slot decoder_window_slot_mean_nll_nats:3.866087547 decoder_window_slot_perplexity:47.755180205 bigram_window_slot_mean_nll_nats:3.981342714 bigram_window_slot_perplexity:53.588940583 window_slot_gap_nats:0.115255167 comparison_slot_set:shared-ordered-window-slots decoder_lower_on_fixture:true\ntransition_metric=unit:within-document-next-token-transition count:442 context_policy:longest-available-causal-prefix-up-to-4 newest_position_only:true reported:false mean_nll:not-reported perplexity:not-reported\nevidence=scope:fixed-fixture-regression within_run_selection_isolated:true independent_generalization_estimate:false architecture_superiority_evidence:false\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=window_slot_unit:overlapping-window-target-slot window_target_slots:1744 document_transition_occurrences:442 bigram_context_tokens:1 decoder_context_capacity:4 decoder_window_slot_context_lengths:[1,2,3,4] bigram_window_slot_mean_nll_nats:3.981342714 decoder_window_slot_mean_nll_nats:3.866087547 window_slot_gap_nats:0.115255167\nnext=inspect, modify, test, and extend the complete decoder\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "end-to-end-llm",
     "rationale": {
-      "en": "One numbered left-to-right process makes the within-execution information boundary visible: the run materializes test batches only after training and validation selection, labels the known ordering as fixed-fixture regression evidence, and then proceeds through exact checkpoint round-trip and cached generation. Local labels bind every count and probe to its value without implying independent generalization.",
-      "ru": "Один нумерованный процесс слева направо делает видимой информационную границу в пределах запуска: тестовые мини-пакеты формируются только после обучения и выбора по валидации, известный порядок результатов обозначается как регрессионная проверка фиксированного примера, а затем программа точно восстанавливает контрольную точку и выполняет генерацию с кэшем. Локальные подписи связывают каждое число и пробу с их значением, не создавая впечатления независимой оценки способности модели обобщать."
+      "en": "One numbered process makes the within-execution boundary visible: test batches appear only after selection; the 1,744-slot metric is separated from the policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, without reporting numeric mean NLL or PPL; the known slot ordering is marked as fixed-fixture regression evidence before exact reload and cached generation.",
+      "ru": "Нумерованный процесс показывает границу в пределах запуска: тестовые пакеты формируются после выбора; метрика по 1744 позициям окон отделена от правила, которое оценивало бы 442 перехода по одному разу, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Известный порядок обозначен как регрессионная проверка перед точным восстановлением и генерацией с кэшем."
     }
   },
   "decoder_connection": {
-    "en": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local evaluator receives test batches, the known test ordering is retained only as fixed-fixture regression evidence, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text.",
-    "ru": "Теперь все части курса участвуют в одной работающей программе: зафиксированный двуязычный корпус превращается в BPE-токены и каузальные пакеты; валидационная выборка определяет состояние декодера до передачи тестовых пакетов локальному оценщику; известный порядок тестовых результатов сохраняется только для регрессионной проверки фиксированного примера; байты контрольной точки и сохранённое состояние точно восстанавливаются; отдельная проба At побитово воспроизводит логиты; генерация с кэшем из A возвращает декодированный текст."
+    "en": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and overlapping causal windows; validation selects before both models score the same ordered slots; the separate policy would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, but reports no numeric mean NLL or PPL; checkpoint state reloads exactly; the At probe reproduces logits; and cached generation returns text.",
+    "ru": "Теперь все части курса участвуют в одной программе: корпус превращается в BPE-токены и перекрывающиеся окна; выбор завершается до оценки одних и тех же позиций обеими моделями; отдельное правило оценивало бы 442 перехода по одному разу, использовало бы максимально доступный каузальный префикс не длиннее четырёх токенов и только распределение в последней позиции; числовые значения среднего NLL и перплексии по этому правилу не приводятся. Контрольная точка восстанавливается точно; проба At воспроизводит логиты; генерация с кэшем возвращает текст."
   },
   "terminology": [
     {
@@ -168,6 +168,31 @@
       "ru": "локальная однократная итоговая оценка"
     },
     {
+      "concept_id": "overlapping-window-target-slot",
+      "en": "overlapping window-target slot",
+      "ru": "целевая позиция перекрывающегося окна"
+    },
+    {
+      "concept_id": "window-slot-mean-nll",
+      "en": "window-slot mean NLL",
+      "ru": "среднее NLL по целевым позициям окон"
+    },
+    {
+      "concept_id": "window-slot-perplexity",
+      "en": "window-slot perplexity",
+      "ru": "перплексия по целевым позициям окон"
+    },
+    {
+      "concept_id": "within-document-transition-occurrence",
+      "en": "within-document transition occurrence",
+      "ru": "переход внутри документа в заданной позиции"
+    },
+    {
+      "concept_id": "decoder-context-capacity",
+      "en": "decoder context capacity",
+      "ru": "максимальная длина контекста декодера"
+    },
+    {
       "concept_id": "fixed-fixture-regression-evidence",
       "en": "fixed-fixture regression evidence",
       "ru": "результат фиксированного примера для регрессионной проверки"
@@ -189,8 +214,8 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 8 is a direct, meaning-first translation of frozen English revision 8 with SHA-256 51ff9e5ac4170c3f6fed85d005c43c67ac236cbbd71b4d4417f400e9c84cba1f; the Russian lesson SHA-256 is a63e50b4d95c7779bf6ecd6737b99297ed712931d11d4eaa02aa4b8969dacd37; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
-    "The English and reviewed Russian Chapter 39 cheat sheets have SHA-256 6349fd914f1e7fe92ad9f3eb161cf0cff4f94daabcf97e45cc21b5e13ce09c7e and 43ba6037e9aa38f903d193ca2f0399005881d9ac0d6a61d61e74d6bda59d51e8 respectively.",
+    "Russian revision 9 is a direct, meaning-first translation of frozen English revision 9 with SHA-256 6234b3ea092e6a53f74fe8d10fc6ed85c4f2f168192356b4264b502d3fa84f07; the Russian lesson SHA-256 is 83b5b1200a3c7c685552236646bb5d8dc36d1beb16e9de84d9dc6f50710732d7; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
+    "The English and reviewed Russian Chapter 39 cheat sheets have SHA-256 90b1610666270ef7a3cba38e1070f3d666080a6a8487515b4478c7917918b0b0 and 21db369c97bdb443a17320b108b37e22b302d0a73c9da91ec85c1bcfb852a2fa respectively.",
     "Preserve BPE, LLM, AdamW, BOS, EOS, KV, RNG, token IDs, hashes, tensor shapes, exact losses, source titles, formulas, links, and trace grammar.",
     "Keep the general autoregressive factorization distinct from this retained four-token context C=4 and keep the local selection-isolated test boundary distinct from a global claim that test data has never been read anywhere.",
     "The checkpoint claim covers byte-for-byte re-encoding and exact model, optimizer, tokenizer, step, and RNG state; the separate At probe must not be confused with generation from prompt A.",
@@ -199,8 +224,10 @@
     "The generated learner-visible output is Cyrillic т followed by two spaces, rendered as т␠␠ where the spaces must be visible; it demonstrates shared byte-tokenizer decoding, not translation quality.",
     "Keep the history on the path from count n-gram language models through learned distributed representations and masked self-attention to scaled autoregressive LLMs; scope paper claims to their sources and local evidence policies to this implementation.",
     "Prefer natural Russian mathematical and technical prose, including полный цикл работы LLM, состояние, выбранное по валидации, зафиксированная биграммная базовая модель, and продолжение с KV-кэшем; reject literal calques and mixed-language learner prose.",
-    "Preserve the evidence scope: test cannot affect the selected state inside one execution, while the repository permanently checks the known decoder-lower ordering only as fixed-fixture regression evidence; do not translate that ordering as independent generalization or architecture superiority, and avoid the Russian calque «фикстура».",
-    "Any later semantic or presentation change to English revision 8 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Preserve the metric distinction: 1,744 means overlapping window-target slots scored by both models, mean NLL is measured in nats per slot, and its exponential is dimensionless window-slot perplexity; 442 means within-document transition occurrences. The unreported policy scores each of those 442 occurrences once, gives the decoder the longest available causal prefix capped at four tokens, and uses only its newest-position distribution; no numeric mean NLL or perplexity is reported for that policy.",
+    "Preserve the evidence scope: test cannot affect the selected state inside one execution, while later executions retain the known decoder-lower slot ordering only as fixed-fixture regression evidence; do not translate that ordering as independent generalization or architecture superiority, and avoid the Russian calque «фикстура».",
+    "Use natural Russian метрика по целевым позициям окон, среднее NLL в натах на целевую позицию окна, перплексия по целевым позициям окон, переход внутри документа в заданной позиции, and максимальная длина контекста декодера; avoid слот, страйд, перплексность, and сэмплирование in learner prose.",
+    "Any later semantic or presentation change to English revision 9 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
   ],
   "acceptance_examples": [
     {
@@ -216,8 +243,8 @@
       "expected": "Both execute 32 updates and reproduce every recorded step, checkpoint, optimizer moment, selected state, and final state bit; validation selects step 32 at loss 3.889531885. The report derives the displayed count of 1,188 learned scalars by calling scalar_count on that selected state; the method computes the count by summing its parameter-tensor lengths rather than reading a stored count or constructing another decoder."
     },
     {
-      "input": "Materialize context-four test batches and open the local final evaluator after selection",
-      "expected": "Before moving the complete test epoch into FinalEvaluator, the capstone records its 436-window and four-mini-batch counts. The evaluator then owns that epoch and first verifies that the retained selected state and matching selected model agree exactly. One local access scores 1,744 identical decoder and bigram target slots, with losses 3.866087547 and 3.981342714 and gap 0.115255167. The decoder-lower ordering is a permanent fixed-fixture regression condition, not an independent generalization estimate or architecture-superiority result."
+      "input": "Materialize context-capacity-four test batches and open the local final evaluator after selection",
+      "expected": "Before moving the complete test epoch into FinalEvaluator, the capstone records 436 overlapping stride-one windows and four mini-batches. The evaluator verifies the retained selected state and matching selected model, then scores both models on the same ordered 1,744 window-target slots. Four within-document transition occurrences appear in one slot, four in two slots, four in three slots, and 430 in four slots; the decoder's actual slot context lengths are one, two, three, and four tokens. Decoder mean NLL is 3.866087547 nats per slot with dimensionless window-slot perplexity 47.755180205; bigram mean NLL is 3.981342714 nats per slot with perplexity 53.588940583; their mean-NLL gap is 0.115255167 nats per slot. The separate policy would score each of 442 within-document transition occurrences once, use the longest available causal prefix capped at four tokens and only its newest-position distribution, and report neither numeric mean NLL nor PPL. The lower decoder slot mean NLL is a retained fixed-fixture regression condition, not an independent generalization estimate or architecture-superiority result."
     },
     {
       "input": "Save and reload the selected state",
@@ -246,13 +273,14 @@ APIs as one program. It adds orchestration and evidence, not a second
 implementation of any model concept.
 
 The fixture remains deliberately small: eight BPE merges, one block, width four,
-one head, feed-forward width four, four-token context, 1,188 parameters, and 32
-updates. It does not claim useful prose quality, broad generalization, production
+one head, feed-forward width four, context capacity four, 1,188 parameters, and
+32 updates. The four causal positions in a window actually expose one, two,
+three, and four in-window context tokens. It does not claim useful prose quality, broad generalization, production
 throughput, distributed training, or the scale of a deployed LLM.
 
 Inside each execution, test examples cannot affect tokenizer learning, parameter
-updates, or the validation-selected state. At repository level, however, the
-exact decoder-lower ordering is permanently checked. It is fixed-fixture
+updates, or the validation-selected state. Later executions reuse the exact
+decoder-lower ordering as a regression condition. It is fixed-fixture
 regression evidence, not an untouched independent estimate of generalization or
 evidence of architecture-wide superiority.
 
@@ -261,20 +289,37 @@ evidence of architecture-wide superiority.
 
 The checked corpus freezes paired English and Russian documents into eight
 training documents, two validation documents, and two test documents. BPE sees
-only training text and produces a 266-token vocabulary. Four-token causal
-windows yield 1,820 training, 463 validation, and 436 test windows. Updates use
+only training text and produces a 266-token vocabulary. Overlapping causal
+windows with context capacity four and stride one yield 1,820 training, 463
+validation, and 436 test windows. Updates use
 mini-batches of 16 windows; evaluation mini-batches hold at most 128 windows and
 therefore number 15, 4, and 4 in training, validation, and test order.
 
 Seed 39 initializes and orders two complete training replays. Both select step
-32 at validation loss 3.889531885. Only then does the run materialize test
+32 at validation mean NLL 3.889531885. Only then does the run materialize test
 mini-batches and give them to one local final evaluator. Each of 436 test windows
-contains four target slots, so $N_{\mathrm{test}}=436\cdot4=1744$. The selected
-decoder reaches loss 3.866087547; the alpha-one bigram fitted to the same training
-partition reaches 3.981342714. These remain valid observations for the fixed
-fixture. Their ordering is now a permanent regression condition, so it must not
-be presented as a fresh independent generalization estimate each time it is
-rerun.
+contains four target slots, so $N_{\mathrm{slot}}=436\cdot4=1744$. A slot is
+identified by document, window start, and in-window position. Because adjacent
+windows overlap, one within-document transition occurrence can enter the score
+in as many as four slots; the decoder sees one through four context tokens at
+the four slot positions, while the bigram always uses the immediately preceding
+token. Exactly four transition occurrences appear once, four appear twice, four
+appear three times, and 430 appear four times, so
+$4\cdot1+4\cdot2+4\cdot3+430\cdot4=1744$.
+
+Both models score the same ordered 1,744 slots, including those repetitions.
+The selected decoder's 3.866087547 and the alpha-one bigram's 3.981342714 are
+mean NLL values in nats per slot, not perplexities. Their dimensionless
+window-slot perplexities are 47.755180205 and 53.588940583, respectively, and
+their mean-NLL gap is 0.115255167 nats per slot. The same two test documents contain 444 encoded tokens and
+$N_{\mathrm{transition}}=444-2=442$ within-document transition occurrences. A
+conventional maximal-prefix metric would score each occurrence once, give the
+decoder the longest available causal prefix capped at four tokens, and use only the newest-position
+distribution; this chapter does not report that metric's mean NLL or perplexity.
+
+The reported slot observations remain valid for the fixed fixture. Later
+executions retain their ordering as a regression condition, so it must not be presented
+as a fresh independent generalization estimate each time it is rerun.
 
 The selected state is saved and reloaded. Re-encoding reproduces the checkpoint
 bytes; model and optimizer bits, BPE ranks, step, and random state remain exact;
@@ -307,8 +352,37 @@ $\prod_{t=1}^{T}$ multiplies the conditional terms.
 Training minimizes the negative logarithm of those next-token probabilities.
 Validation chooses among trained states. Inside this execution, test loss checks
 the already frozen choice; it does not feed another update or selection. That
-local direction of information flow does not determine the repository-level
-evidence status of a repeatedly checked result.
+local direction of information flow does not make a known result independently
+held out again when a later execution reuses it.
+
+For the ordered reported slots, write the observed target in slot $i$ as $z_i$
+and its actually visible context as $c_i$. Then
+
+$$
+\mathcal L_{\mathrm{slot}}
+=-\frac{1}{N_{\mathrm{slot}}}
+\sum_{i=1}^{N_{\mathrm{slot}}}\log P_\theta(z_i\mid c_i).
+$$
+
+$$
+\operatorname{PPL}_{\mathrm{slot}}
+=\exp\!\left(\mathcal L_{\mathrm{slot}}\right).
+$$
+
+Here $N_{\mathrm{slot}}=1744$. Equal slot weight does not imply equal transition
+weight because overlap repeats within-document transition occurrences. The
+separate count for a once-per-transition metric is
+
+$$
+N_{\mathrm{transition}}
+=\sum_{d\in\mathcal D_{\mathrm{test}}}\left(\lvert z^{(d)}\rvert-1\right)
+=444-2=442,
+$$
+
+but Chapter 39 does not report that metric's numeric mean NLL or perplexity. Its
+policy would score each of the 442 occurrences once, give the decoder the longest
+available causal prefix capped at four tokens, and use only the newest-position
+distribution.
 
 <!-- contract-section:history -->
 ## From count contexts to autoregressive Transformer LLMs
@@ -336,17 +410,23 @@ not permission to transfer its scale or capability claims to a 1,188-parameter
 teaching model.
 
 The executable contrast is intentionally narrower. The frozen bigram reads one
-previous token; the decoder can compute over four causal positions with learned
-features and attention. Both score the same test-reserved targets, where this
-one selected run reports a lower decoder loss. Because the models differ in
-several ways, that observation describes the capstone fixture rather than
-isolating a causal effect or establishing universal Transformer superiority.
+previous token; the decoder has context capacity four and computes with learned
+features and attention over the one through four tokens actually visible at its
+slot positions. Both score the same ordered 1,744 overlapping window-target
+slots, where this selected run reports lower decoder mean NLL in nats per slot.
+That observation is not a score under the separate policy that would evaluate
+442 transition occurrences once each, give the decoder the longest available
+causal prefix capped at four tokens, and use only the newest-position
+distribution; numeric mean NLL and perplexity are not reported for that policy.
+Because the models differ in several ways, it describes the
+capstone fixture rather than isolating a causal effect or establishing universal
+Transformer superiority. Bengio and colleagues' overlapping sequences do not
+define this course's stride-one slot weighting.
 
-The repository now checks that same ordering permanently. It remains a valid
-measurement on the fixed fixture and a useful regression condition, but it is
-not an untouched independent estimate of generalization. The local evaluator's
-access count of one describes one execution, not the repository's complete
-history of using the known result.
+Later executions reuse that same ordering as a regression condition. It remains
+a valid measurement on the fixed fixture, but repeated checking does not turn it
+into a new untouched estimate of generalization. The local evaluator's access
+count of one describes one execution, not every later use of the known result.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -366,9 +446,15 @@ moves the epoch into `FinalEvaluator`. The evaluator owns the epoch and the
 local permission to evaluate it once. Before the gate opens,
 it verifies the bit-exact configuration, ordered names and shapes, and every
 parameter bit, then consumes its permission and scores the borrowed decoder and
-frozen bigram on identical targets without a graph or mutation. This is a
+frozen bigram on the same ordered overlapping window-target slots without a graph
+or mutation. It records the $1744$-slot metric and the $442$ transition count but
+does not evaluate the separate policy that would score every transition
+occurrence once, give the decoder the longest available causal prefix capped at
+four tokens, and use only the newest-position distribution; numeric mean NLL and
+perplexity are not reported for that policy. This is a
 boundary owned by the capstone run, not global access control over repository
-data. Later report assembly retains only the two counts, not a cloned epoch.
+data. Later report assembly retains derived counts and metric evidence, not a
+cloned epoch.
 
 The demo and pipeline keep the decoder-lower relation as an explicitly named
 fixed-fixture regression condition; `FinalEvaluator` itself remains neutral to
@@ -410,7 +496,14 @@ One semantic figure follows the exact Rust trace through data, tokenizer,
 batches, decoder training, validation selection, the local one-use test gate,
 fixed-fixture regression scope, checkpoint reload, and cached generation. The
 test card appears after the selected-state boundary rather than beside training,
-and its ordering is not presented as independent generalization evidence.
+identifies the 1,744 observations as overlapping window-target slots, labels the
+reported values as mean NLL in nats per slot and their exponentials as
+window-slot perplexities, and distinguishes the separate policy that would score
+442 within-document transition occurrences once each, give the decoder the
+longest available causal prefix capped at four tokens, and use only the
+newest-position distribution; its numeric mean NLL and perplexity are not
+reported. The slot-metric ordering is not presented
+as independent generalization evidence.
 
 Numbered cards establish the ordinary transformation order, double borders mark
 selection and local test boundaries, and equality cues identify exact checkpoint
@@ -432,9 +525,10 @@ calculated complete-prefix attention-score counts also have separate labels.
 2. How many model parameters are trained?
 3. What validation evidence chooses step 32?
 4. Can test loss change the selected step?
-5. How do 436 test windows become 1,744 scored targets for each model?
-6. Which loss is lower, by how much, and what evidence scope does that ordering
-   have?
+5. How do 436 overlapping test windows become 1,744 window-target slots, and why
+   are there only 442 within-document transition occurrences?
+6. Which slot mean NLL is lower, by how much, how does window-slot perplexity
+   relate to it, and what evidence scope does that ordering have?
 7. Which checkpoint facts are exact, and which claim belongs only to probe `At`?
 8. Which three token IDs follow prompt `A`?
 9. Why is the generated Cyrillic character not evidence of translation quality?
@@ -442,9 +536,16 @@ calculated complete-prefix attention-score counts also have separate labels.
 
 Checks: training documents only; 1,188 parameters; step 32 validation loss
 3.889531885 is below step 0 at 5.628342353; no, selection finishes before the
-local evaluator receives test batches; $436\cdot4=1744$ identical targets each;
-decoder 3.866087547 is lower than bigram 3.981342714 by 0.115255167 on the fixed
-fixture, where the ordering is regression evidence rather than independent
+local evaluator receives test batches; $436\cdot4=1744$ overlapping slots for
+each model, with repeated transitions and actual decoder context lengths one
+through four; the separate document count is $444-2=442$ transition occurrences
+and the separate policy would score each occurrence once, give the decoder the
+longest available causal prefix capped at four tokens, and use only the
+newest-position distribution, while its numeric mean NLL and perplexity are not
+reported; decoder mean
+NLL 3.866087547 nats per slot is lower than bigram mean NLL 3.981342714 by
+0.115255167, while window-slot perplexity is the exponential of the corresponding
+mean NLL; the ordering is regression evidence rather than independent
 generalization or architecture superiority; bytes,
 model and optimizer bits, BPE ranks, step, and RNG state are exact while only
 the explicit `At` probe checks logits; 260, 34, and 34; it is one deterministic
@@ -459,7 +560,11 @@ The course now ends with one functioning decoder-only language-model program.
 Text is partitioned before tokenizer learning; BPE tokens become causal batches;
 the decoder trains with reverse-mode gradients and AdamW; validation selects;
 the capstone's local evaluator consumes test evidence once after selection in
-that execution, while the known ordering remains a fixed-fixture regression;
+that execution and compares the same ordered overlapping window-target slots,
+while the separate policy would score each of 442 transition occurrences once,
+give the decoder the longest available causal prefix capped at four tokens, and
+use only the newest-position distribution, but reports no numeric mean NLL or
+perplexity; the known ordering remains a fixed-fixture regression;
 versioned bytes restore the selected model and optimizer exactly; an `At` probe
 checks reloaded logits; and generation from `A` uses one KV cache per block.
 
@@ -470,7 +575,7 @@ contract changed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 8 is the canonical semantic source; Russian revision 8 is
+English revision 9 is the canonical semantic source; Russian revision 9 is
 published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
 links, and trace grammar. Preserve the distinction between within-execution

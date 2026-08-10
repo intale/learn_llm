@@ -151,7 +151,7 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
       </li>
 
       <li
-        class="stage-card course-diagram__card-stack"
+        class="stage-card test-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="test"
@@ -160,22 +160,56 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
       >
         <header class="course-diagram__card-heading"><strong aria-hidden="true">6</strong><h5>{labels.stages.test}</h5></header>
         <p class="cue">|| {labels.cues.oneTime}</p>
-        <p>
-          <strong>{labels.fields.targets}:</strong>
-          <code><bdi dir="ltr">{trace.test.targets}</bdi></code>
-        </p>
-        <p>
-          <strong>{labels.fields.decoderLoss}:</strong>
-          <InlineMath latex={trace.test.decoder} />
-        </p>
-        <p>
-          <strong>{labels.fields.bigramLoss}:</strong>
-          <InlineMath latex={trace.test.bigram} />
-        </p>
+        <dl class="stage-facts test-facts course-diagram__grid">
+          <div data-evidence="window-target-slot-count">
+            <dt>{labels.fields.windowSlots}</dt>
+            <dd><code><bdi dir="ltr">{trace.test.window_target_slots}</bdi></code></dd>
+          </div>
+          <div data-evidence="document-transition-occurrence-count">
+            <dt>{labels.fields.distinctTransitions}</dt>
+            <dd><code><bdi dir="ltr">{trace.test.document_transition_occurrences}</bdi></code></dd>
+          </div>
+          <div data-evidence="transition-multiplicity-counts">
+            <dt>{labels.fields.transitionMultiplicity}</dt>
+            <dd><code><bdi dir="ltr">[{trace.test.transition_multiplicity_counts}]</bdi></code></dd>
+          </div>
+          <div data-evidence="decoder-window-slot-mean-nll">
+            <dt>{labels.fields.decoderSlotMeanNll}</dt>
+            <dd><InlineMath latex={trace.slotMetric.decoder_window_slot_mean_nll_nats} /></dd>
+          </div>
+          <div data-evidence="decoder-window-slot-perplexity">
+            <dt>{labels.fields.decoderSlotPerplexity}</dt>
+            <dd><InlineMath latex={trace.slotMetric.decoder_window_slot_perplexity} /></dd>
+          </div>
+          <div data-evidence="bigram-window-slot-mean-nll">
+            <dt>{labels.fields.bigramSlotMeanNll}</dt>
+            <dd><InlineMath latex={trace.slotMetric.bigram_window_slot_mean_nll_nats} /></dd>
+          </div>
+          <div data-evidence="bigram-window-slot-perplexity">
+            <dt>{labels.fields.bigramSlotPerplexity}</dt>
+            <dd><InlineMath latex={trace.slotMetric.bigram_window_slot_perplexity} /></dd>
+          </div>
+          <div data-evidence="window-slot-mean-nll-gap">
+            <dt>{labels.fields.slotGap}</dt>
+            <dd><InlineMath latex={trace.slotMetric.window_slot_gap_nats} /></dd>
+          </div>
+          <div data-evidence="decoder-context-capacity">
+            <dt>{labels.fields.decoderContextCapacity}</dt>
+            <dd><code><bdi dir="ltr">{trace.history.decoder_context_capacity}</bdi></code></dd>
+          </div>
+          <div data-evidence="decoder-window-slot-context-lengths">
+            <dt>{labels.fields.decoderSlotContextLengths}</dt>
+            <dd><code><bdi dir="ltr">[{trace.history.decoder_window_slot_context_lengths}]</bdi></code></dd>
+          </div>
+          <div data-evidence="transition-metric-status">
+            <dt>{labels.fields.transitionMetric}</dt>
+            <dd>{labels.cues.transitionMetricNotReported}</dd>
+          </div>
+        </dl>
+        <p class="cue">= {labels.cues.sharedSlots}</p>
         <p class="cue">
           <span aria-hidden="true">✓</span>
-          <InlineMath latex={trace.test.decoder + '<' + trace.test.bigram} />;
-          {labels.fields.gap} <InlineMath latex={trace.test.gap} />
+          <InlineMath latex={trace.slotMetric.decoder_window_slot_mean_nll_nats + '<' + trace.slotMetric.bigram_window_slot_mean_nll_nats} />
         </p>
       </li>
 
@@ -291,6 +325,10 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     grid-column: 1 / -1;
   }
 
+  .test-facts {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+
   .generation-facts
     > :is(
       [data-evidence='retained-prefix-lengths'],
@@ -403,7 +441,7 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     }
 
     .stage-card[data-stage='test'] {
-      flex: 1 0 28%;
+      flex: 1 0 45%;
     }
 
     .stage-card[data-stage='checkpoint'] {
@@ -425,6 +463,7 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
       :is(
         .stage-card[data-stage='selection'],
+        .stage-card[data-stage='test'],
         .stage-card[data-stage='generation']
       ) {
       grid-column: 1 / -1;
@@ -433,6 +472,12 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
       .selection-card > dl {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .test-facts {
+      grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
     }
 
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen

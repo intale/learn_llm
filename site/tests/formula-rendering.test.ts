@@ -534,7 +534,18 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
   "39": [
     String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
     String.raw`C=4`,
-    String.raw`N_{\mathrm{test}}=W_{\mathrm{test}}C=436\cdot4=1744`,
+    String.raw`N_{\mathrm{slot}}=W_{\mathrm{test}}C=436\cdot4=1744`,
+    String.raw`4\cdot1+4\cdot2+4\cdot3+430\cdot4=1744`,
+    String.raw`\operatorname{PPL}_{\mathrm{slot}}`,
+    String.raw`\exp\!\left(\mathcal L_{\mathrm{slot}}\right)`,
+    String.raw`47.755180205`,
+    String.raw`53.588940583`,
+    String.raw`N_{\mathrm{transition}}`,
+    String.raw`\sum_{d\in\mathcal D_{\mathrm{test}}}\left(\lvert z^{(d)}\rvert-1\right)`,
+    String.raw`=444-2=442`,
+    String.raw`\mathcal L_{\mathrm{slot}}`,
+    String.raw`-\frac{1}{N_{\mathrm{slot}}}`,
+    String.raw`\sum_{i=1}^{N_{\mathrm{slot}}}\log P_\theta(z_i\mid c_i)`,
     String.raw`\tau=0.8`,
     String.raw`k=4`,
     String.raw`3.981342714-3.866087547=0.115255167`,
@@ -780,7 +791,12 @@ const documentedChapter14To39Code = [
   {
     name: "literal selection and final-evaluation trace fields",
     pattern:
-      /^(?:criterion=validation-only|snapshot=true|test_partition_rejected=true|test_reads=[01]|test_accesses=1|fnv1a64:[0-9a-f]{16})$/,
+      /^(?:criterion=validation-only|snapshot=true|test_partition_rejected=true|test_reads=[01]|test_accesses=1|gate_openings_after=1|decoder_lower_on_fixture=true|provenance_assertions_match=true|fnv1a64:[0-9a-f]{16})$/,
+  },
+  {
+    name: "literal final-evaluation report evidence fields",
+    pattern:
+      /^(?:decoder_lower_on_fixture:true|scope:fixed-fixture-regression|within_run_selection_isolated:true|independent_generalization_estimate:false|architecture_superiority_evidence:false|access:1)$/,
   },
   {
     name: "literal trainer ownership and gradient-lifecycle trace fields",
@@ -1000,6 +1016,11 @@ describe("Chapter 14-39 formula-source contract", () => {
           fragment,
         );
       }
+      if (chapter === "39") {
+        expect(body).not.toContain(
+          String.raw`N_{\mathrm{test}}=W_{\mathrm{test}}C`,
+        );
+      }
 
       const code = inlineCode(source);
       for (const oldExpression of formerChapter14To39MathCodeSpans) {
@@ -1215,12 +1236,8 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
     expect(components.swiglu).toContain(
       "String.raw`g_{${row.position.lexeme}}=X_{${row.position.lexeme}}W_g`",
     );
-    expect(components.swiglu).toContain(
-      'latex="s=\\operatorname{SiLU}(g)"',
-    );
-    expect(components.swiglu).toContain(
-      'latex="h=s\\odot u"',
-    );
+    expect(components.swiglu).toContain('latex="s=\\operatorname{SiLU}(g)"');
+    expect(components.swiglu).toContain('latex="h=s\\odot u"');
     expect(components.swiglu).toContain(
       "String.raw`h_{${row.position.lexeme}}=${latexVector(row.gated)}`",
     );
@@ -1408,10 +1425,10 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "String.raw`\\mathcal{L}_{te}=${score.mean_nll}`",
     );
     expect(components.finalEvaluation).toContain(
-      "latex={`N_{te}=${trace.provenance.targets}`}",
+      "latex={`N_{te}=${score.targets}`}",
     );
     expect(components.finalEvaluation).toContain(
-      "String.raw`V=${trace.provenance.vocabulary},\\;T=${trace.provenance.context}`",
+      "String.raw`V=${trace.provenance.vocabulary},\\;T=${trace.provenance.context},\\;N_{te}=${trace.provenance.targets}`",
     );
 
     expect(components.temperatureTopK).toContain(
@@ -1472,8 +1489,19 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "latex={'C=' + trace.batches.context}",
     );
     expect(components.endToEndLlm).toContain(
-      "latex={trace.test.decoder + '<' + trace.test.bigram}",
+      "latex={trace.slotMetric.decoder_window_slot_mean_nll_nats + '<' + trace.slotMetric.bigram_window_slot_mean_nll_nats}",
     );
+    for (const field of [
+      "decoder_window_slot_mean_nll_nats",
+      "decoder_window_slot_perplexity",
+      "bigram_window_slot_mean_nll_nats",
+      "bigram_window_slot_perplexity",
+      "window_slot_gap_nats",
+    ]) {
+      expect(components.endToEndLlm).toContain(
+        `latex={trace.slotMetric.${field}}`,
+      );
+    }
 
     for (const source of Object.values(components)) {
       expect(source).not.toContain("<script");
