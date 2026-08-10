@@ -176,6 +176,32 @@ Show every supported wrapper command with:
 ./course help
 ```
 
+### Retry an authorized network operation
+
+For a step that already declares a particular network input, agents may opt in
+to the bounded fail-closed retry runner:
+
+```bash
+scripts/retry-transient-network.sh \
+  --run-id 20260810T130651Z-example-download-01 \
+  --operation fetch-manifest \
+  --max-attempts 3 \
+  -- curl --fail --location https://example.invalid/manifest.json
+```
+
+The runner accepts at most three attempts, waits one then two seconds without
+jitter, and retries only positive transient DNS, connection, timeout, or
+allowlisted HTTP evidence. Its private evidence is written once below the named
+`.build/runs/` directory; an existing evidence path is refused. Earlier
+transient output stays in evidence and only the terminal attempt is returned to
+the caller.
+
+Using this script does not authorize network access and does not replace source
+provenance, licensing review, checksums, resumable partial downloads, atomic
+publication, or immutable run records. Do not use it for ordinary tests or for
+unknown, deterministic, authentication, policy, integrity, resource, browser,
+or compiler failures.
+
 ## Content and localization
 
 Configured languages are declared in `site/src/i18n/locales.json`. Lessons live

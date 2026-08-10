@@ -228,6 +228,29 @@ alone; the repository state is authoritative.
 - Never silently change scope, acceptance criteria, or a technical choice. Record
   the change in `DECISIONS.md` and update affected steps.
 
+### Bounded transient-network retries
+
+Network retries are opt-in. A step may invoke
+`scripts/retry-transient-network.sh` only when that step already declares and
+permits the exact network operation as an input and records its cost. Use the
+required interface:
+
+```bash
+scripts/retry-transient-network.sh \
+  --run-id <course-run-id> \
+  --operation <lowercase-operation-name> \
+  --max-attempts <1|2|3> \
+  -- command argument ...
+```
+
+The runner creates one private, non-reusable evidence directory inside the
+named run, records every attempt, and retries only a narrowly recognized
+transient network failure. It never grants network authority or makes an
+undeclared input permissible. Keep the step's provenance, licensing, checksum,
+resumable-partial-download, atomic-publication, and immutable-run controls; the
+runner replaces none of them. Do not wrap tests, builds, browser checks, or
+unknown failures speculatively.
+
 ## Checkpoint model
 
 ### Build
