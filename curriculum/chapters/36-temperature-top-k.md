@@ -412,5 +412,5 @@ from temperature or top-k alone.
 The acceptance examples in frontmatter freeze the tied boundary, normalized
 probabilities, seed-$36$ sequence, greedy and stochastic draw behavior, loaded
 checkpoint sequence, EOS and context stops, and transactional errors. The
-declared Rust, content, static-build, link, Chromium, and Firefox commands must
-all pass before publication.
+declared Rust, content, static-build, link, and Firefox commands with JavaScript
+enabled must all pass before publication.

@@ -1555,6 +1555,12 @@ test.describe('chapter 15 localized tensor-autodiff-core vertical slice', {
 }, () => {
   test.describe.configure({ mode: 'serial' });
 
+  test.beforeEach(({ browserName }) => {
+    if (browserName !== 'firefox') {
+      throw new Error(`Chapter 15 browser validation requires Firefox; received ${browserName}.`);
+    }
+  });
+
   test('chapter 15 is fifteenth on both indexes with direct equivalent locale routes', async ({
     page,
   }) => {
@@ -1750,13 +1756,8 @@ test.describe('chapter 15 localized tensor-autodiff-core vertical slice', {
         }));
         expect(inlineSurface.innerHeight).toBe(576);
         expect(inlineSurface.innerWidth).toBe(1024);
-        if (browserName === 'chromium') {
-          expect(inlineSurface.screenHeight).toBe(576);
-          expect(inlineSurface.screenWidth).toBe(1024);
-        } else {
-          expect(inlineSurface.screenHeight).toBeGreaterThan(0);
-          expect(inlineSurface.screenWidth).toBeGreaterThan(0);
-        }
+        expect(inlineSurface.screenHeight).toBeGreaterThan(0);
+        expect(inlineSurface.screenWidth).toBeGreaterThan(0);
         await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(3);
         for (const id of visualizationIds) {
           const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
@@ -2037,58 +2038,6 @@ test.describe('chapter 15 localized tensor-autodiff-core vertical slice', {
     await expectNoOverflowOrClientScripts(page);
   });
 
-  test('desktop and narrow EN/RU remain complete without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    test.setTimeout(120_000);
-    const baseURL = testInfo.project.use.baseURL;
-    if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
-    for (const locale of chapterLocales) {
-      for (const viewport of [
-        { width: 1440, height: 1000 },
-        { width: 390, height: 844 },
-      ]) {
-        const context = await browser.newContext({
-          baseURL,
-          javaScriptEnabled: false,
-          viewport,
-        });
-        const page = await context.newPage();
-        try {
-          await page.goto(chapterPath(locale, chapterId));
-          await expect(
-            page.getByRole('heading', { level: 1, name: copy[locale].title }),
-          ).toBeVisible();
-          await expect(page.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
-          await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-          for (const id of visualizationIds) {
-            const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
-            await expect(diagram).toHaveAccessibleName(copy[locale].figures[id].title);
-            await expect(diagram).toHaveAccessibleDescription(
-              copy[locale].figures[id].description,
-            );
-            expectCompleteFigureAudit(id, await readDiagramAudit(diagram));
-          }
-          await expect(page.locator('[data-node-id]')).toHaveCount(8);
-          await expect(page.locator('tr[data-edge-reverse]')).toHaveCount(8);
-          await expect(page.locator('[data-lifecycle-state]')).toHaveCount(4);
-          await expect(page.locator('[data-evidence]')).toHaveCount(2);
-          await expect(page.locator('[data-error-kind]')).toHaveCount(4);
-          await expect(page.locator('[data-diagram-scroll]')).toHaveCount(1);
-          if (viewport.width === 390) {
-            const widths = await page.locator('[data-diagram-scroll]').evaluate((node) => ({
-              client: node.clientWidth,
-              scroll: node.scrollWidth,
-            }));
-            expect(widths.scroll).toBeGreaterThan(widths.client);
-          }
-          await expectNoOverflowOrClientScripts(page);
-        } finally {
-          await context.close();
-        }
-      }
-    }
-  });
 
   test('mobile and unsupported Fullscreen API expose no unusable control', async ({
     browser,

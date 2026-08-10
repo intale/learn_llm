@@ -1354,40 +1354,4 @@ test.describe('chapter 18 localized token-embeddings vertical slice', {
     }
   });
 
-  test('both complete localized lessons and trace tables render without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-      viewport: { width: 390, height: 844 },
-    });
-    const page = await context.newPage();
-    for (const locale of chapterLocales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(
-        page.getByRole('heading', {
-          level: 1,
-          name: copy[locale].title,
-          exact: true,
-        }),
-      ).toBeVisible();
-      await expect(page.locator('.ids-stage tbody tr')).toHaveCount(3);
-      await expect(page.locator('.table-stage tbody tr')).toHaveCount(4);
-      await expect(page.locator('.lookup-stage tbody tr')).toHaveCount(3);
-      await expect(page.locator('.gradient-stage tbody tr')).toHaveCount(4);
-      await expect(page.locator('[data-diagram-scroll]')).toHaveCount(4);
-      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      await expectRustCards(page, locale);
-      expect(
-        await page
-          .locator('.rule-repeated-sum')
-          .last()
-          .locator('annotation[encoding="application/x-tex"]')
-          .allTextContents(),
-      ).toContain(String.raw`\left[4.000000000000,4.000000000000\right]`);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

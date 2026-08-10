@@ -362,5 +362,5 @@ Browser evidence covers both locale indexes, direct routes, equivalent locale
 switches and navigation, exactly one relevant description meta tag per page,
 the three LLM-training and numerical-method sources, exact localized Rust
 regions, Rust-derived evidence attributes, desktop and 390px layout, full view,
-keyboard focus, forced colors, JavaScript-disabled rendering, bounded-box
-containment, and the absence of client scripts.
+keyboard focus, forced colors, bounded-box containment, and the absence of
+chapter-local client scripts in Firefox with JavaScript enabled.

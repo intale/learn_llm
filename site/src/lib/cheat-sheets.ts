@@ -38,7 +38,6 @@ interface CheatSheetReference {
 export interface CheatSheetCopy {
   readonly closeLabel: string;
   readonly eyebrow: string;
-  readonly fallbackSummary: string;
   readonly nextLabel: string;
   readonly openLabel: string;
   readonly pageStatus: (status: CheatSheetPageStatus) => string;
@@ -50,7 +49,6 @@ const copyByLocale: Partial<Record<Locale, CheatSheetCopy>> = {
   en: {
     closeLabel: 'Close cheat sheet',
     eyebrow: 'Quick reference',
-    fallbackSummary: 'Cheat sheet',
     nextLabel: 'Next terms',
     openLabel: 'Open cheat sheet',
     pageStatus: ({
@@ -72,7 +70,6 @@ const copyByLocale: Partial<Record<Locale, CheatSheetCopy>> = {
   ru: {
     closeLabel: 'Закрыть справочник терминов',
     eyebrow: 'Краткий справочник',
-    fallbackSummary: 'Справочник терминов',
     nextLabel: 'Следующие термины',
     openLabel: 'Открыть справочник терминов',
     pageStatus: ({

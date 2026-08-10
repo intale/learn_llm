@@ -32,7 +32,8 @@ An implementation-chapter step owns the whole localized vertical slice:
 5. author the lessons for every locale in the chapter's checked `activeLocales`
    entry in `site/src/i18n/chapter-locales.json` together;
 6. validate the formula, terminology, Rust evidence, localization, static routes,
-   links, accessibility, responsive rendering, and focused browser behavior;
+   links, accessibility, responsive rendering, and focused Firefox behavior with
+   JavaScript enabled;
 7. publish the complete slice atomically, finalize its build checkpoint, and
    commit that chapter by itself.
 
@@ -85,10 +86,10 @@ are expected when they improve clarity. A word-for-word substitution, copied
 English information order, structural parity, or automated score is not an
 acceptable translation review.
 
-Before publication, inspect the exact target page in Chromium and Firefox at
-desktop and narrow widths and inspect every registered diagram in desktop full
-view. The whole page must avoid unintended horizontal overflow, and every bounded
-box must contain its target-language text and formula ink, including boxes inside
+Before publication, inspect the exact target page in Firefox with JavaScript
+enabled at desktop and narrow widths and inspect every registered diagram in
+desktop full view. The whole page must avoid unintended horizontal overflow, and
+every bounded box must contain its target-language text and formula ink, including boxes inside
 sanctioned scroll regions. Fix a failure through concise natural wording,
 wrapping, or safe reflow, never by clipping, hiding, truncating, overlapping, or
 shrinking text. Record the frozen content checksum, language-review findings, and
@@ -248,7 +249,8 @@ Do not rewrite a completed chapter step. Add one reviewed locale-activation step
 the course plan's `scheduling.cross_cutting_steps` immediately before the first
 pending chapter. If every chapter is already complete, position it after the final
 chapter instead. That step updates the plan policy and checked projection, then
-backfills localized contract fields, lessons, and browser expectations for every
+backfills localized contract fields, lessons, and Firefox-with-JavaScript-enabled
+browser expectations for every
 applicable implemented chapter before publishing any new route. Pending chapter
 steps adopt the newly active locale in their concrete outputs and `check:chapter`
 commands. A partial backfill is not an active locale set and remains unpublished.
@@ -315,5 +317,7 @@ reference, HTML language, active equivalent-page `hreflang` target, and deferred
 locale fallback. It also checks every built general page and every active chapter
 HTML file for exactly one nonblank description meta tag whose content exactly
 matches the relevant localized catalog value or lesson frontmatter `description`.
-Focused browser checks diagnose the new chapter; the full suite prevents
-regressions in earlier chapters.
+These static built-HTML checks are the crawler-facing guarantee and make no claim
+about interaction without scripting. Focused and full browser checks run only in
+Firefox with JavaScript enabled: focused checks diagnose the new chapter, and the
+full suite prevents regressions in earlier chapters.

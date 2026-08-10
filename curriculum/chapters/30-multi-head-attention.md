@@ -537,8 +537,8 @@ checks the frozen grammar and values but performs no projection, rotation,
 softmax, value mixture, or gradient arithmetic. Tables keep row and column
 headers; allowed and blocked cells use text and shape cues in addition to color;
 wide evidence regions are named keyboard-focusable scrollers; and the complete
-flow remains readable without JavaScript, at narrow widths, and in forced-color
-mode.
+flow remains present in built static HTML for crawler inspection and readable in
+Firefox with JavaScript enabled at narrow widths and in forced-color mode.
 
 <!-- contract-section:exercises -->
 ## Exercises and misconception check
@@ -598,5 +598,5 @@ stable names, count, and deterministic values; all input and weight coordinates
 pass central differences; learner and diagram stdout match checked-in fixtures
 byte for byte; the site parser performs no model arithmetic; all learner-facing
 mathematics is server-rendered; and both pages pass semantic, monolingual, link,
-accessibility, formula, desktop, narrow, full-view, forced-color,
-JavaScript-disabled, Chromium, and Firefox checks.
+accessibility, formula, desktop, narrow, full-view, and forced-color checks in
+Firefox with JavaScript enabled.

@@ -787,42 +787,5 @@ test.describe(
       }
     });
 
-    test('both localized lessons and exact causal evidence render without JavaScript', async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of locales) {
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole('heading', { level: 1, name: copy[locale].title }),
-        ).toBeVisible();
-        await expect(
-          page.locator(
-            '[data-causal-stage="mask"] td[data-visibility="blocked"]',
-          ),
-        ).toHaveCount(3);
-        await expect(page.locator('[data-prefix-position="0"]')).toContainText(
-          copy[locale].unchanged,
-        );
-        await expect(
-          page.locator('[data-evidence-kind="prefix-zero"]'),
-        ).toHaveAttribute('data-suffix-zero', 'true');
-        await expect(page.locator('.proof-card')).toHaveAttribute(
-          'data-tape-finite',
-          'true',
-        );
-        await expect(
-          page.locator('[data-diagram-full-view-toggle]'),
-        ).toHaveCount(0);
-        await expectDiagramContainment(page, false);
-        await expectBoundedBoxContainment(page);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

@@ -1009,38 +1009,4 @@ test.describe('chapter 19 localized linear-layers vertical slice', {
     }
   });
 
-  test('both complete localized lessons and trace tables render without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of chapterLocales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(
-        page.getByRole('heading', {
-          level: 1,
-          name: copy[locale].title,
-          exact: true,
-        }),
-      ).toBeVisible();
-      await expect(page.locator('.weights-stage tbody tr')).toHaveCount(2);
-      await expect(page.locator('.positions-stage tbody tr')).toHaveCount(2);
-      await expect(page.locator('.position-gradient-table tbody tr')).toHaveCount(2);
-      await expect(page.locator('.parameter-gradient-table tbody tr')).toHaveCount(2);
-      await expect(page.locator('[data-diagram-scroll]')).toHaveCount(3);
-      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      expect(
-        await page
-          .locator('.bias-free-policy annotation[encoding="application/x-tex"]')
-          .allTextContents(),
-      ).toContain(
-        String.raw`\left[5,1.5,4\right]`,
-      );
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

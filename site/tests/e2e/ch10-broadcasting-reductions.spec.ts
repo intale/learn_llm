@@ -38,13 +38,8 @@ const GEOMETRY_LIMITS = {
   standardBlockDebtRatio: 0.2,
   standardScrollerTravelPx: 2,
   standardScrollerTravelRatio: 0.01,
-  chromiumBoundaryWidth: 1024,
-  chromiumBoundaryHeight: 576,
-  chromiumBoundaryFigureHeight: 574,
-  chromiumBoundaryBlockDebtPx: 574,
-  chromiumBoundaryBlockDebtRatio: 1,
-  chromiumBoundaryScrollerTravelPx: 2,
-  chromiumBoundaryScrollerTravelRatio: 0.01,
+  minimumSurfaceWidth: 1024,
+  minimumSurfaceHeight: 576,
 } as const;
 
 const copy = {
@@ -1249,6 +1244,14 @@ test.describe(
   () => {
     test.describe.configure({ mode: 'serial' });
 
+    test.beforeEach(({ browserName }) => {
+      if (browserName !== 'firefox') {
+        throw new Error(
+          `Chapter 10 browser validation requires Firefox; received ${browserName}.`,
+        );
+      }
+    });
+
     test('chapter 10 is tenth on every course index with direct equivalent locale routes', async ({
       page,
     }) => {
@@ -1335,21 +1338,20 @@ test.describe(
       }
     });
 
-    test('the exact minimum eligible surface uses the coherent sequential boundary branch', async ({
+    test('the exact minimum eligible surface uses the coherent Firefox composition', async ({
       browser,
-      browserName,
     }, testInfo) => {
       const baseURL = testInfo.project.use.baseURL;
       if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
       const context = await browser.newContext({
         baseURL,
         screen: {
-          width: GEOMETRY_LIMITS.chromiumBoundaryWidth,
-          height: GEOMETRY_LIMITS.chromiumBoundaryHeight,
+          width: GEOMETRY_LIMITS.minimumSurfaceWidth,
+          height: GEOMETRY_LIMITS.minimumSurfaceHeight,
         },
         viewport: {
-          width: GEOMETRY_LIMITS.chromiumBoundaryWidth,
-          height: GEOMETRY_LIMITS.chromiumBoundaryHeight,
+          width: GEOMETRY_LIMITS.minimumSurfaceWidth,
+          height: GEOMETRY_LIMITS.minimumSurfaceHeight,
         },
       });
       const page = await context.newPage();
@@ -1367,36 +1369,12 @@ test.describe(
             screenHeight: screen.height,
             screenWidth: screen.width,
           }));
-          expect(surface.screenWidth).toBe(GEOMETRY_LIMITS.chromiumBoundaryWidth);
-          expect(surface.screenHeight).toBe(GEOMETRY_LIMITS.chromiumBoundaryHeight);
-
-          if (browserName === 'chromium') {
-            expect(surface.innerWidth).toBe(GEOMETRY_LIMITS.chromiumBoundaryWidth);
-            expect(surface.innerHeight).toBe(GEOMETRY_LIMITS.chromiumBoundaryHeight);
-            expect(full.viewportHeight).toBe(
-              GEOMETRY_LIMITS.chromiumBoundaryFigureHeight,
-            );
-            expectCoherentFullView(await readFullViewComposition(diagram), 'boundary');
-            expect(full.blockDebt).toBeLessThanOrEqual(
-              GEOMETRY_LIMITS.chromiumBoundaryBlockDebtPx,
-            );
-            expect(full.blockDebt / full.viewportHeight).toBeLessThanOrEqual(
-              GEOMETRY_LIMITS.chromiumBoundaryBlockDebtRatio,
-            );
-            expect(full.maxScrollerTravel).toBeLessThanOrEqual(
-              GEOMETRY_LIMITS.chromiumBoundaryScrollerTravelPx,
-            );
-            expect(full.maxScrollerTravelRatio).toBeLessThanOrEqual(
-              GEOMETRY_LIMITS.chromiumBoundaryScrollerTravelRatio,
-            );
-          } else if (browserName === 'firefox') {
-            expect(surface.innerWidth).toBeGreaterThanOrEqual(1366);
-            expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
-            expectCoherentFullView(await readFullViewComposition(diagram), 'standard');
-            expectStandardTravel(full);
-          } else {
-            throw new Error(`Unsupported Chapter 10 boundary engine: ${browserName}`);
-          }
+          expect(surface.screenWidth).toBe(GEOMETRY_LIMITS.minimumSurfaceWidth);
+          expect(surface.screenHeight).toBe(GEOMETRY_LIMITS.minimumSurfaceHeight);
+          expect(surface.innerWidth).toBeGreaterThanOrEqual(1366);
+          expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
+          expectCoherentFullView(await readFullViewComposition(diagram), 'standard');
+          expectStandardTravel(full);
           await exitFullView(page, toggle);
         }
       } finally {
@@ -1479,60 +1457,5 @@ test.describe(
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test('both localized static figures remain exact and complete without JavaScript', async ({
-      browser,
-    }, testInfo) => {
-      const baseURL = testInfo.project.use.baseURL;
-      if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
-
-      for (const locale of chapterLocales) {
-        for (const viewport of [
-          { width: 1440, height: 1000 },
-          { width: 390, height: 844 },
-        ]) {
-          const context = await browser.newContext({
-            baseURL,
-            javaScriptEnabled: false,
-            viewport,
-          });
-          const page = await context.newPage();
-          try {
-            await page.goto(chapterPath(locale, chapterId));
-            await page.waitForLoadState('networkidle');
-            const diagram = page.locator(
-              'figure[data-visualization-id="broadcasting-reductions"]',
-            );
-            await expect(diagram).toBeVisible();
-            const rect = await diagram.boundingBox();
-            expect(rect?.width ?? 0).toBeGreaterThan(0);
-            expect(rect?.height ?? 0).toBeGreaterThan(0);
-            await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
-            await expect(diagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-            await expectDiagramRecords(diagram, locale);
-            await expectRejectionFieldRows(
-              diagram,
-              copy[locale].rejectionLabels,
-              `${locale} no-JavaScript ${viewport.width}`,
-            );
-            expectCompleteDiagramGeometry(await readDiagramGeometry(diagram));
-
-            for (const scroller of await diagram.locator('[data-diagram-scroll]').all()) {
-              await scroller.focus();
-              await expect(scroller).toBeFocused();
-              if (viewport.width === 390) {
-                const widths = await scroller.evaluate((node) => ({
-                  client: node.clientWidth,
-                  scroll: node.scrollWidth,
-                }));
-                expect(widths.scroll).toBeGreaterThan(widths.client);
-              }
-            }
-            await expectNoOverflowOrClientScripts(page);
-          } finally {
-            await context.close();
-          }
-        }
-      }
-    });
   },
 );

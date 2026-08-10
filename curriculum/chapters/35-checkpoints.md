@@ -529,9 +529,9 @@ caller-supplied component replay, and sampling-RNG continuation; the report must
 mark the stored/not-stored scope and must not claim a trainer resume; learner
 stdout matches the frozen file byte for byte; both lessons
 project this contract with a semantic table and no registered diagram; reciprocal
-English and Russian routes publish; and formula, SEO, sitemap, link,
-responsive, no-JavaScript, Chromium, and Firefox gates pass. Publication uses one
+English and Russian routes publish; and formula, SEO, sitemap, link, and
+responsive Firefox gates with JavaScript enabled pass. Publication uses one
 checksum manifest and the same complete matrix must pass again against canonical
 files before the dedicated commit. Both English and Russian lessons must project
-the same revision and remain readable in Chromium and Firefox at desktop and
-narrow widths; the active Russian route must no longer be treated as deferred.
+the same revision and remain readable in Firefox with JavaScript enabled at
+desktop and narrow widths; the active Russian route must no longer be treated as deferred.

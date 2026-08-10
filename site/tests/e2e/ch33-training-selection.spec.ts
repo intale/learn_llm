@@ -693,30 +693,5 @@ test.describe(
       }
     });
 
-    test("the lesson and exact checkpoint evidence render without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of locales) {
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", { level: 1, name: copy[locale].title }),
-        ).toBeVisible();
-        await expect(page.locator("[data-operation-order]")).toHaveCount(6);
-        await expect(page.locator(".measurement-point")).toHaveCount(10);
-        await expect(page.locator("[data-checkpoint-row]")).toHaveCount(5);
-        await expect(page.locator(".selected-point")).toHaveCount(1);
-        await expect(
-          page.locator("[data-diagram-full-view-toggle]"),
-        ).toHaveCount(0);
-        await expectDiagramContainment(page);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

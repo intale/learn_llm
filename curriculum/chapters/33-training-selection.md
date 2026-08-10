@@ -592,6 +592,6 @@ partition, no-grad, clipping, schedule, ownership, snapshot, selection, replay,
 and runtime invariants; learner stdout and the diagram trace match their frozen
 files byte for byte; both localized lessons project this contract with reciprocal
 locale routes; and the production static site passes formula, SEO, sitemap, link,
-responsive, no-JavaScript, forced-color, direction, containment, shared full-view,
-Chromium, and Firefox checks. Publication uses one checksum manifest and the same
+responsive, forced-color, direction, containment, and shared full-view checks in
+Firefox with JavaScript enabled. Publication uses one checksum manifest and the same
 complete gate must pass again against canonical files before the dedicated commit.

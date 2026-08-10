@@ -378,8 +378,8 @@ addition, or shape inference. Semantic lists and tables preserve reading order;
 technical values remain LTR. The figure is focusable, narrow layouts stack
 without clipping, a named local scroller contains the wide table, and selected,
 repeated, and unused rows differ by text, borders, and symbols as well as color.
-Forced colors, right-to-left inheritance, and JavaScript-disabled rendering stay
-complete.
+Forced colors and right-to-left inheritance stay complete in Firefox with
+JavaScript enabled, while the semantic figure remains complete in built HTML for crawlers.
 
 <!-- contract-section:exercises -->
 ## Prediction checks

@@ -519,5 +519,6 @@ The standard Chapter 11 gate runs the course-plan and contract checks, formattin
 locked Clippy and tests, dependency and demo policies, exact learner and trace
 diffs, English chapter validation, active-locale parity, full content and Astro
 checks, all unit tests, the production static build, link/SEO audit, focused
-desktop/narrow/forced-color/no-script browser coverage, and the complete browser
-regression suite. No canonical output is published until that staged slice passes.
+desktop, narrow, and forced-color browser coverage in Firefox with JavaScript
+enabled, and the complete Firefox regression suite. No canonical output is
+published until that staged slice passes.

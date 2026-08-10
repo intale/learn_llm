@@ -251,7 +251,7 @@
     "Distinguish «исходный накопленный градиент» stored on the live leaf, «коэффициент масштабирования градиента», and «градиент после масштабирования». A successful AdamW step writes the updated value into the same leaf and leaves its accumulated gradient unchanged until the caller explicitly clears it.",
     "Keep the canonical formula byte-equivalent across English and Russian. Render every learner-facing expression through inline or display math delimiters, and reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
     "Use Russian «первый момент градиента», «второй нецентрированный момент градиента», «поправка на смещение», «затухание весов, отделённое от градиентного обновления», «адаптивная поправка», «поправка затухания», «состояние оптимизатора» and «листовой узел-параметр» consistently. Avoid literal calques such as «сырой момент», «свежий лист», «байпас» and «коммитить».",
-    "Validate Russian prose, diagram labels, captions, scroller names, and accessibility labels in Chromium and Firefox at desktop and narrow widths and in full view. Text and formula ink must remain inside their bounded boxes without page-level overflow; fix fit through natural wording, wrapping, or reflow, never clipping, truncation, or reduced text size."
+    "Validate Russian prose, diagram labels, captions, scroller names, and accessibility labels in Firefox with JavaScript enabled at desktop and narrow widths and in full view. Text and formula ink must remain inside their bounded boxes without page-level overflow; fix fit through natural wording, wrapping, or reflow, never clipping, truncation, or reduced text size."
   ],
   "acceptance_examples": [
     {

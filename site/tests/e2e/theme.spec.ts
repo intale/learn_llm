@@ -402,38 +402,6 @@ test('another tab can update or clear the explicit preference @theme', async ({
   await context.close();
 });
 
-test('the no-JavaScript course follows the system palette and exposes no inert control @theme', async ({
-  browser,
-  baseURL,
-}) => {
-  const context = await browser.newContext({
-    baseURL,
-    colorScheme: 'dark',
-    javaScriptEnabled: false,
-    viewport: { width: 360, height: 720 },
-  });
-  const page = await context.newPage();
-  await page.goto('/en/course/22-adamw/');
-
-  expect(await page.locator('html').getAttribute('data-theme')).toBeNull();
-  await expect(page.locator('meta[name="color-scheme"]')).toHaveAttribute(
-    'content',
-    'light dark',
-  );
-  const toggle = page.locator('button[data-theme-toggle]');
-  await expect(toggle).toHaveCount(1);
-  await expect(toggle).toBeHidden();
-  await page.keyboard.press('Tab');
-  await expect(toggle).not.toBeFocused();
-  await expectReadableSurface(page.locator('html'), 7);
-  await expectNoPageOverflow(page);
-
-  await page.goto('/');
-  await expect(page.locator('[data-theme-toggle]')).toHaveCount(0);
-  await expectReadableSurface(page.locator('html'), 7);
-  await expectNoPageOverflow(page);
-  await context.close();
-});
 
 test('dark mode keeps representative prose, code, dialog, formula, and full-view diagram surfaces readable @theme', async ({
   page,

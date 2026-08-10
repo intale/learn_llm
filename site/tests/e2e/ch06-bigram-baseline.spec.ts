@@ -1527,38 +1527,4 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
     await expectNoOverflowOrClientScripts(page);
   });
 
-  test('both localized static figures remain complete without JavaScript at desktop and narrow widths', async ({
-    browser,
-  }, testInfo) => {
-    test.setTimeout(90_000);
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of chapterLocales) {
-      for (const viewport of [desktop, narrow]) {
-        await page.setViewportSize(viewport);
-        await page.goto(chapterPath(locale, chapterId));
-        await page.waitForLoadState('networkidle');
-        await expect(
-          page.getByRole('heading', { level: 1, name: copy[locale].chapterTitle }),
-        ).toBeVisible();
-        await expect(page.locator('.katex-display')).toHaveCount(3);
-        await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-        const diagram = page.locator(diagramSelector);
-        await expect(diagram).toBeVisible();
-        const rect = await diagram.boundingBox();
-        expect(rect?.width ?? 0).toBeGreaterThan(0);
-        expect(rect?.height ?? 0).toBeGreaterThan(0);
-        expectCompleteBigramGeometry(await readBigramGeometry(diagram));
-        await expect(diagram.locator('[data-document]')).toHaveCount(2);
-        await expect(diagram.locator('tbody tr')).toHaveCount(10);
-        await expect(page.locator('.lesson-body details')).toHaveCount(1);
-        await expectFormulaGeometry(page);
-        await expectNoOverflowOrClientScripts(page);
-      }
-    }
-    await context.close();
-  });
 });

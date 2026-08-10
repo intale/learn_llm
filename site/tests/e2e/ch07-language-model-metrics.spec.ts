@@ -30,7 +30,6 @@ const diagramSelector =
 const desktop = { width: 1440, height: 1000 } as const;
 const standardFullView = { width: 1280, height: 900 } as const;
 const minimumFullView = { width: 1024, height: 576 } as const;
-const narrow = { width: 390, height: 844 } as const;
 
 function readRustRegion(path: string, region: string): string {
   const lines = readFileSync(resolve(repositoryRoot, path), "utf8").split(
@@ -1851,6 +1850,14 @@ test.describe(
   () => {
     test.describe.configure({ mode: "serial" });
 
+    test.beforeEach(({ browserName }) => {
+      if (browserName !== "firefox") {
+        throw new Error(
+          `Chapter 7 browser validation requires Firefox; received ${browserName}.`,
+        );
+      }
+    });
+
     test("chapter 7 is seventh on every course index and preserves locale switching", async ({
       page,
     }) => {
@@ -2015,7 +2022,6 @@ test.describe(
 
     test("the minimum eligible surface keeps full-width evidence without shrinking", async ({
       browser,
-      browserName,
     }, testInfo) => {
       const baseURL = testInfo.project.use.baseURL;
       if (typeof baseURL !== "string")
@@ -2087,14 +2093,8 @@ test.describe(
           }));
           expect(surface.screenWidth).toBe(1024);
           expect(surface.screenHeight).toBe(576);
-          if (browserName === "chromium") {
-            expect(surface.innerWidth).toBe(1024);
-            expect(surface.innerHeight).toBe(576);
-            expect(fullGeometry.viewportHeight).toBe(574);
-          } else {
-            expect(surface.innerWidth).toBeGreaterThanOrEqual(1280);
-            expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
-          }
+          expect(surface.innerWidth).toBeGreaterThanOrEqual(1280);
+          expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
 
           await page.keyboard.press("Escape");
           await page.waitForFunction(() => document.fullscreenElement === null);
@@ -2298,84 +2298,31 @@ test.describe(
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test("both localized figures remain complete without JavaScript or the Fullscreen API", async ({
+    test("an unavailable Fullscreen API exposes no nonfunctional control", async ({
       browser,
     }, testInfo) => {
-      test.setTimeout(90_000);
       const baseURL = testInfo.project.use.baseURL;
-      if (typeof baseURL !== "string")
+      if (typeof baseURL !== "string") {
         throw new Error("Playwright baseURL is required");
-
-      for (const locale of chapterLocales) {
-        for (const viewport of [desktop, narrow]) {
-          const context = await browser.newContext({
-            baseURL,
-            javaScriptEnabled: false,
-            viewport,
-          });
-          const page = await context.newPage();
-          try {
-            await page.goto(chapterPath(locale, chapterId));
-            await page.waitForLoadState("networkidle");
-            const diagram = page.locator(diagramSelector);
-            await expect(diagram).toBeVisible();
-            const rect = await diagram.boundingBox();
-            expect(rect?.width ?? 0).toBeGreaterThan(0);
-            expect(rect?.height ?? 0).toBeGreaterThan(0);
-            await expect(
-              diagram.locator("[data-diagram-full-view-controls]"),
-            ).toHaveCount(0);
-            await expect(
-              diagram.locator("[data-diagram-full-view-toggle]"),
-            ).toHaveCount(0);
-            await expect(diagram.locator(".stage-number")).toHaveText([
-              "1",
-              "2",
-              "3",
-              "4",
-              "5",
-            ]);
-            await expect(
-              diagram.locator("[data-scored-partition]"),
-            ).toHaveCount(2);
-            expectCompleteMetricsGeometry(await readMetricsGeometry(diagram));
-            if (viewport.width === 390) {
-              for (const scroller of [
-                diagram.locator(".chain-scroll"),
-                diagram.locator(".score-table-scroll"),
-              ]) {
-                const widths = await scroller.evaluate((node) => ({
-                  client: node.clientWidth,
-                  scroll: node.scrollWidth,
-                }));
-                expect(widths.scroll).toBeGreaterThan(widths.client);
-              }
-            }
-            await expectNoOverflowOrClientScripts(page);
-          } finally {
-            await context.close();
-          }
-        }
       }
-
-      const unsupportedContext = await browser.newContext({
+      const context = await browser.newContext({
         baseURL,
         viewport: desktop,
       });
-      await unsupportedContext.addInitScript(() => {
+      await context.addInitScript(() => {
         Object.defineProperty(document, "fullscreenEnabled", {
           configurable: true,
           value: false,
         });
       });
-      const unsupportedPage = await unsupportedContext.newPage();
+      const page = await context.newPage();
       try {
-        await unsupportedPage.goto(chapterPath("en", chapterId));
-        await unsupportedPage.waitForFunction(
+        await page.goto(chapterPath("en", chapterId));
+        await page.waitForFunction(
           () =>
             document.documentElement.dataset.diagramFullViewReady === "true",
         );
-        const diagram = unsupportedPage.locator(diagramSelector);
+        const diagram = page.locator(diagramSelector);
         await expect(diagram).toBeVisible();
         await expect(
           diagram.locator("[data-diagram-full-view-controls]"),
@@ -2386,10 +2333,11 @@ test.describe(
         await expect(diagram.locator("[data-stage]")).toHaveCount(4);
         await expect(diagram.locator("[data-scored-partition]")).toHaveCount(2);
         expectCompleteMetricsGeometry(await readMetricsGeometry(diagram));
-        await expectNoOverflowOrClientScripts(unsupportedPage);
+        await expectNoOverflowOrClientScripts(page);
       } finally {
-        await unsupportedContext.close();
+        await context.close();
       }
     });
+
   },
 );

@@ -584,38 +584,5 @@ test.describe(
       }
     });
 
-    test("the lesson and exact decoder-model trace render without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of locales) {
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", { level: 1, name: copy[locale].title }),
-        ).toBeVisible();
-        await expect(page.locator("[data-model-stage]")).toHaveCount(6);
-        await expect(page.locator("[data-stage-evidence]")).toHaveCount(4);
-        await expect(page.locator("[data-logit-token]")).toHaveCount(3);
-        await expect(page.locator("[data-shared-parameter]")).toContainText(
-          "token_embedding.weight",
-        );
-        await expect(page.locator('[data-prefix-position="0"]')).toContainText(
-          copy[locale].unchanged,
-        );
-        await expect(page.locator('[data-prefix-position="2"]')).toContainText(
-          copy[locale].changed,
-        );
-        await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-          0,
-        );
-        await expectDiagramContainment(page);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

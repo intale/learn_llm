@@ -905,42 +905,6 @@ test.describe(
         }
       });
 
-      test(`${locale} complete linked map remains available without JavaScript`, async ({
-        browser,
-      }, testInfo) => {
-        const context = await browser.newContext({
-          javaScriptEnabled: false,
-          baseURL: String(testInfo.project.use.baseURL),
-        });
-        const page = await context.newPage();
-        await page.setViewportSize({ width: 390, height: 844 });
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", {
-            level: 1,
-            name: chapterCopy[locale].title,
-          }),
-        ).toBeVisible();
-        await expect(page.locator("figure[data-visualization-id]")).toHaveCount(
-          2,
-        );
-        await expect(
-          page.locator(`[data-visualization-id="${systemDiagramId}"]`),
-        ).toHaveCount(1);
-        await expect(
-          page.locator(`[data-visualization-id="${detailDiagramId}"]`),
-        ).toHaveCount(1);
-        await expect(page.locator("a[data-chapter-link]")).toHaveCount(43);
-        await expect(page.locator("[data-schema-stage]")).toHaveCount(18);
-        await expect(page.locator("[data-diagram-box]")).toHaveCount(37);
-        await expect(
-          page.locator("[data-diagram-full-view-toggle]"),
-        ).toHaveCount(0);
-        await expectContainedDiagram(page, systemDiagramId);
-        await expectContainedDiagram(page, detailDiagramId);
-        await expectNoOverflowOrClientScripts(page);
-        await context.close();
-      });
     }
   },
 );

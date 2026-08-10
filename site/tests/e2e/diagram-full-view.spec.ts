@@ -269,33 +269,6 @@ test.describe('course-wide diagram full view', {
     await expectNoPageOverflow(page);
   });
 
-  test('all diagrams remain complete and usable without JavaScript', async ({
-    browser,
-  }) => {
-    test.setTimeout(180_000);
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      viewport: desktop,
-    });
-    const page = await context.newPage();
-    const fallbackProblems: string[] = [];
-    try {
-      for (const route of diagramRoutes) {
-        await page.goto(route.path);
-        await expectStaticDiagram(page, route);
-        await expect(page.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
-        fallbackProblems.push(
-          ...(await readMetrics(page, route)).unnamedOwners.map(
-            (problem) => `${route.chapterId}: ${problem}`,
-          ),
-        );
-        await expectNoPageOverflow(page);
-      }
-      expect(fallbackProblems).toEqual([]);
-    } finally {
-      await context.close();
-    }
-  });
 
   test('unsupported fullscreen exposes no nonfunctional control', async ({ page }) => {
     await page.addInitScript(() => {

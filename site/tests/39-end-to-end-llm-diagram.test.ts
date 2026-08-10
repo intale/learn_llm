@@ -693,7 +693,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
       "The English and reviewed Russian Chapter 39 cheat sheets have SHA-256 90b1610666270ef7a3cba38e1070f3d666080a6a8487515b4478c7917918b0b0 and 21db369c97bdb443a17320b108b37e22b302d0a73c9da91ec85c1bcfb852a2fa respectively.",
     );
     expect(createHash("sha256").update(contractSource).digest("hex")).toBe(
-      "bf0db5d7bae95444752332ab3be98f3b07a6e6ef1c62720dd39b919ca58fec15",
+      "f47fec042d238c8a862bc5932e9d5e8f22629d270c2e44e5723c4e7f6d4400c3",
     );
     expect(createHash("sha256").update(englishLessonSource).digest("hex")).toBe(
       "6234b3ea092e6a53f74fe8d10fc6ed85c4f2f168192356b4264b502d3fa84f07",

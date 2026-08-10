@@ -156,7 +156,7 @@
     "Keep Vec<f64>, usize, Tensor, TensorView, TensorError, ShapeOverflow, DataLengthMismatch, RankMismatch, IndexOutOfBounds, get, get_mut, data, Q, K, V, C, H, U, f64, arrays, paths, trace tokens, and decimal evidence as isolated left-to-right technical text.",
     "Translate row-major storage only as this course's local implementation policy. Neither cited paper requires one contiguous row-major buffer or the fixture's particular head-axis order.",
     "Use «голова внимания» for attention head, «обучаемые признаки слов» for learned word features, and «промежуточные результаты внимания» for attention intermediates. Do not let Rust or the programming language act as the mathematical agent; attribute computed evidence to the implementation or example.",
-    "The diagram's complete visible and accessible label tree is locale-owned. Validate Russian text in every summary item, panel, table, buffer cell, bounds field, and selected-state announcement at desktop, narrow, and full-view sizes in Chromium and Firefox."
+    "The diagram's complete visible and accessible label tree is locale-owned. Validate Russian text in every summary item, panel, table, buffer cell, bounds field, and selected-state announcement in Firefox with JavaScript enabled at desktop, narrow, and full-view sizes."
   ],
   "acceptance_examples": [
     {
@@ -455,8 +455,8 @@ fixture, shape/stride convention, edge cases, Rust paths and regions, trace
 grammar, source URLs and bounded claims, exercises, misconception, and Chapter 9
 handoff. Russian labels name relationships rather than positions or colors, while
 code identifiers and recorded evidence remain exact. Meaning-first language review
-and Chromium/Firefox desktop, narrow, no-JavaScript, and full-view containment
-validation apply to the complete Russian surface.
+and Firefox containment validation with JavaScript enabled at desktop, narrow,
+and full-view sizes apply to the complete Russian surface.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

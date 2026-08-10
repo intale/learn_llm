@@ -673,39 +673,4 @@ test.describe('chapter 12 localized stable-softmax vertical slice', {
     });
   }
 
-  test('both localized diagrams remain complete without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-      viewport: { width: 1280, height: 900 },
-    });
-    const page = await context.newPage();
-    try {
-      for (const locale of chapterLocales) {
-        const localized = copy[locale];
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole('heading', { level: 1, name: localized.chapterTitle, exact: true }),
-        ).toBeVisible();
-        const diagram = page.locator('figure[data-visualization-id="stable-softmax"]');
-        await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
-        await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
-        await expect(diagram.locator('table[data-diagram-table]')).toHaveCount(1);
-        await expect(diagram.locator('[data-softmax-row]')).toHaveCount(3);
-        await expect(diagram.locator('[data-naive-status]')).toHaveCount(3);
-        await expect(diagram.locator('[data-target-row]')).toHaveCount(3);
-        await expect(diagram.locator('[data-error-kind]')).toHaveCount(4);
-        await expect(diagram.locator('[data-diagram-box]')).toHaveCount(11);
-        await expect(diagram.locator('[data-probabilities-match]')).toContainText(
-          localized.probabilitiesMatch,
-        );
-        await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
-        await expectNoOverflowOrClientScripts(page);
-      }
-    } finally {
-      await context.close();
-    }
-  });
 });

@@ -586,43 +586,5 @@ test.describe(
       }
     });
 
-    test("the complete sampling evidence renders without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of locales) {
-        await page.setViewportSize({ width: 390, height: 844 });
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", { level: 1, name: copy[locale].title }),
-        ).toBeVisible();
-        await expect(page.locator("[data-temperature]")).toHaveCount(3);
-        await expect(page.locator("[data-top-k-token]")).toHaveCount(4);
-        await expect(page.locator("[data-draw-index]")).toHaveCount(8);
-        await expect(page.locator("[data-draw-policy]")).toHaveAttribute(
-          "data-top-k",
-          "3",
-        );
-        await expect(page.locator("[data-diagram-box]")).toHaveCount(7);
-        await expect(page.locator("[data-diagram-scroll]")).toHaveCount(1);
-        await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-          0,
-        );
-        await expect(page.locator('[data-proof="loaded"]')).toContainText(
-          "prefixes=[1,2]",
-        );
-        await expect(page.locator('[data-proof="loaded"]')).toContainText(
-          "eos=none",
-        );
-        await expect(page.locator('[data-proof="eos"]')).toContainText("eos=4");
-        await expectDiagramContainment(page);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

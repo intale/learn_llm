@@ -176,7 +176,7 @@
     "Bengio et al. support the distributed fixed-context language-model architecture, and Vaswani et al. support the later attention-only and masked-decoder claims. Neither paper defines this course's BPE, SwiGLU, dimensions, AdamW constants, seeds, target extraction, stopping rule, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and literal program data. The language-model architecture and history remain language-independent.",
     "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
-    "Validate Russian diagram labels in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces; use natural concise wording or reflow rather than clipping, truncation, overlap, or reduced text size."
+    "Validate Russian diagram labels in Firefox with JavaScript enabled at desktop, narrow, and native full-view surfaces; use natural concise wording or reflow rather than clipping, truncation, overlap, or reduced text size."
   ],
   "acceptance_examples": [
     {
@@ -454,5 +454,5 @@ executable source, APIs, commands, paths, trace tokens, or literal program data.
   plus full browser gates pass.
 - Browser checks cover both locales at desktop and 390-pixel widths, formula
   annotations and spacing, natural-height containment, local scrolling, native
-  full view, forced colors, RTL/LTR isolation, no-JavaScript rendering,
-  navigation, reciprocal alternates, and localized labels.
+  full view, forced colors, RTL/LTR isolation, navigation, reciprocal alternates,
+  and localized labels in Firefox with JavaScript enabled.

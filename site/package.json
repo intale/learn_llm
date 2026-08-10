@@ -13,7 +13,7 @@
     "test": "vitest",
     "build": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro preview",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --project=firefox",
     "check:content": "node ../scripts/check-site-content.mjs",
     "check:contract": "node ../scripts/check-chapter-contract.mjs",
     "check:chapter": "node ../scripts/check-site-content.mjs chapter",

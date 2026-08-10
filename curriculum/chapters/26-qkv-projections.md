@@ -437,6 +437,6 @@ Validation runs the course-plan and contract gates; full locked Rust formatting,
 warning-strict lint, workspace tests, dependency/demo checks, and byte-exact
 learner/trace commands; English chapter/parity/content checks; zero-diagnostic
 Astro analysis; complete unit, static build, link, and basic SEO gates; focused
-Chromium and Firefox geometry; aggregate formula checks in both engines; and the
-full Chromium suite. Only a manifest-identical staged slice may publish, after
+Firefox geometry with JavaScript enabled; aggregate formula checks at desktop and
+narrow widths in Firefox; and the full Firefox suite. Only a manifest-identical staged slice may publish, after
 which the same canonical gates run again before completion and commit.

@@ -507,21 +507,4 @@ test.describe('chapter 24 residual connections vertical slice', {
     }
   });
 
-  test('the lesson and exact trace render without JavaScript', async ({ browser }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of locales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('[data-flow="forward"]')).toContainText('-3.250000');
-      await expect(page.locator('[data-flow="backward"]')).toContainText('3.250000');
-      await expect(page.locator('tbody tr')).toHaveCount(5);
-      await expect(page.locator('[data-evidence="shape-error"]')).toContainText(copy[locale].rejected);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

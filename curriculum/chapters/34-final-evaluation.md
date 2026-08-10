@@ -595,6 +595,6 @@ deterministic replay, and bounded runtime; learner
 stdout and the nine-line diagram trace match frozen files byte for byte; both
 localized lessons project this contract with reciprocal locale routes; and the
 production static site passes formula, SEO, sitemap, link, responsive,
-no-JavaScript, forced-color, direction, box-containment, shared full-view,
-Chromium, and Firefox checks. Publication uses one checksum manifest and the same
+forced-color, direction, box-containment, and shared full-view checks in Firefox
+with JavaScript enabled. Publication uses one checksum manifest and the same
 complete gate must pass again against canonical files before the dedicated commit.

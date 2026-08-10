@@ -415,6 +415,6 @@ The contract passes when the deterministic report and 26-line trace match their
 fixtures byte for byte; all future probabilities and suffix gradients are exact
 zero; every allowed row is finite and sums to $1$; all eighteen query/key/value
 gradient coordinates pass; source, content, locale, static-build, link, SEO,
-formula, Chromium, Firefox, desktop, narrow-width, no-JavaScript, and full-view
+formula, and JavaScript-enabled Firefox desktop, narrow-width, and full-view
 gates pass for both locales; and the Russian Chapter 28 route, alternates,
 navigation, SEO description, diagram labels, and accessibility labels publish.

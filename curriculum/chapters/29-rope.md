@@ -482,5 +482,5 @@ warning-denying lint, workspace tests, dependency policy, deterministic report,
 strict trace, edge cases, and all-coordinate gradients; English and Russian are
 the exact active locale set with reciprocal routes and one description meta tag
 per page; every learner-facing expression is server-rendered math; and desktop,
-narrow, no-JavaScript, full-view, forced-color, and direction-sensitive
-Chromium and Firefox checks prove accessible containment for both locales.
+narrow, full-view, forced-color, and direction-sensitive Firefox checks with
+JavaScript enabled prove accessible containment for both locales.

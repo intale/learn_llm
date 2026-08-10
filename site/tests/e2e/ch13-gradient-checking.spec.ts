@@ -713,42 +713,4 @@ test.describe('chapter 13 localized gradient-checking vertical slice', {
     });
   }
 
-  test('both localized diagrams remain complete without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-      viewport: { width: 1280, height: 900 },
-    });
-    const page = await context.newPage();
-    try {
-      for (const locale of chapterLocales) {
-        const localized = copy[locale];
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole('heading', {
-            level: 1,
-            name: localized.chapterTitle,
-            exact: true,
-          }),
-        ).toBeVisible();
-        const diagram = page.locator('figure[data-visualization-id="gradient-checking"]');
-        await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
-        await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
-        await expect(diagram.locator('.step-record[data-step-index]')).toHaveCount(6);
-        await expect(diagram.locator('[data-comparison-name]')).toHaveCount(2);
-        await expect(diagram.locator('[data-sample-flat]')).toHaveCount(4);
-        await expect(diagram.locator('[data-error-kind]')).toHaveCount(4);
-        await expect(diagram.locator('[data-diagram-box]')).toHaveCount(23);
-        await expect(diagram.locator('[data-restored-exactly]')).toContainText(
-          localized.restoredText,
-        );
-        await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
-        await expectNoOverflowOrClientScripts(page);
-      }
-    } finally {
-      await context.close();
-    }
-  });
 });

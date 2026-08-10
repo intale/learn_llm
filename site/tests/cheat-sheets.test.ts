@@ -1945,7 +1945,7 @@ describe("cheat-sheet ordering and page boundaries", () => {
 });
 
 describe("cheat-sheet integration contract", () => {
-  it("uses a separate strict content collection and one shared progressive dialog", () => {
+  it("uses a separate strict content collection and one shared JavaScript dialog", () => {
     const config = readFileSync(resolve(root, "src/content.config.ts"), "utf8");
     const route = readFileSync(
       resolve(root, "src/pages/[locale]/course/[...slug].astro"),
@@ -2009,13 +2009,14 @@ describe("cheat-sheet integration contract", () => {
     expect(openHandler.indexOf("dialog.showModal();")).toBeLessThan(
       openHandler.indexOf("showPage(1);"),
     );
-    expect(component).toContain("sortedTerms.map(({ term, definition })");
     expect(component).toContain("dialog.addEventListener('close'");
     expect(component).toContain("opener?.focus()");
-    expect(component).toContain("<details");
-    expect(component.indexOf("showPage(1);")).toBeLessThan(
-      component.indexOf("fallback.hidden = true;"),
-    );
+    expect(component.match(/<dl class="cheat-sheet-terms">/g)).toHaveLength(1);
+    expect(component).not.toContain("<details");
+    expect(component).not.toContain("data-cheat-sheet-fallback");
+    expect(component).not.toContain("fallbackSummary");
+    expect(component).not.toContain("fallback.hidden");
+    expect(component).not.toContain(".cheat-sheet-fallback");
     expect(component).not.toMatch(/client:|React|Vue|Svelte/);
   });
 
@@ -2056,7 +2057,6 @@ describe("cheat-sheet integration contract", () => {
     expect({
       closeLabel: englishCopy?.closeLabel,
       eyebrow: englishCopy?.eyebrow,
-      fallbackSummary: englishCopy?.fallbackSummary,
       nextLabel: englishCopy?.nextLabel,
       openLabel: englishCopy?.openLabel,
       paginationLabel: englishCopy?.paginationLabel,
@@ -2064,7 +2064,6 @@ describe("cheat-sheet integration contract", () => {
     }).toEqual({
       closeLabel: "Close cheat sheet",
       eyebrow: "Quick reference",
-      fallbackSummary: "Cheat sheet",
       nextLabel: "Next terms",
       openLabel: "Open cheat sheet",
       paginationLabel: "Cheat sheet term pages",
@@ -2094,7 +2093,6 @@ describe("cheat-sheet integration contract", () => {
     expect({
       closeLabel: russianCopy?.closeLabel,
       eyebrow: russianCopy?.eyebrow,
-      fallbackSummary: russianCopy?.fallbackSummary,
       nextLabel: russianCopy?.nextLabel,
       openLabel: russianCopy?.openLabel,
       paginationLabel: russianCopy?.paginationLabel,
@@ -2102,7 +2100,6 @@ describe("cheat-sheet integration contract", () => {
     }).toEqual({
       closeLabel: "Закрыть справочник терминов",
       eyebrow: "Краткий справочник",
-      fallbackSummary: "Справочник терминов",
       nextLabel: "Следующие термины",
       openLabel: "Открыть справочник терминов",
       paginationLabel: "Страницы справочника терминов",

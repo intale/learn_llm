@@ -555,5 +555,5 @@ publication. Browser evidence must cover direct and indexed English and Russian
 routing, equivalent-page locale switches, exactly one relevant description meta
 tag per route, the three LLM-history sources, exact Rust regions, Rust-derived
 trace attributes, desktop and narrow geometry, full view, local keyboard
-overflow, forced-color non-color cues, JavaScript-disabled rendering, bounded-box
-containment, and no client scripts.
+overflow, forced-color non-color cues, bounded-box containment, and no chapter-local
+client scripts in Firefox with JavaScript enabled.

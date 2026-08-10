@@ -747,29 +747,4 @@ test.describe('chapter 27 localized self-attention vertical slice', {
     }
   });
 
-  test('both localized lessons and exact attention evidence render without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of locales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('[data-score-kind="dot-products"]')).toContainText('6.000000');
-      await expect(page.locator('[data-probability-row="0"]')).toContainText('0.014166');
-      await expect(page.locator('[data-mixture-row="1"]')).toContainText('-2.994908');
-      await expect(page.locator('.errors-card .error-case[data-state="rejected"]')).toHaveCount(5);
-      await expect(page.locator('.errors-card')).toContainText(copy[locale].rankError);
-      await expect(page.locator('.proof-card')).toContainText('gradcheck=true');
-      await expect(page.locator('.proof-card')).toContainText('replay=bitwise');
-      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      await expectDiagramContainment(page, { narrow: false });
-      await expectBoundedBoxContainment(page);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

@@ -441,9 +441,9 @@ component, input, position, and tape states fail at the declared boundary.
 The static lesson must render every mathematical expression through the shared
 math pipeline and every declared source through `RustSource`. Its one useful
 diagram must consume only the frozen trace, satisfy shared semantic and
-containment roles, and remain readable at desktop and narrow widths, without
-JavaScript, in native full view, in forced colors, in direction-sensitive cases,
-in Chromium, and in Firefox. The complete bilingual active-locale set, reciprocal
+containment roles, and remain readable in Firefox with JavaScript enabled at
+desktop and narrow widths, in native full view, in forced colors, and in
+direction-sensitive cases. The complete bilingual active-locale set, reciprocal
 routes, navigation, SEO descriptions, sitemap, links, production build, unit
 tests, focused browser checks, and full regression suite must all pass before
 publication.

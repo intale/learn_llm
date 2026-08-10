@@ -1398,58 +1398,5 @@ test.describe(
       }
     });
 
-    test("both complete localized lessons and exact trace render without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      test.setTimeout(90_000);
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of chapterLocales) {
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", {
-            level: 1,
-            name: copy[locale].title,
-            exact: true,
-          }),
-        ).toBeVisible();
-        await expect(page.locator("figure.rust-source")).toHaveCount(
-          expectedRustRegions.length,
-        );
-        await expect(page.locator(".shuffle-list > li")).toHaveCount(5);
-        await expect(page.locator(".batch-card")).toHaveCount(2);
-        await expect(page.locator(".batch-table tbody tr")).toHaveCount(5);
-        await expect(page.locator("[data-diagram-box]")).toHaveCount(14);
-        await expect(page.locator("[data-diagram-scroll]")).toHaveCount(2);
-        await expect(
-          page.locator("[data-diagram-full-view-toggle]"),
-        ).toHaveCount(0);
-        await expect(page.locator(".unused-slot")).toContainText(
-          copy[locale].unused,
-        );
-        expect(
-          await readMathAwareRows(
-            page.locator(".batch-comparison > div"),
-          ),
-        ).toEqual(expectedBatchMetricRows(locale));
-        expect(
-          await readMathAwareRows(page.locator(".proof-grid > div")),
-        ).toEqual([
-          [copy[locale].proofLabels[0], "5/5"],
-          [copy[locale].proofLabels[1], "0"],
-          [copy[locale].proofLabels[2], "0"],
-          [copy[locale].proofLabels[3], "0"],
-          [copy[locale].proofLabels[4], copy[locale].same],
-          [copy[locale].proofLabels[5], copy[locale].changed],
-          [copy[locale].proofLabels[6], copy[locale].equal],
-        ]);
-        await expectDiagramContainment(page, locale);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

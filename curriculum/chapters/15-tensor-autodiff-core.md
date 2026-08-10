@@ -539,8 +539,9 @@ enact lifecycle transitions. Semantic lists and tables provide reading order;
 solid, double, and dashed outlines plus text glyphs provide non-color cues. One
 named focusable local scroller contains the wide reverse table; graph and outcome
 records reflow within their own figures, keep natural height, and stack without
-document overflow on narrow layouts. All three figures remain complete with
-JavaScript disabled and forced colors.
+document overflow on narrow layouts. All three figures remain complete as built
+static HTML for crawler inspection and remain readable in forced colors in
+Firefox with JavaScript enabled.
 
 <!-- contract-section:exercises -->
 ## Prediction checks

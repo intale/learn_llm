@@ -2053,55 +2053,5 @@ test.describe(
       }
     });
 
-    test("the complete pipeline remains available without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of locales) {
-        await page.setViewportSize({ width: 390, height: 844 });
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", { level: 1, name: copy[locale].title }),
-        ).toBeVisible();
-        await expect(page.locator("[data-stage]")).toHaveCount(8);
-        await expect(page.locator("[data-diagram-card]")).toHaveCount(8);
-        await expect(page.locator("[data-diagram-box]")).toHaveCount(8);
-        await expect(page.locator("[data-diagram-scroll]")).toHaveCount(0);
-        await expect(
-          page.locator("[data-diagram-full-view-toggle]"),
-        ).toHaveCount(0);
-        await expectExplicitEvidence(
-          page.locator('figure[data-visualization-id="end-to-end-llm"]'),
-          locale,
-        );
-        await expect(page.locator('[data-stage="test"]')).toContainText("1744");
-        await expect(page.locator('[data-stage="test"]')).toContainText(
-          "0.115255167",
-        );
-        await expect(
-          page.locator('[data-stage="generation"] code').first(),
-        ).toHaveText("A [67]");
-        await expect(page.locator('[data-stage="generation"]')).toContainText(
-          "[260,34,34]",
-        );
-        const decoded = page.locator('[data-stage="generation"] q');
-        await expect(decoded).toHaveText("т␠␠");
-        await expect(decoded).toHaveAccessibleName(
-          copy[locale].decodedTextLabel,
-        );
-        await expect(
-          page.locator(
-            '[data-stage="generation"] annotation[encoding="application/x-tex"]',
-          ),
-        ).toHaveText(["\\tau=0.8,\\ k=4", "1+2+3=6", "1^2+2^2+3^2=14"]);
-        await expectDiagramContainment(page);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

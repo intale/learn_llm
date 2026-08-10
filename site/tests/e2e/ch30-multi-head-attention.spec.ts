@@ -568,29 +568,4 @@ test.describe('chapter 30 multi-head causal attention vertical slice', {
     }
   });
 
-  test('the lesson and exact multi-head trace render without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of locales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('[data-head-partition]')).toHaveCount(2);
-      await expect(page.locator('[data-attention-row]')).toHaveCount(6);
-      await expect(page.locator('[data-merged-row]')).toHaveCount(3);
-      await expect(page.locator('[data-output-map-row]')).toHaveCount(4);
-      await expect(page.locator('[data-final-output-row]')).toHaveCount(3);
-      await expect(page.locator('[data-prefix-position="0"]')).toContainText(copy[locale].unchanged);
-      await expect(page.locator('[data-prefix-position="2"]')).toContainText(copy[locale].changed);
-      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      await expectDiagramContainment(page, false);
-      await expectBoundedBoxContainment(page);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

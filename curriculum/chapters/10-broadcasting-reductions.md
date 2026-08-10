@@ -208,7 +208,7 @@
     "Keep Tensor, TensorView, GPT-2, Q, K, V, keep_dim, reduce_max, reduce_sum, usize, f64, other Rust identifiers, arrays, literal trace tokens, and source URLs exact. Translate ordinary terms such as batch, sequence, heads, destination, source, features, shape, and axis into established Russian technical language.",
     "Introduce broadcasting as «согласование форм (broadcasting)», then use «согласование форм» and «согласование начиная с последних осей». Introduce reduction as «агрегирование значений по оси (редукция)», then use natural «редукция» or «агрегирование». Use «ось размера 1», «поэлементная операция», «сохранить редуцируемую ось», «нейтральный элемент сложения», «размер оси», and «вектор смещения по признакам»; avoid «трансляция», «схлопнуть ось», «хвостовые оси», and «сохранить измерение».",
     "Distinguish shape alignment and coordinate reuse from eager copying. Distinguish reducing along an axis from necessarily removing it. Translate effective stride as «эффективный шаг», source storage offset as «смещение в исходном хранилище», group base offset as «базовое смещение группы», and offset cursor as «курсор смещений», consistently with Chapter 9. Preserve all empty-axis, NaN-payload, signed-zero, fallible-allocation, ownership, and Chapter 11 boundary commitments.",
-    "Localize every diagram label, explanation, exercise, answer, and accessible name together; verify that Russian text and formula ink remain inside every bounded box in both browser engines and in full view."
+    "Localize every diagram label, explanation, exercise, answer, and accessible name together; verify in Firefox with JavaScript enabled that Russian text and formula ink remain inside every bounded box at desktop, narrow, and full-view sizes."
   ],
   "acceptance_examples": [
     {
@@ -520,8 +520,8 @@ revision-5 traversal terms, consistently with Chapter 9.
 
 The Russian page requires its own semantic, terminology, anti-calque,
 monolingual, accessibility, and rendered reviews. Inspect both compact diagram
-panels and their local scroll regions in Chromium and Firefox at desktop and
-narrow widths and in desktop full view; English geometry is not evidence that
+panels and their local scroll regions in Firefox with JavaScript enabled at
+desktop and narrow widths and in desktop full view; English geometry is not evidence that
 Russian text or formula ink fits.
 
 <!-- contract-section:acceptance -->

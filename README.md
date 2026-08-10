@@ -164,6 +164,12 @@ test-only port is deliberately different from the human preview on `4321`, and
 `./course run` does not publish it to the host. A running course preview therefore
 cannot be mistaken for Playwright's test server.
 
+The canonical browser suite runs exactly the configured Firefox project with
+JavaScript enabled. The course does not maintain a second interaction matrix with
+scripting turned off. Crawlers are covered by the production static HTML build,
+semantic content, formula and figure checks, links, SEO, and sitemap validation;
+those checks make no claim that interactive controls work without scripting.
+
 Show every supported wrapper command with:
 
 ```bash

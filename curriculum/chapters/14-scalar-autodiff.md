@@ -225,7 +225,7 @@
     "Explain o as the selected tracked output, s as the finite caller-supplied seed (with backward() using 1), the indicator as a graph-node identity boundary, and E_o(v) as distinct operand-use edges leaving tracked v inside o's backward dependency subgraph. Repeated references to one node remain separate edges even though topological traversal visits the node once; structurally reachable untracked nodes receive no pass-local adjoint.",
     "Distinguish a fresh pass-local adjoint from the optional stored gradient accumulated across successful backward calls. Detach preserves the primal value but cuts the parent edge; it does not freeze or copy a whole model.",
     "Never imply that decoder inference runs reverse mode or that the cited papers prescribe this example's graph representation, traversal, f64 validation, accumulation, zeroing, detach, or error policy.",
-    "Russian diagram labels, explanations, exercises, accessible names, metadata, SEO copy, history claims, and navigation must be reviewed together, including every full-view surface in Chromium and Firefox."
+    "Russian diagram labels, explanations, exercises, accessible names, metadata, SEO copy, history claims, and navigation must be reviewed together, including every full-view surface in Firefox with JavaScript enabled."
   ],
   "acceptance_examples": [
     {
@@ -405,8 +405,9 @@ double, dotted, and dashed non-color cues. Wide edge evidence stays inside one
 named keyboard-focusable local scroller in the graph figure; narrow layouts
 retain DOM reading order and stack cards. Each component consumes and
 cross-checks the checked-in trace at build time; neither differentiates, sorts
-the graph, nor recomputes gradient arithmetic. They contain no client scripts
-and remain complete with JavaScript disabled and forced colors.
+the graph, nor recomputes gradient arithmetic. They contain no chapter-local
+client scripts, remain complete as built static HTML for crawler inspection, and
+remain readable in forced colors in Firefox with JavaScript enabled.
 
 <!-- contract-section:exercises -->
 ## Prediction checks

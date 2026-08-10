@@ -387,8 +387,8 @@ weights, derive powers, classify states, or recompute variance.
 Semantic lists, tables, and figures preserve reading order. Distribution
 methods use names, symbols, border styles, and patterns as well as color. Wide
 evidence gets a named focusable local scroller; cards retain natural height;
-narrow, forced-color, right-to-left, and JavaScript-disabled layouts remain
-complete.
+narrow, forced-color, and right-to-left layouts remain complete in Firefox with
+JavaScript enabled, while semantic evidence remains complete in built HTML for crawlers.
 
 <!-- contract-section:exercises -->
 ## Prediction checks

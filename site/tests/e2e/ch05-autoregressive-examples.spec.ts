@@ -1317,6 +1317,12 @@ async function expectPartitionsUseFigureWidth(page: Page, maximumInset: number) 
 test.describe('chapter 5 localized vertical slice', { tag: chapterTag(chapterId) }, () => {
   test.describe.configure({ mode: 'serial' });
 
+  test.beforeEach(({ browserName }) => {
+    if (browserName !== 'firefox') {
+      throw new Error(`Chapter 5 browser validation requires Firefox; received ${browserName}.`);
+    }
+  });
+
   test('chapter 5 is fifth on every course index and preserves locale switching', async ({ page }) => {
     for (const locale of chapterLocales) {
       const localized = copy[locale];
@@ -1451,7 +1457,7 @@ test.describe('chapter 5 localized vertical slice', { tag: chapterTag(chapterId)
     }
   });
 
-  test('the requested 1024 by 576 eligibility surface has engine-scoped full-view acceptance', async ({
+  test('the requested 1024 by 576 eligibility surface meets the Firefox full-view contract', async ({
     page,
     browserName,
   }, testInfo) => {
@@ -1485,38 +1491,23 @@ test.describe('chapter 5 localized vertical slice', { tag: chapterTag(chapterId)
       const fullGeometry = await readAutoregressiveGeometry(diagram);
       expectCompleteAutoregressiveGeometry(fullGeometry);
       expectFontsNotShrunk(inlineGeometry, fullGeometry);
-      if (browserName === 'chromium') {
-        expect(fullGeometry.browserSurface).toEqual({
-          innerHeight: minimumFullView.height,
-          innerWidth: minimumFullView.width,
-          screenHeight: minimumFullView.height,
-          screenWidth: minimumFullView.width,
-        });
-        expect(fullGeometry.blockViewport).toBe(minimumFullView.height - 2);
-        expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockViewport);
-        expect(fullGeometry.maxLocalTravel).toBeLessThanOrEqual(234);
-        expect(fullGeometry.maxLocalTravelRatio).toBeLessThanOrEqual(1.25);
-      } else if (browserName === 'firefox') {
-        expect({
-          height: fullGeometry.browserSurface.screenHeight,
-          width: fullGeometry.browserSurface.screenWidth,
-        }).toEqual({ height: minimumFullView.height, width: minimumFullView.width });
-        expect(fullGeometry.browserSurface.innerWidth).toBeGreaterThan(
-          fullGeometry.browserSurface.screenWidth,
-        );
-        expect(fullGeometry.browserSurface.innerHeight).toBeGreaterThan(
-          fullGeometry.browserSurface.screenHeight,
-        );
-        expect(fullGeometry.browserSurface.innerWidth).toBeGreaterThanOrEqual(1280);
-        expect(fullGeometry.browserSurface.innerHeight).toBeGreaterThanOrEqual(768);
-        expect(fullGeometry.blockViewport).toBe(
-          fullGeometry.browserSurface.innerHeight - 2,
-        );
-        expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
-        expectBoundedTapeTravel(fullGeometry);
-      } else {
-        throw new Error(`No Chapter 5 minimum-full-view contract for ${browserName}.`);
-      }
+      expect({
+        height: fullGeometry.browserSurface.screenHeight,
+        width: fullGeometry.browserSurface.screenWidth,
+      }).toEqual({ height: minimumFullView.height, width: minimumFullView.width });
+      expect(fullGeometry.browserSurface.innerWidth).toBeGreaterThan(
+        fullGeometry.browserSurface.screenWidth,
+      );
+      expect(fullGeometry.browserSurface.innerHeight).toBeGreaterThan(
+        fullGeometry.browserSurface.screenHeight,
+      );
+      expect(fullGeometry.browserSurface.innerWidth).toBeGreaterThanOrEqual(1280);
+      expect(fullGeometry.browserSurface.innerHeight).toBeGreaterThanOrEqual(768);
+      expect(fullGeometry.blockViewport).toBe(
+        fullGeometry.browserSurface.innerHeight - 2,
+      );
+      expect(fullGeometry.blockDebt).toBeLessThanOrEqual(fullGeometry.blockBudget);
+      expectBoundedTapeTravel(fullGeometry);
       await testInfo.attach(`ch05-${browserName}-${locale}-1024x576.json`, {
         body: JSON.stringify(
           {
@@ -1604,51 +1595,4 @@ test.describe('chapter 5 localized vertical slice', { tag: chapterTag(chapterId)
     await expectNoOverflowOrClientScripts(page);
   });
 
-  test('both localized figures remain complete without JavaScript at desktop and narrow widths', async ({
-    browser,
-  }, testInfo) => {
-    test.setTimeout(90_000);
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    try {
-      for (const locale of chapterLocales) {
-        for (const viewport of [desktop, narrow]) {
-          await page.setViewportSize(viewport);
-          await page.goto(chapterPath(locale, chapterId));
-          await page.waitForLoadState('networkidle');
-          await expect(
-            page.getByRole('heading', { level: 1, name: copy[locale].chapterTitle }),
-          ).toBeVisible();
-          await expect(page.locator('.katex-display')).toHaveCount(1);
-          await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-          const diagram = page.locator(diagramSelector);
-          await expect(diagram).toBeVisible();
-          expect(
-            await diagram.evaluate((node) => node.getBoundingClientRect().width),
-          ).toBeGreaterThan(0);
-          expect(
-            await diagram.evaluate((node) => node.getBoundingClientRect().height),
-          ).toBeGreaterThan(0);
-          await expectSummaryFacts(diagram, copy[locale].summaryFacts);
-          await expectExactDiagramEvidence(diagram, locale);
-          await expectExactTapeRelationships(diagram, locale);
-          const geometry = await readAutoregressiveGeometry(diagram);
-          expectCompleteAutoregressiveGeometry(geometry);
-          expectBoundedTapeTravel(geometry);
-          const expectedColumns = viewport.width >= 768 ? 2 : 1;
-          expect(
-            await diagram.locator('.document-list').first().evaluate((node) =>
-              getComputedStyle(node).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
-            ),
-          ).toBe(expectedColumns);
-          await expectNoOverflowOrClientScripts(page);
-        }
-      }
-    } finally {
-      await context.close();
-    }
-  });
 });

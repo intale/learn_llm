@@ -21,6 +21,16 @@ Build a learning tool that teaches how the parts of modern large language models
    LLM in Rust.
 8. The tool should support localization. For now, it should support only Russian and English
 
+### Supported browser environment
+
+Interactive course UI is supported and browser-tested only in Firefox with
+JavaScript enabled. Every browser-required validation must use the repository's
+sole Firefox project; do not configure or invoke an alternate engine or a
+scripting-off browser environment. Static production HTML, semantic content,
+formula and figure assertions, links, SEO, and sitemap checks are the
+crawler-facing guarantee and do not claim interactive behavior in an unsupported
+environment.
+
 ### Supporting-library boundary
 
 Use a mature, narrowly scoped supporting library for general-purpose plumbing
@@ -87,8 +97,8 @@ publication. Do not add a pre-publication approval pause; the user reviews
 completed localization changes after delivery.
 
 Never infer localized layout safety from English. Validate the complete target
-page in Chromium and Firefox at desktop and narrow widths, and validate every
-registered figure in full view. Target-language text and formula ink must remain
+page in Firefox with JavaScript enabled at desktop and narrow widths, and validate
+every registered figure in full view. Target-language text and formula ink must remain
 inside their nearest bounded boxes, including boxes nested in sanctioned scroll
 regions, and the page must not gain unintended horizontal overflow. Fix failures
 through natural concise wording, wrapping, or safe reflow; never clip, hide,
@@ -108,9 +118,11 @@ Include only concise LLM-related terms that the matching chapter actually uses o
 teaches. Define each term in the chapter's context; do not turn the sheet into a
 second lesson, add unrelated programming vocabulary, or add one to an orientation
 page such as Chapter 0. Present sheets through the one shared progressive modal
-surface so they do not interrupt the lesson flow. The trigger, dialog, close and
-Escape behavior, focus restoration, constrained scrolling, narrow layout, and
-no-JavaScript disclosure fallback must remain keyboard-accessible and readable.
+surface so they do not interrupt the lesson flow. In Firefox with JavaScript
+enabled, the trigger, dialog, close and Escape behavior, focus restoration,
+constrained scrolling, and narrow layout must remain keyboard-accessible and
+readable. The one dialog term tree must remain in the built static HTML for
+crawlers; do not add a second scripting-off interaction surface.
 
 ### Formula rendering
 
@@ -133,8 +145,8 @@ unique `data-visualization-id`. The figure and all of its evidence must remain
 complete static HTML: chapter components must not add a private script,
 hydration directive, dialog, duplicated presentation tree, or expand control.
 When inline content can overflow horizontally, put it in the smallest meaningful
-named region, make that region keyboard reachable, and retain it as the mobile
-and no-JavaScript fallback.
+named region, make that region keyboard reachable, retain it as the supported
+mobile presentation, and keep its semantic content in built HTML for crawlers.
 
 All diagrams use the one shared presentation module at
 `site/src/styles/diagram.module.css`. The registered figure must carry the
@@ -163,18 +175,19 @@ layout breakpoints. Reflow or wrap content that does not fit; do not truncate it
 overlap adjacent boxes, or reduce its text size.
 
 The site layout owns one localized progressive full-view enhancement for every
-registered figure. On a sufficiently large viewport with JavaScript and
-Fullscreen API support, every registered figure must receive exactly one
+registered figure. On a sufficiently large viewport in Firefox with JavaScript
+and Fullscreen API support, every registered figure must receive exactly one
 localized control regardless of its content size, measured overflow, or expected
 width gain. Expansion must reuse the existing semantic figure, preserve readable
 text without scaling it down, support keyboard entry, native Escape exit, focus
 restoration, forced colors, and configured text direction, and leave no usable
-or focusable control on mobile, without JavaScript, or without API support.
+or focusable control on mobile or without API support.
 Do not implement chapter-specific full-view behavior.
 
-Content and browser validation must enforce this contract for all existing and
-future diagrams. Verify the inline fallback and expanded presentation in built
-HTML in Chromium and Firefox; include desktop, narrow, no-JavaScript, and
+Content, built-HTML, and Firefox browser validation must enforce this contract
+for all existing and future diagrams. Verify crawler-visible inline evidence in
+built HTML, then verify inline and expanded presentation in Firefox with
+JavaScript enabled; include desktop, narrow, forced-color, and
 direction-sensitive cases. Geometry checks must inspect individual bounded boxes
 and painted text, including the nearest bounded box inside a sanctioned scroller,
 not only page width or declared scroll owners, and must fail if clipping hides

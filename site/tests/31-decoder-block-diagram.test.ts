@@ -461,12 +461,12 @@ describe('Chapter 31 static diagram and content boundary', () => {
     expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(6);
     expect(lessonSource).toContain('<DecoderBlockDiagram labels={diagramLabels} />');
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(lessonSource).not.toMatch(/site parser|static HTML|JavaScript disabled|page labels frozen lexemes/i);
+    expect(lessonSource).not.toMatch(/site parser|static HTML|JavaScript|page labels frozen lexemes/i);
     expect(existsSync(resolve(
       repositoryRoot,
       'site/src/content/chapters/ru/31-decoder-block.mdx',
     ))).toBe(true);
-    expect(russianLessonSource).not.toMatch(/site parser|static HTML|JavaScript disabled|page labels frozen lexemes/i);
+    expect(russianLessonSource).not.toMatch(/site parser|static HTML|JavaScript|page labels frozen lexemes/i);
 
     expect(blockSource).toContain('region:decoder-block-errors');
     expect(blockSource).toContain('region:decoder-block-layer');

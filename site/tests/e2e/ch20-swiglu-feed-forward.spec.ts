@@ -1366,50 +1366,5 @@ test.describe(
       }
     });
 
-    test("both complete localized lessons and exact trace render without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of chapterLocales) {
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", {
-            level: 1,
-            name: copy[locale].title,
-            exact: true,
-          }),
-        ).toBeVisible();
-        await expect(page.locator(".forward-table")).toHaveCount(1);
-        await expect(page.locator("[data-forward-stage]")).toHaveCount(8);
-        await expect(page.locator(".position-gradient-table")).toHaveCount(2);
-        await expect(page.locator("[data-gradient-kind]")).toHaveCount(10);
-        await expect(page.locator("[data-parameter-gradient]")).toHaveCount(3);
-        await expect(page.locator("[data-diagram-scroll]")).toHaveCount(2);
-        await expect(
-          page.locator("[data-diagram-full-view-toggle]"),
-        ).toHaveCount(0);
-        await expect(page.locator(".independence-proof")).toContainText(
-          copy[locale].unchanged,
-        );
-        expect(
-          await page
-            .locator(
-              '[data-forward-position="0"] annotation[encoding="application/x-tex"]',
-            )
-            .allTextContents(),
-        ).toContain(String.raw`Y_{0}=\left[1.924234,-2.193176\right]`);
-        expect(
-          await readMathAwareRows(
-            page.locator(".parameter-gradient-table tbody tr"),
-          ),
-        ).toEqual(expectedParameterRows);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

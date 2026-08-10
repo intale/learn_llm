@@ -153,23 +153,6 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     </div>
   </dialog>
 
-  <details class="cheat-sheet-fallback" data-cheat-sheet-fallback>
-    <summary>{copy.fallbackSummary}</summary>
-    <div class="cheat-sheet-fallback-content">
-      <h2>{sheet.title}</h2>
-      <p>{sheet.description}</p>
-      <dl class="cheat-sheet-terms">
-        {
-          sortedTerms.map(({ term, definition }) => (
-            <div class="cheat-sheet-term">
-              <dt>{term}</dt>
-              <dd>{definition}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
-  </details>
 </aside>
 
 <script>
@@ -179,7 +162,6 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     const trigger = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-open]');
     const dialog = root.querySelector<HTMLDialogElement>('[data-cheat-sheet-dialog]');
     const close = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-close]');
-    const fallback = root.querySelector<HTMLDetailsElement>('[data-cheat-sheet-fallback]');
     const pageViewport = root.querySelector<HTMLElement>('[data-cheat-sheet-pages]');
     const pages = Array.from(
       root.querySelectorAll<HTMLElement>('[data-cheat-sheet-page]'),
@@ -193,7 +175,6 @@ const pageStatuses = termPages.map((page, pageIndex) =>
       !trigger ||
       !dialog ||
       !close ||
-      !fallback ||
       !pageViewport ||
       typeof dialog.showModal !== 'function'
     ) {
@@ -244,7 +225,6 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     showPage(1);
     root.dataset.cheatSheetEnhanced = 'true';
     trigger.hidden = false;
-    fallback.hidden = true;
     let opener: HTMLElement | null = null;
 
     trigger.addEventListener('click', () => {
@@ -305,8 +285,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
 
   .cheat-sheet-trigger:focus-visible,
   .cheat-sheet-close:focus-visible,
-  .cheat-sheet-page-button:focus-visible,
-  .cheat-sheet-fallback summary:focus-visible {
+  .cheat-sheet-page-button:focus-visible {
     outline: 0.2rem solid var(--focus);
     outline-offset: 0.2rem;
   }
@@ -337,8 +316,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     background: var(--dialog-backdrop);
   }
 
-  .cheat-sheet-panel,
-  .cheat-sheet-fallback-content {
+  .cheat-sheet-panel {
     box-sizing: border-box;
     min-inline-size: 0;
     padding: clamp(1.1rem, 4vw, 2rem);
@@ -374,8 +352,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     min-inline-size: 0;
   }
 
-  .cheat-sheet-header h2,
-  .cheat-sheet-fallback-content h2 {
+  .cheat-sheet-header h2 {
     margin: 0;
     overflow-wrap: anywhere;
     font-family: Georgia, "Times New Roman", serif;
@@ -467,23 +444,6 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     color: var(--muted);
   }
 
-  .cheat-sheet-fallback {
-    border: 1px solid var(--line);
-    border-radius: 0.85rem;
-    background: var(--surface);
-  }
-
-  .cheat-sheet-fallback summary {
-    padding: 0.8rem 1rem;
-    color: var(--accent-ink);
-    font-weight: 750;
-    cursor: pointer;
-  }
-
-  .cheat-sheet-fallback-content {
-    padding-top: 0.5rem;
-  }
-
   @media (max-width: 34rem) {
     .cheat-sheet-dialog {
       inline-size: calc(100vw - 1rem);
@@ -505,7 +465,6 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     .cheat-sheet-close,
     .cheat-sheet-page-button,
     .cheat-sheet-dialog,
-    .cheat-sheet-fallback,
     .cheat-sheet-term {
       border-color: CanvasText;
     }

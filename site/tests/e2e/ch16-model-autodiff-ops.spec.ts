@@ -28,7 +28,6 @@ const diagramSelector = 'figure[data-visualization-id="model-autodiff-ops"]';
 const desktop = { width: 1440, height: 1000 } as const;
 const standardFullView = { width: 1280, height: 900 } as const;
 const minimumFullView = { width: 1024, height: 576 } as const;
-const narrowViewport = { width: 390, height: 844 } as const;
 const formulaLatex = String.raw`\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`;
 const indexedMeanNllLatex = String.raw`\bar Z_{g,c}=\frac{\bar L}{G}\left(P_{g,c}-\mathbf{1}[c=y_g]\right).`;
 const repositoryRoot = resolve(process.cwd(), '..');
@@ -1794,6 +1793,12 @@ test.describe('chapter 16 localized model-autodiff-ops vertical slice', {
 }, () => {
   test.describe.configure({ mode: 'serial' });
 
+  test.beforeEach(({ browserName }) => {
+    if (browserName !== 'firefox') {
+      throw new Error(`Chapter 16 browser validation requires Firefox; received ${browserName}.`);
+    }
+  });
+
   test('chapter 16 is sixteenth on both indexes with direct equivalent locale routes', async ({
     page,
   }) => {
@@ -1921,7 +1926,6 @@ test.describe('chapter 16 localized model-autodiff-ops vertical slice', {
 
   test('the minimum eligible surface keeps every record full width without shrinking', async ({
     browser,
-    browserName,
   }, testInfo) => {
     test.setTimeout(120_000);
     const baseURL = testInfo.project.use.baseURL;
@@ -1994,16 +1998,8 @@ test.describe('chapter 16 localized model-autodiff-ops vertical slice', {
         }));
         expect(surface.screenWidth).toBe(1024);
         expect(surface.screenHeight).toBe(576);
-        if (browserName === 'chromium') {
-          expect(surface.innerWidth).toBe(1024);
-          expect(surface.innerHeight).toBe(576);
-          expect(fullGeometry.viewportHeight).toBe(574);
-        } else if (browserName === 'firefox') {
-          expect(surface.innerWidth).toBeGreaterThanOrEqual(1280);
-          expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
-        } else {
-          throw new Error(`Unsupported Chapter 16 full-view engine ${browserName}`);
-        }
+        expect(surface.innerWidth).toBeGreaterThanOrEqual(1280);
+        expect(surface.innerHeight).toBeGreaterThanOrEqual(768);
 
         await page.keyboard.press('Escape');
         await page.waitForFunction(() => document.fullscreenElement === null);
@@ -2180,90 +2176,35 @@ test.describe('chapter 16 localized model-autodiff-ops vertical slice', {
     await expectNoOverflowOrClientScripts(page);
   });
 
-  test('both localized figures remain complete without JavaScript or the Fullscreen API', async ({
+  test('an unavailable Fullscreen API exposes no nonfunctional control', async ({
     browser,
   }, testInfo) => {
-    test.setTimeout(120_000);
     const baseURL = testInfo.project.use.baseURL;
     if (typeof baseURL !== 'string') throw new Error('Playwright baseURL is required');
-
-    for (const locale of chapterLocales) {
-      for (const viewport of [desktop, narrowViewport]) {
-        const context = await browser.newContext({
-          baseURL,
-          javaScriptEnabled: false,
-          viewport,
-        });
-        const page = await context.newPage();
-        try {
-          await page.goto(chapterPath(locale, chapterId));
-          await page.waitForLoadState('networkidle');
-          await expect(
-            page.getByRole('heading', { level: 1, name: copy[locale].title }),
-          ).toBeVisible();
-          const diagram = page.locator(diagramSelector);
-          await expect(diagram).toBeVisible();
-          await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
-          await expect(diagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-          await expect(diagram.locator('[data-forward-step]')).toHaveCount(5);
-          await expect(diagram.locator('[data-target-position]')).toHaveCount(4);
-          await expect(diagram.locator('[data-pullback-operation]')).toHaveCount(3);
-          await expect(diagram.locator('[data-embedding-row]')).toHaveCount(3);
-          await expect(diagram.locator('[data-occurrence-position]')).toHaveCount(4);
-          await expect(diagram.locator(':scope > section')).toHaveCount(3);
-          await expect(diagram.locator('[data-diagram-scroll]')).toHaveCount(1);
-          await expect(
-            diagram.locator(
-              '[data-check-operation], [data-gradcheck-operation], [data-error-kind]',
-            ),
-          ).toHaveCount(0);
-          const diagramRect = await diagram.boundingBox();
-          expect(diagramRect?.width ?? 0).toBeGreaterThan(0);
-          expect(diagramRect?.height ?? 0).toBeGreaterThan(0);
-          expectCompleteModelAutodiffGeometry(await readModelAutodiffGeometry(diagram));
-          const evidence = await readModelAutodiffEvidence(diagram);
-          expect(evidence.forward).toHaveLength(5);
-          expect(evidence.targets).toHaveLength(4);
-          expect(evidence.pullbacks).toHaveLength(3);
-          expect(evidence.embeddings).toHaveLength(3);
-          expect(evidence.occurrences).toHaveLength(4);
-          if (viewport.width === narrowViewport.width) {
-            const travel = await diagram.locator('[data-diagram-scroll]').evaluate((node) => ({
-              client: node.clientWidth,
-              scroll: node.scrollWidth,
-            }));
-            expect(travel.scroll).toBeGreaterThan(travel.client);
-          }
-          await expectNoOverflowOrClientScripts(page);
-        } finally {
-          await context.close();
-        }
-      }
-    }
-
-    const unsupportedContext = await browser.newContext({ baseURL, viewport: desktop });
-    await unsupportedContext.addInitScript(() => {
+    const context = await browser.newContext({ baseURL, viewport: desktop });
+    await context.addInitScript(() => {
       Object.defineProperty(document, 'fullscreenEnabled', {
         configurable: true,
         value: false,
       });
     });
-    const unsupportedPage = await unsupportedContext.newPage();
+    const page = await context.newPage();
     try {
-      await unsupportedPage.goto(chapterPath('en', chapterId));
-      await unsupportedPage.waitForFunction(
+      await page.goto(chapterPath('en', chapterId));
+      await page.waitForFunction(
         () => document.documentElement.dataset.diagramFullViewReady === 'true',
       );
-      const diagram = unsupportedPage.locator(diagramSelector);
+      const diagram = page.locator(diagramSelector);
       await expect(diagram).toBeVisible();
       await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
       await expect(diagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      await settle(unsupportedPage);
+      await settle(page);
       expectCompleteModelAutodiffGeometry(await readModelAutodiffGeometry(diagram));
       expect((await readModelAutodiffEvidence(diagram)).occurrences).toHaveLength(4);
-      await expectNoOverflowOrClientScripts(unsupportedPage);
+      await expectNoOverflowOrClientScripts(page);
     } finally {
-      await unsupportedContext.close();
+      await context.close();
     }
   });
+
 });

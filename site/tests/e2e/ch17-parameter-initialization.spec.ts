@@ -947,35 +947,4 @@ test.describe('chapter 17 localized parameter-initialization vertical slice', {
     }
   });
 
-  test('both complete localized lessons and the Rust-derived trace render without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of chapterLocales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(
-        page.getByRole('heading', {
-          level: 1,
-          name: copy[locale].title,
-          exact: true,
-        }),
-      ).toBeVisible();
-      await expect(page.locator('[data-initialization-kind]')).toHaveCount(3);
-      await expect(
-        page.locator('.histogram-table [data-bin-index]'),
-      ).toHaveCount(27);
-      await expect(page.locator('[data-layer]')).toHaveCount(5);
-      await expect(page.locator('[data-reproducibility]')).toHaveCount(2);
-      await expect(page.locator('[data-diagram-scroll]')).toHaveCount(2);
-      await expect(
-        page.locator('[data-diagram-full-view-toggle]'),
-      ).toHaveCount(0);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

@@ -274,11 +274,17 @@ For a useful visualization:
 - use logical CSS properties so layout follows the locale direction; and
 - emit static HTML with no chapter-local client script or hydration directive.
 
+Interactive course UI is supported and browser-tested only in Firefox with
+JavaScript enabled. Static builds, semantic HTML, formulas, figures, links, SEO,
+and content checks are the crawler-facing guarantee; do not create a second
+scripting-off interaction or browser-test path.
+
 Every useful diagram component has exactly one semantic `figure` with a unique
 `data-visualization-id`. If a relationship needs horizontal overflow, give the
 smallest meaningful scroll region an accessible name, `role="region"`, and
-keyboard focus. That inline region is the permanent narrow-screen and
-no-JavaScript fallback; never make the whole lesson page scroll horizontally.
+keyboard focus. That inline region is the permanent narrow-screen presentation
+and remains complete in built HTML for crawlers; never make the whole lesson
+page scroll horizontally.
 
 Use the one course diagram design system from
 `site/src/styles/diagram.module.css`; `BaseLayout.astro` loads it once. The
@@ -317,24 +323,25 @@ forgetting the marker cannot hide a defect. Do not use hidden or clipped overflo
 or paint containment to make a failing layout appear contained. Use
 `min-inline-size: 0`, deliberate wrapping, or a shape-aware reflow; reserve
 horizontal overflow for the marked shared scroll region. Browser review must
-check the dimensions and painted text of cards and cells themselves in Chromium
-and Firefox at desktop and narrow widths, not just the document width.
+check the dimensions and painted text of cards and cells themselves in Firefox
+with JavaScript enabled at desktop and narrow widths, not just the document width.
 
 Do not add a component-specific expand button, dialog, cloned diagram, Fullscreen
 API handler, or alternate mobile tree. The layout-level diagram full-view
 controller progressively enhances every registered figure. On a sufficiently
-large viewport with JavaScript and Fullscreen API support it exposes exactly one
+large viewport in Firefox with JavaScript and Fullscreen API support it exposes exactly one
 localized control for every registered diagram, including compact diagrams with
 no measured overflow, reuses the same semantic DOM in full view, supports native
-Escape and focus restoration, and keeps text at a readable size. On mobile,
-without JavaScript, or without API support, no nonfunctional control is exposed.
+Escape and focus restoration, and keeps text at a readable size. On mobile or
+without API support, no nonfunctional control is exposed.
 If full view still leaves a large horizontal journey, reorganize the diagram's
 grouping or sequence instead of shrinking its text.
 
 Test the parser, data-to-view mapping, label completeness, failure cases, the
-component's no-private-script/accessibility contract, and registration with the
-shared controller. Browser tests must confirm desktop inline and full-view
-rendering plus narrow and no-JavaScript fallbacks in both Chromium and Firefox;
+component's no-private-script/accessibility contract, built-static-HTML crawler
+evidence, and registration with the shared controller. Browser tests must confirm
+desktop inline and full-view rendering plus narrow behavior in Firefox with
+JavaScript enabled;
 include forced-colors and direction-sensitive coverage where applicable. The
 course-wide style gate must also prove that only marked shared scroll regions
 overflow and that no frame, section, card, table cell, or visible text or formula
@@ -417,8 +424,8 @@ in the run's manual review.
    spoken descriptions, focus instructions, table headers, controls, exercise
    prompts, and answer summaries in isolation. They must make sense to a screen
    reader and must not depend on color, position, or an untranslated label.
-9. **Rendered pass.** Inspect the exact built target page in Chromium and Firefox
-   at desktop and narrow widths; never infer fit from English. Check the complete
+9. **Rendered pass.** Inspect the exact built target page in Firefox with
+   JavaScript enabled at desktop and narrow widths; never infer fit from English. Check the complete
    page for unintended horizontal overflow and inspect text and formula ink
    against the nearest bounded box. Inspect every registered figure inline and in
    desktop full view, including boxes inside sanctioned scroll regions. Check line
@@ -560,8 +567,9 @@ language. Add a manual mapping that answers all of these:
   complete rendered page remain contained when target-language text is longer at
   desktop, narrow, and full-view sizes?
 - Do exercises, answers, accessibility labels, and the handoff agree?
-- Do desktop full view and narrow/no-JavaScript fallbacks remain readable and
-  keyboard-usable, with only the approved shared diagram script?
+- Do desktop full view and the narrow presentation remain readable and
+  keyboard-usable in Firefox with JavaScript enabled, with only the approved
+  shared diagram script?
 
 Record failures as failures; do not replace the earlier validation entry after a
 fix. Append the later passing command and explain the correction.

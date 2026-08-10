@@ -20052,3 +20052,52 @@ automatic retry policy.
 `repair-and-audit-diagram-rendering-20260808`,
 `add-bounded-network-retry-runner`, and all later steps that explicitly declare
 and invoke the runner.
+
+## 2026-08-10 - Expand the Firefox policy step to its two exact-hash locks
+
+**Status:** Accepted during validation of the running policy step.
+
+**Context:** The complete static test suite passed 1,047 of 1,049 cases. The
+only failures were the exact SHA-256 assertions for the Chapter 39 contract and
+course plan, both canonical files intentionally rewritten by
+`enforce-firefox-only-browser-validation`. Their two integration tests were not
+in the original output list, so changing the expected hashes without first
+expanding ownership would be a silent scope change.
+
+**Decision:** Add only `site/tests/39-end-to-end-llm-diagram.test.ts` and
+`site/tests/content-contract.test.ts` to the running step. Update only their
+expected hashes to the validated current Chapter 39 contract and course-plan
+bytes; keep all other assertions unchanged. Preserve the original 84-output
+pre-edit manifest and record a separate expansion artifact with both test-file
+and canonical-input hashes.
+
+**Consequences:** Exact source locks continue to fail loudly after the browser
+policy migration, and the scope expansion is explicit and independently
+auditable. No learner prose, revision, formula, Rust evidence, or unrelated
+test contract changes.
+
+**Affected step:** `enforce-firefox-only-browser-validation`.
+
+## 2026-08-10 - Add the Chapter 11 no-script alias to the Firefox policy scope
+
+**Status:** Accepted before browser execution in the running policy step.
+
+**Context:** After all static validation passed, an independent broad source
+audit found that Chapter 11's live contract still required `no-script` browser
+coverage. The phrase was outside the original file inventory and was not an
+alias recognized by the new fail-loud scanner. The first fresh browser snapshot
+had been copied and hash-verified, but no browser process or test had started.
+
+**Decision:** Add `curriculum/chapters/11-matrix-multiplication.md` to the
+running step, replace that operational gate with Firefox and JavaScript-enabled
+coverage, and make the policy test reject the exact `no-script` environment
+alias with a mutation fixture. Preserve a lifecycle note for the stale
+prelaunch-only snapshot, remove that uniquely named unattached volume, rebuild
+from corrected bytes, and require a different fresh volume before the sole
+Firefox attempt.
+
+**Consequences:** The policy scanner closes a real false-negative class without
+forbidding valid statements that static diagrams add no private or chapter-local
+script. No learner prose, Rust, formula, revision, or historical run changes.
+
+**Affected step:** `enforce-firefox-only-browser-validation`.

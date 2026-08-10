@@ -957,11 +957,16 @@ npm --prefix site run test:e2e -- --grep '@chapter:NN-slug'
 npm --prefix site run test:e2e
 ```
 
+The build and link commands validate crawler-facing static HTML. Both end-to-end
+commands use the sole configured Firefox project with JavaScript enabled; there
+is no alternate-engine or alternate-scripting acceptance matrix.
+
 Numerical chapters specify invariants and tolerances; randomized work uses fixed
 seeds and rounded output. Training chapters declare a bounded step/runtime budget
 and retain corpus/split/tokenizer/config provenance. Every run archives a manual
 mapping from its contract through Rust evidence, every chapter-active locale,
-visualization choice, exercises, misconceptions, and rendered browser evidence.
+visualization choice, exercises, misconceptions, and rendered Firefox evidence
+with JavaScript enabled.
 
 ## Dependency-ordered chapter map
 
@@ -978,7 +983,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Rust contribution:** None in this orientation; executable implementation examples begin in Chapter 1 when the course starts building the LLM.
 - **Visualization:** Useful — first show one connected whole-system schema from prompt text through logits, generation feedback, and learning updates; retain the detailed inference, decoder-interior, cache, numeric-foundation, and learning views with linked chapter destinations.
 - **Practice:** No questionnaire or memorization check; use the map as a table of contents when a later mechanism needs context.
-- **Integration evidence:** Contract/page parity, absence of lesson-only formula/Rust/exercise material, all working chapter links, SEO and sitemap inclusion, shared full-view behavior, and desktop/narrow Chromium and Firefox containment pass.
+- **Integration evidence:** Contract/page parity, absence of lesson-only formula/Rust/exercise material, all working chapter links, SEO and sitemap inclusion, shared full-view behavior, and desktop/narrow Firefox containment with JavaScript enabled passes.
 - **Handoff:** Chapter 1 begins the implementation path by distinguishing text units from the token IDs consumed by the model.
 
 ## 01. Text units and vocabulary IDs
@@ -994,7 +999,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Rust contribution:** Retain the dependency-free Chapter 1 demo and exact output as a self-contained scalar-vocabulary comparison; no scalar `Vocabulary` API enters the cumulative crate.
 - **Visualization:** Useful — retain the aligned text → UTF-8 bytes → scalar values → IDs pipeline and its localized accessible labels.
 - **Practice:** Predict byte, scalar, and ID counts for `cat`, `кот`, and an unseen scalar before running the demo.
-- **Integration evidence:** Revision-6 contract, lessons, and locale-aware cheat sheets distinguish the demo type from the transferable mapping contract; existing six Rust tests, exact stdout, bilingual parity, routes, and desktop/narrow/full-view browser checks remain unchanged.
+- **Integration evidence:** Revision-6 contract, lessons, and locale-aware cheat sheets distinguish the demo type from the transferable mapping contract; existing six Rust tests, exact stdout, bilingual parity, routes, and desktop/narrow/full-view Firefox checks with JavaScript enabled remain unchanged.
 - **Handoff:** Chapter 2 preserves documents and partitions the corpus; Chapters 3 and 4 then replace the scalar table with a byte-level BPE vocabulary while preserving the integer-sequence interface.
 
 ## 02. Corpus documents, boundaries, and data partitions

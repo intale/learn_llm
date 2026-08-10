@@ -2320,71 +2320,26 @@ test.describe(
       }
     });
 
-    test("the lesson and exact report evidence render without JavaScript or the Fullscreen API", async ({
+    test("an unavailable Fullscreen API exposes no nonfunctional control", async ({
       browser,
     }, testInfo) => {
-      test.setTimeout(120_000);
       const baseURL = String(testInfo.project.use.baseURL);
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL,
-      });
-      const page = await context.newPage();
-      for (const locale of locales) {
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole("heading", { level: 1, name: copy[locale].title }),
-        ).toBeVisible();
-        const lessonText = (await page.locator(".lesson-body").innerText())
-          .replace(/[’‘]/g, "'")
-          .replace(/\s+/g, " ");
-        for (const fragment of copy[locale].handoffFragments) {
-          expect(lessonText).toContain(fragment);
-        }
-        const diagram = page.locator(
-          'figure[data-visualization-id="final-evaluation-boundary"]',
-        );
-        await expect(diagram).toHaveCount(1);
-        await expect(diagram.locator("[data-diagram-box]")).toHaveCount(15);
-        await expectDiagramSemantics(page, diagram, locale);
-        await expect(
-          diagram.locator("[data-diagram-full-view-toggle]"),
-        ).toHaveCount(0);
-        await expect(diagram).toContainText("fnv1a64:dac4bb4d76beeb59");
-        await expectOnePaintRangeForExactValue(
-          diagram,
-          "provenance_assertions_match=true",
-        );
-        const noScriptMainFormula = page
-          .locator(
-            '.lesson-body .katex-display annotation[encoding="application/x-tex"]',
-          )
-          .filter({ hasText: mainFormulaLatex });
-        await expect(noScriptMainFormula).toHaveCount(1);
-        expect(
-          normalizeMath((await noScriptMainFormula.textContent()) ?? ""),
-        ).toBe(normalizeMath(mainFormulaLatex));
-        await expectDiagramContainment(page, false);
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-
-      const unsupportedContext = await browser.newContext({ baseURL });
-      await unsupportedContext.addInitScript(() => {
+      const context = await browser.newContext({ baseURL });
+      await context.addInitScript(() => {
         Object.defineProperty(document, "fullscreenEnabled", {
           configurable: true,
           value: false,
         });
       });
-      const unsupportedPage = await unsupportedContext.newPage();
+      const page = await context.newPage();
       try {
         for (const locale of locales) {
-          await unsupportedPage.goto(chapterPath(locale, chapterId));
-          await unsupportedPage.waitForFunction(
+          await page.goto(chapterPath(locale, chapterId));
+          await page.waitForFunction(
             () =>
               document.documentElement.dataset.diagramFullViewReady === "true",
           );
-          const diagram = unsupportedPage.locator(
+          const diagram = page.locator(
             'figure[data-visualization-id="final-evaluation-boundary"]',
           );
           await expect(diagram).toBeVisible();
@@ -2394,13 +2349,14 @@ test.describe(
           await expect(
             diagram.locator("[data-diagram-full-view-toggle]"),
           ).toHaveCount(0);
-          await expectDiagramSemantics(unsupportedPage, diagram, locale);
-          await expectDiagramContainment(unsupportedPage);
-          await expectNoOverflowOrClientScripts(unsupportedPage);
+          await expectDiagramSemantics(page, diagram, locale);
+          await expectDiagramContainment(page);
+          await expectNoOverflowOrClientScripts(page);
         }
       } finally {
-        await unsupportedContext.close();
+        await context.close();
       }
     });
+
   },
 );

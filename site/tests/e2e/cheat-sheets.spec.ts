@@ -1479,7 +1479,6 @@ for (const sheet of sheets) {
       const root = page.locator("[data-cheat-sheet]");
       const trigger = root.getByRole("button", { name: sheet.copy.openLabel });
       const dialog = root.getByRole("dialog", { name: sheet.title });
-      const fallback = root.locator("[data-cheat-sheet-fallback]");
       const pages = dialog.locator("[data-cheat-sheet-pages]");
       const visibleTerms = dialog.locator(
         "[data-cheat-sheet-page]:not([hidden]) dt",
@@ -1502,7 +1501,7 @@ for (const sheet of sheets) {
         String(termPages.length),
       );
       await expect(trigger).toBeVisible();
-      await expect(fallback).toBeHidden();
+      await expect(root.locator("details")).toHaveCount(0);
       await expect(dialog).not.toBeVisible();
 
       await trigger.focus();
@@ -1890,97 +1889,6 @@ for (const sheet of sheets) {
       await dialog.getByRole("button", { name: sheet.copy.closeLabel }).click();
     });
 
-    test("retains a collapsed semantic disclosure when JavaScript is disabled", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        baseURL: String(testInfo.project.use.baseURL),
-        javaScriptEnabled: false,
-      });
-      const page = await context.newPage();
-      await page.goto(chapterPath(sheet.locale, sheet.chapterId));
-
-      const sortedTerms = expectedPages(sheet.terms, sheet.locale).flat();
-      const root = page.locator("[data-cheat-sheet]");
-      const fallback = root.locator("[data-cheat-sheet-fallback]");
-      await expect(root.locator("[data-cheat-sheet-open]")).toBeHidden();
-      await expect(fallback).toBeVisible();
-      await expect(fallback).not.toHaveAttribute("open", "");
-      await expect(fallback.locator("summary")).toHaveText(
-        sheet.copy.fallbackSummary,
-      );
-      await fallback.locator("summary").click();
-      await expect(fallback).toHaveAttribute("open", "");
-      await expect(fallback.locator("dt")).toHaveText(sortedTerms);
-      if (sheet.chapterId === "02-corpus-partitions") {
-        const expectedDefinition = chapter02BoundaryDefinitions[sheet.locale];
-        const entry = fallback.locator(".cheat-sheet-term").filter({
-          has: page.locator("dt", { hasText: expectedDefinition.term }),
-        });
-        await expect(entry).toHaveCount(1);
-        await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
-        await expect(entry.locator("dd")).toHaveText(
-          expectedDefinition.definition,
-        );
-      }
-      if (sheet.chapterId === "34-final-evaluation") {
-        for (const expectedDefinition of chapter34BoundaryDefinitions[
-          sheet.locale
-        ]) {
-          const entry = fallback.locator(".cheat-sheet-term").filter({
-            has: page.locator("dt", { hasText: expectedDefinition.term }),
-          });
-          await expect(entry).toHaveCount(1);
-          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
-          await expect(entry.locator("dd")).toHaveText(
-            expectedDefinition.definition,
-          );
-        }
-      }
-      if (sheet.chapterId === "35-checkpoints") {
-        for (const expectedDefinition of chapter35BoundaryDefinitions[
-          sheet.locale
-        ]) {
-          const entry = fallback.locator(".cheat-sheet-term").filter({
-            has: page.locator("dt", { hasText: expectedDefinition.term }),
-          });
-          await expect(entry).toHaveCount(1);
-          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
-          await expect(entry.locator("dd")).toHaveText(
-            expectedDefinition.definition,
-          );
-        }
-      }
-      if (sheet.chapterId === "39-end-to-end-llm") {
-        for (const expectedDefinition of chapter39EvidenceDefinitions[
-          sheet.locale
-        ]) {
-          const entry = fallback.locator(".cheat-sheet-term").filter({
-            has: page.locator("dt", { hasText: expectedDefinition.term }),
-          });
-          await expect(entry).toHaveCount(1);
-          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
-          await expect(entry.locator("dd")).toHaveText(
-            expectedDefinition.definition,
-          );
-        }
-      }
-      await expect(
-        fallback.locator("[data-cheat-sheet-pagination]"),
-      ).toHaveCount(0);
-      await expect(fallback.locator("[data-cheat-sheet-page]")).toHaveCount(0);
-      expect(await fallback.locator("dt:visible").count()).toBe(
-        sortedTerms.length,
-      );
-      expect(
-        await page.evaluate(
-          () =>
-            document.documentElement.scrollWidth <=
-            document.documentElement.clientWidth + 1,
-        ),
-      ).toBe(true);
-      await context.close();
-    });
   });
 }
 

@@ -747,59 +747,5 @@ test.describe(
       }
     });
 
-    test("both complete tables, formulas, and evidence remain static without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of locales) {
-        await page.setViewportSize({ width: 1440, height: 1000 });
-        await page.goto(chapterPath(locale, chapterId));
-        const desktopTypography = await readTableTypography(
-          page.getByRole("table", { name: copy[locale].tableCaption }),
-        );
-        await page.setViewportSize({ width: 390, height: 844 });
-        await page.reload();
-        await expect(
-          page.getByRole("heading", { level: 1, name: copy[locale].title }),
-        ).toBeVisible();
-        await expect(
-          page.getByRole("table", { name: copy[locale].tableCaption }),
-        ).toHaveCount(1);
-        await expect(
-          page.locator('.lesson-body annotation[encoding="application/x-tex"]'),
-        ).not.toHaveCount(0);
-        await expect(page.locator("figure.rust-source")).toHaveCount(10);
-        await expect(page.locator("figure[data-visualization-id]")).toHaveCount(
-          0,
-        );
-        await expect(
-          page.locator("[data-diagram-full-view-toggle]"),
-        ).toHaveCount(0);
-        await expect(page.locator(".lesson-body")).toContainText(
-          "logits_fingerprint:fnv1a64:0b875a0c9f380d8f",
-        );
-        await expect(page.locator(".lesson-body")).toContainText(
-          componentReplayLine,
-        );
-        await expect(page.locator(".lesson-body")).toContainText(scopeLine);
-        await expect(page.locator(".lesson-body")).toContainText(rejectionLine);
-        const obligationText = await readMathAwareText(
-          page.locator(".lesson-body"),
-        );
-        for (const fragment of copy[locale].obligationFragments) {
-          expect(obligationText).toContain(fragment);
-        }
-        await expectTableCellPaintContainment(
-          page.getByRole("table", { name: copy[locale].tableCaption }),
-          desktopTypography,
-        );
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

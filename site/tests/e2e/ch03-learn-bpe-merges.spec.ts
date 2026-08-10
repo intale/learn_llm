@@ -1084,42 +1084,5 @@ test.describe(
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test('the complete Russian lesson remains available without JavaScript at desktop and narrow widths', async ({
-      browser,
-    }, testInfo) => {
-      test.setTimeout(60_000);
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const viewport of [
-        { width: 1440, height: 1000 },
-        { width: 390, height: 844 },
-      ]) {
-        await page.setViewportSize(viewport);
-        await page.goto(chapterPath('ru', chapterId));
-        await page.waitForLoadState('networkidle');
-        await expect(
-          page.getByRole('heading', {
-            level: 1,
-            name: copy.ru.chapterTitle,
-          }),
-        ).toBeVisible();
-        await expect(page.locator('.katex-display')).toHaveCount(1);
-        await expect(page.locator('[data-stage]')).toHaveCount(3);
-        await expect(page.locator('[data-round]')).toHaveCount(2);
-        await expect(page.locator('.lesson-body details')).toHaveCount(1);
-        await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(
-          0,
-        );
-        const diagram = page.locator(
-          'figure[data-visualization-id="learn-bpe-merges"]',
-        );
-        expectCompleteBpeGeometry(await readBpeGeometry(diagram));
-        await expectNoOverflowOrClientScripts(page);
-      }
-      await context.close();
-    });
   },
 );

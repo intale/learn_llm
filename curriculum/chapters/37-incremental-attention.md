@@ -446,5 +446,5 @@ The acceptance examples in frontmatter freeze all three outputs, cache shapes,
 absolute offsets, the $10^{-12}$ comparison tolerance, row counts, reset replay,
 parameter identity, captured value revision, layer/RoPE binding, and transactional
 failures, together with identical checked and already-bound preparation and
-commit. The declared Rust, content, static-build, link, Chromium, and Firefox
-commands must pass before publication.
+commit. The declared Rust, content, static-build, link, and Firefox commands with
+JavaScript enabled must pass before publication.

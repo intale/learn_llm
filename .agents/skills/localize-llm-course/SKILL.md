@@ -92,9 +92,9 @@ after delivery, and any requested correction starts a new recorded run or step.
 
 ## Validate target-language layout
 
-Build the exact candidate, then inspect each target route in both Chromium and
-Firefox at desktop and narrow widths. Do not infer target-language fit from the
-English page.
+Build the exact candidate, then inspect each target route in Firefox with
+JavaScript enabled at desktop and narrow widths. Do not infer target-language
+fit from the English page.
 
 - Confirm that the whole page has no unintended horizontal overflow.
 - Inspect every registered figure inline and, on desktop, in full view.
@@ -112,7 +112,7 @@ text, or rely on a viewport-wide horizontal scrollbar to conceal a translation-f
 problem.
 
 Run the declared repository gate, including the target locale's chapter and parity
-checks, the static build and link audit, and the registry-derived Chromium and
-Firefox diagram-style matrix. Record the locale, revision, English source revision,
-candidate checksum, routes, viewport/browser surfaces, findings, and completion
-reference in `BUILD_STATE.yaml`.
+checks, the static build and link audit, and the registry-derived Firefox
+diagram-style matrix with JavaScript enabled. Record the locale, revision,
+English source revision, candidate checksum, routes, viewport/browser surfaces,
+findings, and completion reference in `BUILD_STATE.yaml`.

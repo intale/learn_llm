@@ -438,20 +438,4 @@ test.describe('chapter 29 rotary position embedding vertical slice', { tag: chap
     }
   });
 
-  test('both localized lessons render without JavaScript', async ({ browser }, testInfo) => {
-    const context = await browser.newContext({ javaScriptEnabled: false, baseURL: String(testInfo.project.use.baseURL) });
-    const page = await context.newPage();
-    for (const locale of locales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('.rotation-table tbody tr')).toHaveCount(6);
-      await expect(page.locator('.dot-table td[data-relative-offset]')).toHaveCount(9);
-      await expect(page.locator('[data-common-shift="true"]')).toContainText(copy[locale].checked);
-      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      await expectDiagramContainment(page, false);
-      await expectBoundedBoxContainment(page);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

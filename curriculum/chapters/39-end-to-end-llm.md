@@ -227,7 +227,7 @@
     "Preserve the metric distinction: 1,744 means overlapping window-target slots scored by both models, mean NLL is measured in nats per slot, and its exponential is dimensionless window-slot perplexity; 442 means within-document transition occurrences. The unreported policy scores each of those 442 occurrences once, gives the decoder the longest available causal prefix capped at four tokens, and uses only its newest-position distribution; no numeric mean NLL or perplexity is reported for that policy.",
     "Preserve the evidence scope: test cannot affect the selected state inside one execution, while later executions retain the known decoder-lower slot ordering only as fixed-fixture regression evidence; do not translate that ordering as independent generalization or architecture superiority, and avoid the Russian calque «фикстура».",
     "Use natural Russian метрика по целевым позициям окон, среднее NLL в натах на целевую позицию окна, перплексия по целевым позициям окон, переход внутри документа в заданной позиции, and максимальная длина контекста декодера; avoid слот, страйд, перплексность, and сэмплирование in learner prose.",
-    "Any later semantic or presentation change to English revision 9 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Any later semantic or presentation change to English revision 9 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in Firefox with JavaScript enabled."
   ],
   "acceptance_examples": [
     {
@@ -598,5 +598,5 @@ provenance, architecture and parameter count, batch shapes, same-seed replay,
 validation selection, local test access, fixed-fixture regression scope,
 checkpoint bytes, generated token
 IDs, decoded text, and cached/reference equality. The declared Rust, content,
-formula, SEO, static-link, Chromium, and Firefox gates must all pass before this
-final chapter is published.
+formula, SEO, static-link, and Firefox gates with JavaScript enabled must all pass
+before this final chapter is published.

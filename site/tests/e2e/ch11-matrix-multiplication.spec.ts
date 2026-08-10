@@ -451,27 +451,4 @@ test.describe('chapter 11 localized matrix-multiplication vertical slice', {
     });
   }
 
-  test('both localized diagrams remain complete without JavaScript', async ({ browser }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-      viewport: { width: 1280, height: 900 },
-    });
-    const page = await context.newPage();
-    try {
-      for (const locale of chapterLocales) {
-        await page.goto(chapterPath(locale, chapterId));
-        const diagram = page.locator('figure[data-visualization-id="matrix-multiplication"]');
-        await expect(diagram).toHaveCount(1);
-        await expect(diagram.locator('table[data-diagram-table]')).toHaveCount(3);
-        await expect(diagram.locator('[data-contracted-index]')).toHaveCount(3);
-        await expect(diagram.locator('[data-output-batch]')).toHaveCount(2);
-        await expect(diagram.locator('[data-error-kind]')).toHaveCount(2);
-        await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
-        await expectNoOverflowOrClientScripts(page);
-      }
-    } finally {
-      await context.close();
-    }
-  });
 });

@@ -11,8 +11,15 @@ const config = defineConfig({
   forbidOnly: true,
   retries: 0,
   reporter: 'line',
+  projects: [
+    {
+      name: 'firefox',
+      use: { browserName: 'firefox' },
+    },
+  ],
   use: {
     baseURL: E2E_PREVIEW_ORIGIN,
+    javaScriptEnabled: true,
     proxy: {
       server: E2E_PROXY_ORIGIN,
       bypass: '127.0.0.1',

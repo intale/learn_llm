@@ -581,79 +581,71 @@ test.describe(
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test('the narrow lesson works without JavaScript and the deferred route stays a 404', async ({
-      browser,
+    test('the narrow JavaScript-enabled lesson works and the deferred route stays a 404', async ({
+      page,
     }) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        viewport: { width: 390, height: 844 },
+      await page.setViewportSize({ width: 390, height: 844 });
+      const englishChapters = await readOrderedCourseChapters(page, 'en', {
+        origin: fixtureOrigin,
       });
-      const page = await context.newPage();
-      try {
-        const englishChapters = await readOrderedCourseChapters(page, 'en', {
-          origin: fixtureOrigin,
-        });
-        await page.goto(fixtureUrl(chapterPath('en', fixtureChapterId)));
-        await expectLocalizedChapterRoute(page, {
-          chapterId: fixtureChapterId,
-          locale: 'en',
-          order: 8,
-          revision: fixtureRevision,
-          revisionLabel: 'Content revision',
-          title: fixtureTitle,
-          equivalentLocales: ['en'],
-          fallbackRouteSuffix: '/course/',
-        });
-        await expectOrderedChapterNavigation(
-          page,
-          'en',
-          fixtureChapterId,
-          englishChapters,
+      await page.goto(fixtureUrl(chapterPath('en', fixtureChapterId)));
+      await expectLocalizedChapterRoute(page, {
+        chapterId: fixtureChapterId,
+        locale: 'en',
+        order: 8,
+        revision: fixtureRevision,
+        revisionLabel: 'Content revision',
+        title: fixtureTitle,
+        equivalentLocales: ['en'],
+        fallbackRouteSuffix: '/course/',
+      });
+      await expectOrderedChapterNavigation(
+        page,
+        'en',
+        fixtureChapterId,
+        englishChapters,
+      );
+      await expectAccessibleLessonShell(page);
+      await expect(page.locator('.locale-switch')).toHaveCSS('flex-wrap', 'wrap');
+      const navigationColumns = await page
+        .locator('nav[data-chapter-navigation]')
+        .evaluate((navigation) =>
+          window
+            .getComputedStyle(navigation)
+            .gridTemplateColumns.trim()
+            .split(/\s+/)
+            .filter(Boolean),
         );
-        await expectAccessibleLessonShell(page);
-        await expect(page.locator('.locale-switch')).toHaveCSS('flex-wrap', 'wrap');
-        const navigationColumns = await page
-          .locator('nav[data-chapter-navigation]')
-          .evaluate((navigation) =>
-            window
-              .getComputedStyle(navigation)
-              .gridTemplateColumns.trim()
-              .split(/\s+/)
-              .filter(Boolean),
-          );
-        expect(navigationColumns).toHaveLength(1);
-        await expectNoOverflowOrClientScripts(page);
+      expect(navigationColumns).toHaveLength(1);
+      await expectNoOverflowOrClientScripts(page);
 
-        const russianFallback = page.locator(
-          '.locale-switch a[data-locale="ru"]',
-        );
-        await russianFallback.click();
-        await expect(page).toHaveURL(new RegExp('/ru/course/$'));
-        await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
-        await expect(
-          page.locator(`a[href="${chapterPath('ru', fixtureChapterId)}"]`),
-        ).toHaveCount(0);
-        await expectNoOverflowOrClientScripts(page);
+      const russianFallback = page.locator(
+        '.locale-switch a[data-locale="ru"]',
+      );
+      await russianFallback.click();
+      await expect(page).toHaveURL(new RegExp('/ru/course/$'));
+      await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+      await expect(
+        page.locator(`a[href="${chapterPath('ru', fixtureChapterId)}"]`),
+      ).toHaveCount(0);
+      await expectNoOverflowOrClientScripts(page);
 
-        expect(
-          existsSync(
-            join(
-              fixtureSite,
-              'dist',
-              'ru',
-              'course',
-              fixtureChapterId,
-              'index.html',
-            ),
+      expect(
+        existsSync(
+          join(
+            fixtureSite,
+            'dist',
+            'ru',
+            'course',
+            fixtureChapterId,
+            'index.html',
           ),
-        ).toBe(false);
-        const missingUrl = fixtureUrl(chapterPath('ru', fixtureChapterId));
-        const missingResponse = await page.goto(missingUrl);
-        expect(missingResponse?.status()).toBe(404);
-        expect(page.url()).toBe(missingUrl);
-      } finally {
-        await context.close();
-      }
+        ),
+      ).toBe(false);
+      const missingUrl = fixtureUrl(chapterPath('ru', fixtureChapterId));
+      const missingResponse = await page.goto(missingUrl);
+      expect(missingResponse?.status()).toBe(404);
+      expect(page.url()).toBe(missingUrl);
     });
   },
 );

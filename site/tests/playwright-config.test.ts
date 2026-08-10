@@ -1,3 +1,8 @@
+// @ts-ignore Node APIs are available in the Vitest runtime.
+import { readFileSync } from 'node:fs';
+// @ts-ignore Node APIs are available in the Vitest runtime.
+import { resolve } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import playwrightConfig, {
@@ -7,7 +12,26 @@ import playwrightConfig, {
   E2E_PROXY_PORT,
 } from '../playwright.config';
 
+declare const process: { cwd(): string };
+
 describe('Playwright preview and network isolation', () => {
+  it('defines Firefox with JavaScript enabled as the sole browser project', () => {
+    const projects = playwrightConfig.projects ?? [];
+    expect(projects).toHaveLength(1);
+    expect(projects[0]).toMatchObject({
+      name: 'firefox',
+      use: { browserName: 'firefox' },
+    });
+    expect(playwrightConfig.use?.javaScriptEnabled).toBe(true);
+
+    const packageManifest = JSON.parse(
+      readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'),
+    ) as { scripts?: Record<string, string> };
+    expect(packageManifest.scripts?.['test:e2e']).toBe(
+      'playwright test --project=firefox',
+    );
+  });
+
   it('uses one owned loopback preview and a closed proxy for external requests', () => {
     const webServers = Array.isArray(playwrightConfig.webServer)
       ? playwrightConfig.webServer

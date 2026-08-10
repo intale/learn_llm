@@ -449,7 +449,7 @@ case in Russian.
   both byte-exact Chapter 25 stdout diffs pass without a concept-implementing crate.
 - Chapter, parity, content, Astro, unit, production-build, link, SEO, and focused
   plus full browser gates pass.
-- Browser checks cover desktop and 390-pixel widths in Chromium and Firefox,
+- Browser checks cover JavaScript-enabled Firefox at desktop and 390-pixel widths,
   math annotations and spacing, inner KaTeX and card containment, local scrolling,
-  forced colors, RTL/LTR isolation, no-JavaScript rendering, navigation, and both
-  reciprocal localized routes.
+  forced colors, RTL/LTR isolation, navigation, and both reciprocal localized
+  routes.

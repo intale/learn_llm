@@ -855,47 +855,4 @@ test.describe('chapter 14 localized scalar-autodiff vertical slice', {
     });
   }
 
-  test('both localized diagrams remain complete without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-      viewport: { width: 1280, height: 900 },
-    });
-    const page = await context.newPage();
-    try {
-      for (const locale of chapterLocales) {
-        const localized = copy[locale];
-        await page.goto(chapterPath(locale, chapterId));
-        await expect(
-          page.getByRole('heading', {
-            level: 1,
-            name: localized.chapterTitle,
-            exact: true,
-          }),
-        ).toBeVisible();
-        const diagram = page.locator('figure[data-visualization-id="scalar-autodiff"]');
-        const lifecycleDiagram = page.locator(
-          'figure[data-visualization-id="scalar-autodiff-lifecycle"]',
-        );
-        await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
-        await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
-        await expect(lifecycleDiagram).toHaveAccessibleName(localized.lifecycleDiagramTitle);
-        await expect(lifecycleDiagram).toHaveAccessibleDescription(
-          localized.lifecycleDiagramDescription,
-        );
-        await expect(diagram.locator('[data-node-id]')).toHaveCount(3);
-        await expect(diagram.locator('tr[data-edge-reverse]')).toHaveCount(4);
-        await expect(lifecycleDiagram.locator('[data-backward-pass]')).toHaveCount(3);
-        await expect(lifecycleDiagram.locator('[data-evidence]')).toHaveCount(3);
-        await expect(lifecycleDiagram.locator('[data-error-kind]')).toHaveCount(3);
-        await expect(diagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-        await expect(lifecycleDiagram.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-        await expectNoOverflowOrClientScripts(page);
-      }
-    } finally {
-      await context.close();
-    }
-  });
 });

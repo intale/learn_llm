@@ -212,7 +212,7 @@
     "Chapter 9 has the exact active locale set {en,ru}. English is the frozen semantic source; the Russian lesson and every localized contract field are translated directly from content revision 6.",
     "Keep Tensor, TensorView, Q, K, V, QK^T, GPT-2, Range, Rust identifiers, mathematical symbols, arrays, numeric values, source URLs, and trace keywords exact. Translate ordinary terms such as batch, sequence, head, feature, shape, stride, axis, permutation, base offset, and row-major into natural Russian.",
     "Use view only for the borrowed metadata interpretation, not as a vague synonym for a rendered picture. Distinguish shared storage from equal copied values and row-major contiguous from merely occupying addresses in one allocation.",
-    "The Russian page requires a separate rendered review in Chromium and Firefox at desktop and narrow widths, including every diagram box, both local scroll regions, and full view; English geometry is not evidence that Russian text fits."
+    "The Russian page requires a separate rendered review in Firefox with JavaScript enabled at desktop and narrow widths, including every diagram box, both local scroll regions, and full view; English geometry is not evidence that Russian text fits."
   ],
   "acceptance_examples": [
     {
@@ -538,8 +538,8 @@ keywords, arrays, offsets, and error evidence exactly while naturally localizing
 all explanations, table captions, diagram labels, accessible names, exercises,
 and answers. Review “представление” specifically so it always means the borrowed
 storage interpretation rather than a visual illustration. Validate the complete
-Russian page independently in Chromium and Firefox at desktop and narrow widths,
-including both local table scrollers and the full-view arrangement.
+Russian page independently in Firefox with JavaScript enabled at desktop and
+narrow widths, including both local table scrollers and the full-view arrangement.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

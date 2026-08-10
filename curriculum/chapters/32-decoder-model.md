@@ -533,7 +533,7 @@ Every mathematical expression must render through the shared math pipeline and
 every declared source excerpt through `RustSource`. The one useful static figure
 must consume only the frozen trace, follow shared roles, contain every card and
 formula, remain readable inline and in full view, and pass desktop, narrow,
-no-JavaScript, forced-color, direction-sensitive, Chromium, and Firefox checks.
+forced-color, and direction-sensitive checks in Firefox with JavaScript enabled.
 The complete bilingual active-locale set, reciprocal routes, navigation, SEO,
 sitemap, links, static build, unit tests, focused browser gates, and full
 regression suite must pass before publication.

@@ -544,4 +544,4 @@ transactional failures. Exact binding includes configuration, coherent layer
 state, parameter-node identity, the value revision captured at cache
 construction, and live read-only parameter-value borrows for the session.
 Operation checks remain active after binding. The declared Rust, content,
-static-build, link, Chromium, and Firefox commands must pass before publication.
+static-build, link, and Firefox commands with JavaScript enabled must pass before publication.

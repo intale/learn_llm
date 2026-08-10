@@ -505,22 +505,4 @@ test.describe('chapter 25 RMSNorm vertical slice', { tag: chapterTag(chapterId) 
     }
   });
 
-  test('the lesson and exact trace render without JavaScript', async ({ browser }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of locales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('[data-stage="output"]')).toContainText('1.272792');
-      await expect(page.locator('[data-scale-mode="near-zero"]')).toContainText('0.717566');
-      await expect(page.locator('[data-history-method]')).toHaveCount(3);
-      await expect(page.locator('[data-evidence="errors"] li')).toHaveCount(3);
-      await expect(page.locator('[data-evidence="errors"]')).toContainText(copy[locale].zeroEnergy);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

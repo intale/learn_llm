@@ -509,23 +509,4 @@ test.describe('chapter 23 neural n-gram vertical slice', {
     }
   });
 
-  test('the lesson and exact trace render without JavaScript', async ({ browser }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of locales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('.pipeline-card')).toHaveCount(5);
-      await expect(page.locator('.checkpoint-card')).toHaveCount(3);
-      await expect(page.locator('.token-list li')).toHaveCount(12);
-      await expect(page.locator('.result-stage')).toContainText('0.026120');
-      await expect(page.locator('.proof-stage')).toContainText('bitwise');
-      await expect(page.locator('.proof-stage')).toContainText('five_positive_finite');
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

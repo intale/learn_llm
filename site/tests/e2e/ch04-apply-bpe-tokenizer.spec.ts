@@ -1072,47 +1072,4 @@ test.describe('chapter 4 localized vertical slice', { tag: chapterTag(chapterId)
     await expectNoOverflowOrClientScripts(page);
   });
 
-  test('the complete Russian lesson remains available without JavaScript at desktop and narrow widths', async ({
-    browser,
-  }, testInfo) => {
-    test.setTimeout(60_000);
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const viewport of [
-      { width: 1440, height: 1000 },
-      { width: 390, height: 844 },
-    ]) {
-      await page.setViewportSize(viewport);
-      await page.goto(chapterPath('ru', chapterId));
-      await page.waitForLoadState('networkidle');
-      await expect(
-        page.getByRole('heading', { level: 1, name: copy.ru.chapterTitle }),
-      ).toBeVisible();
-      await expect(page.locator('.katex-display')).toHaveCount(1);
-      await expect(page.locator('[data-case]')).toHaveCount(2);
-      await expect(page.locator('[data-lane]')).toHaveCount(10);
-      await expect(page.locator('.lesson-body details')).toHaveCount(1);
-      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      const diagram = page.locator(
-        'figure[data-visualization-id="apply-bpe-tokenizer"]',
-      );
-      await expect(diagram).toBeVisible();
-      expect(await diagram.evaluate((node) => node.getBoundingClientRect().width)).toBeGreaterThan(0);
-      expect(await diagram.evaluate((node) => node.getBoundingClientRect().height)).toBeGreaterThan(0);
-      const expectedColumns = viewport.width >= 768 ? 2 : 1;
-      expect(
-        await diagram.locator('.example-list').evaluate((node) =>
-          getComputedStyle(node)
-            .gridTemplateColumns.split(/\s+/)
-            .filter(Boolean).length,
-        ),
-      ).toBe(expectedColumns);
-      expectCompleteTokenizerGeometry(await readTokenizerGeometry(diagram));
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });

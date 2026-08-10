@@ -613,38 +613,5 @@ test.describe(
       }
     });
 
-    test('both localized lessons retain static evidence without JavaScript', async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
-      });
-      const page = await context.newPage();
-      for (const locale of chapterLocales) {
-        for (const viewport of [
-          { width: 1440, height: 1000 },
-          { width: 390, height: 844 },
-        ]) {
-          await page.setViewportSize(viewport);
-          await page.goto(chapterPath(locale, chapterId));
-          await expect(
-            page.getByRole('heading', {
-              level: 1,
-              name: copy[locale].chapterTitle,
-            }),
-          ).toBeVisible();
-          await expect(page.locator('.katex-display')).toHaveCount(1);
-          await expect(page.locator('.pipeline-stage')).toHaveCount(8);
-          await expect(page.locator('[data-diagram-box]')).toHaveCount(32);
-          await expect(page.locator('.lesson-body details')).toHaveCount(1);
-          await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(
-            0,
-          );
-          await expectNoOverflowOrClientScripts(page);
-        }
-      }
-      await context.close();
-    });
   },
 );

@@ -604,26 +604,4 @@ test.describe('chapter 26 Q/K/V projections vertical slice', {
     }
   });
 
-  test('both lessons and their projection evidence render without JavaScript', async ({
-    browser,
-  }, testInfo) => {
-    const context = await browser.newContext({
-      javaScriptEnabled: false,
-      baseURL: String(testInfo.project.use.baseURL),
-    });
-    const page = await context.newPage();
-    for (const locale of locales) {
-      await page.goto(chapterPath(locale, chapterId));
-      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
-      await expect(page.locator('[data-qkv-role="query"]')).toContainText('2.000000');
-      await expect(page.locator('[data-qkv-role="value"]')).toContainText('-3.000000');
-      await expect(page.locator('.errors-card li')).toHaveCount(3);
-      await expect(page.locator('.errors-card')).toContainText(copy[locale].rankError);
-      await expect(page.locator('.proof-card')).toContainText('gradcheck=true');
-      await expect(page.locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
-      await expectBoundedBoxContainment(page);
-      await expectNoOverflowOrClientScripts(page);
-    }
-    await context.close();
-  });
 });
