@@ -31,6 +31,22 @@ formula and figure assertions, links, SEO, and sitemap checks are the
 crawler-facing guarantee and do not claim interactive behavior in an unsupported
 environment.
 
+### Codex resource routing and deterministic tooling
+
+Rendered-image checks and visual review may use models up to `gpt-5.6-terra`.
+Operational routing, including ordinary Bash execution and evidence collection,
+may use models up to `gpt-5.6-luna`. Course-related content generation is
+uncapped by those two ceilings; teaching quality is the primary model-selection
+criterion. Each named tier is a maximum, not a requirement to use that exact
+model. These budgets do not expand network, paid-service, destructive-action,
+or output-scope authority.
+
+Prefer or create deterministic host tools or pinned-container tools when they
+reduce lower-budget agent context, repetition, or error. Offload computation to
+the host when appropriate within the repository's execution boundary. Keep every
+such tool narrowly scoped, versioned, and tested; a tool confers no additional
+authority.
+
 ### Supporting-library boundary
 
 Use a mature, narrowly scoped supporting library for general-purpose plumbing

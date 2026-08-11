@@ -20517,3 +20517,27 @@ Chapter 13 implementation commit and is completed in its own small checkpoint
 before the shared chapter-CSS step.
 
 **Affected step:** `persist-codex-agent-model-budgets`.
+
+## 2026-08-11 - Prefer deterministic tools for lower-budget agent work
+
+**Status:** Accepted as a user-directed companion rule to the Codex model-budget
+policy.
+
+**Context:** Repeated evidence collection and computation can consume lower-budget
+agent context, repeat work, or introduce avoidable errors even when the operation
+itself is deterministic. The model-routing ceilings do not by themselves provide
+the missing execution mechanism.
+
+**Decision:** Prefer, and when useful create, deterministic host tools or pinned
+container tools when they reduce lower-budget agent context, repetition, or error.
+Offload computation to the host when appropriate within the repository's execution
+boundary. Every such tool must remain narrowly scoped, versioned, and tested, and
+tooling must confer no additional network, paid-service, destructive-action, or
+output-scope authority.
+
+**Consequences:** Validation work may be made more reproducible and less dependent
+on repeated agent reasoning, while the existing step, provenance, permission, and
+scope controls remain authoritative. The next tooling step owns the deterministic
+authority verifier and pinned visual-evidence utilities.
+
+**Affected step:** `build-codex-agent-validation-tooling`.
