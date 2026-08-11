@@ -71,6 +71,9 @@ const copy = {
       "The registry and every decoder component already hold aliases of those nodes, so the next forward pass observes the new values without rebuilding the decoder.",
       "The trainer compares the returned optimizer step number with the planned update index, calls zero_grad() on every live parameter, and verifies that every gradient coordinate is zero before the next forward pass.",
       "the trainer does not call this boundary after an ordinary AdamW step.",
+      "the trainer returns a typed failure before AdamW reads parameter values or optimizer state.",
+      "Raw gradients remain unchanged, and the gradient transform is not applied to decoupled weight decay.",
+      "restore_independent_model makes the one additional buffer copy.",
     ],
     implementationFragments: [
       "The layout check neither copies a tensor buffer nor creates component handles",
@@ -132,6 +135,9 @@ const copy = {
       "Реестр и компоненты декодера хранят ссылки на те же узлы, поэтому следующий прямой проход видит новые значения без повторной сборки декодера.",
       "Цикл обучения сравнивает возвращённый номер шага с номером обновления в плане, вызывает zero_grad() для каждого рабочего параметра и проверяет, что все координаты градиента равны нулю, прежде чем начинать следующий прямой проход.",
       "после обычного шага AdamW пересобирать декодер не нужно.",
+      "цикл возвращает типизированную ошибку до того, как AdamW прочитает значения параметров или состояние оптимизатора.",
+      "Исходные градиенты остаются без изменений, а преобразование градиента не применяется к отдельной поправке затухания весов.",
+      "restore_independent_model один раз дополнительно копирует буферы параметров.",
     ],
     implementationFragments: [
       "При этой проверке буферы тензоров не копируются",
@@ -369,7 +375,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 10,
+    revision: 11,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -392,6 +398,9 @@ async function expectChapterContent(
     "\\frac{\\sum_j n_j\\mathcal{L}^{(j)}_{va}}{\\sum_j n_j}",
     "s^*=\\min\\left\\{s\\in\\mathcal{C}:",
     "\\lVert \\widetilde g_s\\rVert_2\\leq0.35",
+    "M_s=\\max_{p,i}|g_{s,p,i}|",
+    "r_s=\\sqrt{\\sum_{p,i}(g_{s,p,i}/M_s)^2}",
+    "(g_{s,p,i}/M_s)(c/r_s)",
   ]) {
     expect(
       annotations

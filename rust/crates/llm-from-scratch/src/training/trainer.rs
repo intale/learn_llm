@@ -11,7 +11,7 @@ use crate::models::decoder::{
 };
 use crate::nn::init::{InitializationError, NamedParameter};
 use crate::tensor::storage::{Tensor, TensorError};
-use crate::training::adamw::{AdamW, AdamWError, AdamWState};
+use crate::training::adamw::{AdamW, AdamWError, AdamWGradientTransform, AdamWState};
 use crate::training::batch::MiniBatchEpoch;
 
 // region:training-plan
@@ -218,6 +218,10 @@ pub enum TrainerError {
         index: usize,
         value: f64,
     },
+    UnrepresentableGradientClip {
+        maximum: f64,
+        scaled_root: f64,
+    },
     ValidationRecordedGraph {
         partition: Partition,
         batch: usize,
@@ -329,6 +333,13 @@ impl fmt::Display for TrainerError {
             Self::NonFiniteGradient { name, index, value } => write!(
                 formatter,
                 "parameter {name:?} has non-finite gradient {value} at flat index {index}"
+            ),
+            Self::UnrepresentableGradientClip {
+                maximum,
+                scaled_root,
+            } => write!(
+                formatter,
+                "maximum gradient norm {maximum} divided by scaled root {scaled_root} is not representable as a positive f64"
             ),
             Self::ValidationRecordedGraph { partition, batch } => write!(
                 formatter,
@@ -632,7 +643,7 @@ pub struct TrainingStep {
     train_loss: f64,
     gradient_norm_before: f64,
     gradient_norm_after: f64,
-    gradient_scale: f64,
+    gradient_transform: AdamWGradientTransform,
     clipped: bool,
     finite_gradients: bool,
     parameter_nodes_preserved: bool,
@@ -665,8 +676,8 @@ impl TrainingStep {
         self.gradient_norm_after
     }
 
-    pub const fn gradient_scale(&self) -> f64 {
-        self.gradient_scale
+    pub const fn gradient_transform(&self) -> AdamWGradientTransform {
+        self.gradient_transform
     }
 
     pub const fn clipped(&self) -> bool {
@@ -886,7 +897,8 @@ fn validate_epoch(
 struct GradientNorm {
     before: f64,
     after: f64,
-    scale: f64,
+    transform: AdamWGradientTransform,
+    clipped: bool,
 }
 
 fn gradient_norm(model: &DecoderModel, maximum: f64) -> Result<GradientNorm, TrainerError> {
@@ -926,22 +938,44 @@ fn gradient_norm(model: &DecoderModel, maximum: f64) -> Result<GradientNorm, Tra
         return Ok(GradientNorm {
             before: 0.0,
             after: 0.0,
-            scale: 1.0,
+            transform: AdamWGradientTransform::uniform(1.0),
+            clipped: false,
         });
     }
     let root = scaled_squares.sqrt();
-    let exact_scale = ((maximum / scale) / root).min(1.0);
     let raw_norm = scale * root;
     let before = if raw_norm.is_finite() {
         raw_norm
     } else {
         f64::MAX
     };
-    let after = if exact_scale < 1.0 { maximum } else { before };
+    if scale <= maximum / root {
+        return Ok(GradientNorm {
+            before,
+            after: before,
+            transform: AdamWGradientTransform::uniform(1.0),
+            clipped: false,
+        });
+    }
+
+    let multiplier = maximum / root;
+    if multiplier == 0.0 {
+        return Err(TrainerError::UnrepresentableGradientClip {
+            maximum,
+            scaled_root: root,
+        });
+    }
+    let uniform_scale = (maximum / scale) / root;
+    let transform = if uniform_scale > 0.0 {
+        AdamWGradientTransform::uniform(uniform_scale)
+    } else {
+        AdamWGradientTransform::normalized(scale, multiplier)
+    };
     Ok(GradientNorm {
         before,
-        after,
-        scale: exact_scale,
+        after: maximum,
+        transform,
+        clipped: true,
     })
 }
 
@@ -1055,10 +1089,10 @@ pub fn train_decoder(
             .schedule
             .learning_rate(step)
             .expect("the loop stays inside the validated schedule");
-        let optimizer_step = optimizer.step_with_learning_rate_and_gradient_scale(
+        let optimizer_step = optimizer.step_with_learning_rate_and_gradient_transform(
             model.parameters(),
             learning_rate,
-            norm.scale,
+            norm.transform,
         )?;
         let expected_optimizer_step = u64::try_from(step).unwrap_or(u64::MAX);
         if optimizer_step != expected_optimizer_step {
@@ -1081,8 +1115,8 @@ pub fn train_decoder(
             train_loss,
             gradient_norm_before: norm.before,
             gradient_norm_after: norm.after,
-            gradient_scale: norm.scale,
-            clipped: norm.scale < 1.0,
+            gradient_transform: norm.transform,
+            clipped: norm.clipped,
             finite_gradients: true,
             parameter_nodes_preserved: true,
             cleared_gradients: true,
@@ -1475,10 +1509,32 @@ mod tests {
             .backward_with_seed(&seed.view(), GraphRetention::Retain)
             .unwrap();
 
-        let norm = gradient_norm(&model, 1.0).unwrap();
+        let maximum = 1e-150;
+        let norm = gradient_norm(&model, maximum).unwrap();
         assert_eq!(norm.before, f64::MAX);
-        assert_eq!(norm.after, 1.0);
-        assert!(norm.scale.is_finite() && norm.scale > 0.0 && norm.scale < 1.0);
+        assert_eq!(norm.after, maximum);
+        assert!(norm.clipped);
+        let legacy_scale = ((maximum / f64::MAX) / 2.0_f64.sqrt()).min(1.0);
+        assert_eq!(legacy_scale, 0.0);
+        let (divisor, multiplier) = match norm.transform {
+            AdamWGradientTransform::Normalized {
+                divisor,
+                multiplier,
+            } => (divisor, multiplier),
+            other => panic!("expected normalized fallback, got {other:?}"),
+        };
+        assert_eq!(divisor, f64::MAX);
+        assert!(multiplier.is_finite() && multiplier > 0.0);
+        let effective = [
+            norm.transform.apply(f64::MAX),
+            norm.transform.apply(f64::MAX),
+        ];
+        assert!(
+            effective
+                .iter()
+                .all(|value| value.is_finite() && *value > 0.0)
+        );
+        assert!(effective[0].hypot(effective[1]) <= maximum);
         let candidate_nodes = model
             .parameters()
             .iter()
@@ -1494,7 +1550,11 @@ mod tests {
         );
         let mut live_optimizer = optimizer();
         live_optimizer
-            .step_with_learning_rate_and_gradient_scale(model.parameters(), 0.02, norm.scale)
+            .step_with_learning_rate_and_gradient_transform(
+                model.parameters(),
+                0.02,
+                norm.transform,
+            )
             .unwrap();
 
         assert!(
@@ -1542,7 +1602,8 @@ mod tests {
         let zero = gradient_norm(&zero_model, 1.0).unwrap();
         assert_eq!(zero.before, 0.0);
         assert_eq!(zero.after, 0.0);
-        assert_eq!(zero.scale, 1.0);
+        assert_eq!(zero.transform, AdamWGradientTransform::uniform(1.0));
+        assert!(!zero.clipped);
 
         let small_model = model();
         let parameter = &small_model.parameters()[0];
@@ -1556,6 +1617,28 @@ mod tests {
         let small = gradient_norm(&small_model, 1.0).unwrap();
         assert_eq!(small.before, 0.25);
         assert_eq!(small.after, 0.25);
-        assert_eq!(small.scale, 1.0);
+        assert_eq!(small.transform, AdamWGradientTransform::uniform(1.0));
+        assert!(!small.clipped);
+    }
+
+    #[test]
+    fn clipping_rejects_an_unrepresentable_positive_multiplier() {
+        let model = model();
+        let parameter = &model.parameters()[0];
+        let mut seed_values = vec![0.0; parameter.tensor().value().len()];
+        seed_values[..4].fill(1.0);
+        let seed = Tensor::from_vec(parameter.tensor().shape(), seed_values).unwrap();
+        parameter
+            .tensor()
+            .backward_with_seed(&seed.view(), GraphRetention::Retain)
+            .unwrap();
+
+        assert_eq!(
+            gradient_norm(&model, f64::from_bits(1)),
+            Err(TrainerError::UnrepresentableGradientClip {
+                maximum: f64::from_bits(1),
+                scaled_root: 2.0,
+            })
+        );
     }
 }

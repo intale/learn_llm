@@ -507,17 +507,17 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(10);
-    expect(lesson.content_revision).toBe(10);
-    expect(russianLesson.content_revision).toBe(10);
+    expect(contract.content_revision).toBe(11);
+    expect(lesson.content_revision).toBe(11);
+    expect(russianLesson.content_revision).toBe(11);
     expect(contract.translation_notes).toContain(
-      `Canonical English revision 10 has SHA-256 ${createHash("sha256").update(lessonSource).digest("hex")}; the reviewed direct Russian revision 10 has SHA-256 ${createHash("sha256").update(russianLessonSource).digest("hex")}.`,
+      `Canonical English revision 11 has SHA-256 ${createHash("sha256").update(lessonSource).digest("hex")}; the reviewed direct Russian revision 11 has SHA-256 ${createHash("sha256").update(russianLessonSource).digest("hex")}.`,
     );
     expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
-      "b041347b7a802434e1c98e9cf0c27f691a25fdcd7a8dc8f6222e4b7fde11d85e",
+      "4c67a2d91a7782c1ef2469e211f37c32c4f752fbd2e13dc513fe6fe41d0b862e",
     );
     expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
-      "0f92c02317714ca5a1be2b0321b5b2bb2c864b203df55aadf44c8877b11c6821",
+      "44c380ee079829b88c12f4d8085fdcde428e0bcbde58f97d661189e306b58484",
     );
     expect(coursePlanSource).not.toContain("s^\\*");
     expect(contractSource).not.toContain("s^\\*");
@@ -619,6 +619,12 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(adamwSource).toMatch(
       /pub fn step_with_learning_rate_and_gradient_scale\([\s\S]*?gradient_scale: f64,[\s\S]*?\) -> Result<u64, AdamWError>/,
     );
+    expect(adamwSource).toMatch(
+      /pub fn step_with_learning_rate_and_gradient_transform\([\s\S]*?gradient_transform: AdamWGradientTransform,[\s\S]*?\) -> Result<u64, AdamWError>/,
+    );
+    expect(adamwSource).toContain('pub enum AdamWGradientTransform');
+    expect(adamwSource).toContain('Normalized { divisor: f64, multiplier: f64 }');
+    expect(adamwSource).toContain('(gradient / divisor) * multiplier');
     const completeLoopSource = trainerSource.match(
       /\/\/ region:complete-training-loop([\s\S]*?)\/\/ endregion:complete-training-loop/,
     )?.[1];
@@ -637,8 +643,18 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(stateTransferSource).toContain("NamedParameter::from_tensor");
     expect(stateTransferSource).not.toContain("try_from_owned_parameters");
     expect(completeLoopSource).toMatch(
-      /optimizer\.step_with_learning_rate_and_gradient_scale\([\s\S]*?model\.parameters\(\),[\s\S]*?learning_rate,[\s\S]*?norm\.scale,[\s\S]*?\)\?/,
+      /optimizer\.step_with_learning_rate_and_gradient_transform\([\s\S]*?model\.parameters\(\),[\s\S]*?learning_rate,[\s\S]*?norm\.transform,[\s\S]*?\)\?/,
     );
+    expect(completeLoopSource).not.toContain(
+      'step_with_learning_rate_and_gradient_scale',
+    );
+    expect(trainerSource).toContain('pub const fn gradient_transform(&self)');
+    expect(trainerSource).toContain('AdamWGradientTransform::Normalized');
+    expect(trainerSource).toContain('(maximum / scale) / root');
+    expect(trainerSource).toContain('let multiplier = maximum / root;');
+    expect(trainerSource).toContain('if multiplier == 0.0');
+    expect(trainerSource).toContain('UnrepresentableGradientClip');
+    expect(trainerSource).toContain('AdamWGradientTransform::normalized(scale, multiplier)');
     expect(completeLoopSource).not.toMatch(
       /candidate_parameters|candidate_optimizer|\.parameters\(\)\.to_vec\(\)/,
     );
@@ -674,6 +690,12 @@ describe("Chapter 33 static diagram and content boundary", () => {
     );
     expect(normalizedLesson).toContain(
       "AdamW deliberately leaves each raw gradient tensor unchanged on its parameter node.",
+    );
+    expect(normalizedLesson).toContain(
+      "the trainer returns a typed failure before AdamW reads parameter values or optimizer state.",
+    );
+    expect(normalizedLesson).toContain(
+      "Raw gradients remain unchanged, and the gradient transform is not applied to decoupled weight decay.",
     );
     expect(normalizedLesson).toContain(
       "the trainer does not call this boundary after an ordinary AdamW step.",

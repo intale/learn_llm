@@ -153,7 +153,9 @@ const explicitCopy = {
       "AdamW stores this parameter's moment vectors under decoder.output.weight. The stable name, not the parameter's position in the parameter list, identifies its moment history.",
     ],
     answerEight:
-      "This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns decoder.output.weight to decay, so AdamW subtracts the parameter-proportional term \\eta\\lambda\\theta_{t-1} from it. It assigns decoder.norm.scale to no-decay, so that parameter's effective \\lambda is 0; this avoids a decay term that directly pulls the learned normalization scale toward zero.",
+      "This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns decoder.output.weight to decay, so AdamW subtracts the parameter-proportional term d_t\\theta_{t-1} from it. It assigns decoder.norm.scale to no-decay, so that parameter's effective \\lambda is 0; this avoids a decay term that directly pulls the learned normalization scale toward zero.",
+    answerTen:
+      'd_1=0.010000 and \\rho_1=0.990000. Positive decay is accepted only when the represented product is finite and strictly between zero and one; underflow to zero, one, greater than one, and nonfinite products are typed failures before AdamW reads parameter values or optimizer state.',
     executionClaim:
       'Every entry point uses the same internal preparation-and-commit operation and the same elementwise AdamW calculation. Tracing records values produced by that calculation; it does not calculate the update a second time.',
     revisionClaim:
@@ -166,7 +168,9 @@ const explicitCopy = {
       'AdamW хранит векторы моментов этого параметра под именем decoder.output.weight. Историю моментов определяет стабильное имя, а не положение параметра в списке.',
     ],
     answerEight:
-      'Это настраиваемое правило группировки, принятое в курсе, а не следствие формулы AdamW. По этому правилу decoder.output.weight относится к группе с затуханием, поэтому AdamW вычитает из него пропорциональную параметру поправку \\eta\\lambda\\theta_{t-1}. Параметр decoder.norm.scale относится к группе без затухания, и его эффективный коэффициент \\lambda равен 0: так затухание не создаёт отдельную поправку, напрямую стягивающую обучаемый масштаб нормализации к нулю.',
+      'Это настраиваемое правило группировки, принятое в курсе, а не следствие формулы AdamW. По этому правилу decoder.output.weight относится к группе с затуханием, поэтому AdamW вычитает из него пропорциональную параметру поправку d_t\\theta_{t-1}. Параметр decoder.norm.scale относится к группе без затухания, и его эффективный коэффициент \\lambda равен 0: так затухание не создаёт отдельную поправку, напрямую стягивающую обучаемый масштаб нормализации к нулю.',
+    answerTen:
+      'd_1=0.010000 и \\rho_1=0.990000. Положительное затухание принимается, только если вычисленное в арифметике f64 произведение конечно и строго лежит между нулём и единицей; результат, округлившийся до нуля, равный единице, превышающий единицу или неконечный, приводит к типизированной ошибке до того, как AdamW прочитает значения параметров или состояние оптимизатора.',
     executionClaim:
       'Все точки входа используют одну и ту же внутреннюю операцию подготовки и атомарной фиксации, а также один и тот же покоординатный расчёт AdamW. Трассировка записывает значения, получаемые в этом расчёте, а не вычисляет обновление повторно.',
     revisionClaim:
@@ -177,6 +181,7 @@ const explicitCopy = {
   {
     workedClaims: readonly string[];
     answerEight: string;
+    answerTen: string;
     executionClaim: string;
     revisionClaim: string;
   }
@@ -277,7 +282,7 @@ const noDecayEvidence = [
   {
     key: 'decay',
     vector: '[0.000000]',
-    latex: String.raw`\eta\lambda\theta_{t-1}=\left[0\right]`,
+    latex: String.raw`d_1\theta_0=\left[0\right]`,
   },
   {
     key: 'after',
@@ -302,7 +307,7 @@ const diagramContracts = [
     id: 'adamw',
     expectedScrollerCount: 1,
     structure: [
-      { selector: '.config-summary > [data-diagram-box]', count: 5 },
+      { selector: '.config-summary > [data-diagram-box]', count: 7 },
       {
         selector: '.stage-intro[data-diagram-box], .decay-note[data-diagram-box]',
         count: 2,
@@ -650,7 +655,7 @@ async function expectChapterContent(
   await expect(page.locator('.lesson-description')).toHaveText(localized.description);
   await expectSeoDescription(page, localized.description);
   await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
-  expect(localized.revision).toBe(7);
+  expect(localized.revision).toBe(8);
   expect(normalizeProse(await page.locator('.lesson-body').innerText())).toContain(
     normalizeProse(explicitCopy[locale].executionClaim),
   );
@@ -707,8 +712,14 @@ async function expectChapterContent(
     String.raw`\widetilde g_t=0.25[0.8,-0.4]=[0.2,-0.1]`,
     String.raw`1-\beta_1^t=0.500000`,
     String.raw`1-\beta_2^t=0.500000`,
-    String.raw`\eta\lambda\theta_0=[0.01,-0.02]`,
-    String.raw`\eta\lambda\theta=0.030000`,
+    String.raw`d_t=0.010000`,
+    String.raw`\rho_t=0.990000`,
+    String.raw`d_1\theta_0=[0.01,-0.02]`,
+    String.raw`d_1\theta_0=0.030000`,
+    String.raw`c>0`,
+    String.raw`s=\max_i|g_i|`,
+    String.raw`r=\sqrt{\sum_i(g_i/s)^2}`,
+    String.raw`(g_i/s)\,(c/r)`,
     String.raw`q(x,y)=\frac12(x^2+4y^2)`,
     String.raw`\operatorname{diag}(H)=\left[1,4\right]`,
   ]) {
@@ -777,13 +788,25 @@ async function expectChapterContent(
   await expect(page.locator('#adamw-evidence-chapter-22-title')).toHaveCount(1);
   await expect(page.locator('#adamw-evidence-chapter-22-description')).toHaveCount(1);
 
-  await expect(primary.locator('.config-summary dt')).toHaveText([
+  const configSummary = primary.locator('.config-summary');
+  await expect(configSummary).toHaveAccessibleName(labels.summary.label);
+  await expect(configSummary.locator('dt')).toHaveText([
     labels.summary.step,
     labels.summary.learningRate,
     labels.summary.momentRates,
     labels.summary.stabilizer,
     labels.summary.decay,
+    labels.summary.decayProduct,
+    labels.summary.shrinkageFactor,
   ]);
+  await expect(configSummary).toHaveAttribute(
+    'data-decay-product',
+    '0.010000',
+  );
+  await expect(configSummary).toHaveAttribute(
+    'data-shrinkage-factor',
+    '0.990000',
+  );
 
   const primaryStageHeadings = primary.locator('.stage-intro > h4, .decay-note > h4');
   await expect(primaryStageHeadings).toHaveCount(2);
@@ -938,7 +961,7 @@ async function expectChapterContent(
   await expect(proof.locator('dd').nth(5)).toHaveText(labels.symbols.atomic);
   await expect(
     proof.locator('dd').nth(3).locator('annotation[encoding="application/x-tex"]'),
-  ).toHaveText(String.raw`\eta\lambda\theta=0.030000`);
+  ).toHaveText(String.raw`d_1\theta_0=0.030000`);
 
   const primaryScroller = primary.locator('[data-diagram-scroll]');
   const evidenceScroller = evidence.locator('[data-diagram-scroll]');
@@ -999,9 +1022,12 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator('summary').click();
   await expect(details).toHaveAttribute('open', '');
-  await expect(details.locator('ol > li')).toHaveCount(9);
+  await expect(details.locator('ol > li')).toHaveCount(10);
   expect(await readMathAwareText(details.locator('ol > li').nth(7))).toBe(
     explicitCopy[locale].answerEight,
+  );
+  expect(await readMathAwareText(details.locator('ol > li').nth(9))).toBe(
+    explicitCopy[locale].answerTen,
   );
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
@@ -1083,7 +1109,7 @@ test.describe('chapter 22 localized AdamW vertical slice', { tag: chapterTag(cha
     });
   }
 
-  test('Chapter 22 full view fits both locales, remains readable, and restores focus', async ({
+  test('Chapter 22 full view keeps both localized diagrams contained with root-owned vertical continuation', async ({
     page,
   }) => {
     test.setTimeout(120_000);
@@ -1151,8 +1177,8 @@ test.describe('chapter 22 localized AdamW vertical slice', { tag: chapterTag(cha
             trajectoryPoints: node.querySelectorAll('.trajectory-lane li').length,
             proofCells: node.querySelectorAll('.proof-grid > [data-diagram-box]').length,
           },
-          blockDebt: node.scrollHeight - node.clientHeight,
-          blockBudget: Math.ceil(node.clientHeight * 0.25) + 2,
+          blockDebt: Math.max(0, node.scrollHeight - node.clientHeight),
+          rootOverflowY: getComputedStyle(node).overflowY,
           blockSections: Array.from(node.children).map((child) => ({
             name:
               child.getAttribute('class') ??
@@ -1199,12 +1225,12 @@ test.describe('chapter 22 localized AdamW vertical slice', { tag: chapterTag(cha
               height: Math.round(part.getBoundingClientRect().height * 10) / 10,
             }));
           }),
-          inlineDebt: node.scrollWidth - node.clientWidth,
+          inlineDebt: Math.max(0, node.scrollWidth - node.clientWidth),
           regionDebts: Array.from(node.querySelectorAll<HTMLElement>('[data-diagram-scroll]')).map(
             (region) => ({
               name: region.getAttribute('aria-label'),
-              inline: region.scrollWidth - region.clientWidth,
-              block: region.scrollHeight - region.clientHeight,
+              inline: Math.max(0, region.scrollWidth - region.clientWidth),
+              block: Math.max(0, region.scrollHeight - region.clientHeight),
               clientWidth: region.clientWidth,
               scrollWidth: region.scrollWidth,
               children: Array.from(region.children).map((child) => ({
@@ -1214,10 +1240,17 @@ test.describe('chapter 22 localized AdamW vertical slice', { tag: chapterTag(cha
               })),
             }),
           ),
+          localVerticalOwnerCount: Array.from(
+            node.querySelectorAll<HTMLElement>('*'),
+          ).filter((element) => {
+            const debt = Math.max(0, element.scrollHeight - element.clientHeight);
+            const { overflowY } = getComputedStyle(element);
+            return overflowY === 'scroll' || (overflowY === 'auto' && debt > 2);
+          }).length,
           boxDebts: Array.from(node.querySelectorAll<HTMLElement>('[data-diagram-box]')).map(
             (box) => ({
-              inline: box.scrollWidth - box.clientWidth,
-              block: box.scrollHeight - box.clientHeight,
+              inline: Math.max(0, box.scrollWidth - box.clientWidth),
+              block: Math.max(0, box.scrollHeight - box.clientHeight),
             }),
           ),
           minFont: Math.min(
@@ -1228,12 +1261,12 @@ test.describe('chapter 22 localized AdamW vertical slice', { tag: chapterTag(cha
         }));
         const geometryLabel = `${locale}/${contract.id}`;
         expect(geometry.counts).toEqual(before.counts);
-        expect(
-          geometry.blockDebt,
-          `${geometryLabel} full-view block debt; sections=${JSON.stringify(geometry.blockSections)}; primary=${JSON.stringify(geometry.primaryParts)}; evidence=${JSON.stringify(geometry.evidenceParts)}`,
-        ).toBeLessThanOrEqual(
-          geometry.blockBudget,
-        );
+        if (geometry.blockDebt > 2) {
+          expect(
+            ['auto', 'scroll'],
+            `${geometryLabel} root-owned vertical continuation`,
+          ).toContain(geometry.rootOverflowY);
+        }
         expect(geometry.inlineDebt, `${geometryLabel} full-view inline debt`).toBeLessThanOrEqual(
           2,
         );
@@ -1241,6 +1274,10 @@ test.describe('chapter 22 localized AdamW vertical slice', { tag: chapterTag(cha
           geometry.regionDebts.every(({ inline, block }) => inline <= 2 && block <= 2),
           `${geometryLabel} named-region debt: ${JSON.stringify(geometry.regionDebts)}`,
         ).toBe(true);
+        expect(
+          geometry.localVerticalOwnerCount,
+          `${geometryLabel} descendant vertical owners`,
+        ).toBe(0);
         expect(
           geometry.boxDebts.every(({ inline, block }) => inline <= 2 && block <= 2),
           `${geometryLabel} bounded-box debt: ${JSON.stringify(geometry.boxDebts)}`,

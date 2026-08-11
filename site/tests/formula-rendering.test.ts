@@ -392,8 +392,12 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
     String.raw`\widetilde g_t=\alpha_t g_t`,
     String.raw`m_t=\beta_1m_{t-1}+(1-\beta_1)\widetilde g_t`,
     String.raw`\hat m_t=\frac{m_t}{1-\beta_1^t}`,
-    String.raw`\hat m_t=\frac{m_t}{1-\beta_1^t},\quad \hat v_t=\frac{v_t}{1-\beta_2^t},\quad \theta_t=(1-\eta\lambda)\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}`,
-    String.raw`\eta\lambda\theta_0=[0.01,-0.02]`,
+    String.raw`\hat m_t=\frac{m_t}{1-\beta_1^t},\quad \hat v_t=\frac{v_t}{1-\beta_2^t},\quad d_t=\operatorname{fl}(\eta\lambda),\quad \lambda=0\;\lor\;0<d_t<1,\quad \rho_t=\operatorname{fl}(1-d_t),\quad \theta_t=\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}-d_t\theta_{t-1}`,
+    String.raw`c>0`,
+    String.raw`s=\max_i|g_i|`,
+    String.raw`r=\sqrt{\sum_i(g_i/s)^2}`,
+    String.raw`(g_i/s)\,(c/r)`,
+    String.raw`d_1\theta_0=[0.01,-0.02]`,
     String.raw`q(x,y)=\frac12(x^2+4y^2)`,
   ],
   "23": [
@@ -470,10 +474,13 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
     String.raw`\bar E=\bar E_{\mathrm{lookup}}+\bar E_{\mathrm{output}}`,
     String.raw`\tau=2\times10^{-5}`,
   ],
-  "33": [
-    String.raw`g_s&=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})`,
-    String.raw`\widetilde g_s&=\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s`,
-    String.raw`(\theta_s,m_s,v_s)&=\operatorname{AdamW}_{\eta_s}`,
+ "33": [
+   String.raw`g_s&=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})`,
+   String.raw`\widetilde g_s&=\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s`,
+    String.raw`M_s=\max_{p,i}|g_{s,p,i}|`,
+    String.raw`r_s=\sqrt{\sum_{p,i}(g_{s,p,i}/M_s)^2}`,
+    String.raw`(g_{s,p,i}/M_s)(c/r_s)`,
+   String.raw`(\theta_s,m_s,v_s)&=\operatorname{AdamW}_{\eta_s}`,
     String.raw`\widetilde g_s=\alpha_s g_s`,
     String.raw`\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}`,
     String.raw`s^*=\min\left\{s\in\mathcal{C}:\mathcal{L}_{va}(\theta_s)`,
@@ -1266,7 +1273,7 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "import InlineMath from '../InlineMath.astro'",
     );
     expect(components.adamwEvidence).toContain(
-      "String.raw`\\eta\\lambda\\theta=${trace.proof.zeroGradientDecay}`",
+      "String.raw`d_1\\theta_0=${trace.proof.zeroGradientDecay}`",
     );
     expect(components.adamwEvidence).toContain(
       "String.raw`q(x,y)=\\frac12(x^2+4y^2)`",

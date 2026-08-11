@@ -957,6 +957,12 @@ const exactDefinitions = {
     "Affine map":
       "A matrix transformation followed by addition of a fixed or trainable bias vector.",
   },
+  "22-adamw": {
+    "Decoupled weight decay":
+      "Parameter-proportional shrinkage applied outside the gradient moments used for adaptation; for positive decay, the represented product of the learning rate and decay coefficient must be finite and strictly between zero and one.",
+    "Learning rate":
+      "A positive scalar controlling adaptive and decay contributions; multiplied by a positive decay coefficient, it must produce a represented result strictly between zero and one, while zero decay is explicit.",
+  },
   "27-self-attention": {
     "Attention weight":
       "A normalized retrieval coefficient for one query-key pair, not confidence in correctness.",
@@ -1059,9 +1065,9 @@ const exactDefinitions = {
     "Raw gradient":
       "The finite derivative of one training mini-batch loss at the pre-update parameter state, before any clipping.",
     "Global-norm clipping":
-      "Computing one norm across every parameter gradient and applying one shared scale so the complete gradient respects a ceiling.",
+      "Computing one norm across every parameter gradient and applying one representable uniform transform when possible; if that ordinary scalar would underflow for an extreme finite vector, a normalized structured transform keeps the complete gradient within the ceiling.",
     "Clipped gradient":
-      "The raw gradient after the shared global scale: the globally clipped gradient AdamW uses to update both moments.",
+      "The effective gradient produced from the raw gradient by the validated uniform or normalized structured transform and used by AdamW to update both moments; stored raw gradients stay unchanged, and the transform is not applied to decoupled decay.",
     "AdamW update":
       "The scheduled optimizer operation that advances parameters and continuing moment state using the clipped training gradient.",
     "Optimizer moment state":
@@ -1665,6 +1671,46 @@ describe("Russian chapter cheat-sheet localization", () => {
       });
     });
   }
+
+  it("keeps the Chapter 22 represented decay domain explicit in Russian", () => {
+    const sheet = readLocalizedSheet("ru", "22-adamw.json");
+    expect(
+      sheet.terms.find((entry) => entry.term === "AdamW")?.definition,
+    ).toBe(
+      "Адаптивный оптимизатор, сочетающий градиентные обновления, нормализованные по моментам, с отдельным затуханием параметров.",
+    );
+    expect(
+      sheet.terms.find(
+        (entry) =>
+          entry.term === "Затухание весов, отделённое от градиентного обновления",
+      )?.definition,
+    ).toBe(
+      "Пропорциональное параметру стягивание к нулю, применяемое вне градиента и его адаптивных моментов; при положительном затухании представимый в f64 результат умножения скорости обучения на коэффициент затухания должен быть конечным и строго лежать между нулём и единицей.",
+    );
+    expect(
+      sheet.terms.find((entry) => entry.term === "Скорость обучения")?.definition,
+    ).toBe(
+      "Положительный скаляр, задающий масштаб адаптивного обновления и вклада затухания; при умножении на положительный коэффициент затухания он должен дать представимый в f64 результат строго между нулём и единицей, а нулевое затухание задаётся явно.",
+    );
+  });
+
+  it("keeps the Chapter 33 clipping fallback explicit in Russian", () => {
+    const sheet = readLocalizedSheet("ru", "33-training-selection.json");
+    expect(
+      sheet.terms.find(
+        (entry) => entry.term === "Ограничение общей нормы градиента",
+      )?.definition,
+    ).toBe(
+      "Вычисление одной нормы по градиентам всех параметров и применение преобразования с единым представимым множителем, когда это возможно; если для экстремального конечного вектора обычный множитель округлился бы до нуля, нормализованное структурированное преобразование удерживает полный градиент в заданном пределе.",
+    );
+    expect(
+      sheet.terms.find(
+        (entry) => entry.term === "Градиент после ограничения нормы",
+      )?.definition,
+    ).toBe(
+      "Фактический градиент, полученный из исходного градиента проверенным преобразованием с единым множителем либо нормализованным структурированным преобразованием и используемый AdamW для обновления обоих моментов; сохранённые исходные градиенты не меняются, а преобразование не применяется к отдельной поправке затухания весов.",
+    );
+  });
 
   it("keeps the Chapter 14 adjoint and backward-pass definitions seed-aware", () => {
     const sheet = readLocalizedSheet("ru", "14-scalar-autodiff.json");

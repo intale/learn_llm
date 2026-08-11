@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 10,
+  "content_revision": 11,
   "order": 33,
   "objective": {
     "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the model state saved at the earliest checkpoint with minimum validation loss, all without consulting test data during this training execution.",
@@ -42,8 +42,8 @@
       },
       {
         "symbol": "\\alpha_s",
-        "en": "the single global clipping factor passed to AdamW; it equals one when clipping is unnecessary",
-        "ru": "единый множитель ограничения общей нормы, передаваемый в AdamW; если ограничение не требуется, он равен единице"
+        "en": "the conceptual global clipping scale; an ordinary representable nonzero scale becomes one uniform transform, while an extreme finite vector whose ordinary scale would round to zero uses a normalized structured transform",
+        "ru": "концептуальный масштаб ограничения общей нормы; обычный представимый ненулевой множитель задаёт преобразование с единым множителем, а для экстремального конечного вектора, у которого обычный множитель округлился бы до нуля, применяется нормализованное структурированное преобразование"
       },
       {
         "symbol": "c",
@@ -86,8 +86,8 @@
     "llm_evolution": {
       "predecessor_kind": "training-practice",
       "limitation": {
-        "en": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or an independent rule for choosing among candidate language-model states.",
-        "ru": "Обновления по всему корпусу или по одному примеру и отчёт только по обучающей выборке сами по себе не задают масштабируемую периодичность обновлений и независимое правило выбора между состояниями языковой модели."
+        "en": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or a separate rule for choosing among candidate language-model states.",
+        "ru": "Обновления по всему корпусу или по одному примеру и отчёт только по обучающей выборке сами по себе не задают масштабируемую периодичность обновлений и отдельное правило выбора между состояниями языковой модели."
       },
       "later_advance": {
         "en": "Neural language-model work separated train, validation, and test responsibilities; sequence and Transformer systems added mini-batches, explicit schedules, clipping, and periodic candidates; later text-to-text work stated that validation chooses a checkpoint so test data does not perform model selection.",
@@ -197,6 +197,21 @@
       "ru": "ограничение общей нормы градиента"
     },
     {
+      "concept_id": "structured-gradient-transform",
+      "en": "structured gradient transform",
+      "ru": "структурированное преобразование градиента"
+    },
+    {
+      "concept_id": "normalized-gradient-transform",
+      "en": "normalized transform",
+      "ru": "нормализованное преобразование"
+    },
+    {
+      "concept_id": "global-norm-ceiling",
+      "en": "global-norm ceiling",
+      "ru": "предел общей нормы"
+    },
+    {
       "concept_id": "learning-rate-schedule",
       "en": "learning-rate schedule",
       "ru": "расписание скорости обучения"
@@ -218,13 +233,13 @@
     }
   ],
   "translation_notes": [
-    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 10 is translated directly from canonical English revision 10; semantic, terminology, anti-calque, monolingual, accessibility, source-order, and rendered reviews must be complete before publication.",
-    "Canonical English revision 10 has SHA-256 b041347b7a802434e1c98e9cf0c27f691a25fdcd7a8dc8f6222e4b7fde11d85e; the reviewed direct Russian revision 10 has SHA-256 0f92c02317714ca5a1be2b0321b5b2bb2c864b203df55aadf44c8877b11c6821.",
+    "Chapter 33 has the exact active locale set {en, ru}. Russian content revision 11 is translated directly from canonical English revision 11; semantic, terminology, anti-calque, monolingual, accessibility, source-order, and rendered reviews must be complete before publication.",
+    "Canonical English revision 11 has SHA-256 4c67a2d91a7782c1ef2469e211f37c32c4f752fbd2e13dc513fe6fe41d0b862e; the reviewed direct Russian revision 11 has SHA-256 44c380ee079829b88c12f4d8085fdcde428e0bcbde58f97d661189e306b58484.",
     "Translate mini-batch as «мини-пакет», global-norm gradient clipping as «ограничение общей нормы градиента», and graph-free evaluation as «оценка без записи графа вычислений»; describe raw and clipped gradients as gradients before and after norm clipping rather than using a literal calque.",
     "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test. Scope Test rejection to this trainer and this training execution, and scope the later one-use count to one local FinalEvaluator instance rather than repository history.",
     "Describe validation evidence as held-out from parameter fitting, not as epistemically independent: use held-out validation trace in English and natural wording about an отложенная валидационная выборка in Russian.",
-    "Preserve the distinction between the ordinary AdamW method accepting a scheduled rate plus one clipping factor and returning the new optimizer step number, and Chapter 22's explicitly requested trace containing per-parameter records; never imply that AdamW returns parameter leaves.",
-    "Translate g_s as the conceptual all-parameter raw gradient, alpha_s as «единый множитель ограничения общей нормы», and g tilde as «градиент после ограничения общей нормы, по которому AdamW обновляет оба момента». Preserve that scaling happens before the second-moment square and never scales decoupled decay.",
+    "Preserve the distinction between the ordinary AdamW method accepting a scheduled rate plus one validated uniform or normalized gradient transform and returning the new optimizer step number, and Chapter 22's explicitly requested trace containing per-parameter records; never imply that AdamW returns parameter leaves.",
+    "Translate g_s as the conceptual all-parameter raw gradient, alpha_s as the conceptual global clipping scale, and g tilde as the gradient transform AdamW uses for both moments. Preserve that an ordinary representable nonzero scale becomes one uniform transform; when an extreme finite vector's ordinary scale would round to zero, the stable fallback uses (g_i/M_s)*(c/r_s) with M_s=max abs and r_s=sqrt(sum((g_i/M_s)^2)), rejects a positive real c/r_s that rounds to zero in f64 with a typed error, leaves raw gradients unchanged, and never applies the gradient transform to decoupled decay.",
     "Preserve the live transaction order: AdamW validates every prospective parameter value and moment, acquires every parameter-value write guard, commits into the existing nodes together with optimizer state, returns the new step number, and only then the trainer explicitly clears the raw gradients on those same nodes.",
     "Preserve the distinction between a named deep snapshot, which copies parameter buffers because independent states must coexist, and an owned state transfer, which moves existing buffers into a decoder. The initial borrowed model needs one snapshot that is immediately consumed; a validation minimum needs a retained snapshot while later updates continue; selected state and selected model are independent results. Never describe a per-update replacement Vec<NamedParameter>, decoder candidate, or optimizer candidate.",
     "Preserve the reconstruction sequence: into_model moves owned tensor buffers into parameter leaves; the shared layout contract then borrows the stable-order leaf list without copying values; only subsequent component binding creates live shared handles and the tied embedding/output node.",
@@ -235,7 +250,7 @@
   "acceptance_examples": [
     {
       "input": "Order one successful update",
-      "expected": "forward, backward with graph release, finite-gradient check, one global-norm clip, a scheduled-rate AdamW commit into the existing parameter nodes, then explicit gradient clearing and zero verification on those same nodes."
+      "expected": "forward, backward with graph release, finite-gradient check, one global-norm transform, a scheduled-rate AdamW commit into the existing parameter nodes, then explicit gradient clearing and zero verification on those same nodes."
     },
     {
       "input": "Apply the eight-rate schedule",
@@ -243,7 +258,7 @@
     },
     {
       "input": "Clip a raw global gradient with norm 1.4 at ceiling 0.35",
-      "expected": "The trainer computes one factor 0.25 and passes it with the scheduled rate to AdamW. AdamW uses the effective gradient with norm 0.35 to update both moments, while the raw gradient tensors remain unchanged on the existing parameter leaves until the trainer explicitly clears them; no clipped tensor copies are created."
+      "expected": "For this ordinary fixture the trainer computes the exactly representable uniform factor 0.25 and passes that transform with the scheduled rate to AdamW. AdamW uses the effective gradient with norm 0.35 to update both moments, while the raw gradient tensors remain unchanged on the existing parameter leaves until the trainer explicitly clears them; no clipped tensor copies are created."
     },
     {
       "input": "Measure train and validation loss at steps 0, 2, 4, 6, and 8",
@@ -365,7 +380,8 @@ $$
 $c=0.35$ is the fixture's ceiling. Because $c>0$, the denominator is never
 zero: a zero or already-small norm uses scale one. The implementation uses a
 scaled sum-of-squares calculation so large finite coordinates do not overflow
-while deciding the scale. Write the shared factor explicitly as
+while deciding the scale. Write the conceptual shared factor explicitly for
+ordinary representable values as
 
 $$
 \alpha_s=\frac{c}{\max(c,\lVert g_s\rVert_2)},
@@ -379,7 +395,14 @@ $\widetilde g_{s,p,i}^2=\alpha_s^2g_{s,p,i}^2$ to the second-moment
 recurrence. Thus the effective global norm is $0.35$, but AdamW applies the
 scale before squaring. The raw gradient tensors remain unchanged on the
 existing parameter leaves until the trainer clears them after the successful
-update, and the factor does not scale AdamW's separate weight-decay term.
+update, and the factor does not scale AdamW's separate weight-decay term. If
+the uniform scale would underflow to zero for an extreme finite vector, use
+$(g_{s,p,i}/M_s)(c/r_s)$ with
+$M_s=\max_{p,i}|g_{s,p,i}|$ and
+$r_s=\sqrt{\sum_{p,i}(g_{s,p,i}/M_s)^2}$. If the positive real ratio $c/r_s$
+rounds to zero in f64, return a typed failure before AdamW reads parameter values or
+optimizer state; raw gradients remain unchanged, and the gradient transform is
+not applied to decoupled weight decay.
 Selection is restricted to the measured checkpoint set
 $\mathcal{C}=\{0,2,4,6,8\}$:
 
@@ -450,7 +473,7 @@ loss is untracked and that parameter-gradient bits are unchanged.
 
 Each training step computes a tracked scalar loss, releases its graph during
 backward, scans every named gradient for finite values, and computes one norm
-over all named coordinates plus one shared factor $\alpha_s$. Before the first
+over all named coordinates plus the conceptual transform $\alpha_s$. Before the first
 step, `DecoderModelState::snapshot` copies the borrowed caller model once into
 graph-free state. `into_model` consumes that owned state and moves its name and
 tensor buffers into one isolated working decoder without copying the buffers a
@@ -459,8 +482,9 @@ objects persist through all eight updates, so the caller's decoder and optimizer
 remain unchanged without introducing a per-step copy.
 
 For each update, the trainer passes the working decoder's existing parameter
-handles, $\eta_s$, and $\alpha_s$ to the same working optimizer's
-`step_with_learning_rate_and_gradient_scale` method. AdamW supplies
+handles, $\eta_s$, and either the ordinary uniform transform or normalized structured
+transform to the same working optimizer's
+`step_with_learning_rate_and_gradient_transform` method. AdamW supplies
 $\widetilde g_{s,p,i}$ to the first moment and
 $\widetilde g_{s,p,i}^2$ to the second moment. It neither overwrites the raw
 gradient $g_{s,p,i}$ nor multiplies decoupled weight decay by $\alpha_s$.
@@ -577,7 +601,8 @@ tokens and parameter names, numerical fixtures, earliest-tie rule, accessible
 marker meanings, and the distinction between validation selection and one local
 post-selection test evaluation have been refreshed from English and reviewed
 again. The review
-must also preserve the all-parameter norm, one shared clipping factor, scaling
+must also preserve the all-parameter norm, the ordinary uniform transform
+or normalized fallback, scaling
 before the second-moment square, AdamW's whole-set commit into the existing
 parameter nodes, the persistent working decoder and optimizer, explicit
 post-step gradient clearing, and the separate snapshot-restoration boundary. Historical

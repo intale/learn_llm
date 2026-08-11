@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 10,
+  "content_revision": 11,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
@@ -36,7 +36,7 @@
           },
           {
             "symbol": "\\alpha_s",
-            "meaning": "the single global clipping factor passed to AdamW; it equals one when clipping is unnecessary"
+            "meaning": "the conceptual global clipping scale; an ordinary representable nonzero scale becomes one uniform transform, while an extreme finite vector whose ordinary scale would round to zero uses a normalized structured transform"
           },
           {
             "symbol": "c",
@@ -73,7 +73,7 @@
       "llm_evolution":
         {
           "predecessor_kind": "training-practice",
-          "limitation": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or an independent rule for choosing among candidate language-model states.",
+          "limitation": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or a separate rule for choosing among candidate language-model states.",
           "later_advance": "Neural language-model work separated train, validation, and test responsibilities; sequence and Transformer systems added mini-batches, explicit schedules, clipping, and periodic candidates; later text-to-text work stated that validation chooses a checkpoint so test data does not perform model selection.",
           "modern_llm_role": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for post-selection evaluation; this course's one-use count belongs to one local evaluator instance.",
           "sources":
@@ -139,12 +139,12 @@
       {
         "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
         "region": "complete-training-loop",
-        "purpose": "Keep one working decoder and optimizer across every scheduled update, compute one global clipping factor, commit AdamW into the existing parameter nodes, clear their gradients explicitly, measure every declared validation checkpoint, and retain the earliest minimum as independent state."
+        "purpose": "Keep one working decoder and optimizer across every scheduled update, compute one global gradient transform with a stable normalized fallback, commit AdamW into the existing parameter nodes, clear their gradients explicitly, measure every declared validation checkpoint, and retain the earliest minimum as independent state."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
         "region": "adamw-execution-and-trace-api",
-        "purpose": "Run an atomic AdamW update with a scheduled learning rate and one validated gradient scale; the ordinary method returns only the new optimizer step number."
+        "purpose": "Run an atomic AdamW update with a scheduled learning rate and one validated uniform or normalized structured gradient transform; the ordinary method returns only the new optimizer step number."
       },
       {
         "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
@@ -319,7 +319,7 @@ $$
 \sqrt{\sum_{p\in\mathcal{P}}\sum_i g_{s,p,i}^2}.
 $$
 
-For ceiling $c=0.35$, the trainer derives one scale from that complete norm and
+For ceiling $c=0.35$, the trainer derives one conceptual scale from that complete norm and
 applies it to every coordinate:
 
 $$
@@ -334,7 +334,7 @@ while using the new rate $\eta_s$; changing the rate does not restart the
 optimizer.
 
 For example, $\lVert g_s\rVert_2=1.4$ and $c=0.35$ give
-$\alpha_s=0.25$. The trainer passes that one scalar with $\eta_s$ to AdamW.
+$\alpha_s=0.25$. The trainer passes that ordinary uniform scale with $\eta_s$ to AdamW.
 For every parameter $p$ and coordinate $i$, the first-moment recurrence uses
 $\widetilde g_{s,p,i}=\alpha_sg_{s,p,i}$, while the second-moment recurrence
 uses $\widetilde g_{s,p,i}^2=\alpha_s^2g_{s,p,i}^2$. Thus the effective
@@ -342,6 +342,16 @@ gradient has global norm $0.35$, and the scale is applied before squaring. The
 raw gradient tensors remain unchanged on the existing parameter leaves until
 the trainer clears them after the update. The factor $\alpha_s$ does not scale
 AdamW's separate weight-decay term.
+
+The scalar $\alpha_s$ is a conceptual shorthand for ordinary representable values. If a
+very large finite gradient would make the uniform scale underflow to zero, the
+trainer uses the structured transform
+$(g_{s,p,i}/M_s)(c/r_s)$, where
+$M_s=\max_{p,i}|g_{s,p,i}|$ and
+$r_s=\sqrt{\sum_{p,i}(g_{s,p,i}/M_s)^2}$. If the positive real ratio $c/r_s$
+rounds to zero in f64, the trainer returns a typed failure before AdamW reads parameter
+values or optimizer state. Raw gradients remain unchanged, and the gradient
+transform is not applied to decoupled weight decay.
 
 Validation averages by predicted-token count, not by number of batches. If
 validation batch $j$ contains $n_j$ target tokens and has mean loss
@@ -369,7 +379,7 @@ $$
 - $s\geq1$ is a one-based update index; checkpoint indices also include $0$.
 - $\mathcal{L}_{tr}^{(s)}$ is next-token loss for training mini-batch $s$.
 - $g_s=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})$ conceptually concatenates every finite named-parameter gradient coordinate before clipping.
-- $\alpha_s$ is the single global clipping factor passed to AdamW; it is $1$ when no clipping is needed.
+- $\alpha_s$ is the conceptual global clipping scale; an ordinary representable nonzero value becomes one uniform transform, while an extreme finite vector whose ordinary scale would round to zero uses a normalized structured transform.
 - $\widetilde g_s$ is the globally clipped gradient AdamW uses to update both moments.
 - $c$ is the positive global-norm ceiling.
 - $\eta_s$ is the predetermined learning rate for update $s$.
@@ -409,7 +419,7 @@ associate validation with model selection and early stopping, and describe
 stochastic per-example parameter updates for a feed-forward neural language
 model. Full-corpus or
 per-example updates and training-set-only reporting do not by themselves define
-a scalable update cadence or an independent rule for choosing among candidate
+a scalable update cadence or a separate rule for choosing among candidate
 language-model states.
 
 [Sequence to Sequence Learning with Neural Networks](https://arxiv.org/pdf/1409.3215)
@@ -524,17 +534,18 @@ later evaluation. Because both must remain available,
 />
 
 After checking every raw gradient and computing one norm over all named
-coordinates, the trainer derives one $\alpha_s$. It passes the working model's
-existing parameter handles, $\eta_s$, and $\alpha_s$ to the same working
-optimizer's `step_with_learning_rate_and_gradient_scale` method. The method
+coordinates, the trainer derives the conceptual $\alpha_s$. It passes the
+working model's existing parameter handles, $\eta_s$, and either the ordinary
+uniform transform or the normalized structured transform to the same working
+optimizer's `step_with_learning_rate_and_gradient_transform` method. The method
 returns only the committed optimizer step number; Chapter 22's more detailed
 trace is unnecessary inside this loop.
 
 AdamW first validates the complete prospective update. Its first moments use
 $\widetilde g_{s,p,i}$ and its second moments use
 $\widetilde g_{s,p,i}^2$, so clipping is applied before the square. Decoupled
-weight decay still uses the old parameter value and is not multiplied by
-$\alpha_s$. AdamW prepares every next parameter tensor, both moment states, and
+weight decay still uses the old parameter value, and the gradient transform is
+not applied to it. AdamW prepares every next parameter tensor, both moment states, and
 the step number before acquiring write access to all parameter values. A failure
 during preparation or write acquisition leaves every parameter and optimizer
 field unchanged. AdamW does hold each fully checked prospective tensor value
@@ -558,8 +569,8 @@ constructed by the trainer for each update.
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
   region="adamw-execution-and-trace-api"
-  caption="Apply the scheduled rate and one validated clipping factor without retaining a trace"
-  label="Rust source defining the ordinary scaled AdamW update used in Chapter 33"
+  caption="Apply the scheduled rate and one validated gradient transform without retaining a trace"
+  label="Rust source defining the ordinary transformed AdamW update used in Chapter 33"
 />
 
 `DecoderModel::from_parameters` remains a reconstruction boundary, not an

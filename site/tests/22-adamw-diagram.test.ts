@@ -126,11 +126,14 @@ const labels: AdamwDiagramLabels = {
   evidenceTitle: 'evidence title',
   evidenceDescription: 'evidence description',
   summary: {
+    label: 'optimizer configuration and represented decay',
     step: 'step',
     learningRate: 'learning rate',
     momentRates: 'moment rates',
     stabilizer: 'stabilizer',
     decay: 'decay',
+    decayProduct: 'decay product',
+    shrinkageFactor: 'shrinkage factor',
   },
   stages: {
     inputs: 'inputs',
@@ -211,6 +214,8 @@ describe('Chapter 22 Rust trace parser', () => {
       beta2: '0.500000',
       epsilon: '0.100000',
       weightDecay: '0.100000',
+      decayProduct: '0.010000',
+      shrinkageFactor: '0.990000',
       firstCorrection: '0.500000',
       secondCorrection: '0.500000',
     });
@@ -291,6 +296,11 @@ describe('Chapter 22 Rust trace parser', () => {
     ['wrong stable name', fixture.replace('decoder.output.weight', 'decoder.other.weight')],
     ['wrong decay group', fixture.replace('group=decay', 'group=no_decay')],
     ['wrong no-decay group', fixture.replace('group=no_decay', 'group=decay')],
+    ['wrong decay product', fixture.replace('decay_product=0.010000', 'decay_product=0.020000')],
+    [
+      'wrong shrinkage factor',
+      fixture.replace('shrinkage_factor=0.990000', 'shrinkage_factor=0.980000'),
+    ],
     ['wrong shape', fixture.replace('shape=[2]', 'shape=[1, 2]')],
     ['short vector', fixture.replace('before=[1.000000, -2.000000]', 'before=[1.000000]')],
     ['unformatted decimal', fixture.replace('adaptive=[0.066667', 'adaptive=[0.0667')],
@@ -367,6 +377,16 @@ describe('Chapter 22 static diagram boundary', () => {
       expect(componentSource).toContain(`vectorLatex(parameter.${field})`);
     }
     expect(componentSource).toContain('data-parameter-group={parameter.group}');
+    expect(componentSource).toContain('data-decay-product={trace.meta.decayProduct}');
+    expect(componentSource).toContain(
+      'data-shrinkage-factor={trace.meta.shrinkageFactor}',
+    );
+    expect(componentSource).toContain(
+      'String.raw`d_t=${trace.meta.decayProduct}`',
+    );
+    expect(componentSource).toContain(
+      'String.raw`\\rho_t=${trace.meta.shrinkageFactor}`',
+    );
     expect(componentSource).toContain('data-decay-bypass="direct-from-parameter"');
     expect(componentSource).toContain('data-diagram-box class="bypass-origin"');
     expect(componentSource).toContain('latex={vectorLatex(parameter.before)}');
@@ -375,7 +395,7 @@ describe('Chapter 22 static diagram boundary', () => {
     expect(componentSource).toContain(
       'String.raw`\\eta\\hat m_t/(\\sqrt{\\hat v_t}+\\varepsilon)`',
     );
-    expect(componentSource).toContain('String.raw`\\eta\\lambda\\theta_{t-1}`');
+    expect(componentSource).toContain('String.raw`d_t\\theta_{t-1}`');
     expect(componentSource).not.toContain('class="delta-node"');
     expect(componentSource).not.toMatch(/trace\.(?:trajectory|proof)/);
     expect(componentSource).not.toMatch(/data-(?:optimizer|proof|trajectory)/);
@@ -459,7 +479,7 @@ describe('Chapter 22 static diagram boundary', () => {
     expect(evidenceComponentSource).toContain('trace.proof.rawGradients');
     expect(evidenceComponentSource).toContain('trace.proof.parameterNodes');
     expect(evidenceComponentSource).toContain(
-      'String.raw`\\eta\\lambda\\theta=${trace.proof.zeroGradientDecay}`',
+      'String.raw`d_1\\theta_0=${trace.proof.zeroGradientDecay}`',
     );
     expect(evidenceComponentSource.match(/data-diagram-scroll/g) ?? []).toHaveLength(1);
     expect(evidenceComponentSource.match(/role="region"/g) ?? []).toHaveLength(1);
@@ -571,11 +591,11 @@ describe('Chapter 22 contract and lesson projection', () => {
   } as const;
 
   it('names the worked parameter and explains the configurable no-decay policy', () => {
-    expect(contract.content_revision).toBe(7);
-    expect(lessons.en.content_revision).toBe(7);
-    expect(lessons.ru.content_revision).toBe(7);
+    expect(contract.content_revision).toBe(8);
+    expect(lessons.en.content_revision).toBe(8);
+    expect(lessons.ru.content_revision).toBe(8);
     expect(contract.translation_notes).toContain(
-      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 7 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
+      `Chapter 22 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 8 with SHA-256 ${createHash('sha256').update(lessonSources.en).digest('hex')} and becomes stale whenever that English source changes.`,
     );
 
     const contractWorked = markedSection(
@@ -761,6 +781,9 @@ describe('Chapter 22 contract and lesson projection', () => {
     );
     expect(expectedOutput).toContain('raw_gradients_retained=true');
     expect(expectedOutput).toContain('all_parameter_nodes_preserved=true');
+    expect(expectedOutput).toContain(
+      'decay_domain=product:0.010000 shrinkage_factor:0.990000 equal_one:rejected over_one:rejected underflow:rejected',
+    );
     for (const locale of ['en', 'ru'] as const) {
       expect(lessons[locale].rust_sources).toHaveLength(11);
       expect(lessonBodies[locale].match(/<RustSource\b/g)).toHaveLength(11);
@@ -804,16 +827,27 @@ describe('Chapter 22 contract and lesson projection', () => {
     for (const name of [
       'step',
       'step_with_learning_rate',
-      'step_with_learning_rate_and_gradient_scale',
+      'step_with_learning_rate_and_gradient_transform',
     ]) {
       const method = publicRustMethod(api, name);
       expect(method).toContain('Result<u64, AdamWError>');
       expect(method).toContain('NoAdamWTrace');
       expect(method).not.toContain('RecordAdamWTrace');
     }
-    expect(publicRustMethod(api, 'step_with_learning_rate_and_gradient_scale')).toContain(
-      'gradient_scale: f64',
+    const scaleWrapper = publicRustMethod(
+      api,
+      'step_with_learning_rate_and_gradient_scale',
     );
+    expect(scaleWrapper).toContain('Result<u64, AdamWError>');
+    expect(scaleWrapper).toContain('gradient_scale: f64');
+    expect(scaleWrapper).toContain(
+      'self.step_with_learning_rate_and_gradient_transform(',
+    );
+    expect(scaleWrapper).toContain('AdamWGradientTransform::uniform(gradient_scale)');
+    expect(scaleWrapper).not.toContain('RecordAdamWTrace');
+    expect(
+      publicRustMethod(api, 'step_with_learning_rate_and_gradient_transform'),
+    ).toContain('gradient_transform: AdamWGradientTransform');
     for (const name of ['step_with_trace', 'step_with_learning_rate_and_trace']) {
       const method = publicRustMethod(api, name);
       expect(method).toContain('Result<AdamWStep, AdamWError>');
@@ -835,9 +869,16 @@ describe('Chapter 22 contract and lesson projection', () => {
     expect(demoSource.match(/\.step_with_trace\(/g)).toHaveLength(2);
     expect(demoSource.match(/optimizer\s*\.\s*step\(/g)).toHaveLength(3);
     expect(adamwSource).toContain('InvalidGradientScale');
+    expect(adamwSource).toContain('InvalidGradientNormalization');
+    expect(adamwSource).toContain('InvalidDecayProduct');
+    expect(adamwSource).toContain('(0.0..=1.0).contains(&value)');
+    expect(adamwSource).toContain('pub fn decay_product(self) -> f64');
+    expect(adamwSource).toContain('pub fn shrinkage_factor(self) -> f64');
     expect(trainerSource).toMatch(
-      /optimizer\.step_with_learning_rate_and_gradient_scale\(\s*model\.parameters\(\),\s*learning_rate,\s*norm\.scale,\s*\)\?/,
+      /optimizer\.step_with_learning_rate_and_gradient_transform\(\s*model\.parameters\(\),\s*learning_rate,\s*norm\.transform,\s*\)\?/,
     );
+    expect(trainerSource).toContain('AdamWGradientTransform::normalized(scale, multiplier)');
+    expect(trainerSource).toContain('UnrepresentableGradientClip');
     expect(trainerSource).toContain('clear_and_verify_gradients(&model)?;');
     expect(trainerSource).not.toContain('clipped_parameter_copy');
     for (const source of [trainerSource, chapter23Source, chapter35Source]) {
@@ -869,10 +910,16 @@ describe('Chapter 22 contract and lesson projection', () => {
       'Для новых значений параметров нужно выполнить новый прямой проход и построить новый граф.',
     );
     expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
-      'The first-moment calculation uses $[0.2,-0.1]$, and the second-moment calculation uses its coordinate squares $[0.04,0.01]$. The separate decay term remains $\\eta\\lambda\\theta_{t-1}$.',
+      'The first-moment calculation uses $[0.2,-0.1]$, and the second-moment calculation uses its coordinate squares $[0.04,0.01]$. The separate decay term remains $d_t\\theta_{t-1}$.',
     );
     expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
-      'В первый момент поступает $[0.2,-0.1]$, а во второй — квадраты координат $[0.04,0.01]$. Отдельная поправка затухания остаётся равной $\\eta\\lambda\\theta_{t-1}$.',
+      'В первый момент поступает $[0.2,-0.1]$, а во второй — квадраты координат $[0.04,0.01]$. Отдельная поправка затухания остаётся равной $d_t\\theta_{t-1}$.',
+    );
+    expect(lessonBodies.en.replace(/\s+/g, ' ')).toContain(
+      'Its generic uniform form accepts a finite shared scale $0\\leq\\alpha_t\\leq1$, including explicit zero.',
+    );
+    expect(lessonBodies.ru.replace(/\s+/g, ' ')).toContain(
+      'Общая форма с единым множителем принимает конечное значение $0\\leq\\alpha_t\\leq1$, включая явно заданный ноль.',
     );
   });
 
@@ -901,7 +948,7 @@ describe('Chapter 22 contract and lesson projection', () => {
         String.raw`m_t=\beta_1m_{t-1}+(1-\beta_1)\widetilde g_t`,
         String.raw`\hat m_t=\frac{m_t}{1-\beta_1^t}`,
         contract.formula.latex,
-        String.raw`\eta\lambda\theta_0=[0.01,-0.02]`,
+        String.raw`d_1\theta_0=[0.01,-0.02]`,
         String.raw`\theta\leftarrow\theta-\eta g`,
       ]) {
         expect(compactMath).toContain(formula.replace(/\s+/g, ''));

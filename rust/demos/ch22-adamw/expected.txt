@@ -1,6 +1,7 @@
 chapter=22-adamw
 prediction=prepare both named updates before writing either live leaf
 config=learning_rate:0.100000 beta1:0.500000 beta2:0.500000 epsilon:0.100000 weight_decay:0.100000
+decay_domain=product:0.010000 shrinkage_factor:0.990000 equal_one:rejected over_one:rejected underflow:rejected
 step=1
 bias_corrections=first:0.500000 second:0.500000
 parameter=decoder.output.weight group=decay shape=[2] before=[1.000000, -2.000000] gradient=[0.200000, -0.400000]

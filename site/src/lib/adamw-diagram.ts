@@ -4,11 +4,14 @@ export interface AdamwDiagramLabels {
   evidenceTitle: string;
   evidenceDescription: string;
   summary: {
+    label: string;
     step: string;
     learningRate: string;
     momentRates: string;
     stabilizer: string;
     decay: string;
+    decayProduct: string;
+    shrinkageFactor: string;
   };
   stages: {
     inputs: string;
@@ -122,6 +125,8 @@ export interface AdamwTrace {
     beta2: string;
     epsilon: string;
     weightDecay: string;
+    decayProduct: string;
+    shrinkageFactor: string;
     firstCorrection: string;
     secondCorrection: string;
   };
@@ -316,6 +321,8 @@ export function parseAdamwTrace(source: string): AdamwTrace {
     'beta2',
     'epsilon',
     'weight_decay',
+    'decay_product',
+    'shrinkage_factor',
     'first_correction',
     'second_correction',
   ]);
@@ -391,6 +398,16 @@ export function parseAdamwTrace(source: string): AdamwTrace {
       beta2: exact(meta.beta2, '0.500000', 'META.beta2'),
       epsilon: exact(meta.epsilon, '0.100000', 'META.epsilon'),
       weightDecay: exact(meta.weight_decay, '0.100000', 'META.weight_decay'),
+      decayProduct: exact(
+        meta.decay_product,
+        '0.010000',
+        'META.decay_product',
+      ),
+      shrinkageFactor: exact(
+        meta.shrinkage_factor,
+        '0.990000',
+        'META.shrinkage_factor',
+      ),
       firstCorrection: exact(
         meta.first_correction,
         '0.500000',
@@ -467,7 +484,16 @@ export function assertAdamwDiagramLabels(
   labels: AdamwDiagramLabels,
 ): asserts labels is AdamwDiagramLabels {
   const schema = {
-    summary: ['step', 'learningRate', 'momentRates', 'stabilizer', 'decay'],
+    summary: [
+      'label',
+      'step',
+      'learningRate',
+      'momentRates',
+      'stabilizer',
+      'decay',
+      'decayProduct',
+      'shrinkageFactor',
+    ],
     stages: ['inputs', 'moments', 'deltas', 'trajectory', 'replacement', 'proof'],
     fields: [
       'parameter',

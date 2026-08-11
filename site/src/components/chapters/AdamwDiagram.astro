@@ -38,7 +38,12 @@ const descriptionId = `${adamwDiagramId}-${instanceId}-description`;
     <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
   </figcaption>
 
-  <dl class="config-summary" aria-label={labels.stages.inputs}>
+  <dl
+    class="config-summary"
+    aria-label={labels.summary.label}
+    data-decay-product={trace.meta.decayProduct}
+    data-shrinkage-factor={trace.meta.shrinkageFactor}
+  >
     <div data-diagram-box>
       <dt>{labels.summary.step}</dt>
       <dd><InlineMath latex={String.raw`t=${trace.meta.step}`} /></dd>
@@ -62,6 +67,14 @@ const descriptionId = `${adamwDiagramId}-${instanceId}-description`;
     <div data-diagram-box>
       <dt>{labels.summary.decay}</dt>
       <dd><InlineMath latex={String.raw`\lambda=${trace.meta.weightDecay}`} /></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.decayProduct}</dt>
+      <dd><InlineMath latex={String.raw`d_t=${trace.meta.decayProduct}`} /></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.shrinkageFactor}</dt>
+      <dd><InlineMath latex={String.raw`\rho_t=${trace.meta.shrinkageFactor}`} /></dd>
     </div>
   </dl>
 
@@ -217,7 +230,7 @@ const descriptionId = `${adamwDiagramId}-${instanceId}-description`;
       <InlineMath latex={String.raw`\eta\hat m_t/(\sqrt{\hat v_t}+\varepsilon)`} />
       <span class="plus" aria-label={labels.symbols.subtract}>−</span>
       <span>{labels.symbols.decay}</span>
-      <InlineMath latex={String.raw`\eta\lambda\theta_{t-1}`} />
+      <InlineMath latex={String.raw`d_t\theta_{t-1}`} />
     </div>
   </section>
 
@@ -434,7 +447,7 @@ const descriptionId = `${adamwDiagramId}-${instanceId}-description`;
 
     .adamw-diagram:fullscreen > .config-summary {
       grid-area: summary;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .adamw-diagram:fullscreen > .stage-intro {

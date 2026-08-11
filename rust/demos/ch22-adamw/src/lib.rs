@@ -55,6 +55,27 @@ pub struct LearnerEvidence {
     pub rejection_rolled_back: bool,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct DecayDomainEvidence {
+    pub equal_one_rejected: bool,
+    pub over_one_rejected: bool,
+    pub underflow_rejected: bool,
+}
+
+pub fn decay_domain_evidence() -> DecayDomainEvidence {
+    let rejected = |learning_rate, weight_decay| {
+        matches!(
+            AdamWConfig::new(learning_rate, BETA1, BETA2, EPSILON, weight_decay),
+            Err(AdamWError::InvalidDecayProduct { .. })
+        )
+    };
+    DecayDomainEvidence {
+        equal_one_rejected: rejected(0.5, 2.0),
+        over_one_rejected: rejected(0.5, 4.0),
+        underflow_rejected: rejected(f64::MIN_POSITIVE, f64::from_bits(1)),
+    }
+}
+
 // region:chapter-adamw-fixture
 pub fn learner_evidence() -> LearnerEvidence {
     let config = fixture_config();
@@ -294,6 +315,7 @@ fn format_names(names: &[String]) -> String {
 
 pub fn learner_report() -> String {
     let evidence = learner_evidence();
+    let decay_domain = decay_domain_evidence();
     let history = historical_updates(1.0, HISTORICAL_GRADIENTS);
     let trajectory = anisotropic_trajectory();
     let mut lines = vec![
@@ -306,6 +328,26 @@ pub fn learner_report() -> String {
             evidence.config.beta2(),
             evidence.config.epsilon(),
             evidence.config.weight_decay(),
+        ),
+        format!(
+            "decay_domain=product:{:.6} shrinkage_factor:{:.6} equal_one:{} over_one:{} underflow:{}",
+            evidence.config.decay_product(),
+            evidence.config.shrinkage_factor(),
+            if decay_domain.equal_one_rejected {
+                "rejected"
+            } else {
+                "accepted"
+            },
+            if decay_domain.over_one_rejected {
+                "rejected"
+            } else {
+                "accepted"
+            },
+            if decay_domain.underflow_rejected {
+                "rejected"
+            } else {
+                "accepted"
+            },
         ),
         format!("step={}", evidence.step.step()),
         format!(
@@ -424,6 +466,16 @@ mod tests {
         assert_close(update.adaptive_delta(), &[0.0]);
         assert_close(update.decay_delta(), &[0.03]);
         assert_close(update.after(), &[2.97]);
+    }
+
+    #[test]
+    fn decay_domain_probe_is_backed_by_real_configuration_rejections() {
+        let evidence = decay_domain_evidence();
+        assert!(evidence.equal_one_rejected);
+        assert!(evidence.over_one_rejected);
+        assert!(evidence.underflow_rejected);
+        assert!((fixture_config().decay_product() - 0.01).abs() <= f64::EPSILON);
+        assert!((fixture_config().shrinkage_factor() - 0.99).abs() <= f64::EPSILON);
     }
 
     #[test]

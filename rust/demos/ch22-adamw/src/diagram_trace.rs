@@ -6,13 +6,15 @@ use crate::{anisotropic_trajectory, format_vector, learner_evidence};
 pub fn diagram_trace() -> String {
     let evidence = learner_evidence();
     let mut lines = vec![format!(
-        "META|step={}|learning_rate={:.6}|beta1={:.6}|beta2={:.6}|epsilon={:.6}|weight_decay={:.6}|first_correction={:.6}|second_correction={:.6}",
+        "META|step={}|learning_rate={:.6}|beta1={:.6}|beta2={:.6}|epsilon={:.6}|weight_decay={:.6}|decay_product={:.6}|shrinkage_factor={:.6}|first_correction={:.6}|second_correction={:.6}",
         evidence.step.step(),
         evidence.config.learning_rate(),
         evidence.config.beta1(),
         evidence.config.beta2(),
         evidence.config.epsilon(),
         evidence.config.weight_decay(),
+        evidence.config.decay_product(),
+        evidence.config.shrinkage_factor(),
         evidence.step.first_correction(),
         evidence.step.second_correction(),
     )];

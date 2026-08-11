@@ -20713,3 +20713,53 @@ offline cache hit. No learner content, Rust, shared diagram presentation, or
 browser support policy changes.
 
 **Affected step:** `scope-chapter-route-and-component-css`.
+
+## 2026-08-11 - Treat represented AdamW decay and clipped gradients as bounded transforms
+
+**Status:** Accepted during `bound-ch22-adamw-shrinkage-and-clipping`
+preflight, before product edits.
+
+**Context:** AdamW currently validates the learning rate and weight-decay
+coefficient independently, then describes `1 - eta lambda` as shrinkage without
+checking their represented product. Positive inputs can therefore underflow to
+zero, reach or cross one, or overflow. The shared trainer also computes one
+global-clipping scalar. For extreme but finite gradients that scalar can round to
+zero even though the correctly clipped coordinates are finite and nonzero.
+Chapter 33 exposes this implementation as one scalar passed to AdamW, so the
+numerical repair changes that learner-facing boundary even when its ordinary
+fixture remains bit-identical.
+
+**Decision:** Define genuine positive weight decay by the represented-domain
+contract `lambda > 0 => 0 < eta lambda < 1`; `lambda = 0` remains the explicit
+no-decay case. Reject a positive product that underflows to zero, reaches or
+exceeds one, or is nonfinite, including scheduled learning-rate overrides,
+before reading optimizer state or parameters. Represent the gradient operation
+as a validated structured transform. Preserve the existing uniform scalar path
+when that scalar is representable and nonzero. When the mathematically required
+scalar would underflow, apply each coordinate as `(g_i / s) * (c / r)`, where
+`s = max_i |g_i|` and `r = sqrt(sum_i (g_i / s)^2)`, without constructing `s r`
+or the underflowed scalar. Reject an unrepresentable positive `c / r` rather
+than silently replacing a finite gradient by zero. Keep raw gradients unchanged
+and use the existing one-kernel transactional AdamW update.
+
+Revise Chapter 22 from content revision 7 to 8 and Chapter 33 from 10 to 11,
+authoring English first and translating Russian directly from those frozen
+English revisions. Advance the course-plan and locale projection from 73 to 74.
+Chapter 22 will render Rust-authored decay-product and shrinkage-factor evidence;
+Chapter 33 will describe the structured ordinary/fallback implementation and its
+shared assumptions without changing its ordinary frozen numerical trace unless
+regeneration proves different bytes. Update the existing Chapter 22 and 33 cheat
+sheet definitions without adding terms.
+
+**Consequences:** Configuration error precedence becomes explicit and scheduled
+updates cannot cross the decay domain. Extreme finite clipping remains nonzero
+and bounded when its coordinates are representable, while ordinary training
+keeps its prior arithmetic path and fixture bits. The expanded output set owns
+the trainer and pipeline projection, Chapter 22 trace writer, Chapter 33
+learner-facing contract, both locale sheets, course-plan projection, and focused
+formula/content locks. Browser validation is limited to affected Chapter 22 and
+33 pages, their formulas and cheat sheets in Firefox with JavaScript enabled;
+this numerical and chapter-local change does not authorize an all-chapter visual
+sweep. No dependency or alternate browser is introduced.
+
+**Affected step:** `bound-ch22-adamw-shrinkage-and-clipping`.

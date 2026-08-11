@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 73,
+  "plan_revision": 74,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1326,16 +1326,16 @@ with JavaScript enabled.
 
 - **Chapter ID:** `22-adamw`
 - **Implementation step:** `implement-ch22-adamw`
-- **Revision status:** Content revision 7 commits checked AdamW values into the existing parameter nodes, preserves aliases and raw accumulated gradients, preflights write access for the whole parameter set, and versions value changes so retained graphs and KV caches cannot cross an in-place update; the Russian lesson is refreshed directly from this English revision.
+- **Revision status:** Content revision 8 adds an explicit represented decay-product domain and corresponding shrinkage-factor evidence, rejects underflow, unit, oversized, or nonfinite positive products before AdamW reads parameter values or optimizer state, including scheduled rates, and teaches uniform versus normalized structured gradient transforms with raw-gradient and decay invariants; the Russian lesson is refreshed directly from this English revision.
 - **Depends on:** `21-mini-batches`.
 - **Outcome:** Update named parameters with bias-corrected Adam moments and decoupled weight decay.
 - **Scope boundary:** Teach SGD, momentum intuition, first/second moments, bias correction, epsilon, parameter groups, zero-grad, and decay exclusions; defer schedules.
-- **Formula:** `\hat m_t=\frac{m_t}{1-\beta_1^t},\quad \hat v_t=\frac{v_t}{1-\beta_2^t},\quad \theta_t=(1-\eta\lambda)\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}`.
+- **Formula:** `\hat m_t=\frac{m_t}{1-\beta_1^t},\quad \hat v_t=\frac{v_t}{1-\beta_2^t},\quad d_t=\operatorname{fl}(\eta\lambda),\quad \lambda=0\;\lor\;0<d_t<1,\quad \rho_t=\operatorname{fl}(1-d_t),\quad \theta_t=\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}-d_t\theta_{t-1}`.
 - **Historical contrast:** Compare plain SGD, momentum, Adam with L2 coupling, and AdamW's decoupled shrinkage.
 - **Rust contribution:** Add a deterministic optimizer state keyed by stable parameter names and the full bias-corrected AdamW update.
 - **Visualization:** Useful — compare SGD and AdamW trajectories on an anisotropic quadratic, including the separate decay arrow.
 - **Practice:** Compute the first update by hand and predict which normalization/bias parameters should skip decay.
-- **Integration evidence:** Raw moments, bias correction, decoupled decay, hand-calculated steps, retained gradients, preserved node identities, monotonically increasing parameter-value revisions, stale retained-graph rejection, explicit caller-side gradient clearing, exclusions, state shape/name/borrow errors, rollback, determinism, and convergence fixtures pass.
+- **Integration evidence:** Raw moments, bias correction, represented decay-product rejection, uniform and normalized gradient transforms, extreme finite clipping, decoupled decay, hand-calculated steps, retained gradients, preserved node identities, monotonically increasing parameter-value revisions, stale retained-graph rejection, explicit caller-side gradient clearing, exclusions, state shape/name/borrow errors, rollback, determinism, and convergence fixtures pass.
 - **Handoff:** Chapter 23 validates the complete numerical and optimization stack on a small neural language model.
 
 ## 23. Train a neural n-gram language model
@@ -1502,7 +1502,7 @@ with JavaScript enabled.
 
 - **Chapter ID:** `33-training-selection`
 - **Implementation step:** `implement-ch33-training-selection`
-- **Revision status:** Content revision 10 preserves the stable parameter-layout, snapshot, transaction, and selection mechanics while scoping rejection of test data to this training execution and Chapter 34's one-use count to one local evaluator instance rather than repository history; Russian is refreshed directly from the matching English revision.
+- **Revision status:** Content revision 11 preserves stable layout, snapshot, transaction, and selection mechanics while teaching that AdamW receives an ordinary uniform gradient transform or a normalized structured fallback when an extreme finite vector's ordinary scale would underflow; raw gradients remain unchanged, the gradient transform is not applied to decoupled weight decay, and test-data rejection remains scoped to this training execution; Russian is refreshed directly from the matching English revision.
 - **Depends on:** `32-decoder-model`.
 - **Outcome:** Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data.
 - **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic no-grad validation, and best-state selection; defer final test comparison and generation.

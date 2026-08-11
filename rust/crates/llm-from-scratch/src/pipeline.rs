@@ -838,12 +838,40 @@ fn training_step_bitwise(left: &TrainingStep, right: &TrainingStep) -> bool {
         && left.train_loss().to_bits() == right.train_loss().to_bits()
         && left.gradient_norm_before().to_bits() == right.gradient_norm_before().to_bits()
         && left.gradient_norm_after().to_bits() == right.gradient_norm_after().to_bits()
-        && left.gradient_scale().to_bits() == right.gradient_scale().to_bits()
+        && gradient_transform_bitwise(left.gradient_transform(), right.gradient_transform())
         && left.clipped() == right.clipped()
         && left.finite_gradients() == right.finite_gradients()
         && left.parameter_nodes_preserved() == right.parameter_nodes_preserved()
         && left.cleared_gradients() == right.cleared_gradients()
         && left.events() == right.events()
+}
+
+fn gradient_transform_bitwise(
+    left: crate::training::adamw::AdamWGradientTransform,
+    right: crate::training::adamw::AdamWGradientTransform,
+) -> bool {
+    use crate::training::adamw::AdamWGradientTransform;
+
+    match (left, right) {
+        (
+            AdamWGradientTransform::Uniform { scale: left },
+            AdamWGradientTransform::Uniform { scale: right },
+        ) => left.to_bits() == right.to_bits(),
+        (
+            AdamWGradientTransform::Normalized {
+                divisor: left_divisor,
+                multiplier: left_multiplier,
+            },
+            AdamWGradientTransform::Normalized {
+                divisor: right_divisor,
+                multiplier: right_multiplier,
+            },
+        ) => {
+            left_divisor.to_bits() == right_divisor.to_bits()
+                && left_multiplier.to_bits() == right_multiplier.to_bits()
+        }
+        _ => false,
+    }
 }
 
 fn adamw_config_bitwise(left: AdamWConfig, right: AdamWConfig) -> bool {

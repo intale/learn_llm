@@ -9,8 +9,8 @@
     {"term": "Second gradient moment", "definition": "An exponentially weighted estimate of recent squared gradient magnitude by coordinate."},
     {"term": "Bias correction", "definition": "An adjustment compensating for early moment estimates that start at zero."},
     {"term": "Adaptive update", "definition": "A parameter change scaled coordinatewise using corrected direction and magnitude estimates."},
-    {"term": "Decoupled weight decay", "definition": "Parameter-proportional shrinkage applied outside the gradient moments used for adaptation."},
-    {"term": "Learning rate", "definition": "A positive scalar controlling the size of adaptive and decay contributions."},
+    {"term": "Decoupled weight decay", "definition": "Parameter-proportional shrinkage applied outside the gradient moments used for adaptation; for positive decay, the represented product of the learning rate and decay coefficient must be finite and strictly between zero and one."},
+    {"term": "Learning rate", "definition": "A positive scalar controlling adaptive and decay contributions; multiplied by a positive decay coefficient, it must produce a represented result strictly between zero and one, while zero decay is explicit."},
     {"term": "Numerical stabilizer", "definition": "A small positive denominator addition keeping adaptive division well defined."},
     {"term": "Decay group", "definition": "Named parameters selected to receive the optimizer's shrinkage contribution."},
     {"term": "No-decay group", "definition": "Named parameters deliberately excluded from parameter-proportional shrinkage during updates."}

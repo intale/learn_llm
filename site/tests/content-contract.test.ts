@@ -994,7 +994,7 @@ describe("LLM-evolution history contract", () => {
 });
 
 describe("curriculum and catalog contracts", () => {
-  it("projects metric-scope plan revision 73 and the exact bilingual chapter revisions", () => {
+  it("projects AdamW-boundary plan revision 74 and the exact bilingual chapter revisions", () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, "curriculum/course-plan.md"),
@@ -1014,13 +1014,13 @@ describe("curriculum and catalog contracts", () => {
       }>;
     };
     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
-      "6018ace0ab7f55b4ab478c8f44c35c1106f2a22a913e0d506973fe71da5bfe3a",
+      "1196412f95b45a012ad1a09b079f364d2e2592c4dc126e556295c3557218220f",
     );
     expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
-      "6a29d8c542d02550bec739de898acc468eff0102355b8f2440e940f9cd241921",
+      "deec52453c50b5272c4fcb411a6bbb50e91a0fd8e02f05c303723c853c374c64",
     );
-    expect(plan.plan_revision).toBe(73);
-    expect(projection.planRevision).toBe(73);
+    expect(plan.plan_revision).toBe(74);
+    expect(projection.planRevision).toBe(74);
     expect(planSource).toContain(
       "- **Handoff:** Chapter 35 serializes the trainer-captured selected model and matching optimizer state for reproducible inference; the immutable evaluation report remains separate, and the sampling RNG is initialized independently.",
     );
@@ -1060,7 +1060,8 @@ describe("curriculum and catalog contracts", () => {
       ["00-llm-parts", 0, 5],
       ["02-corpus-partitions", 2, 9],
       ["07-language-model-metrics", 7, 7],
-      ["33-training-selection", 33, 10],
+      ["22-adamw", 22, 8],
+      ["33-training-selection", 33, 11],
       ["34-final-evaluation", 34, 7],
       ["35-checkpoints", 35, 5],
       ["38-cached-generation", 38, 6],
@@ -1667,7 +1668,7 @@ describe("curriculum and catalog contracts", () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 73',
+      '"plan_revision": 74',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

@@ -2,7 +2,7 @@
 {
   "chapter_id": "22-adamw",
   "locale": "en",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 22,
   "concept_id": "adamw",
   "title": "Keep decay out of the gradient moments",
@@ -10,7 +10,7 @@
   "objective": "Update a stable set of named decoder parameters with bias-corrected first and second gradient moments while keeping weight decay outside the adaptive gradient path.",
   "worked_inputs": "For the decay-group parameter `decoder.output.weight`, start with current value $\\theta_0=[1,-2]$ and accumulated token-mean loss gradient $g_1=[0.2,-0.4]$ with respect to that same parameter. Use learning rate $\\eta=0.1$, moment rates $\\beta_1=\\beta_2=0.5$, stabilizer $\\varepsilon=0.1$, and decay $\\lambda=0.1$. Predict the adaptive and decay contributions before computing the updated value $\\theta_1$.",
   "formula": {
-    "latex": "\\hat m_t=\\frac{m_t}{1-\\beta_1^t},\\quad \\hat v_t=\\frac{v_t}{1-\\beta_2^t},\\quad \\theta_t=(1-\\eta\\lambda)\\theta_{t-1}-\\eta\\frac{\\hat m_t}{\\sqrt{\\hat v_t}+\\varepsilon}",
+    "latex": "\\hat m_t=\\frac{m_t}{1-\\beta_1^t},\\quad \\hat v_t=\\frac{v_t}{1-\\beta_2^t},\\quad d_t=\\operatorname{fl}(\\eta\\lambda),\\quad \\lambda=0\\;\\lor\\;0<d_t<1,\\quad \\rho_t=\\operatorname{fl}(1-d_t),\\quad \\theta_t=\\theta_{t-1}-\\eta\\frac{\\hat m_t}{\\sqrt{\\hat v_t}+\\varepsilon}-d_t\\theta_{t-1}",
     "symbols": [
       {
         "symbol": "\\theta_{t-1}",
@@ -30,7 +30,7 @@
       },
       {
         "symbol": "\\alpha_t",
-        "meaning": "the validated gradient scale from zero to one; at one the effective gradient exactly equals the raw gradient"
+        "meaning": "the conceptual uniform clipping scale; an ordinary positive represented scale is passed without recomputation, while a scale that would underflow is replaced by an equivalent normalized structured transform"
       },
       {
         "symbol": "\\widetilde g_t",
@@ -58,7 +58,15 @@
       },
       {
         "symbol": "\\lambda",
-        "meaning": "the effective non-negative decay coefficient for this named parameter: configured decay or zero"
+        "meaning": "the effective non-negative decay coefficient for this named parameter: configured decay or exactly zero; when positive, its represented floating-point product with the learning rate must be finite and strictly between zero and one"
+      },
+      {
+        "symbol": "d_t",
+        "meaning": "the represented floating-point product of the learning rate and decay coefficient; it is zero for no decay and positive but less than one for accepted positive decay"
+      },
+      {
+        "symbol": "\\rho_t",
+        "meaning": "the represented floating-point result of subtracting the decay product from one; it is one for no decay and is reported as the corresponding shrinkage factor"
       },
       {
         "symbol": "\\hat m_t",
@@ -79,7 +87,7 @@
       "predecessor_kind": "training-practice",
       "limitation": "Bengio et al.'s neural language model performs a direct stochastic parameter update after presenting one training word and its context. At each update, one scalar learning rate scales the current example's gradient; there is no per-coordinate memory of earlier gradients.",
       "later_advance": "Relative to this direct SGD rule, momentum adds a decaying memory of past directions. Adam later keeps exponential first and second raw gradient moments and corrects their early zero-initialization bias; if an $L_2$ term is coupled into its gradient, that parameter-proportional term enters both moving estimates. AdamW instead moves the shrinkage term outside the gradient entering those adaptive moments.",
-      "modern_llm_role": "LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B parameters. The course's optimizer writes each checked update into the existing named parameter leaf; Chapter 33 supplies a scheduled learning rate, one validated global clipping factor, and explicit gradient clearing, while mixed precision and distributed optimizer state remain outside this bounded implementation.",
+      "modern_llm_role": "LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B parameters. The course's optimizer writes each checked update into the existing named parameter leaf; Chapter 33 supplies a scheduled learning rate, a validated uniform or normalized gradient transform, and explicit gradient clearing, while mixed precision and distributed optimizer state remain outside this bounded implementation.",
       "sources": [
         {
           "role": "earlier",
@@ -124,7 +132,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "adamw-configuration",
-      "purpose": "Validate every scalar domain before optimizer state exists."
+      "purpose": "Validate scalar configuration and the represented decay-product domain before parameter values or optimizer state are read."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -139,7 +147,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "adamw-execution-and-trace-api",
-      "purpose": "Return only the committed step number during ordinary updates, accept one validated gradient scale on the scheduled ordinary update, and retain elementwise evidence only when a caller explicitly requests a trace."
+      "purpose": "Return only the committed step number during ordinary updates, accept a validated uniform or normalized structured gradient transform on the scheduled ordinary update, and retain elementwise evidence only when a caller explicitly requests a trace."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -154,7 +162,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "adamw-errors",
-      "purpose": "Return typed configuration, gradient-scale, identity, shape, counter, revision, borrow, arithmetic, and tensor failures."
+      "purpose": "Return typed configuration, represented-decay, gradient-transform, identity, shape, counter, revision, borrow, arithmetic, and tensor failures."
     },
     {
       "path": "rust/demos/ch22-adamw/src/lib.rs",
@@ -201,11 +209,14 @@ export const diagramLabels = {
   evidenceDescription:
     'Use the zero-gradient normalization scale to expose group-specific decay, then compare exact SGD and AdamW points and verify whole-set commit invariants.',
   summary: {
+    label: 'Optimizer configuration and represented decay',
     step: 'Committed step',
     learningRate: 'Learning rate',
     momentRates: 'Moment rates',
     stabilizer: 'Denominator stabilizer',
     decay: 'Weight decay',
+    decayProduct: 'Represented decay product',
+    shrinkageFactor: 'Represented shrinkage factor',
   },
   stages: {
     inputs: 'Read one named value and its accumulated gradient',
@@ -299,7 +310,9 @@ The stable name, not the parameter's position in the parameter list, identifies
 its moment history.
 
 Use $\eta=0.1$, $\beta_1=\beta_2=0.5$, $\varepsilon=0.1$, and
-$\lambda=0.1$. This direct worked step uses gradient scale $\alpha_1=1$, so
+$\lambda=0.1$. Floating-point arithmetic produces the represented decay product
+$d_1=\operatorname{fl}(\eta\lambda)=0.010000$ and shrinkage factor
+$\rho_1=\operatorname{fl}(1-d_1)=0.990000$. This direct worked step uses gradient scale $\alpha_1=1$, so
 the effective gradient is exactly $\widetilde g_1=g_1$. Predict the adaptive
 delta and the decay delta separately.
 
@@ -311,7 +324,7 @@ $$
 \eta\frac{\hat m_1}{\sqrt{\hat v_1}+\varepsilon}
 \approx[0.066667,-0.08],
 \qquad
-\eta\lambda\theta_0=[0.01,-0.02].
+d_1\theta_0=[0.01,-0.02].
 $$
 
 Subtract both from the old value to predict
@@ -323,16 +336,26 @@ coordinate subtracts a negative delta, moving it toward zero.
 ## Correct moments, then bypass them with decay
 
 The optimizer receives the raw accumulated gradient $g_t$ stored on the named
-parameter and a validated scalar $0\leq\alpha_t\leq1$. It forms the effective
-gradient
+parameter and a validated gradient transform. Its generic uniform form accepts
+a finite shared scale $0\leq\alpha_t\leq1$, including explicit zero. Chapter
+33's global-norm rule requires a mathematically positive clipping scale; if its
+ordinary represented scalar would round to zero, that rule uses the normalized
+form instead. A uniform transform forms the effective gradient
 
 $$
 \widetilde g_t=\alpha_t g_t.
 $$
 
-The scalar is shared by every coordinate of the complete parameter set. It is
-not a second learning rate: it changes only the gradient supplied to the moment
-recurrences. The optimizer reads $g_t$ without changing the stored gradient.
+The uniform scale is not a second learning rate: it changes only the gradient
+supplied to the moment recurrences. The optimizer reads $g_t$ without changing
+the stored gradient. If a uniform scale would underflow to zero for very large
+finite gradients, the stable training path instead represents the same
+normalization structurally. Let $c>0$ be the global-norm ceiling in the same
+units as the gradient norm. With $s=\max_i|g_i|$ and
+$r=\sqrt{\sum_i(g_i/s)^2}$, it supplies each coordinate as
+$(g_i/s)\,(c/r)$. If the positive real ratio $c/r$ rounds to zero in f64, it
+returns a typed failure before AdamW reads parameter values or optimizer state. This fallback changes
+neither raw gradient storage nor the separate decay branch.
 After a successful transaction, the parameter has the new value but keeps the
 same leaf identity and the same accumulated gradient. AdamW uses the gradient
 in its calculation and retains it; the Chapter 23 training loop calls
@@ -350,7 +373,7 @@ $$
 
 The first-moment calculation uses $[0.2,-0.1]$, and the second-moment
 calculation uses its coordinate squares $[0.04,0.01]$. The separate decay term remains
-$\eta\lambda\theta_{t-1}$.
+$d_t\theta_{t-1}$.
 
 Update the elementwise first and second raw moments with that effective
 gradient:
@@ -376,21 +399,28 @@ $$
 \hat v_t=\frac{v_t}{1-\beta_2^t}.
 $$
 
-Now apply the chapter's exact shared formula:
+Now apply the chapter's exact shared formula, including the represented decay
+domain:
 
 $$
-\hat m_t=\frac{m_t}{1-\beta_1^t},\quad \hat v_t=\frac{v_t}{1-\beta_2^t},\quad \theta_t=(1-\eta\lambda)\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}
+\hat m_t=\frac{m_t}{1-\beta_1^t},\quad \hat v_t=\frac{v_t}{1-\beta_2^t},\quad d_t=\operatorname{fl}(\eta\lambda),\quad \lambda=0\;\lor\;0<d_t<1,\quad \rho_t=\operatorname{fl}(1-d_t),\quad \theta_t=\theta_{t-1}-\eta\frac{\hat m_t}{\sqrt{\hat v_t}+\varepsilon}-d_t\theta_{t-1}
 $$
 
-Equivalently, subtract the adaptive delta and
-$\eta\lambda\theta_{t-1}$ as two explicit terms. Decoupling means the second
-term bypasses $g_t$, $\widetilde g_t$, $m_t$, and $v_t$. Changing
-$\alpha_t$ therefore does not scale decay. Decoupling does not mean the final
+The final expression subtracts the adaptive delta and
+$d_t\theta_{t-1}$ as two explicit terms. The separately reported $\rho_t$
+describes the corresponding shrinkage factor; the implementation retains the
+shown subtraction order so its floating-point evidence is reproducible.
+Decoupling means the second
+term bypasses $g_t$, $\widetilde g_t$, $m_t$, and $v_t$. Neither the uniform nor
+normalized gradient transform affects decay. Decoupling does not mean the final
 updated value ignores the adaptive branch.
 
 In this formula, $\lambda$ is the effective coefficient for the current named
 parameter: it equals the configured decay for a decay-group parameter and $0$
-for a no-decay parameter.
+for a no-decay parameter. Zero is an explicit no-decay choice. For positive
+$\lambda$, the implementation rejects a nonfinite, underflowed-to-zero,
+unit, or greater-than-unit represented product before AdamW reads optimizer state
+or parameter values; this check is repeated for every scheduled learning rate.
 
 The group map is a configurable policy and an explicit partition of the stable
 parameter-name set: its decay and no-decay sets are disjoint, and their union
@@ -406,18 +436,19 @@ directly pull the learned affine scale toward zero.
 
 - $\theta_{t-1}$ is one named parameter tensor before step $t$.
 - $g_t$ is its accumulated token-mean loss gradient, which remains stored on the live leaf until the caller clears it.
-- $\alpha_t$ is the validated scale shared by every gradient coordinate; $0\leq\alpha_t\leq1$.
-- $\widetilde g_t=\alpha_tg_t$ is the effective gradient used by both moment recurrences.
+- $\alpha_t$ is the conceptual uniform clipping scale. An ordinary positive represented scale is passed directly to the uniform transform; a scale that would round to zero is represented by the normalized transform instead. The generic AdamW API also accepts an explicit zero uniform scale.
+- $\widetilde g_t$ is the effective gradient produced by the validated uniform or normalized transform and used by both moment recurrences.
 - $m_t$ and $v_t$ are name-keyed moving estimates with the same shape.
 - $\beta_1$ and $\beta_2$ retain past first and second raw moments, respectively.
 - $\hat m_t$ and $\hat v_t$ correct their early-step zero bias.
-- $\eta>0$ is the learning rate; $\lambda\geq0$ is decay.
+- $\eta>0$ is the learning rate; $\lambda=0$ means no decay, while $\lambda>0$ requires the represented product $d_t=\operatorname{fl}(\eta\lambda)$ to satisfy $0<d_t<1$.
+- $d_t=\operatorname{fl}(\eta\lambda)$ is the represented decay product and $\rho_t=\operatorname{fl}(1-d_t)$ is the represented shrinkage factor; the fixture prints $d_1=0.010000$ and $\rho_1=0.990000$.
 - $\varepsilon>0$ stabilizes the adaptive denominator after its square root.
 - $\theta_t$ is the updated value written into that same trainable leaf only after the whole set succeeds.
 
 On the fresh probe, $m_0=v_0=0$ and $g_1=0$, so both new moments and the
 adaptive delta are zero. A decay-group parameter still shrinks through
-$\eta\lambda\theta_0$, while a no-decay parameter remains unchanged. After an
+$d_1\theta_0$, while a no-decay parameter remains unchanged. After an
 earlier nonzero gradient, $g_t=0$ only removes the new contribution: stored
 moments decay but can still produce a nonzero adaptive update. The group
 controls decay, not moment memory.
@@ -467,8 +498,8 @@ adaptive moments.
 
 LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B
 parameters. The course's optimizer writes each checked update into the existing
-named parameter leaf; Chapter 33 supplies a scheduled learning rate, one
-validated global clipping factor, and explicit gradient clearing, while mixed
+named parameter leaf; Chapter 33 supplies a scheduled learning rate, a validated
+uniform or normalized gradient transform, and explicit gradient clearing, while mixed
 precision and distributed optimizer state remain outside this bounded
 implementation.
 
@@ -507,7 +538,7 @@ mathematics or the recorded trajectory.
 
 ## Prepare every named value before the live commit
 
-Configuration rejects invalid scalar domains before any optimizer state exists:
+Configuration rejects invalid scalar and represented-decay domains before any optimizer state or parameter value is read. Zero decay is explicit; positive decay must produce a finite represented product strictly between zero and one, including when a scheduled learning rate is supplied:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -540,9 +571,11 @@ Moment state is shaped like each parameter and keyed by its stable name:
 Ordinary methods `step` and `step_with_learning_rate` execute the complete
 atomic update and return only the number of the step that was committed. The
 additional ordinary method `step_with_learning_rate_and_gradient_scale`
-receives the scheduled rate and $\alpha_t$ while still returning only the step
-number. The four earlier ordinary and traced entry points behave exactly as
-$\alpha_t=1$. They do not construct an `AdamWStep` unless the caller uses
+receives the scheduled rate and an ordinary uniform $\alpha_t$ while still
+returning only the step number. The structured method
+`step_with_learning_rate_and_gradient_transform` additionally accepts the
+normalized fallback. The four earlier ordinary and traced entry points behave
+exactly as $\alpha_t=1$. They do not construct an `AdamWStep` unless the caller uses
 `step_with_trace` or `step_with_learning_rate_and_trace`.
 
 Every entry point uses the same internal preparation-and-commit operation and
@@ -569,14 +602,15 @@ updated vectors used as evidence in this chapter:
 />
 
 Trace capture is optional, but the atomic update is not. The public scheduled
-method validates the learning rate while constructing its per-step
-configuration. It then enters the shared path, which validates
-$0\leq\alpha_t\leq1$ before inspecting any parameter. The shared path reads
+method validates the learning rate and its represented decay product while
+constructing its per-step configuration. It then enters the shared path, which
+validates the uniform or normalized gradient transform before inspecting any
+parameter. The shared path reads
 each raw gradient coordinate, forms the effective coordinate once, and prepares
 prospective name-keyed moments, the powers $\beta_1^t$ and $\beta_2^t$, every
 updated parameter tensor, and each next value revision before changing live
-state. Weight decay still reads the value from before the step and is never
-multiplied by $\alpha_t$.
+state. Weight decay still reads the value from before the step, and neither
+gradient transform is applied to it.
 
 After all calculations and tensor construction succeed, the implementation
 requests exclusive access to every live parameter value. It does not write the
@@ -614,10 +648,11 @@ leaf nodes are visible in the source:
   label="Rust source implementing the Chapter 22 AdamW step"
 />
 
-Typed errors cover configuration and gradient-scale domains, empty and
-duplicate sets, changed names and shapes, missing or mismatched gradients,
-counter or parameter-revision overflow, an active value borrow, non-finite
-stages, and delegated tensor construction:
+Typed errors cover scalar configuration, represented-decay, and uniform or
+normalized gradient-transform domains; empty and duplicate sets; changed names
+and shapes; missing or mismatched gradients; counter or parameter-revision
+overflow; an active value borrow; non-finite stages; and delegated tensor
+construction:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -707,6 +742,9 @@ at the final subtraction.
 7. Order plain SGD, momentum, Adam with coupled $L_2$, and AdamW, and state which terms enter optimizer memory.
 8. Explain why the output weight receives decay while the normalization scale does not.
 9. Compare the fixed SGD and AdamW paths on the unequal-curvature quadratic.
+10. For $\eta=0.1$ and $\lambda=0.1$, state the represented decay product and
+    shrinkage factor. What must happen when positive decay yields a represented
+    product that is zero, equal to one, greater than one, or nonfinite?
 
 <details>
   <summary>Check the predictions</summary>
@@ -718,8 +756,9 @@ at the final subtraction.
   5. Nothing commits: both parameter values, both gradients, both node identities, and all optimizer state remain unchanged.
   6. The leaf still stores the accumulated gradient that AdamW used for the update, and its tape identity is unchanged. Its monotonically increasing parameter-value revision advances once. A retained graph whose operand edge recorded the preceding revision rejects backward, so the caller clears the gradient and runs a new forward pass before the next backward pass.
   7. Plain SGD uses only the current gradient; momentum remembers a decaying direction; coupled $L_2$ feeds parameter-proportional shrinkage into Adam's moments; AdamW keeps that shrinkage outside the moments. Bengio supplies the neural-language-model starting point, and Touvron et al. document AdamW in LLaMA pretraining.
-  8. This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns `decoder.output.weight` to decay, so AdamW subtracts the parameter-proportional term $\eta\lambda\theta_{t-1}$ from it. It assigns `decoder.norm.scale` to no-decay, so that parameter's effective $\lambda$ is $0$; this avoids a decay term that directly pulls the learned normalization scale toward zero.
+  8. This is the course's configurable grouping policy, not a consequence of the AdamW equation. The policy assigns `decoder.output.weight` to decay, so AdamW subtracts the parameter-proportional term $d_t\theta_{t-1}$ from it. It assigns `decoder.norm.scale` to no-decay, so that parameter's effective $\lambda$ is $0$; this avoids a decay term that directly pulls the learned normalization scale toward zero.
   9. SGD reduces the high-curvature coordinate much faster; AdamW scales coordinates through their moment history and also applies a separate decay contribution.
+  10. $d_1=0.010000$ and $\rho_1=0.990000$. Positive decay is accepted only when the represented product is finite and strictly between zero and one; underflow to zero, one, greater than one, and nonfinite products are typed failures before AdamW reads parameter values or optimizer state.
 </details>
 
 {/* chapter-section:decoder-connection */}

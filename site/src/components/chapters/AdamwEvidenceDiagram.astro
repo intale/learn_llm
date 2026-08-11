@@ -58,7 +58,7 @@ const parameterEvidence = [
   {
     key: 'decay',
     label: labels.fields.decayDelta,
-    latex: String.raw`\eta\lambda\theta_{t-1}=${vectorLatex(parameter.decay)}`,
+    latex: String.raw`d_1\theta_0=${vectorLatex(parameter.decay)}`,
     vector: parameter.decay.lexeme,
   },
   {
@@ -237,7 +237,7 @@ const parameterEvidence = [
         </div>
         <div data-diagram-card data-diagram-box data-proof="zero-gradient-decay" data-proof-value={trace.proof.zeroGradientDecay}>
           <dt>{labels.fields.zeroGradientDecay}</dt>
-          <dd><InlineMath latex={String.raw`\eta\lambda\theta=${trace.proof.zeroGradientDecay}`} /></dd>
+          <dd><InlineMath latex={String.raw`d_1\theta_0=${trace.proof.zeroGradientDecay}`} /></dd>
         </div>
         <div data-diagram-card data-diagram-box data-proof="rollback" data-proof-value={trace.proof.rollback}>
           <dt>{labels.fields.failedTransaction}</dt>

@@ -1,4 +1,4 @@
-META|step=1|learning_rate=0.100000|beta1=0.500000|beta2=0.500000|epsilon=0.100000|weight_decay=0.100000|first_correction=0.500000|second_correction=0.500000
+META|step=1|learning_rate=0.100000|beta1=0.500000|beta2=0.500000|epsilon=0.100000|weight_decay=0.100000|decay_product=0.010000|shrinkage_factor=0.990000|first_correction=0.500000|second_correction=0.500000
 PARAM|index=0|name=decoder.output.weight|group=decay|shape=[2]|before=[1.000000, -2.000000]|gradient=[0.200000, -0.400000]
 MOMENT|index=0|first=[0.100000, -0.200000]|second=[0.020000, 0.080000]|corrected_first=[0.200000, -0.400000]|corrected_second=[0.040000, 0.160000]
 DELTA|index=0|adaptive=[0.066667, -0.080000]|decay=[0.010000, -0.020000]|after=[0.923333, -1.900000]
