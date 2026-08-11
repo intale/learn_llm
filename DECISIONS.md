@@ -20541,3 +20541,140 @@ scope controls remain authoritative. The next tooling step owns the deterministi
 authority verifier and pinned visual-evidence utilities.
 
 **Affected step:** `build-codex-agent-validation-tooling`.
+
+## 2026-08-11 - Keep the agent-tool contracts copyable and local
+
+**Status:** Accepted during implementation before the documentation output was
+created.
+
+**Context:** A deterministic verifier saves little model context if a lower-budget
+agent must reverse-engineer its closed JSON schema and runtime boundary from the
+implementation on every run.
+
+**Decision:** Add `tools/README.md` to the active step. It will contain the exact
+offline commands, copyable schema-v1 authority and visual-evidence contracts,
+completion-marker semantics, and the distinction between machine-generated
+contact sheets and Terra's visual judgment. It is interface documentation, not
+an additional executable or authority source.
+
+**Consequences:** Agents can prepare small structured inputs without loading the
+tool implementation. `AGENTS.md`, the selected step, and normal permission rules
+remain authoritative; examples confer no network, browser, or write permission.
+
+**Affected step:** `build-codex-agent-validation-tooling`.
+
+## 2026-08-11 - Pin the deterministic agent-tool image closure and runtime boundary
+
+**Status:** In progress; hardened integration and lock checkpoint recorded before
+the one image build and offline validation.
+
+**Context:** The first tooling integration draft used a Dockerfile heredoc that
+was not safe as a Docker `RUN` instruction, used an HTTP snapshot URI in the
+lock, and did not terminate the package-install command before its verification
+loop. The package probe establishes a 13-package ImageMagick/ZIP/font closure;
+`jq` was probed but is intentionally not a tool dependency.
+
+**Decision:** Hard-code the digest-pinned Playwright Noble base and the HTTPS
+Ubuntu snapshot deb822 sources; neither is a build argument. Allow exactly the
+13 locked packages newly added to that immutable base, with exact versions,
+roles, and license records in `tools/toolchain.lock.json`; omit `jq`, forbid
+upgrades, compare the installed package set before and after the transaction,
+and reject any addition outside that set. The base-image digest locks the
+pre-existing runtime libraries. The `course` wrapper computes a
+repository-relative hash over the Dockerfile and every tool/test executable and
+passes that hash, plus the lock hash, into image labels. The Dockerfile independently
+rehashes the copied bytes, rejects unrecorded values, and fails if either
+attestation is false. Tool runs bind `/workspace` read-only and only the
+run-scoped `.build/runs/<run>/tooling/<output>` directory read-write, pass the
+explicit `--output /output` flag, execute as the invoking host UID/GID, and use
+network none, deterministic locale/time/ImageMagick variables, a read-only root,
+a constrained `/tmp`, all capabilities dropped, no-new-privileges, no ports,
+and no Docker socket.
+
+**Consequences:** The image build has deterministic, auditable source and
+dependency inputs, while runtime tooling cannot mutate course or neighboring
+run data or acquire network/privilege authority. This checkpoint does not claim
+that the image, tests, or no-network runtime have passed; those remain in the
+same running step.
+
+**Affected step:** `build-codex-agent-validation-tooling`.
+
+## 2026-08-11 - Make direct and containerized tool contracts equally fail closed
+
+**Status:** Accepted after the first pinned-image test exposed a fixture-path
+defect and an independent Luna audit found three boundary gaps.
+
+**Context:** The first offline image test proved the real ZIP, ImageMagick, font,
+and contact-sheet path, but the fake-Docker wrapper fixture resolved `course`
+relative to its image location instead of the read-only repository mount. The
+audit also found that the build authenticated the lock bytes without comparing
+their execution fields to the Dockerfile, direct verifier calls did not enforce
+the documented output mode, and the writable temporary filesystem lacked a size
+ceiling.
+
+**Decision:** Inject `/workspace/course` explicitly into the image test while
+keeping the repository read-only. Require the Docker build to compare the lock's
+base, platform, snapshot, source, apt-policy, root, omitted-root, package/version,
+and attestation fields with the exact Dockerfile execution inputs before any
+package transaction. Enforce mode 0700 inside both tools, not only in the host
+wrapper. Bound the non-executable `/tmp` tmpfs to 512 MiB and describe `/output`
+as the only persistent writable mount.
+
+**Consequences:** Direct invocation and wrapper invocation now share the same
+output invariant, lock drift fails during image construction, container tests
+exercise the actual checked-out wrapper, and temporary computation remains
+bounded. Run 01 remains immutable failed evidence; run 02 rebuilds from the
+changed source and performs all subsequent validation offline.
+
+**Affected step:** `build-codex-agent-validation-tooling`.
+
+## 2026-08-11 - Ship the fake-Docker test fixture outside noexec temporary storage
+
+**Status:** Accepted after the corrected run-02 boundary test.
+
+**Context:** Bounding `/tmp` and mounting it `noexec` is an intentional runtime
+control. The wrapper test still generated its fake `docker` executable there,
+so the corrected container rejected that fixture before it could exercise the
+wrapper. Moving the temporary mount back to executable would weaken the product
+to accommodate a test.
+
+**Decision:** Add `tools/tests/docker` as a source-hashed, read-only test fixture
+copied into the pinned image. It receives only explicit test environment values,
+records the requested argv, and implements the narrow image-inspect responses
+needed by the wrapper test. The host and container suites use that same fixture;
+they do not generate executable code in writable storage.
+
+**Consequences:** The wrapper isolation test can execute under a noexec temporary
+filesystem without relaxing the runtime. The new fixture joins the declared
+output and image-source hash. Runs 01 and 02 stay immutable failures; run 03 uses
+a new source fingerprint and image.
+
+**Affected step:** `build-codex-agent-validation-tooling`.
+
+## 2026-08-11 - Require real wrapper and producer-format evidence before agent-tool publication
+
+**Status:** Accepted after the final pinned-image validation.
+
+**Context:** In-process and fake-Docker tests proved the closed schemas and most
+runtime arguments, but real integration exposed two assumptions those fixtures
+did not model. Docker's long `--mount` syntax does not accept a bare `rw` field,
+and a valid Playwright 1.61.1 trace may end immediately after its final JSON
+record without a trailing line feed. A separate deliberately stale authority
+input also confirmed that the Luna verifier rejects policy drift atomically.
+
+**Decision:** Treat one real Docker wrapper invocation for each public tool and
+one real producer-format Firefox trace as publication gates. Express the sole
+writable output bind by omitting a read-only option, which uses Docker's default
+read-write bind semantics; lock that exact argument in the fake-Docker suite.
+Accept either LF or EOF immediately after the final nonempty valid JSONL record,
+while continuing to reject empty, blank, malformed, alternate-browser, and
+JavaScript-off evidence. Preserve every failed one-shot output and use a fresh
+run/output directory after a correction.
+
+**Consequences:** The low-budget routing tools are tested against the actual
+container CLI and Playwright trace format they consume, not only simulations.
+The final image remains network-disabled at runtime, source- and lock-attested,
+and fail-closed. The Terra helper produces deterministic navigation evidence;
+Terra still supplies visual judgment, and neither tool expands task authority.
+
+**Affected step:** `build-codex-agent-validation-tooling`.

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "tool": "learn-llm-agent-tools",
+  "probe_run_id": "20260811T090843Z-build-codex-agent-validation-tooling-01",
+  "base_image": {
+    "reference": "mcr.microsoft.com/playwright:v1.61.1-noble@sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48",
+    "digest": "sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48",
+    "platform": "linux/amd64",
+    "overrideable_at_build": false
+  },
+  "ubuntu": {
+    "snapshot_id": "20260811T091000Z",
+    "suite": "noble",
+    "architecture": "amd64",
+    "overrideable_at_build": false,
+    "sources": [
+      {
+        "type": "deb",
+        "uri": "https://snapshot.ubuntu.com/ubuntu/20260811T091000Z/",
+        "suites": ["noble", "noble-updates", "noble-backports"],
+        "components": ["main", "restricted", "universe", "multiverse"],
+        "architectures": ["amd64"],
+        "signed_by": "/usr/share/keyrings/ubuntu-archive-keyring.gpg"
+      },
+      {
+        "type": "deb",
+        "uri": "https://snapshot.ubuntu.com/ubuntu/20260811T091000Z/",
+        "suites": ["noble-security"],
+        "components": ["main", "restricted", "universe", "multiverse"],
+        "architectures": ["amd64"],
+        "signed_by": "/usr/share/keyrings/ubuntu-archive-keyring.gpg"
+      }
+    ]
+  },
+  "apt": {
+    "no_recommends": true,
+    "no_upgrade": true,
+    "remove_nodesource_repository": true,
+    "enforce_exact_new_package_set": true,
+    "verify_each_installed_version": true,
+    "roots": [
+      {"name": "imagemagick", "role": "visual-evidence raster conversion and contact sheets", "license": "ImageMagick License"},
+      {"name": "unzip", "role": "read ZIP evidence bundles", "license": "Info-ZIP License"},
+      {"name": "fonts-dejavu-core", "role": "deterministic DejaVu font metrics for raster evidence", "license": "DejaVu Fonts License"}
+    ],
+    "omitted_roots": ["jq"],
+    "packages": [
+      {"name": "fonts-dejavu-core", "version": "2.37-8", "role": "font files", "license": "DejaVu Fonts License"},
+      {"name": "fonts-dejavu-mono", "version": "2.37-8", "role": "monospace font files", "license": "DejaVu Fonts License"},
+      {"name": "imagemagick", "version": "8:6.9.12.98+dfsg1-5.2build2", "role": "root executable", "license": "ImageMagick License"},
+      {"name": "imagemagick-6-common", "version": "8:6.9.12.98+dfsg1-5.2build2", "role": "ImageMagick shared configuration", "license": "ImageMagick License"},
+      {"name": "imagemagick-6.q16", "version": "8:6.9.12.98+dfsg1-5.2build2", "role": "ImageMagick quantum-depth executable", "license": "ImageMagick License"},
+      {"name": "libheif-plugin-aomdec", "version": "1.17.6-1ubuntu4.6", "role": "AVIF/HEIF decoder plugin", "license": "LGPL-3.0-or-later"},
+      {"name": "libheif1", "version": "1.17.6-1ubuntu4.6", "role": "AVIF/HEIF codec library", "license": "LGPL-3.0-or-later"},
+      {"name": "liblqr-1-0", "version": "0.4.2-2.1build2", "role": "liquid-rescale dependency", "license": "GPL-3.0-or-later"},
+      {"name": "libltdl7", "version": "2.4.7-7build1", "role": "ImageMagick module loader dependency", "license": "LGPL-2.1-or-later"},
+      {"name": "libmagickcore-6.q16-7t64", "version": "8:6.9.12.98+dfsg1-5.2build2", "role": "ImageMagick pixel and codec core", "license": "ImageMagick License"},
+      {"name": "libmagickwand-6.q16-7t64", "version": "8:6.9.12.98+dfsg1-5.2build2", "role": "ImageMagick application API", "license": "ImageMagick License"},
+      {"name": "libraw23t64", "version": "0.21.2-2.1ubuntu0.24.04.2", "role": "camera-raw decoder dependency", "license": "LGPL-2.1-or-later OR CDDL-1.0"},
+      {"name": "unzip", "version": "6.0-28ubuntu4.1", "role": "root executable", "license": "Info-ZIP License"}
+    ]
+  },
+  "attestation": {
+    "copied_lock_hash_verified_during_build": true,
+    "copied_source_set_hash_verified_during_build": true,
+    "unrecorded_hashes_rejected": true
+  },
+  "evidence": {
+    "package_probe_stdout_sha256": "sha256:de674cfafb254dda59a2c39102c72afa19d93cd751deff81e2a32c86f52e664a",
+    "package_probe_stderr_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inventory_sha256": "sha256:8b7fd2c7b94de99faf49f6c6b47e16a7cbc17bd0dfa164f66ea05e6afaee7b72"
+  }
+}

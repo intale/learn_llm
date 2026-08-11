@@ -4,6 +4,10 @@ set -euo pipefail
 repository_root=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 workspace_image=learn-llm-workspace:local
 site_image=learn-llm-site:local
+tools_image=learn-llm-agent-tools:local
+tools_directory="$repository_root/tools"
+tools_base_digest=sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48
+tools_snapshot_id=20260811T091000Z
 
 fail() {
   printf 'error: %s\n' "$*" >&2
@@ -25,6 +29,12 @@ Commands:
   preview                       Serve the canonical deployable image on port 4321.
   smoke                         Check the canonical preview at 127.0.0.1:4321.
   audit-host                    Reject host toolchain/dependency/cache artifacts.
+  tools build                   Build the pinned offline agent-tools image (networked).
+  tools test                    Run agent-tools tests offline in the pinned image.
+  tools verify-run RUN_ID --manifest RELPATH
+                                Verify one run manifest offline.
+  tools visual-evidence RUN_ID --contract RELPATH
+                                Generate visual evidence offline.
   help                          Show this help.
 EOF
 }
@@ -35,6 +45,223 @@ build_workspace_image() {
 
 build_site_image() {
   docker build --target site -t "$site_image" "$repository_root"
+}
+
+tools_source_hash() {
+  local path
+  local -a source_paths=(
+    "Dockerfile"
+    "luna/verify-run.mjs"
+    "terra/visual-evidence.mjs"
+    "tests/docker"
+    "tests/verify-run.test.mjs"
+    "tests/visual-evidence.test.mjs"
+  )
+
+  [[ -d $tools_directory && ! -L $tools_directory ]] ||
+    fail "agent-tools source directory is missing or unsafe: $tools_directory"
+  for path in "${source_paths[@]}"; do
+    [[ -f "$tools_directory/$path" && ! -L "$tools_directory/$path" ]] ||
+      fail "agent-tools source is missing or unsafe: $tools_directory/$path"
+  done
+  (
+    cd -- "$tools_directory"
+    sha256sum -- "${source_paths[@]}" | sha256sum | awk '{print $1}'
+  )
+}
+
+tools_lock_hash() {
+  local lock="$tools_directory/toolchain.lock.json"
+  [[ -f $lock && ! -L $lock ]] || fail "agent-tools lock is missing or unsafe: $lock"
+  sha256sum -- "$lock" | awk '{print $1}'
+}
+
+build_tools_image() {
+  local lock_hash source_hash
+  lock_hash=$(tools_lock_hash)
+  source_hash=$(tools_source_hash)
+  docker build --pull \
+    --file "$tools_directory/Dockerfile" \
+    --tag "$tools_image" \
+    --build-arg "TOOLCHAIN_LOCK_SHA256=$lock_hash" \
+    --build-arg "TOOLS_SOURCE_SHA256=$source_hash" \
+    "$tools_directory"
+}
+
+validate_tools_image() {
+  local lock_hash source_hash image_lock_hash image_source_hash image_base_digest
+  local image_snapshot image_platform
+  docker image inspect --format '{{.Id}}' "$tools_image" >/dev/null 2>&1 ||
+    fail "agent-tools image is not available; run './course tools build' first"
+  lock_hash=$(tools_lock_hash)
+  source_hash=$(tools_source_hash)
+  image_lock_hash=$(docker image inspect --format \
+    '{{index .Config.Labels "org.learn-llm.toolchain-lock-sha256"}}' "$tools_image") ||
+    fail "cannot inspect agent-tools lock attestation"
+  image_source_hash=$(docker image inspect --format \
+    '{{index .Config.Labels "org.learn-llm.tools-source-sha256"}}' "$tools_image") ||
+    fail "cannot inspect agent-tools source attestation"
+  image_base_digest=$(docker image inspect --format \
+    '{{index .Config.Labels "org.opencontainers.image.base.digest"}}' "$tools_image") ||
+    fail "cannot inspect agent-tools base-image attestation"
+  image_snapshot=$(docker image inspect --format \
+    '{{index .Config.Labels "org.learn-llm.ubuntu.snapshot"}}' "$tools_image") ||
+    fail "cannot inspect agent-tools Ubuntu-snapshot attestation"
+  image_platform=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$tools_image") ||
+    fail "cannot inspect agent-tools platform"
+  [[ $image_lock_hash == "$lock_hash" ]] ||
+    fail "agent-tools image lock attestation is stale (image=$image_lock_hash current=$lock_hash)"
+  [[ $image_source_hash == "$source_hash" ]] ||
+    fail "agent-tools image source attestation is stale (image=$image_source_hash current=$source_hash)"
+  [[ $image_base_digest == "$tools_base_digest" ]] ||
+    fail "agent-tools image base digest is unexpected: $image_base_digest"
+  [[ $image_snapshot == "$tools_snapshot_id" ]] ||
+    fail "agent-tools image snapshot is unexpected: $image_snapshot"
+  [[ $image_platform == linux/amd64 ]] ||
+    fail "agent-tools image platform is unexpected: $image_platform"
+}
+
+validate_tools_relative_path() {
+  local relative=$1 component
+  [[ -n $relative ]] || fail 'tooling paths must not be empty'
+  [[ $relative != /* && $relative != *\\* && $relative != *'//'* ]] ||
+    fail "tooling path must be relative and normalized: $relative"
+  [[ $relative =~ ^[A-Za-z0-9._/-]+$ ]] ||
+    fail "tooling path contains unsafe characters: $relative"
+  IFS=/ read -r -a path_components <<< "$relative"
+  for component in "${path_components[@]}"; do
+    [[ -n $component && $component != . && $component != .. ]] ||
+      fail "tooling path contains an unsafe component: $relative"
+  done
+}
+
+validate_tools_run() {
+  local run_id=$1 relative=$2 run_directory target canonical_run canonical_target
+  validate_run_id "$run_id"
+  validate_tools_relative_path "$relative"
+  run_directory="$repository_root/.build/runs/$run_id"
+  [[ -d $run_directory && ! -L $run_directory ]] || fail "unknown or unsafe run: $run_id"
+  target="$run_directory/$relative"
+  [[ -f $target && ! -L $target ]] || fail "tooling input is missing or unsafe: $target"
+  canonical_run=$(realpath -e -- "$run_directory")
+  canonical_target=$(realpath -e -- "$target")
+  [[ $canonical_target == "$canonical_run/"* ]] ||
+    fail "tooling input escapes its run directory: $relative"
+}
+
+tools_runtime_mounts() {
+  local output_directory=$1
+  printf '%s\n' \
+    "--mount" "type=bind,src=$repository_root,dst=/workspace,readonly" \
+    "--mount" "type=bind,src=$output_directory,dst=/output"
+}
+
+prepare_tools_output() {
+  local run_id=$1 output_name=$2
+  local run_directory="$repository_root/.build/runs/$run_id"
+  local tooling_directory="$run_directory/tooling"
+  local output_directory="$tooling_directory/$output_name"
+  local canonical_run canonical_output mode
+
+  validate_run_id "$run_id"
+  case "$output_name" in
+    verify-run|visual-evidence) ;;
+    *) fail "invalid tooling output name: $output_name" ;;
+  esac
+  [[ -d $run_directory && ! -L $run_directory ]] || fail "unknown or unsafe run: $run_id"
+  canonical_run=$(realpath -e -- "$run_directory")
+
+  if [[ -e $tooling_directory || -L $tooling_directory ]]; then
+    [[ -d $tooling_directory && ! -L $tooling_directory ]] ||
+      fail "tooling output parent is not a directory: $tooling_directory"
+    mode=$(stat -c '%a' -- "$tooling_directory")
+    [[ $mode == 700 ]] || fail "tooling output parent must be mode 0700: $tooling_directory"
+  else
+    (umask 077 && mkdir -- "$tooling_directory") ||
+      fail "cannot create tooling output parent: $tooling_directory"
+  fi
+
+  [[ ! -e $output_directory && ! -L $output_directory ]] ||
+    fail "refusing to reuse tooling output directory; failed evidence is preserved: $output_directory"
+  (umask 077 && mkdir -- "$output_directory") ||
+    fail "cannot create tooling output directory: $output_directory"
+  mode=$(stat -c '%a' -- "$output_directory")
+  [[ $mode == 700 ]] || fail "tooling output must be mode 0700: $output_directory"
+  canonical_output=$(realpath -e -- "$output_directory")
+  [[ $canonical_output == "$canonical_run/tooling/"* ]] ||
+    fail "tooling output escapes its run directory: $output_name"
+  printf '%s\n' "$canonical_output"
+}
+
+run_tools_container() {
+  local run_id=$1 script=$2 relative_flag=$3 relative=$4 output_name=$5
+  local container_input="/workspace/.build/runs/$run_id/$relative"
+  local output_directory host_uid host_gid
+  local -a mounts
+  validate_tools_image
+  output_directory=$(prepare_tools_output "$run_id" "$output_name")
+  host_uid=$(id -u)
+  host_gid=$(id -g)
+  mapfile -t mounts < <(tools_runtime_mounts "$output_directory")
+  docker run --pull=never --rm --network none --read-only \
+    --tmpfs /tmp:rw,nosuid,nodev,noexec,size=536870912 \
+    --cap-drop=ALL --security-opt no-new-privileges \
+    --user "$host_uid:$host_gid" \
+    --env LC_ALL=C --env TZ=UTC --env MAGICK_THREAD_LIMIT=1 \
+    --env SOURCE_DATE_EPOCH=0 \
+    "${mounts[@]}" --workdir /workspace \
+    "$tools_image" /usr/bin/node "/opt/learn-llm-agent-tools/$script" \
+    "$run_id" "$relative_flag" "$container_input" --output /output
+}
+
+run_tools_tests() {
+  local host_uid host_gid
+  validate_tools_image
+  host_uid=$(id -u)
+  host_gid=$(id -g)
+  docker run --pull=never --rm --network none --read-only \
+    --tmpfs /tmp:rw,nosuid,nodev,noexec,size=536870912 \
+    --cap-drop=ALL --security-opt no-new-privileges \
+    --user "$host_uid:$host_gid" \
+    --env LC_ALL=C --env TZ=UTC --env MAGICK_THREAD_LIMIT=1 \
+    --env SOURCE_DATE_EPOCH=0 --env CI_AGENT_TOOLS=1 \
+    --env COURSE_SOURCE=/workspace/course \
+    --mount "type=bind,src=$repository_root,dst=/workspace,readonly" \
+    --workdir /workspace "$tools_image" /usr/bin/node --test \
+    /opt/learn-llm-agent-tools/tests/verify-run.test.mjs \
+    /opt/learn-llm-agent-tools/tests/visual-evidence.test.mjs
+}
+
+tools_command() {
+  (($# > 0)) || fail 'tools requires a command'
+  local subcommand=$1
+  shift
+  case "$subcommand" in
+    build)
+      (($# == 0)) || fail 'tools build takes no arguments'
+      build_tools_image
+      ;;
+    test)
+      (($# == 0)) || fail 'tools test takes no arguments'
+      run_tools_tests
+      ;;
+    verify-run|visual-evidence)
+      (($# >= 3)) || fail "tools $subcommand requires RUN_ID and one path option"
+      local run_id=$1 option=$2 relative=$3
+      shift 3
+      (($# == 0)) || fail "tools $subcommand takes no extra arguments"
+      if [[ $subcommand == verify-run ]]; then
+        [[ $option == --manifest ]] || fail 'verify-run requires --manifest RELPATH'
+        validate_tools_run "$run_id" "$relative"
+        run_tools_container "$run_id" luna/verify-run.mjs --manifest "$relative" verify-run
+      else
+        [[ $option == --contract ]] || fail 'visual-evidence requires --contract RELPATH'
+        validate_tools_run "$run_id" "$relative"
+        run_tools_container "$run_id" terra/visual-evidence.mjs --contract "$relative" visual-evidence
+      fi
+      ;;
+    *) fail "unknown tools command: $subcommand" ;;
+  esac
 }
 
 cleanup_release() {
@@ -330,6 +557,10 @@ case "$command" in
   audit-host)
     (($# == 1)) || fail 'audit-host takes no arguments'
     "$repository_root/scripts/check-host-artifacts.sh"
+    ;;
+  tools)
+    shift
+    tools_command "$@"
     ;;
   help|-h|--help)
     (($# == 1)) || fail 'help takes no arguments'

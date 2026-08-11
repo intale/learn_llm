@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('node:fs');
+
+const args = process.argv.slice(2);
+const log = process.env.FAKE_DOCKER_LOG;
+if (!log) {
+  process.stderr.write('FAKE_DOCKER_LOG is required\n');
+  process.exit(2);
+}
+fs.appendFileSync(log, `${args.join('\0')}\n`);
+
+if (args.includes('inspect')) {
+  const formatIndex = args.indexOf('--format');
+  const format = formatIndex >= 0 ? args[formatIndex + 1] || '' : '';
+  const value = format.includes('toolchain-lock')
+    ? process.env.FAKE_DOCKER_LOCK_HASH
+    : format.includes('tools-source')
+      ? process.env.FAKE_DOCKER_SOURCE_HASH
+      : format.includes('base.digest')
+        ? process.env.FAKE_DOCKER_BASE_DIGEST
+        : format.includes('ubuntu.snapshot')
+          ? process.env.FAKE_DOCKER_SNAPSHOT
+          : format.includes('Os')
+            ? 'linux/amd64'
+            : process.env.FAKE_DOCKER_IMAGE_ID || 'image';
+  if (!value) {
+    process.stderr.write(`missing fake Docker value for format ${format}\n`);
+    process.exit(2);
+  }
+  process.stdout.write(`${value}\n`);
+}
