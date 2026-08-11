@@ -7,7 +7,7 @@ decision, and handoff. `BUILD_STATE.yaml` mirrors that order with one complete
 chapter implementation step per chapter.
 
 Chapters 0–39 publish one exact English/Russian locale pair per chapter. The
-current revisions of Chapters 1–13 are 5, 8, 7, 9, 8, 5, 6, 5, 5, 4, 4, 5, and 5 respectively
+current revisions of Chapters 1–13 are 5, 8, 7, 9, 8, 5, 6, 5, 5, 4, 4, 8, and 6 respectively
 after their meaning-first language, notation, accessibility, and
 rendered-containment work. Chapter 2 onward
 extends one cumulative Rust decoder with a narrow, audited supporting-library

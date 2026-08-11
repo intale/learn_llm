@@ -99,7 +99,7 @@ const labels: StableSoftmaxDiagramLabels = {
 describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
   it('names both accumulators, their scaling, and the fallback condition', () => {
     for (const source of [contract, englishLesson, russianLesson]) {
-      expect(source).toContain('"content_revision": 7');
+      expect(source).toContain('"content_revision": 8');
       expect(source).toContain('`total`');
       expect(source).toContain('`scaled_mean`');
       expect(source).toContain('$(m-\\ell_{t_r})/T$');
@@ -117,6 +117,44 @@ describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
     expect(englishLesson).not.toContain('target-count-scaled nonnegative contributions');
     expect(englishLesson).not.toContain('`total / T`');
     expect(russianLesson).not.toContain('`total / T`');
+  });
+
+  it('scopes the Chapter 13 handoff as sampled evidence with shared assumptions', () => {
+    const normalizedContract = contract.replace(/\s+/g, ' ');
+    const normalizedEnglish = englishLesson.replace(/\s+/g, ' ');
+    const normalizedRussian = russianLesson.replace(/\s+/g, ' ');
+
+    for (const source of [normalizedContract, normalizedEnglish]) {
+      expect(source).toContain('materially separate sampled finite-difference cross-check');
+      expect(source).toContain(
+        'the fixture logits and target indices, IEEE `f64` arithmetic and its elementary `exp`, `Tensor` storage, and row-major index conventions',
+      );
+      expect(source).toContain(
+        'evidence for the selected probes of a locally smooth objective, not proof of the complete gradient or every shared assumption',
+      );
+      expect(source).not.toMatch(
+        /independent (?:gradient|numerical|finite-difference) (?:oracle|check)|checks independently|numerical oracle/i,
+      );
+    }
+
+    expect(normalizedEnglish).toContain(
+      'Chapter 13 perturbs that production `indexed_mean_nll` objective, while a separate local analytic routine computes stabilized row probabilities and candidate derivatives without calling the production `softmax` or `indexed_mean_nll` implementation.',
+    );
+    expect(normalizedEnglish).toContain(
+      'Finite differences vary one scalar logit at a time and require the objective to be smooth across each probe interval.',
+    );
+    expect(normalizedRussian).toContain(
+      'выборочной сверки конечными разностями с отдельным аналитическим путём',
+    );
+    expect(normalizedRussian).toContain(
+      'арифметику IEEE `f64` и элементарную функцию `exp`, хранилище `Tensor` и соглашения о построчной индексации',
+    );
+    expect(normalizedRussian).toContain(
+      'совпадение служит свидетельством для выбранных точек при локальной гладкости целевой функции, а не доказательством полного градиента или всех общих предпосылок',
+    );
+    expect(normalizedRussian).not.toMatch(
+      /независим(?:ую|ая|ым) (?:провер|числен)|численн(?:ый|ого) эталон|проверит независим/i,
+    );
   });
 });
 

@@ -2,15 +2,15 @@
 {
   "chapter_id": "13-gradient-checking",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 13,
   "concept_id": "gradient-checking",
   "title": "Check gradients before trusting backpropagation",
-  "description": "Validate candidate derivatives for LLM training with central differences, scale-aware error, and deterministic tensor-coordinate sampling in dependency-free Rust.",
-  "objective": "Approximate derivatives with central differences and compare analytic candidates using scale-aware error.",
-  "worked_inputs": "For q(theta)=theta^2 at theta=3 and h=0.1, predict q(2.9)=8.41, q(3.1)=9.61, the central-difference result 6, and why candidate 6 passes while candidate 5.5 fails. Then scan six step sizes for g(theta)=theta^3-2theta at theta=1.5 and check four deterministic coordinates of a Chapter 12 mean-NLL tensor.",
+  "description": "Cross-check selected LLM-training derivatives from actual floating-point probes, with a local-smoothness requirement, scale-aware error, and deterministic tensor coordinates in Rust.",
+  "objective": "Approximate locally smooth derivatives from actual representable probes and compare sampled analytic candidates using scale-aware error.",
+  "worked_inputs": "For q(theta)=theta^2 at theta=3 and requested h=0.1, distinguish the representable probes and their actual left and right spacings, predict the derivative 6, and explain why candidates 6 and 5.5 pass and fail. Then test the rounded f(x)=x adversary, the nondifferentiable f(x)=abs(x) point at zero, six requested steps for g(theta)=theta^3-2theta at theta=1.5, and four deterministic coordinates of a Chapter 12 mean-NLL tensor.",
   "formula": {
-    "latex": "f'(\\theta)\\approx\\frac{f(\\theta+h)-f(\\theta-h)}{2h}",
+    "latex": "f'(\\theta)\\approx\\frac{h_+}{h_-+h_+}\\frac{f(\\theta)-f(\\theta_-)}{h_-}+\\frac{h_-}{h_-+h_+}\\frac{f(\\theta_+)-f(\\theta)}{h_+}",
     "symbols": [
       {
         "symbol": "f",
@@ -22,11 +22,19 @@
       },
       {
         "symbol": "h",
-        "meaning": "the positive finite perturbation applied on each side of theta"
+        "meaning": "the positive finite requested step used to form both floating-point probes"
+      },
+      {
+        "symbol": "\\theta_-,\\theta_+",
+        "meaning": "the actual representable probes fl(theta-h) and fl(theta+h)"
+      },
+      {
+        "symbol": "h_-,h_+",
+        "meaning": "the actual positive spacings theta-theta_minus and theta_plus-theta"
       },
       {
         "symbol": "f'(\\theta)",
-        "meaning": "the derivative at theta approximated by the centered secant slope"
+        "meaning": "the derivative at a locally smooth point approximated by the unequal-spacing three-point formula"
       }
     ]
   },
@@ -35,7 +43,7 @@
       "predecessor_kind": "training-practice",
       "limitation": "Bengio et al.'s neural language model maximizes next-word log-likelihood with an explicit backward/update phase over output, hidden, and learned word-feature parameters. Those propagated derivatives make repeated training updates practical, but the implemented derivative path is not an independent check of itself.",
       "later_advance": "The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish numerical differentiation from reverse-mode automatic differentiation: finite differences estimate one local derivative from repeated evaluations, while reverse mode efficiently produces a scalar objective's gradient over many parameters.",
-      "modern_llm_role": "This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.",
+      "modern_llm_role": "This chapter uses three-point finite differences only as a slow sampled numerical cross-check for locally smooth objectives, including selected Chapter 12 indexed-mean-NLL derivatives, before Chapter 14 builds reverse mode. A passing sample is evidence for the chosen coordinates, probes, step, tolerance, and fixture—not proof of the complete gradient or local differentiability. The check does not train or run the decoder, and its policies are course-local.",
       "sources": [
         {
           "role": "earlier",
@@ -60,7 +68,7 @@
         }
       ]
     },
-    "approach": "From back-propagated next-word likelihood to independently checked Transformer training derivatives",
+    "approach": "From back-propagated next-word likelihood to sampled cross-checks of Transformer training derivatives",
     "summary": "Bengio et al. publish the backward/update calculations for a neural next-word model. Vaswani et al. later train repeated Transformer blocks with Adam over 100,000 or 300,000 steps. Baydin et al. explain why finite differences are simple but sensitive to truncation and round-off and scale poorly for full gradients, while reverse mode suits a scalar loss with many parameters. The Rust contrast therefore checks only selected derivatives and never substitutes numerical differentiation for LLM training.",
     "rust_source": "rust/demos/ch13-gradient-checking/src/lib.rs"
   },
@@ -83,7 +91,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs",
       "region": "central-difference",
-      "purpose": "Evaluate the checked minus and plus probes and record the centered numerical derivative."
+      "purpose": "Derive both actual spacings from checked representable probes and apply the unequal-spacing three-point derivative formula."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs",
@@ -103,12 +111,12 @@
     {
       "path": "rust/demos/ch13-gradient-checking/src/lib.rs",
       "region": "hand-derived-nll-gradient",
-      "purpose": "Form the manual indexed-mean-NLL candidate (softmax minus one-hot target) divided by the two target rows."
+      "purpose": "Compute the analytic indexed-mean-NLL candidate directly from raw row logits, without calling the production softmax or indexed-NLL implementation."
     },
     {
       "path": "rust/demos/ch13-gradient-checking/src/lib.rs",
       "region": "sampled-nll-gradient-check",
-      "purpose": "Apply the checker to four deterministic vocabulary-logit coordinates and verify exact restoration."
+      "purpose": "Compare the separate analytic candidate with the indexed-NLL objective at four deterministic vocabulary-logit coordinates and verify exact restoration."
     },
     {
       "path": "rust/demos/ch13-gradient-checking/src/main.rs",
@@ -119,18 +127,18 @@
   "visualization": {
     "decision": "useful",
     "id": "gradient-checking",
-    "rationale": "Centered probes, six step sizes, scaled errors, correct and wrong candidates, and sampled token-loss coordinates reveal the trustworthy middle region and later rounding deterioration together."
+    "rationale": "Requested and actual probe spacing, the rounded identity check, the known nondifferentiable corner, six step sizes, scaled errors, correct and wrong candidates, separate NLL paths with their shared assumptions, and selected token-loss coordinates reveal the trustworthy smooth middle region, later rounding deterioration, and the limited scope of sampled evidence together."
   },
-  "decoder_connection": "The cumulative project can now test a hand-derived candidate for selected vocabulary-logit derivatives against independent forward evaluations of stable indexed mean NLL. Chapter 14 will build reverse-mode scalar derivatives and check them against this numerical reference before tensor autodiff or training is trusted."
+  "decoder_connection": "The cumulative project can now compare selected hand-derived vocabulary-logit derivatives from a locally implemented analytic path with perturbed evaluations of the production indexed mean NLL. The two paths still share f64 arithmetic, Tensor storage, fixture inputs, and index conventions, so agreement is useful sampled evidence rather than proof. Chapter 14 will apply the same boundary to reverse-mode scalar derivatives."
 }
 ---
 
 import GradientCheckingDiagram from '../../../components/chapters/GradientCheckingDiagram.astro';
 
 export const diagramLabels = {
-  title: 'See a centered slope converge, then deteriorate',
+  title: 'Compare actual probe spacing before trusting a sampled check',
   description:
-    'Compare scalar checks, token-loss gradients, exact restoration, and invalid inputs.',
+    'Compare requested and actual probe spacing, a rounded identity check, a known nondifferentiable corner, separate NLL paths and their shared assumptions, selected token-loss coordinates, exact restoration, and invalid inputs.',
   summary: {
     quadratic: 'Quadratic numerical derivative',
     scanPoint: 'Cubic scan point',
@@ -143,16 +151,23 @@ export const diagramLabels = {
     scaledError: 'Scaled error',
   },
   sections: {
-    quadratic: 'Check the quadratic at theta equals three',
+    quadratic: 'Check actual spacing around theta equals three',
     scan: 'Scan six step sizes around theta equals one point five',
     candidates: 'Compare two finite gradient candidates',
-    tensor: 'Probe four coordinates of the token loss',
+    tensor: 'Cross-check four selected coordinates of the token loss',
+    boundaries: 'Read the method boundaries before trusting agreement',
     errors: 'Reject unsafe numerical requests',
   },
   fields: {
-    minusProbe: 'Minus probe',
+    requestedStep: 'Requested step',
+    minusProbe: 'Actual minus probe',
+    minusSpacing: 'Actual left spacing',
     center: 'Center',
-    plusProbe: 'Plus probe',
+    plusProbe: 'Actual plus probe',
+    plusSpacing: 'Actual right spacing',
+    leftSlope: 'Left one-sided slope',
+    rightSlope: 'Right one-sided slope',
+    stencil: 'Probe-spacing stencil',
     numerical: 'Numerical gradient',
     analytic: 'Analytic candidate',
     scaledError: 'Scaled error',
@@ -182,7 +197,11 @@ export const diagramLabels = {
   },
   notes: {
     tensor:
-      'Each record pairs a flat offset with a coordinate, scaled error, and verdict.',
+      'Each record is evidence only for its selected coordinate, objective, probes, step, tolerance, and fixture.',
+    boundaries:
+      'Unequal rounded probes require actual spacing; a known kink can expose a false pass, and sampled agreement is not proof.',
+    oracle:
+      'The analytic NLL path is local and does not call production probability or indexed-NLL helpers; both paths still share input values and targets, IEEE f64 arithmetic and its primitive exponential, Tensor storage, and row-major index conventions.',
     errors:
       'Unsafe requests stop before a derivative is accepted.',
   },
@@ -207,8 +226,14 @@ $$
 q(\theta)=\theta^2,\qquad \theta=3,\qquad h=0.1
 $$
 
-The two forward probes are $q(2.9)=8.41$ and $q(3.1)=9.61$. Their difference
-is $1.2$; dividing by $2h=0.2$ predicts a numerical derivative of $6$.
+The requested step asks for the two probes written as $2.9$ and $3.1$. An
+`f64` stores the nearby representable values
+$\theta_- = \operatorname{fl}(3-0.1)$ and
+$\theta_+ = \operatorname{fl}(3+0.1)$ instead. The implementation therefore
+derives the actual distances $h_-=3-\theta_-$ and $h_+=\theta_+-3$ rather than
+assuming that either distance equals the requested $0.1$. In the usual rounded
+hand calculation, $q(2.9)=8.41$ and $q(3.1)=9.61$, and the three-point estimate
+predicts the numerical derivative $6$.
 
 That result tests a candidate rather than creating one. The hand derivative of
 the function $\theta^2$ supplies candidate $6$, which should pass. Candidate $5.5$ is also a
@@ -225,31 +250,78 @@ non-finite objective value.
 
 {/* chapter-section:formula */}
 
-## Center two probes around one point
+## Use the spacing between the values the computer can represent
 
-The central-difference formula is:
+The caller supplies a positive requested step $h$, but floating-point addition
+and subtraction produce the actual representable probes
 
 $$
-f'(\theta)\approx\frac{f(\theta+h)-f(\theta-h)}{2h}
+\theta_- = \operatorname{fl}(\theta-h),\qquad
+\theta_+ = \operatorname{fl}(\theta+h).
 $$
 
-The two probes sit symmetrically around the same point. For a sufficiently
-smooth function, central differencing cancels the first-order error of a
-one-sided estimate and leaves truncation error of order $O(h^2)$. The
-approximation still uses finite $h$, however, and the computer still rounds
-both function values before subtracting them. Shrinking $h$ therefore helps
-only until floating-point cancellation becomes the larger source of error.
+Their positive distances from the checked point are
+
+$$
+h_- = \theta-\theta_-,\qquad h_+ = \theta_+-\theta.
+$$
+
+The unequal-spacing three-point formula combines the two one-sided slopes:
+
+$$
+f'(\theta)\approx\frac{h_+}{h_-+h_+}\frac{f(\theta)-f(\theta_-)}{h_-}+\frac{h_-}{h_-+h_+}\frac{f(\theta_+)-f(\theta)}{h_+}
+$$
+
+Only when the actual distances are equal,
+$h_-=h_+=\widehat h$, does the center coefficient cancel and the formula reduce
+to
+
+$$
+f'(\theta)\approx\frac{f(\theta_+)-f(\theta_-)}{2\widehat h}.
+$$
+
+The denominator then contains the actual distance $\widehat h$, not merely the
+requested $h$.
+
+The implementation forms the weights without first adding the two possibly huge
+spacings. With $m=\max(h_-,h_+)$, it uses $u_-=h_-/m$ and $u_+=h_+/m$, then
+left weight $u_+/(u_-+u_+)$ and right weight $u_-/(u_-+u_+)$. The ratios
+preserve the unequal-spacing coefficients while avoiding overflow in
+$h_-+h_+$.
+
+If $f$ is locally smooth enough—for example, it has a continuous
+third derivative across the interval from $\theta_-$ to $\theta_+$—the
+three-point interpolation has truncation error of order
+$O(\max(h_-,h_+)^2)$. Shrinking the requested step helps only until rounded
+probe locations and subtraction of nearly equal function values dominate.
+
+The identity function $f(x)=x$ is a useful adversary. Choose a finite point and
+requested step whose two floating-point operations produce unequal nonzero
+distances. Each one-sided slope in the weighted formula is still $1$, so the
+combined estimate must remain $1$ within tolerance. Dividing by the requested
+$2h$ instead can fail this test because that denominator does not describe the
+actual probes.
+
+Local smoothness is a caller precondition, not something one passing comparison
+can prove. At $f(x)=|x|$ and $x=0$, symmetric probes produce the numerical value
+$0$, and candidate $0$ can pass even though the derivative does not exist at the
+corner. This is a false pass outside the method's differentiable-point scope;
+the checker is not a universal detector for corners or other nonsmooth points.
+
+`compare_one_sided_slopes` compares the recorded slopes with a scale-aware gap.
+Disagreement can indicate a kink, a step too large for local curvature, or
+rounding damage; agreement cannot establish differentiability.
 
 The implementation requires finite $\theta$, positive finite $h$, a finite
-$2h$, two finite perturbations that differ from $\theta$, and finite function
-values. It evaluates the minus side first and the plus side second. A collapsed
-probe is rejected rather than reported as a zero derivative.
+requested range, two finite probes that are strictly ordered around $\theta$,
+positive finite actual distances, and finite function values at all three
+points. A collapsed probe is rejected rather than reported as a zero derivative.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
   region="central-difference"
-  caption="Evaluate a checked minus probe and plus probe before forming the centered slope"
-  label="Rust source implementing the Chapter 13 scalar central difference"
+  caption="Derive actual probe spacing before applying the unequal-spacing estimate"
+  label="Rust source implementing the Chapter 13 three-point derivative estimate from actual floating-point probes"
 />
 
 {/* chapter-section:symbol-glossary */}
@@ -260,8 +332,10 @@ probe is rejected rather than reported as a zero derivative.
 | :--- | :--- |
 | $f$ | The deterministic scalar loss-valued function being probed. |
 | $\theta$ | The finite scalar parameter or selected tensor coordinate. |
-| $h$ | The positive finite perturbation on both sides of the point. |
-| $f'(\theta)$ | The derivative at the point approximated by the centered secant slope. |
+| $h$ | The positive finite requested step used to form both floating-point probes. |
+| $\theta_-,\theta_+$ | The actual representable probes $\operatorname{fl}(\theta-h)$ and $\operatorname{fl}(\theta+h)$. |
+| $h_-,h_+$ | The actual positive distances $\theta-\theta_-$ and $\theta_+-\theta$. |
+| $f'(\theta)$ | The derivative at a locally smooth point approximated by the unequal-spacing three-point formula. |
 
 For analytic candidate $a$ and numerical value $n$, the checker chooses
 $s=\max(1,|a|,|n|)$ and records
@@ -287,7 +361,7 @@ The training procedure is detailed by
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
 Bengio et al. maximize next-word log-likelihood and publish a backward/update phase that propagates gradients through output units, hidden weights, and learned word-feature vectors.
 
-The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish numerical differentiation from reverse-mode automatic differentiation: finite differences estimate one local derivative from repeated evaluations, while reverse mode efficiently produces a scalar objective's gradient over many parameters. Here, the independent estimate can reveal a local mistake in a candidate derivative.
+The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish numerical differentiation from reverse-mode automatic differentiation: finite differences estimate one local derivative from repeated evaluations, while reverse mode efficiently produces a scalar objective's gradient over many parameters. Here, a materially separate numerical route can reveal a local mistake in a candidate derivative.
 
 The later model evidence comes from
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf).
@@ -297,16 +371,20 @@ For the numerical-method distinction, see
 [Baydin et al., *Automatic Differentiation in Machine Learning: a Survey*](https://arxiv.org/abs/1502.05767).
 Baydin et al. describe centered finite differences, the truncation-versus-round-off step-size trade-off, poor scaling for full numerical gradients, and reverse mode's efficiency for a scalar objective with many parameters.
 
-This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.
+This chapter uses three-point finite differences only as a slow sampled numerical cross-check for locally smooth objectives, including selected Chapter 12 indexed-mean-NLL derivatives, before Chapter 14 builds reverse mode. A passing sample is evidence for the chosen coordinates, probes, step, tolerance, and fixture—not proof of the complete gradient or local differentiability. The check does not train or run the decoder, and its policies are course-local.
+
+The same passing sample also does not prove the formula's derivation, either
+complete implementation, or behavior at nearby points and different inputs.
 
 Neither model paper claims to use this checker. Finite differences are not a
 later LLM invention, a replacement training algorithm, or decoder runtime work.
-Their role here is narrower: give future backward code an independent forward-
-loss comparison before its values can update language-model parameters.
+Their role here is narrower: give future backward code a materially separate,
+sampled forward-loss comparison before its values can update language-model
+parameters.
 
 {/* chapter-section:rust-implementation */}
 
-## Implement a sampled numerical oracle
+## Implement a sampled numerical cross-check
 
 Typed errors separate a bad configuration from a failed finite comparison. The
 checker names the rejected side and wraps tensor failures with the affected
@@ -342,11 +420,12 @@ and the same suffix-product shape semantics as the cumulative tensor storage.
   label="Rust source implementing deterministic Chapter 13 tensor-coordinate selection"
 />
 
-The tensor checker temporarily writes $\theta-h$, evaluates through `&Tensor`,
-restores the exact source bits, then repeats for $\theta+h$. Restoration occurs
-before the result is inspected, including ordinary error paths. A panic inside
-the learner-supplied objective is explicitly outside this small reference
-guarantee.
+For each selected coordinate, the tensor checker evaluates the same objective at
+the actual minus probe $\theta_-$, the unperturbed value $\theta$, and the actual
+plus probe $\theta_+$, in that order. It
+restores the exact source bits immediately after each temporary probe, before the
+result is inspected and before every ordinary error return. A panic inside the
+learner-supplied objective is explicitly outside this small reference guarantee.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
@@ -355,30 +434,42 @@ guarantee.
   label="Rust source implementing the sampled tensor-coordinate gradient checker"
 />
 
-The token-loss example uses Chapter 12 indexed mean NLL. Its shape `[2,3]`
+The numerical objective uses Chapter 12 indexed mean NLL. Its shape `[2,3]`
 logits are `[0,1,-1,2,0,-2]`, its targets are `[0,2]`, and its forward mean loss
-is `2.775268796472`. For row $r$, vocabulary class $c$, target $t_r$, and
-probability $p_{r,c}$, the manually derived candidate is
+is `2.775268796472`. The separate analytic routine starts from each raw logit
+row. For row $r$, it computes
+
+$$
+m_r=\max_j \ell_{r,j},\qquad
+p_{r,c}=\frac{\exp(\ell_{r,c}-m_r)}{\sum_j\exp(\ell_{r,j}-m_r)}.
+$$
+
+For vocabulary class $c$ and target $t_r$, the manually derived candidate is
 
 $$
 \frac{\partial\mathcal L}{\partial \ell_{r,c}}
 =\frac{p_{r,c}-\mathbf 1[c=t_r]}{2}.
 $$
 
-At each target-logit position, subtract one from the softmax probability, then
-divide every row gradient by the two target rows.
+At each target-logit position, subtract one from the locally computed
+probability, then divide every row gradient by the two target rows. This analytic
+routine does not call the production `softmax` or `indexed_mean_nll`; the
+perturbed numerical objective does call `indexed_mean_nll`. Separating those
+material algorithm paths can expose a mistake shared by neither one, but it is
+not total independence: both sides still share the raw logits and targets, `f64`
+elementary arithmetic, `Tensor` storage, and the same row-major index convention.
 
 <RustSource
   path="rust/demos/ch13-gradient-checking/src/lib.rs"
   region="hand-derived-nll-gradient"
-  caption="Construct the hand-derived candidate for the two-row indexed mean NLL"
-  label="Rust source deriving the Chapter 13 analytic token-loss gradient candidate"
+  caption="Compute the analytic NLL candidate locally from raw logits"
+  label="Rust source deriving the Chapter 13 analytic token-loss gradient without the production softmax or indexed-NLL helpers"
 />
 
 <RustSource
   path="rust/demos/ch13-gradient-checking/src/lib.rs"
   region="sampled-nll-gradient-check"
-  caption="Compare four vocabulary-logit candidates with independent forward losses"
+  caption="Compare four locally derived candidates with perturbed indexed-NLL evaluations"
   label="Rust source applying sampled gradient checking to Chapter 12 indexed mean NLL"
 />
 
@@ -397,7 +488,7 @@ NLL coordinates, exact restoration, and one collapsed-step error:
 ```
 
 ```text
-quadratic: theta=3.000000000000 h=0.100000000000 f_minus=8.410000000000 f_plus=9.610000000000 numerical=6.000000000000
+quadratic: theta=3.000000000000 requested_h=1.00000000000000006e-1 actual_h_minus=1.00000000000000089e-1 actual_h_plus=1.00000000000000089e-1 f_minus=8.410000000000 f_center=9.000000000000 f_plus=9.610000000000 left_slope=5.900000000000 right_slope=6.100000000000 left_weight=5.00000000000000000e-1 right_weight=5.00000000000000000e-1 numerical=6.000000000000
 wrong candidate: analytic=5.500000000000 scaled_error=8.333333333333e-2 tolerance=1.000000000000e-6 pass=false
 nll logits: shape=[2, 3] values=[0.0, 1.0, -1.0, 2.0, 0.0, -2.0] targets=[0, 2] loss=2.775268796472
 sampled coordinates: [[0, 0], [0, 1], [1, 0], [1, 2]]
@@ -409,18 +500,27 @@ tensor restored exactly: true
 ## Watch the step size help, then hurt
 
 For $g(\theta)=\theta^3-2\theta$ at $\theta=1.5$, the analytic derivative is $4.75$.
-The Rust scan starts with $h=1$, improves through $10^{-1}$ and $10^{-3}$, and reaches
-its lowest displayed scaled error at $h=10^{-5}$. The step $h=10^{-8}$ is already worse even
-though it still passes. At $h=10^{-12}$, rounding has raised the displayed result
-to $4.750422277766$, which fails tolerance again. The lesson does not promote
-$10^{-5}$ as a universal optimum; it is the trustworthy middle for this worked example.
+The Rust scan starts with requested $h=1$, improves through $10^{-1}$ and
+$10^{-3}$, and reaches its lowest displayed scaled error at requested
+$h=10^{-5}$: the numerical value is $4.750000000100$, the scaled error is
+$2.103583973678\times10^{-11}$, and the record passes. Rounding then makes
+requested $h=10^{-13}$ produce $4.751111111111$ with scaled error
+$2.338634237605\times10^{-4}$, so it fails. At requested $h=10^{-15}$, the
+numerical value is $4.800000000000$ and scaled error is
+$1.041666666667\times10^{-2}$, which also fails. The lesson does not promote
+$10^{-5}$ as a universal optimum; it is the trustworthy middle for this worked
+example.
 
-The figure places every error regime, verdict, sampled coordinate, and rejected
-request in one view. Its scan records round estimates and scaled errors only for
-readability; the complete executable output retains their exact values together
-with the probe points and function values. The scan reveals the useful middle region between truncation
-and rounding error, and the token-loss samples show what a successful coordinate
-check does—and does not—establish.
+The figure places requested and actual probe spacing, the rounded identity
+check, the known nondifferentiable corner at $|x|$ when $x=0$, separate analytic
+and numerical NLL paths with their shared assumptions, every error regime,
+verdict, selected coordinate, and rejected request in one view. Its scan records
+rounded estimates and scaled errors only for readability; the complete
+executable output retains their exact values together with the probe points and
+function values. Every displayed $h$ is the requested step; the derivative uses
+the two actual representable distances. The scan reveals the useful smooth
+middle region between truncation and rounding error, while the token-loss
+samples show the deliberately limited scope of a successful coordinate check.
 
 <RustSource
   path="rust/demos/ch13-gradient-checking/src/lib.rs"
@@ -435,26 +535,30 @@ check does—and does not—establish.
 
 ## Predict before running Rust
 
-1. Calculate $q(2.9)$, $q(3.1)$, and their central difference at $h=0.1$.
-2. Predict the pass states of candidates $6$ and $5.5$ at tolerance $10^{-6}$.
-3. Select the lowest-error result in this six-step scan without calling its step universally optimal.
-4. Explain why $h=10^{-12}$ is worse than the larger trusted step.
-5. Compute the wrong candidate's scale and scaled error before reading the answer.
-6. For a tensor with $N=6$ elements, `max_samples` is $R=4$. Compute $S=\min(R,N)$, then evaluate $\left\lfloor k(N-1)/(S-1)\right\rfloor$ for every $k\in\{0,1,2,3\}$ and map the four flat offsets to shape `[2,3]` coordinates.
-7. Predict zero-step and collapsed-probe behavior plus tensor restoration on ordinary errors.
-8. Misconception check: do four passing coordinates prove every gradient or train or run the decoder?
+1. Calculate $q(2.9)$ and $q(3.1)$, then explain why the implementation must derive $h_-$ and $h_+$ instead of dividing by the requested $2h$.
+2. For $f(x)=x$ and unequal nonzero actual distances, predict both one-sided slopes and the weighted three-point result.
+3. Predict the pass states of candidates $6$ and $5.5$ at tolerance $10^{-6}$.
+4. Select the lowest-error result in this six-step scan without calling its requested step universally optimal.
+5. Explain why requested $h=10^{-13}$ and $h=10^{-15}$ both fail after the larger trusted step passes.
+6. Compute the wrong candidate's scale and scaled error before reading the answer.
+7. For a tensor with $N=6$ elements, `max_samples` is $R=4$. Compute $S=\min(R,N)$, then evaluate $\left\lfloor k(N-1)/(S-1)\right\rfloor$ for every $k\in\{0,1,2,3\}$ and map the four flat offsets to shape `[2,3]` coordinates.
+8. Predict zero-step and collapsed-probe behavior plus tensor restoration on ordinary errors.
+9. For $f(x)=|x|$ at $x=0$, explain why numerical value $0$ can agree with candidate $0$ without establishing a derivative.
+10. Misconception check: what exactly do four passing NLL coordinates establish, and what do they leave shared or untested?
 
 <details>
   <summary>Check the predictions</summary>
 
-1. $q(2.9)=8.41$, $q(3.1)=9.61$, and $(9.61-8.41)/0.2=6$.
-2. Candidate $6$ passes. Candidate $5.5$ returns a finite comparison with `pass=false`.
-3. $h=10^{-5}$ has the lowest displayed scaled error in this fixed scan. Another function, point, or floating type can have a different best region.
-4. The two rounded function values become nearly equal, so their subtraction loses useful low bits and rounding dominates.
-5. In exact arithmetic, $\max(1,5.5,6)=6$ and $|5.5/6-6/6|=1/12$; the printed `f64` result is `8.333333333333e-2`, still far above $10^{-6}$.
-6. Here $S=\min(4,6)=4$. For $k=0,1,2,3$, $\lfloor k(6-1)/(4-1)\rfloor=\lfloor 5k/3\rfloor$ gives flats `[0,1,3,5]`, hence coordinates `[[0,0],[0,1],[1,0],[1,2]]`.
-7. Zero $h$ is invalid; $h=10^{-20}$ at point $1$ rounds the minus probe back to the point. On every ordinary error, a temporary tensor value is restored before return.
-8. No. The samples are evidence only for selected coordinates. Gradcheck neither creates the training gradient nor belongs in decoder inference.
+1. $q(2.9)=8.41$ and $q(3.1)=9.61$ in the rounded hand calculation. Actual floating-point subtraction and addition can place the two probes at unequal distances, so those distances—not the requested $h$—must determine the formula.
+2. Both quotients are $1$: $(f(x)-f(x_-))/h_-=1$ and $(f(x_+)-f(x))/h_+=1$. Their weights sum to one, so the result remains $1$ within floating-point tolerance even when $h_-\ne h_+$.
+3. Candidate $6$ passes. Candidate $5.5$ returns a finite comparison with `pass=false`.
+4. Requested $h=10^{-5}$ has the lowest displayed scaled error in this fixed scan: $2.103583973678\times10^{-11}$ for numerical value $4.750000000100$. Another function, point, floating type, or pair of actual probes can have a different best region.
+5. At requested $h=10^{-13}$, the numerical value $4.751111111111$ has scaled error $2.338634237605\times10^{-4}$ and fails. At $h=10^{-15}$, the actual spacing is only $1.11022302462515654\times10^{-15}$ on each side; the one-sided slopes become $4.4$ and $5.2$, so their weighted value $4.800000000000$ has scaled error $1.041666666667\times10^{-2}$ and also fails. Rounded nearby values no longer retain enough low-bit information for a trustworthy slope.
+6. In exact arithmetic, $\max(1,5.5,6)=6$ and $|5.5/6-6/6|=1/12$; the printed `f64` result is `8.333333333333e-2`, still far above $10^{-6}$.
+7. Here $S=\min(4,6)=4$. For $k=0,1,2,3$, $\lfloor k(6-1)/(4-1)\rfloor=\lfloor 5k/3\rfloor$ gives flats `[0,1,3,5]`, hence coordinates `[[0,0],[0,1],[1,0],[1,2]]`.
+8. Zero $h$ is invalid; $h=10^{-20}$ at point $1$ rounds the minus probe back to the point. On every ordinary error, a temporary tensor value is restored before return.
+9. The symmetric secant has slope $0$, but the left slope is $-1$ and the right slope is $1$. The derivative at the corner does not exist, so agreement with $0$ is a false pass outside the local-smoothness precondition.
+10. The results support only the four selected coordinates for this objective, fixture, actual probes, requested step, and tolerance. They neither prove the full gradient nor train or run the decoder. The analytic and numerical routes also share inputs, `f64`, `Tensor`, and index conventions, so those shared assumptions remain untested.
 
 </details>
 
@@ -468,10 +572,16 @@ Run the example after predicting:
 
 ## Prepare reverse-mode differentiation
 
-The cumulative project can now test a hand-derived candidate for selected vocabulary-logit derivatives against independent forward evaluations of stable indexed mean NLL. Chapter 14 will build reverse-mode scalar derivatives and check them against this numerical reference before tensor autodiff or training is trusted.
+The cumulative project can now compare selected hand-derived vocabulary-logit
+derivatives from a locally implemented analytic path with perturbed evaluations
+of the production indexed mean NLL. The analytic path does not call the
+production `softmax` or `indexed_mean_nll`, but both sides still share the raw
+inputs, `f64` arithmetic, `Tensor` storage, and index conventions. Agreement is
+therefore useful sampled evidence, not proof of either complete implementation.
+Chapter 14 will apply the same boundary to reverse-mode scalar derivatives.
 
 The next chapter will store scalar computation nodes, apply local derivative
 rules in reverse topological order, and accumulate contributions when one value
 is reused. Its analytic results will not be trusted merely because the backward
-pass runs: the central-difference checker from this chapter remains an
-independent numerical comparison.
+pass runs: the three-point checker from this chapter remains a materially
+separate sampled numerical comparison at locally smooth points.

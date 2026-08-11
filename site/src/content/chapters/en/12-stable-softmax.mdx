@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "locale": "en",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 12,
   "concept_id": "stable-softmax",
   "title": "Turn extreme logits into stable probabilities",
@@ -105,7 +105,7 @@
     "id": "stable-softmax",
     "rationale": "Three equal relative-logit rows make raw overflow, raw underflow, the shared maximum shift, invariant probabilities, and target log-loss visible together in a way a final probability vector alone cannot."
   },
-  "decoder_connection": "The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently."
+  "decoder_connection": "The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward indexed mean NLL that Chapter 13 uses for a materially separate sampled finite-difference cross-check. The analytic and numerical paths still share the fixture logits and target indices, IEEE `f64` arithmetic and its elementary `exp`, `Tensor` storage, and row-major index conventions, so agreement is evidence for the selected probes of a locally smooth objective, not proof of the complete gradient or every shared assumption."
 }
 ---
 
@@ -532,18 +532,24 @@ Run the example after predicting:
 
 {/* chapter-section:decoder-connection */}
 
-## Prepare an independent gradient oracle
+## Prepare a sampled gradient cross-check
 
-The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently.
+The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward indexed mean NLL that Chapter 13 uses for a materially separate sampled finite-difference cross-check. The analytic and numerical paths still share the fixture logits and target indices, IEEE `f64` arithmetic and its elementary `exp`, `Tensor` storage, and row-major index conventions, so agreement is evidence for the selected probes of a locally smooth objective, not proof of the complete gradient or every shared assumption.
 
 Inside those operations, one checked cursor identifies each normalization group
 and one class stride selects the group's logits. One forward request computes
 the maximum, shifted-exponential sum, and log-normalizer once per group; a
 training request can retain probabilities emitted from those same facts for a
 future backward gradient calculation. This reuse does not change the
-probabilities or the loss that Chapter 13 treats as its numerical oracle.
+probabilities or the loss. Chapter 13 perturbs that production
+`indexed_mean_nll` objective, while a separate local analytic routine computes
+stabilized row probabilities and candidate derivatives without calling the
+production `softmax` or `indexed_mean_nll` implementation.
 
-Forward values alone cannot prove a future backward implementation. Chapter 13
-therefore builds a slow finite-difference oracle, varies one scalar input at a
-time, and compares candidate derivatives before the course trusts automatic
-differentiation.
+Finite differences vary one scalar logit at a time and require the objective to
+be smooth across each probe interval. The two paths use the same fixture logits
+and target indices, IEEE `f64` arithmetic and its elementary `exp`, `Tensor`
+storage, and row-major index conventions. Agreement at the selected coordinates therefore supports only that
+fixture, those probes, step, and tolerance. It does not prove differentiability,
+the complete gradient, the complete probability implementation, or any shared
+assumption.

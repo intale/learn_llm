@@ -1,19 +1,22 @@
-quadratic: theta=3.000000000000 h=0.100000000000 f_minus=8.410000000000 f_plus=9.610000000000 numerical=6.000000000000
-correct candidate: analytic=6.000000000000 scaled_error=8.881784197001e-16 tolerance=1.000000000000e-6 pass=true
+quadratic: theta=3.000000000000 requested_h=1.00000000000000006e-1 actual_h_minus=1.00000000000000089e-1 actual_h_plus=1.00000000000000089e-1 f_minus=8.410000000000 f_center=9.000000000000 f_plus=9.610000000000 left_slope=5.900000000000 right_slope=6.100000000000 left_weight=5.00000000000000000e-1 right_weight=5.00000000000000000e-1 numerical=6.000000000000
+correct candidate: analytic=6.000000000000 scaled_error=0.000000000000e0 tolerance=1.000000000000e-6 pass=true
 wrong candidate: analytic=5.500000000000 scaled_error=8.333333333333e-2 tolerance=1.000000000000e-6 pass=false
+rounded identity: theta=1.000000000000 requested_h=1.33226762955018780e-16 actual_h_minus=1.11022302462515654e-16 actual_h_plus=2.22044604925031308e-16 left_weight=6.66666666666666630e-1 right_weight=3.33333333333333315e-1 numerical=1.000000000000 pass=true
+known abs kink: theta=0.000000000000 requested_h=1.00000000000000006e-1 centered_numerical=0.000000000000 left_slope=-1.000000000000 right_slope=1.000000000000 one_sided_scaled_gap=2.000000000000e0 consistent=false
 cubic step scan: theta=1.500000000000 analytic=4.750000000000
-  h=1.000000000000e0 phase=truncation numerical=5.750000000000 scaled_error=1.739130434783e-1 pass=false
-  h=1.000000000000e-1 phase=truncation numerical=4.760000000000 scaled_error=2.100840336136e-3 pass=false
-  h=1.000000000000e-3 phase=converging numerical=4.750001000000 scaled_error=2.105262021379e-7 pass=true
-  h=1.000000000000e-5 phase=trusted numerical=4.750000000131 scaled_error=2.758704376049e-11 pass=true
-  h=1.000000000000e-8 phase=rounding numerical=4.749999971132 scaled_error=6.077470970922e-9 pass=true
-  h=1.000000000000e-12 phase=rounding numerical=4.750422277766 scaled_error=8.889267973000e-5 pass=false
+  requested_h=1.000000000000e0 actual_h_minus=1.00000000000000000e0 actual_h_plus=1.00000000000000000e0 phase=truncation numerical=5.750000000000 scaled_error=1.739130434783e-1 pass=false
+  requested_h=1.000000000000e-1 actual_h_minus=1.00000000000000089e-1 actual_h_plus=1.00000000000000089e-1 phase=truncation numerical=4.760000000000 scaled_error=2.100840336135e-3 pass=false
+  requested_h=1.000000000000e-3 actual_h_minus=9.99999999999889866e-4 actual_h_plus=9.99999999999889866e-4 phase=converging numerical=4.750001000000 scaled_error=2.105263122720e-7 pass=true
+  requested_h=1.000000000000e-5 actual_h_minus=1.00000000000655120e-5 actual_h_plus=1.00000000000655120e-5 phase=trusted numerical=4.750000000100 scaled_error=2.103583973678e-11 pass=true
+  requested_h=1.000000000000e-13 actual_h_minus=9.99200722162640886e-14 actual_h_plus=9.99200722162640886e-14 phase=rounding numerical=4.751111111111 scaled_error=2.338634237605e-4 pass=false
+  requested_h=1.000000000000e-15 actual_h_minus=1.11022302462515654e-15 actual_h_plus=1.11022302462515654e-15 phase=rounding numerical=4.800000000000 scaled_error=1.041666666667e-2 pass=false
+oracle paths: analytic=local-row-max-exp-sum-normalize-target-gradient objective=indexed-mean-nll shared=f64-exp-and-frozen-inputs material_course_path_shared=false
 nll logits: shape=[2, 3] values=[0.0, 1.0, -1.0, 2.0, 0.0, -2.0] targets=[0, 2] loss=2.775268796472
 sampled coordinates: [[0, 0], [0, 1], [1, 0], [1, 2]]
-  coordinate=[0, 0] analytic=-0.377635764473 numerical=-0.377635764481 scaled_error=8.753164859598e-12 pass=true
-  coordinate=[0, 1] analytic=0.332620477887 numerical=0.332620477894 scaled_error=6.763478666016e-12 pass=true
-  coordinate=[1, 0] analytic=0.433406666099 numerical=0.433406666089 scaled_error=9.292122626903e-12 pass=true
-  coordinate=[1, 2] analytic=-0.492061880012 numerical=-0.492061879998 scaled_error=1.425926043908e-11 pass=true
+  coordinate=[0, 0] requested_h=1.00000000000000008e-5 actual_h_minus=1.00000000000000008e-5 actual_h_plus=1.00000000000000008e-5 analytic=-0.377635764473 numerical=-0.377635764481 scaled_error=8.753164859598e-12 pass=true
+  coordinate=[0, 1] requested_h=1.00000000000000008e-5 actual_h_minus=9.99999999995448974e-6 actual_h_plus=1.00000000000655120e-5 analytic=0.332620477887 numerical=0.332620477894 scaled_error=6.430855847839e-12 pass=true
+  coordinate=[1, 0] requested_h=1.00000000000000008e-5 actual_h_minus=1.00000000000655120e-5 actual_h_plus=1.00000000000655120e-5 analytic=0.433406666099 numerical=0.433406666087 scaled_error=1.213129596778e-11 pass=true
+  coordinate=[1, 2] requested_h=1.00000000000000008e-5 actual_h_minus=1.00000000000655120e-5 actual_h_plus=1.00000000000655120e-5 analytic=-0.492061880012 numerical=-0.492061879994 scaled_error=1.748279299107e-11 pass=true
 tensor restored exactly: true
 collapsed-step error: minus perturbation from point 1.0 by step 1e-20 rounds back to the point
 chapter 14 handoff: check reverse-mode derivatives against this oracle

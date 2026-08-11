@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "concept_id": "scalar-autodiff",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 14,
   "objective": {
     "en": "Build a scalar computation graph and accumulate reverse-mode adjoints across every operand use in shared subexpressions.",
@@ -79,8 +79,8 @@
         "ru": "Baydin и соавторы описывают обратный режим: зависимости записываются во время прямого вычисления, после чего сопряжённые величины распространяются от одного скалярного выхода назад по графу, а вклады всех путей складываются. Такое направление вычислений подходит для скалярной цели обучения с множеством параметров. Затем Vaswani и соавторы обучают повторяющиеся слои внимания и полносвязные блоки Transformer, а Radford и соавторы масштабируют авторегрессионные языковые модели Transformer от 12 до 48 слоёв и от 117 миллионов до 1,542 миллиарда параметров."
       },
       "modern_llm_role": {
-        "en": "This chapter isolates reverse accumulation in a tiny scalar graph, checks its derivatives with Chapter 13's independent numerical oracle, and prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.",
-        "ru": "В этой главе обратное накопление выделено в маленький скалярный граф, его производные проверяются независимым численным методом из главы 13, а затем тот же принцип переносится на ленту тензорных операций для обучения LLM в главах 15 и 16. При обычном инференсе декодера обратный граф не выполняется: обратный режим нужен для вычисления градиентов во время обучения, причём сопряжённые величины текущего прохода следует отличать от градиентов, накопленных за завершённые вызовы обратного прохода."
+        "en": "This chapter isolates reverse accumulation in a tiny scalar graph, then checks selected derivatives against Chapter 13's materially separate sampled numerical cross-check. Both paths still use the same mathematical function and input value and share IEEE f64 arithmetic, so agreement at the chosen smooth point is evidence rather than proof of the complete reverse-mode system. The result prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.",
+        "ru": "В этой главе обратное накопление выделено в маленький скалярный граф, после чего выбранные производные сопоставляются с выборочной численной сверкой из главы 13, реализованной отдельным путём. Оба пути всё ещё используют одну и ту же математическую функцию, входное значение и арифметику IEEE f64, поэтому совпадение в выбранной гладкой точке служит свидетельством, но не доказывает правильность всей системы обратного режима. Этот результат подготавливает ленту тензорных операций для обучения LLM в главах 15 и 16. При обычном инференсе декодера обратный граф не выполняется: обратный режим нужен для вычисления градиентов во время обучения, причём сопряжённые величины текущего прохода следует отличать от градиентов, накопленных за завершённые вызовы обратного прохода."
       },
       "sources": [
         {
@@ -142,7 +142,7 @@
       "rust/demos/ch14-scalar-autodiff/src/lib.rs",
       "rust/demos/ch14-scalar-autodiff/src/main.rs"
     ],
-    "expected_output": "reused square: x=2.000000000000 square=4.000000000000 loss=8.000000000000\none backward: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000\nrepeated backward: x_grad=16.000000000000 square_grad=4.000000000000 loss_grad=2.000000000000\nzero_grad: x_grad=0.000000000000 square_grad=0.000000000000 loss_grad=0.000000000000\nafter zero: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000\ndetach: expression=x*x+detach(x)*3 value=10.000000000000 x_grad=4.000000000000 detached_grad=none\nnonlinear: expression=exp(tanh(x)) input=0.500000000000 value=1.587431271430 gradient=1.248431724655\ngradcheck: expression=2*x*x analytic=8.000000000000 numerical=8.000000000052 scaled_error=6.551204023708e-12 pass=true\ntyped errors: constant-output | non-finite-seed | non-finite-accumulated-gradient; gradients unchanged=true\nchapter 15 handoff: replace scalar edges with tensor vector-Jacobian products\n"
+    "expected_output": "reused square: x=2.000000000000 square=4.000000000000 loss=8.000000000000\none backward: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000\nrepeated backward: x_grad=16.000000000000 square_grad=4.000000000000 loss_grad=2.000000000000\nzero_grad: x_grad=0.000000000000 square_grad=0.000000000000 loss_grad=0.000000000000\nafter zero: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000\ndetach: expression=x*x+detach(x)*3 value=10.000000000000 x_grad=4.000000000000 detached_grad=none\nnonlinear: expression=exp(tanh(x)) input=0.500000000000 value=1.587431271430 gradient=1.248431724655\ngradcheck: expression=2*x*x analytic=8.000000000000 numerical=8.000000000000 scaled_error=0.000000000000e0 pass=true\ntyped errors: constant-output | non-finite-seed | non-finite-accumulated-gradient; gradients unchanged=true\nchapter 15 handoff: replace scalar edges with tensor vector-Jacobian products\n"
   },
   "visualization": {
     "decision": "useful",
@@ -220,7 +220,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 14 has the exact active locale set {en,ru}. English is the canonical semantic source; Russian is translated directly from revision 5 and reviewed as a complete lesson.",
+    "Chapter 14 has the exact active locale set {en,ru}. English is the canonical semantic source; Russian is translated directly from revision 6 and reviewed as a complete lesson.",
     "Keep bar notation, graph values, edge multiplicity, finite numbers, Rust identifiers, formulas, and source URLs exact across locales.",
     "Explain o as the selected tracked output, s as the finite caller-supplied seed (with backward() using 1), the indicator as a graph-node identity boundary, and E_o(v) as distinct operand-use edges leaving tracked v inside o's backward dependency subgraph. Repeated references to one node remain separate edges even though topological traversal visits the node once; structurally reachable untracked nodes receive no pass-local adjoint.",
     "Distinguish a fresh pass-local adjoint from the optional stored gradient accumulated across successful backward calls. Detach preserves the primal value but cuts the parent edge; it does not freeze or copy a whole model.",
@@ -359,7 +359,7 @@ Baydin et al. describe reverse mode as recording dependencies during a forward e
 
 [Radford et al., *Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language-models.pdf): Radford et al. use Transformer-based autoregressive language models and report four sizes spanning 12 to 48 layers and 117 million to 1.542 billion parameters.
 
-This chapter isolates reverse accumulation in a tiny scalar graph, checks its derivatives with Chapter 13's independent numerical oracle, and prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.
+This chapter isolates reverse accumulation in a tiny scalar graph, then checks selected derivatives against Chapter 13's materially separate sampled numerical cross-check. Both paths still use the same mathematical function and input value and share IEEE f64 arithmetic, so agreement at the chosen smooth point is evidence rather than proof of the complete reverse-mode system. The result prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -440,7 +440,7 @@ the decoder's parameters and token loss can be trained.
 ## Localization notes
 
 English and Russian are the complete active locales for Chapter 14. English is
-the semantic source, and Russian is translated directly from revision 5. Both
+the semantic source, and Russian is translated directly from revision 6. Both
 lessons publish the same formulas, diagram evidence, code regions, history
 claims, exercises, and answers.
 

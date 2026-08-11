@@ -12,4 +12,4 @@ axis error: probability axis 2 is out of bounds for rank 2
 empty-axis error: probability axis 1 has no classes
 non-finite error: logit at group 0, class 1 is positive infinity
 target error: target 2 at group 1 is out of bounds for 2 classes
-chapter 13 handoff: check loss derivatives with an independent numerical oracle
+chapter 13 handoff: cross-check selected loss derivatives with a materially separate finite-difference path

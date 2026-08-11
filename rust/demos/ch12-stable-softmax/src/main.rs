@@ -82,7 +82,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("empty-axis error: {empty_error}");
     println!("non-finite error: {nonfinite_error}");
     println!("target error: {target_error}");
-    println!("chapter 13 handoff: check loss derivatives with an independent numerical oracle");
+    println!(
+        "chapter 13 handoff: cross-check selected loss derivatives with a materially separate finite-difference path"
+    );
 
     Ok(())
 }

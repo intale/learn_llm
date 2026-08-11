@@ -20101,3 +20101,419 @@ forbidding valid statements that static diagrams add no private or chapter-local
 script. No learner prose, Rust, formula, revision, or historical run changes.
 
 **Affected step:** `enforce-firefox-only-browser-validation`.
+
+## 2026-08-10 - Derive Chapter 13 finite differences from actual probes
+
+**Status:** Accepted during `correct-ch13-rounded-probe-gradcheck` run 01.
+
+**Context:** Chapter 13 requested floating-point probes at `theta-h` and
+`theta+h` but divided their evaluated difference by the requested `2h`.
+Binary64 rounding can place the two representable probes at unequal actual
+distances from `theta`; using `2h` is then geometrically wrong, while merely
+using the probe-to-probe span yields an off-center secant with first-order
+asymmetry bias. The chapter also described a sampled numerical oracle without
+making its local-smoothness limit or the analytic NLL candidate's shared
+production-softmax path sufficiently explicit.
+
+**Decision:** Define the actual probes and spacings as
+`theta_minus=fl(theta-h)`, `theta_plus=fl(theta+h)`,
+`h_minus=theta-theta_minus`, and `h_plus=theta_plus-theta`. Evaluate the
+objective in the fixed order minus, center, plus. Estimate the derivative with
+the unequal three-point interpolant, implemented as a stable weighted sum of
+the two one-sided slopes. Derive its weights from spacings normalized by their
+larger value so a finite valid probe pair is not rejected merely because
+`h_minus+h_plus` would overflow. Record the requested step separately from the
+actual spacings, values, slopes, weights, and symmetric-or-unequal stencil.
+
+Finite differences are evidence only for deterministic, side-effect-free
+objectives known to be differentiable and sufficiently smooth throughout the
+probe interval. Expose a scale-aware comparison of the one-sided slopes as a
+diagnostic: disagreement can reveal a kink, excessive step, or rounding, but
+agreement cannot prove differentiability. Teach `abs(0)` as the concrete false
+pass where the centered estimate is zero although no derivative exists.
+
+Compute the frozen two-row analytic NLL gradient in the Chapter 13 demo through
+its own direct row traversal, max shift, exponentials, normalization, target
+subtraction, and batch division. It must not call the production `softmax`,
+`log_softmax`, indexed-NLL, row-planning, or normalization implementation; the
+perturbed numerical objective continues to call production indexed mean NLL.
+The remaining shared boundary—input logits and targets, tensor/index
+conventions, IEEE `f64`, and elementary exponentiation—is stated and tested
+rather than described as complete independence.
+
+**Consequences:** Chapter 13 moves to content revision 6 and trace schema v2.
+Locked adversaries must include unequal rounded probes for `f(x)=x`, a centered
+quadratic that rejects the tempting secant-only fix, the `abs(0)` kink, all
+minus/center/plus restoration and error paths, a corrupted analytic candidate,
+and a source-boundary check for the separate NLL implementations. Existing
+quadratic, cubic, tensor, localization, diagram, and Firefox-with-JavaScript
+evidence is regenerated from the corrected Rust behavior. No new dependency,
+network input, browser engine, or no-JavaScript acceptance path is introduced.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Refresh the Chapter 13 cheat sheet with the numerical contract
+
+**Status:** Accepted before editing the newly owned files in run 01.
+
+**Context:** The English and Russian Chapter 13 cheat sheets are live localized
+course surfaces. They still define the central difference through symmetric
+evaluations, call its numerical estimate independent without qualification,
+and describe the requested step as the actual probe distance. Those definitions
+would contradict the actual-spacing and materially separate-path correction in
+the matching revision 6 lessons.
+
+**Decision:** Add both Chapter 13 cheat-sheet records and their focused static
+term-to-lesson test to the running step. Revise English first and Russian
+directly from it. Define the requested step separately from actual probe
+spacing, describe the three-point estimate without assuming equal rounded
+spacing, qualify the numerical cross-check and smoothness boundary, and include
+only concise terms the chapter now teaches. Update only Chapter 13's focused
+sheet expectations.
+
+**Consequences:** The progressive modal and the lesson teach one numerical
+contract in both active locales. Shared modal behavior, other chapters' terms,
+sorting, accessibility, static crawler visibility, and Firefox-only
+JavaScript-enabled policy remain unchanged.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Expand the Chapter 13 correction to its course-plan projection
+
+**Status:** Accepted before editing the newly owned files in run 01.
+
+**Context:** The running Chapter 13 step originally owned the chapter contract,
+localized lessons, Rust evidence, diagram, focused tests, and ledgers. Exact
+cross-reference review found that `curriculum/course-plan.md` still publishes
+the requested-`2h` formula, `curriculum/README.md` enumerates the current
+Chapter 13 revision, and `site/tests/content-contract.test.ts` deliberately
+pins the complete course-plan bytes. Leaving those files outside the step would
+publish contradictory mathematics or force an unrecorded hash update.
+
+**Decision:** Add exactly those three files to
+`correct-ch13-rounded-probe-gradcheck`. Update only the Chapter 13 plan outcome,
+scope, formula, Rust/evidence description, revision status, and the curriculum
+revision list; then refresh only the corresponding exact course-plan hash lock.
+Keep every other chapter and shared assertion unchanged.
+
+**Consequences:** The actual-spacing correction is consistent across the
+chapter contract, lessons, curriculum index, and ordered course plan, while the
+full-file source lock continues to detect unrelated plan drift. This expansion
+does not add learner topics, dependencies, browser engines, network inputs, or
+changes to another chapter.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Reconcile the Chapter 13 v2 trace-writer output
+
+**Status:** Accepted before final validation of run 01.
+
+**Context:** The Chapter 13 trace schema changed from v1 to v2, so the
+course-owned `rust/demos/ch13-gradient-checking/src/diagram_trace.rs` producer
+changed together with its generated trace fixture. The exact six-file Rust
+manifest and Rust validation already included and tested that source, but the
+running step's output list and initial thirteen-product fingerprint accidentally
+omitted its path. A final diff-to-output reconciliation found the mismatch before
+content, browser, publication, or completion validation.
+
+**Decision:** Add only the trace-writer source to the running step's declared
+outputs. Preserve its already-sealed implementation bytes. Record the committed
+pre-edit hash, current hash, existing Rust-manifest hash, discovery boundary, and
+scope rationale in `trace-writer-scope-expansion.txt`.
+
+**Consequences:** The declared output set now covers every changed product path,
+and the v2 generated trace has an explicitly owned producer. No algorithm,
+fixture, learner content, dependency, network input, browser policy, or other
+product scope changes as a result of this ledger correction.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Reconcile Chapter 14 evidence with the corrected finite-difference contract
+
+**Status:** Accepted after the downstream demo gate failed and before editing the newly owned files in run 01.
+
+**Context:** Chapter 14 calls the course-owned Chapter 13 finite-difference
+helper to check the analytic derivative of $2x^2$ at $x=2$. After Chapter 13
+began using the actual representable probes, its symmetric quadratic stencil
+returns exactly `8.000000000000` with zero scaled error. Chapter 14's frozen
+stdout, trace, parser, lessons, and tests still recorded the old
+requested-denominator noise `8.000000000052` and `6.551204023708e-12`.
+The same live chapter still called the sampled Chapter 13 check an independent
+oracle, contradicting the newly explicit shared-input and floating-point
+boundary.
+
+**Decision:** Expand `correct-ch13-rounded-probe-gradcheck` to the eight directly
+affected Chapter 14 paths. Regenerate only the gradcheck evidence, bump the
+bilingual Chapter 14 content revision, and describe the check as a materially
+separate sampled numerical cross-check whose agreement is evidence for this
+smooth expression rather than proof of the complete reverse-mode system.
+English remains canonical and Russian is refreshed directly under the
+localization skill. Preserve Chapter 14's scalar graph, formula, reverse-mode
+semantics, and all unrelated evidence.
+
+**Consequences:** The repository-wide demo fixture policy becomes consistent
+with executable Rust instead of freezing known-stale noise. Parser and mutation
+tests lock the new exact-zero record, while the chapter no longer overstates
+independence. The pre-edit hashes and discovery boundary are frozen in
+`ch14-downstream-scope-expansion.txt` before any Chapter 14 edit.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Record lockfile-pinned dependency materialization during validation
+
+**Status:** Accepted after observation in run 01; this supersedes only the
+preflight assumption that the complete Docker check would be cache-only.
+
+**Context:** The run fingerprint forecast no network use. The standard
+`./course check` rebuild missed dependency-bearing Docker layers after source
+changes and downloaded the exact npm and Cargo packages selected by the
+unchanged repository lockfiles. The build did not consult a new research
+source, dataset, model, generated asset, or unlocked dependency, and it changed
+no course-owned product byte, but retaining an unqualified no-network claim
+would make the run provenance false.
+
+**Decision:** Preserve the original preflight fingerprint artifact, add the
+observed network boundary to the live run record, and freeze the lockfile,
+Dockerfile, wrapper, and resulting image identities in
+`docker-validation-network-deviation.txt`. Treat the access as a bounded
+validation-environment materialization only; it grants no authority to perform
+later network work. All subsequent checks and the sole Firefox run remain
+network-disabled.
+
+**Consequences:** Validation provenance distinguishes semantic inputs from a
+cache miss without hiding either. No dependency, feature, learner content, or
+model/data input is added by this decision.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Synchronize Chapter 16 sampled-gradcheck trace values
+
+**Status:** Accepted after the complete demo gate failed and before editing the
+two newly owned files in run 01.
+
+**Context:** After the Chapter 14 fixture was synchronized, the fail-fast demo
+gate advanced to Chapter 16. Its trace records the maximum scaled error from
+eight sampled gradient checks that call the same Chapter 13 helper. The corrected
+actual-spacing stencil changes only those small diagnostic values; every result
+remains a pass against the unchanged `0.000002000000` tolerance. The strict site
+parser deliberately freezes the same lexemes and therefore must change with the
+Rust-derived trace.
+
+**Decision:** Add exactly
+`rust/demos/ch16-model-autodiff-ops/diagram-trace.txt` and
+`site/src/lib/model-autodiff-ops-diagram.ts` to the running correction. Regenerate
+the eight trace values from Rust and update the parser's exact expected records.
+Do not alter Chapter 16's implementation, analytic gradients, formula,
+bilingual prose, content revision, or acceptance semantics.
+
+**Consequences:** Repository-wide demo validation can prove that Chapters 15–39
+have no further hidden fixture drift. The pre-edit values, corrected values,
+tolerance, hashes, and discovery boundary are frozen in
+`ch16-downstream-scope-expansion.txt` before either product file changes.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Correct the Chapter 12 handoff to the sampled Chapter 13 cross-check
+
+**Status:** Accepted after the whole-boundary audit and before editing the newly
+owned Chapter 12 files in run 01.
+
+**Context:** Chapter 13 now implements a materially separate sampled
+finite-difference path and states the assumptions it still shares with the
+analytic candidate. Chapter 12's live contract, executable handoff, and
+bilingual lessons nevertheless continued to promise an independent numerical
+oracle or an independent derivative check. That overstates what agreement can
+establish and directly contradicts the corrected Chapter 13 evidence boundary.
+The discrepancy was found before any Chapter 12 edit or Firefox launch.
+
+**Decision:** Expand `correct-ch13-rounded-probe-gradcheck` to the seven direct
+Chapter 12 contract, executable-output, bilingual-lesson, and exact-test paths.
+Reuse its already-owned curriculum index, course plan, and full-plan hash lock
+for the revision projections. Bump Chapter 12 from content revision 7 to 8.
+Revise English first and Russian directly under the localization skill so the
+handoff describes a materially separate sampled finite-difference cross-check,
+names the shared inputs, IEEE `f64`, `Tensor` storage, and row-major indexing,
+and says agreement is evidence for sampled coordinates rather than proof of the
+complete gradient or implementation. Preserve valid statements about
+independent normalization groups and forward requests.
+
+**Consequences:** Chapters 12 and 13 teach one honest epistemic boundary across
+their contracts, executable output, English/Russian lessons, curriculum
+projections, and tests. No probability algorithm, numeric fixture, formula,
+dependency, browser engine, or disabled-script path changes. The final sole
+Firefox-with-JavaScript invocation expands to the complete Chapter 12, 13, 14,
+and 16 specs plus shared surfaces, exactly 34 collected cases.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Synchronize the shared Chapter 13 formula-rendering source lock
+
+**Status:** Accepted after the final supplemental static suite failed and before
+editing the newly owned test in run 01.
+
+**Context:** The corrected Chapter 13 diagram now renders actual
+`theta_minus`/`theta_plus` probes, a center value, and unequal-spacing weights
+through the shared math component. The repository-wide formula source test
+still required the superseded symmetric `theta-h`, requested `h`, and
+`theta+h` literals. Final-image Clippy, dependency, and all 39 demo/34 trace
+gates passed; Vitest passed 1,054 of 1,055 cases and failed only this stale lock.
+No Firefox process had launched.
+
+**Decision:** Add only `site/tests/formula-rendering.test.ts` to
+`correct-ch13-rounded-probe-gradcheck`. Replace its old six-literal Chapter 13
+loop with exact assertions for the component's current actual probes, their
+quadratic values, center evidence, and left/right unequal-spacing weights.
+Retain the strict shared `InlineMath` requirement and the negative assertions
+against plain-text mathematical markup or string-built error formulas. Do not
+change the diagram, formula, Rust evidence, bilingual content, or another
+chapter's lock.
+
+**Consequences:** The course-wide formula gate tests the mathematics now taught
+instead of freezing removed symmetric geometry. This test-only expansion does
+not alter the final image's learner-visible bytes or the exact 34-case
+Firefox-with-JavaScript collection.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-10 - Scope rendered validation to the actual change blast radius
+
+**Status:** Accepted by explicit user correction after the second Chapter 13
+Firefox attempt.
+
+**Context:** The Chapter 13 numerical correction legitimately changed generated
+or learner-visible evidence in Chapters 12, 13, 14, and 16. The browser plan
+therefore selected those affected surfaces rather than all forty chapters.
+However, the execution accumulated too many audit checkpoints, and carrying a
+multi-chapter visual matrix forward as a default would still be disproportionate
+for future chapter-local work. The user requires a stable shared chapter
+skeleton, chapter-scoped adjustments, and broad visual revalidation only when a
+shared style, shared layout mechanism, math renderer, browser tool, or other
+global dependency changes.
+
+**Decision:** Determine browser scope from changed production paths and their
+explicit rendered dependencies. A chapter-local component, content, or scoped
+style change validates only that chapter's affected English and Russian routes,
+required widths, and relevant presentation modes. A shared Rust helper validates
+only chapters whose generated learner evidence changes. A shared skeleton,
+global typography/layout rule, diagram presentation module, math pipeline,
+localization controller, or browser/toolchain update may require the broader
+affected set or the complete course. Chapter-specific style rules must remain
+under a chapter or component identity and must not leak through unscoped generic
+selectors. Static source, type, content, and dependency checks may remain broad
+when inexpensive, but they do not justify an all-chapter visual sweep.
+
+For corrective run 03, reuse run 02's immutable complete Chapter 12 Firefox pass
+because its product bytes do not change again. Correct only the stale Chapter 13
+20% and Chapter 14 25% root-height assertions, then run the remaining affected
+Chapter 13, 14, and 16 specs plus Chapter 13's changed cheat-sheet, formula, and
+shared-containment surfaces in one Firefox-with-JavaScript invocation. Do not
+inspect or capture unrelated chapters. Replace the repeated runtime audit ladder
+with one static/source seal, one exact browser plan, one attempt, and one terminal
+evidence audit.
+
+**Consequences:** Local changes no longer pay a course-wide screenshot cost, and
+shared changes still receive validation proportionate to their real consumers.
+The two failed browser runs remain immutable evidence of stale acceptance gates;
+they are not retried or relabeled. Run 03 uses fresh provenance, image, volume,
+and runtime and does not change learner content, localization, CSS, components,
+Rust, trace data, or shared styles.
+
+**Affected step and run:** `correct-ch13-rounded-probe-gradcheck` and
+`20260810T192813Z-correct-ch13-rounded-probe-gradcheck-03`.
+
+## 2026-08-10 - Formalize chapter roots and reject unscoped component CSS
+
+**Status:** Accepted after the user requested chapter-specific style isolation
+and the resulting source audit found one missing root contract and one live
+selector leak.
+
+**Context:** The course route currently renders every lesson as a generic
+`article.lesson` without a stable current-chapter attribute. Its MDX stylesheet
+must be global to reach rendered Markdown descendants, but its `.lesson` and
+`.lesson-body` selectors are not explicitly rooted. All forty-four diagram
+components otherwise use Astro-scoped styles and concept-specific figure
+classes, and the shared diagram module is correctly bounded by its body host.
+The audit found one exception: Chapter 17's QKV component has a standalone
+`:global([data-inline-math])` rule that can match outside its concept root.
+Existing source tests do not require a chapter identity, require a concept root,
+or reject a standalone global selector branch.
+
+**Decision:** Add a separate step immediately after the current Chapter 13
+correction. Give the lesson article `data-chapter-root` and its exact
+`data-chapter-id`; anchor the route-global lesson selectors beneath that root;
+anchor the QKV inline-math rule beneath `.qkv-diagram`; and make source
+validation reject component `<style is:global>`, standalone `:global(...)`
+branches, and missing concept roots. Add mutation coverage plus a shared route
+assertion that exactly one correctly identified chapter root is rendered.
+
+Keep this architecture work out of run 03. It changes a shared route and source
+policy, so it receives its own fingerprint, validation, checkpoint, and commit.
+The following Chapter 22 step depends on it. No learner copy, localization,
+formula, Rust, trace, shared diagram presentation semantics, or course data is
+changed by this decision.
+
+**Consequences:** Chapter-specific CSS has an enforceable containment boundary,
+future local changes can use genuinely local browser scope, and an accidental
+global selector fails statically. This is a one-time shared-skeleton correction,
+not a reason to reintroduce course-wide visual review for ordinary chapter work.
+
+**Affected steps:** `scope-chapter-route-and-component-css` and
+`bound-ch22-adamw-shrinkage-and-clipping`.
+
+## 2026-08-11 - Synchronize the Chapter 13 cheat-sheet E2E projection
+
+**Status:** Accepted after the sole run-03 Firefox attempt and before editing
+the newly owned test.
+
+**Context:** The canonical English and directly translated Russian Chapter 13
+cheat sheets each contain twelve current terms. Their shared component correctly
+paginates those terms as ten plus two and exposes page count two. The focused
+static test already locks all twelve terms and both locale records. The shared
+Firefox fixture still supplied the older ten-term English projection, so its
+first assertion expected one page and stopped the otherwise-correct affected
+matrix after all nineteen Chapter 13, Chapter 14, and Chapter 16 cases passed.
+
+**Decision:** Add only `site/tests/e2e/cheat-sheets.spec.ts` to
+`correct-ch13-rounded-probe-gradcheck`. Replace the obsolete English `Step size`
+fixture entry with the three canonical terms `Requested step`, `Actual probe
+spacing`, and `Local smoothness`. Keep the English sheet authoritative; keep the
+Russian fixture dynamically sourced from the already-reviewed Russian record.
+Do not change either sheet, pagination code, component, labels, page size, or
+another chapter.
+
+**Consequences:** Both locales exercise the actual twelve-term, two-page modal
+contract in Firefox. Run 03 remains immutable failed evidence and is not
+retried. A fresh run, image, snapshot, and browser attempt are required, but the
+new product delta is one exact test fixture and does not broaden visual scope.
+
+**Affected step:** `correct-ch13-rounded-probe-gradcheck`.
+
+## 2026-08-11 - Persist operation-specific Codex model budgets
+
+**Status:** User-directed; queued as a separate policy step.
+
+**Context:** Before this instruction, the active goal and build had no numeric
+token limit and no per-operation model ceiling. Subagents inherited the parent
+model unless an explicit override was supplied. The user has now assigned
+different ceilings so routine orchestration does not consume the same model
+budget as rendered-image review or substantive course authorship.
+
+**Decision:** Persist the following routing rules in the root `AGENTS.md`:
+
+- rendered-image checks and visual review may use models up to `gpt-5.6-terra`;
+- operational routing, including ordinary Bash command execution and evidence
+  collection, may use models up to `gpt-5.6-luna`;
+- course-related content generation remains uncapped by those two ceilings, and
+  teaching quality remains the primary selection criterion.
+
+Treat each named tier as a maximum, not a requirement to use that exact model.
+These model budgets do not grant network, paid-service, destructive-action, or
+scope authority and do not replace the repository's step cost and provenance
+rules.
+
+**Consequences:** Future Codex runs receive the same budget routing from the
+mandatory startup instructions. The policy change is isolated from the current
+Chapter 13 implementation commit and is completed in its own small checkpoint
+before the shared chapter-CSS step.
+
+**Affected step:** `persist-codex-agent-model-budgets`.

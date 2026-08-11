@@ -23,7 +23,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '14-scalar-autodiff';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`\bar v=s\,\mathbf{1}[v=o]+\sum_{e\in E_o(v)}\bar{c(e)}\,d_e`;
 const staleFormulaLatex = String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`;
 const formulaSymbols = [
@@ -90,7 +90,7 @@ const copy = {
       'Create finite scalar nodes and record checked results with ordered local derivative edges',
       'Accumulate every repeated edge in one fresh pass before committing stored gradients',
       'Reject unsafe graph values and reverse contributions without partial mutation',
-      'Compare reverse mode with independent central differences and exercise detach',
+      'Compare reverse mode with a sampled central-difference cross-check and exercise detach',
       'Prepare the deterministic scalar autodiff evidence before printing',
     ],
     rustLabels: [
@@ -111,7 +111,7 @@ const copy = {
       'Build one shared forward graph',
       'Accumulate one fresh reverse pass',
       'Commit, repeat, zero, and restore',
-      'Check detach and the numerical oracle',
+      'Check detach and a sampled numerical cross-check',
       'Reject unsafe gradients before mutation',
     ],
     exerciseSummary: 'Check the eight scalar-autodiff predictions',
@@ -142,7 +142,7 @@ const copy = {
       'Создавайте конечные скалярные узлы и записывайте проверенные результаты с упорядоченными рёбрами локальных производных',
       'Сложите вклады всех повторных рёбер в новом проходе и только затем зафиксируйте накопленные градиенты',
       'Отклоняйте небезопасные значения графа и вклады обратного прохода без частичного изменения градиентов',
-      'Сравните обратный режим с независимой центральной разностью и проверьте отсоединение',
+      'Сопоставьте обратный режим с выборочной сверкой центральными разностями и проверьте отсоединение',
       'Подготовьте воспроизводимые результаты скалярного автоматического дифференцирования перед выводом',
     ],
     rustLabels: [
@@ -163,7 +163,7 @@ const copy = {
       'Постройте один граф с общими узлами',
       'Накопите один новый обратный проход',
       'Зафиксируйте, повторите, обнулите и восстановите',
-      'Проверьте отсоединение и численный метод',
+      'Проверьте отсоединение и выборочную численную сверку',
       'Отклоните небезопасные градиенты до изменения графа',
     ],
     exerciseSummary:
@@ -765,7 +765,7 @@ test.describe('chapter 14 localized scalar-autodiff vertical slice', {
     });
   }
 
-  test('chapter 14 full view reflows both figures in both locales without substantial travel', async ({
+  test('chapter 14 full view keeps both figures in both locales contained with root-owned vertical continuation', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -786,32 +786,50 @@ test.describe('chapter 14 localized scalar-autodiff vertical slice', {
         );
         await settle(page);
         const geometry = await diagram.evaluate((node) => ({
-          blockDebt: node.scrollHeight - node.clientHeight,
-          blockBudget: Math.ceil(node.clientHeight * 0.25),
-          inlineDebt: node.scrollWidth - node.clientWidth,
-          regionInlineDebts: Array.from(
+          blockDebt: Math.max(0, node.scrollHeight - node.clientHeight),
+          rootOverflowY: getComputedStyle(node).overflowY,
+          inlineDebt: Math.max(0, node.scrollWidth - node.clientWidth),
+          regionDebts: Array.from(
             node.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
-          ).map((region) => region.scrollWidth - region.clientWidth),
-          boxDebts: Array.from(node.querySelectorAll<HTMLElement>('[data-diagram-box]')).map(
-            (box) => ({
-              inline: box.scrollWidth - box.clientWidth,
-              block: box.scrollHeight - box.clientHeight,
-            }),
-          ),
+          ).map((region) => ({
+            inline: Math.max(0, region.scrollWidth - region.clientWidth),
+            block: Math.max(0, region.scrollHeight - region.clientHeight),
+          })),
+          localVerticalOwnerCount: Array.from(
+            node.querySelectorAll<HTMLElement>('*'),
+          ).filter((element) => {
+            const debt = Math.max(0, element.scrollHeight - element.clientHeight);
+            const { overflowY } = getComputedStyle(element);
+            return overflowY === 'scroll' || (overflowY === 'auto' && debt > 2);
+          }).length,
+          boxDebts: Array.from(
+            node.querySelectorAll<HTMLElement>('[data-diagram-box]'),
+          ).map((box) => ({
+            inline: Math.max(0, box.scrollWidth - box.clientWidth),
+            block: Math.max(0, box.scrollHeight - box.clientHeight),
+          })),
         }));
         const geometryLabel = `${locale}/${visualizationId}`;
-        expect(
-          geometry.blockDebt,
-          `${geometryLabel} full-view block debt`,
-        ).toBeLessThanOrEqual(geometry.blockBudget);
+        if (geometry.blockDebt > 2) {
+          expect(
+            ['auto', 'scroll'],
+            `${geometryLabel} root-owned vertical continuation`,
+          ).toContain(geometry.rootOverflowY);
+        }
         expect(
           geometry.inlineDebt,
           `${geometryLabel} full-view inline debt`,
         ).toBeLessThanOrEqual(2);
         expect(
-          geometry.regionInlineDebts.every((debt) => debt <= 2),
-          `${geometryLabel} named-region inline containment`,
+          geometry.regionDebts.every(
+            ({ inline, block }) => inline <= 2 && block <= 2,
+          ),
+          `${geometryLabel} named-region containment`,
         ).toBe(true);
+        expect(
+          geometry.localVerticalOwnerCount,
+          `${geometryLabel} descendant vertical owners`,
+        ).toBe(0);
         expect(
           geometry.boxDebts.every(({ inline, block }) => inline <= 2 && block <= 2),
           `${geometryLabel} bounded-box containment`,

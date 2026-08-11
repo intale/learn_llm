@@ -1166,7 +1166,7 @@ with JavaScript enabled.
 
 - **Chapter ID:** `12-stable-softmax`
 - **Implementation step:** `implement-ch12-stable-softmax`
-- **Revision status:** Content revision 7 defines the maximum, shifted-exponential sum, and log-normalizer as reusable group facts; one checked forward call computes those facts once per group and can emit its lean result plus crate-private saved probabilities without a second normalization during `share-probability-forward-plan`. Revision 6's checked group-base cursor, source and output class strides, target offsets, and exact indexed-mean fallback remain in force.
+- **Revision status:** Content revision 8 scopes the Chapter 13 handoff as a materially separate sampled finite-difference cross-check: the numerical path perturbs the production indexed-mean-NLL objective, the analytic candidate uses a separate local row routine, and both paths still share the fixture logits and targets, IEEE `f64` arithmetic and `exp`, `Tensor` storage, and row-major index conventions. Agreement is evidence only for selected probes of a locally smooth objective, not proof of the complete gradient or shared assumptions. Revision 7's reusable group facts and saved-probability forward plan and revision 6's checked traversal and indexed-mean fallback remain in force.
 - **Depends on:** `11-matrix-multiplication`.
 - **Outcome:** Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.
 - **Scope boundary:** Teach logits, max shifting, log-sum-exp, softmax, log-softmax, indexed mean NLL, and edge behavior; defer gradient propagation.
@@ -1176,29 +1176,29 @@ with JavaScript enabled.
 - **Visualization:** Useful — compare naive and shifted exponentials for ordinary and extreme logits while showing invariant probabilities.
 - **Practice:** Predict softmax invariance after adding the same constant and diagnose overflow for `[1000,1001]`.
 - **Integration evidence:** Exact shift invariance for the worked rows, normalization, large/small/equal finite logits, log-sum-exp agreement, indexed NLL, invalid axes/targets, and explicit representability boundaries pass.
-- **Handoff:** Chapter 13 establishes an independent numerical oracle before automatic differentiation is trusted.
+- **Handoff:** Chapter 13 establishes a materially separate sampled numerical cross-check, with explicit shared assumptions and a local-smoothness requirement, before automatic differentiation is trusted.
 
 ## 13. Numerical differentiation and gradient checks
 
 - **Chapter ID:** `13-gradient-checking`
 - **Implementation step:** `implement-ch13-gradient-checking`
-- **Revision status:** Content revision 4 adds the complete Russian projection, precise truncation-order and indexed-NLL derivative formulas, concept-implementing Rust regions, learner-facing numerical evidence, and a shared-system diagram during `activate-ch13-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
+- **Revision status:** Content revision 6 derives the unequal three-point estimate from actual representable probe spacing, makes local smoothness and sampled-evidence limits explicit, and separates the analytic NLL candidate from the production probability path during `correct-ch13-rounded-probe-gradcheck`; revisions 4–5, Russian activation, and the formula-rendering repair remain recorded in their original steps.
 - **Depends on:** `12-stable-softmax`.
-- **Outcome:** Approximate derivatives with central differences and compare analytic candidates using scale-aware error.
-- **Scope boundary:** Teach step size, truncation/rounding trade-offs, central differences, relative error, and sampled tensor coordinates; defer automatic differentiation.
-- **Formula:** `f'(\theta)\approx\frac{f(\theta+h)-f(\theta-h)}{2h}`.
-- **Historical contrast:** Analytic backpropagation is efficient but derivative bugs become harder to isolate as neural-language-model graphs grow; use finite differences as a slow, independent training-code oracle, not as a decoder runtime component or a later model invention.
-- **Rust contribution:** Add scalar and tensor-coordinate gradcheck helpers with deterministic sampling and explicit tolerances.
-- **Visualization:** Useful — draw secants around a point for several `h` values and show convergence then floating-point deterioration.
-- **Practice:** Predict the numerical derivative of a quadratic and choose which of three step sizes is trustworthy.
-- **Integration evidence:** Polynomial and composed functions, wrong-gradient rejection, scale-aware tolerance, deterministic coordinates, and edge errors pass.
-- **Handoff:** Chapter 14 builds a scalar reverse-mode graph and checks it against this numerical reference.
+- **Outcome:** Approximate derivatives of locally smooth objectives from actual representable probes and compare sampled analytic candidates using scale-aware error.
+- **Scope boundary:** Define the actual probes and spacings as `theta_-=fl(theta-h)`, `h_-=theta-theta_-`, `theta_+=fl(theta+h)`, and `h_+=theta_+-theta`; teach requested versus actual probe spacing, the unequal three-point estimate, truncation/rounding trade-offs, the nondifferentiable-kink boundary, scale-aware comparison, and sampled tensor coordinates; defer automatic differentiation and any claim that a finite stencil proves differentiability or a complete gradient.
+- **Formula:** `f'(\theta)\approx\frac{h_+}{h_-+h_+}\frac{f(\theta)-f(\theta_-)}{h_-}+\frac{h_-}{h_-+h_+}\frac{f(\theta_+)-f(\theta)}{h_+}`.
+- **Historical contrast:** Analytic backpropagation is efficient but derivative bugs become harder to isolate as neural-language-model graphs grow; use finite differences as a slow, materially separate sampled cross-check for a known-smooth objective, not as universal ground truth, a decoder runtime component, or a later model invention.
+- **Rust contribution:** Add unequal-spacing scalar and tensor-coordinate gradcheck helpers with overflow-safe normalized weights, actual probe geometry, one-sided diagnostics, deterministic sampling, exact restoration, and explicit tolerances; derive the frozen analytic NLL candidate through a local row implementation separate from the indexed-NLL objective.
+- **Visualization:** Useful — show requested and actual probe spacing, a rounded asymmetric identity fixture, the `abs(0)` kink limitation, several step sizes, materially separate NLL paths with explicit shared assumptions, sampled NLL coordinates, and floating-point deterioration.
+- **Practice:** Predict the numerical derivative of a quadratic, explain why the rounded asymmetric identity must still return one, identify why `abs(0)` has no derivative despite a centered zero, and choose which of three step sizes is trustworthy.
+- **Integration evidence:** Unequal-probe linear and quadratic adversaries, smooth and kink one-sided diagnostics, wrong-gradient rejection, scale-aware tolerance, materially separate analytic-NLL source boundaries, deterministic coordinates, restoration, and typed edge errors pass.
+- **Handoff:** Chapter 14 builds a scalar reverse-mode graph and checks selected derivatives against this numerical evidence while retaining the same smoothness and shared-assumption limits.
 
 ## 14. Scalar reverse-mode automatic differentiation
 
 - **Chapter ID:** `14-scalar-autodiff`
 - **Implementation step:** `implement-ch14-scalar-autodiff`
-- **Revision status:** Content revision 5 adds the selected-output seed boundary and restricts operand-use edges to that output's backward dependency slice; revision 4's edge multiplicity, shared presentation, and reviewed Russian activation remain in force.
+- **Revision status:** Content revision 6 synchronizes the scalar gradcheck evidence with Chapter 13's corrected actual-spacing stencil and describes it as a materially separate sampled cross-check with shared function specification, input, and `f64` assumptions; revision 5's selected-output seed boundary and revision 4's edge multiplicity, shared presentation, and reviewed Russian activation remain in force.
 - **Depends on:** `13-gradient-checking`.
 - **Outcome:** Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions.
 - **Scope boundary:** Teach graph nodes, local derivatives, topological order, chain rule, accumulation, zeroing, and detach; defer tensor operations.

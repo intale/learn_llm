@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 14,
   "concept_id": "scalar-autodiff",
   "title": "Accumulate gradients through a scalar graph",
@@ -59,7 +59,7 @@
       "predecessor_kind": "training-practice",
       "limitation": "Bengio et al.'s neural language model learns next-word probabilities and distributed word features with an explicit forward phase followed by equations that propagate gradients and update output-layer, hidden-layer, and word-representation parameters. Baydin et al. show that symbolic differentiation can duplicate shared expressions, while forward mode needs one sweep per independent input variable or direction to recover a scalar loss's full gradient. Both become unwieldy for a language model with many parameters.",
       "later_advance": "Baydin et al. describe reverse mode as recording dependencies during a forward evaluation and propagating adjoints from one scalar output back through the graph, adding contributions from every path. That direction fits a scalar training objective with many parameters. Vaswani et al. then train repeated Transformer attention and feed-forward layers, and Radford et al. scale autoregressive Transformer language models from 12 to 48 layers and from 117 million to 1.542 billion parameters.",
-      "modern_llm_role": "This chapter isolates reverse accumulation in a tiny scalar graph, checks its derivatives with Chapter 13's independent numerical oracle, and prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.",
+      "modern_llm_role": "This chapter isolates reverse accumulation in a tiny scalar graph, then checks selected derivatives against Chapter 13's materially separate sampled numerical cross-check. Both paths still use the same mathematical function and input value and share IEEE f64 arithmetic, so agreement at the chosen smooth point is evidence rather than proof of the complete reverse-mode system. The result prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.",
       "sources": [
         {
           "role": "earlier",
@@ -163,7 +163,7 @@ export const diagramLabels = {
     graph: 'Build one shared forward graph',
     reverse: 'Accumulate one fresh reverse pass',
     accumulation: 'Commit, repeat, zero, and restore',
-    evidence: 'Check detach and the numerical oracle',
+    evidence: 'Check detach and a sampled numerical cross-check',
     errors: 'Reject unsafe gradients before mutation',
   },
   fields: {
@@ -215,7 +215,7 @@ export const diagramLabels = {
     accumulation:
       'Each call computes fresh pass-local adjoints before adding one complete pass to storage. It never propagates the previous call\'s intermediates.',
     evidence:
-      'Detach preserves a primal value but removes the parent edge. Chapter 13 probes the same forward expression independently with central differences.',
+      'Detach preserves a primal value but removes the parent edge. Chapter 13 evaluates the same mathematical function through a separate sampled central-difference path; because both paths share the function specification, input, and f64 arithmetic, agreement is evidence rather than proof.',
     errors:
       'The implementation validates every contribution and prospective stored sum before committing, so a failed backward call leaves all stored gradient bits unchanged.',
   },
@@ -350,7 +350,7 @@ The scaled autoregressive-language-model example is
 [Radford et al., *Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language-models.pdf).
 Radford et al. use Transformer-based autoregressive language models and report four sizes spanning 12 to 48 layers and 117 million to 1.542 billion parameters.
 
-This chapter isolates reverse accumulation in a tiny scalar graph, checks its derivatives with Chapter 13's independent numerical oracle, and prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.
+This chapter isolates reverse accumulation in a tiny scalar graph, then checks selected derivatives against Chapter 13's materially separate sampled numerical cross-check. Both paths still use the same mathematical function and input value and share IEEE f64 arithmetic, so agreement at the chosen smooth point is evidence rather than proof of the complete reverse-mode system. The result prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph: reverse mode is needed while computing training gradients, with fresh pass adjoints kept separate from gradients accumulated across completed backward calls.
 
 The compact `Scalar` design is an educational example of the general mechanism
 rather than a claim about the internal representation of a cited Transformer.
@@ -409,15 +409,18 @@ bits unchanged.
   label="Rust source defining the Chapter 14 scalar autodiff errors"
 />
 
-Chapter 13 remains an independent oracle. For this graph the forward expression
-is $2x^2$, so the analytic derivative is $4x$, which equals $8$ at $x=2$.
-The central-difference checker perturbs only the ordinary scalar function; it
-does not inspect or reuse the backward graph.
+Chapter 13 supplies a materially separate sampled numerical cross-check. It
+evaluates the same mathematical function and therefore still shares the function
+specification, input value, and IEEE `f64` arithmetic. Agreement at this selected smooth point
+is evidence, not proof of the complete reverse graph. For this graph the forward
+expression is $2x^2$, so the analytic derivative is $4x$, which equals $8$ at
+$x=2$. The central-difference checker perturbs only the ordinary scalar function;
+it does not inspect or reuse the backward graph.
 
 <RustSource
   path="rust/demos/ch14-scalar-autodiff/src/lib.rs"
   region="nonlinear-detach-gradcheck"
-  caption="Compare reverse mode with independent central differences and exercise detach"
+  caption="Compare reverse mode with a sampled central-difference cross-check and exercise detach"
   label="Rust source checking the Chapter 14 analytic scalar gradients"
 />
 
@@ -443,7 +446,7 @@ zero_grad: x_grad=0.000000000000 square_grad=0.000000000000 loss_grad=0.00000000
 after zero: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000
 detach: expression=x*x+detach(x)*3 value=10.000000000000 x_grad=4.000000000000 detached_grad=none
 nonlinear: expression=exp(tanh(x)) input=0.500000000000 value=1.587431271430 gradient=1.248431724655
-gradcheck: expression=2*x*x analytic=8.000000000000 numerical=8.000000000052 scaled_error=6.551204023708e-12 pass=true
+gradcheck: expression=2*x*x analytic=8.000000000000 numerical=8.000000000000 scaled_error=0.000000000000e0 pass=true
 typed errors: constant-output | non-finite-seed | non-finite-accumulated-gradient; gradients unchanged=true
 chapter 15 handoff: replace scalar edges with tensor vector-Jacobian products
 ```

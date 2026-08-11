@@ -583,14 +583,14 @@ export function parseModelAutodiffOpsTrace(stdout: string): ModelAutodiffOpsTrac
   });
 
   const expectedGradchecks = [
-    ['matmul-left', '0,1,2,3', '0.000000000117'],
-    ['matmul-right', '0,1,2,3', '0.000000000123'],
-    ['gather_rows', '0,1,3,5', '0.000000000304'],
-    ['exp', '0,1,2', '0.000000000303'],
-    ['log', '0,1,2', '0.000000000109'],
-    ['silu', '0,1,2', '0.000000000038'],
-    ['log_softmax', '0,1,3,5', '0.000000000105'],
-    ['indexed_mean_nll', '0,1,3,5', '0.000000000063'],
+    ['matmul-left', '0,1,2,3', '0.000000000122'],
+    ['matmul-right', '0,1,2,3', '0.000000000111'],
+    ['gather_rows', '0,1,3,5', '0.000000000222'],
+    ['exp', '0,1,2', '0.000000000316'],
+    ['log', '0,1,2', '0.000000000048'],
+    ['silu', '0,1,2', '0.000000000041'],
+    ['log_softmax', '0,1,3,5', '0.000000000106'],
+    ['indexed_mean_nll', '0,1,3,5', '0.000000000056'],
   ] as const;
   const gradcheckPattern = new RegExp(
     `^GRADCHECK operation=(matmul-left|matmul-right|gather_rows|exp|log|silu|log_softmax|indexed_mean_nll) samples=(${integerListLexeme}) max-scaled-error=(${fixedLexeme}) tolerance=(${fixedLexeme}) status=(pass)$`,

@@ -3,14 +3,14 @@
 use std::error::Error;
 
 use llm_from_scratch::autograd::gradcheck::{
-    GradCheckError, central_difference, sampled_tensor_gradient_check,
+    CentralDifference, GradCheckError, central_difference, sampled_tensor_gradient_check,
 };
 use llm_from_scratch::tensor::storage::Tensor;
 
 use crate::{
-    CUBIC_ANALYTIC, CUBIC_POINT, LOGIT_VALUES, STEP_SCAN, STEP_TOLERANCE, TARGETS, TENSOR_SAMPLES,
-    TENSOR_STEP, TENSOR_TOLERANCE, cubic_step_scan, quadratic_gradient_check,
-    tiny_nll_gradient_example,
+    CUBIC_ANALYTIC, CUBIC_POINT, KINK_TOLERANCE, LOGIT_VALUES, STEP_SCAN, STEP_TOLERANCE, TARGETS,
+    TENSOR_SAMPLES, TENSOR_STEP, TENSOR_TOLERANCE, absolute_kink_diagnostic, cubic_step_scan,
+    quadratic_gradient_check, rounded_identity_gradient_check, tiny_nll_gradient_example,
 };
 
 fn fixed(value: f64) -> String {
@@ -21,8 +21,33 @@ fn scientific(value: f64) -> String {
     format!("{value:.12e}")
 }
 
+fn exact_scientific(value: f64) -> String {
+    format!("{value:.17e}")
+}
+
 fn status(passed: bool) -> &'static str {
     if passed { "pass" } else { "fail" }
+}
+
+fn difference_record(difference: &CentralDifference) -> String {
+    format!(
+        "requested-step={} minus-point={} center-point={} plus-point={} minus-spacing={} plus-spacing={} minus-value={} center-value={} plus-value={} left-slope={} right-slope={} left-weight={} right-weight={} stencil={} numerical={}",
+        exact_scientific(difference.requested_step),
+        fixed(difference.minus_point),
+        fixed(difference.point),
+        fixed(difference.plus_point),
+        exact_scientific(difference.minus_spacing),
+        exact_scientific(difference.plus_spacing),
+        fixed(difference.minus_value),
+        fixed(difference.center_value),
+        fixed(difference.plus_value),
+        fixed(difference.left_slope),
+        fixed(difference.right_slope),
+        exact_scientific(difference.left_weight),
+        exact_scientific(difference.right_weight),
+        difference.stencil,
+        fixed(difference.derivative),
+    )
 }
 
 fn comparison_record(name: &str, check: &crate::ScalarGradientCheck) -> String {
@@ -43,10 +68,12 @@ fn comparison_record(name: &str, check: &crate::ScalarGradientCheck) -> String {
 pub fn render_trace() -> Result<String, Box<dyn Error>> {
     let correct = quadratic_gradient_check(6.0)?;
     let wrong = quadratic_gradient_check(5.5)?;
+    let rounded = rounded_identity_gradient_check()?;
+    let kink = absolute_kink_diagnostic()?;
     let scan = cubic_step_scan()?;
     let nll = tiny_nll_gradient_example()?;
     let mut lines = vec![
-        "TRACE gradient-checking-v1 BEGIN".to_string(),
+        "TRACE gradient-checking-v2 BEGIN".to_string(),
         format!(
             "CONFIG point={} analytic={} tolerance={} steps={}",
             fixed(CUBIC_POINT),
@@ -59,31 +86,38 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
                 .join(",")
         ),
         format!(
-            "CENTRAL name=quadratic point={} step={} minus-point={} plus-point={} minus-value={} plus-value={} numerical={}",
+            "CENTRAL name=quadratic point={} {}",
             fixed(correct.difference.point),
-            fixed(correct.difference.step),
-            fixed(correct.difference.minus_point),
-            fixed(correct.difference.plus_point),
-            fixed(correct.difference.minus_value),
-            fixed(correct.difference.plus_value),
-            fixed(correct.difference.derivative)
+            difference_record(&correct.difference)
         ),
         comparison_record("quadratic-correct", &correct),
         comparison_record("quadratic-wrong", &wrong),
+        format!(
+            "ROUNDED-LINEAR analytic={} status={} {}",
+            fixed(rounded.comparison.analytic),
+            status(rounded.comparison.passed),
+            difference_record(&rounded.difference)
+        ),
+        format!(
+            "KINK name=absolute known-nondifferentiable=yes one-sided-scaled-gap={} tolerance={} consistency={} {}",
+            scientific(kink.slopes.scaled_gap),
+            scientific(KINK_TOLERANCE),
+            if kink.slopes.consistent {
+                "agree"
+            } else {
+                "disagree"
+            },
+            difference_record(&kink.difference)
+        ),
     ];
 
     for (index, record) in scan.iter().enumerate() {
         let difference = record.check.difference;
         let comparison = record.check.comparison;
         lines.push(format!(
-            "H-SCAN index={index} phase={} step={} minus-point={} plus-point={} minus-value={} plus-value={} numerical={} absolute-error={} scale={} scaled-error={} status={}",
+            "H-SCAN index={index} phase={} {} absolute-error={} scale={} scaled-error={} status={}",
             record.phase,
-            scientific(difference.step),
-            fixed(difference.minus_point),
-            fixed(difference.plus_point),
-            fixed(difference.minus_value),
-            fixed(difference.plus_value),
-            fixed(difference.derivative),
+            difference_record(&difference),
             scientific(comparison.absolute_error),
             fixed(comparison.scale),
             scientific(comparison.scaled_error),
@@ -91,8 +125,12 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
         ));
     }
 
+    lines.push(
+        "ORACLE analytic-path=local-row-max-exp-sum-normalize-target-gradient objective-path=indexed-mean-nll shared-primitives=f64-exp,frozen-inputs-and-targets material-course-path=separate"
+            .to_string(),
+    );
     lines.push(format!(
-        "TENSOR shape=2,3 targets={},{} values={} loss={} step={} tolerance={}",
+        "TENSOR shape=2,3 targets={},{} values={} loss={} requested-step={} tolerance={}",
         TARGETS[0],
         TARGETS[1],
         LOGIT_VALUES
@@ -101,7 +139,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
             .collect::<Vec<_>>()
             .join(","),
         fixed(nll.loss),
-        scientific(TENSOR_STEP),
+        exact_scientific(TENSOR_STEP),
         scientific(TENSOR_TOLERANCE)
     ));
     lines.push(format!(
@@ -130,7 +168,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     ));
     for check in &nll.check.checks {
         lines.push(format!(
-            "COORD flat={} coordinate={} analytic={} numerical={} absolute-error={} scale={} scaled-error={} status={}",
+            "COORD flat={} coordinate={} analytic={} {} absolute-error={} scale={} scaled-error={} status={}",
             check.flat_index,
             check
                 .coordinate
@@ -139,7 +177,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
                 .collect::<Vec<_>>()
                 .join(":"),
             fixed(check.comparison.analytic),
-            fixed(check.comparison.numerical),
+            difference_record(&check.difference),
             scientific(check.comparison.absolute_error),
             fixed(check.comparison.scale),
             scientific(check.comparison.scaled_error),
@@ -173,13 +211,15 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
         shape,
         GradCheckError::GradientShapeMismatch { .. }
     ));
+    debug_assert!(rounded.comparison.passed);
+    debug_assert!(!kink.slopes.consistent);
     lines.extend([
         "ERROR kind=invalid-step step=0.000000000000".to_string(),
         "ERROR kind=collapsed-perturbation side=minus point=1.000000000000 step=1.000000000000e-20"
             .to_string(),
         "ERROR kind=non-finite-evaluation side=minus value=NaN".to_string(),
         "ERROR kind=shape-mismatch parameters=2 analytic=1,2".to_string(),
-        "TRACE gradient-checking-v1 END".to_string(),
+        "TRACE gradient-checking-v2 END".to_string(),
     ]);
     Ok(format!("{}\n", lines.join("\n")))
 }
@@ -192,9 +232,10 @@ mod tests {
     #[test]
     fn trace_is_one_ordered_final_newline_block() {
         let trace = render_trace().unwrap();
-        assert!(trace.starts_with("TRACE gradient-checking-v1 BEGIN\n"));
-        assert!(trace.ends_with("TRACE gradient-checking-v1 END\n"));
+        assert!(trace.starts_with("TRACE gradient-checking-v2 BEGIN\n"));
+        assert!(trace.ends_with("TRACE gradient-checking-v2 END\n"));
         assert!(!trace.ends_with("\n\n"));
-        assert_eq!(trace.lines().count(), 23);
+        assert_eq!(trace.lines().count(), 26);
+        assert_eq!(trace, include_str!("../diagram-trace.txt"));
     }
 }

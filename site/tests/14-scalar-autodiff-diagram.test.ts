@@ -65,9 +65,9 @@ const protectedScalarArtifacts = {
   'rust/demos/ch14-scalar-autodiff/src/main.rs':
     '08d41305280aede7fff29ac40426b1f5a0f4bc8ccc2a177754361605f892bbb0',
   'rust/demos/ch14-scalar-autodiff/expected.txt':
-    'bdfaa6efb3b06c422105d69fc3e65f83ee74561567b8c176d189a4aed703def0',
+    '702c7737b32067128c8a8aeb657007e107dcd128c7742d8dd4301d42614f69bd',
   'rust/demos/ch14-scalar-autodiff/diagram-trace.txt':
-    'c6ce34d2f937aa6f48e5aff0b4032cb3ddc1f546098fb7554760a4739c201fde',
+    '3cd815bbecbc6c41c97991c0278d72fb4162330b27f4616a2300569ac2dafe9d',
 } as const;
 const contractSource = readFileSync(
   resolve(repositoryRoot, 'curriculum/chapters/14-scalar-autodiff.md'),
@@ -190,10 +190,10 @@ const labels: ScalarAutodiffDiagramLabels = {
 };
 
 describe('Chapter 14 exact reverse-mode boundary', () => {
-  it('publishes one revision-5 seed boundary and its complete symbol inventory', () => {
+  it('publishes one revision-6 seed and sampled-cross-check boundary with its complete symbol inventory', () => {
     const records = [contractSource, ...lessonSources].map(parseFormulaFrontmatter);
 
-    expect(records.map(({ content_revision }) => content_revision)).toEqual([5, 5, 5]);
+    expect(records.map(({ content_revision }) => content_revision)).toEqual([6, 6, 6]);
     expect(records.map(({ formula }) => formula.latex)).toEqual([
       formulaLatex,
       formulaLatex,
@@ -247,7 +247,7 @@ describe('Chapter 14 exact reverse-mode boundary', () => {
     expect(lessonSources[1]).not.toMatch(/обратн(?:ый|ого|ом) срез|множество с повторениями/iu);
   });
 
-  it('keeps the already-correct scalar runtime, output, and trace byte-identical', () => {
+  it('keeps the scalar implementation byte-identical and hash-locks regenerated evidence', () => {
     expect(
       Object.fromEntries(
         Object.keys(protectedScalarArtifacts).map((path) => [path, sha256(path)]),
@@ -328,8 +328,8 @@ describe('Chapter 14 Rust trace parser', () => {
     });
     expect(trace.gradcheck).toMatchObject({
       analytic: { lexeme: '8.000000000000' },
-      numerical: { lexeme: '8.000000000052' },
-      scaledError: { lexeme: '6.551204023708e-12' },
+      numerical: { lexeme: '8.000000000000' },
+      scaledError: { lexeme: '0.000000000000e0' },
       status: 'pass',
     });
     expect(trace.errors.map(({ kind, gradientsUnchanged }) => ({ kind, gradientsUnchanged }))).toEqual([
@@ -350,7 +350,7 @@ describe('Chapter 14 Rust trace parser', () => {
     ['first-pass gradient', fixture.replace('BACKWARD pass=1 x=8.000000000000', 'BACKWARD pass=1 x=7.000000000000'), /BACKWARD 1 differs/],
     ['zero state', fixture.replace('ZERO x=0.000000000000', 'ZERO x=1.000000000000'), /ZERO differs/],
     ['nonlinear lexeme', fixture.replace('value=1.587431271430', 'value=1.500000000000'), /NONLINEAR differs/],
-    ['gradcheck lexeme', fixture.replace('scaled-error=6.551204023708e-12', 'scaled-error=1.000000000000e-3'), /GRADCHECK differs/],
+    ['gradcheck lexeme', fixture.replace('scaled-error=0.000000000000e0', 'scaled-error=1.000000000000e-3'), /GRADCHECK differs/],
     ['error order', fixture.replace('ERROR kind=constant-output operation=constant gradients-unchanged=yes\nERROR kind=non-finite-seed seed=inf gradients-unchanged=yes', 'ERROR kind=non-finite-seed seed=inf gradients-unchanged=yes\nERROR kind=constant-output operation=constant gradients-unchanged=yes'), /ordered ERROR records/],
     ['transactional evidence', fixture.replace('node=0 gradients-unchanged=yes', 'node=0 gradients-unchanged=no'), /ordered ERROR records/],
   ])('rejects %s rather than repairing Rust evidence', (_label, candidate, expected) => {

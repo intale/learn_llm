@@ -25,7 +25,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '12-stable-softmax';
-const contentRevision = 7;
+const contentRevision = 8;
 const formulaLatex = String.raw`p_i=\frac{\exp(\ell_i-m)}{\sum_j\exp(\ell_j-m)}, \quad m=\max_j\ell_j`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -43,6 +43,8 @@ interface LocalizedCopy {
   historyClaims: readonly string[];
   implementationHeading: string;
   implementationClaims: readonly string[];
+  handoffHeading: string;
+  handoffClaims: readonly string[];
   rustCaptions: readonly string[];
   rustLabels: readonly string[];
   diagramTitle: string;
@@ -69,7 +71,7 @@ const copy = {
       'Implement checked log-domain operations',
       'Compare naive and stable exponentials',
       'Predict before running Rust',
-      'Prepare an independent gradient oracle',
+      'Prepare a sampled gradient cross-check',
     ],
     historyHeading: 'From vocabulary softmax to Transformer probabilities',
     historyClaims: [
@@ -97,6 +99,14 @@ const copy = {
       'If every group loss and the running sum remain finite, the function divides total by T once and returns the mean in nats per target; this single final division preserves representable subnormal mean rounding.',
       'In parallel, the fallback scaled_mean adds the two nonnegative parts of each group loss after dividing each part by T:',
       'The function returns scaled_mean only when a complete group loss or the running value of total overflows; otherwise it divides total by T and returns that quotient.',
+    ],
+    handoffHeading: 'Prepare a sampled gradient cross-check',
+    handoffClaims: [
+      'The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward indexed mean NLL that Chapter 13 uses for a materially separate sampled finite-difference cross-check.',
+      'The analytic and numerical paths still share the fixture logits and target indices, IEEE f64 arithmetic and its elementary exp, Tensor storage, and row-major index conventions, so agreement is evidence for the selected probes of a locally smooth objective, not proof of the complete gradient or every shared assumption.',
+      'Chapter 13 perturbs that production indexed_mean_nll objective, while a separate local analytic routine computes stabilized row probabilities and candidate derivatives without calling the production softmax or indexed_mean_nll implementation.',
+      'Finite differences vary one scalar logit at a time and require the objective to be smooth across each probe interval.',
+      'It does not prove differentiability, the complete gradient, the complete probability implementation, or any shared assumption.',
     ],
     rustCaptions: [
       'Expose raw-exponential normalization for one ordinary and two extreme finite rows',
@@ -163,7 +173,7 @@ const copy = {
       'Реализуйте вычисления в логарифмической шкале с явными проверками',
       'Сравните прямое вычисление softmax с устойчивым',
       'Сделайте прогноз перед запуском Rust',
-      'Подготовьте независимую проверку градиентов',
+      'Подготовьте выборочную сверку градиентов',
     ],
     historyHeading: 'От softmax по словарю к вероятностям Transformer',
     historyClaims: [
@@ -191,6 +201,15 @@ const copy = {
       'Если потери всех групп и текущая сумма остаются конечными, функция один раз делит total на T и возвращает среднее в натах на одну цель. Благодаря единственному делению в конце сохраняется корректное округление представимого субнормального среднего.',
       'Параллельно запасной накопитель scaled_mean складывает две неотрицательные части потери каждой группы, предварительно разделив каждую часть на T:',
       'Функция возвращает scaled_mean только при переполнении полной потери группы или текущего значения total; иначе она делит total на T и возвращает полученное частное.',
+    ],
+    handoffHeading: 'Подготовьте выборочную сверку градиентов',
+    handoffClaims: [
+      'Эти операции будут нормировать оценки по словарю и в механизме внимания, а вычисленное ими на прямом проходе среднее NLL по индексам глава 13 использует для выборочной сверки конечными разностями с отдельным аналитическим путём.',
+      'Аналитический и численный пути всё ещё используют одни и те же логиты примера и целевые индексы, арифметику IEEE f64 и элементарную функцию exp, хранилище Tensor и соглашения о построчной индексации.',
+      'Поэтому совпадение служит свидетельством для выбранных точек при локальной гладкости целевой функции, а не доказательством полного градиента или всех общих предпосылок.',
+      'В главе 13 основная функция indexed_mean_nll вычисляется для изменённых входных значений, а отдельная локальная аналитическая функция получает устойчивые вероятности строк и значения производных для сверки, не вызывая основные реализации softmax или indexed_mean_nll.',
+      'При вычислении конечных разностей по очереди изменяется один скалярный логит; целевая функция должна быть гладкой на каждом интервале между точками вычисления.',
+      'Оно не доказывает дифференцируемость, правильность всего градиента или всей вероятностной реализации и не проверяет общие предпосылки двух путей.',
     ],
     rustCaptions: [
       'Показать прямую нормализацию экспонент для одной обычной строки и двух строк с большими по модулю конечными значениями',
@@ -325,6 +344,16 @@ async function expectChapterContent(
   const implementationText = await readMathAwareText(implementationNodes);
   for (const claim of localized.implementationClaims) {
     expect(implementationText).toContain(claim);
+  }
+
+  const handoffNodes = page
+    .getByRole('heading', { level: 2, name: localized.handoffHeading, exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.handoffHeading}"]]`,
+    );
+  const handoffText = await readMathAwareText(handoffNodes);
+  for (const claim of localized.handoffClaims) {
+    expect(handoffText).toContain(claim);
   }
 
   const formula = page
@@ -586,7 +615,7 @@ test.describe('chapter 12 localized stable-softmax vertical slice', {
     });
   }
 
-  test('chapter 12 full view fits both localized diagrams without substantial travel', async ({
+  test('chapter 12 full view keeps both localized diagrams contained with root-owned vertical continuation', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -609,22 +638,39 @@ test.describe('chapter 12 localized stable-softmax vertical slice', {
         ':scope > figcaption > .course-diagram__description',
       );
       const geometry = await diagram.evaluate((node) => ({
-        blockDebt: node.scrollHeight - node.clientHeight,
-        blockBudget: Math.ceil(node.clientHeight * 0.2),
-        inlineDebt: node.scrollWidth - node.clientWidth,
-        regionInlineDebts: Array.from(
+        blockDebt: Math.max(0, node.scrollHeight - node.clientHeight),
+        rootOverflowY: getComputedStyle(node).overflowY,
+        inlineDebt: Math.max(0, node.scrollWidth - node.clientWidth),
+        regionDebts: Array.from(
           node.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
-        ).map((region) => region.scrollWidth - region.clientWidth),
+        ).map((region) => ({
+          inline: Math.max(0, region.scrollWidth - region.clientWidth),
+          block: Math.max(0, region.scrollHeight - region.clientHeight),
+        })),
+        localVerticalOwnerCount: Array.from(
+          node.querySelectorAll<HTMLElement>('*'),
+        ).filter((element) => {
+          const debt = Math.max(0, element.scrollHeight - element.clientHeight);
+          const { overflowY } = getComputedStyle(element);
+          return overflowY === 'scroll' || (overflowY === 'auto' && debt > 2);
+        }).length,
         boxDebts: Array.from(
           node.querySelectorAll<HTMLElement>('[data-diagram-box]'),
         ).map((box) => ({
-          inline: box.scrollWidth - box.clientWidth,
-          block: box.scrollHeight - box.clientHeight,
+          inline: Math.max(0, box.scrollWidth - box.clientWidth),
+          block: Math.max(0, box.scrollHeight - box.clientHeight),
         })),
       }));
-      expect(geometry.blockDebt).toBeLessThanOrEqual(geometry.blockBudget);
+      if (geometry.blockDebt > 2) {
+        expect(['auto', 'scroll']).toContain(geometry.rootOverflowY);
+      }
       expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
-      expect(geometry.regionInlineDebts.every((debt) => debt <= 2)).toBe(true);
+      expect(
+        geometry.regionDebts.every(
+          ({ inline, block }) => inline <= 2 && block <= 2,
+        ),
+      ).toBe(true);
+      expect(geometry.localVerticalOwnerCount).toBe(0);
       expect(
         geometry.boxDebts.every(({ inline, block }) => inline <= 2 && block <= 2),
       ).toBe(true);

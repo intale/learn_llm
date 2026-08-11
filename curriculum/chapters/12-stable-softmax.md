@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "concept_id": "stable-softmax",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 12,
   "objective": {
     "en": "Convert finite logits into normalized probabilities and log-probabilities, and score indexed targets using maximum shifting and log-domain arithmetic that avoid failures from raw exponentiation.",
@@ -107,7 +107,7 @@
       "rust/demos/ch12-stable-softmax/src/lib.rs",
       "rust/demos/ch12-stable-softmax/src/main.rs"
     ],
-    "expected_output": "logits: shape=[3, 2] class_axis=1 values=[0.000000000000, 1.000000000000, 1000.000000000000, 1001.000000000000, -1001.000000000000, -1000.000000000000]\nstable softmax: shape=[3, 2] values=[0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630]\nlog softmax: shape=[3, 2] values=[-1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518]\nlog-sum-exp: shape=[3] values=[1.313261687518, 1001.313261687518, -999.686738312482]\nrow probability sums: [1.000000000000, 1.000000000000, 1.000000000000]\ntargets: [1, 0, 1] losses=[0.313261687518, 1.313261687518, 0.313261687518] mean_nll=0.646595020852\nnaive ordinary [0, 1]: [0.268941421370, 0.731058578630]\nnaive overflow [1000, 1001]: undefined=true\nnaive underflow [-1001, -1000]: undefined=true\nshift invariance: rows 0, 1, and 2 match exactly\naxis error: probability axis 2 is out of bounds for rank 2\nempty-axis error: probability axis 1 has no classes\nnon-finite error: logit at group 0, class 1 is positive infinity\ntarget error: target 2 at group 1 is out of bounds for 2 classes\nchapter 13 handoff: check loss derivatives with an independent numerical oracle\n"
+    "expected_output": "logits: shape=[3, 2] class_axis=1 values=[0.000000000000, 1.000000000000, 1000.000000000000, 1001.000000000000, -1001.000000000000, -1000.000000000000]\nstable softmax: shape=[3, 2] values=[0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630]\nlog softmax: shape=[3, 2] values=[-1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518]\nlog-sum-exp: shape=[3] values=[1.313261687518, 1001.313261687518, -999.686738312482]\nrow probability sums: [1.000000000000, 1.000000000000, 1.000000000000]\ntargets: [1, 0, 1] losses=[0.313261687518, 1.313261687518, 0.313261687518] mean_nll=0.646595020852\nnaive ordinary [0, 1]: [0.268941421370, 0.731058578630]\nnaive overflow [1000, 1001]: undefined=true\nnaive underflow [-1001, -1000]: undefined=true\nshift invariance: rows 0, 1, and 2 match exactly\naxis error: probability axis 2 is out of bounds for rank 2\nempty-axis error: probability axis 1 has no classes\nnon-finite error: logit at group 0, class 1 is positive infinity\ntarget error: target 2 at group 1 is out of bounds for 2 classes\nchapter 13 handoff: cross-check selected loss derivatives with a materially separate finite-difference path\n"
   },
   "visualization": {
     "decision": "useful",
@@ -118,8 +118,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently.",
-    "ru": "Теперь тензорное ядро может по любой явно заданной оси преобразовывать конечные логиты из представлений с произвольными шагами в тензоры с собственным хранилищем, содержащие вероятности, логарифмы вероятностей или значения log-sum-exp, а также выполнять совмещённое вычисление среднего NLL по индексам целевых классов. Эти операции будут нормировать оценки по словарю и в механизме внимания и вычислять на прямом проходе значение функции потерь, производные которой глава 13 проверит независимым способом."
+    "en": "The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward indexed mean NLL that Chapter 13 uses for a materially separate sampled finite-difference cross-check. The analytic and numerical paths still share the fixture logits and target indices, IEEE `f64` arithmetic and its elementary `exp`, `Tensor` storage, and row-major index conventions, so agreement is evidence for the selected probes of a locally smooth objective, not proof of the complete gradient or every shared assumption.",
+    "ru": "Теперь тензорное ядро может по любой явно заданной оси преобразовывать конечные логиты из представлений с произвольными шагами в тензоры с собственным хранилищем, содержащие вероятности, логарифмы вероятностей или значения log-sum-exp, а также выполнять совмещённое вычисление среднего NLL по индексам целевых классов. Эти операции будут нормировать оценки по словарю и в механизме внимания, а вычисленное ими на прямом проходе среднее NLL по индексам глава 13 использует для выборочной сверки конечными разностями с отдельным аналитическим путём. Аналитический и численный пути всё ещё используют одни и те же логиты примера и целевые индексы, арифметику IEEE `f64` и элементарную функцию `exp`, хранилище `Tensor` и соглашения о построчной индексации. Поэтому совпадение служит свидетельством для выбранных точек при локальной гладкости целевой функции, а не доказательством полного градиента или всех общих предпосылок."
   },
   "terminology": [
     {
@@ -169,7 +169,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 12 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 7 at sha256 0e23aa178510ccb0bc86f4b9b4f8f25facd8041ef4e4dd957b3ee4b508e39f95, and both lessons publish one same-revision set.",
+    "Chapter 12 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 8 at sha256 70134932f301dcb9d180b6be3b77fbbff6ec561439d38550ca1dae49a2d3ff97, and both lessons publish one same-revision set.",
     "Keep softmax, log-sum-exp, log-softmax, indexed mean NLL, logits, axis numbers, shape arrays, Rust identifiers, trace keywords, formulas, and source URLs as exact technical evidence.",
     "Translate logit as «логит» and explain it as «ненормированная оценка» or «ненормированный логарифм вероятности», never as an ordinary probability. Use «вычитание максимума», «ось классов», «группа нормализации», «логарифм вероятности», «отрицательное логарифмическое правдоподобие (NLL)», «совмещённое вычисление среднего NLL», and «вычисления в логарифмической шкале» consistently.",
     "Distinguish the exact-arithmetic invariance of softmax from floating-point addition that may already have rounded away a difference. Explain underflow concretely as sufficiently small exponentials rounding to zero, and distinguish unavoidable representability limits from failures avoided by maximum shifting.",
@@ -500,17 +500,23 @@ probability, log-probability, and target record that proves each answer.
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently.
+The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward indexed mean NLL that Chapter 13 uses for a materially separate sampled finite-difference cross-check. The analytic and numerical paths still share the fixture logits and target indices, IEEE `f64` arithmetic and its elementary `exp`, `Tensor` storage, and row-major index conventions, so agreement is evidence for the selected probes of a locally smooth objective, not proof of the complete gradient or every shared assumption.
 
 Each forward request computes the maximum, shifted-exponential sum, and
 log-normalizer once per group. A later training operation can retain
 probabilities emitted from those same facts for its backward gradient
-calculation without changing the forward probability or loss.
+calculation without changing the forward probability or loss. Chapter 13
+perturbs that production `indexed_mean_nll` objective, while a separate local
+analytic routine computes stabilized row probabilities and candidate derivatives
+without calling the production `softmax` or `indexed_mean_nll` implementation.
 
-This is the first numerically stable forward loss over the general tensor core.
-Chapter 13 does not trust future analytic gradients immediately: it builds an
-independent finite-difference oracle and checks derivatives of this kind of
-scalar objective before automatic differentiation is introduced.
+Finite differences vary one scalar logit at a time and require the objective to
+be smooth across each probe interval. The two paths use the same fixture logits
+and target indices, IEEE `f64` arithmetic and its elementary `exp`, `Tensor`
+storage, and row-major index conventions. Agreement at the selected coordinates
+therefore supports only that fixture, those probes, step, and tolerance. It does
+not prove differentiability, the complete gradient, the complete probability
+implementation, or any shared assumption.
 
 <!-- contract-section:localization -->
 ## Localization notes
@@ -518,7 +524,7 @@ scalar objective before automatic differentiation is introduced.
 Chapter 12 publishes one same-revision English/Russian locale pair. English is
 the sole semantic source; the Russian contract fields, lesson, metadata, diagram
 copy, exercises, answers, SEO, and accessibility labels are translated directly
-from revision 7 at sha256 `0e23aa178510ccb0bc86f4b9b4f8f25facd8041ef4e4dd957b3ee4b508e39f95`.
+from revision 8 at sha256 `70134932f301dcb9d180b6be3b77fbbff6ec561439d38550ca1dae49a2d3ff97`.
 Preserve formulae, numbers, shapes, source URLs, Rust identifiers,
 trace tokens, and the distinction between logits, probabilities,
 log-probabilities, and losses.

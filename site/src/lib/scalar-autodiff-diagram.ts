@@ -484,8 +484,8 @@ export function parseScalarAutodiffTrace(stdout: string): ScalarAutodiffTrace {
     [
       '2.000000000000',
       '8.000000000000',
-      '8.000000000052',
-      '6.551204023708e-12',
+      '8.000000000000',
+      '0.000000000000e0',
       '1.000000000000e-9',
       'pass',
     ],

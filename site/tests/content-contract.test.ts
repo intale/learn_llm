@@ -1014,7 +1014,7 @@ describe("curriculum and catalog contracts", () => {
       }>;
     };
     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
-      "87c4edd8dddd41cc0988cb20db5cd3853ea5269acbfd9a5528c2496b5c54ab7c",
+      "6018ace0ab7f55b4ab478c8f44c35c1106f2a22a913e0d506973fe71da5bfe3a",
     );
     expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
       "6a29d8c542d02550bec739de898acc468eff0102355b8f2440e940f9cd241921",

@@ -30,26 +30,25 @@ const scanDisplay = [
   { step: '1', numerical: '5.75', scaledError: String.raw`1.74\times10^{-1}` },
   { step: String.raw`10^{-1}`, numerical: '4.76', scaledError: String.raw`2.10\times10^{-3}` },
   { step: String.raw`10^{-3}`, numerical: '4.750001', scaledError: String.raw`2.11\times10^{-7}` },
-  { step: String.raw`10^{-5}`, numerical: '4.7500000001', scaledError: String.raw`2.76\times10^{-11}` },
-  { step: String.raw`10^{-8}`, numerical: '4.74999997', scaledError: String.raw`6.08\times10^{-9}` },
-  { step: String.raw`10^{-12}`, numerical: '4.75042', scaledError: String.raw`8.89\times10^{-5}` },
+  { step: String.raw`10^{-5}`, numerical: '4.7500000001', scaledError: String.raw`2.10\times10^{-11}` },
+  { step: String.raw`10^{-13}`, numerical: '4.751111', scaledError: String.raw`2.34\times10^{-4}` },
+  { step: String.raw`10^{-15}`, numerical: '4.8', scaledError: String.raw`1.04\times10^{-2}` },
 ] as const;
 const comparisonDisplay = [
-  { analytic: '6', scaledError: String.raw`8.88\times10^{-16}` },
+  { analytic: '6', scaledError: '0' },
   { analytic: '5.5', scaledError: String.raw`8.33\times10^{-2}` },
 ] as const;
 const coordinateDisplay = [
   String.raw`8.75\times10^{-12}`,
-  String.raw`6.76\times10^{-12}`,
-  String.raw`9.29\times10^{-12}`,
-  String.raw`1.43\times10^{-11}`,
+  String.raw`6.43\times10^{-12}`,
+  String.raw`1.21\times10^{-11}`,
+  String.raw`1.75\times10^{-11}`,
 ] as const;
 const displayedScan = trace.stepScan.map((record, index) => ({ record, display: scanDisplay[index]! }));
 const displayedComparisons = trace.comparisons.map((record, index) => ({ record, display: comparisonDisplay[index]! }));
 const displayedCoordinates = trace.coordinates.map((record, index) => ({ record, display: coordinateDisplay[index]! }));
 const titleId = `${gradientCheckingDiagramId}-${instanceId}-title`;
 const descriptionId = `${gradientCheckingDiagramId}-${instanceId}-description`;
-const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
 ---
 
 <figure
@@ -91,105 +90,140 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
 
   <section data-diagram-box class="quadratic-section" aria-labelledby={`${titleId}-quadratic`}>
     <h4 id={`${titleId}-quadratic`}>{labels.sections.quadratic}</h4>
-    <div class="quadratic-grid course-diagram__grid">
-      <dl
-        data-diagram-card
-        data-diagram-box
-        data-state="trusted"
-        data-minus-point={trace.central.minusPoint.lexeme}
-        data-minus-value={trace.central.minusValue.lexeme}
-        data-plus-point={trace.central.plusPoint.lexeme}
-        data-plus-value={trace.central.plusValue.lexeme}
-        class="probe-card course-diagram__card-stack"
-      >
-        <div>
-          <dt>{labels.fields.minusProbe}</dt>
-          <dd><InlineMath latex="\theta-h=2.9" /></dd>
-          <dd><InlineMath latex="q=8.41" /></dd>
-        </div>
-        <div>
-          <dt>{labels.fields.center}</dt>
-          <dd><InlineMath latex="\theta=3" /></dd>
-          <dd><InlineMath latex="h=0.1" /></dd>
-        </div>
-        <div>
-          <dt>{labels.fields.plusProbe}</dt>
-          <dd><InlineMath latex="\theta+h=3.1" /></dd>
-          <dd><InlineMath latex="q=9.61" /></dd>
-        </div>
-      </dl>
-    </div>
+    <dl
+      data-diagram-card
+      data-diagram-box
+      data-state="trusted"
+      data-requested-step={trace.central.requestedStep.lexeme}
+      data-minus-point={trace.central.minusPoint.lexeme}
+      data-center-point={trace.central.centerPoint.lexeme}
+      data-plus-point={trace.central.plusPoint.lexeme}
+      data-minus-spacing={trace.central.minusSpacing.lexeme}
+      data-plus-spacing={trace.central.plusSpacing.lexeme}
+      data-minus-value={trace.central.minusValue.lexeme}
+      data-center-value={trace.central.centerValue.lexeme}
+      data-plus-value={trace.central.plusValue.lexeme}
+      data-left-slope={trace.central.leftSlope.lexeme}
+      data-right-slope={trace.central.rightSlope.lexeme}
+      data-left-weight={trace.central.leftWeight.lexeme}
+      data-right-weight={trace.central.rightWeight.lexeme}
+      data-stencil={trace.central.stencil}
+      data-numerical={trace.central.numerical.lexeme}
+      class="probe-card course-diagram__card-stack"
+    >
+      <div>
+        <dt>{labels.fields.minusProbe}</dt>
+        <dd><InlineMath latex="\theta_-=2.9" /></dd>
+        <dd><InlineMath latex="q(\theta_-)=8.41" /></dd>
+        <dt>{labels.fields.minusSpacing}</dt>
+        <dd><bdi dir="ltr">{trace.central.minusSpacing.lexeme}</bdi></dd>
+        <dt>{labels.fields.leftSlope}</dt>
+        <dd><bdi dir="ltr">{trace.central.leftSlope.lexeme}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.center}</dt>
+        <dd><InlineMath latex="\theta=3,\;q(\theta)=9" /></dd>
+        <dt>{labels.fields.requestedStep}</dt>
+        <dd><bdi dir="ltr">{trace.central.requestedStep.lexeme}</bdi></dd>
+        <dt>{labels.fields.stencil}</dt>
+        <dd><code>{trace.central.stencil}</code></dd>
+        <dd class="weight-pair">
+          <InlineMath latex="w_-" /> <bdi dir="ltr">{trace.central.leftWeight.lexeme}</bdi>
+          <InlineMath latex="w_+" /> <bdi dir="ltr">{trace.central.rightWeight.lexeme}</bdi>
+        </dd>
+        <dt>{labels.fields.numerical}</dt>
+        <dd><bdi dir="ltr">{trace.central.numerical.lexeme}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.plusProbe}</dt>
+        <dd><InlineMath latex="\theta_+=3.1" /></dd>
+        <dd><InlineMath latex="q(\theta_+)=9.61" /></dd>
+        <dt>{labels.fields.plusSpacing}</dt>
+        <dd><bdi dir="ltr">{trace.central.plusSpacing.lexeme}</bdi></dd>
+        <dt>{labels.fields.rightSlope}</dt>
+        <dd><bdi dir="ltr">{trace.central.rightSlope.lexeme}</bdi></dd>
+      </div>
+    </dl>
   </section>
 
   <section data-diagram-box class="scan-section" aria-labelledby={`${titleId}-scan`}>
     <h4 id={`${titleId}-scan`}>{labels.sections.scan}</h4>
-    <div class="scan-layout">
-      <ol id={scanRegionId} class="scan-records evidence-list course-diagram__grid">
-        {displayedScan.map(({ record, display }) => (
-          <li
-            data-diagram-card
-            data-diagram-box
-            data-step-index={record.index.lexeme}
-            data-phase={record.phase}
-            data-step={record.step.lexeme}
-            data-status={record.status}
-            data-minus-point={record.minusPoint.lexeme}
-            data-minus-value={record.minusValue.lexeme}
-            data-plus-point={record.plusPoint.lexeme}
-            data-plus-value={record.plusValue.lexeme}
-            data-numerical={record.numerical.lexeme}
-            data-scaled-error={record.scaledError.lexeme}
-            class={`step-record course-diagram__card-stack phase-${record.phase} status-${record.status}`}
-          >
-            <div class="record-heading">
-              <strong><InlineMath latex={String.raw`h=${display.step}`} /></strong>
-              <span class="status-cue">
-                <span class={`state-symbol status-${record.status}`} aria-hidden="true">{labels.symbols[record.status]}</span>
-                <span>{labels.statuses[record.status]}</span>
-              </span>
+    <ol class="scan-records evidence-list course-diagram__grid">
+      {displayedScan.map(({ record, display }) => (
+        <li
+          data-diagram-card
+          data-diagram-box
+          data-step-index={record.index.lexeme}
+          data-phase={record.phase}
+          data-step={record.requestedStep.lexeme}
+          data-status={record.status}
+          data-minus-point={record.minusPoint.lexeme}
+          data-center-point={record.centerPoint.lexeme}
+          data-plus-point={record.plusPoint.lexeme}
+          data-minus-spacing={record.minusSpacing.lexeme}
+          data-plus-spacing={record.plusSpacing.lexeme}
+          data-left-weight={record.leftWeight.lexeme}
+          data-right-weight={record.rightWeight.lexeme}
+          data-stencil={record.stencil}
+          data-numerical={record.numerical.lexeme}
+          data-scaled-error={record.scaledError.lexeme}
+          class={`step-record course-diagram__card-stack phase-${record.phase} status-${record.status}`}
+        >
+          <div class="record-heading">
+            <strong><InlineMath latex={String.raw`h=${display.step}`} /></strong>
+            <span class="status-cue">
+              <span class={`state-symbol status-${record.status}`} aria-hidden="true">{labels.symbols[record.status]}</span>
+              <span>{labels.statuses[record.status]}</span>
+            </span>
+          </div>
+          <dl class="record-values">
+            <div>
+              <dt>
+                <span
+                  data-diagram-display-label="numerical"
+                  data-diagram-accessible-label="numerical"
+                  role="group"
+                  aria-label={labels.fields.numerical}
+                >
+                  {labels.display.numerical}
+                </span>
+              </dt>
+              <dd><InlineMath latex={display.numerical} /></dd>
             </div>
-            <dl class="record-values">
-              <div>
-                <dt>
-                  <span
-                    data-diagram-display-label="numerical"
-                    data-diagram-accessible-label="numerical"
-                    role="group"
-                    aria-label={labels.fields.numerical}
-                  >
-                    {labels.display.numerical}
-                  </span>
-                </dt>
-                <dd><InlineMath latex={display.numerical} /></dd>
-              </div>
-              <div>
-                <dt>
-                  <span
-                    data-diagram-display-label="scaled-error"
-                    data-diagram-accessible-label="scaled-error"
-                    role="group"
-                    aria-label={labels.fields.scaledError}
-                  >
-                    {labels.display.scaledError}
-                  </span>
-                </dt>
-                <dd><InlineMath latex={display.scaledError} /></dd>
-              </div>
-              <div>
-                <dt>{labels.fields.phase}</dt>
-                <dd class="phase-cue">
-                  <span class={`state-symbol phase-${record.phase}`} aria-hidden="true">{labels.symbols[record.phase]}</span>
-                  <span>{labels.phases[record.phase]}</span>
-                </dd>
-              </div>
-            </dl>
-          </li>
-        ))}
-      </ol>
-    </div>
+            <div>
+              <dt>
+                <span
+                  data-diagram-display-label="scaled-error"
+                  data-diagram-accessible-label="scaled-error"
+                  role="group"
+                  aria-label={labels.fields.scaledError}
+                >
+                  {labels.display.scaledError}
+                </span>
+              </dt>
+              <dd><InlineMath latex={display.scaledError} /></dd>
+            </div>
+            <div class="spacing-row">
+              <dt>{labels.fields.minusSpacing} / {labels.fields.plusSpacing}</dt>
+              <dd>
+                <bdi dir="ltr">{record.minusSpacing.lexeme}</bdi>
+                <bdi dir="ltr">{record.plusSpacing.lexeme}</bdi>
+              </dd>
+            </div>
+            <div>
+              <dt>{labels.fields.phase}</dt>
+              <dd class="phase-cue">
+                <span class={`state-symbol phase-${record.phase}`} aria-hidden="true">{labels.symbols[record.phase]}</span>
+                <span>{labels.phases[record.phase]}</span>
+              </dd>
+            </div>
+          </dl>
+        </li>
+      ))}
+    </ol>
   </section>
 
-  <section data-diagram-box aria-labelledby={`${titleId}-candidates`}>
+  <section data-diagram-box class="candidate-section" aria-labelledby={`${titleId}-candidates`}>
     <h4 id={`${titleId}-candidates`}>{labels.sections.candidates}</h4>
     <p class="candidate-reference">
       <span>{labels.fields.numerical} <InlineMath latex="6" /></span>
@@ -247,7 +281,7 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
     </ol>
   </section>
 
-  <section data-diagram-box aria-labelledby={`${titleId}-tensor`}>
+  <section data-diagram-box class="tensor-section" aria-labelledby={`${titleId}-tensor`}>
     <h4 id={`${titleId}-tensor`}>{labels.sections.tensor}</h4>
     <p>{labels.notes.tensor}</p>
     <p data-diagram-card data-diagram-box data-state="trusted" class="tensor-summary course-diagram__card-heading">
@@ -264,6 +298,10 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
           data-sample-flat={record.flatIndex.lexeme}
           data-coordinate={record.coordinate.lexeme}
           data-status={record.status}
+          data-requested-step={record.requestedStep.lexeme}
+          data-minus-spacing={record.minusSpacing.lexeme}
+          data-plus-spacing={record.plusSpacing.lexeme}
+          data-stencil={record.stencil}
           data-analytic={record.analytic.lexeme}
           data-numerical={record.numerical.lexeme}
           data-scaled-error={record.scaledError.lexeme}
@@ -275,13 +313,116 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
             </strong>
             <span class="state-symbol status-pass" aria-label={labels.statuses.pass}>{labels.symbols.pass}</span>
           </div>
-          <p class="coordinate-error" aria-label={labels.fields.scaledError}><InlineMath latex={display} /></p>
+          <dl class="record-values coordinate-values">
+            <div>
+              <dt>{labels.fields.analytic}</dt>
+              <dd><bdi dir="ltr">{record.analytic.lexeme}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.numerical}</dt>
+              <dd><bdi dir="ltr">{record.numerical.lexeme}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.scaledError}</dt>
+              <dd><InlineMath latex={display} /></dd>
+            </div>
+          </dl>
         </li>
       ))}
     </ol>
   </section>
 
-  <section data-diagram-box aria-labelledby={`${titleId}-errors`}>
+  <section data-diagram-box class="boundary-section" aria-labelledby={`${titleId}-boundaries`}>
+    <h4 id={`${titleId}-boundaries`}>{labels.sections.boundaries}</h4>
+    <p>{labels.notes.boundaries}</p>
+    <div class="boundary-records evidence-list course-diagram__grid">
+      <article
+        data-diagram-card
+        data-diagram-box
+        data-boundary-case="rounded-linear"
+        data-status={trace.roundedLinear.status}
+        data-requested-step={trace.roundedLinear.requestedStep.lexeme}
+        data-minus-spacing={trace.roundedLinear.minusSpacing.lexeme}
+        data-plus-spacing={trace.roundedLinear.plusSpacing.lexeme}
+        data-left-weight={trace.roundedLinear.leftWeight.lexeme}
+        data-right-weight={trace.roundedLinear.rightWeight.lexeme}
+        data-stencil={trace.roundedLinear.stencil}
+        data-numerical={trace.roundedLinear.numerical.lexeme}
+        class="boundary-card course-diagram__card-stack"
+      >
+        <div class="record-heading">
+          <strong><InlineMath latex="f(x)=x,\;x=1" /></strong>
+          <span class="status-cue">
+            <span class="state-symbol status-pass" aria-hidden="true">{labels.symbols.pass}</span>
+            <span>{labels.statuses.pass}</span>
+          </span>
+        </div>
+        <dl class="record-values">
+          <div><dt>{labels.fields.requestedStep}</dt><dd><bdi dir="ltr">{trace.roundedLinear.requestedStep.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.minusSpacing}</dt><dd><bdi dir="ltr">{trace.roundedLinear.minusSpacing.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.plusSpacing}</dt><dd><bdi dir="ltr">{trace.roundedLinear.plusSpacing.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.stencil}</dt><dd><code>{trace.roundedLinear.stencil}</code></dd></div>
+          <div><dt>{labels.fields.numerical}</dt><dd><bdi dir="ltr">{trace.roundedLinear.numerical.lexeme}</bdi></dd></div>
+        </dl>
+      </article>
+
+      <article
+        data-diagram-card
+        data-diagram-box
+        data-boundary-case="absolute-kink"
+        data-status="rejected"
+        data-known-nondifferentiable={trace.kink.knownNondifferentiable}
+        data-consistency={trace.kink.consistency}
+        data-one-sided-scaled-gap={trace.kink.oneSidedScaledGap.lexeme}
+        data-tolerance={trace.kink.tolerance.lexeme}
+        data-requested-step={trace.kink.requestedStep.lexeme}
+        data-left-slope={trace.kink.leftSlope.lexeme}
+        data-right-slope={trace.kink.rightSlope.lexeme}
+        data-numerical={trace.kink.numerical.lexeme}
+        class="boundary-card course-diagram__card-stack"
+      >
+        <div class="record-heading">
+          <strong><InlineMath latex="f(x)=|x|,\;x=0" /></strong>
+          <span class="state-symbol status-rejected" aria-hidden="true">{labels.symbols.rejected}</span>
+        </div>
+        <dl class="record-values">
+          <div><dt>{labels.fields.leftSlope}</dt><dd><bdi dir="ltr">{trace.kink.leftSlope.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.rightSlope}</dt><dd><bdi dir="ltr">{trace.kink.rightSlope.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.numerical}</dt><dd><bdi dir="ltr">{trace.kink.numerical.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.tolerance}</dt><dd><bdi dir="ltr">{trace.kink.tolerance.lexeme}</bdi></dd></div>
+        </dl>
+      </article>
+
+      <article
+        data-diagram-card
+        data-diagram-box
+        data-boundary-case="oracle-paths"
+        data-analytic-path={trace.oracle.analyticPath}
+        data-objective-path={trace.oracle.objectivePath}
+        data-shared-primitives={trace.oracle.sharedPrimitives}
+        data-material-course-path={trace.oracle.materialCoursePath}
+        class="boundary-card oracle-card course-diagram__card-stack"
+      >
+        <p>{labels.notes.oracle}</p>
+        <dl class="oracle-paths">
+          <div data-oracle-route="analytic">
+            <dt>{labels.fields.analytic}</dt>
+            <dd><code>{trace.oracle.analyticPath}</code></dd>
+          </div>
+          <div data-oracle-route="objective">
+            <dt><code>objective-path</code></dt>
+            <dd><code>{trace.oracle.objectivePath}</code></dd>
+          </div>
+          <div data-oracle-route="shared">
+            <dt><code>shared-primitives</code></dt>
+            <dd><code>{trace.oracle.sharedPrimitives}</code></dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section data-diagram-box class="errors-section" aria-labelledby={`${titleId}-errors`}>
     <h4 id={`${titleId}-errors`}>{labels.sections.errors}</h4>
     <p>{labels.notes.errors}</p>
     <ol class="error-records evidence-list course-diagram__grid">
@@ -336,37 +477,28 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
   .gradient-checking-diagram { align-content: start; }
 
   .summary-grid,
-  .quadratic-grid {
+  .probe-card,
+  .oracle-paths {
     display: grid;
     align-items: start;
-    gap: 0.85rem;
-  }
-
-  .summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-  .quadratic-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .probe-card {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.7rem;
   }
 
-  .probe-card > div { min-inline-size: 0; }
+  .summary-grid,
+  .probe-card { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
-  .scan-layout {
-    display: grid;
-    gap: 0.8rem;
-  }
+  .probe-card > div,
+  .oracle-paths > div { min-inline-size: 0; }
+
+  .probe-card dt:not(:first-child) { margin-block-start: 0.55rem; }
 
   .evidence-list { align-items: stretch; }
-
   .scan-records { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .candidate-records,
   .error-records { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .coordinate-records { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .boundary-records { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .oracle-card { grid-column: 1 / -1; }
 
   .record-heading {
     display: flex;
@@ -392,7 +524,18 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
     gap: 0.15rem 0.45rem;
   }
 
-  .record-values dd { min-inline-size: 0; }
+  .record-values dd,
+  .record-values dt,
+  .oracle-paths dd,
+  .oracle-paths dt { min-inline-size: 0; }
+
+  .spacing-row dd,
+  .weight-pair {
+    display: flex;
+    min-inline-size: 0;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.55rem;
+  }
 
   .candidate-reference {
     display: flex;
@@ -422,7 +565,12 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
   [data-status='fail'] .state-symbol.status-fail { --diagram-state-symbol-border-style: dashed; }
   [data-status='rejected'] .state-symbol.status-rejected { --diagram-state-symbol-border-style: dashed; }
 
-  .coordinate-error { margin: 0; }
+  .tensor-summary {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.8rem;
+  }
 
   .error-evidence {
     display: flex;
@@ -433,33 +581,30 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
     margin: 0;
   }
 
-  .tensor-summary {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.45rem 0.8rem;
+  .oracle-paths { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .oracle-paths code,
+  .boundary-card bdi,
+  .probe-card bdi,
+  .spacing-row bdi {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   @container course-diagram (max-width: 60rem) {
-    .quadratic-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
     .scan-records,
     .coordinate-records { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 
   @container course-diagram (max-width: 47.5rem) {
     .summary-grid,
-    .quadratic-grid,
-    .probe-card {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
+    .probe-card,
     .scan-records,
     .candidate-records,
     .coordinate-records,
-    .error-records { grid-template-columns: minmax(0, 1fr); }
+    .boundary-records,
+    .error-records,
+    .oracle-paths { grid-template-columns: minmax(0, 1fr); }
   }
 
   @media (min-width: 64rem) and (min-height: 36rem) {
@@ -478,47 +623,42 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
       grid-row: 1;
     }
 
-    .gradient-checking-diagram:fullscreen > section:nth-of-type(1) {
-      grid-column: 5 / 7;
+    .gradient-checking-diagram:fullscreen > .quadratic-section {
+      grid-column: 1 / 4;
       grid-row: 3;
     }
 
-    .gradient-checking-diagram:fullscreen > section:nth-of-type(3) {
-      grid-column: 5 / 7;
+    .gradient-checking-diagram:fullscreen > .candidate-section {
+      grid-column: 4 / 7;
+      grid-row: 3;
+    }
+
+    .gradient-checking-diagram:fullscreen > .scan-section {
+      grid-column: 1 / 7;
       grid-row: 4;
     }
 
-    .gradient-checking-diagram:fullscreen > section:nth-of-type(2) {
-      grid-column: 1 / 5;
-      grid-row: 3 / 5;
-    }
-
-    .gradient-checking-diagram:fullscreen > section:nth-of-type(4) {
+    .gradient-checking-diagram:fullscreen > .tensor-section {
       grid-column: 1 / 4;
       grid-row: 5;
     }
 
-    .gradient-checking-diagram:fullscreen > section:nth-of-type(5) {
+    .gradient-checking-diagram:fullscreen > .boundary-section {
       grid-column: 4 / 7;
       grid-row: 5;
     }
 
-    .gradient-checking-diagram:fullscreen .quadratic-grid { grid-template-columns: minmax(0, 1fr); }
-
-    .gradient-checking-diagram:fullscreen .probe-card {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .gradient-checking-diagram:fullscreen .scan-layout {
-      grid-template-columns: minmax(0, 1fr);
-      align-items: start;
+    .gradient-checking-diagram:fullscreen > .errors-section {
+      grid-column: 1 / 7;
+      grid-row: 6;
     }
 
     .gradient-checking-diagram:fullscreen .scan-records {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 
-    .gradient-checking-diagram:fullscreen .candidate-records {
+    .gradient-checking-diagram:fullscreen .candidate-records,
+    .gradient-checking-diagram:fullscreen .boundary-records {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 

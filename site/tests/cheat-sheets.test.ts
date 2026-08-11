@@ -245,12 +245,17 @@ const expectedSheets = {
     title: "Check gradients before trusting backpropagation",
     entries: [
       ["Gradient check", "Start with a small scalar gradient check:"],
-      ["Central difference", "The central-difference formula is:"],
-      ["Numerical derivative", "predicts a numerical derivative of"],
+      [
+        "Central difference",
+        "The unequal-spacing three-point formula combines the two one-sided slopes:",
+      ],
+      ["Numerical derivative", "predicts the numerical derivative"],
       ["Analytic gradient", "the analytic derivative is"],
-      ["Step size", "the six-step scan"],
+      ["Requested step", "The requested step asks for"],
+      ["Actual probe spacing", "requested and actual probe spacing"],
+      ["Local smoothness", "Local smoothness is a caller precondition"],
       ["Truncation error", "truncation error of order"],
-      ["Rounding error", "rounding has raised the displayed result"],
+      ["Rounding error", "between truncation and rounding error"],
       [
         "Scale-aware error",
         "passes exactly when scaled error is no greater than",

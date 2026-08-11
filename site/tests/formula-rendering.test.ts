@@ -1549,12 +1549,13 @@ describe("build-time formula rendering in Chapter 8-13 diagrams", () => {
     expect(components.matmul).toContain("String.raw`k=${term.inner.lexeme}`");
     expect(components.matmul).not.toContain("{' × '}");
     for (const expression of [
-      "\\theta-h=2.9",
-      "q=8.41",
-      "\\theta=3",
-      "h=0.1",
-      "\\theta+h=3.1",
-      "q=9.61",
+      "\\theta_-=2.9",
+      "q(\\theta_-)=8.41",
+      "\\theta=3,\\;q(\\theta)=9",
+      "w_-",
+      "w_+",
+      "\\theta_+=3.1",
+      "q(\\theta_+)=9.61",
     ]) {
       expect(components.gradcheck).toContain(`latex="${expression}"`);
     }

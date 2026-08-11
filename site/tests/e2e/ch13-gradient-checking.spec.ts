@@ -24,8 +24,8 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '13-gradient-checking';
-const contentRevision = 5;
-const formulaLatex = String.raw`f'(\theta)\approx\frac{f(\theta+h)-f(\theta-h)}{2h}`;
+const contentRevision = 6;
+const formulaLatex = String.raw`f'(\theta)\approx\frac{h_+}{h_-+h_+}\frac{f(\theta)-f(\theta_-)}{h_-}+\frac{h_-}{h_-+h_+}\frac{f(\theta_+)-f(\theta)}{h_+}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
   'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
@@ -53,8 +53,8 @@ interface LocalizedCopy {
   >;
   restoredText: string;
   exerciseSummary: string;
-  exerciseSix: string;
-  answerSix: string;
+  exerciseSeven: string;
+  answerSeven: string;
 }
 
 const copy = {
@@ -62,13 +62,13 @@ const copy = {
     revisionLabel: 'Content revision',
     chapterTitle: 'Check gradients before trusting backpropagation',
     chapterDescription:
-      'Validate candidate derivatives for LLM training with central differences, scale-aware error, and deterministic tensor-coordinate sampling in dependency-free Rust.',
+      'Cross-check selected LLM-training derivatives from actual floating-point probes, with a local-smoothness requirement, scale-aware error, and deterministic tensor coordinates in Rust.',
     headings: [
       'Predict one quadratic derivative',
-      'Center two probes around one point',
+      'Use the spacing between the values the computer can represent',
       'Name the derivative-check quantities',
       'From next-word backpropagation to checked Transformer training',
-      'Implement a sampled numerical oracle',
+      'Implement a sampled numerical cross-check',
       'Watch the step size help, then hurt',
       'Predict before running Rust',
       'Prepare reverse-mode differentiation',
@@ -76,10 +76,10 @@ const copy = {
     historyHeading: 'From next-word backpropagation to checked Transformer training',
     historyClaims: [
       "Bengio et al.'s neural language model maximizes next-word log-likelihood with an explicit backward/update phase over output, hidden, and learned word-feature parameters. Those propagated derivatives make repeated training updates practical, but the implemented derivative path is not an independent check of itself.",
-      "The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish numerical differentiation from reverse-mode automatic differentiation: finite differences estimate one local derivative from repeated evaluations, while reverse mode efficiently produces a scalar objective's gradient over many parameters. Here, the independent estimate can reveal a local mistake in a candidate derivative.",
-      'This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.',
+      "The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish numerical differentiation from reverse-mode automatic differentiation: finite differences estimate one local derivative from repeated evaluations, while reverse mode efficiently produces a scalar objective's gradient over many parameters. Here, a materially separate numerical route can reveal a local mistake in a candidate derivative.",
+      'This chapter uses three-point finite differences only as a slow sampled numerical cross-check for locally smooth objectives, including selected Chapter 12 indexed-mean-NLL derivatives, before Chapter 14 builds reverse mode. A passing sample is evidence for the chosen coordinates, probes, step, tolerance, and fixture—not proof of the complete gradient or local differentiability. The check does not train or run the decoder, and its policies are course-local.',
     ],
-    implementationHeading: 'Implement a sampled numerical oracle',
+    implementationHeading: 'Implement a sampled numerical cross-check',
     samplerClaims: [
       'Let N be the number of elements in the nonempty tensor, let R be the maximum coordinate count requested by the caller, and let S=\\min(R,N) be the number of coordinates the sampler actually selects.',
       'When S>1, the sampler evaluates the flat offset \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor for every integer k\\in\\{0,1,\\ldots,S-1\\}.',
@@ -88,36 +88,37 @@ const copy = {
     ],
     rustCaptions: [
       'Define one quadratic prediction and both analytic candidates',
-      'Evaluate a checked minus probe and plus probe before forming the centered slope',
+      'Derive actual probe spacing before applying the unequal-spacing estimate',
       'Normalize finite gradient disagreement by the larger magnitude or one',
       'Name invalid steps, probes, values, shapes, samples, views, and coordinates',
       'Choose unique ordered tensor coordinates without randomness',
       'Check deterministic tensor coordinates and restore every temporary perturbation',
-      'Construct the hand-derived candidate for the two-row indexed mean NLL',
-      'Compare four vocabulary-logit candidates with independent forward losses',
+      'Compute the analytic NLL candidate locally from raw logits',
+      'Compare four locally derived candidates with perturbed indexed-NLL evaluations',
       'Prepare the complete deterministic learner evidence before printing',
       'Run one cubic derivative check across all six step sizes',
     ],
     rustLabels: [
       'Rust source defining the Chapter 13 predict-first quadratic gradient checks',
-      'Rust source implementing the Chapter 13 scalar central difference',
+      'Rust source implementing the Chapter 13 three-point derivative estimate from actual floating-point probes',
       'Rust source implementing the scale-aware Chapter 13 comparison rule',
       'Rust source defining the Chapter 13 numerical gradient-check errors',
       'Rust source implementing deterministic Chapter 13 tensor-coordinate selection',
       'Rust source implementing the sampled tensor-coordinate gradient checker',
-      'Rust source deriving the Chapter 13 analytic token-loss gradient candidate',
+      'Rust source deriving the Chapter 13 analytic token-loss gradient without the production softmax or indexed-NLL helpers',
       'Rust source applying sampled gradient checking to Chapter 12 indexed mean NLL',
       'Rust source running the Chapter 13 learner gradient-check example',
       'Rust source implementing the Chapter 13 truncation-to-rounding step-size scan',
     ],
-    diagramTitle: 'See a centered slope converge, then deteriorate',
+    diagramTitle: 'Compare actual probe spacing before trusting a sampled check',
     diagramDescription:
-      'Compare scalar checks, token-loss gradients, exact restoration, and invalid inputs.',
+      'Compare requested and actual probe spacing, a rounded identity check, a known nondifferentiable corner, separate NLL paths and their shared assumptions, selected token-loss coordinates, exact restoration, and invalid inputs.',
     diagramSections: [
-      'Check the quadratic at theta equals three',
+      'Check actual spacing around theta equals three',
       'Scan six step sizes around theta equals one point five',
       'Compare two finite gradient candidates',
-      'Probe four coordinates of the token loss',
+      'Cross-check four selected coordinates of the token loss',
+      'Read the method boundaries before trusting agreement',
       'Reject unsafe numerical requests',
     ],
     diagramLabels: {
@@ -131,22 +132,22 @@ const copy = {
     },
     restoredText: 'yes, exactly',
     exerciseSummary: 'Check the predictions',
-    exerciseSix:
+    exerciseSeven:
       'For a tensor with N=6 elements, max_samples is R=4. Compute S=\\min(R,N), then evaluate \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor for every k\\in\\{0,1,2,3\\} and map the four flat offsets to shape [2,3] coordinates.',
-    answerSix:
+    answerSeven:
       'Here S=\\min(4,6)=4. For k=0,1,2,3, \\lfloor k(6-1)/(4-1)\\rfloor=\\lfloor 5k/3\\rfloor gives flats [0,1,3,5], hence coordinates [[0,0],[0,1],[1,0],[1,2]].',
   },
   ru: {
     revisionLabel: 'Версия материала',
     chapterTitle: 'Проверяйте градиенты, прежде чем доверять обратному распространению',
     chapterDescription:
-      'Проверяйте производные для обучения LLM с помощью центральных разностей, погрешности с учётом масштаба и детерминированно выбранных координат тензора; пример на Rust не требует сторонних зависимостей.',
+      'Сверяйте выбранные производные для обучения LLM по фактически представимым точкам: учитывайте требование локальной гладкости и погрешность с учётом масштаба, а координаты тензора выбирайте детерминированно в Rust.',
     headings: [
       'Предскажите одну производную квадратичной функции',
-      'Вычислите функцию в двух симметричных точках',
+      'Используйте расстояния до значений, представимых компьютером',
       'Назовите величины, используемые при проверке производной',
       'От обратного распространения для следующего слова к проверке производных при обучении Transformer',
-      'Реализуйте выборочную численную проверку',
+      'Реализуйте выборочную численную сверку',
       'Проследите, как уменьшение шага сначала помогает, а затем мешает',
       'Сделайте предсказания до запуска Rust',
       'Подготовьте автоматическое дифференцирование в обратном режиме',
@@ -154,11 +155,11 @@ const copy = {
     historyHeading:
       'От обратного распространения для следующего слова к проверке производных при обучении Transformer',
     historyClaims: [
-      'Нейронная языковая модель Бенжио и соавторов максимизирует логарифмическое правдоподобие следующего слова и явно выполняет этап обратного распространения и обновления параметров выходного и скрытого слоёв, а также обучаемых векторных представлений слов. Передаваемые назад производные позволяют многократно обновлять параметры, но вычисляющий их путь не может независимо проверить сам себя.',
-      'Transformer обучает градиентным методом повторяющиеся слои внимания и полносвязные блоки, выполняя 100 000 шагов Adam для базовой модели или 300 000 для большой. Байдин и соавторы различают численное дифференцирование и автоматическое дифференцирование в обратном режиме: конечные разности оценивают одну локальную производную по нескольким вычислениям функции, а обратный режим эффективно получает градиент скалярной цели по множеству параметров. Здесь такая независимая оценка помогает обнаружить локальную ошибку в проверяемой производной.',
-      'В этой главе центральные разности служат лишь медленным независимым численным эталоном для выборочной проверки аналитически вычисленных значений, в том числе производной среднего NLL по индексам из главы 12. В главе 14 появится обратный режим. Такая проверка не обучает и не запускает декодер; правила выбора шага, допуска и координат, восстановления значений, конечности входов, хранения и очерёдности проверок относятся к данной реализации курса.',
+      'Нейронная языковая модель Бенжио и соавторов максимизирует логарифмическое правдоподобие следующего слова и явно выполняет этап обратного распространения и обновления параметров выходного и скрытого слоёв, а также обучаемых векторных представлений слов. Распространяемые назад производные позволяют многократно обновлять параметры, но реализованный путь их вычисления не служит независимой проверкой самого себя.',
+      'Transformer с повторяющимися слоями внимания и полносвязными блоками обучают градиентным методом, выполняя 100 000 шагов Adam для базовой модели и 300 000 для большой. Байдин и соавторы различают численное дифференцирование и автоматическое дифференцирование в обратном режиме: конечные разности оценивают одну локальную производную по нескольким вычислениям функции, а обратный режим эффективно получает градиент скалярной цели по множеству параметров. Здесь отдельный путь численного вычисления помогает обнаружить локальную ошибку в проверяемой производной.',
+      'В этой главе трёхточечные конечные разности служат лишь медленной выборочной численной сверкой для локально гладких целевых функций, в том числе для выбранных производных среднего NLL по индексам из главы 12, прежде чем в главе 14 появится обратный режим. Успешная сверка свидетельствует только о выбранных координатах, точках вычисления, шаге, допуске и конкретном примере; она не доказывает правильность всего градиента или локальную дифференцируемость. Такая проверка не обучает и не запускает декодер, а её правила относятся к данной реализации курса.',
     ],
-    implementationHeading: 'Реализуйте выборочную численную проверку',
+    implementationHeading: 'Реализуйте выборочную численную сверку',
     samplerClaims: [
       'Пусть N — число элементов непустого тензора, R — максимальное запрошенное число координат, а S=\\min(R,N) — фактическое число выбранных координат.',
       'При S>1 алгоритм вычисляет плоское смещение \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor для каждого целого k\\in\\{0,1,\\ldots,S-1\\}.',
@@ -167,36 +168,37 @@ const copy = {
     ],
     rustCaptions: [
       'Задать квадратичный пример и оба аналитических значения',
-      'Вычислить значения слева и справа, а затем наклон секущей',
+      'Вычислить фактические расстояния и применить формулу для неравных расстояний',
       'Нормировать расхождение конечных производных по большей величине или единице',
       'Различать ошибки шагов, точек, значений, форм, координат и представлений',
       'Выбрать уникальные упорядоченные координаты тензора без случайности',
       'Проверить выбранные координаты тензора и восстановить каждое временное изменение',
-      'Построить вручную производную среднего NLL по двум строкам',
-      'Сравнить четыре производные по логитам словаря с независимыми прямыми вычислениями',
+      'Вычислить аналитическое значение NLL непосредственно по исходным логитам',
+      'Сопоставить четыре аналитических значения с изменёнными входами NLL по индексам',
       'Подготовить полный детерминированный результат перед печатью',
       'Проверить производную кубической функции при всех шести величинах шага',
     ],
     rustLabels: [
       'Исходный код Rust с предварительно рассчитанной проверкой производной квадратичной функции в главе 13',
-      'Исходный код Rust с реализацией скалярной центральной разности в главе 13',
+      'Исходный код Rust с трёхточечной оценкой производной по фактическим представимым точкам в главе 13',
       'Исходный код Rust с правилом сравнения градиентов с учётом масштаба в главе 13',
       'Исходный код Rust с типами ошибок численной проверки градиента в главе 13',
       'Исходный код Rust с детерминированным выбором координат тензора в главе 13',
       'Исходный код Rust с выборочной проверкой градиента по координатам тензора',
-      'Исходный код Rust с аналитически вычисленной производной функции потерь по токенам в главе 13',
+      'Исходный код Rust с аналитической производной функции потерь без основных функций softmax и NLL по индексам в главе 13',
       'Исходный код Rust с выборочной проверкой производной среднего NLL из главы 12',
       'Исходный код Rust с запуском учебного примера численной проверки градиента в главе 13',
       'Исходный код Rust с перебором шагов от погрешности усечения к погрешности округления в главе 13',
     ],
-    diagramTitle: 'Как шаг сначала улучшает, затем портит оценку производной',
+    diagramTitle: 'Сопоставьте фактические расстояния, прежде чем доверять выборочной сверке',
     diagramDescription:
-      'Сравните скалярные проверки, градиенты функции потерь по токенам, точное восстановление и недопустимые входные данные.',
+      'Схема сопоставляет запрошенную величину шага с фактическими расстояниями и показывает проверку линейной функции после округления, известную недифференцируемую точку, отдельные пути NLL с общими предпосылками, выбранные координаты функции потерь, точное восстановление и недопустимые входные данные.',
     diagramSections: [
-      'Квадратичная проверка',
-      'Шесть величин шага для кубической функции',
-      'Два аналитических значения',
-      'Четыре координаты градиента NLL',
+      'Проверьте фактические расстояния при значении параметра три',
+      'Переберите шесть величин шага при значении параметра полтора',
+      'Сопоставьте два конечных значения градиента',
+      'Сверка четырёх выбранных координат NLL',
+      'Что не доказывает успешная сверка',
       'Недопустимые запросы',
     ],
     diagramLabels: {
@@ -204,18 +206,18 @@ const copy = {
         visible: 'Численная производная',
         accessible: 'Численная производная квадратичной функции',
       },
-      numerical: { visible: 'Числ. градиент', accessible: 'Численный градиент' },
-      analytic: { visible: 'Аналит. значение', accessible: 'Аналитическое значение' },
+      numerical: { visible: 'Численный градиент', accessible: 'Численный градиент' },
+      analytic: { visible: 'Аналитическое значение', accessible: 'Аналитическое значение' },
       'scaled-error': {
-        visible: 'Норм. погрешность',
+        visible: 'Нормированная погрешность',
         accessible: 'Нормированная погрешность',
       },
     },
     restoredText: 'да, точно',
     exerciseSummary: 'Проверьте предсказания',
-    exerciseSix:
+    exerciseSeven:
       'В тензоре N=6 элементов, а значение max_samples равно R=4. Вычислите S=\\min(R,N), затем для каждого k\\in\\{0,1,2,3\\} найдите плоское смещение \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor и сопоставьте четыре смещения с координатами формы [2,3].',
-    answerSix:
+    answerSeven:
       'Здесь S=\\min(4,6)=4. Для k=0,1,2,3 выражение \\lfloor k(6-1)/(4-1)\\rfloor=\\lfloor 5k/3\\rfloor даёт плоские смещения [0,1,3,5], то есть координаты [[0,0],[0,1],[1,0],[1,2]].',
   },
 } satisfies Record<ChapterLocale, LocalizedCopy>;
@@ -381,7 +383,33 @@ async function expectChapterContent(
       }),
     )).toBe(true);
   }
-  await expect(diagram.locator('[data-diagram-box]')).toHaveCount(23);
+  await expect(diagram.locator('[data-diagram-box]')).toHaveCount(27);
+
+  expect(
+    await diagram.locator('.probe-card').evaluate((card) => ({
+      requestedStep: card.getAttribute('data-requested-step'),
+      minusPoint: card.getAttribute('data-minus-point'),
+      centerPoint: card.getAttribute('data-center-point'),
+      plusPoint: card.getAttribute('data-plus-point'),
+      minusSpacing: card.getAttribute('data-minus-spacing'),
+      plusSpacing: card.getAttribute('data-plus-spacing'),
+      leftWeight: card.getAttribute('data-left-weight'),
+      rightWeight: card.getAttribute('data-right-weight'),
+      stencil: card.getAttribute('data-stencil'),
+      numerical: card.getAttribute('data-numerical'),
+    })),
+  ).toEqual({
+    requestedStep: '1.00000000000000006e-1',
+    minusPoint: '2.900000000000',
+    centerPoint: '3.000000000000',
+    plusPoint: '3.100000000000',
+    minusSpacing: '1.00000000000000089e-1',
+    plusSpacing: '1.00000000000000089e-1',
+    leftWeight: '5.00000000000000000e-1',
+    rightWeight: '5.00000000000000000e-1',
+    stencil: 'symmetric',
+    numerical: '6.000000000000',
+  });
 
   expect(
     await diagram.locator('.step-record[data-step-index]').evaluateAll((rows) =>
@@ -395,12 +423,12 @@ async function expectChapterContent(
       })),
     ),
   ).toEqual([
-    { index: '0', phase: 'truncation', status: 'fail', step: '1.000000000000e0', numerical: '5.750000000000', error: '1.739130434783e-1' },
-    { index: '1', phase: 'truncation', status: 'fail', step: '1.000000000000e-1', numerical: '4.760000000000', error: '2.100840336136e-3' },
-    { index: '2', phase: 'converging', status: 'pass', step: '1.000000000000e-3', numerical: '4.750001000000', error: '2.105262021379e-7' },
-    { index: '3', phase: 'trusted', status: 'pass', step: '1.000000000000e-5', numerical: '4.750000000131', error: '2.758704376049e-11' },
-    { index: '4', phase: 'rounding', status: 'pass', step: '1.000000000000e-8', numerical: '4.749999971132', error: '6.077470970922e-9' },
-    { index: '5', phase: 'rounding', status: 'fail', step: '1.000000000000e-12', numerical: '4.750422277766', error: '8.889267973000e-5' },
+    { index: '0', phase: 'truncation', status: 'fail', step: '1.00000000000000000e0', numerical: '5.750000000000', error: '1.739130434783e-1' },
+    { index: '1', phase: 'truncation', status: 'fail', step: '1.00000000000000006e-1', numerical: '4.760000000000', error: '2.100840336135e-3' },
+    { index: '2', phase: 'converging', status: 'pass', step: '1.00000000000000002e-3', numerical: '4.750001000000', error: '2.105263122720e-7' },
+    { index: '3', phase: 'trusted', status: 'pass', step: '1.00000000000000008e-5', numerical: '4.750000000100', error: '2.103583973678e-11' },
+    { index: '4', phase: 'rounding', status: 'fail', step: '1.00000000000000003e-13', numerical: '4.751111111111', error: '2.338634237605e-4' },
+    { index: '5', phase: 'rounding', status: 'fail', step: '1.00000000000000008e-15', numerical: '4.800000000000', error: '1.041666666667e-2' },
   ]);
   expect(
     await diagram.locator('[data-comparison-name]').evaluateAll((cards) =>
@@ -418,7 +446,7 @@ async function expectChapterContent(
       name: 'quadratic-correct',
       analytic: '6.000000000000',
       numerical: '6.000000000000',
-      error: '8.881784197001e-16',
+      error: '0.000000000000e0',
       tolerance: '1.000000000000e-6',
       status: 'pass',
     },
@@ -439,6 +467,10 @@ async function expectChapterContent(
         analytic: card.getAttribute('data-analytic'),
         numerical: card.getAttribute('data-numerical'),
         error: card.getAttribute('data-scaled-error'),
+        requestedStep: card.getAttribute('data-requested-step'),
+        minusSpacing: card.getAttribute('data-minus-spacing'),
+        plusSpacing: card.getAttribute('data-plus-spacing'),
+        stencil: card.getAttribute('data-stencil'),
         status: card.getAttribute('data-status'),
       })),
     ),
@@ -449,6 +481,10 @@ async function expectChapterContent(
       analytic: '-0.377635764473',
       numerical: '-0.377635764481',
       error: '8.753164859598e-12',
+      requestedStep: '1.00000000000000008e-5',
+      minusSpacing: '1.00000000000000008e-5',
+      plusSpacing: '1.00000000000000008e-5',
+      stencil: 'symmetric',
       status: 'pass',
     },
     {
@@ -456,26 +492,100 @@ async function expectChapterContent(
       coordinate: '0:1',
       analytic: '0.332620477887',
       numerical: '0.332620477894',
-      error: '6.763478666016e-12',
+      error: '6.430855847839e-12',
+      requestedStep: '1.00000000000000008e-5',
+      minusSpacing: '9.99999999995448974e-6',
+      plusSpacing: '1.00000000000655120e-5',
+      stencil: 'unequal',
       status: 'pass',
     },
     {
       flat: '3',
       coordinate: '1:0',
       analytic: '0.433406666099',
-      numerical: '0.433406666089',
-      error: '9.292122626903e-12',
+      numerical: '0.433406666087',
+      error: '1.213129596778e-11',
+      requestedStep: '1.00000000000000008e-5',
+      minusSpacing: '1.00000000000655120e-5',
+      plusSpacing: '1.00000000000655120e-5',
+      stencil: 'symmetric',
       status: 'pass',
     },
     {
       flat: '5',
       coordinate: '1:2',
       analytic: '-0.492061880012',
-      numerical: '-0.492061879998',
-      error: '1.425926043908e-11',
+      numerical: '-0.492061879994',
+      error: '1.748279299107e-11',
+      requestedStep: '1.00000000000000008e-5',
+      minusSpacing: '1.00000000000655120e-5',
+      plusSpacing: '1.00000000000655120e-5',
+      stencil: 'symmetric',
       status: 'pass',
     },
   ]);
+
+  expect(
+    await diagram.locator('[data-boundary-case="rounded-linear"]').evaluate((card) => ({
+      status: card.getAttribute('data-status'),
+      requestedStep: card.getAttribute('data-requested-step'),
+      minusSpacing: card.getAttribute('data-minus-spacing'),
+      plusSpacing: card.getAttribute('data-plus-spacing'),
+      leftWeight: card.getAttribute('data-left-weight'),
+      rightWeight: card.getAttribute('data-right-weight'),
+      stencil: card.getAttribute('data-stencil'),
+      numerical: card.getAttribute('data-numerical'),
+    })),
+  ).toEqual({
+    status: 'pass',
+    requestedStep: '1.33226762955018780e-16',
+    minusSpacing: '1.11022302462515654e-16',
+    plusSpacing: '2.22044604925031308e-16',
+    leftWeight: '6.66666666666666630e-1',
+    rightWeight: '3.33333333333333315e-1',
+    stencil: 'unequal',
+    numerical: '1.000000000000',
+  });
+  expect(
+    await diagram.locator('[data-boundary-case="absolute-kink"]').evaluate((card) => ({
+      status: card.getAttribute('data-status'),
+      knownNondifferentiable: card.getAttribute('data-known-nondifferentiable'),
+      consistency: card.getAttribute('data-consistency'),
+      gap: card.getAttribute('data-one-sided-scaled-gap'),
+      tolerance: card.getAttribute('data-tolerance'),
+      requestedStep: card.getAttribute('data-requested-step'),
+      leftSlope: card.getAttribute('data-left-slope'),
+      rightSlope: card.getAttribute('data-right-slope'),
+      numerical: card.getAttribute('data-numerical'),
+    })),
+  ).toEqual({
+    status: 'rejected',
+    knownNondifferentiable: 'yes',
+    consistency: 'disagree',
+    gap: '2.000000000000e0',
+    tolerance: '1.000000000000e-12',
+    requestedStep: '1.00000000000000006e-1',
+    leftSlope: '-1.000000000000',
+    rightSlope: '1.000000000000',
+    numerical: '0.000000000000',
+  });
+  expect(
+    await diagram.locator('[data-boundary-case="oracle-paths"]').evaluate((card) => ({
+      analyticPath: card.getAttribute('data-analytic-path'),
+      objectivePath: card.getAttribute('data-objective-path'),
+      sharedPrimitives: card.getAttribute('data-shared-primitives'),
+      materialCoursePath: card.getAttribute('data-material-course-path'),
+      routes: Array.from(card.querySelectorAll('[data-oracle-route]')).map((route) =>
+        route.getAttribute('data-oracle-route')
+      ),
+    })),
+  ).toEqual({
+    analyticPath: 'local-row-max-exp-sum-normalize-target-gradient',
+    objectivePath: 'indexed-mean-nll',
+    sharedPrimitives: 'f64-exp,frozen-inputs-and-targets',
+    materialCoursePath: 'separate',
+    routes: ['analytic', 'objective', 'shared'],
+  });
   await expect(diagram.locator('[data-restored-exactly]')).toHaveAttribute(
     'data-restored-exactly',
     'yes',
@@ -556,16 +666,16 @@ async function expectChapterContent(
   ).toEqual([]);
 
   const exerciseQuestions = page.locator('.lesson-body > ol > li');
-  await expect(exerciseQuestions).toHaveCount(8);
-  expect(await readMathAwareText(exerciseQuestions.nth(5))).toBe(localized.exerciseSix);
+  await expect(exerciseQuestions).toHaveCount(10);
+  expect(await readMathAwareText(exerciseQuestions.nth(6))).toBe(localized.exerciseSeven);
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
   await expect(exerciseDetails.locator('summary')).toHaveText(localized.exerciseSummary);
   await exerciseDetails.locator('summary').click();
   await expect(exerciseDetails).toHaveAttribute('open', '');
-  await expect(exerciseDetails.locator('ol > li')).toHaveCount(8);
-  expect(await readMathAwareText(exerciseDetails.locator('ol > li').nth(5))).toBe(
-    localized.answerSix,
+  await expect(exerciseDetails.locator('ol > li')).toHaveCount(10);
+  expect(await readMathAwareText(exerciseDetails.locator('ol > li').nth(6))).toBe(
+    localized.answerSeven,
   );
 
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
@@ -638,7 +748,7 @@ test.describe('chapter 13 localized gradient-checking vertical slice', {
     });
   }
 
-  test('chapter 13 full view fits both localized diagrams without substantial travel', async ({
+  test('chapter 13 full view keeps both localized diagrams contained with root-owned vertical continuation', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -656,22 +766,39 @@ test.describe('chapter 13 localized gradient-checking vertical slice', {
       );
       await settle(page);
       const geometry = await diagram.evaluate((node) => ({
-        blockDebt: node.scrollHeight - node.clientHeight,
-        blockBudget: Math.ceil(node.clientHeight * 0.2),
-        inlineDebt: node.scrollWidth - node.clientWidth,
-        regionInlineDebts: Array.from(
+        blockDebt: Math.max(0, node.scrollHeight - node.clientHeight),
+        rootOverflowY: getComputedStyle(node).overflowY,
+        inlineDebt: Math.max(0, node.scrollWidth - node.clientWidth),
+        regionDebts: Array.from(
           node.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
-        ).map((region) => region.scrollWidth - region.clientWidth),
-        boxDebts: Array.from(node.querySelectorAll<HTMLElement>('[data-diagram-box]')).map(
-          (box) => ({
-            inline: box.scrollWidth - box.clientWidth,
-            block: box.scrollHeight - box.clientHeight,
-          }),
-        ),
+        ).map((region) => ({
+          inline: Math.max(0, region.scrollWidth - region.clientWidth),
+          block: Math.max(0, region.scrollHeight - region.clientHeight),
+        })),
+        localVerticalOwnerCount: Array.from(
+          node.querySelectorAll<HTMLElement>('*'),
+        ).filter((element) => {
+          const debt = Math.max(0, element.scrollHeight - element.clientHeight);
+          const { overflowY } = getComputedStyle(element);
+          return overflowY === 'scroll' || (overflowY === 'auto' && debt > 2);
+        }).length,
+        boxDebts: Array.from(
+          node.querySelectorAll<HTMLElement>('[data-diagram-box]'),
+        ).map((box) => ({
+          inline: Math.max(0, box.scrollWidth - box.clientWidth),
+          block: Math.max(0, box.scrollHeight - box.clientHeight),
+        })),
       }));
-      expect(geometry.blockDebt).toBeLessThanOrEqual(geometry.blockBudget);
+      if (geometry.blockDebt > 2) {
+        expect(['auto', 'scroll']).toContain(geometry.rootOverflowY);
+      }
       expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
-      expect(geometry.regionInlineDebts.every((debt) => debt <= 2)).toBe(true);
+      expect(
+        geometry.regionDebts.every(
+          ({ inline, block }) => inline <= 2 && block <= 2,
+        ),
+      ).toBe(true);
+      expect(geometry.localVerticalOwnerCount).toBe(0);
       expect(
         geometry.boxDebts.every(({ inline, block }) => inline <= 2 && block <= 2),
       ).toBe(true);

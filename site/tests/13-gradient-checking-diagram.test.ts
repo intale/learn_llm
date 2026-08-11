@@ -55,12 +55,19 @@ const labels: GradientCheckingDiagramLabels = {
     scan: 'scan',
     candidates: 'candidates',
     tensor: 'tensor',
+    boundaries: 'boundaries',
     errors: 'errors',
   },
   fields: {
+    requestedStep: 'requested step',
     minusProbe: 'minus',
+    minusSpacing: 'left spacing',
     center: 'center',
     plusProbe: 'plus',
+    plusSpacing: 'right spacing',
+    leftSlope: 'left slope',
+    rightSlope: 'right slope',
+    stencil: 'stencil',
     numerical: 'numerical',
     analytic: 'analytic',
     scaledError: 'scaled error',
@@ -84,6 +91,8 @@ const labels: GradientCheckingDiagramLabels = {
   },
   notes: {
     tensor: 'tensor note',
+    boundaries: 'boundary note',
+    oracle: 'oracle note',
     errors: 'error note',
   },
   symbols: {
@@ -97,91 +106,146 @@ const labels: GradientCheckingDiagramLabels = {
   },
 };
 
-describe('Chapter 13 explicit deterministic-sampler explanation', () => {
-  it('defines every quantity, branch, and iteration bound at the formula', () => {
+function mutateLine(prefix: string, from: string, to: string): string {
+  const lines = fixture.slice(0, -1).split('\n') as string[];
+  const indices = lines
+    .map((line: string, index: number) => (line.startsWith(prefix) ? index : -1))
+    .filter((index: number) => index !== -1);
+  if (indices.length !== 1) throw new Error(`Mutation prefix ${prefix} is not unique.`);
+  const index = indices[0]!;
+  const changed = lines[index]!.replace(from, to);
+  if (changed === lines[index]) throw new Error(`Mutation ${from} did not change ${prefix}.`);
+  lines[index] = changed;
+  return `${lines.join('\n')}\n`;
+}
+
+function mutateFixture(from: string, to: string): string {
+  const changed = fixture.replace(from, to);
+  if (changed === fixture) throw new Error(`Mutation ${from} did not change the fixture.`);
+  return changed;
+}
+
+describe('Chapter 13 corrected finite-difference evidence', () => {
+  it('states actual unequal spacing, smoothness limits, and materially separate oracle paths', () => {
     for (const source of [contract, englishLesson, russianLesson]) {
-      expect(source).toContain('"content_revision": 5');
+      expect(source).toContain('"content_revision": 6');
+      expect(source).toContain('h_-');
+      expect(source).toContain('h_+');
+      expect(source).toContain('f(x)=x');
+      expect(source).toContain('f(x)=|x|');
+      expect(source).toContain('indexed_mean_nll');
       expect(source).toContain('$S=\\min(R,N)$');
-      expect(source).toContain('$S>1$');
       expect(source).toContain('$k\\in\\{0,1,\\ldots,S-1\\}$');
-      expect(source).toContain('$\\left\\lfloor k(N-1)/(S-1)\\right\\rfloor$');
-      expect(source).toContain('$S=1$');
-      expect(source).toContain('$\\lfloor N/2\\rfloor$');
-      expect(source).toContain('$k=0,1,2,3$');
     }
 
-    expect(englishLesson).toMatch(
-      /let \$S=\\min\(R,N\)\$ be the number\s+of coordinates the sampler actually selects/,
-    );
+    expect(englishLesson).toContain('does not call the production `softmax` or `indexed_mean_nll`');
     expect(russianLesson).toMatch(
-      /\$S=\\min\(R,N\)\$ — фактическое число выбранных координат/,
-    );
-    expect(englishLesson).not.toContain('and four samples use flat offsets');
-    expect(russianLesson).not.toContain('а четыре проверки используют плоские смещения');
-  });
-
-  it('restates the sampler inputs and complete formula in prediction check 6', () => {
-    const predictionChecks = contract.match(
-      /<!-- contract-section:exercises -->([\s\S]*?)<!-- contract-section:decoder-connection -->/,
-    )?.[1];
-
-    expect(predictionChecks).toContain(
-      '6. For a tensor with $N=6$ elements, `max_samples` is $R=4$. Compute $S=\\min(R,N)$, then evaluate $\\left\\lfloor k(N-1)/(S-1)\\right\\rfloor$ for every $k\\in\\{0,1,2,3\\}$ and map the four flat offsets to shape `[2,3]` coordinates.',
+      /не вызывает\s+основные функции `softmax` или\s+`indexed_mean_nll`/,
     );
   });
 });
 
-describe('Chapter 13 Rust trace parser', () => {
-  it('projects the quadratic, step scan, tensor samples, restoration, and errors', () => {
+describe('Chapter 13 Rust v2 trace parser', () => {
+  it('projects exact actual geometry, rounded identity, kink, scan, oracle, tensor, and errors', () => {
     const trace = parseGradientCheckingTrace(fixture);
 
     expect(gradientCheckingDiagramId).toBe('gradient-checking');
     expect(trace.central).toMatchObject({
       name: 'quadratic',
       point: { lexeme: '3.000000000000' },
-      minusValue: { lexeme: '8.410000000000' },
-      plusValue: { lexeme: '9.610000000000' },
+      requestedStep: { lexeme: '1.00000000000000006e-1' },
+      minusSpacing: { lexeme: '1.00000000000000089e-1' },
+      plusSpacing: { lexeme: '1.00000000000000089e-1' },
+      centerValue: { lexeme: '9.000000000000' },
+      leftSlope: { lexeme: '5.900000000000' },
+      rightSlope: { lexeme: '6.100000000000' },
+      leftWeight: { lexeme: '5.00000000000000000e-1' },
+      rightWeight: { lexeme: '5.00000000000000000e-1' },
+      stencil: 'symmetric',
       numerical: { lexeme: '6.000000000000' },
     });
-    expect(trace.comparisons.map(({ name, status }) => ({ name, status }))).toEqual([
-      { name: 'quadratic-correct', status: 'pass' },
-      { name: 'quadratic-wrong', status: 'fail' },
+    expect(trace.comparisons.map(({ name, status, scaledError }) => ({
+      name,
+      status,
+      error: scaledError.lexeme,
+    }))).toEqual([
+      { name: 'quadratic-correct', status: 'pass', error: '0.000000000000e0' },
+      { name: 'quadratic-wrong', status: 'fail', error: '8.333333333333e-2' },
     ]);
-    expect(
-      trace.stepScan.map(({ phase, status, step, scaledError }) => ({
-        phase,
-        status,
-        step: step.lexeme,
-        scaledError: scaledError.lexeme,
-      })),
-    ).toEqual([
-      { phase: 'truncation', status: 'fail', step: '1.000000000000e0', scaledError: '1.739130434783e-1' },
-      { phase: 'truncation', status: 'fail', step: '1.000000000000e-1', scaledError: '2.100840336136e-3' },
-      { phase: 'converging', status: 'pass', step: '1.000000000000e-3', scaledError: '2.105262021379e-7' },
-      { phase: 'trusted', status: 'pass', step: '1.000000000000e-5', scaledError: '2.758704376049e-11' },
-      { phase: 'rounding', status: 'pass', step: '1.000000000000e-8', scaledError: '6.077470970922e-9' },
-      { phase: 'rounding', status: 'fail', step: '1.000000000000e-12', scaledError: '8.889267973000e-5' },
+
+    expect(trace.roundedLinear).toMatchObject({
+      analytic: { lexeme: '1.000000000000' },
+      status: 'pass',
+      requestedStep: { lexeme: '1.33226762955018780e-16' },
+      minusSpacing: { lexeme: '1.11022302462515654e-16' },
+      plusSpacing: { lexeme: '2.22044604925031308e-16' },
+      leftWeight: { lexeme: '6.66666666666666630e-1' },
+      rightWeight: { lexeme: '3.33333333333333315e-1' },
+      stencil: 'unequal',
+      numerical: { lexeme: '1.000000000000' },
+    });
+    expect(trace.kink).toMatchObject({
+      name: 'absolute',
+      knownNondifferentiable: 'yes',
+      oneSidedScaledGap: { lexeme: '2.000000000000e0' },
+      consistency: 'disagree',
+      leftSlope: { lexeme: '-1.000000000000' },
+      rightSlope: { lexeme: '1.000000000000' },
+      numerical: { lexeme: '0.000000000000' },
+    });
+
+    expect(trace.config.steps.map(({ lexeme }) => lexeme)).toEqual([
+      '1.000000000000e0',
+      '1.000000000000e-1',
+      '1.000000000000e-3',
+      '1.000000000000e-5',
+      '1.000000000000e-13',
+      '1.000000000000e-15',
     ]);
-    expect(trace.tensor.loss.lexeme).toBe('2.775268796472');
+    expect(trace.stepScan.map(({ phase, status, requestedStep, numerical, scaledError }) => ({
+      phase,
+      status,
+      step: requestedStep.lexeme,
+      numerical: numerical.lexeme,
+      error: scaledError.lexeme,
+    }))).toEqual([
+      { phase: 'truncation', status: 'fail', step: '1.00000000000000000e0', numerical: '5.750000000000', error: '1.739130434783e-1' },
+      { phase: 'truncation', status: 'fail', step: '1.00000000000000006e-1', numerical: '4.760000000000', error: '2.100840336135e-3' },
+      { phase: 'converging', status: 'pass', step: '1.00000000000000002e-3', numerical: '4.750001000000', error: '2.105263122720e-7' },
+      { phase: 'trusted', status: 'pass', step: '1.00000000000000008e-5', numerical: '4.750000000100', error: '2.103583973678e-11' },
+      { phase: 'rounding', status: 'fail', step: '1.00000000000000003e-13', numerical: '4.751111111111', error: '2.338634237605e-4' },
+      { phase: 'rounding', status: 'fail', step: '1.00000000000000008e-15', numerical: '4.800000000000', error: '1.041666666667e-2' },
+    ]);
+
+    expect(trace.oracle).toEqual({
+      analyticPath: 'local-row-max-exp-sum-normalize-target-gradient',
+      objectivePath: 'indexed-mean-nll',
+      sharedPrimitives: 'f64-exp,frozen-inputs-and-targets',
+      materialCoursePath: 'separate',
+    });
+    expect(trace.tensor).toMatchObject({
+      loss: { lexeme: '2.775268796472' },
+      requestedStep: { lexeme: '1.00000000000000008e-5' },
+    });
     expect(trace.samples.flatIndices.map(({ lexeme }) => lexeme)).toEqual(['0', '1', '3', '5']);
-    expect(trace.samples.coordinates.map(({ lexeme }) => lexeme)).toEqual([
-      '0:0',
-      '0:1',
-      '1:0',
-      '1:2',
+    expect(trace.coordinates.map(({ flatIndex, coordinate, stencil, status }) => ({
+      flat: flatIndex.lexeme,
+      coordinate: coordinate.lexeme,
+      stencil,
+      status,
+    }))).toEqual([
+      { flat: '0', coordinate: '0:0', stencil: 'symmetric', status: 'pass' },
+      { flat: '1', coordinate: '0:1', stencil: 'unequal', status: 'pass' },
+      { flat: '3', coordinate: '1:0', stencil: 'symmetric', status: 'pass' },
+      { flat: '5', coordinate: '1:2', stencil: 'symmetric', status: 'pass' },
     ]);
-    expect(
-      trace.coordinates.map(({ flatIndex, coordinate, status }) => ({
-        flat: flatIndex.lexeme,
-        coordinate: coordinate.lexeme,
-        status,
-      })),
-    ).toEqual([
-      { flat: '0', coordinate: '0:0', status: 'pass' },
-      { flat: '1', coordinate: '0:1', status: 'pass' },
-      { flat: '3', coordinate: '1:0', status: 'pass' },
-      { flat: '5', coordinate: '1:2', status: 'pass' },
-    ]);
+    expect(trace.coordinates[1]).toMatchObject({
+      minusSpacing: { lexeme: '9.99999999995448974e-6' },
+      plusSpacing: { lexeme: '1.00000000000655120e-5' },
+      leftWeight: { lexeme: '5.00000000002775558e-1' },
+      rightWeight: { lexeme: '4.99999999997224442e-1' },
+      numerical: { lexeme: '0.332620477894' },
+    });
     expect(trace.restoration).toMatchObject({ exactBits: 'yes', checked: { lexeme: '4' } });
     expect(trace.errors.map(({ kind }) => kind)).toEqual([
       'invalid-step',
@@ -192,140 +256,134 @@ describe('Chapter 13 Rust trace parser', () => {
   });
 
   it.each([
+    ['v1 marker', () => mutateFixture('gradient-checking-v2 BEGIN', 'gradient-checking-v1 BEGIN')],
+    ['central spacing', () => mutateLine('CENTRAL ', 'minus-spacing=1.00000000000000089e-1', 'minus-spacing=1.00000000000000088e-1')],
+    ['central field spacing', () => mutateLine('CENTRAL ', 'point=3.000000000000 requested-step=', 'point=3.000000000000  requested-step=')],
+    ['rounded weight', () => mutateLine('ROUNDED-LINEAR ', 'left-weight=6.66666666666666630e-1', 'left-weight=6.66666666666666640e-1')],
+    ['rounded stencil', () => mutateLine('ROUNDED-LINEAR ', 'stencil=unequal', 'stencil=symmetric')],
+    ['rounded identity derivative', () => mutateLine('ROUNDED-LINEAR ', 'numerical=1.000000000000', 'numerical=1.250000000000')],
+    ['kink differentiability claim', () => mutateLine('KINK ', 'known-nondifferentiable=yes', 'known-nondifferentiable=no')],
+    ['kink consistency', () => mutateLine('KINK ', 'consistency=disagree', 'consistency=agree')],
+    ['kink one-sided slope', () => mutateLine('KINK ', 'left-slope=-1.000000000000', 'left-slope=0.000000000000')],
+    ['scan requested step', () => mutateLine('H-SCAN index=4 ', 'requested-step=1.00000000000000003e-13', 'requested-step=1.00000000000000003e-12')],
+    ['coordinate actual spacing', () => mutateLine('COORD flat=1 ', 'plus-spacing=1.00000000000655120e-5', 'plus-spacing=1.00000000000655121e-5')],
+    ['analytic oracle path', () => mutateLine('ORACLE ', 'analytic-path=local-row-max-exp-sum-normalize-target-gradient', 'analytic-path=softmax-helper')],
+    ['objective oracle path', () => mutateLine('ORACLE ', 'objective-path=indexed-mean-nll', 'objective-path=local-nll-copy')],
+    ['material path boundary', () => mutateLine('ORACLE ', 'material-course-path=separate', 'material-course-path=shared')],
+    ['record order', () => mutateFixture(fixture.split('\n').slice(5, 7).join('\n'), fixture.split('\n').slice(5, 7).reverse().join('\n'))],
+  ])('rejects %s rather than repairing or recomputing Rust evidence', (_label, candidate) => {
+    const mutated = candidate();
+    expect(mutated).not.toBe(fixture);
+    expect(() => parseGradientCheckingTrace(mutated)).toThrow(
+      /exact ordered Rust v2 schema and values/,
+    );
+  });
+
+  it.each([
     ['CRLF', fixture.replaceAll('\n', '\r\n'), /LF line endings/],
+    ['missing final LF', fixture.slice(0, -1), /exactly one LF/],
     ['two final LFs', `${fixture}\n`, /exactly one LF/],
-    ['missing line', fixture.replace(/^COMPARE name=quadratic-wrong.*\n/m, ''), /23-line block/],
-    ['fixed precision', fixture.replace('point=1.500000000000', 'point=1.5'), /line 2 must be CONFIG/],
-    ['scientific precision', fixture.replace('tolerance=1.000000000000e-6', 'tolerance=1e-6'), /line 2 must be CONFIG/],
-    ['central field order', fixture.replace('point=3.000000000000 step=0.100000000000', 'step=0.100000000000 point=3.000000000000'), /line 3 must be CENTRAL/],
-    ['config step drift', fixture.replace('steps=1.000000000000e0', 'steps=2.000000000000e0'), /config steps/],
-    ['phase drift', fixture.replace('index=3 phase=trusted', 'index=3 phase=rounding'), /H-SCAN 3/],
-    ['status drift', fixture.replace('index=4 phase=rounding step=1.000000000000e-8', 'index=4 phase=rounding step=1.000000000000e-8').replace('scaled-error=6.077470970922e-9 status=pass', 'scaled-error=6.077470970922e-9 status=fail'), /H-SCAN 4/],
-    ['sample reorder', fixture.replace('flat=0,1,3,5', 'flat=1,0,3,5'), /sample flat indices/],
-    ['coordinate drift', fixture.replace('coordinates=0:0,0:1,1:0,1:2', 'coordinates=0:0,1:0,0:1,1:2'), /sample coordinates/],
-    ['restoration drift', fixture.replace('RESTORE exact-bits=yes', 'RESTORE exact-bits=no'), /line 18 must be RESTORE/],
-    ['NaN in numeric field', fixture.replace('loss=2.775268796472', 'loss=NaN'), /line 12 must be TENSOR/],
-    ['error order', fixture.replace('ERROR kind=invalid-step step=0.000000000000\nERROR kind=collapsed-perturbation side=minus point=1.000000000000 step=1.000000000000e-20', 'ERROR kind=collapsed-perturbation side=minus point=1.000000000000 step=1.000000000000e-20\nERROR kind=invalid-step step=0.000000000000'), /ordered ERROR records/],
-  ])('rejects %s rather than repairing Rust evidence', (_label, candidate, expected) => {
+  ])('rejects %s framing', (_label, candidate, expected) => {
     expect(() => parseGradientCheckingTrace(candidate)).toThrow(expected);
   });
 
-  it('requires every visible and accessible localized label', () => {
+  it('requires the complete final localized label schema', () => {
     expect(() => assertGradientCheckingDiagramLabels(labels)).not.toThrow();
-    const missing = structuredClone(labels) as unknown as Record<string, unknown>;
-    (missing.notes as Record<string, unknown>).tensor = ' ';
-    expect(() =>
-      assertGradientCheckingDiagramLabels(
-        missing as unknown as GradientCheckingDiagramLabels,
-      ),
-    ).toThrow(/labels\.notes\.tensor/);
 
-    const missingDisplay = structuredClone(labels) as unknown as Record<string, unknown>;
-    (missingDisplay.display as Record<string, unknown>).numerical = ' ';
-    expect(() =>
-      assertGradientCheckingDiagramLabels(
-        missingDisplay as unknown as GradientCheckingDiagramLabels,
-      ),
-    ).toThrow(/labels\.display\.numerical/);
+    const missingSpacing = structuredClone(labels) as unknown as Record<string, unknown>;
+    (missingSpacing.fields as Record<string, unknown>).minusSpacing = ' ';
+    expect(() => assertGradientCheckingDiagramLabels(
+      missingSpacing as unknown as GradientCheckingDiagramLabels,
+    )).toThrow(/labels\.fields\.minusSpacing/);
+
+    const missingBoundary = structuredClone(labels) as unknown as Record<string, unknown>;
+    (missingBoundary.notes as Record<string, unknown>).oracle = ' ';
+    expect(() => assertGradientCheckingDiagramLabels(
+      missingBoundary as unknown as GradientCheckingDiagramLabels,
+    )).toThrow(/labels\.notes\.oracle/);
 
     const unexpected = structuredClone(labels) as unknown as Record<string, unknown>;
-    (unexpected.notes as Record<string, unknown>).schematic = 'obsolete bracket note';
-    expect(() =>
-      assertGradientCheckingDiagramLabels(
-        unexpected as unknown as GradientCheckingDiagramLabels,
-      ),
-    ).toThrow(/labels\.notes\.schematic is unexpected/);
+    (unexpected.notes as Record<string, unknown>).schematic = 'obsolete note';
+    expect(() => assertGradientCheckingDiagramLabels(
+      unexpected as unknown as GradientCheckingDiagramLabels,
+    )).toThrow(/labels\.notes\.schematic is unexpected/);
   });
 
-  it('does not recompute derivative, error, or sampling arithmetic in TypeScript', () => {
+  it('does not recompute derivative, weight, error, or sampling arithmetic in TypeScript', () => {
     expect(parser).not.toMatch(/Math\.(?:abs|max|min|pow|exp|log)/);
     expect(parser).not.toMatch(/\.reduce\([^\n]*(?:\+|-|\*|\/)/);
     expect(parser).not.toMatch(/toFixed|toExponential/);
-    expect(parser).toContain('without differentiation, error scaling, or sampling');
+    expect(parser).toContain('without differentiating, scaling errors, or sampling');
+    expect(parser).toContain('stdout !== expectedGradientCheckingTrace');
   });
 });
 
 describe('Chapter 13 static diagram component', () => {
-  it('reads the Rust fixture at build time without client hydration', () => {
+  it('reads exact Rust v2 evidence at build time without private client behavior', () => {
     expect(component).toContain("readFileSync(fixtureUrl, 'utf8')");
-    expect(component).toContain(
-      '../../../../rust/demos/ch13-gradient-checking/diagram-trace.txt',
-    );
+    expect(component).toContain('../../../../rust/demos/ch13-gradient-checking/diagram-trace.txt');
     expect(component).toContain('parseGradientCheckingTrace');
     expect(component).toContain("import InlineMath from '../InlineMath.astro'");
-    expect(component).toContain('latex="\\theta-h=2.9"');
-    expect(component).toContain('latex="q=8.41"');
-    expect(component).toContain('latex="q=9.61"');
-    expect(component).toContain('data-minus-point={trace.central.minusPoint.lexeme}');
-    expect(component).toContain('data-plus-value={trace.central.plusValue.lexeme}');
-    expect(component).toContain('String.raw`h=${display.step}`');
-    expect(component).not.toContain('>θ-h</span>');
-    expect(component).not.toContain('return `h=${error.step.lexeme}`');
-    expect(component).not.toContain('`step ${error.step.lexeme}`');
-    expect(component).not.toContain('`side ${error.side}');
-    expect(component).not.toContain('{trace.restoration.exactBits}</strong>');
-    expect(component).toContain('{labels.statuses.restored}');
-    expect(component).toContain('{labels.display.summaryQuadratic}');
-    expect(component).toContain('{labels.display.numerical}');
-    expect(component).toContain('{labels.display.analytic}');
-    expect(component).toContain('{labels.display.scaledError}');
-    expect(component).not.toContain('course-diagram__visually-hidden');
-    expect(component.match(/data-diagram-display-label=/g)).toHaveLength(5);
-    expect(component.match(/data-diagram-accessible-label=/g)).toHaveLength(5);
-    expect(component.match(/role="group"/g)).toHaveLength(5);
-    expect(component.match(/role="group"\s+aria-label=\{labels\./g)).toHaveLength(5);
-    expect(component.match(/aria-hidden="true"/g)).toHaveLength(5);
-    expect(component).toContain('data-exact-parameter-shape=');
-    expect(component).toContain('data-exact-candidate-shape=');
-    expect(component).toContain('latex="[2]\\ne[1,2]"');
-    expect(component).toContain('{labels.sides.minus}');
     expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
     expect(component).not.toContain('<script');
   });
 
-  it('separates scalar fixtures and renders semantic Rust-derived records', () => {
-    expect(component).toContain('class="summary-grid"');
-    expect(component).not.toContain('<table');
-    expect(component).toContain('class="scan-records evidence-list course-diagram__grid"');
-    expect(component).toContain('class="candidate-records evidence-list course-diagram__grid"');
-    expect(component).toContain('class="coordinate-records evidence-list course-diagram__grid"');
-    expect(component).toContain('class="error-records evidence-list course-diagram__grid"');
-    expect(component).toContain('class="record-values"');
-    expect(component).toContain('data-step-index=');
-    expect(component).toContain('data-phase=');
-    expect(component).toContain('data-step=');
-    expect(component).toContain('data-numerical=');
-    expect(component).toContain('data-scaled-error=');
-    expect(component).toContain('data-tolerance=');
-    expect(component).toContain('data-comparison-name=');
-    expect(component).toContain('data-sample-flat=');
-    expect(component).toContain('data-coordinate=');
-    expect(component).toContain('data-restored-exactly=');
-    expect(component).toContain('data-error-kind=');
+  it('renders actual geometry and every method boundary as semantic static evidence', () => {
+    expect(component).toContain('data-requested-step={trace.central.requestedStep.lexeme}');
+    expect(component).toContain('data-minus-spacing={trace.central.minusSpacing.lexeme}');
+    expect(component).toContain('data-plus-spacing={trace.central.plusSpacing.lexeme}');
+    expect(component).toContain('data-left-weight={trace.central.leftWeight.lexeme}');
+    expect(component).toContain('data-right-weight={trace.central.rightWeight.lexeme}');
+    expect(component).toContain('data-stencil={trace.central.stencil}');
+    expect(component).toContain('latex="f(x)=x,\\;x=1"');
+    expect(component).toContain('data-boundary-case="rounded-linear"');
+    expect(component).toContain('data-boundary-case="absolute-kink"');
+    expect(component).toContain('data-known-nondifferentiable={trace.kink.knownNondifferentiable}');
+    expect(component).toContain('data-consistency={trace.kink.consistency}');
+    expect(component).toContain('latex="f(x)=|x|,\\;x=0"');
+    expect(component).toContain('data-boundary-case="oracle-paths"');
+    expect(component).toContain('data-analytic-path={trace.oracle.analyticPath}');
+    expect(component).toContain('data-objective-path={trace.oracle.objectivePath}');
+    expect(component).toContain('data-material-course-path={trace.oracle.materialCoursePath}');
+    expect(component).toContain('data-oracle-route="analytic"');
+    expect(component).toContain('data-oracle-route="objective"');
+    expect(component).toContain('{labels.notes.boundaries}');
+    expect(component).toContain('{labels.notes.oracle}');
   });
 
-  it('keeps phase separate from verdict and lets records reflow without private scroll regions', () => {
+  it('preserves exact scan, coordinate, restoration, and rejection records', () => {
+    expect(component).toContain('class="scan-records evidence-list course-diagram__grid"');
+    expect(component).toContain('class="coordinate-records evidence-list course-diagram__grid"');
+    expect(component).toContain('class="error-records evidence-list course-diagram__grid"');
+    expect(component).toContain('data-step-index={record.index.lexeme}');
+    expect(component).toContain('data-step={record.requestedStep.lexeme}');
+    expect(component).toContain('data-minus-spacing={record.minusSpacing.lexeme}');
+    expect(component).toContain('data-plus-spacing={record.plusSpacing.lexeme}');
+    expect(component).toContain('data-sample-flat={record.flatIndex.lexeme}');
+    expect(component).toContain('data-coordinate={record.coordinate.lexeme}');
+    expect(component).toContain('data-restored-exactly={trace.restoration.exactBits}');
+    expect(component).toContain('data-error-kind={error.kind}');
+    expect(component).toContain('data-exact-parameter-shape=');
+    expect(component).toContain('data-exact-candidate-shape=');
+  });
+
+  it('reflows with shared diagram roles and no private scrolling or clipping', () => {
     expect(component).toContain('data-visualization-id={gradientCheckingDiagramId}');
     expect(component).toContain('data-diagram-style="course-v1"');
-    expect(component.match(/<section data-diagram-box/g)).toHaveLength(5);
-    expect(component).toContain('class="quadratic-grid course-diagram__grid"');
-    expect(component).toContain('class="scan-layout"');
-    expect(component.match(/<h4 id=/g)).toHaveLength(5);
+    expect(component.match(/<section data-diagram-box/g)).toHaveLength(6);
+    expect(component.match(/<h4 id=/g)).toHaveLength(6);
     expect(component.match(/tabindex="0"/g)).toHaveLength(1);
+    expect(component).toContain('class="boundary-records evidence-list course-diagram__grid"');
+    expect(component).toContain('grid-template-columns: repeat(6, minmax(0, 1fr));');
+    expect(component).toContain('@container course-diagram');
+    expect(component).toContain('.gradient-checking-diagram:fullscreen');
     expect(component).not.toContain('role="region"');
     expect(component).not.toContain('data-diagram-scroll');
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
     expect(component).not.toContain('overflow: hidden');
     expect(component).not.toContain('overflow: clip');
-    expect(component).toContain('align-items: start;');
-    expect(component).toContain(".step-record[data-phase='trusted'] .state-symbol.phase-trusted { --diagram-state-symbol-border-style: double; }");
-    expect(component).toContain(".step-record[data-phase='rounding'] .state-symbol.phase-rounding { --diagram-state-symbol-border-style: dotted; }");
-    expect(component).toContain("[data-status='fail'] .state-symbol.status-fail { --diagram-state-symbol-border-style: dashed; }");
-    expect(component).toContain('.gradient-checking-diagram:fullscreen .error-records');
-    expect(component).not.toMatch(/\.evidence-list[^{]*\{[^}]*(?:min-)?height\s*:/s);
     expect(component).not.toContain('@media (forced-colors: active)');
     expect(component).not.toMatch(/box-shadow|background:\s*var\(--surface\)|border-radius:\s*1rem/);
-    expect(component).toContain('.gradient-checking-diagram:fullscreen');
   });
 });
