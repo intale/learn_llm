@@ -418,7 +418,19 @@ function removeFixtureRepository(): void {
   fixtureSite = '';
 }
 
-async function expectAccessibleLessonShell(page: Page): Promise<void> {
+async function expectChapterRoot(page: Page, chapterId: string): Promise<void> {
+  const chapterRoots = page.locator('[data-chapter-root]');
+  await expect(chapterRoots).toHaveCount(1);
+  const chapterRoot = page.locator('article.lesson[data-chapter-root]');
+  await expect(chapterRoot).toHaveCount(1);
+  await expect(chapterRoot).toHaveAttribute('data-chapter-id', chapterId);
+}
+
+async function expectAccessibleLessonShell(
+  page: Page,
+  chapterId: string,
+): Promise<void> {
+  await expectChapterRoot(page, chapterId);
   await expect(page.locator('main#main-content')).toHaveCount(1);
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   const namedNavigations = page.locator('nav[aria-label]');
@@ -524,6 +536,7 @@ test.describe(
         previousChapterId,
         englishChapters,
       );
+      await expectChapterRoot(page, previousChapterId);
       await expect(
         page.locator('a[data-chapter-direction="next"]'),
       ).toHaveAttribute('data-chapter-id', fixtureChapterId);
@@ -535,6 +548,7 @@ test.describe(
         previousChapterId,
         russianChapters,
       );
+      await expectChapterRoot(page, previousChapterId);
       await expect(
         page.locator('a[data-chapter-direction="next"]'),
       ).toHaveCount(0);
@@ -577,7 +591,7 @@ test.describe(
       );
       await russianFallback.focus();
       await expect(russianFallback).toBeFocused();
-      await expectAccessibleLessonShell(page);
+      await expectAccessibleLessonShell(page, fixtureChapterId);
       await expectNoOverflowOrClientScripts(page);
     });
 
@@ -605,7 +619,7 @@ test.describe(
         fixtureChapterId,
         englishChapters,
       );
-      await expectAccessibleLessonShell(page);
+      await expectAccessibleLessonShell(page, fixtureChapterId);
       await expect(page.locator('.locale-switch')).toHaveCSS('flex-wrap', 'wrap');
       const navigationColumns = await page
         .locator('nav[data-chapter-navigation]')

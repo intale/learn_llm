@@ -13,6 +13,10 @@ import {
   activeLocalesForChapter,
   readChapterLocaleConfiguration,
 } from './chapter-locale-config.mjs';
+import {
+  validateChapterRouteScope,
+  validateDiagramComponentCss,
+} from '../site/scripts/css-scope-validation.mjs';
 
 export { REFERENCE_LOCALE, SUPPORTED_LOCALES } from './locale-config.mjs';
 
@@ -1539,8 +1543,21 @@ export function repositoryRootFromCwd(cwd = process.cwd()) {
   return nodePath.basename(resolved) === 'site' ? nodePath.dirname(resolved) : resolved;
 }
 
+export function validateChapterRouteSource(source, sourceName = 'chapter route') {
+  try {
+    return validateChapterRouteScope(source, sourceName);
+  } catch (error) {
+    throw new ContentValidationError(error.issues ?? [error.message]);
+  }
+}
+
 export function validateDiagramComponentSource(source, sourceName = 'diagram component') {
   const issues = [];
+  try {
+    validateDiagramComponentCss(source, sourceName);
+  } catch (error) {
+    issues.push(...(error.issues ?? [error.message]));
+  }
   const figures = source.match(/<figure\b[\s\S]*?>/g) ?? [];
   const registered = figures.filter((tag) => /\bdata-visualization-id\s*=/.test(tag));
   const registrations = source.match(/\bdata-visualization-id\s*=/g) ?? [];
@@ -1779,6 +1796,24 @@ function readOption(args, name) {
 
 export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd()) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
+  const chapterRoutePath = nodePath.join(
+    repositoryRoot,
+    'site',
+    'src',
+    'pages',
+    '[locale]',
+    'course',
+    '[...slug].astro',
+  );
+  if (!existsSync(chapterRoutePath)) {
+    throw new ContentValidationError([
+      'site/src/pages/[locale]/course/[...slug].astro: chapter route is missing',
+    ]);
+  }
+  validateChapterRouteSource(
+    readFileSync(chapterRoutePath, 'utf8'),
+    'site/src/pages/[locale]/course/[...slug].astro',
+  );
   const localeConfiguration = readLocaleConfiguration(repositoryRoot);
   const registeredLocales = localeConfiguration.locales;
   const referenceLocale = localeConfiguration.defaultLocale;

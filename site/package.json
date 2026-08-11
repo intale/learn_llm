@@ -27,6 +27,7 @@
     "@playwright/test": "1.61.1",
     "astro": "7.1.1",
     "cross-env": "10.1.0",
+    "css-tree": "3.2.1",
     "katex": "0.16.47",
     "rehype-katex": "7.0.1",
     "remark-math": "6.0.0",

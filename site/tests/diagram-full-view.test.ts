@@ -12,6 +12,7 @@ import {
 } from '../src/lib/diagram-full-view';
 import {
   parseJsonFrontmatter,
+  validateChapterRouteSource,
   validateChapterDocument,
   validateDiagramComponents,
   validateDiagramComponentSource,
@@ -212,5 +213,42 @@ describe('course-wide diagram full-view contract', () => {
     expect(globalStyles).not.toContain('data-diagram-full-view');
     expect(lessonRoute).toContain('.lesson-body > table');
     expect(lessonRoute).not.toContain('.lesson-body table {');
+  });
+
+  it('anchors every route-global lesson selector to one dynamic chapter root', () => {
+    const routePath = 'site/src/pages/[locale]/course/[...slug].astro';
+    const route = read(routePath);
+
+    expect(() => validateChapterRouteSource(route, routePath)).not.toThrow();
+    expect(() =>
+      validateChapterRouteSource(
+        route.replace(' data-chapter-root', ''),
+        routePath,
+      ),
+    ).toThrow(/data-chapter-root/);
+    expect(() =>
+      validateChapterRouteSource(
+        route.replace(
+          '<header class="lesson-header">',
+          '<header class="lesson-header" data-chapter-root>',
+        ),
+        routePath,
+      ),
+    ).toThrow(/exactly one article data-chapter-root/);
+    expect(() =>
+      validateChapterRouteSource(
+        route.replace(' data-chapter-id={entry.data.chapter_id}', ''),
+        routePath,
+      ),
+    ).toThrow(/data-chapter-id/);
+    expect(() =>
+      validateChapterRouteSource(
+        route.replace(
+          'article[data-chapter-root][data-chapter-id] .lesson-header',
+          '.lesson-header',
+        ),
+        routePath,
+      ),
+    ).toThrow(/chapter root/);
   });
 });

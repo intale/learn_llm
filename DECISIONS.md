@@ -20678,3 +20678,38 @@ and fail-closed. The Terra helper produces deterministic navigation evidence;
 Terra still supplies visual judgment, and neither tool expands task authority.
 
 **Affected step:** `build-codex-agent-validation-tooling`.
+
+## 2026-08-11 - Parse CSS selectors for the chapter-scope gate
+
+**Status:** Accepted during preflight before product edits.
+
+**Context:** The chapter-scope step must reject a standalone `:global(...)`
+selector branch while accepting an anchored branch such as
+`.qkv-diagram :global(...)`, including branches inside selector lists and
+at-rules. Extending the repository's regular-expression checks would amount to
+hand-writing fragile CSS parsing and could miss a leaking comma-separated
+branch. The root content checker is outside `site/`, whereas the JavaScript
+dependency installation is intentionally rooted in `site/`.
+
+**Decision:** Add a small `site/scripts/css-scope-validation.mjs` adapter that
+uses exact direct development dependency `css-tree@3.2.1` to parse stylesheets
+and selector lists for the route and diagram source gates. Record and retain its
+complete already-locked closure: `css-tree@3.2.1` (MIT),
+`mdn-data@2.27.1` (CC0-1.0), and `source-map-js@1.2.1` (BSD-3-Clause).
+The adapter keeps dependency resolution under `site/node_modules`, returns
+course-specific scope findings to `scripts/check-site-content.mjs`, and does not
+enter the production browser bundle or implement a learner-facing concept.
+Expand the step outputs to the adapter, `site/package.json`, and
+`site/package-lock.json` before implementation. Keep the route and component
+changes otherwise limited to the accepted chapter root and QKV selector repair.
+
+**Consequences:** Every selector-list branch is checked through a standard CSS
+AST rather than an approximate expression, and a transitive hoisting accident
+cannot silently remove the validator's dependency. The package is already in
+the committed lock graph, but changing the direct dependency metadata may
+invalidate the Docker `npm ci` layer; any locked-registry materialization is an
+explicit validation input and must be recorded rather than described as an
+offline cache hit. No learner content, Rust, shared diagram presentation, or
+browser support policy changes.
+
+**Affected step:** `scope-chapter-route-and-component-css`.

@@ -258,6 +258,26 @@ describe("course diagram design system", () => {
         `${fixture}<style>@media (max-width: 40rem) {}</style>`,
       ),
     ).toThrow(/viewport-width diagram breakpoint/);
+    expect(() =>
+      validateDiagramComponentSource(
+        fixture.replace("course-diagram fixture-diagram", "course-diagram"),
+      ),
+    ).toThrow(/concept-specific/);
+    expect(() =>
+      validateDiagramComponentSource(
+        `${fixture}<style is:global>.fixture-diagram { display: grid; }</style>`,
+      ),
+    ).toThrow(/style is:global/);
+    expect(() =>
+      validateDiagramComponentSource(
+        `${fixture}<style>:global([data-inline-math]) { direction: ltr; }</style>`,
+      ),
+    ).toThrow(/standalone :global/);
+    expect(() =>
+      validateDiagramComponentSource(
+        `${fixture}<style>:global([dir='rtl']) .fixture-label { direction: rtl; }</style>`,
+      ),
+    ).not.toThrow();
 
     expect(
       fullscreenCaptionPresentationViolations(
@@ -278,6 +298,16 @@ describe("course diagram design system", () => {
     ).toEqual([
       ".fixture:fullscreen > figcaption > p declares grid-column",
     ]);
+  });
+
+  it("keeps the QKV inline-math direction rule under its concept root", () => {
+    const qkv = read(
+      "site/src/components/chapters/QkvProjectionsDiagram.astro",
+    );
+    expect(qkv).toContain(
+      ".qkv-diagram :global([data-inline-math])",
+    );
+    expect(qkv).not.toMatch(/^\s*:global\(\[data-inline-math\]\)\s*\{/m);
   });
 
   it("keeps the permanent rules in both authoring sources of truth", () => {
