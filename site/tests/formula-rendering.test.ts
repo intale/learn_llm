@@ -507,9 +507,9 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
     String.raw`o_0=h`,
   ],
   "36": [
-    String.raw`q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)}`,
+    String.raw`q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)},\quad \lvert K_k\rvert=k,\quad S_{\tau,k}^{(\mathrm{f64})}=\{i\in K_k\mid\widehat q_i^{(\tau,k)}>0\}\subseteq K_k`,
     String.raw`\tau=0.5`,
-    String.raw`q_1=0.268941421370`,
+    String.raw`\widehat q_1=0.268941421370`,
     String.raw`k=2`,
     String.raw`k=3`,
     String.raw`k=40`,
@@ -1445,7 +1445,7 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "latex={`\\\\tau=${scenario.tau}`}",
     );
     expect(components.temperatureTopK).toContain(
-      "latex={`q_i=${token.probability}`}",
+      "latex={`\\\\widehat q_i=${token.probability}`}",
     );
     expect(components.temperatureTopK).toContain(
       "String.raw`[${draw.interval_start},${draw.interval_end})`",

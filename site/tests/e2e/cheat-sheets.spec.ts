@@ -626,13 +626,14 @@ const englishSheets = [
   {
     chapter: 36,
     chapterId: "36-temperature-top-k",
-    title: "Shape a stable top-k distribution, then draw once",
+    title: "Shape a stable top-k distribution, then draw one token",
     terms: [
       "Temperature",
       "Stable ranking",
       "Top-k candidate set",
       "Tie-breaking rule",
       "Top-k renormalization",
+      "Positive representable sampling support",
       "Max-shifted softmax",
       "Removed-token probability",
       "Categorical draw",
@@ -1003,6 +1004,53 @@ const chapter35BoundaryDefinitions = {
   ],
 } as const;
 
+const chapter36SupportDefinitions = {
+  en: [
+    {
+      term: "Top-k candidate set",
+      definition:
+        "Exactly the configured number of highest-ranked token IDs retained before floating-point probability construction; membership is determined by rank even if a retained probability later rounds to zero.",
+    },
+    {
+      term: "Positive representable sampling support",
+      definition:
+        "Retained token IDs whose stored f64 probability is strictly greater than zero; an exact-zero retained ID is excluded even though it remains in the rank-retained set.",
+    },
+    {
+      term: "Removed-token probability",
+      definition:
+        "Every filtered token receives exact probability zero, but zero does not prove removal: an underflowed rank-retained token is also outside positive representable sampling support.",
+    },
+    {
+      term: "Half-open sampling interval",
+      definition:
+        "A recorded cumulative range including its lower endpoint and excluding its upper endpoint, traversed here in ascending token-ID order; an exact-zero probability certainly owns no interval.",
+    },
+  ],
+  ru: [
+    {
+      term: "Множество кандидатов top-k",
+      definition:
+        "Top-k отбирает ровно заданное число ID токенов, стоящих первыми в детерминированном порядке. Принадлежность к этому множеству определяется до вычисления вероятностей в f64 и сохраняется, даже если вероятность отобранного токена затем округляется до нуля.",
+    },
+    {
+      term: "Носитель распределения в f64",
+      definition:
+        "Отобранные по рангу токены, чья сохранённая вероятность в f64 строго положительна. Токен с нулевой сохранённой вероятностью в носитель не входит, даже если он прошёл отбор по рангу.",
+    },
+    {
+      term: "Вероятность исключённого токена",
+      definition:
+        "После фильтрации вероятность исключённого токена равна нулю. Однако нулевая вероятность не обязательно означает исключение: отобранный по рангу токен с округлившимся до нуля весом тоже не входит в носитель распределения в f64.",
+    },
+    {
+      term: "Полуоткрытый интервал случайного выбора",
+      definition:
+        "Диапазон накопленной вероятности, включающий нижнюю границу и исключающий верхнюю. Алгоритм обходит интервалы по возрастанию ID; кандидату с нулевой вероятностью не соответствует ни один интервал.",
+    },
+  ],
+} as const;
+
 const chapter39EvidenceDefinitions = {
   en: [
     {
@@ -1120,15 +1168,41 @@ async function readPaginatedLayout(dialog: Locator) {
     const next = node.querySelector<HTMLButtonElement>(
       "[data-cheat-sheet-next]",
     );
-    if (!pageViewport || !pagination || !status || !previous || !next) {
+    const header = node.querySelector<HTMLElement>(".cheat-sheet-header");
+    const title = node.querySelector<HTMLElement>(".cheat-sheet-header h2");
+    const close = node.querySelector<HTMLButtonElement>(
+      "[data-cheat-sheet-close]",
+    );
+    const activePage = node.querySelector<HTMLElement>(
+      "[data-cheat-sheet-page]:not([hidden])",
+    );
+    const firstTerm = activePage?.querySelector<HTMLElement>(
+      ".cheat-sheet-term:first-child dt",
+    );
+    if (
+      !pageViewport ||
+      !pagination ||
+      !status ||
+      !previous ||
+      !next ||
+      !header ||
+      !title ||
+      !close ||
+      !activePage ||
+      !firstTerm
+    ) {
       throw new Error("Paginated cheat-sheet controls are incomplete.");
     }
 
     return {
+      activePage: bounds(activePage),
+      close: bounds(close),
       dialog: bounds(node),
       dialogClientHeight: node.clientHeight,
       dialogScrollHeight: node.scrollHeight,
       dialogScrollTop: node.scrollTop,
+      firstTerm: bounds(firstTerm),
+      header: bounds(header),
       next: bounds(next),
       pageViewport: bounds(pageViewport),
       pageViewportClientHeight: pageViewport.clientHeight,
@@ -1137,6 +1211,7 @@ async function readPaginatedLayout(dialog: Locator) {
       pagination: bounds(pagination),
       previous: bounds(previous),
       status: bounds(status),
+      title: bounds(title),
       viewport: { height: window.innerHeight, width: window.innerWidth },
     };
   });
@@ -1161,12 +1236,50 @@ function expectPaginatedShell(
     layout.dialogScrollHeight,
     `dialog shell geometry ${JSON.stringify(layout)}`,
   ).toBeLessThanOrEqual(layout.dialogClientHeight + 1);
-  expect(layout.pageViewportClientHeight).toBeGreaterThan(0);
+  expect(
+    layout.pageViewportClientHeight,
+    `readable page-region height ${JSON.stringify(layout)}`,
+  ).toBeGreaterThanOrEqual(Math.floor(layout.dialogClientHeight * 0.5));
   expectInside(layout.pageViewport, layout.dialog);
   expectInside(layout.pagination, layout.dialog);
   expectInside(layout.status, layout.dialog);
   expectInside(layout.previous, layout.dialog);
   expectInside(layout.next, layout.dialog);
+}
+
+function expectPaginatedDialogStart(
+  layout: Awaited<ReturnType<typeof readPaginatedLayout>>,
+) {
+  expect(layout.pageViewportScrollTop).toBeLessThanOrEqual(1);
+  expectInside(layout.header, layout.pageViewport);
+  expectInside(layout.title, layout.pageViewport);
+  expectInside(layout.close, layout.pageViewport);
+}
+
+function expectActivePageStart(
+  layout: Awaited<ReturnType<typeof readPaginatedLayout>>,
+) {
+  const maximumScrollTop = Math.max(
+    0,
+    layout.pageViewportScrollHeight - layout.pageViewportClientHeight,
+  );
+  const desiredScrollTop =
+    layout.pageViewportScrollTop +
+    layout.activePage.top -
+    layout.pageViewport.top;
+  expect(
+    Math.abs(
+      layout.pageViewportScrollTop -
+        Math.min(desiredScrollTop, maximumScrollTop),
+    ),
+    `reachable active page alignment ${JSON.stringify(layout)}`,
+  ).toBeLessThanOrEqual(1);
+  expect(layout.firstTerm.top).toBeGreaterThanOrEqual(
+    layout.pageViewport.top - 1,
+  );
+  expect(layout.firstTerm.bottom).toBeLessThanOrEqual(
+    layout.pageViewport.bottom + 1,
+  );
 }
 
 async function scrollCurrentTermPageToEnd(pageViewport: Locator) {
@@ -1438,6 +1551,26 @@ for (const sheet of sheets) {
       if (sheet.chapterId === "02-corpus-partitions") {
         expect(termPages.map((termPage) => termPage.length)).toEqual([9]);
       }
+      if (sheet.chapterId === "36-temperature-top-k") {
+        expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
+        if (sheet.locale === "en") {
+          expect(sortedTerms).toEqual([
+            "Categorical draw",
+            "Greedy decoding",
+            "Half-open sampling interval",
+            "Max-shifted softmax",
+            "Positive representable sampling support",
+            "Removed-token probability",
+            "RNG-state replay",
+            "Stable ranking",
+            "Stochastic top-1",
+            "Temperature",
+            "Tie-breaking rule",
+            "Top-k candidate set",
+            "Top-k renormalization",
+          ]);
+        }
+      }
       if (sheet.locale === "en" && sheet.chapterId === "38-cached-generation") {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
         expect(sortedTerms).toEqual([
@@ -1577,6 +1710,20 @@ for (const sheet of sheets) {
           );
         }
       }
+      if (sheet.chapterId === "36-temperature-top-k") {
+        for (const expectedDefinition of chapter36SupportDefinitions[
+          sheet.locale
+        ]) {
+          const entry = dialog.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
+      }
       if (sheet.chapterId === "39-end-to-end-llm") {
         for (const expectedDefinition of chapter39EvidenceDefinitions[
           sheet.locale
@@ -1622,6 +1769,7 @@ for (const sheet of sheets) {
 
         const initialLayout = await readPaginatedLayout(dialog);
         expectPaginatedShell(initialLayout);
+        expectPaginatedDialogStart(initialLayout);
         await pages.focus();
         await expect(pages).toBeFocused();
         const firstPageEnd = await scrollCurrentTermPageToEnd(pages);
@@ -1669,10 +1817,9 @@ for (const sheet of sheets) {
 
           if (pageIndex < termPages.length - 1) {
             await next.click();
-            expect(
-              await pages.evaluate((node) => node.scrollTop),
-            ).toBeLessThanOrEqual(1);
-            expectPaginatedShell(await readPaginatedLayout(dialog));
+            const nextLayout = await readPaginatedLayout(dialog);
+            expectPaginatedShell(nextLayout);
+            expectActivePageStart(nextLayout);
           }
         }
 
@@ -1684,9 +1831,7 @@ for (const sheet of sheets) {
         ) {
           await previous.click();
           await expect(visibleTerms).toHaveText(termPages[pageIndex - 1] ?? []);
-          expect(
-            await pages.evaluate((node) => node.scrollTop),
-          ).toBeLessThanOrEqual(1);
+          expectActivePageStart(await readPaginatedLayout(dialog));
         }
         await expect(next).toBeFocused();
         const beforeClose = await scrollCurrentTermPageToEnd(pages);
@@ -1705,7 +1850,9 @@ for (const sheet of sheets) {
         await pages.evaluate((node) => node.scrollTop),
       ).toBeLessThanOrEqual(1);
       if (termPages.length > 1) {
-        expectPaginatedShell(await readPaginatedLayout(dialog));
+        const reopenedLayout = await readPaginatedLayout(dialog);
+        expectPaginatedShell(reopenedLayout);
+        expectPaginatedDialogStart(reopenedLayout);
       }
       await root.getByRole("button", { name: sheet.copy.closeLabel }).click();
       await expect(dialog).not.toBeVisible();
@@ -1742,6 +1889,14 @@ for (const sheet of sheets) {
 
       await page.setViewportSize({ width: 360, height: 500 });
       await page.goto(chapterPath(sheet.locale, sheet.chapterId));
+      const documentBaseline = await page.evaluate(() => {
+        const root = document.documentElement;
+        return {
+          clientWidth: root.clientWidth,
+          overflowDebt: Math.max(0, root.scrollWidth - root.clientWidth),
+          scrollWidth: root.scrollWidth,
+        };
+      });
       const trigger = page.getByRole("button", { name: sheet.copy.openLabel });
       await trigger.click();
 
@@ -1761,9 +1916,10 @@ for (const sheet of sheets) {
         const geometry = await readVisibleDialogSafety(dialog);
         const baseline = baselinePages[pageIndex];
 
-        expect(geometry.bodyScrollWidth).toBeLessThanOrEqual(
-          geometry.bodyClientWidth + 1,
-        );
+        expect(
+          Math.max(0, geometry.bodyScrollWidth - geometry.bodyClientWidth),
+          `${sheet.locale} ${sheet.chapterId} document overflow after opening; baseline ${JSON.stringify(documentBaseline)}`,
+        ).toBeLessThanOrEqual(documentBaseline.overflowDebt + 1);
         expect(geometry.dialogScrollWidth).toBeLessThanOrEqual(
           geometry.dialogClientWidth + 1,
         );
@@ -1813,6 +1969,11 @@ for (const sheet of sheets) {
           await expect(pagination).toBeVisible();
           const initialLayout = await readPaginatedLayout(dialog);
           expectPaginatedShell(initialLayout);
+          if (pageIndex === 0) {
+            expectPaginatedDialogStart(initialLayout);
+          } else {
+            expectActivePageStart(initialLayout);
+          }
           const reachability = await scrollCurrentTermPageToEnd(pages);
           expectCurrentPageEndReachable(reachability);
           if (reachability.scrollHeight > reachability.clientHeight + 1) {
@@ -1868,10 +2029,9 @@ for (const sheet of sheets) {
 
         if (pageIndex < termPages.length - 1) {
           await next.click();
-          expect(
-            await pages.evaluate((node) => node.scrollTop),
-          ).toBeLessThanOrEqual(1);
-          expectPaginatedShell(await readPaginatedLayout(dialog));
+          const nextLayout = await readPaginatedLayout(dialog);
+          expectPaginatedShell(nextLayout);
+          expectActivePageStart(nextLayout);
         }
       }
 
@@ -1886,11 +2046,12 @@ for (const sheet of sheets) {
         await pages.evaluate((node) => node.scrollTop),
       ).toBeLessThanOrEqual(1);
       if (termPages.length > 1) {
-        expectPaginatedShell(await readPaginatedLayout(dialog));
+        const reopenedLayout = await readPaginatedLayout(dialog);
+        expectPaginatedShell(reopenedLayout);
+        expectPaginatedDialogStart(reopenedLayout);
       }
       await dialog.getByRole("button", { name: sheet.copy.closeLabel }).click();
     });
-
   });
 }
 

@@ -16,6 +16,9 @@ pub const SAMPLE_SEED: u64 = 36;
 pub const SAMPLE_COUNT: usize = 8;
 pub const SAMPLE_TOP_K: usize = 3;
 pub const BOUNDARY_TOP_K: usize = 2;
+pub const SUPPORT_LOGITS: [f64; 3] = [2.0, 2.0, 1.0];
+pub const SUPPORT_TEMPERATURE: f64 = f64::MIN_POSITIVE;
+pub const SUPPORT_TOP_K: usize = 3;
 pub const LOADED_PROMPT: [u32; 1] = [0];
 
 #[derive(Debug)]
@@ -110,7 +113,7 @@ pub fn historical_decoding_contrast() -> Result<HistoricalDecodingContrast, Fixt
             top_k: SAMPLE_TOP_K,
         },
     )?;
-    let retained_token_ids = truncated.survivors().to_vec();
+    let retained_token_ids = truncated.retained_token_ids().to_vec();
     let retained_full_probability_mass = full
         .candidates()
         .iter()
@@ -165,6 +168,7 @@ pub struct ErrorEvidence {
 pub struct LearnerEvidence {
     pub temperatures: Vec<TemperatureEvidence>,
     pub boundary: SamplingDistribution,
+    pub support: SamplingDistribution,
     pub greedy: SamplingDecision,
     pub seeded_decisions: Vec<SamplingDecision>,
     pub loaded_checkpoint_bytes: usize,
@@ -263,6 +267,13 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
             top_k: BOUNDARY_TOP_K,
         },
     )?;
+    let support = sampling_distribution(
+        &SUPPORT_LOGITS,
+        SamplingMode::TemperatureTopK {
+            temperature: SUPPORT_TEMPERATURE,
+            top_k: SUPPORT_TOP_K,
+        },
+    )?;
     let mut greedy_rng = SplitMix64::from_seed(SAMPLE_SEED);
     let greedy_state = greedy_rng.state();
     let greedy = sample_next_token_with_trace(&LOGITS, SamplingMode::Greedy, &mut greedy_rng)?;
@@ -307,8 +318,18 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let history = historical_decoding_contrast()?;
 
     require(
-        boundary.survivors() == [3, 1],
+        boundary.retained_token_ids() == [3, 1],
         "stable tied top-k boundary changed",
+    )?;
+    require(
+        support.retained_token_ids() == [0, 1, 2]
+            && support.positive_support_token_ids().eq([0, 1])
+            && support.candidates()[0].probability().to_bits() == 0.5_f64.to_bits()
+            && support.candidates()[1].probability().to_bits() == 0.5_f64.to_bits()
+            && support.candidates()[2].retained()
+            && !support.candidates()[2].has_positive_probability()
+            && support.candidates()[2].probability().to_bits() == 0.0_f64.to_bits(),
+        "retained top-k IDs and positive represented support no longer differ as expected",
     )?;
     require(
         seeded_decisions
@@ -348,6 +369,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     Ok(LearnerEvidence {
         temperatures,
         boundary,
+        support,
         greedy,
         seeded_decisions,
         loaded_checkpoint_bytes,
@@ -371,6 +393,15 @@ fn format_probabilities(distribution: &SamplingDistribution) -> String {
         distribution.candidates()[1].probability(),
         distribution.candidates()[2].probability(),
         distribution.candidates()[3].probability(),
+    )
+}
+
+fn format_support_probabilities(distribution: &SamplingDistribution) -> String {
+    format!(
+        "[{:.12},{:.12},{:.12}]",
+        distribution.candidates()[0].probability(),
+        distribution.candidates()[1].probability(),
+        distribution.candidates()[2].probability(),
     )
 }
 
@@ -407,20 +438,26 @@ pub fn learner_report() -> Result<String, FixtureError> {
     );
     Ok(format!(
         "chapter=36-temperature-top-k\n\
-input=logits:[0.000000,1.000000,1.000000,2.000000] stable_order:[3,1,2,0]\n\
-temperature=tau:0.500000 probabilities:{} tau:1.000000 probabilities:{} tau:2.000000 probabilities:{}\n\
-top_k=k:2 survivors:{} tied_boundary:keep:1 remove:2 sum:{:.12}\n\
-sample=seed:{} top_k:{} sequence:{} draws:{} greedy_token:{} greedy_draw:none\n\
+	input=logits:[0.000000,1.000000,1.000000,2.000000] stable_order:[3,1,2,0]\n\
+	temperature=tau:0.500000 probabilities:{} tau:1.000000 probabilities:{} tau:2.000000 probabilities:{}\n\
+	top_k=k:2 retained:{} tied_boundary:keep:1 remove:2 sum:{:.12}\n\
+	support=tau:{:e} top_k:{} retained:{} positive_support:{} probabilities:{}\n\
+	sample=seed:{} top_k:{} sequence:{} draws:{} greedy_token:{} greedy_draw:none\n\
 	checkpoint=loaded_bytes:{} rng_state:0x{:016x} vocabulary:{} context:{} eos:none max_new_tokens:{} prompt:[0] generated:{} prefixes:{} stop:{} full_prefix_calls:{} replay_identical:{}\n\
 	eos=vocabulary:{} context:{} eos_token:{} max_new_tokens:{} generated:{} stop:{} full_prefix_calls:{}\n\
 errors=temperature_zero:{} top_k_zero:{} nonfinite_logit:{} rng_unchanged:{}\n\
-history=greedy_token:{} greedy_rng_advanced:{} top_k:{} survivors:{} retained_full_mass:{:.12} removed_full_mass:{:.12}\n\
+	history=greedy_token:{} greedy_rng_advanced:{} top_k:{} retained:{} retained_full_mass:{:.12} removed_full_mass:{:.12}\n\
 next=cache one attention layer while preserving its newest-position output\n",
         format_probabilities(&evidence.temperatures[0].distribution),
         format_probabilities(&evidence.temperatures[1].distribution),
         format_probabilities(&evidence.temperatures[2].distribution),
-        format_ids(evidence.boundary.survivors().iter().copied()),
+        format_ids(evidence.boundary.retained_token_ids().iter().copied()),
         evidence.boundary.probability_sum(),
+        SUPPORT_TEMPERATURE,
+        SUPPORT_TOP_K,
+        format_ids(evidence.support.retained_token_ids().iter().copied()),
+        format_ids(evidence.support.positive_support_token_ids()),
+        format_support_probabilities(&evidence.support),
         SAMPLE_SEED,
         SAMPLE_TOP_K,
         sequence,
@@ -458,7 +495,7 @@ next=cache one attention layer while preserving its newest-position output\n",
 
 pub fn diagram_trace() -> Result<String, FixtureError> {
     let evidence = learner_evidence()?;
-    let mut trace = String::from("TEMPERATURE_TOP_K_TRACE_V1\n");
+    let mut trace = String::from("TEMPERATURE_TOP_K_TRACE_V2\n");
     trace.push_str("INPUT|logits=[0.000000,1.000000,1.000000,2.000000]|vocabulary=4\n");
     for scenario in &evidence.temperatures {
         trace.push_str(&format!(
@@ -480,8 +517,8 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
         }
     }
     trace.push_str(&format!(
-        "TOPK|tau=1.000000|top_k=2|survivors={}|sum={:.12}|tie_keep=1|tie_remove=2\n",
-        format_ids(evidence.boundary.survivors().iter().copied()),
+        "TOPK|tau=1.000000|top_k=2|retained={}|sum={:.12}|tie_keep=1|tie_remove=2\n",
+        format_ids(evidence.boundary.retained_token_ids().iter().copied()),
         evidence.boundary.probability_sum(),
     ));
     for candidate in evidence.boundary.candidates() {
@@ -495,16 +532,24 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             candidate.probability() * 100.0,
         ));
     }
+    trace.push_str(&format!(
+        "SUPPORT|tau={:e}|top_k={}|retained={}|positive_support={}|probabilities={}\n",
+        SUPPORT_TEMPERATURE,
+        SUPPORT_TOP_K,
+        format_ids(evidence.support.retained_token_ids().iter().copied()),
+        format_ids(evidence.support.positive_support_token_ids()),
+        format_support_probabilities(&evidence.support),
+    ));
     let draw_distribution = evidence
         .seeded_decisions
         .first()
         .ok_or(FixtureError::Invariant("seeded draw evidence is empty"))?
         .distribution();
     trace.push_str(&format!(
-        "DRAW_POLICY|tau=1.000000|top_k={}|seed={}|survivors={}|sum={:.12}|vocabulary={}\n",
+        "DRAW_POLICY|tau=1.000000|top_k={}|seed={}|retained={}|sum={:.12}|vocabulary={}\n",
         SAMPLE_TOP_K,
         SAMPLE_SEED,
-        format_ids(draw_distribution.survivors().iter().copied()),
+        format_ids(draw_distribution.retained_token_ids().iter().copied()),
         draw_distribution.probability_sum(),
         LOGITS.len(),
     ));
@@ -553,7 +598,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
         evidence.errors.rng_unchanged,
     ));
     trace.push_str(&format!(
-        "HISTORY|greedy_token={}|greedy_rng_advanced={}|top_k={}|survivors={}|retained_full_mass={:.12}|removed_full_mass={:.12}\n",
+        "HISTORY|greedy_token={}|greedy_rng_advanced={}|top_k={}|retained={}|retained_full_mass={:.12}|removed_full_mass={:.12}\n",
         evidence.history.greedy_token,
         evidence.history.greedy_rng_advanced,
         evidence.history.top_k,
@@ -574,7 +619,14 @@ mod tests {
         let left = learner_evidence().unwrap();
         let right = learner_evidence().unwrap();
         assert_eq!(left, right);
-        assert_eq!(left.boundary.survivors(), &[3, 1]);
+        assert_eq!(left.boundary.retained_token_ids(), &[3, 1]);
+        assert_eq!(left.support.retained_token_ids(), &[0, 1, 2]);
+        assert_eq!(
+            left.support
+                .positive_support_token_ids()
+                .collect::<Vec<_>>(),
+            [0, 1]
+        );
         assert_eq!(
             left.seeded_decisions
                 .iter()

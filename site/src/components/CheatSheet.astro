@@ -64,22 +64,6 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     data-cheat-sheet-dialog
   >
     <div class="cheat-sheet-panel">
-      <header class="cheat-sheet-header">
-        <div>
-          <p class="cheat-sheet-eyebrow">{copy.eyebrow}</p>
-          <h2 id={titleId}>{sheet.title}</h2>
-        </div>
-        <button
-          class="cheat-sheet-close"
-          type="button"
-          aria-label={copy.closeLabel}
-          title={copy.closeLabel}
-          data-cheat-sheet-close
-          autofocus
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </header>
       <div
         id={pagesId}
         class="cheat-sheet-pages"
@@ -89,6 +73,22 @@ const pageStatuses = termPages.map((page, pageIndex) =>
         tabindex={isPaginated ? '0' : undefined}
         data-cheat-sheet-pages
       >
+        <header class="cheat-sheet-header">
+          <div>
+            <p class="cheat-sheet-eyebrow">{copy.eyebrow}</p>
+            <h2 id={titleId}>{sheet.title}</h2>
+          </div>
+          <button
+            class="cheat-sheet-close"
+            type="button"
+            aria-label={copy.closeLabel}
+            title={copy.closeLabel}
+            data-cheat-sheet-close
+            autofocus
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </header>
         <p id={descriptionId} class="cheat-sheet-description">
           {sheet.description}
         </p>
@@ -207,7 +207,10 @@ const pageStatuses = termPages.map((page, pageIndex) =>
     }
 
     let currentPage = 1;
-    const showPage = (requestedPage: number) => {
+    const showPage = (
+      requestedPage: number,
+      position: 'dialog-start' | 'page-start',
+    ) => {
       currentPage = Math.min(pageCount, Math.max(1, requestedPage));
       pages.forEach((page, pageIndex) => {
         page.hidden = pageIndex !== currentPage - 1;
@@ -218,11 +221,19 @@ const pageStatuses = termPages.map((page, pageIndex) =>
         next.disabled = currentPage === pageCount;
         pageStatus.textContent = pageStatuses[currentPage - 1] as string;
       }
-      pageViewport.scrollTop = 0;
+      if (position === 'dialog-start') {
+        pageViewport.scrollTop = 0;
+      } else {
+        const activePage = pages[currentPage - 1];
+        if (!activePage) return;
+        const viewportTop = pageViewport.getBoundingClientRect().top;
+        const activePageTop = activePage.getBoundingClientRect().top;
+        pageViewport.scrollTop += activePageTop - viewportTop;
+      }
       if (dialog.open) dialog.scrollTop = 0;
     };
 
-    showPage(1);
+    showPage(1, 'dialog-start');
     root.dataset.cheatSheetEnhanced = 'true';
     trigger.hidden = false;
     let opener: HTMLElement | null = null;
@@ -232,15 +243,15 @@ const pageStatuses = termPages.map((page, pageIndex) =>
         ? document.activeElement
         : trigger;
       dialog.showModal();
-      showPage(1);
+      showPage(1, 'dialog-start');
     });
 
     previous?.addEventListener('click', () => {
-      showPage(currentPage - 1);
+      showPage(currentPage - 1, 'page-start');
       if (currentPage === 1) next?.focus({ preventScroll: true });
     });
     next?.addEventListener('click', () => {
-      showPage(currentPage + 1);
+      showPage(currentPage + 1, 'page-start');
       if (currentPage === pageCount) previous?.focus({ preventScroll: true });
     });
     close.addEventListener('click', () => dialog.close());
@@ -324,7 +335,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
 
   .cheat-sheet-dialog-paginated .cheat-sheet-panel {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto;
     block-size: 100%;
     min-block-size: 0;
   }

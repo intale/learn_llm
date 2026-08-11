@@ -21,6 +21,26 @@ const temperatureLabels = [
   labels.temperatures.neutral,
   labels.temperatures.warm,
 ] as const;
+const supportProbabilities = trace.support.probabilities.slice(1, -1).split(',');
+const supportRetainedIds = trace.support.retained.slice(1, -1).split(',');
+const positiveSupportIds = trace.support.positive_support.slice(1, -1).split(',');
+if (
+  supportProbabilities.length !== 3 ||
+  supportRetainedIds.length !== 3 ||
+  positiveSupportIds.length !== 2
+) {
+  throw new Error('Chapter 36 support evidence has an unexpected cardinality');
+}
+const supportTokens = supportProbabilities.map((probability, index) => {
+  const id = String(index);
+  return {
+    id,
+    probability,
+    retained: supportRetainedIds.includes(id),
+    inPositiveSupport: positiveSupportIds.includes(id),
+  };
+});
+const zeroProbability = supportProbabilities[2] as string;
 ---
 
 <figure
@@ -34,7 +54,7 @@ const temperatureLabels = [
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.sections.topK}>
+    <ul class="cue-list" aria-label={labels.cues.legend}>
       <li><span aria-hidden="true">✓</span> {labels.cues.retained}</li>
       <li><span aria-hidden="true">×</span> {labels.cues.removed}</li>
       <li><span aria-hidden="true">→</span> {labels.cues.selected}</li>
@@ -67,7 +87,7 @@ const temperatureLabels = [
               <li data-token-id={token.id} data-probability={token.probability}>
                 <span class="probability-label">
                   <InlineMath latex={`i=${token.id}`} />
-                  <InlineMath latex={`q_i=${token.probability}`} />
+                  <InlineMath latex={`\\widehat q_i=${token.probability}`} />
                 </span>
                 <span
                   class="probability-track"
@@ -126,12 +146,84 @@ const temperatureLabels = [
                 </span>
                 {token.retained === 'true' ? labels.cues.retained : labels.cues.removed}
               </td>
-              <td><InlineMath latex={`q_i=${token.probability}`} /></td>
+              <td><InlineMath latex={`\\widehat q_i=${token.probability}`} /></td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  </section>
+
+  <section aria-labelledby="positive-support-title">
+    <h4 id="positive-support-title">{labels.sections.support}</h4>
+    <p>
+      {labels.captions.supportLead}{' '}
+      <InlineMath latex={String.raw`[\ell_0,\ell_1,\ell_2]=[2,2,1]`} />{', '}
+      {labels.captions.supportMiddle}{' '}
+      <InlineMath latex="k=3" />{', '}
+      {labels.captions.supportTail}
+    </p>
+    <article
+      class="support-card"
+      data-diagram-card
+      data-diagram-box
+      data-support-evidence
+      data-top-k={trace.support.top_k}
+      data-retained={trace.support.retained}
+      data-positive-support={trace.support.positive_support}
+    >
+      <h5>{labels.fixtures.underflow}</h5>
+      <code><bdi dir="ltr">tau={trace.support.tau}</bdi></code>
+      <p>
+        <strong>{labels.fields.retainedSet}</strong>
+        <InlineMath
+          latex={String.raw`K_${trace.support.top_k}=\{${trace.support.retained.slice(1, -1)}\}`}
+        />
+      </p>
+      <p>
+        <strong>{labels.fields.positiveSupport}</strong>
+        <InlineMath
+          latex={`S_{\\tau,${trace.support.top_k}}^{(\\mathrm{f64})}=\\{${trace.support.positive_support.slice(1, -1)}\\}`}
+        />
+      </p>
+      <ol class="support-list">
+        {supportTokens.map((token) => (
+          <li
+            data-support-token={token.id}
+            data-retained={String(token.retained)}
+            data-positive-support={String(token.inPositiveSupport)}
+            data-probability={token.probability}
+          >
+            <span class="support-fact">
+              <strong>{labels.fields.token}</strong>
+              <InlineMath latex={`i=${token.id}`} />
+            </span>
+            <span class="support-fact">
+              <strong>{labels.fields.retainedSet}</strong>
+              <span aria-hidden="true">✓</span> {labels.cues.rankRetained}
+            </span>
+            <span class="support-fact">
+              <strong>{labels.fields.probability}</strong>
+              <InlineMath
+                latex={`\\widehat q_${token.id}^{(\\tau,${trace.support.top_k})}=${token.probability}`}
+              />
+            </span>
+            <span class="support-fact">
+              <strong>{labels.fields.positiveSupport}</strong>
+              {token.inPositiveSupport
+                ? labels.cues.inSupport
+                : labels.cues.outsideSupport}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p>
+        <InlineMath
+          latex={`\\widehat q_2^{(\\tau,${trace.support.top_k})}=${zeroProbability}`}
+        />
+        — {labels.cues.retainedZero}
+      </p>
+    </article>
   </section>
 
   <section aria-labelledby="seeded-draws-title">
@@ -150,7 +242,7 @@ const temperatureLabels = [
         latex={`\\tau=${trace.drawPolicy.tau},\\ k=${trace.drawPolicy.top_k},\\ V=${trace.drawPolicy.vocabulary}`}
       />
       <code><bdi dir="ltr">seed={trace.drawPolicy.seed}</bdi></code>
-      <code><bdi dir="ltr">survivors={trace.drawPolicy.survivors}</bdi></code>
+      <code><bdi dir="ltr">retained={trace.drawPolicy.retained}</bdi></code>
       <code><bdi dir="ltr">sum={trace.drawPolicy.sum}</bdi></code>
     </div>
     <ol class="draw-list">
@@ -180,7 +272,10 @@ const temperatureLabels = [
     >
       <strong>{labels.fixtures.checkpoint}</strong>
       <InlineMath latex={`V=${trace.loaded.vocabulary}`} />
-      <code><bdi dir="ltr">context={trace.loaded.context}</bdi></code>
+      <span>
+        <strong>{labels.fields.contextCapacity}</strong>
+        <code><bdi dir="ltr">context={trace.loaded.context}</bdi></code>
+      </span>
     </p>
     <div class="proof-grid">
       <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="greedy">
@@ -191,20 +286,54 @@ const temperatureLabels = [
       </article>
       <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="loaded" data-eos-policy={trace.loaded.eos}>
         <h5>{labels.proofs.loaded}</h5>
-        <p><InlineMath latex={`[${trace.loaded.prompt.slice(1, -1)}]\\to[${trace.loaded.generated.slice(1, -1)}]`} /></p>
-        <code><bdi dir="ltr">eos={trace.loaded.eos}</bdi></code>
-        <code><bdi dir="ltr">max_new_tokens={trace.loaded.max_new_tokens}</bdi></code>
-        <code><bdi dir="ltr">prefixes={trace.loaded.prefixes}</bdi></code>
-        <code><bdi dir="ltr">calls={trace.loaded.calls}</bdi></code>
+        <p class="loaded-sequence" data-loaded-sequence>
+          <span class="sequence-value" data-sequence-role="prompt">
+            <strong>{labels.fields.prompt}</strong>
+            <InlineMath latex={`[${trace.loaded.prompt.slice(1, -1)}]`} />
+          </span>
+          <span class="sequence-arrow" aria-hidden="true">→</span>
+          <span class="sequence-value" data-sequence-role="generated">
+            <strong>{labels.fields.generated}</strong>
+            <InlineMath latex={`[${trace.loaded.generated.slice(1, -1)}]`} />
+          </span>
+        </p>
+        <p>
+          <strong>{labels.fields.eosToken}</strong>
+          <code><bdi dir="ltr">eos={trace.loaded.eos}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.maxNewTokens}</strong>
+          <code><bdi dir="ltr">max_new_tokens={trace.loaded.max_new_tokens}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.prefixLengths}</strong>
+          <code><bdi dir="ltr">prefixes={trace.loaded.prefixes}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.fullPrefixCalls}</strong>
+          <code><bdi dir="ltr">calls={trace.loaded.calls}</bdi></code>
+        </p>
         <p>{labels.cues.contextStop}; {labels.cues.replayed}</p>
       </article>
       <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="eos" data-eos-policy={trace.eos.eos}>
         <h5>{labels.proofs.eos}</h5>
         <p><InlineMath latex={`i_{\\mathrm{EOS}}=${trace.eos.eos}`} /></p>
-        <code><bdi dir="ltr">eos={trace.eos.eos}</bdi></code>
-        <code><bdi dir="ltr">max_new_tokens={trace.eos.max_new_tokens}</bdi></code>
-        <code><bdi dir="ltr">generated={trace.eos.generated}</bdi></code>
-        <code><bdi dir="ltr">calls={trace.eos.calls}</bdi></code>
+        <p>
+          <strong>{labels.fields.eosToken}</strong>
+          <code><bdi dir="ltr">eos={trace.eos.eos}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.maxNewTokens}</strong>
+          <code><bdi dir="ltr">max_new_tokens={trace.eos.max_new_tokens}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.generated}</strong>
+          <code><bdi dir="ltr">generated={trace.eos.generated}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.fullPrefixCalls}</strong>
+          <code><bdi dir="ltr">calls={trace.eos.calls}</bdi></code>
+        </p>
         <p>{labels.cues.eosStop}</p>
       </article>
       <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="errors">
@@ -226,6 +355,12 @@ const temperatureLabels = [
   .probability-list,
   .probability-list > li,
   .top-k-region,
+  .support-card,
+  .support-list,
+  .support-list > li,
+  .support-fact,
+  .loaded-sequence,
+  .sequence-value,
   .draw-list,
   .draw-list > li,
   .proof-card {
@@ -239,6 +374,7 @@ const temperatureLabels = [
   }
 
   .temperature-card,
+  .support-card,
   .proof-card {
     display: grid;
     align-content: start;
@@ -247,6 +383,8 @@ const temperatureLabels = [
 
   .temperature-card h5,
   .temperature-card p,
+  .support-card h5,
+  .support-card p,
   .proof-card h5,
   .proof-card p {
     margin: 0;
@@ -308,6 +446,42 @@ const temperatureLabels = [
     border-inline-start-width: 0.2rem;
   }
 
+  .support-list {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .support-list > li {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 0.8rem;
+  }
+
+  .support-fact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.4rem;
+  }
+
+  .loaded-sequence,
+  .sequence-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .loaded-sequence {
+    gap: 0.2rem 0.5rem;
+  }
+
+  .sequence-value {
+    gap: 0.2rem 0.35rem;
+  }
+
   .draw-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -331,7 +505,8 @@ const temperatureLabels = [
 
   @container course-diagram (max-width: 46rem) {
     .temperature-grid,
-    .draw-list {
+    .draw-list,
+    .support-list > li {
       grid-template-columns: minmax(0, 1fr);
     }
   }

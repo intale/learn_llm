@@ -2,23 +2,31 @@
 {
   "chapter_id": "36-temperature-top-k",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 36,
   "concept_id": "temperature-top-k",
-  "title": "Shape the choices, then draw once",
-  "description": "Learn how positive temperature, stable top-k filtering, and a restored random-generator state turn decoder logits into controlled, replayable uncached LLM generation.",
-  "objective": "Shape one next-token distribution with positive-temperature scaling and stable top-k filtering, then reproduce a categorical choice by restoring the same random-generator state in an uncached autoregressive loop.",
+  "title": "Shape the next-token distribution, then draw one token",
+  "description": "Learn how positive temperature and stable top-k filtering produce a rank-retained set whose positive f64 sampling support can be smaller, then replay uncached LLM generation.",
+  "objective": "Shape one next-token distribution with positive-temperature scaling and stable top-k filtering, distinguish its rank-retained set from its positive representable sampling support, then reproduce a categorical choice by restoring the same random-generator state in an uncached autoregressive loop.",
   "worked_inputs": "Rank logits [0,1,1,2] by descending value and ascending token ID, compare temperatures 0.5, 1, and 2, keep two tokens across the tied boundary, and replay eight top-three draws from SplitMix64 seed 36 before loading the Chapter 35 checkpoint.",
   "formula": {
-    "latex": "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
+    "latex": "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)},\\quad \\lvert K_k\\rvert=k,\\quad S_{\\tau,k}^{(\\mathrm{f64})}=\\{i\\in K_k\\mid\\widehat q_i^{(\\tau,k)}>0\\}\\subseteq K_k",
     "symbols": [
       {
         "symbol": "q_i^{(\\tau,k)}",
-        "meaning": "the final probability assigned to token i after temperature scaling, top-k filtering, and renormalization"
+        "meaning": "the ideal real-arithmetic probability assigned to token i after temperature scaling, top-k filtering, and renormalization"
+      },
+      {
+        "symbol": "\\widehat q_i^{(\\tau,k)}",
+        "meaning": "the probability actually stored for token i in f64 after max-shifted f64 exponentiation and normalization"
+      },
+      {
+        "symbol": "S_{\\tau,k}^{(\\mathrm{f64})}",
+        "meaning": "the positive representable sampling support: retained token IDs whose stored f64 probability is strictly greater than zero"
       },
       {
         "symbol": "\\tau",
-        "meaning": "a finite positive temperature; smaller values sharpen differences and larger values flatten them"
+        "meaning": "a finite positive temperature; smaller values enlarge scaled-logit gaps and concentrate the probability distribution, while larger values shrink those gaps and flatten the distribution"
       },
       {
         "symbol": "k",
@@ -30,7 +38,7 @@
       },
       {
         "symbol": "K_k",
-        "meaning": "the retained set of k highest logits, with equal logits ordered by ascending token ID in this implementation"
+        "meaning": "the set of token IDs for the exactly k highest-ranked logits, with equal logits ordered by ascending token ID in this implementation"
       },
       {
         "symbol": "\\mathbf{1}[i\\in K_k]",
@@ -50,7 +58,7 @@
       },
       {
         "symbol": "\\exp",
-        "meaning": "the exponential used by softmax after subtracting the retained maximum for numerical stability"
+        "meaning": "the real exponential in the ideal formula; the implementation evaluates a max-shifted f64 exponential whose represented result can round to zero"
       }
     ]
   },
@@ -59,7 +67,7 @@
       "predecessor_kind": "inference-design",
       "limitation": "Likelihood-maximizing beam decoding is useful when a source tightly constrains the target, but open-ended continuation admits many plausible futures; beam output can become generic or repetitive, while unrestricted sampling can admit an unreliable low-probability tail.",
       "later_advance": "Open-ended story systems combined softmax temperature with top-k sampling, GPT-2 used top-k for summaries and long continuations, and later GPT-2 analysis made the truncation and renormalization trade-off explicit while showing why one fixed $k$ cannot fit every context.",
-      "modern_llm_role": "Controlled stochastic decoding turns an autoregressive LLM distribution into an adjustable diversity-versus-concentration distribution; a fixed random-generator state, deterministic tie-breaking, and deterministic interval traversal can replay its choices, while later methods can replace the fixed candidate count without changing the decoder logits.",
+      "modern_llm_role": "Controlled stochastic decoding turns an autoregressive LLM distribution into an adjustable diversity-versus-concentration distribution. Restoring the same random-generator state while preserving deterministic tie-breaking and interval traversal lets the sampler replay its choices. Later methods can replace the fixed candidate count without changing the decoder logits.",
       "sources": [
         {
           "role": "earlier",
@@ -107,7 +115,7 @@
     {
       "path": "rust/demos/ch36-temperature-top-k/src/lib.rs",
       "region": "learner-evidence",
-      "purpose": "Produce the temperature, tied-boundary, and seeded replay evidence, then read the saved RNG state and consume the loaded checkpoint's model state for generation, EOS, and transactional-error evidence."
+      "purpose": "Produce temperature, tied-boundary, retained-set versus positive-support, and seeded replay evidence, then read the saved RNG state, consume the loaded checkpoint with into_model so its owned model buffers move into the decoder, and produce generation, EOS, context-stop, and transactional-error evidence."
     },
     {
       "path": "rust/demos/ch36-temperature-top-k/src/main.rs",
@@ -117,7 +125,7 @@
   "visualization": {
     "decision": "useful",
     "id": "temperature-top-k",
-    "rationale": "Aligned probability bars make temperature sharpening and flattening visible, while one tied-boundary table and seeded interval list show exactly which candidates survive, how they are renormalized, and where one random draw lands."
+    "rationale": "Aligned probability bars make temperature sharpening and flattening visible, while the tied-boundary and underflow evidence distinguish rank retention from positive f64 sampling support before a seeded interval list shows where each ordinary draw lands."
   },
   "decoder_connection": "The cumulative decoder can now load its selected checkpoint, turn each final-position logit row into a controlled next-token distribution, replay choices from a restored random-generator state, stop at EOS or context capacity, and expose the uncached reference sequence that Chapter 37 will preserve incrementally."
 }
@@ -127,58 +135,77 @@ import RustSource from "../../../components/RustSource.astro";
 import TemperatureTopKDiagram from "../../../components/chapters/TemperatureTopKDiagram.astro";
 
 export const diagramLabels = {
-  title: "Temperature reshapes; top-k removes; one draw selects",
-  description: "The exact Rust trace compares three temperatures, exposes a stable tied boundary, follows eight seeded half-open intervals, and records checkpoint generation stops.",
+  title: "Temperature reshapes probabilities; top-k removes lower-ranked token IDs; one draw selects a token",
+  description: "The exact Rust trace compares three temperatures, separates rank retention from positive f64 sampling support, follows the half-open intervals for eight draws from SplitMix64 seed 36, and records why generation from the loaded checkpoint stops.",
   sections: {
     temperature: "Compare temperature on the same logits",
-    topK: "Keep exactly two stable ranks",
+    topK: "Retain exactly two token IDs by stable rank",
+    support: "Compare rank-retained token IDs with positive f64 support",
     draws: "Replay the seeded categorical draws",
-    generation: "Carry the policy into uncached generation",
+    generation: "Apply the sampling policy to uncached generation",
   },
   temperatures: {
-    cold: "Sharper",
-    neutral: "Original scale",
-    warm: "Flatter",
+    cold: "More concentrated probability distribution",
+    neutral: "Probability distribution at the original logit scale",
+    warm: "Flatter probability distribution",
   },
   fixtures: {
-    synthetic: "Synthetic four-token fixture",
-    checkpoint: "Loaded five-token decoder fixture",
+    synthetic: "Synthetic vocabulary of size 4",
+    underflow: "Vocabulary of size 3 with f64 weight underflow",
+    checkpoint: "Loaded decoder vocabulary of size 5",
   },
   fields: {
     token: "Token",
     logit: "Logit",
     rank: "Stable rank",
     status: "Top-k status",
-    probability: "Final probability",
+    probability: "Stored f64 probability",
+    retainedSet: "Rank-retained set",
+    positiveSupport: "Positive f64 support",
     draw: "Draw",
     interval: "Half-open interval",
-    selectedToken: "selects token",
+    selectedToken: "Selected token",
+    prompt: "Prompt",
+    generated: "Generated sequence",
+    contextCapacity: "Context capacity in tokens",
+    eosToken: "EOS token ID",
+    maxNewTokens: "Maximum new tokens",
+    prefixLengths: "Prefix lengths in tokens",
+    fullPrefixCalls: "Complete-prefix decoder calls",
   },
   cues: {
-    retained: "retained — double border",
-    removed: "removed — dashed border",
-    selected: "selected by the draw",
-    greedy: "highest logit, lowest ID on a tie",
+    legend: "Diagram state legend",
+    retained: "token retained — double border",
+    rankRetained: "yes — this token is retained by rank",
+    removed: "token removed — dashed border",
+    retainedZero: "token retained by rank; stored probability zero; token outside positive f64 support",
+    inSupport: "token in positive f64 support",
+    outsideSupport: "token outside positive f64 support",
+    selected: "token selected by the draw",
+    greedy: "greedy selects the highest-logit token; on a tie it selects the lowest token ID",
     noDraw: "Greedy leaves the random stream untouched.",
-    replayed: "the restored stream replays exactly",
-    contextStop: "stops at context capacity",
-    eosStop: "EOS remains in the emitted sequence",
-    validErrors: "Invalid settings return before the random stream advances.",
+    replayed: "restoring the initial random state reproduces the generated sequence and final random state exactly",
+    contextStop: "generation stops at context capacity",
+    eosStop: "the EOS token remains in the generated sequence",
+    validErrors: "The sampler returns invalid-setting errors before advancing the random stream.",
   },
   captions: {
-    temperature: "All four tokens remain; only the probability ratios change. Each bar carries its exact value as text.",
-    topK: "At equal logits, ascending token ID breaks the boundary tie: token 1 remains and token 2 becomes exactly zero.",
-    draws: "This section changes the illustrated candidate count from two retained candidates to the three-candidate policy with temperature 1 and seed 36. Sampling visits retained intervals in ascending token-ID order.",
-    generation: "This fixture boundary changes from four synthetic token IDs to the loaded five-token decoder. The exact EOS and context policies remain visible beside each run.",
+    temperature: "All four vocabulary token IDs remain; only the probability ratios change. Each bar carries the decimal value recorded by the Rust example as text.",
+    topK: "At temperature one, ascending token ID breaks equal-logit ties: token 1 remains in the two-token candidate set and token 2 receives exact-zero probability.",
+    supportLead: "With logits",
+    supportMiddle: "the smallest positive normal f64 temperature, and",
+    supportTail: "every ID remains in the rank-retained set, but token 2's represented weight and probability are zero, so positive f64 support contains only tokens 0 and 1.",
+    draws: "The vocabulary size remains 4 while the retained candidate count increases from two to three. The sampling policy uses temperature 1 and SplitMix64 seed 36. Traversal skips every exact-zero stored probability and follows the Rust example's recorded intervals in ascending token-ID order.",
+    generation: "This section switches from a synthetic vocabulary of size 4 to a loaded decoder vocabulary of size 5. The exact EOS and context policies remain visible beside each run.",
   },
   proofs: {
     greedy: "Explicit greedy mode",
-    loaded: "Loaded checkpoint",
+    loaded: "Generation from the loaded checkpoint",
     eos: "EOS boundary",
     errors: "Transactional errors",
   },
   scrollers: {
-    topK: "Stable top-k candidate table",
+    topK: "Stable top-k candidate table at temperature one",
   },
 };
 
@@ -199,10 +226,17 @@ receives $0.534446645389$; at $\tau=2$, it receives $0.387455619000$. Lower
 temperature sharpens existing logit differences. Higher temperature flattens
 them. Neither changes the stable rank.
 
-Now set $\tau=1$ and $k=2$. The survivor order is $[3,1]$. Token $1$ survives
-the tied boundary and receives $q_1=0.268941421370$; token $2$ is removed and
-receives exactly $q_2=0$. Token $3$ receives $q_3=0.731058578630$. The retained
-probabilities sum to $1$.
+Now set $\tau=1$ and $k=2$. The rank-retained order is $[3,1]$. Token $1$ stays
+inside the tied boundary and receives $\widehat q_1=0.268941421370$; token $2$
+is removed and receives exactly $\widehat q_2=0$. Token $3$ receives
+$\widehat q_3=0.731058578630$. The stored probabilities sum to $1$.
+
+Rank retention does not guarantee positive floating-point probability. For
+logits $[2,2,1]$, temperature `f64::MIN_POSITIVE`, and $k=3$, stable ranking
+retains $K_3=[0,1,2]$. The two maximum-logit tokens receive stored probabilities
+$0.5$ and $0.5$. Token $2$ is still rank-retained, but its max-shifted
+exponential weight rounds to exact zero, so $\widehat q_2=0$ and the positive
+representable support is $S_{\tau,3}^{(\mathrm{f64})}=\{0,1\}$.
 
 With $k=3$, SplitMix64 seed $36$ produces the reproducible sequence
 $[3,2,2,2,3,3,3,3]$. For example, the second unit draw is
@@ -213,53 +247,70 @@ $[0.211941557617,0.423883115234)$, so that draw selects token $2$.
 
 ## Filter the candidate set, then renormalize
 
-For finite logits, finite positive temperature, and $1\le k\le V$, the final
-token probability is
+For finite logits, finite positive temperature, and $1\le k\le V$, real
+arithmetic defines the ideal probability $q_i^{(\tau,k)}$. The implementation
+stores $\widehat q_i^{(\tau,k)}$ in `f64`, so its positive sampling support can
+be a strict subset of the rank-retained set:
 
 $$
-q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)}
+q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)},\quad \lvert K_k\rvert=k,\quad S_{\tau,k}^{(\mathrm{f64})}=\{i\in K_k\mid\widehat q_i^{(\tau,k)}>0\}\subseteq K_k
 $$
 
 The implementation subtracts the largest retained scaled logit before applying
-the exponential. This does not alter probability ratios, but prevents a large
-common offset from overflowing. Removed IDs keep exact probability $0$ rather
-than a tiny approximation.
+the exponential. In real arithmetic that shift preserves probability ratios and
+prevents a large common offset from causing avoidable overflow. In `f64`, however,
+a sufficiently small retained exponential weight can still round to exact zero.
+Every removed ID has stored probability zero, but the converse is false: a stored
+zero can also belong to $K_k$. Positive support therefore uses the stored
+$\widehat q_i>0$ test, not rank membership alone.
 
 Temperature must be strictly positive. The mathematical limit
 $\tau\to0^+$ helps explain concentration toward a unique maximum, but literal
 $\tau=0$ would divide by zero. Greedy decoding is therefore a separate policy:
-it validates the same logits, chooses the first stable rank, and consumes no
-random draw. Stochastic $k=1$ chooses the same ID but deliberately consumes one
+it validates the same logits, chooses the token ID at the first stable rank, and
+consumes no random draw. Stochastic $k=1$ chooses the same ID but deliberately consumes one
 draw, because it still follows the sampling policy.
 
 {/* chapter-section:symbol-glossary */}
 
 ## Keep logits, candidates, and probabilities distinct
 
-- $q_i^{(\tau,k)}$ is token $i$'s final probability after all three operations.
-- $\tau$ is a finite positive temperature. Lower values sharpen; higher values
-  flatten.
+- $q_i^{(\tau,k)}$ is token $i$'s ideal real-arithmetic probability after all
+  three operations.
+- $\widehat q_i^{(\tau,k)}$ is the probability actually stored for token $i$ in
+  `f64` after max-shifted `f64` exponentiation and normalization.
+- $S_{\tau,k}^{(\mathrm{f64})}$ is the positive representable sampling support:
+  retained IDs whose stored probability is strictly greater than zero.
+- $\tau$ is a finite positive temperature. Lower values enlarge scaled-logit
+  gaps and concentrate the probability distribution; higher values shrink those
+  gaps and flatten the distribution.
 - $k$ is the exact number of retained token IDs.
 - $V$ is the vocabulary size, so the valid candidate count satisfies
   $1\le k\le V$.
-- $K_k$ is the stable top-$k$ set. Equal logits use ascending token ID here.
+- $K_k$ is the rank-retained top-$k$ set and always has exactly $k$ IDs. Equal
+  logits use ascending token ID here.
 - $\mathbf{1}[i\in K_k]$ is $1$ for a retained ID and $0$ for a removed ID.
 - $\ell_i$ is the decoder logit for token $i$ at the final prefix position.
 - $i$ names the candidate whose final probability is being described.
 - $j$ ranges over the vocabulary in the denominator.
-- $\exp$ turns each shifted scaled logit into a positive softmax weight.
+- $\exp$ is positive in real arithmetic. Its max-shifted `f64` result can round
+  to zero for a sufficiently negative represented gap.
 
 These names protect an important boundary. A logit is an unrestricted decoder
-score, stable rank determines membership, and a probability is normalized mass.
-Temperature changes score gaps before normalization. Top-k changes which terms
-exist in the denominator. The categorical draw acts only after both decisions.
+score, stable rank determines membership in $K_k$, and a stored probability
+determines membership in $S_{\tau,k}^{(\mathrm{f64})}$. Temperature changes score
+gaps before normalization. Top-k changes which terms are retained. Floating-point
+evaluation can narrow positive support after that rank decision.
 
-The sampler traverses retained mass in ascending token-ID order with half-open
-intervals $[a_i,b_i)$. A unit draw $u$ selects token $i$ exactly when
-$a_i\le u<b_i$. Here $a_i$ is token $i$'s cumulative lower endpoint and $b_i$
-is its cumulative upper endpoint. The final interval accepts the tiny endpoint
-discrepancy that can arise from floating-point summation; it does not silently
-revive a removed token.
+The sampler inspects stored probabilities in ascending token-ID order and skips
+every exact zero. In the ordinary fixture, a unit draw $u$ selects token $i$ from
+its recorded half-open interval $[a_i,b_i)$ when $a_i\le u<b_i$. An exact-zero
+probability certainly owns no interval and cannot be selected. Because cumulative
+endpoints are also represented in `f64`, this chapter does not claim that every
+positive stored probability necessarily receives a nonempty reachable interval
+for every possible vocabulary. The final positive candidate handles any tiny
+endpoint discrepancy from floating-point summation without reviving a zero-
+probability token.
 
 {/* chapter-section:history */}
 
@@ -277,10 +328,10 @@ task-bounded strategy works better for their open-ended stories than beam search
 while unrestricted random sampling can introduce damaging unlikely words.
 
 [The GPT-2 report](https://cdn.openai.com/better-language-models/language-models.pdf)
-then shows the policy in a large Transformer language model. The GPT-2 report
-uses top-k random sampling with $k=2$ for one summarization setup and $k=40$
-for open WebText continuations, showing truncated stochastic decoding in large
-Transformer language-model practice without claiming one $k$ is universal.
+provides two concrete task-specific sampling settings. The GPT-2 report uses
+top-k random sampling with $k=2$ for one summarization setup and $k=40$ for open
+WebText continuations, showing truncated stochastic decoding in large Transformer
+language-model practice without claiming one $k$ is universal.
 
 [Holtzman and colleagues](https://arxiv.org/pdf/1904.09751) examine the trade-off
 directly. Holtzman and colleagues compare maximization and stochastic decoders
@@ -294,10 +345,10 @@ made the truncation and renormalization trade-off explicit while showing why one
 fixed $k$ cannot fit every context.
 
 Controlled stochastic decoding turns an autoregressive LLM distribution into
-an adjustable diversity-versus-concentration distribution; a fixed
-random-generator state, deterministic tie-breaking, and deterministic interval
-traversal can replay its choices, while later methods can replace the fixed
-candidate count without changing the decoder logits.
+an adjustable diversity-versus-concentration distribution. Restoring the same
+random-generator state while preserving deterministic tie-breaking and interval
+traversal lets the sampler replay its choices. Later methods can replace the
+fixed candidate count without changing the decoder logits.
 
 Top-k is therefore a clear first controlled stochastic decoder, not a universal
 quality guarantee, a hallucination defense, or the endpoint of decoding
@@ -330,11 +381,11 @@ nonfinite or nonpositive temperature and any $k$ outside $1\le k\le V$. All
 validation happens before the SplitMix64 state changes.
 
 All three public operations start with the same calculation: validate the inputs,
-rank finite logits by descending value and ascending token ID, filter to the
-requested candidate count, and turn the retained logits into normalized
-probabilities. `sample_next_token` returns only the selected token ID, optional
+rank finite logits by descending value and ascending token ID, retain the
+requested candidate count, and turn their logits into stored `f64` probabilities.
+`sample_next_token` returns only the selected token ID, optional
 unit draw, and selected half-open interval. It does not build the token-by-token
-candidate records or the rank-ordered survivor list used for inspection.
+candidate records or the rank-ordered retained-ID list used for inspection.
 `sample_next_token_with_trace` uses the same calculated probabilities and the same
 interval-selection code, but builds that full inspectable distribution before any
 draw. `sampling_distribution` builds the distribution without drawing. The
@@ -342,15 +393,18 @@ ordinary call still needs temporary arrays of ranked token IDs and probabilities
 to perform the algorithm; it avoids only the additional inspection records.
 
 In an inspectable distribution, candidates appear in token-ID order and the
-separate survivor list appears in stable rank order. Removed IDs have exact zero
-probability after max-shifted normalization. Categorical selection visits positive
-intervals in ascending token-ID order. Greedy consumes no draw; every valid
-stochastic call consumes exactly one unit draw, including top-k with $k=1$.
+separate retained-ID list appears in stable rank order. Removed IDs have exact
+zero probability after max-shifted normalization, and a retained ID may also
+have exact zero when its represented weight underflows. Categorical selection
+skips stored zero probabilities in ascending token-ID order; that exclusion is
+the guarantee, not a claim that every positive stored value must own a nonempty
+reachable interval. Greedy consumes no draw; every valid stochastic call
+consumes exactly one unit draw, including top-k with $k=1$.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/generation/sampling.rs"
   region="sampling-policy"
-  caption="Prepare sampling once, then return compact selection evidence or an explicitly requested full trace"
+  caption="Prepare the filtered distribution once, then return compact selection evidence or an explicitly requested full trace"
   label="Rust source implementing the Chapter 36 sampling policy"
 />
 
@@ -392,12 +446,13 @@ Run `cargo run --quiet --locked -p ch36-temperature-top-k`. The key evidence is
 printed directly by the Rust program:
 
 ```text
-top_k=k:2 survivors:[3,1] tied_boundary:keep:1 remove:2 sum:1.000000000000
+top_k=k:2 retained:[3,1] tied_boundary:keep:1 remove:2 sum:1.000000000000
+support=tau:2.2250738585072014e-308 top_k:3 retained:[0,1,2] positive_support:[0,1] probabilities:[0.500000000000,0.500000000000,0.000000000000]
 sample=seed:36 top_k:3 sequence:[3,2,2,2,3,3,3,3] draws:8 greedy_token:3 greedy_draw:none
 checkpoint=loaded_bytes:6330 rng_state:0x9e3779b97f4a7c38 vocabulary:5 context:2 eos:none max_new_tokens:4 prompt:[0] generated:[4,4] prefixes:[1,2] stop:context-limit full_prefix_calls:2 replay_identical:true
 eos=vocabulary:5 context:2 eos_token:4 max_new_tokens:4 generated:[4] stop:eos full_prefix_calls:1
 errors=temperature_zero:true top_k_zero:true nonfinite_logit:true rng_unchanged:true
-history=greedy_token:3 greedy_rng_advanced:false top_k:3 survivors:[3,1,2] retained_full_mass:0.927670511871 removed_full_mass:0.072329488129
+history=greedy_token:3 greedy_rng_advanced:false top_k:3 retained:[3,1,2] retained_full_mass:0.927670511871 removed_full_mass:0.072329488129
 ```
 
 <RustSource
@@ -408,43 +463,51 @@ history=greedy_token:3 greedy_rng_advanced:false top_k:3 survivors:[3,1,2] retai
 
 {/* chapter-section:visualization */}
 
-## Read the distribution from left to right
+## Follow the distribution from temperature scaling to uncached generation
 
 The figure begins with three aligned views of the same four-token logits. It then
-isolates the $k=2$ tie and explicitly switches to the $\tau=1$, $k=3$, seed-$36$
-draw policy before following each recorded interval. A labeled fixture boundary
-then changes from synthetic vocabulary size $V=4$ to the loaded decoder's
-$V=5$, with no EOS configured for the context-stop run and token $4$ configured
-as EOS for the EOS run. Double and dashed borders repeat retained and removed states
-in text. The table preserves each token's exact logit, stable rank, probability,
-and retained state so the border bars can be checked against numeric evidence.
+isolates the $k=2$ tie and uses the $[2,2,1]$ underflow fixture to separate the
+three rank-retained IDs from the two IDs in positive `f64` support. It next
+switches to the $\tau=1$, $k=3$, seed-$36$ draw policy before following each
+recorded interval. The next labeled transition replaces the synthetic vocabulary
+of size $V=4$ with the loaded decoder vocabulary of size $V=5$; the context-stop
+run has no EOS token configured, whereas the EOS run configures token $4$.
+Double and dashed borders repeat retained and removed states
+in text. The table and evidence rows preserve each token's exact logit, stable
+rank, stored probability, retained state, and support membership so the status
+cues can be checked against numeric evidence without relying on color or
+position.
 
 <TemperatureTopKDiagram labels={diagramLabels} />
 
 {/* chapter-section:exercises */}
 
-## Predict before revealing the trace
+## Predict before checking the answers
 
 1. Which ID wins greedy for logits $[0,1,1,2]$?
-2. Which equal-logit ID survives the $k=2$ boundary?
+2. Which equal-logit ID is retained at the $k=2$ boundary?
 3. Does raising $\tau$ change stable rank?
 4. Why is literal $\tau=0$ rejected even though $\tau\to0^+$ is informative?
 5. Does stochastic $k=1$ consume a random draw?
 6. Which token owns draw $u=0.338833394523$ in the $k=3$ fixture?
 7. Is EOS included in the emitted sequence?
 8. Why can a capacity-$2$ prefix emit one token before a context stop?
+9. For logits $[2,2,1]$, temperature `f64::MIN_POSITIVE`, and $k=3$, is
+   rank-retained token $2$ also in positive `f64` sampling support?
 
 <details>
-<summary>Check the eight predictions</summary>
+<summary>Check the nine predictions</summary>
 
 1. Token $3$ wins because its logit $2$ is the unique maximum.
-2. Token $1$ survives because equal logits use ascending token ID, leaving token $2$ at exact zero.
+2. Token $1$ is retained because equal logits use ascending token ID, leaving token $2$ at exact zero.
 3. No. Positive temperature changes probability ratios but preserves logit order.
 4. The limit describes concentration, while literal zero would require division by zero; explicit greedy owns that policy.
 5. Yes. It selects the greedy ID but remains a stochastic policy with exactly one draw.
 6. Token $2$ owns $[0.211941557617,0.423883115234)$, which contains the draw.
 7. Yes. Token $4$ is appended before the EOS stop is reported.
 8. The valid length-$2$ prefix predicts a next token; only the following decoder call would exceed capacity.
+9. No. Token $2$ remains in $K_3$, but its represented weight rounds to zero,
+   so $\widehat q_2=0$ and $S_{\tau,3}^{(\mathrm{f64})}=\{0,1\}$.
 
 </details>
 

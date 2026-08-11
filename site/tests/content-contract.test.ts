@@ -994,7 +994,7 @@ describe("LLM-evolution history contract", () => {
 });
 
 describe("curriculum and catalog contracts", () => {
-  it("projects AdamW-boundary plan revision 74 and the exact bilingual chapter revisions", () => {
+  it("projects retained-set/support plan revision 75 and the exact bilingual chapter revisions", () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, "curriculum/course-plan.md"),
@@ -1014,13 +1014,13 @@ describe("curriculum and catalog contracts", () => {
       }>;
     };
     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
-      "1196412f95b45a012ad1a09b079f364d2e2592c4dc126e556295c3557218220f",
+      "a1b32e08f141e51fee922d65429e911c0ffd47d263a443bafb25dd3de2c4787f",
     );
     expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
-      "deec52453c50b5272c4fcb411a6bbb50e91a0fd8e02f05c303723c853c374c64",
+      "da7dfe944c478fa9d1f837b3775bb4fdb6580e4180607d956d3ff6ce62717331",
     );
-    expect(plan.plan_revision).toBe(74);
-    expect(projection.planRevision).toBe(74);
+    expect(plan.plan_revision).toBe(75);
+    expect(projection.planRevision).toBe(75);
     expect(planSource).toContain(
       "- **Handoff:** Chapter 35 serializes the trainer-captured selected model and matching optimizer state for reproducible inference; the immutable evaluation report remains separate, and the sampling RNG is initialized independently.",
     );
@@ -1055,6 +1055,18 @@ describe("curriculum and catalog contracts", () => {
       "Four within-document transition occurrences appear in one slot, four in two slots, four in three slots, and 430 in four slots",
     );
     expect(planSource).not.toMatch(/1,744 (?:identical|same) targets/);
+    expect(planSource).toContain(
+      "Content revision 6 preserves the ideal real-arithmetic top-k formula while distinguishing the exact rank-retained set from positive representable `f64` sampling support.",
+    );
+    expect(planSource).toContain(
+      "- **Formula:** `q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)},\\quad \\lvert K_k\\rvert=k,\\quad S_{\\tau,k}^{(\\mathrm{f64})}=\\{i\\in K_k\\mid\\widehat q_i^{(\\tau,k)}>0\\}\\subseteq K_k`.",
+    );
+    expect(planSource).toContain(
+      "the `[2,2,1]` `f64::MIN_POSITIVE` fixture with retained IDs `[0,1,2]`, positive support `[0,1]`, and stored probability `\\widehat q_2=0`",
+    );
+    expect(planSource).toContain(
+      "Exact-zero probabilities are excluded from categorical traversal without claiming that every positive stored probability necessarily owns a nonempty reachable interval.",
+    );
 
     for (const [chapterId, order, revision] of [
       ["00-llm-parts", 0, 5],
@@ -1064,6 +1076,7 @@ describe("curriculum and catalog contracts", () => {
       ["33-training-selection", 33, 11],
       ["34-final-evaluation", 34, 7],
       ["35-checkpoints", 35, 5],
+      ["36-temperature-top-k", 36, 6],
       ["38-cached-generation", 38, 6],
       ["39-end-to-end-llm", 39, 9],
     ] as const) {
@@ -1668,7 +1681,7 @@ describe("curriculum and catalog contracts", () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 74',
+      '"plan_revision": 75',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

@@ -52,6 +52,7 @@ const labels: TemperatureTopKDiagramLabels = {
   sections: {
     temperature: "temperature",
     topK: "top-k",
+    support: "support",
     draws: "draws",
     generation: "generation",
   },
@@ -62,6 +63,7 @@ const labels: TemperatureTopKDiagramLabels = {
   },
   fixtures: {
     synthetic: "synthetic fixture",
+    underflow: "underflow fixture",
     checkpoint: "checkpoint fixture",
   },
   fields: {
@@ -73,8 +75,18 @@ const labels: TemperatureTopKDiagramLabels = {
     draw: "draw",
     interval: "interval",
     selectedToken: "selected token",
+    prompt: "prompt",
+    generated: "generated",
+    contextCapacity: "context capacity in tokens",
+    eosToken: "EOS token ID",
+    maxNewTokens: "maximum new tokens",
+    prefixLengths: "prefix lengths in tokens",
+    fullPrefixCalls: "complete-prefix decoder calls",
+    retainedSet: "retained set",
+    positiveSupport: "positive support",
   },
   cues: {
+    legend: "diagram legend",
     retained: "retained",
     removed: "removed",
     selected: "selected",
@@ -84,10 +96,17 @@ const labels: TemperatureTopKDiagramLabels = {
     contextStop: "context stop",
     eosStop: "EOS stop",
     validErrors: "valid errors",
+    retainedZero: "retained with zero probability",
+    rankRetained: "yes, retained by rank",
+    inSupport: "in positive support",
+    outsideSupport: "outside positive support",
   },
   captions: {
     temperature: "temperature caption",
     topK: "top-k caption",
+    supportLead: "support lead",
+    supportMiddle: "support middle",
+    supportTail: "support tail",
     draws: "draw caption",
     generation: "generation caption",
   },
@@ -155,13 +174,13 @@ describe("Chapter 36 Rust trace parser", () => {
     expect(demoSource).toContain("sample_next_token_with_trace");
 
     for (const source of [contractSource, lessonSource, russianLessonSource]) {
-      expect(frontmatter(source).content_revision).toBe(5);
+      expect(frontmatter(source).content_revision).toBe(6);
     }
     expect(lessonSource.replace(/\s+/g, " ")).toContain(
       "The ordinary call still needs temporary arrays of ranked token IDs and probabilities",
     );
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "Обычному вызову всё равно нужны временные массивы",
+      "`sample_next_token` тоже временно хранит массивы",
     );
   });
 
@@ -188,7 +207,7 @@ describe("Chapter 36 Rust trace parser", () => {
     expect(trace.topK.summary).toMatchObject({
       tau: "1.000000",
       top_k: "2",
-      survivors: "[3,1]",
+      retained: "[3,1]",
       tie_keep: "1",
       tie_remove: "2",
     });
@@ -198,11 +217,18 @@ describe("Chapter 36 Rust trace parser", () => {
       "false",
       "true",
     ]);
+    expect(trace.support).toEqual({
+      tau: "2.2250738585072014e-308",
+      top_k: "3",
+      retained: "[0,1,2]",
+      positive_support: "[0,1]",
+      probabilities: "[0.500000000000,0.500000000000,0.000000000000]",
+    });
     expect(trace.drawPolicy).toEqual({
       tau: "1.000000",
       top_k: "3",
       seed: "36",
-      survivors: "[3,1,2]",
+      retained: "[3,1,2]",
       sum: "1.000000000000",
       vocabulary: "4",
     });
@@ -253,7 +279,7 @@ describe("Chapter 36 Rust trace parser", () => {
       greedy_token: "3",
       greedy_rng_advanced: "false",
       top_k: "3",
-      survivors: "[3,1,2]",
+      retained: "[3,1,2]",
       retained_full_mass: "0.927670511871",
       removed_full_mass: "0.072329488129",
     });
@@ -261,8 +287,14 @@ describe("Chapter 36 Rust trace parser", () => {
 
   it("rejects structural and semantic mutations before frozen fixture equality", () => {
     for (const changed of [
+      fixture.replace("TEMPERATURE_TOP_K_TRACE_V2", "TEMPERATURE_TOP_K_TRACE_V1"),
       fixture.replace("tie_keep=1", "tie_keep=2"),
       fixture.replace("retained=false", "retained=true"),
+      fixture.replace("positive_support=[0,1]", "positive_support=[0,1,2]"),
+      fixture.replace(
+        "probabilities=[0.500000000000,0.500000000000,0.000000000000]",
+        "probabilities=[0.500000000000,0.250000000000,0.250000000000]",
+      ),
       fixture.replace("top_k=3|seed=36", "top_k=2|seed=36"),
       fixture.replace("unit=0.338833394523", "unit=0.900000000000"),
       fixture.replace("draw=none", "draw=0.000000000000"),
@@ -272,6 +304,7 @@ describe("Chapter 36 Rust trace parser", () => {
         "retained_full_mass=0.927670511871",
         "retained_full_mass=0.500000000000",
       ),
+      fixture.replace("next=incremental-attention", "next=full-prefix-attention"),
       fixture.slice(0, -1),
       fixture + "\n",
       fixture.replace(/\n/g, "\r\n"),
@@ -298,6 +331,18 @@ describe("Chapter 36 Rust trace parser", () => {
     expect(() =>
       validateTemperatureTopKDiagramLabels({
         ...labels,
+        cues: { ...labels.cues, legend: "" },
+      }),
+    ).toThrow(/cues\.legend/);
+    expect(() =>
+      validateTemperatureTopKDiagramLabels({
+        ...labels,
+        fields: { ...labels.fields, generated: "" },
+      }),
+    ).toThrow(/fields\.generated/);
+    expect(() =>
+      validateTemperatureTopKDiagramLabels({
+        ...labels,
         cues: { ...labels.cues, extra: "extra" },
       } as unknown as TemperatureTopKDiagramLabels),
     ).toThrow(/cues has unexpected keys/);
@@ -305,7 +350,7 @@ describe("Chapter 36 Rust trace parser", () => {
       ...labels,
       fields: { ...labels.fields },
     } as unknown as Record<string, unknown>;
-    delete (missing.fields as Record<string, unknown>).interval;
+    delete (missing.fields as Record<string, unknown>).prompt;
     expect(() =>
       validateTemperatureTopKDiagramLabels(
         missing as unknown as TemperatureTopKDiagramLabels,
@@ -334,12 +379,65 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(componentSource.match(/course-diagram__scroll/g)).toHaveLength(1);
     expect(componentSource.match(/role="region"/g)).toHaveLength(1);
     expect(componentSource.match(/tabindex="0"/g)).toHaveLength(2);
+    expect(componentSource).toContain(
+      '<ul class="cue-list" aria-label={labels.cues.legend}>',
+    );
+    expect(componentSource).not.toContain(
+      '<ul class="cue-list" aria-label={labels.sections.topK}>',
+    );
     expect(componentSource).toContain("trace.temperatures.map");
     expect(componentSource).toContain("trace.topK.tokens.map");
+    expect(componentSource).toContain("trace.support");
+    expect(componentSource).toContain(
+      'String.raw`[\\ell_0,\\ell_1,\\ell_2]=[2,2,1]`',
+    );
+    expect(componentSource).toContain('latex="k=3"');
+    expect(componentSource).not.toContain("labels.captions.support}");
+    expect(
+      componentSource.match(/\\\\widehat q_i=\$\{token\.probability\}/g),
+    ).toHaveLength(2);
+    expect(componentSource).not.toContain(
+      'latex={`q_i=${token.probability}`}',
+    );
+    expect(componentSource).toContain(
+      "data-retained={trace.support.retained}",
+    );
+    expect(componentSource).toContain(
+      "data-positive-support={trace.support.positive_support}",
+    );
+    expect(componentSource).toContain(
+      "trace.support.retained.slice(1, -1)",
+    );
+    expect(componentSource).toContain(
+      'String.raw`K_${trace.support.top_k}=\\{${trace.support.retained.slice(1, -1)}\\}`',
+    );
+    expect(componentSource).toContain(
+      "trace.support.positive_support.slice(1, -1)",
+    );
+    expect(componentSource).toContain(
+      "latex={`S_{\\\\tau,${trace.support.top_k}}^{(\\\\mathrm{f64})}=\\\\{${trace.support.positive_support.slice(1, -1)}\\\\}`}",
+    );
+    expect(componentSource).toContain("supportTokens.map");
+    expect(componentSource).toContain("data-support-token={token.id}");
+    expect(componentSource).toContain(
+      "data-positive-support={String(token.inPositiveSupport)}",
+    );
+    expect(componentSource).toContain("data-probability={token.probability}");
+    expect(componentSource).toContain(
+      "latex={`\\\\widehat q_${token.id}^{(\\\\tau,${trace.support.top_k})}=${token.probability}`}",
+    );
+    expect(componentSource).toContain("labels.cues.rankRetained");
+    expect(componentSource).toContain("labels.cues.inSupport");
+    expect(componentSource).toContain("labels.cues.outsideSupport");
+    expect(componentSource).toContain(
+      "\\\\widehat q_2^{(\\\\tau,${trace.support.top_k})}=${zeroProbability}",
+    );
     expect(componentSource).toContain("trace.drawPolicy");
     expect(componentSource).toContain("trace.draws.map");
     expect(componentSource).toContain("labels.fields.interval");
-    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(5);
+    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(6);
+    expect(componentSource).toContain("data-support-evidence");
+    expect(componentSource).toContain("data-positive-support");
     expect(componentSource.match(/data-diagram-table/g)).toHaveLength(1);
     expect(componentSource.match(/<caption>/g)).toHaveLength(1);
     expect(componentSource).toContain('scope="row"');
@@ -356,6 +454,28 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(componentSource).toContain("trace.errors.nonfinite_logit");
     expect(componentSource).toContain("data-eos-policy={trace.loaded.eos}");
     expect(componentSource).toContain("data-eos-policy={trace.eos.eos}");
+    expect(componentSource).toContain("data-loaded-sequence");
+    expect(componentSource).toContain('data-sequence-role="prompt"');
+    expect(componentSource).toContain('data-sequence-role="generated"');
+    expect(componentSource).toContain("<strong>{labels.fields.prompt}</strong>");
+    expect(componentSource).toContain("<strong>{labels.fields.generated}</strong>");
+    expect(componentSource).toContain("<strong>{labels.fields.contextCapacity}</strong>");
+    expect(componentSource).toContain("<strong>{labels.fields.eosToken}</strong>");
+    expect(componentSource).toContain("<strong>{labels.fields.maxNewTokens}</strong>");
+    expect(componentSource).toContain("<strong>{labels.fields.prefixLengths}</strong>");
+    expect(componentSource).toContain("<strong>{labels.fields.fullPrefixCalls}</strong>");
+    expect(componentSource).toContain(
+      'latex={`[${trace.loaded.prompt.slice(1, -1)}]`}',
+    );
+    expect(componentSource).toContain(
+      'latex={`[${trace.loaded.generated.slice(1, -1)}]`}',
+    );
+    expect(componentSource).toContain(
+      '<span class="sequence-arrow" aria-hidden="true">→</span>',
+    );
+    expect(componentSource).not.toContain(
+      "trace.loaded.prompt.slice(1, -1)}]\\\\to[${trace.loaded.generated",
+    );
     expect(componentSource).toContain("@container course-diagram");
     expect(componentSource).not.toMatch(/@media\s*\(/);
     expect(componentSource).not.toMatch(/overflow-x\s*:/);
@@ -408,11 +528,21 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
     );
-    expect(contract.content_revision).toBe(5);
-    expect(lesson.content_revision).toBe(5);
-    expect(russianLesson.content_revision).toBe(5);
+    expect(contract.formula.latex).toContain("\\lvert K_k\\rvert=k");
+    expect(contract.formula.latex).toContain(
+      "S_{\\tau,k}^{(\\mathrm{f64})}=\\{i\\in K_k\\mid\\widehat q_i^{(\\tau,k)}>0\\}\\subseteq K_k",
+    );
+    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
+      "\\lvert K_k\\rvert=k,\\quad S_{\\tau,k}^{(\\mathrm{f64})}=\\{i\\in K_k\\mid\\widehat q_i^{(\\tau,k)}>0\\}\\subseteq K_k",
+    );
+    expect(contract.content_revision).toBe(6);
+    expect(lesson.content_revision).toBe(6);
+    expect(russianLesson.content_revision).toBe(6);
     expect(contract.translation_notes).toContain(
       `canonical English SHA-256: ${createHash("sha256").update(lessonSource).digest("hex")}`,
+    );
+    expect(contract.translation_notes).toContain(
+      `reviewed Russian SHA-256: ${createHash("sha256").update(russianLessonSource).digest("hex")}`,
     );
     expect(russianLesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -467,7 +597,7 @@ describe("Chapter 36 static diagram and content boundary", () => {
     );
     expect(normalizedLesson).not.toContain("descending token-ID order");
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
-      "по убыванию логита, а равные значения — по возрастанию ID",
+      "по убыванию логита; при равных логитах первым идёт меньший ID",
     );
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
     expect(
@@ -488,7 +618,10 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(generationSource).toContain("TemperatureTopK");
     expect(demoSource).toContain("region:historical-decoding-contrast");
     expect(demoSource).toContain("region:learner-evidence");
-    expect(demoSource).toContain("TEMPERATURE_TOP_K_TRACE_V1");
+    expect(demoSource).toContain("TEMPERATURE_TOP_K_TRACE_V2");
+    expect(generationSource).toContain("positive_support_token_ids");
+    expect(generationSource).toContain("has_positive_probability");
+    expect(generationSource).not.toContain("pub fn survivors(");
     const learnerEvidence = demoSource.match(
       /\/\/ region:learner-evidence([\s\S]*?)\/\/ endregion:learner-evidence/,
     )?.[1];

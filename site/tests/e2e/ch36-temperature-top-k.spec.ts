@@ -18,28 +18,44 @@ const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
 const copy = {
   en: {
     revisionLabel: "Content revision",
-    title: "Shape the choices, then draw once",
+    title: "Shape the next-token distribution, then draw one token",
     description:
-      "Learn how positive temperature, stable top-k filtering, and a restored random-generator state turn decoder logits into controlled, replayable uncached LLM generation.",
-    diagramTitle: "Temperature reshapes; top-k removes; one draw selects",
+      "Learn how positive temperature and stable top-k filtering produce a rank-retained set whose positive f64 sampling support can be smaller, then replay uncached LLM generation.",
+    diagramTitle:
+      "Temperature reshapes probabilities; top-k removes lower-ranked token IDs; one draw selects a token",
     diagramDescription:
-      "The exact Rust trace compares three temperatures, exposes a stable tied boundary, follows eight seeded half-open intervals, and records checkpoint generation stops.",
+      "The exact Rust trace compares three temperatures, separates rank retention from positive f64 sampling support, follows the half-open intervals for eight draws from SplitMix64 seed 36, and records why generation from the loaded checkpoint stops.",
+    legendLabel: "Diagram state legend",
+    promptLabel: "Prompt",
+    generatedLabel: "Generated sequence",
+    storedProbabilityLabel: "Stored f64 probability",
+    topKTableLabel: "Stable top-k candidate table at temperature one",
+    contextCapacityLabel: "Context capacity in tokens",
+    prefixLengthsLabel: "Prefix lengths in tokens",
+    fullPrefixCallsLabel: "Complete-prefix decoder calls",
+    checkpointFixtureLabel: "Loaded decoder vocabulary of size 5",
+    loadedProofLabel: "Generation from the loaded checkpoint",
     headings: [
       "Start with four logits and make every choice visible",
       "Filter the candidate set, then renormalize",
       "Keep logits, candidates, and probabilities distinct",
       "From constrained search to open-ended LLM sampling",
       "Validate first, rank stably, and advance the random stream once",
-      "Read the distribution from left to right",
-      "Predict before revealing the trace",
+      "Follow the distribution from temperature scaling to uncached generation",
+      "Predict before checking the answers",
       "Preserve this uncached sequence when generation becomes incremental",
     ],
     cues: [
-      "✓ retained — double border",
-      "× removed — dashed border",
-      "→ selected by the draw",
+      "✓ token retained — double border",
+      "× token removed — dashed border",
+      "→ token selected by the draw",
     ],
-    detailsFragment: "survives because equal logits use ascending token ID",
+    detailsFragment: "is retained because equal logits use ascending token ID",
+    supportFragments: [
+      "yes — this token is retained by rank",
+      "token in positive f64 support",
+      "token outside positive f64 support",
+    ],
     historyFragment:
       "not a universal quality guarantee, a hallucination defense, or the endpoint of decoding research",
     executionFragment:
@@ -49,35 +65,52 @@ const copy = {
   },
   ru: {
     revisionLabel: "Версия материала",
-    title: "Сформируйте набор вариантов, затем сделайте один случайный выбор",
+    title:
+      "Сформируйте распределение следующего токена, затем выберите один токен случайным образом",
     description:
-      "Разберитесь, как положительная температура, фильтрация top-k с однозначным порядком и восстановленное состояние генератора псевдослучайных чисел превращают логиты декодера в управляемую и воспроизводимую генерацию LLM без кэша.",
+      "Разберитесь, как положительная температура и фильтрация top-k с однозначным порядком формируют множество кандидатов, почему носитель распределения в f64 может оказаться меньше этого множества и как воспроизвести генерацию LLM без кэша.",
     diagramTitle:
-      "Температура меняет форму, top-k отсекает, случайное число выбирает",
+      "Температура меняет вероятности, top-k исключает ID токенов, стоящих ниже в порядке ранжирования, а одно случайное число определяет выбранный токен",
     diagramDescription:
-      "Точная трасса из программы на Rust сравнивает три температуры, показывает границу равных логитов с однозначным порядком, восемь полуоткрытых интервалов и причины остановки генерации из контрольной точки.",
+      "Точные данные, выведенные программой на Rust, позволяют сравнить три температуры, отделить множество кандидатов, отобранных по рангу, от носителя распределения в f64, проследить полуоткрытые интервалы для восьми случайных чисел, полученных генератором SplitMix64 из начального состояния 36, и понять, почему останавливается генерация с загруженной контрольной точкой.",
+    legendLabel: "Условные обозначения состояний на схеме",
+    promptLabel: "Промпт",
+    generatedLabel: "Сгенерированная последовательность",
+    storedProbabilityLabel: "Вероятность, сохранённая в f64",
+    topKTableLabel:
+      "Таблица кандидатов top-k с однозначным порядком при температуре, равной единице",
+    contextCapacityLabel: "Ёмкость контекста в токенах",
+    prefixLengthsLabel: "Длины префиксов в токенах",
+    fullPrefixCallsLabel: "Вызовы декодера для полных префиксов",
+    checkpointFixtureLabel: "Словарь загруженного декодера размером 5",
+    loadedProofLabel: "Генерация с загруженной контрольной точкой",
     headings: [
       "Начните с четырёх логитов и сделайте каждый выбор явным",
       "Отфильтруйте кандидатов, затем нормализуйте заново",
       "Не смешивайте логиты, кандидатов и вероятности",
       "От поиска при жёстких ограничениях к свободной генерации LLM",
       "Сначала проверьте входы, однозначно задайте порядок и лишь затем измените состояние генератора",
-      "Прочитайте распределение слева направо",
-      "Сначала предскажите, затем откройте трассу",
-      "Сохраните эту последовательность без кэша при переходе к поэтапной генерации",
+      "Проследите путь распределения от масштабирования температурой до генерации без кэша",
+      "Сначала сделайте предсказания, затем проверьте их",
+      "При поэтапной генерации результат должен совпасть с последовательностью без кэша",
     ],
     cues: [
-      "✓ оставлен — двойная рамка",
-      "× исключён — пунктирная рамка",
-      "→ выбран случайным числом",
+      "✓ токен отобран — двойная рамка",
+      "× токен исключён — пунктирная рамка",
+      "→ токен выбран по случайному числу",
     ],
     detailsFragment: "Остаётся токен 1",
+    supportFragments: [
+      "да, токен отобран по рангу",
+      "токен входит в носитель распределения в f64",
+      "токен не входит в носитель распределения в f64",
+    ],
     historyFragment:
-      "не универсальная гарантия качества, не защита от галлюцинаций и не конечная точка исследований декодирования",
+      "не гарантирует качество и не защищает от галлюцинаций; исследования способов декодирования им не ограничиваются",
     executionFragment:
-      "Обычному вызову всё равно нужны временные массивы",
+      "sample_next_token тоже временно хранит массивы",
     ownershipFragment:
-      "Сначала он сохраняет отдельно записанное в ней состояние генератора псевдослучайных чисел. Затем метод into_model получает контрольную точку по значению и перемещает в декодер буферы модели",
+      "Программа загружает точные байты контрольной точки из главы 35 и отдельно сохраняет записанное в ней состояние генератора псевдослучайных чисел. Затем into_model принимает загруженную контрольную точку по значению и перемещает в декодер принадлежащие ей буферы модели",
   },
 } as const;
 
@@ -254,7 +287,7 @@ async function expectDiagramContainment(page: Page) {
     };
   });
   expect(result.problems).toEqual([]);
-  expect(result.boxCount).toBe(7);
+  expect(result.boxCount).toBe(8);
   expect(result.scrollerCount).toBe(1);
   expect(result.scrollWidth).toBeLessThanOrEqual(result.clientWidth + 2);
   const scroller = diagram.locator("[data-diagram-scroll]");
@@ -310,7 +343,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 36,
-    revision: 5,
+    revision: 6,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -327,8 +360,11 @@ async function expectChapterContent(
     .allTextContents();
   for (const expected of [
     "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
+    "\\lvert K_k\\rvert=k",
+    "S_{\\tau,k}^{(\\mathrm{f64})}=\\{i\\in K_k\\mid\\widehat q_i^{(\\tau,k)}>0\\}\\subseteq K_k",
     "\\tau=0.5",
-    "q_1=0.268941421370",
+    "\\widehat q_1=0.268941421370",
+    "[\\ell_0,\\ell_1,\\ell_2]=[2,2,1]",
     "1\\le k\\le V",
     "\\tau\\to0^+",
     "\\tau=0",
@@ -336,6 +372,9 @@ async function expectChapterContent(
     "a_i\\le u<b_i",
     "[0.211941557617,0.423883115234)",
     "i_{\\mathrm{EOS}}=4",
+    "K_3=\\{0,1,2\\}",
+    "S_{\\tau,3}^{(\\mathrm{f64})}=\\{0,1\\}",
+    "\\widehat q_2^{(\\tau,3)}=0.000000000000",
   ]) {
     expect(
       annotations
@@ -381,10 +420,37 @@ async function expectChapterContent(
   await expect(diagram).toHaveAccessibleDescription(
     localized.diagramDescription,
   );
+  await expect(diagram.locator(".cue-list")).toHaveAttribute(
+    "aria-label",
+    localized.legendLabel,
+  );
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram.locator("[data-temperature]")).toHaveCount(3);
-  await expect(diagram.locator("[data-temperature] [data-token-id]")).toHaveCount(12);
+  await expect(
+    diagram.locator("[data-temperature] [data-token-id]"),
+  ).toHaveCount(12);
+  await expect(
+    diagram.locator(
+      '[data-temperature="0.500000"] [data-token-id="0"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText(["i=0", "\\widehat q_i=0.014209336619"]);
   await expect(diagram.locator("[data-top-k-token]")).toHaveCount(4);
+  await expect(diagram.locator("table caption")).toHaveText(
+    localized.topKTableLabel,
+  );
+  await expect(diagram.locator("table thead th").last()).toHaveText(
+    localized.storedProbabilityLabel,
+  );
+  await expect(
+    diagram.locator(
+      '[data-top-k-token="1"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText([
+    "i=1",
+    "\\ell_i=1.000000",
+    "r_i=2",
+    "\\widehat q_i=0.268941421370",
+  ]);
   await expect(diagram.locator("[data-draw-index]")).toHaveCount(8);
   await expect(diagram.locator("[data-draw-policy]")).toHaveAttribute(
     "data-top-k",
@@ -399,14 +465,46 @@ async function expectChapterContent(
     "4",
   );
   await expect(diagram.locator("[data-draw-policy]")).toContainText(
-    "survivors=[3,1,2]",
+    "retained=[3,1,2]",
+  );
+  const support = diagram.locator("[data-support-evidence]");
+  await expect(support).toHaveCount(1);
+  await expect(support).toHaveAttribute("data-top-k", "3");
+  await expect(support).toHaveAttribute("data-retained", "[0,1,2]");
+  await expect(support).toHaveAttribute("data-positive-support", "[0,1]");
+  await expect(support).toContainText("tau=2.2250738585072014e-308");
+  for (const fragment of localized.supportFragments) {
+    await expect(support).toContainText(fragment);
+  }
+  await expect(support.locator("[data-support-token]")).toHaveCount(3);
+  await expect(support.locator('[data-support-token="0"]')).toHaveAttribute(
+    "data-positive-support",
+    "true",
+  );
+  await expect(support.locator('[data-support-token="2"]')).toHaveAttribute(
+    "data-retained",
+    "true",
+  );
+  await expect(support.locator('[data-support-token="2"]')).toHaveAttribute(
+    "data-positive-support",
+    "false",
+  );
+  await expect(support.locator('[data-support-token="2"]')).toHaveAttribute(
+    "data-probability",
+    "0.000000000000",
   );
   await expect(diagram.locator('[data-fixture="checkpoint"]')).toHaveAttribute(
     "data-vocabulary",
     "5",
   );
+  await expect(
+    diagram.locator('[data-fixture="checkpoint"] strong'),
+  ).toHaveText([
+    localized.checkpointFixtureLabel,
+    localized.contextCapacityLabel,
+  ]);
   await expect(diagram.locator("[data-proof]")).toHaveCount(4);
-  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(7);
+  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
   await expect(diagram.locator("table")).toHaveCount(1);
   await expect(diagram.locator("tbody tr")).toHaveCount(4);
   await expect(diagram.locator('[data-top-k-token="1"]')).toHaveAttribute(
@@ -421,13 +519,29 @@ async function expectChapterContent(
     "data-selected-token",
     "2",
   );
-  await expect(diagram.locator('[data-proof="loaded"]')).toContainText(
-    "prefixes=[1,2]",
-  );
-  await expect(diagram.locator('[data-proof="loaded"]')).toContainText(
-    "calls=2",
-  );
-  await expect(diagram.locator('[data-proof="loaded"]')).toContainText(
+  const loadedProof = diagram.locator('[data-proof="loaded"]');
+  await expect(loadedProof.locator("h5")).toHaveText(localized.loadedProofLabel);
+  await expect(
+    loadedProof.locator('[data-sequence-role="prompt"] strong'),
+  ).toHaveText(localized.promptLabel);
+  await expect(
+    loadedProof.locator('[data-sequence-role="generated"] strong'),
+  ).toHaveText(localized.generatedLabel);
+  await expect(
+    loadedProof.locator(
+      '[data-sequence-role="prompt"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText("[0]");
+  await expect(
+    loadedProof.locator(
+      '[data-sequence-role="generated"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText("[4,4]");
+  await expect(loadedProof).toContainText("prefixes=[1,2]");
+  await expect(loadedProof).toContainText("calls=2");
+  await expect(loadedProof).toContainText(localized.prefixLengthsLabel);
+  await expect(loadedProof).toContainText(localized.fullPrefixCallsLabel);
+  await expect(loadedProof).toContainText(
     "eos=none",
   );
   await expect(diagram.locator('[data-proof="eos"]')).toContainText("eos=4");
@@ -437,16 +551,20 @@ async function expectChapterContent(
   await expect(diagram.locator('[data-proof="errors"]')).toContainText(
     "rng_unchanged=true",
   );
-  await expect(diagram.locator("svg, canvas, path, polyline, line")).toHaveCount(
-    0,
-  );
+  expect(
+    await diagram
+      .locator("svg, canvas, path, polyline, line")
+      .evaluateAll(
+        (nodes) => nodes.filter((node) => !node.closest(".katex")).length,
+      ),
+  ).toBe(0);
   await expectDiagramContainment(page);
   await expectProbabilityBarGeometry(page);
 
   const details = page.locator(".lesson-body details");
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
-  await expect(details.locator("ol > li")).toHaveCount(8);
+  await expect(details.locator("ol > li")).toHaveCount(9);
   await expect(details).toContainText(localized.detailsFragment);
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
@@ -525,6 +643,10 @@ test.describe(
             "temperature-top-k",
         );
         await expect(diagram.locator("[data-temperature]")).toHaveCount(3);
+        await expect(diagram.locator("[data-support-evidence]")).toHaveAttribute(
+          "data-positive-support",
+          "[0,1]",
+        );
         await expect(diagram.locator("[data-draw-index]")).toHaveCount(8);
         await expectDiagramContainment(page);
         await page.keyboard.press("Escape");

@@ -22,6 +22,14 @@ export interface TemperatureTopKDraw {
   readonly token: string;
 }
 
+export interface TemperatureTopKSupport {
+  readonly tau: string;
+  readonly top_k: string;
+  readonly retained: string;
+  readonly positive_support: string;
+  readonly probabilities: string;
+}
+
 export interface TemperatureTopKTrace {
   readonly input: Readonly<Record<string, string>>;
   readonly temperatures: readonly TemperatureScenario[];
@@ -29,6 +37,7 @@ export interface TemperatureTopKTrace {
     readonly summary: Readonly<Record<string, string>>;
     readonly tokens: readonly TemperatureTopKToken[];
   };
+  readonly support: TemperatureTopKSupport;
   readonly drawPolicy: Readonly<Record<string, string>>;
   readonly draws: readonly TemperatureTopKDraw[];
   readonly greedy: Readonly<Record<string, string>>;
@@ -45,6 +54,7 @@ export interface TemperatureTopKDiagramLabels {
   readonly sections: {
     readonly temperature: string;
     readonly topK: string;
+    readonly support: string;
     readonly draws: string;
     readonly generation: string;
   };
@@ -55,6 +65,7 @@ export interface TemperatureTopKDiagramLabels {
   };
   readonly fixtures: {
     readonly synthetic: string;
+    readonly underflow: string;
     readonly checkpoint: string;
   };
   readonly fields: {
@@ -66,8 +77,18 @@ export interface TemperatureTopKDiagramLabels {
     readonly draw: string;
     readonly interval: string;
     readonly selectedToken: string;
+    readonly prompt: string;
+    readonly generated: string;
+    readonly contextCapacity: string;
+    readonly eosToken: string;
+    readonly maxNewTokens: string;
+    readonly prefixLengths: string;
+    readonly fullPrefixCalls: string;
+    readonly retainedSet: string;
+    readonly positiveSupport: string;
   };
   readonly cues: {
+    readonly legend: string;
     readonly retained: string;
     readonly removed: string;
     readonly selected: string;
@@ -77,10 +98,17 @@ export interface TemperatureTopKDiagramLabels {
     readonly contextStop: string;
     readonly eosStop: string;
     readonly validErrors: string;
+    readonly retainedZero: string;
+    readonly rankRetained: string;
+    readonly inSupport: string;
+    readonly outsideSupport: string;
   };
   readonly captions: {
     readonly temperature: string;
     readonly topK: string;
+    readonly supportLead: string;
+    readonly supportMiddle: string;
+    readonly supportTail: string;
     readonly draws: string;
     readonly generation: string;
   };
@@ -95,7 +123,7 @@ export interface TemperatureTopKDiagramLabels {
   };
 }
 
-const expectedTrace = `TEMPERATURE_TOP_K_TRACE_V1
+const expectedTrace = `TEMPERATURE_TOP_K_TRACE_V2
 INPUT|logits=[0.000000,1.000000,1.000000,2.000000]|vocabulary=4
 TEMPERATURE|tau=0.500000|top_k=4|sum=1.000000000000
 TOKEN|scenario=tau-0.5|id=0|logit=0.000000|rank=4|retained=true|probability=0.014209336619|percent=1.420934
@@ -112,12 +140,13 @@ TOKEN|scenario=tau-2.0|id=0|logit=0.000000|rank=4|retained=true|probability=0.14
 TOKEN|scenario=tau-2.0|id=1|logit=1.000000|rank=2|retained=true|probability=0.235003712202|percent=23.500371
 TOKEN|scenario=tau-2.0|id=2|logit=1.000000|rank=3|retained=true|probability=0.235003712202|percent=23.500371
 TOKEN|scenario=tau-2.0|id=3|logit=2.000000|rank=1|retained=true|probability=0.387455619000|percent=38.745562
-TOPK|tau=1.000000|top_k=2|survivors=[3,1]|sum=1.000000000000|tie_keep=1|tie_remove=2
+TOPK|tau=1.000000|top_k=2|retained=[3,1]|sum=1.000000000000|tie_keep=1|tie_remove=2
 TOPK_TOKEN|id=0|logit=0.000000|rank=4|retained=false|probability=0.000000000000|percent=0.000000
 TOPK_TOKEN|id=1|logit=1.000000|rank=2|retained=true|probability=0.268941421370|percent=26.894142
 TOPK_TOKEN|id=2|logit=1.000000|rank=3|retained=false|probability=0.000000000000|percent=0.000000
 TOPK_TOKEN|id=3|logit=2.000000|rank=1|retained=true|probability=0.731058578630|percent=73.105858
-DRAW_POLICY|tau=1.000000|top_k=3|seed=36|survivors=[3,1,2]|sum=1.000000000000|vocabulary=4
+SUPPORT|tau=2.2250738585072014e-308|top_k=3|retained=[0,1,2]|positive_support=[0,1]|probabilities=[0.500000000000,0.500000000000,0.000000000000]
+DRAW_POLICY|tau=1.000000|top_k=3|seed=36|retained=[3,1,2]|sum=1.000000000000|vocabulary=4
 DRAW|index=0|unit=0.912888894097|interval_start=0.423883115234|interval_end=1.000000000000|token=3
 DRAW|index=1|unit=0.338833394523|interval_start=0.211941557617|interval_end=0.423883115234|token=2
 DRAW|index=2|unit=0.295371378932|interval_start=0.211941557617|interval_end=0.423883115234|token=2
@@ -130,7 +159,7 @@ GREEDY|token=3|draw=none|rng_advanced=false|top_k_one_token=3
 LOADED|bytes=6330|rng_state=0x9e3779b97f4a7c38|vocabulary=5|context=2|eos=none|max_new_tokens=4|prompt=[0]|generated=[4,4]|prefixes=[1,2]|stop=context-limit|calls=2|replay=true
 EOS|vocabulary=5|context=2|eos=4|max_new_tokens=4|generated=[4]|stop=eos|calls=1
 ERRORS|temperature_zero=true|top_k_zero=true|nonfinite_logit=true|rng_unchanged=true
-HISTORY|greedy_token=3|greedy_rng_advanced=false|top_k=3|survivors=[3,1,2]|retained_full_mass=0.927670511871|removed_full_mass=0.072329488129
+HISTORY|greedy_token=3|greedy_rng_advanced=false|top_k=3|retained=[3,1,2]|retained_full_mass=0.927670511871|removed_full_mass=0.072329488129
 END|next=incremental-attention
 `;
 
@@ -190,7 +219,7 @@ export function validateTemperatureTopKDiagramLabels(
     invalid("labels.description must be nonblank");
   exactStringKeys(
     labels.sections as unknown as Record<string, unknown>,
-    ["temperature", "topK", "draws", "generation"],
+    ["temperature", "topK", "support", "draws", "generation"],
     "sections",
   );
   exactStringKeys(
@@ -200,7 +229,7 @@ export function validateTemperatureTopKDiagramLabels(
   );
   exactStringKeys(
     labels.fixtures as unknown as Record<string, unknown>,
-    ["synthetic", "checkpoint"],
+    ["synthetic", "underflow", "checkpoint"],
     "fixtures",
   );
   exactStringKeys(
@@ -214,12 +243,22 @@ export function validateTemperatureTopKDiagramLabels(
       "draw",
       "interval",
       "selectedToken",
+      "prompt",
+      "generated",
+      "contextCapacity",
+      "eosToken",
+      "maxNewTokens",
+      "prefixLengths",
+      "fullPrefixCalls",
+      "retainedSet",
+      "positiveSupport",
     ],
     "fields",
   );
   exactStringKeys(
     labels.cues as unknown as Record<string, unknown>,
     [
+      "legend",
       "retained",
       "removed",
       "selected",
@@ -229,12 +268,24 @@ export function validateTemperatureTopKDiagramLabels(
       "contextStop",
       "eosStop",
       "validErrors",
+      "retainedZero",
+      "rankRetained",
+      "inSupport",
+      "outsideSupport",
     ],
     "cues",
   );
   exactStringKeys(
     labels.captions as unknown as Record<string, unknown>,
-    ["temperature", "topK", "draws", "generation"],
+    [
+      "temperature",
+      "topK",
+      "supportLead",
+      "supportMiddle",
+      "supportTail",
+      "draws",
+      "generation",
+    ],
     "captions",
   );
   exactStringKeys(
@@ -303,6 +354,15 @@ function canonicalDecimalList(value: string, label: string): void {
     boundedDecimal(item, label + " item", decimalSixPattern, 1_000_000);
 }
 
+function canonicalTwelveDecimalList(value: string, label: string): void {
+  if (!/^\[(?:\d+\.\d{12}(?:,\d+\.\d{12})*)?\]$/.test(value))
+    invalid(label + " is not a canonical twelve-decimal list");
+  const body = value.slice(1, -1);
+  if (body === "") return;
+  for (const item of body.split(","))
+    boundedDecimal(item, label + " item", decimalTwelvePattern, 1);
+}
+
 function parseToken(
   line: string,
   recordName: "TOKEN" | "TOPK_TOKEN",
@@ -340,8 +400,8 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   if (!source.endsWith("\n") || source.endsWith("\n\n"))
     invalid("trace must end with exactly one LF");
   const lines = source.slice(0, -1).split("\n");
-  if (lines.length !== 37) invalid("trace must contain exactly 37 lines");
-  if (lines[0] !== "TEMPERATURE_TOP_K_TRACE_V1")
+  if (lines.length !== 38) invalid("trace must contain exactly 38 lines");
+  if (lines[0] !== "TEMPERATURE_TOP_K_TRACE_V2")
     invalid("opening sentinel changed");
 
   const input = record(lines[1], "INPUT");
@@ -387,19 +447,19 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   const topKSummary = record(lines[17], "TOPK");
   exactKeys(
     topKSummary,
-    ["tau", "top_k", "survivors", "sum", "tie_keep", "tie_remove"],
+    ["tau", "top_k", "retained", "sum", "tie_keep", "tie_remove"],
     "TOPK",
   );
   boundedDecimal(required(topKSummary, "tau"), "top-k temperature", decimalSixPattern, 1_000_000);
   canonicalInteger(required(topKSummary, "top_k"), "top-k count");
-  canonicalIntegerList(required(topKSummary, "survivors"), "top-k survivors");
+  canonicalIntegerList(required(topKSummary, "retained"), "top-k retained IDs");
   boundedDecimal(required(topKSummary, "sum"), "top-k sum", decimalTwelvePattern, 1);
   canonicalInteger(required(topKSummary, "tie_keep"), "top-k retained tie");
   canonicalInteger(required(topKSummary, "tie_remove"), "top-k removed tie");
   if (
     required(topKSummary, "tau") !== "1.000000" ||
     required(topKSummary, "top_k") !== "2" ||
-    required(topKSummary, "survivors") !== "[3,1]" ||
+    required(topKSummary, "retained") !== "[3,1]" ||
     required(topKSummary, "sum") !== "1.000000000000"
   )
     invalid("TOPK summary changed");
@@ -411,10 +471,42 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
     }),
   );
 
-  const drawPolicy = record(lines[22], "DRAW_POLICY");
+  const supportRecord = record(lines[22], "SUPPORT");
+  exactKeys(
+    supportRecord,
+    ["tau", "top_k", "retained", "positive_support", "probabilities"],
+    "SUPPORT",
+  );
+  const support = Object.freeze({
+    tau: required(supportRecord, "tau"),
+    top_k: required(supportRecord, "top_k"),
+    retained: required(supportRecord, "retained"),
+    positive_support: required(supportRecord, "positive_support"),
+    probabilities: required(supportRecord, "probabilities"),
+  });
+  if (
+    support.tau !== "2.2250738585072014e-308" ||
+    !Number.isFinite(Number(support.tau)) ||
+    Number(support.tau) <= 0
+  )
+    invalid("SUPPORT temperature changed");
+  canonicalInteger(support.top_k, "support top-k");
+  canonicalIntegerList(support.retained, "support retained IDs");
+  canonicalIntegerList(support.positive_support, "support positive IDs");
+  canonicalTwelveDecimalList(support.probabilities, "support probabilities");
+  if (
+    support.top_k !== "3" ||
+    support.retained !== "[0,1,2]" ||
+    support.positive_support !== "[0,1]" ||
+    support.probabilities !==
+      "[0.500000000000,0.500000000000,0.000000000000]"
+  )
+    invalid("SUPPORT retained/probability distinction changed");
+
+  const drawPolicy = record(lines[23], "DRAW_POLICY");
   exactKeys(
     drawPolicy,
-    ["tau", "top_k", "seed", "survivors", "sum", "vocabulary"],
+    ["tau", "top_k", "seed", "retained", "sum", "vocabulary"],
     "DRAW_POLICY",
   );
   boundedDecimal(
@@ -425,7 +517,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   );
   for (const key of ["top_k", "seed", "vocabulary"])
     canonicalInteger(required(drawPolicy, key), "draw-policy " + key);
-  canonicalIntegerList(required(drawPolicy, "survivors"), "draw-policy survivors");
+  canonicalIntegerList(required(drawPolicy, "retained"), "draw-policy retained IDs");
   boundedDecimal(
     required(drawPolicy, "sum"),
     "draw-policy sum",
@@ -436,7 +528,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
     required(drawPolicy, "tau") !== "1.000000" ||
     required(drawPolicy, "top_k") !== "3" ||
     required(drawPolicy, "seed") !== "36" ||
-    required(drawPolicy, "survivors") !== "[3,1,2]" ||
+    required(drawPolicy, "retained") !== "[3,1,2]" ||
     required(drawPolicy, "sum") !== "1.000000000000" ||
     required(drawPolicy, "vocabulary") !== required(input, "vocabulary")
   )
@@ -444,7 +536,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
 
   const draws = Object.freeze(
     [0, 1, 2, 3, 4, 5, 6, 7].map((offset) => {
-      const draw = record(lines[23 + offset], "DRAW");
+      const draw = record(lines[24 + offset], "DRAW");
       exactKeys(draw, ["index", "unit", "interval_start", "interval_end", "token"], "DRAW");
       canonicalInteger(required(draw, "index"), "draw index");
       canonicalInteger(required(draw, "token"), "draw token");
@@ -465,7 +557,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
     }),
   );
 
-  const greedy = record(lines[31], "GREEDY");
+  const greedy = record(lines[32], "GREEDY");
   exactKeys(greedy, ["token", "draw", "rng_advanced", "top_k_one_token"], "GREEDY");
   if (
     required(greedy, "draw") !== "none" ||
@@ -474,7 +566,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   )
     invalid("GREEDY draw contract changed");
 
-  const loaded = record(lines[32], "LOADED");
+  const loaded = record(lines[33], "LOADED");
   exactKeys(
     loaded,
     [
@@ -506,7 +598,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   )
     invalid("LOADED stop or replay contract changed");
 
-  const eos = record(lines[33], "EOS");
+  const eos = record(lines[34], "EOS");
   exactKeys(
     eos,
     ["vocabulary", "context", "eos", "max_new_tokens", "generated", "stop", "calls"],
@@ -523,7 +615,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   )
     invalid("EOS fixture or stop changed");
 
-  const errors = record(lines[34], "ERRORS");
+  const errors = record(lines[35], "ERRORS");
   exactKeys(
     errors,
     ["temperature_zero", "top_k_zero", "nonfinite_logit", "rng_unchanged"],
@@ -532,14 +624,14 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   if (Object.values(errors).some((value) => value !== "true"))
     invalid("every ERRORS flag must be true");
 
-  const history = record(lines[35], "HISTORY");
+  const history = record(lines[36], "HISTORY");
   exactKeys(
     history,
     [
       "greedy_token",
       "greedy_rng_advanced",
       "top_k",
-      "survivors",
+      "retained",
       "retained_full_mass",
       "removed_full_mass",
     ],
@@ -547,7 +639,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   );
   canonicalInteger(required(history, "greedy_token"), "history greedy token");
   canonicalInteger(required(history, "top_k"), "history top-k");
-  canonicalIntegerList(required(history, "survivors"), "history survivors");
+  canonicalIntegerList(required(history, "retained"), "history retained IDs");
   boundedDecimal(
     required(history, "retained_full_mass"),
     "history retained mass",
@@ -564,7 +656,7 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
     required(history, "greedy_rng_advanced") !== "false" ||
     required(history, "greedy_token") !== required(greedy, "token") ||
     required(history, "top_k") !== required(drawPolicy, "top_k") ||
-    required(history, "survivors") !== required(drawPolicy, "survivors") ||
+    required(history, "retained") !== required(drawPolicy, "retained") ||
     Math.abs(
       Number(required(history, "retained_full_mass")) +
         Number(required(history, "removed_full_mass")) -
@@ -573,14 +665,17 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   )
     invalid("HISTORY measured contrast changed");
 
-  const end = record(lines[36], "END");
+  const end = record(lines[37], "END");
   exactKeys(end, ["next"], "END");
+  if (required(end, "next") !== "incremental-attention")
+    invalid("END next-chapter handoff changed");
   if (source !== expectedTrace) invalid("trace differs from the frozen Rust fixture");
 
   return Object.freeze({
     input,
     temperatures,
     topK: Object.freeze({ summary: topKSummary, tokens: topKTokens }),
+    support,
     drawPolicy,
     draws,
     greedy,

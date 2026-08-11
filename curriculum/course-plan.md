@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 74,
+  "plan_revision": 75,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1550,16 +1550,16 @@ with JavaScript enabled.
 
 - **Chapter ID:** `36-temperature-top-k`
 - **Implementation step:** `implement-ch36-temperature-top-k`
-- **Revision status:** Content revision 2 replaces hard-coded historical assertions with measured truncation evidence, distinguishes a stochastic distribution from the fixed random state and deterministic traversal needed to replay a choice, exposes the diagram's interval label, and publishes the direct meaning-first Russian localization through `activate-ch36-russian-localization`.
+- **Revision status:** Content revision 6 preserves the ideal real-arithmetic top-k formula while distinguishing the exact rank-retained set from positive representable `f64` sampling support. It adds the existing `[2,2,1]` underflow evidence to the exact report and diagram, keeps the ordinary sampling fixtures unchanged, and refreshes Russian directly from the matching English revision. Revision 5's result-only versus explicitly traced sampling boundary and all earlier history, tie, replay, checkpoint, EOS, and context guarantees remain in force.
 - **Depends on:** `35-checkpoints`.
-- **Outcome:** Sample the next token reproducibly after temperature scaling and top-k filtering.
-- **Scope boundary:** Teach greedy decoding, temperature limits, top-k selection/ties, renormalization, seeded categorical sampling, EOS stopping, and invalid settings; use uncached full-prefix decoding and defer caching.
-- **Formula:** `q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)}`.
+- **Outcome:** Sample the next token reproducibly after temperature scaling and top-k filtering while distinguishing rank-retained IDs from positive representable sampling support.
+- **Scope boundary:** Teach greedy decoding, temperature limits, top-k selection/ties, real-arithmetic renormalization versus stored `f64` probabilities, positive sampling support, seeded categorical sampling, EOS stopping, and invalid settings; use uncached full-prefix decoding and defer caching.
+- **Formula:** `q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)},\quad \lvert K_k\rvert=k,\quad S_{\tau,k}^{(\mathrm{f64})}=\{i\in K_k\mid\widehat q_i^{(\tau,k)}>0\}\subseteq K_k`.
 - **Historical contrast:** Contrast greedy and beam decoding with stochastic sampling used for open-ended generation.
-- **Rust contribution:** Add deterministic top-k filtering, categorical sampling, and an uncached autoregressive generation loop using the trained decoder.
-- **Visualization:** Useful — show how temperature reshapes a probability bar chart and top-k removes/renormalizes its tail.
-- **Practice:** Predict distributions as temperature approaches zero or grows, and determine which IDs survive a tied top-k boundary.
-- **Integration evidence:** Greedy/temperature/top-k limits, stable ties, probability sums, seeded sequences, EOS/context limits, full-prefix call counts, and errors pass.
+- **Rust contribution:** Add deterministic rank-based top-k filtering, represented-probability support evidence, categorical sampling that skips exact-zero stored probabilities, and an uncached autoregressive generation loop using the trained decoder.
+- **Visualization:** Useful — show how temperature reshapes a probability bar chart, how top-k removes and renormalizes its tail, and how one retained finite logit can fall outside positive `f64` support after its represented weight rounds to zero.
+- **Practice:** Predict distributions as temperature approaches zero or grows, determine which IDs are retained at a tied top-k boundary, and distinguish those retained IDs from positive represented-probability support.
+- **Integration evidence:** Greedy/temperature/top-k limits, stable ties, the `[2,2,1]` `f64::MIN_POSITIVE` fixture with retained IDs `[0,1,2]`, positive support `[0,1]`, and stored probability `\widehat q_2=0`, probability sums, seeded sequences, EOS/context limits, full-prefix call counts, and errors pass. Exact-zero probabilities are excluded from categorical traversal without claiming that every positive stored probability necessarily owns a nonempty reachable interval.
 - **Handoff:** Chapter 37 makes one attention layer incremental while preserving its last-position result.
 
 ## 37. Incremental attention and a per-layer key/value cache

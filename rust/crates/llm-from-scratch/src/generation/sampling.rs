@@ -48,17 +48,25 @@ impl SamplingCandidate {
         self.retained
     }
 
+    /// Whether the final represented probability is strictly positive.
+    ///
+    /// A token can be retained by top-k rank while falling outside this
+    /// positive support when its exponential weight underflows to exact zero.
+    pub const fn has_positive_probability(self) -> bool {
+        self.probability > 0.0
+    }
+
     pub const fn probability(self) -> f64 {
         self.probability
     }
 }
 
-/// The complete token-ID-ordered distribution plus rank-ordered survivors.
+/// The complete token-ID-ordered distribution plus rank-ordered retained IDs.
 #[derive(Clone, Debug, PartialEq)]
 pub struct SamplingDistribution {
     mode: SamplingMode,
     candidates: Vec<SamplingCandidate>,
-    survivors: Vec<u32>,
+    retained_token_ids: Vec<u32>,
 }
 
 impl SamplingDistribution {
@@ -71,9 +79,20 @@ impl SamplingDistribution {
         &self.candidates
     }
 
-    /// Survivors are returned in stable descending-logit rank order.
-    pub fn survivors(&self) -> &[u32] {
-        &self.survivors
+    /// Retained IDs are returned in stable descending-logit rank order.
+    ///
+    /// Membership is determined before probability construction, so this list
+    /// can include an ID whose represented probability later underflows to zero.
+    pub fn retained_token_ids(&self) -> &[u32] {
+        &self.retained_token_ids
+    }
+
+    /// Positive represented-probability support in ascending token-ID order.
+    pub fn positive_support_token_ids(&self) -> impl Iterator<Item = u32> + '_ {
+        self.candidates
+            .iter()
+            .filter(|candidate| candidate.has_positive_probability())
+            .map(|candidate| candidate.token_id())
     }
 
     pub fn probability_sum(&self) -> f64 {
@@ -386,17 +405,17 @@ fn materialize_distribution(
         });
     }
 
-    let mut survivors = Vec::new();
-    survivors
+    let mut retained_token_ids = Vec::new();
+    retained_token_ids
         .try_reserve_exact(*keep)
         .map_err(|_| SamplingError::AllocationFailed { values: *keep })?;
     for &token_id in &ranked[..*keep] {
-        survivors.push(u32::try_from(token_id).expect("validated token ID must fit u32"));
+        retained_token_ids.push(u32::try_from(token_id).expect("validated token ID must fit u32"));
     }
     Ok(SamplingDistribution {
         mode: *mode,
         candidates,
-        survivors,
+        retained_token_ids,
     })
 }
 
@@ -418,7 +437,7 @@ fn select_prepared(prepared: &PreparedSampling, rng: &mut SplitMix64) -> Sampled
         .rev()
         .find(|(_, probability)| **probability > 0.0)
         .map(|(token_id, _)| token_id)
-        .expect("a normalized distribution must have a positive survivor");
+        .expect("a normalized distribution must have positive support");
     let mut start = 0.0;
     for (token_id, &probability) in prepared
         .probabilities
@@ -441,7 +460,7 @@ fn select_prepared(prepared: &PreparedSampling, rng: &mut SplitMix64) -> Sampled
         }
         start = end;
     }
-    unreachable!("the final positive survivor covers every unit draw")
+    unreachable!("the final positive-support token covers every unit draw")
 }
 
 fn sample_with_observer<T>(
@@ -922,7 +941,7 @@ mod tests {
             },
         )
         .unwrap();
-        assert_eq!(distribution.survivors(), &[3, 1]);
+        assert_eq!(distribution.retained_token_ids(), &[3, 1]);
         assert_eq!(
             distribution
                 .candidates()
@@ -1133,25 +1152,51 @@ mod tests {
         )
         .unwrap();
         assert_eq!(distribution.candidates().len(), logits.len());
-        assert_eq!(distribution.survivors().len(), logits.len());
-        assert_eq!(distribution.survivors()[..3], [0, 1, 2]);
+        assert_eq!(distribution.retained_token_ids().len(), logits.len());
+        assert_eq!(distribution.retained_token_ids()[..3], [0, 1, 2]);
         assert_close(distribution.candidates()[99_999].probability(), 1e-5, 1e-18);
         assert_close(distribution.probability_sum(), 1.0, PROBABILITY_TOLERANCE);
     }
 
     #[test]
     fn temperature_limits_are_finite_normalized_and_keep_maximum_ties() {
-        let low = sampling_distribution(
-            &[2.0, 2.0, 1.0],
-            SamplingMode::TemperatureTopK {
-                temperature: f64::MIN_POSITIVE,
-                top_k: 3,
-            },
-        )
-        .unwrap();
+        let logits = [2.0, 2.0, 1.0];
+        let mode = SamplingMode::TemperatureTopK {
+            temperature: f64::MIN_POSITIVE,
+            top_k: 3,
+        };
+        let low = sampling_distribution(&logits, mode).unwrap();
+        assert_eq!(low.retained_token_ids(), &[0, 1, 2]);
+        assert!(
+            low.candidates()
+                .iter()
+                .all(|candidate| candidate.retained())
+        );
+        assert_eq!(low.positive_support_token_ids().collect::<Vec<_>>(), [0, 1]);
+        assert!(low.candidates()[0].has_positive_probability());
+        assert!(low.candidates()[1].has_positive_probability());
+        assert!(!low.candidates()[2].has_positive_probability());
         assert_eq!(low.candidates()[0].probability(), 0.5);
         assert_eq!(low.candidates()[1].probability(), 0.5);
-        assert_eq!(low.candidates()[2].probability(), 0.0);
+        assert_eq!(
+            low.candidates()[2].probability().to_bits(),
+            0.0_f64.to_bits()
+        );
+
+        let mut expected_rng = SplitMix64::from_seed(36);
+        let expected_draw = expected_rng.next_unit_f64();
+        let mut rng = SplitMix64::from_seed(36);
+        let sampled = sample_next_token(&logits, mode, &mut rng).unwrap();
+        assert_eq!(sampled.token_id(), 1);
+        assert_eq!(
+            sampled.unit_draw().unwrap().to_bits(),
+            expected_draw.to_bits()
+        );
+        assert_eq!(
+            (sampled.interval_start(), sampled.interval_end()),
+            (0.5, 1.0)
+        );
+        assert_eq!(rng.state(), expected_rng.state());
 
         let high = sampling_distribution(
             &[-f64::MAX, 0.0, f64::MAX],
@@ -1192,7 +1237,7 @@ mod tests {
         for (candidate, expected) in distribution.candidates().iter().zip(expected) {
             assert_close(candidate.probability(), expected, 1e-15);
         }
-        assert_eq!(distribution.survivors(), &[3, 1, 2]);
+        assert_eq!(distribution.retained_token_ids(), &[3, 1, 2]);
 
         let mut left = SplitMix64::from_seed(36);
         let mut right = SplitMix64::from_seed(36);

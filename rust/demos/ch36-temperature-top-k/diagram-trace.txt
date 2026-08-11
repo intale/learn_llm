@@ -1,4 +1,4 @@
-TEMPERATURE_TOP_K_TRACE_V1
+TEMPERATURE_TOP_K_TRACE_V2
 INPUT|logits=[0.000000,1.000000,1.000000,2.000000]|vocabulary=4
 TEMPERATURE|tau=0.500000|top_k=4|sum=1.000000000000
 TOKEN|scenario=tau-0.5|id=0|logit=0.000000|rank=4|retained=true|probability=0.014209336619|percent=1.420934
@@ -15,12 +15,13 @@ TOKEN|scenario=tau-2.0|id=0|logit=0.000000|rank=4|retained=true|probability=0.14
 TOKEN|scenario=tau-2.0|id=1|logit=1.000000|rank=2|retained=true|probability=0.235003712202|percent=23.500371
 TOKEN|scenario=tau-2.0|id=2|logit=1.000000|rank=3|retained=true|probability=0.235003712202|percent=23.500371
 TOKEN|scenario=tau-2.0|id=3|logit=2.000000|rank=1|retained=true|probability=0.387455619000|percent=38.745562
-TOPK|tau=1.000000|top_k=2|survivors=[3,1]|sum=1.000000000000|tie_keep=1|tie_remove=2
+TOPK|tau=1.000000|top_k=2|retained=[3,1]|sum=1.000000000000|tie_keep=1|tie_remove=2
 TOPK_TOKEN|id=0|logit=0.000000|rank=4|retained=false|probability=0.000000000000|percent=0.000000
 TOPK_TOKEN|id=1|logit=1.000000|rank=2|retained=true|probability=0.268941421370|percent=26.894142
 TOPK_TOKEN|id=2|logit=1.000000|rank=3|retained=false|probability=0.000000000000|percent=0.000000
 TOPK_TOKEN|id=3|logit=2.000000|rank=1|retained=true|probability=0.731058578630|percent=73.105858
-DRAW_POLICY|tau=1.000000|top_k=3|seed=36|survivors=[3,1,2]|sum=1.000000000000|vocabulary=4
+SUPPORT|tau=2.2250738585072014e-308|top_k=3|retained=[0,1,2]|positive_support=[0,1]|probabilities=[0.500000000000,0.500000000000,0.000000000000]
+DRAW_POLICY|tau=1.000000|top_k=3|seed=36|retained=[3,1,2]|sum=1.000000000000|vocabulary=4
 DRAW|index=0|unit=0.912888894097|interval_start=0.423883115234|interval_end=1.000000000000|token=3
 DRAW|index=1|unit=0.338833394523|interval_start=0.211941557617|interval_end=0.423883115234|token=2
 DRAW|index=2|unit=0.295371378932|interval_start=0.211941557617|interval_end=0.423883115234|token=2
@@ -33,5 +34,5 @@ GREEDY|token=3|draw=none|rng_advanced=false|top_k_one_token=3
 LOADED|bytes=6330|rng_state=0x9e3779b97f4a7c38|vocabulary=5|context=2|eos=none|max_new_tokens=4|prompt=[0]|generated=[4,4]|prefixes=[1,2]|stop=context-limit|calls=2|replay=true
 EOS|vocabulary=5|context=2|eos=4|max_new_tokens=4|generated=[4]|stop=eos|calls=1
 ERRORS|temperature_zero=true|top_k_zero=true|nonfinite_logit=true|rng_unchanged=true
-HISTORY|greedy_token=3|greedy_rng_advanced=false|top_k=3|survivors=[3,1,2]|retained_full_mass=0.927670511871|removed_full_mass=0.072329488129
+HISTORY|greedy_token=3|greedy_rng_advanced=false|top_k=3|retained=[3,1,2]|retained_full_mass=0.927670511871|removed_full_mass=0.072329488129
 END|next=incremental-attention

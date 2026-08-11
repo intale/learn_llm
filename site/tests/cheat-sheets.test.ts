@@ -777,16 +777,23 @@ const expectedSheets = {
   "36-temperature-top-k": {
     file: "36-temperature-top-k.json",
     lesson: "36-temperature-top-k.mdx",
-    title: "Shape a stable top-k distribution, then draw once",
+    title: "Shape a stable top-k distribution, then draw one token",
     entries: [
       ["Temperature", "finite positive temperature"],
       ["Stable ranking", "stable descending-logit order"],
-      ["Top-k candidate set", "Filter the candidate set, then renormalize"],
+      ["Top-k candidate set", "rank-retained top-$k$ set"],
       ["Tie-breaking rule", "equal logits ordered by ascending token ID"],
-      ["Top-k renormalization", "after renormalization"],
-      ["Max-shifted softmax", "max-shifted normalization"],
-      ["Removed-token probability", "Removed IDs keep exact probability $0$"],
-      ["Categorical draw", "categorical draw acts only after both decisions"],
+      ["Top-k renormalization", "stored probabilities sum to $1$"],
+      [
+        "Positive representable sampling support",
+        "positive representable sampling support",
+      ],
+      ["Max-shifted softmax", "max-shifted `f64` result"],
+      [
+        "Removed-token probability",
+        "Every removed ID has stored probability zero",
+      ],
+      ["Categorical draw", "skips every exact zero"],
       ["Half-open sampling interval", "half-open interval"],
       ["Greedy decoding", "Greedy decoding is therefore a separate policy"],
       ["Stochastic top-1", "Stochastic $k=1$"],
@@ -1139,25 +1146,27 @@ const exactDefinitions = {
   },
   "36-temperature-top-k": {
     Temperature:
-      "A finite strictly positive divisor applied to logits before softmax; lower values sharpen probability gaps and higher values flatten them without changing rank.",
+      "A finite strictly positive divisor applied to logits before softmax; lower values enlarge scaled-logit gaps and concentrate the probability distribution, while higher values shrink those gaps and flatten the distribution without changing rank.",
     "Stable ranking":
       "Deterministic ordering by descending logit, with the configured tie rule resolving equal values before candidate filtering.",
     "Top-k candidate set":
-      "The exact number of highest-ranked token IDs retained before sampling, bounded between one and the vocabulary size.",
+      "Exactly the configured number of highest-ranked token IDs retained before floating-point probability construction; membership is determined by rank even if a retained probability later rounds to zero.",
     "Tie-breaking rule":
       "Equal logits are ordered by ascending token ID, making the retained boundary and greedy choice deterministic.",
     "Top-k renormalization":
-      "Recomputing probabilities over only retained candidates after filtering, so their probabilities sum to one.",
+      "Computing stored f64 probabilities from the rank-retained candidates after filtering; those probabilities sum to one within f64 rounding error, but a retained value may be exact zero.",
+    "Positive representable sampling support":
+      "Retained token IDs whose stored f64 probability is strictly greater than zero; an exact-zero retained ID is excluded even though it remains in the rank-retained set.",
     "Max-shifted softmax":
-      "Softmax computed after subtracting the largest retained scaled logit, preserving probability ratios while avoiding overflow.",
+      "Subtracting the largest retained scaled logit avoids a large common offset, but a sufficiently small retained f64 exponential weight can still round to zero.",
     "Removed-token probability":
-      "An exact zero assigned to every filtered token, so it owns no sampling interval and cannot be selected.",
+      "Every filtered token receives exact probability zero, but zero does not prove removal: an underflowed rank-retained token is also outside positive representable sampling support.",
     "Categorical draw":
-      "One unit-interval random draw used after temperature scaling, filtering, and renormalization to select a retained token.",
+      "One unit-interval random draw used after temperature scaling, filtering, and renormalization; traversal skips every exact-zero stored probability.",
     "Half-open sampling interval":
-      "A cumulative probability range including its lower endpoint and excluding its upper endpoint, traversed here in ascending token-ID order.",
+      "A recorded cumulative range including its lower endpoint and excluding its upper endpoint, traversed here in ascending token-ID order; an exact-zero probability certainly owns no interval.",
     "Greedy decoding":
-      "The separate deterministic policy that chooses the first stable rank and leaves the random-generator state untouched.",
+      "The separate deterministic policy that chooses the token ID at the first stable rank and leaves the random-generator state untouched.",
     "Stochastic top-1":
       "A sampling policy that retains one token and chooses the same ID as greedy but still consumes exactly one random draw.",
     "RNG-state replay":
@@ -1477,6 +1486,43 @@ describe("English chapter cheat-sheet content", () => {
     expect(JSON.stringify([english, russian])).not.toMatch(
       /Save every state, resume exactly|Continuation RNG state|Exact resumed update|Сохраните всё состояние и продолжите без расхождений|Точное продолжение обновления/,
     );
+  });
+
+  it("freezes both Chapter 36 sheets and sorts each into exact ten-plus-three pages", () => {
+    const english = readLocalizedSheet("en", "36-temperature-top-k.json");
+    const russian = readLocalizedSheet("ru", "36-temperature-top-k.json");
+    const englishPages = paginateCheatSheetTerms(
+      sortCheatSheetTerms(english.terms, "en"),
+    );
+    const russianPages = paginateCheatSheetTerms(
+      sortCheatSheetTerms(russian.terms, "ru"),
+    );
+
+    expect(localizedSheetSha256("en", "36-temperature-top-k.json")).toBe(
+      "693476c26ca9178e781e6b2d6f81ed7be9f82e5a3975b46159bdce007d032bdf",
+    );
+    expect(localizedSheetSha256("ru", "36-temperature-top-k.json")).toBe(
+      "bf7dd37eae2a00e1d1af1fe870e4c54d8544c77f203398cf5b45d9135db05b1f",
+    );
+    expect(englishPages.map((page) => page.length)).toEqual([10, 3]);
+    expect(russianPages.map((page) => page.length)).toEqual([10, 3]);
+    expect(englishPages.flat().map(({ term }) => term)).toEqual([
+      "Categorical draw",
+      "Greedy decoding",
+      "Half-open sampling interval",
+      "Max-shifted softmax",
+      "Positive representable sampling support",
+      "Removed-token probability",
+      "RNG-state replay",
+      "Stable ranking",
+      "Stochastic top-1",
+      "Temperature",
+      "Tie-breaking rule",
+      "Top-k candidate set",
+      "Top-k renormalization",
+    ]);
+    expect(new Set(englishPages.flat().map(({ term }) => term)).size).toBe(13);
+    expect(new Set(russianPages.flat().map(({ term }) => term)).size).toBe(13);
   });
 
   it("sorts all thirteen Chapter 38 concepts into exact ten-plus-three pages without loss", () => {
@@ -2038,9 +2084,13 @@ describe("cheat-sheet integration contract", () => {
       "aria-describedby={isPaginated ? pageStatusId : undefined}",
     );
     expect(component).toContain(
-      "grid-template-rows: auto minmax(0, 1fr) auto;",
+      "grid-template-rows: minmax(0, 1fr) auto;",
     );
     const pageViewportStart = component.indexOf("data-cheat-sheet-pages");
+    const headerStart = component.indexOf(
+      '<header class="cheat-sheet-header">',
+      pageViewportStart,
+    );
     const descriptionStart = component.indexOf(
       '<p id={descriptionId} class="cheat-sheet-description">',
     );
@@ -2048,17 +2098,34 @@ describe("cheat-sheet integration contract", () => {
       "termPages.map((page, pageIndex)",
       pageViewportStart,
     );
+    const paginationStart = component.indexOf(
+      'class="cheat-sheet-pagination"',
+      termPagesStart,
+    );
     expect(pageViewportStart).toBeGreaterThan(-1);
-    expect(descriptionStart).toBeGreaterThan(pageViewportStart);
+    expect(headerStart).toBeGreaterThan(pageViewportStart);
+    expect(descriptionStart).toBeGreaterThan(headerStart);
     expect(termPagesStart).toBeGreaterThan(descriptionStart);
+    expect(paginationStart).toBeGreaterThan(termPagesStart);
+    expect(component.match(/<header class="cheat-sheet-header">/g)).toHaveLength(
+      1,
+    );
+    expect(component).toContain("position: 'dialog-start' | 'page-start'");
+    expect(component).toContain("if (position === 'dialog-start')");
     expect(component).toContain("pageViewport.scrollTop = 0;");
+    expect(component).toContain(
+      "pageViewport.scrollTop += activePageTop - viewportTop;",
+    );
+    expect(component).toContain("showPage(1, 'dialog-start');");
+    expect(component).toContain("showPage(currentPage - 1, 'page-start');");
+    expect(component).toContain("showPage(currentPage + 1, 'page-start');");
     expect(component).toContain("if (dialog.open) dialog.scrollTop = 0;");
     const openHandler = component.slice(
       component.indexOf("trigger.addEventListener('click'"),
       component.indexOf("previous?.addEventListener('click'"),
     );
     expect(openHandler.indexOf("dialog.showModal();")).toBeLessThan(
-      openHandler.indexOf("showPage(1);"),
+      openHandler.indexOf("showPage(1, 'dialog-start');"),
     );
     expect(component).toContain("dialog.addEventListener('close'");
     expect(component).toContain("opener?.focus()");

@@ -20763,3 +20763,406 @@ this numerical and chapter-local change does not authorize an all-chapter visual
 sweep. No dependency or alternate browser is introduced.
 
 **Affected step:** `bound-ch22-adamw-shrinkage-and-clipping`.
+
+## 2026-08-11 - Separate Chapter 36 rank retention from positive f64 sampling support
+
+**Status:** Accepted during
+`distinguish-ch36-retained-set-from-sampling-support` preflight, before product
+edits.
+
+**Context:** Chapter 36 currently calls the highest-ranked `k` token IDs
+"survivors" and describes renormalization as if every retained finite logit must
+own positive probability. The existing extreme-temperature Rust fixture already
+disproves that implication: with logits `[2,2,1]`,
+`tau = f64::MIN_POSITIVE`, and `k = 3`, rank filtering retains all three IDs,
+but the third max-shifted exponential and final probability are exact zero in
+`f64`. Categorical selection correctly skips zero-probability entries, so the
+algorithm is sound while the learner-facing set terminology and evidence are
+incomplete.
+
+**Decision:** Define `K_k` solely by stable logit rank and define the positive
+represented sampling support separately as
+`S^+_{tau,k} = {i in K_k | q-hat_i > 0}`, where `q-hat_i` is the actual final
+`f64` probability. Preserve the ideal real-valued top-k formula, add the
+represented-support formula and its numerical boundary, and expose both the
+rank-retained IDs and positive-support IDs through the inspectable Rust result.
+Rename learner trace/output fields that say `survivors` to `retained`, advance
+the trace schema, and add one exact underflow record using the existing
+`[2,2,1]` adversary. Ordinary fixtures, RNG traversal, greedy behavior, and
+generation results remain unchanged.
+
+Revise Chapter 36 from content revision 5 to 6, author English first, and
+translate Russian directly from that frozen revision with the localization
+skill. Advance the course-plan and locale projection from revision 74 to 75.
+Project the distinction into the existing Chapter 36 cheat-sheet terms without
+turning the sheet into a second lesson. Expand the active output set before
+implementation to include `curriculum/course-plan.md`,
+`site/src/i18n/chapter-locales.json`, both Chapter 36 cheat sheets,
+`site/tests/content-contract.test.ts`, `site/tests/cheat-sheets.test.ts`,
+`site/tests/e2e/cheat-sheets.spec.ts`, and the static and Firefox formula
+registries.
+
+**Consequences:** A retained ID may be absent from positive sampling support
+without being reclassified as filtered, and only positive final probabilities
+own categorical intervals. Static and Rust tests must fail on any mutation that
+equates retained count with support count or lets the zero-probability retained
+ID become selectable. Browser review is limited to the affected English and
+Russian Chapter 36 page, its figure/full view/formulas, and its two localized
+cheat-sheet surfaces in Firefox with JavaScript enabled. This chapter-local
+numerical correction does not authorize an all-chapter screenshot sweep, add a
+dependency, or change browser support.
+
+**Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
+
+
+## 2026-08-11 - Repair the shared short-height cheat-sheet reading flow
+
+**Status:** Accepted after the complete run-02 affected-surface visual review.
+
+**Context:** The exact Chapter 36 product passed the complete static gate and one
+13-case Firefox/JavaScript assertion matrix. Deterministic extraction then exposed
+the complete rendered transition set to an independent Terra review. At 360 by
+500 pixels, the shared paginated cheat-sheet grid assigns an unconstrained header
+and fixed pagination footer before its `minmax(0, 1fr)` page region. The long,
+natural Russian Chapter 36 title therefore leaves only a text sliver for the
+active page; English also cuts its first definition at the footer. Existing
+geometry tests accept any positive page-region height and programmatically scroll
+the last term into view, so they do not prove a readable initial body. Shortening
+Russian or shrinking type would hide a shared structural defect.
+
+**Decision:** Preserve every Chapter 36 learner/content byte and expand the active
+step by one already-shared output, `site/src/components/CheatSheet.astro`, before
+editing. Keep one designated scroll region. Move the header, title, and close
+control inside the existing `data-cheat-sheet-pages` region, leave pagination as
+the fixed second grid row, and align the newly selected active page with the
+region start after Previous or Next. Opening or reopening still returns the
+region to its title at the top. Do not add a second presentation tree, a second
+scroll owner, clipping, truncation, scale, reduced type, or locale-specific CSS.
+
+Strengthen the static contract for this ownership/order and the browser contract
+for a materially readable page region, visible initial title/close control,
+active-page-start alignment, first-term ink, fixed reachable pagination, final
+term reachability, Escape, and focus restoration. Because the component is shared
+and title/body lengths are data-dependent, the fresh browser run checks the
+short-height case for every published English and Russian sheet plus the complete
+Chapter 36 sheet cases. This is a shared-component matrix, not an unrelated
+chapter-diagram or page sweep. A bounded Terra pass reviews the corrected Chapter
+36 English/Russian frames and representative longest-title cases rather than
+visually rechecking every chapter.
+
+Run 02, image `aa9d2dee...`, its labeled snapshot, report, traces, frames, and
+terminal manifest remain immutable and may not be reused as acceptance evidence.
+Run 03 must freeze the expanded fingerprint, build a new exact image, create a
+fresh snapshot, and make one Firefox attempt with no retry.
+
+**Consequences:** The progressive modal remains one server-rendered term tree and
+one shared JavaScript enhancement. The correction generalizes to future long
+localized titles without constraining natural translation. No Chapter 36 math,
+Rust, sampling behavior, copy, terminology, route, diagram, formula, dependency,
+browser-engine, or JavaScript policy changes.
+
+**Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
+
+## 2026-08-11 - Record Chapter 36 locked registry materialization honestly
+
+**Status:** Accepted after the first complete Docker validation attempt exposed
+the cache boundary.
+
+**Context:** The active Chapter 36 step introduced no dependency, but its first
+escalated `./course check` rebuilt the Docker source layer. The preserved raw log
+shows `npm ci` materializing the existing package-lock graph and Cargo updating
+the index and downloading the existing Cargo.lock-selected serde/JSON graph.
+The product inputs and lockfiles did not change, no package selection changed,
+and the build proceeded through all Rust tests and Astro diagnostics before a
+Chapter 36 content-projection assertion failed. The run record must not imply
+that this cache miss used no network input.
+
+**Decision:** Add lockfile-selected npm and Cargo registry bytes as an explicit
+conditional input and cost note for the active step. Treat the observed
+materialization as dependency-cache population constrained by the committed
+lockfiles and package checksums, not as a new product dependency or research
+input. Preserve the exact failed build log. All supplemental validation and the
+affected Firefox run must use the resulting exact image or its corrected
+successor with `--network none`; do not use network retry machinery for the
+deterministic content failure.
+
+**Consequences:** Provenance reports the real registry access without widening
+the learner or dependency scope. The corrected complete check may reuse the now
+populated locked layers, but acceptance still depends on the final product-byte
+image and the network-disabled supplemental/browser evidence.
+
+**Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
+
+## 2026-08-11 - Establish canonical English authoring before localization
+
+**Status:** Accepted after human review of the in-progress Chapter 36 source and
+localization workflow.
+
+**Context:** Independent Russian review exposed a mechanical translation, but
+later reviews also found defects that originated in the canonical English:
+compressed labels with missing actors, quantities or operations; instructions
+that depended on visual placement; terse accessibility copy that failed in
+isolation; and wording that collapsed ideal mathematics into represented `f64`
+evidence. A localization workflow can reveal those defects, but it should not be
+expected to reconstruct meaning that the English source never stated. The user
+therefore proposed giving English chapter authors the same kind of durable,
+example-grounded context used for localization.
+
+**Decision:** Add `establish-canonical-english-authoring-skill` immediately after
+the independent-localization process step and before the next learner-content
+correction. It will create the repo-local `author-llm-course-english` skill and
+make it the required precursor for any canonical-English learner-facing change.
+The skill will derive prose from a current evidence boundary and an explicit
+commitment map, build a learner sequence, and author each surface for its own
+role while preserving one semantic source.
+
+Use a small reference set of annotated evidence/draft/revision examples to teach
+transferable questions, not preferred phrases or a chapter template. Examples
+must cover explicit actors, referents, quantities, conditions, causal links,
+scope, represented-arithmetic boundaries, and standalone accessibility meaning;
+held-out forward-test chapters must remain disjoint from those examples. The
+English author cannot approve its own publication candidate. A fresh-context
+technical/pedagogical reviewer and a different isolated-surface reviewer must
+pass the same frozen English hashes before localization begins. Any English edit
+invalidates both reviews and every dependent locale review.
+
+Add deterministic tooling that inventories and hashes complete English source
+and built-HTML surfaces, creates full and isolated review bundles, and verifies
+coverage, provenance, context separation, unresolved findings, and publication
+byte identity. It must not claim to judge clarity, pedagogy, correctness, or
+accessibility quality. Use the mature `parse5` parser for HTML plumbing by
+declaring its already-locked 7.3.0 graph directly and recording its call-site
+role; keep all course-specific semantic review outside the library. Use the
+strongest course-content model for authoring and both judgments, Luna for
+deterministic packaging only, and Terra for affected rendered-image review only.
+
+**Consequences:** Canonical English becomes an independently reviewed input to
+localization rather than an assumed-good draft. The new skill is a separate
+commit after the localization-skill correction, and Chapter 23 now depends on
+both process steps. Rust-only, CSS-only, and test-only work that changes no
+English learner-facing copy does not trigger it. Browser validation stays scoped
+to affected routes; this process correction does not authorize a course-wide
+visual sweep.
+
+**Affected steps:** `strengthen-localization-independent-review`,
+`establish-canonical-english-authoring-skill`, and
+`correct-ch23-validation-history`.
+
+## 2026-08-11 - Supersede calque enumeration with independent hash-bound localization review
+
+**Status:** Accepted after direct human correction of the proposed localization
+guard.
+
+**Context:** The invoked localization skill already required terminology,
+anti-calque, monolingual, accessibility, and rendered-surface passes, yet one
+translation author could report those passes over its own output without
+independent evidence. The initially queued response proposed a more precise
+inventory of high-risk words and contextual alternatives. The user correctly
+rejected that approach: no finite list can cover the open-ended ways English
+sentence shape can leak into Russian or another target language. The later fresh
+target-language audit found additional unrelated naturalness defects, confirming
+that the failure is procedural rather than lexical.
+
+**Decision:** Skip `strengthen-russian-trace-localization-guard` and replace it
+with `strengthen-localization-independent-review`. The replacement will require
+three separate high-quality contexts: translation authoring, complete bilingual
+semantic/accessibility review, and target-only monolingual technical editing.
+The monolingual reviewer must not receive English, terminology mappings,
+translation notes, author reasoning, earlier findings, or a suspected answer.
+Both reviews bind exact frozen source, target, surface-inventory, rubric, model,
+reasoning, and context evidence; any candidate edit invalidates both passes.
+
+Add deterministic skill tooling that extracts and hashes complete learner-facing
+surface inventories, creates isolated bilingual and target-only bundles, and
+verifies coverage, provenance, context separation, unresolved findings, and
+publication-byte identity. The tool must never claim to decide naturalness or
+semantic equivalence. A banned-word list, English-word ratio, or catalog of
+presumed calques cannot satisfy publication acceptance. Use the strongest
+available course-content model for translation and both linguistic judgments,
+Luna only for packaging/evidence routing, and Terra only for rendered-image
+review. Forward-test the revised skill in fresh contexts on raw held-out
+artifacts without disclosing known defects or expected answers.
+
+**Consequences:** The Chapter 36 correction remains in its current standalone
+commit and must pass its fresh current-byte localization audit. The broader
+skill and tooling change follows in its own commit before Chapter 23. The prior
+trace-specific decision remains historical evidence of the rejected proposal,
+not the active publication strategy.
+
+**Affected steps:** `distinguish-ch36-retained-set-from-sampling-support`,
+`strengthen-russian-trace-localization-guard`,
+`strengthen-localization-independent-review`, and
+`correct-ch23-validation-history`.
+
+## 2026-08-11 - Add a precise Russian learner-facing trace guard after human review
+
+**Status:** Accepted after human review of the in-progress Chapter 36 Russian
+localization.
+
+**Context:** The localization skill was invoked and its general terminology,
+anti-calque, monolingual, and accessibility passes were reported as complete,
+yet the learner-facing phrase "The exact Rust trace" remained the mechanical
+Russian calque "Точная трасса из программы на Rust". The same chapter also used
+`трасса` or `трассировка` mechanically in a caption, an implementation paragraph,
+and an exercise heading. Literal trace schema identifiers and trace file bytes
+must remain unchanged, but Russian teaching prose needs a context-specific
+description of the evidence or operation.
+
+**Decision:** Correct every learner-facing Chapter 36 occurrence from the current
+English source before rerunning localization and rendered validation. Add the
+separate immediately following step
+`strengthen-russian-trace-localization-guard` to make the durable skill distinguish
+immutable machine trace tokens from learner prose. The skill will reject
+mechanical `трасса` for English `trace`, offer contextual choices such as exact
+program output, execution record, detailed distribution evidence, or results,
+and reserve `трассировка` for an established programming operation when that is
+actually the concept. It will require a high-risk-term inventory rather than
+assuming a generic anti-calque pass is sufficient.
+
+**Consequences:** The current Chapter 36 step keeps its learner/content scope and
+must refresh Russian hashes and exact E2E copy before validation. The shared skill
+change is isolated in its own small commit after Chapter 36, and Chapter 23 now
+depends on that guard. This records that the failure was not failure to invoke the
+skill: it was an execution failure exposed by insufficiently precise guidance.
+
+**Affected steps:** `distinguish-ch36-retained-set-from-sampling-support`,
+`strengthen-russian-trace-localization-guard`, and
+`correct-ch23-validation-history`.
+
+## 2026-08-11 - Normalize the Chapter 36 support notation and evidence boundary
+
+**Status:** Accepted during
+`distinguish-ch36-retained-set-from-sampling-support` implementation, before
+validation.
+
+**Context:** The preflight decision used `S^+_{tau,k}` as prose shorthand, while
+the canonical contract and math pipeline use an explicit represented-arithmetic
+superscript. Its interval consequence also needs to remain a one-way guarantee:
+an exact-zero stored probability is excluded, but finite cumulative arithmetic
+does not prove that every positive stored value receives a nonempty interval
+reachable by every random-number grid.
+
+**Decision:** Use
+`S_{tau,k}^{(f64)} = {i in K_k | q-hat_i > 0}` consistently for the positive
+represented sampling support. State that an exact-zero stored probability owns
+no interval and cannot be selected; do not state the converse as a universal
+reachability theorem. Add one concise dedicated support entry to each localized
+Chapter 36 cheat sheet so the new set distinction is directly retrievable,
+while keeping the remaining sheet scope unchanged.
+
+**Consequences:** The formula, bilingual prose, Rust trace, diagram rows, and
+formula/sheet locks share one notation and one epistemic boundary. The dedicated
+sheet entry increases the localized Chapter 36 sheet from twelve to thirteen
+terms without creating a second lesson. No sampling arithmetic, ordinary RNG
+sequence, dependency, or browser scope changes.
+
+**Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
+
+## 2026-08-11 - Exclude math-pipeline internals from the Chapter 36 private-graphics assertion
+
+**Status:** Accepted after the sole affected-surface Firefox attempt exposed a
+stale assertion.
+
+**Context:** Chapter 36 now labels stored floating-point probabilities as
+`\widehat q` through the required `InlineMath` component. KaTeX's supported
+server-rendered HTML uses internal SVG/path nodes to draw that accent. The
+Chapter 36 E2E helper nevertheless asserted that no SVG, canvas, path,
+polyline, or line existed anywhere below the figure, so it counted forty KaTeX
+internals and stopped after one clean route test. The learner component itself
+still authors no SVG or canvas, and the static source contract continues to
+enforce that rule. Chapter 33 already applies the intended browser boundary by
+excluding descendants of `.katex` from the private-graphics count.
+
+**Decision:** Preserve the canonical `\widehat q` notation and every learner,
+component, and style byte. In a new immutable run, change only the Chapter 36
+E2E assertion to require zero matching graphics nodes outside `.katex`, using
+the established Chapter 33 pattern. This does not permit component-authored
+SVG, canvas, path, polyline, or line markup; it distinguishes course graphics
+from the mandatory formula renderer's implementation. Mutation/static source
+checks remain responsible for rejecting private authored graphics.
+
+The failed browser attempt, its two trace archives, report, exact image, and
+snapshot remain immutable evidence. Because the E2E source byte changes, do not
+reuse that image, snapshot, browser runtime, or run record: freeze a successor
+product manifest, run the complete Docker/static gate, create a fresh snapshot,
+and execute the complete affected thirteen-case Firefox matrix once.
+
+**Consequences:** The browser assertion now measures the architectural rule it
+names instead of banning valid math-pipeline output. No learner prose,
+localization, formula semantics, Rust, diagram geometry, browser scope, or
+supported-environment policy changes.
+
+**Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
+
+## 2026-08-11 - Measure cheat-sheet horizontal safety as an opening delta
+
+**Status:** Accepted after the sole run-03 affected-sheet Firefox attempt.
+
+**Context:** Run 03 checked the shared short-height cheat-sheet behavior on every
+published English and Russian sheet. Eleven cases passed before the unpaginated
+English Chapter 12 sheet stopped on `document.documentElement.scrollWidth =
+362` at a 360-pixel viewport, two pixels above the client width and one pixel
+above the test's absolute allowance. The trace shows one page, no paginated
+dialog class, natural dialog wrapping, and no visible right-edge modal clipping.
+The repaired grid and fixed-footer ownership rules apply only to paginated
+dialogs. The assertion ran before the dialog-specific width, bounded-box,
+painted-text, or descendant-scroll-owner checks and therefore did not identify
+the modal as the source of the document-root debt.
+
+**Decision:** Do not widen the absolute threshold and do not modify Chapter 12
+content, route layout, or CSS under this shared-modal step. At the same 360 by
+500 viewport, record the document root's nonnegative inline overflow debt after
+navigation and before opening the dialog. After opening and on every active
+modal page, require the root debt to be no more than one pixel above that frozen
+route baseline. Keep the existing direct checks that the dialog itself has no
+more than one pixel of inline debt, remains inside the viewport, contains every
+bounded element and painted text run, creates no descendant horizontal scroll
+owner, preserves text and type size, and leaves only the designated vertical
+owner.
+
+**Consequences:** The shared-component matrix proves that opening or paging a
+cheat sheet does not introduce horizontal page overflow without claiming that
+every underlying chapter route is globally overflow-free. Any pre-existing
+route debt remains the responsibility of that route's own validation. Run 03,
+its exact image, snapshot, report, twelve traces, and failure manifest remain
+immutable. A fresh run must change only the already-owned shared E2E contract,
+rebuild exact bytes, use a fresh snapshot, and execute the complete 80-case
+Firefox matrix once without retry.
+
+**Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
+
+## 2026-08-12 - Judge paginated sheet positioning against the reachable scroll target
+
+**Status:** Accepted after the sole run-04 affected-sheet Firefox attempt.
+
+**Context:** Twelve short-height cases passed before English Chapter 13 failed
+an unconditional assertion that the newly selected term page begin within one
+pixel of the page scroller's top. The recorded page scroller was 346 pixels
+high with a 488-pixel scroll extent, so its maximum scroll position was 142.
+Firefox reached exactly that maximum. Aligning the active page to the top would
+have required position 258.6, which is physically unreachable without adding
+artificial trailing space. The active page was instead bottom-aligned by normal
+browser clamping; its first term was fully visible, both terms and definitions
+were present, the fixed pagination remained fully inside the dialog, and focus
+moved to Previous as designed. A fresh Terra review of the retained trace and
+geometry found no readability or containment defect.
+
+**Decision:** Preserve the shared component, page-change JavaScript, copy,
+styles, and direct modal constraints. In a fresh immutable run, change only the
+already-owned shared E2E helper. Compute the requested active-page scroll
+position and the scroller's maximum position, then require the actual position
+to equal the lesser reachable target within one pixel. Continue to require the
+first term's full painted bounds inside the scroller, the fixed pagination,
+single vertical owner, bounded-box and text containment, type-size floor,
+Escape behavior, and focus restoration. Do not create artificial block-end
+space merely to satisfy an impossible exact-top assertion.
+
+**Consequences:** Page changes still skip as much repeated header material as
+the content extent permits, while short final pages use the browser's native
+maximum-scroll clamp and remain immediately readable. Run 04, its exact image,
+snapshot, report, thirteen traces, and exhaustive failure manifest remain
+immutable and must never be retried or reused. Because the E2E source byte
+changes, the successor run requires a new product seal, exact-final image,
+fresh snapshot, and one complete 80-case Firefox attempt.
+
+**Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
