@@ -1,118 +1,144 @@
 ---
 name: localize-llm-course
-description: Localize learn_llm lessons and site copy from English into another locale with natural technical and mathematical language, semantic parity, accessible labels, and rendered layout validation. Use whenever creating, revising, reviewing, or activating non-English chapter prose, frontmatter, contract fields, SEO copy, catalogs, diagram text, exercises, answers, navigation, or accessibility labels.
+description: Localize learn_llm learner-facing content from canonical English into another locale with natural technical and mathematical language, semantic parity, accessible standalone copy, independent bilingual and target-only review, and affected rendered-layout validation. Use whenever creating, revising, reviewing, or activating non-English chapter prose, frontmatter, contract fields, SEO or catalog copy, diagrams, exercises, answers, navigation, accessibility labels, or cheat sheets.
 ---
 
 # Localize the LLM course
 
-Use English as the sole semantic source and produce target-language teaching that
-reads as if it was written in that language. Follow the complete chapter workflow
-in `SKILLS.md`; this skill supplies the non-English authoring and review pass.
+Use English as the sole semantic source. Produce target-language teaching that
+reads as original technical writing in that language, then require independent
+review before publication. Follow `AGENTS.md` and the complete chapter workflow
+in `SKILLS.md`. Read `references/review-protocol.md` completely before freezing
+review bundles or assigning reviewers.
 
 ## Establish the source and scope
 
 1. Read `AGENTS.md`, section 6 of `SKILLS.md`, `curriculum/README.md`, the locale
-   registry, the chapter-locale projection, the chapter contract, and the current
-   English page or catalog entry.
-2. Confirm that both the locale registry and course policy use `en` as the
-   reference locale. Treat the current English revision as canonical.
-3. Translate each target locale directly from English. Never translate through
-   Russian or any other non-English version, and never use an older English
-   revision when a newer one exists.
-4. Cover every learner-facing surface in scope: prose, frontmatter, contract
-   fields, headings, captions, diagram labels, accessible names and descriptions,
-   exercises, answers, SEO text, navigation, and catalog messages.
-5. If English changes in meaning or presentation, mark the affected target-locale
-   review stale. Refresh it from the new English source before publication.
+   registry, the chapter-locale projection, the chapter contract, and the exact
+   current English content.
+2. Confirm that the registry and course policy name `en` as the reference locale.
+   Translate each target locale directly from the matching current English
+   revision. Never translate through another locale.
+3. Inventory every affected learner-facing surface: contract fields, lesson
+   frontmatter and prose, headings, formulas and symbol explanations, Rust
+   captions, diagrams, accessible names and descriptions, tables, controls,
+   exercises, answers, handoffs, cheat sheets, navigation, catalog and SEO copy,
+   and crawler-visible teaching text.
+4. Treat any English change in meaning or presentation as a new source. Invalidate
+   the target candidate and all dependent language reviews before continuing.
 
 Do not create a target lesson or route for a registered but inactive locale.
 
-## Lock meaning before writing
+## Lock meaning before translating
 
 Record the English commitments that must survive translation:
 
-- facts, causal relationships, qualifiers, limitations, and pedagogical order;
-- formula notation, symbols, tensor axes and shapes, units, and numeric values;
-- Rust code, API names, identifiers, paths, trace tokens, byte sequences, and
-  deterministic output;
-- links, the exact claims supported by their sources, historical distinctions,
-  misconceptions, exercise answers, and chapter handoffs; and
+- facts, actors, operations, causal links, order, prerequisites, conditions,
+  qualifiers, limitations, scope, and pedagogical sequence;
+- formula notation, symbol meanings, tensor axes and shapes, units, numeric
+  values, and represented-arithmetic boundaries;
+- Rust code, API names, identifiers, paths, trace-schema tokens, byte sequences,
+  deterministic output, and links;
+- historical distinctions, evidence limits, misconceptions, exercise answers,
+  and chapter handoffs; and
 - distinctions that must not collapse, such as token versus byte, vocabulary
-  versus feature axes, training versus inference, or validation versus test.
+  versus feature axes, training versus inference, or ideal mathematics versus a
+  stored `f64` result.
 
-Keep shared formulas notation-only and byte-equivalent across locales. Continue
-to render every mathematical expression through `$...$` or `$$...$$`; do not turn
-math into prose or code spans. Localize a symbol's explanation, not the symbol.
+Keep shared formula notation and immutable program evidence byte-exact. Render
+mathematics through the course math pipeline. Localize a symbol's explanation,
+not the symbol. If the English source leaves an essential relationship ambiguous,
+stop and correct English first; do not guess or silently repair it in translation.
 
-## Plan technical terminology
+## Author in a dedicated context
 
-Choose established target-language terms used by technical and mathematical
-writers. Check each term in its actual context; one English word may require
-different translations in probability, linear algebra, software, and ordinary
-prose. Prefer a clear target-language explanation over unexplained transliteration.
-When no stable term exists, introduce a concise target term and, when useful, the
-English term once in parentheses.
+Use the strongest available course-content model for translation. Give the
+translation author the frozen English source, contract, language-neutral evidence,
+approved terminology history, and relevant translation notes.
 
-Record stable choices in the chapter contract's `terminology` and record genuine
-ambiguity or intentional asymmetry in `translation_notes`. Keep terminology
-consistent across prose, diagrams, captions, accessibility text, and exercises.
+- Choose established target-language technical and mathematical terms in their
+  actual context. Do not force one English word to one target word.
+- Rebuild the explanation in natural target-language syntax, information order,
+  sentence length, and technical register. Split, combine, or reorder sentences
+  when meaning and pedagogical order remain intact.
+- Rewrite metaphors, passives, nominal chains, pronouns, transitions, punctuation,
+  and accessibility copy that would otherwise expose English sentence shape.
+- Keep language-neutral IDs, shapes, code, formulas, numeric evidence, and literal
+  machine data exact.
+- Record stable terminology in the contract and genuine ambiguity or intentional
+  asymmetry in `translation_notes`.
 
-## Write by meaning, not sentence shape
+The translation author may inspect and revise the draft but cannot certify either
+publication review.
 
-Draft in natural target-language syntax, information order, sentence length, and
-technical register. Split, combine, or reorder English sentences when that makes
-the explanation clearer without changing its logic. Rewrite metaphors, passives,
-nominal chains, pronouns, punctuation, and transitions that would otherwise expose
-English structure. Do not preserve ambiguity merely because English has it; first
-clarify the English source when its intended meaning is not recoverable.
+## Freeze and package the candidate
 
-Examples may use natural target-language text when the evidence permits it. Keep
-language-neutral IDs, shapes, code, and numeric traces exact.
+Freeze exact English and target bytes plus a deterministic, duplicate-free
+inventory of complete reading-order surfaces and isolated learner-facing labels.
+Use `scripts/localization-review.mjs prepare` as described in the review protocol.
+Bind the source, candidate, surface inventory, rubrics, required model and reasoning
+level, and author context before assigning reviewers.
 
-## Review the translation
+Use Luna only for deterministic packaging, hashing, evidence routing, and command
+execution. Do not use a routing context to make semantic, linguistic, pedagogical,
+or accessibility judgments.
 
-Perform and record these distinct passes:
+## Require two independent language reviews
 
-1. Compare every critical claim, formula explanation, algorithm rule, limitation,
-   error case, exercise answer, misconception, and handoff against English.
-2. Check technical and mathematical terminology across every visible and spoken
-   surface. Reject false friends and vocabulary that changes the concept.
-3. Run an anti-calque pass for copied English order, literal metaphors, unnatural
-   passives, nominal chains, repeated pronouns, capitalization, and punctuation.
-4. Read only the target version from beginning to end. It must stand alone as
-   coherent technical teaching with unambiguous subjects and smooth transitions.
-5. Review headings, links, tables, captions, controls, focus instructions, and
-   accessible descriptions in isolation. They must not depend on color, position,
-   or untranslated neighboring text.
+Run both reviews against the same frozen candidate:
 
-Agent or automated output must pass every recorded review above against the exact
-frozen content and rendered labels before publication. Do not pause the build for
-pre-publication human approval; the user reviews completed localization changes
-after delivery, and any requested correction starts a new recorded run or step.
+1. Start a fresh bilingual reviewer context, separate from the author. Give it the
+   complete English and target bundles, commitment map, immutable literals,
+   reading-order surfaces, isolated surfaces, and bilingual rubric. Require a
+   surface-by-surface semantic, terminology, technical, and accessibility review.
+2. Start a different fresh target-only reviewer context. Give it only the target
+   bundle, locale metadata, language-neutral literals already present there, a
+   target-language rubric, and the output schema. Do not give it English, semantic
+   mappings, terminology mappings, translation notes, author reasoning, suspected
+   defects, expected answers, earlier findings, or the bilingual review.
 
-## Validate target-language layout
+Use the strongest available course-content model for both judgments and record
+the actual model, reasoning level, prompt hash, bundle hash, and distinct context
+identity. A clean pass is valid; do not demand stylistic rewriting without a
+concrete learner-facing problem.
 
-Build the exact candidate, then inspect each target route in Firefox with
-JavaScript enabled at desktop and narrow widths. Do not infer target-language
-fit from the English page.
+Reviewers report findings and verdicts only; they do not edit the candidate. A
+blocking finding fails that candidate. Any target edit changes its hash and
+invalidates both reviews, so revise in the author context and rerun both reviews
+in new fresh contexts. Any English edit invalidates the translation as well.
 
-- Confirm that the whole page has no unintended horizontal overflow.
-- Inspect every registered figure inline and, on desktop, in full view.
-- Check text and formula ink against the nearest bounded box, including boxes
-  inside sanctioned scroll regions. Every four-sided box must contain its content.
-- Check headings, controls, code panels, tables, formulas, mixed-script text,
-  keyboard order, and LTR technical islands under the target locale's direction.
-- Run direction-sensitive and forced-color checks when relevant to the locale or
-  changed presentation.
+Do not accept a word blacklist, presumed-calque catalog, English-word ratio,
+readability score, structural-parity check, or automated language score as proof
+of naturalness or semantic equivalence. Deterministic tooling may prove only
+bytes, provenance, isolation, coverage, context separation, and publication
+identity. Human-quality model judgments supply the language conclusions.
 
-Fix failures with concise natural wording, wrapping, or a reflow that remains safe
-for every locale. Change shared geometry only when the shared design is the actual
-cause and rerun all published locales. Never clip, hide, truncate, overlap, shrink
-text, or rely on a viewport-wide horizontal scrollbar to conceal a translation-fit
-problem.
+## Validate rendering and publish
 
-Run the declared repository gate, including the target locale's chapter and parity
-checks, the static build and link audit, and the registry-derived Firefox
-diagram-style matrix with JavaScript enabled. Record the locale, revision,
-English source revision, candidate checksum, routes, viewport/browser surfaces,
-findings, and completion reference in `BUILD_STATE.yaml`.
+Build the exact reviewed candidate, then inspect each affected target route in
+Firefox with JavaScript enabled at desktop and narrow widths. Do not infer target
+fit from English. Inspect every changed figure inline and, on desktop, in full
+view; include direction-sensitive and forced-color checks when relevant.
+
+- Reject unintended page-level horizontal overflow.
+- Check text and formula ink against the nearest bounded box, including boxes in
+  sanctioned scroll regions.
+- Check headings, controls, code panels, tables, mixed-script text, keyboard order,
+  focus behavior, and isolated accessible labels.
+- Fix a language-fit problem through natural concise wording, wrapping, or safe
+  reflow. Never clip, hide, truncate, overlap, or shrink text to imitate English.
+- Change shared geometry only when the shared design is the cause, then validate
+  every affected locale rather than unrelated chapters.
+
+Use Terra only for rendered-image judgment. It does not replace either language
+review. Run `scripts/localization-review.mjs verify` immediately before publication
+to rehash source, candidate, inventory, rubrics, bundles, contexts, review records,
+and publication paths. Publish only when both reviewer verdicts pass, every required
+surface ID is covered exactly once, no blocker remains, and published target bytes
+equal the reviewed candidate.
+
+Record the locale, revision, English source revision, exact hashes, reviewer roles
+and contexts, affected routes and viewports, findings, rendered review, verification
+result, and completion reference in `BUILD_STATE.yaml`. Do not add a
+pre-publication human-approval pause; the user reviews the completed localization
+after delivery.

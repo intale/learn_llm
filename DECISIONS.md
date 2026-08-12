@@ -21166,3 +21166,53 @@ changes, the successor run requires a new product seal, exact-final image,
 fresh snapshot, and one complete 80-case Firefox attempt.
 
 **Affected step:** `distinguish-ch36-retained-set-from-sampling-support`.
+
+## 2026-08-12 - Require independent hash-bound localization judgment instead of lexical calque rules
+
+**Status:** Accepted after human review of the Chapter 36 localization process.
+
+**Context:** The Chapter 36 Russian revision invoked the existing localization
+skill and repeatedly passed self-reported terminology, anti-calque, monolingual,
+and accessibility passes, yet mechanical sentence structure, ambiguous isolated
+labels, and lost semantic conditions continued to surface. A proposed list of
+dangerous words or English-to-Russian substitutions would cover only known
+examples, encourage shallow matching, and still let an author approve their own
+work. The human direction was to improve the review process and devote strong
+course-content judgment to it, not to enumerate calques.
+
+**Decision:** Localization publication now requires three distinct strong-model
+contexts over a deterministic inventory of every affected learner-facing
+surface. The author works from the current canonical English bytes. A separate
+fresh bilingual reviewer checks semantic, mathematical, causal, and pedagogical
+parity. A different fresh target-only reviewer receives no English, mappings,
+translation notes, author reasoning, suspected defects, prior findings, or
+expected answers and judges the complete target text plus isolated learner and
+accessibility surfaces as native technical prose. Neither the author nor a
+reviewer may certify another role, and any source or target edit invalidates both
+reviews.
+
+The review tool judges only structural facts: exact source and candidate hashes,
+surface inventory and reading order, closed target-only bundles, rubric/model/
+reasoning/context bindings, complete coverage, unresolved blocking findings, and
+publication-byte identity. It must never claim that a score, blacklist, English
+text ratio, readability metric, or automated scan proves naturalness or semantic
+equivalence. The target-only bundle uses an opaque language-neutral scope ID so
+English wording does not leak through metadata. Luna may package and verify this
+evidence; it does not perform language judgment. The strongest available
+course-content model performs authoring and both independent reviews. Terra is
+reserved for affected rendered-image review when layout evidence is required.
+
+**Consequences:** The localization skill now carries a complete review protocol,
+a closed review-record schema, and a dependency-free deterministic CLI with
+mutation tests. A blind final-byte forward test used distinct fresh contexts and
+opaque bundles: the bilingual reviewer found a concealed divide/clip-order
+semantic error; the Russian-only reviewer found unclear and inconsistent
+gradient-accumulator wording; both reviewers passed a clean negative control
+without demanding a preference rewrite. The shared-workspace access
+boundary is recorded honestly as procedural rather than cryptographic. This
+process change requires no learner-content edit, dependency, network access, or
+browser run. Canonical English quality remains a separate upstream problem and
+is assigned to the immediately following English-authoring-skill step.
+
+**Affected steps:** `strengthen-localization-independent-review` and
+`establish-canonical-english-authoring-skill`.
