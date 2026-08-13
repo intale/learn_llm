@@ -22165,3 +22165,122 @@ bound to v12 may certify the final candidate.
 
 **Affected step and run:** `clarify-ch18-embedding-parameter-sharing`,
 `20260813T084337Z-clarify-ch18-embedding-parameter-sharing-01`.
+
+## 2026-08-13 - Repair Chapter 2 full-view allocation in a separate checkpoint
+
+**Status:** Accepted after the final theory/evidence closure matrix exposed a
+single current Firefox regression and before any Chapter 2 product byte changed.
+
+**Context:** The closure audit's semantic and deterministic work passed, and its
+supported-Firefox matrix passed 113 of 114 cases. The only failure was the
+Russian Chapter 2 corpus-partitions figure in native full view: it required 205
+pixels of block travel against the unchanged 154-pixel budget, while English
+required 95. A read-only geometry probe attributed the excess to 52 pixels of
+full-view actions occupying a separate root row above an 86-pixel footer. The
+earlier Chapter 2 composition checkpoint was valid against its exact inputs;
+later shared diagram text-floor changes made the current rendered input
+materially different. The closure step declares no product change and cannot
+truthfully absorb this correction.
+
+**Decision:** Insert `restore-ch02-full-view-after-shared-text-floor` immediately
+before `close-independent-theory-evidence-audit`. Limit it to the Chapter 2
+diagram component and its focused static and supported-Firefox tests. Reallocate
+the existing full-view action control beside the caption in a natural-width
+third root track, preserving the semantic figure, static DOM and reading order,
+all learner text and formulas, twelve document rows, 4/2/2 partition tracks,
+sixteen bounded boxes, typography floor, focus restoration, Escape behavior,
+and ordinary/narrow layout. Do not edit shared diagram styles, contracts, Rust,
+course-plan or locale-projection revisions. This is a true component-only
+geometry correction, so English and Russian semantic judgments remain valid;
+renew the affected rendered Firefox evidence for both locales. The large-screen
+rule remains gated at a physical height of 42rem. Playwright's native fullscreen
+uses the 1366x768 browser screen even after the page viewport is set to 1024x576,
+so that test locks the observed three root tracks while retaining its separate
+one-viewport travel and containment bounds.
+
+**Consequences:** Mark closure run
+`20260813T113028Z-close-independent-theory-evidence-audit-01` failed, preserve its
+exact inventory, unpublished draft, and 113/114 evidence under its immutable run
+directory, and return the closure step to pending behind the new checkpoint.
+Complete and commit the Chapter 2 correction independently. Then create a fresh
+closure run because the product fingerprint changed, reuse only hash-verified
+semantic artifacts, continue from the failed Firefox boundary through END, and
+only afterward perform one clean full closure replay. This follows the approved
+N-through-END recovery strategy without repeating already-proven work.
+
+**Affected steps and runs:**
+`restore-ch02-full-view-after-shared-text-floor`,
+`20260813T115612Z-restore-ch02-full-view-after-caption-drift-01`, and
+`close-independent-theory-evidence-audit`,
+`20260813T113028Z-close-independent-theory-evidence-audit-01`.
+
+## 2026-08-13 - Restore shared ownership of the Chapter 18 full-view caption flow
+
+**Status:** Accepted after the Chapter 2 focused validation exposed a committed
+source-contract regression and before the Chapter 18 component changed.
+
+**Context:** The source-wide diagram-style gate requires the shared
+`diagram.module.css` to own every full-view caption's internal flow. This durable
+contract stacks the title and localized description in document order and lets
+component CSS control only the caption's outer position in a concept grid. The
+final Chapter 18 geometry correction inadvertently reintroduced eight forbidden
+declarations: private caption columns, flow, alignment and gap, plus explicit
+title/description child tracks. Those declarations passed the Chapter 18-local
+suite because the source-wide gate was not included in that checkpoint's final
+focused set. The current Chapter 2 patch itself passes all eight Chapter 2
+source assertions and does not cause the failure.
+
+**Decision:** Insert `restore-ch18-shared-full-view-caption-contract` as a narrow
+prerequisite to the Chapter 2 geometry checkpoint. Remove only the Chapter 18
+internal-caption and caption-child presentation declarations. Retain the
+caption's outer `grid-area`, the natural-width action track, stage/table layout,
+semantic DOM, all learner bytes, and all shared styles. The August 8 shared
+stacked-caption decision remains authoritative and supersedes only the adjacent
+caption-columns detail of the Chapter 18 correction. Protect the repair with the
+existing source-wide style assertion and unchanged Chapter 18 bilingual Firefox
+travel, containment, forced-color, direction, focus and Escape tests.
+
+**Consequences:** This is component-only presentation repair: Chapter 18 remains
+content revision 8, course plan 77, and the English/Russian semantic judgments
+remain valid because text, roles, reading order, isolation and extracted values
+do not change. Renew rendered evidence for both locales. Interrupt the current
+Chapter 2 run at the exact shared-style failure but keep its three candidate
+files by recorded hash; after this prerequisite is independently validated and
+committed, resume Chapter 2 in a fresh run from that boundary instead of
+regenerating or repeating earlier semantic work.
+
+**Affected steps and runs:**
+`restore-ch18-shared-full-view-caption-contract`,
+`20260813T120703Z-restore-ch18-shared-full-view-caption-contract-01`, and
+`restore-ch02-full-view-after-shared-text-floor`,
+`20260813T115612Z-restore-ch02-full-view-after-caption-drift-01`.
+
+## 2026-08-13 - Give Chapter 18's stacked-caption evidence track measured width
+
+**Status:** Accepted after the exact shared-caption successor reached its
+supported Firefox boundary and before the lower evidence track changed.
+
+**Context:** Restoring the shared stacked title-then-description flow passed the
+source-wide style contract, all 51 focused static assertions, the 85-page build,
+and English full view at 177 pixels against a 192-pixel budget. Russian needed
+201 pixels, nine above the unchanged limit. A read-only Firefox width probe
+showed that the lower lookup/gradient explanation track's existing 13rem floor
+was the constraint: 14rem remained at 201, 15rem produced 189 with zero named
+region or bounded-box debt, and 17rem narrowed the evidence tables enough to
+wrap adversely.
+
+**Decision:** In the already-owned Chapter 18 component, change only that lower
+explanation track's minimum from 13rem to the first passing measured value,
+15rem. Keep its 0.25/1.75 proportions, the shared stacked caption, natural action
+track, 0.8/1.2 upper stages, every text and formula byte, tables, values, DOM
+order, typography and inline/narrow geometry. Do not alter the 25% travel
+budget, shared CSS, tests, or locale content.
+
+**Consequences:** The expected exact Firefox result is English 177 and Russian
+189 against 192, with no inline or bounded-box debt. Finish the currently failed
+Firefox boundary through the remaining static/build/host gates, then perform
+one clean focused replay before completing this checkpoint. No semantic review
+chain is invalidated; only rendered Chapter 18 evidence is renewed.
+
+**Affected step and run:** `restore-ch18-shared-full-view-caption-contract`,
+`20260813T120703Z-restore-ch18-shared-full-view-caption-contract-01`.
