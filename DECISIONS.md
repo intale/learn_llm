@@ -22720,3 +22720,218 @@ evidence, and supported Firefox validation.
 `extend-course-to-functional-laptop-llm-20260810`,
 `audit-functional-laptop-llm-capability-gaps`, and
 `20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.
+
+## 2026-08-13 - Bound the functional-laptop resource contract before acquisition
+
+**Status:** Accepted during preflight for
+`define-functional-laptop-llm-resource-contract`, before any new source lookup or
+contract output was created.
+
+**Context:** The accepted capability audit deliberately leaves dataset, model,
+dependency, artifact, and exact laptop-profile selection to this step. The work
+is large and source-heavy, but the active build has no numeric budget ceiling.
+It must turn provisional capability estimates into one executable admission and
+provenance contract without accidentally beginning acquisition, dependency
+materialization, CUDA setup, database setup, or GPU execution. The prior audit's
+uncapped lookup authorization applied to that audit; this step's declared input
+is narrower official metadata and primary-source review.
+
+**Decision:** Run three disjoint run-scoped research lanes: hardware/profile and
+checked resource arithmetic; candidate dataset/open-model architecture, revision,
+license, and provenance metadata; and supporting-dependency, artifact-format,
+backend, persistence, and retrieval policy. Permit page reads and small official
+metadata responses only. Do not fetch corpus shards, model weights, crates, CUDA
+artifacts, container or database images, or other bulk inputs, and do not run a
+GPU workload. A candidate may be selected only when its exact immutable revision,
+architecture compatibility, license boundary, expected bytes, and later
+acquisition/checksum procedure are independently verifiable; otherwise the
+contract records a fail-closed deferral.
+
+Freeze the 6.25 GiB course-allocation ceiling unless a distinct named profile is
+explicitly justified, preserve one runtime-configured causal decoder-only
+autoregressive implementation and its private prepared-input seam, and keep
+compiler features limited to backend/device/kernel plumbing. Mandatory retrieval
+and persistence remain in-memory/filesystem based. PostgreSQL/pgvector stays
+unselected unless measured vector workload evidence proves the need. Compose only
+under the immutable run staging directory, validate the exact staged pair, publish
+atomically, and preserve every failed or superseded boundary before one final
+clean replay.
+
+**Consequences:** This step may spend one additional large agent session and
+official-source lookup time without seeking cost approval. It cannot change Rust,
+learner content, locale bytes, dependencies, lockfiles, or runtime services. The
+following design step receives exact profiles, schemas, source identities,
+refusal rules, and acquisition authority—but no hidden downloaded artifact or
+unreviewed implementation choice.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`define-functional-laptop-llm-resource-contract`, and
+`20260813T181707Z-define-functional-laptop-llm-resource-contract-01`.
+
+## 2026-08-13 - Accept the functional-laptop resource and dependency contract
+
+**Status:** Accepted after independent semantic and mutation audits, one clean
+deterministic replay, atomic publication, and canonical pinned-workspace
+validation.
+
+**Context:** The accepted capability audit required exact laptop admission,
+provenance, artifact, dependency, retrieval, and refusal rules before any bulk
+acquisition or GPU implementation. Three independent official-source lanes
+examined hardware and resource arithmetic, dataset and open-model candidates,
+and dependency, artifact, backend, persistence, and retrieval policy. No corpus,
+model weight, crate, CUDA artifact, container or database image was acquired, and
+no GPU workload ran.
+
+**Decision:** Accept canonical resource contract SHA-256
+`67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291`
+and fail-closed validator SHA-256
+`5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff`.
+The contract freezes exact 1,188-parameter reference and 8,304-parameter bridge
+profiles, measured/admitted laptop smoke, sensitivity, core, and adapter
+profiles, and a 69,500,936,192-parameter production-shaped plan/refuse profile.
+Model dimensions, batch/token budgets, context, topology, sharding, collectives,
+and resource ceilings are versioned settings; compiler features select only
+backend, device, or kernel plumbing. Checked planning must reject invalid or
+over-budget configurations before allocation.
+
+Keep one causal decoder-only autoregressive text/token family. Its ordinary and
+cached token paths alone may construct the private checked
+`PreparedDecoderInput`; no public modality abstraction, non-text producer,
+alternate encoder or decoder, or multimodal implementation is authorized. The
+selected WGPU laptop policy uses FP16 working storage/compute, FP32 protected
+accumulation, gradients, master weights, and optimizer state, and DynamicV1 loss
+scaling under an exact 6.25 GiB course allocation. BF16 remains a future-backend
+or production-planning choice, not a hidden fallback.
+
+Record the pinned TinyStories raw train/validation source identity as the only
+dataset eligible for a later separately governed acquisition. Filtering,
+deduplication, privacy checks, deterministic splits, tokenization, redistribution,
+and derived-model licensing remain unresolved future gates. Select no imported
+model: examined candidates were incompatible or lacked sufficient immutable
+configuration, tokenizer, training-lineage, and license evidence. Prospective
+plumbing dependencies remain blocked on complete feature/source/checksum/license/
+advisory/offline graph review and do not modify either lockfile in this step.
+
+Make immutable content-addressed files plus bounded in-memory/filesystem exact
+retrieval the mandatory path, including authorization before ranking and a frozen
+deterministic oracle. PostgreSQL/pgvector remains unselected and optional; it may
+enter a later advanced design only after the exact local workload crosses the
+recorded threshold in at least two of three runs and the conditional service,
+migration, recovery, and oracle-equivalence contract is satisfied.
+
+**Consequences:** The design step receives seven executable resource profiles,
+checked formulas, calibration and seed rules, complete configuration/run/artifact/
+acquisition schemas, exact source identities, prospective dependency boundaries,
+and refusal behavior without receiving any downloaded payload or implementation
+authority. It must make per-profile topology settings and seed/adapter projections
+fully executable. It must also re-evaluate and pin the optional pgvector version
+if measured need ever selects that path; the current source review does not select
+or authorize it. The current Rust, learner, locale, dependency, lockfile, and
+browser-facing bytes remain unchanged.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`define-functional-laptop-llm-resource-contract`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260813T181707Z-define-functional-laptop-llm-resource-contract-01`.
+
+## 2026-08-13 - Correct validation-tool cache provenance in the resource contract
+
+**Status:** Accepted after the first resource-contract run failed its independent
+precommit audit.
+
+**Context:** The first staged contract and its semantic and mutation checks were
+sound, but the final declared `./course run` validation cold-rebuilt the pinned
+workspace image. Cargo rehydrated source archives for the repository's existing
+locked dependency graph into that validation image. No dependency was selected,
+no manifest or lockfile changed, and no crate entered the course-owned runtime as
+a result, but the provisional contract, report, and acceptance note said that no
+crate or container image was acquired at all. That absolute statement was false
+for validation-tool cache hydration even though the intended prohibition on new
+product dependencies and bulk course artifacts held.
+
+**Decision:** Fail run
+`20260813T181707Z-define-functional-laptop-llm-resource-contract-01`, preserve its
+candidate, validation report, and first publication under its run directory, and
+start a new run. Supersede only the absolute no-crate/no-container wording in the
+two immediately preceding resource-contract decisions and the first candidate.
+The successor must state precisely that pinned validation may build or reuse the
+repository workspace image and hydrate the already-locked toolchain/dependency
+cache, while selecting no dependency and changing no manifest, lockfile, product
+source, or contract-governed artifact. It must still record that no corpus shard,
+model weight, CUDA artifact, database image, GPU kernel, or training job was
+acquired or executed.
+
+Create an immutable successor candidate and exact validator commitment, repeat
+the affected validation and independent audit boundary, perform one clean replay,
+and publish only the corrected bytes. Reuse the already-built pinned image where
+possible; any further network/cache activity must be recorded rather than hidden
+behind a categorical claim.
+
+**Consequences:** The architecture, formulas, profiles, candidate dispositions,
+source registry, dependency selection policy, prepared-input seam, autoregressive-
+only scope, local retrieval default, and optional PostgreSQL boundary do not
+change. This is a provenance correction, not authority to add a dependency or
+download a product artifact. The failed run remains inspectable and cannot be
+presented as the completed checkpoint.
+
+**Affected build, step, and runs:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`define-functional-laptop-llm-resource-contract`,
+`20260813T181707Z-define-functional-laptop-llm-resource-contract-01`, and
+`20260813T195041Z-define-functional-laptop-llm-resource-contract-02`.
+
+## 2026-08-13 - Accept the corrected functional-laptop resource contract
+
+**Status:** Accepted after successor semantic and mutation audits, one clean
+successor replay, atomic publication, and canonical pinned-workspace validation.
+
+**Context:** The first run's technical contract passed its substantive gates but
+failed precommit because it described validation-tool cache hydration as though
+no crate or container activity had occurred. The successor changed exactly that
+acquisition sentence and the validator's exact commitment to it. Independent
+normalized comparison found no other semantic delta, and all 43 validator
+mutations again failed closed.
+
+**Decision:** Accept canonical resource contract SHA-256
+`3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af`
+and validator SHA-256
+`75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e`.
+They retain the seven named resource profiles, checked scale/resource formulas,
+6.25 GiB laptop allocation, versioned settings rather than hard-coded model
+limits, exact configuration/run/artifact/acquisition schemas, prospective and
+forbidden dependency roles, scalar-source protection, deterministic local
+retrieval, and conditional-only PostgreSQL/pgvector policy accepted in the first
+run.
+
+Retain one causal decoder-only autoregressive text/token implementation. Ordinary
+and cached token paths remain the only producers of the private checked
+`PreparedDecoderInput`, and no public modality interface, alternate encoder or
+decoder, non-text producer, or multimodal implementation is authorized. Retain
+the pinned TinyStories raw pair only as eligible input to a later governed
+acquisition; select no imported model until its immutable architecture,
+configuration, tokenizer, lineage, and license evidence passes the frozen gates.
+
+Record validation provenance literally. Pinned validation rebuilt workspace
+image `sha256:aa971e0f72bc0c6aed4a8ddb65020f8a583b4633b13955a47d41f786952adde3`,
+updated the Cargo registry index, and hydrated eleven exact versions already in
+the unchanged lockfile. That is validation-tool cache activity, not a selected
+dependency or product artifact. No manifest, lockfile, Rust call site, corpus
+shard, model weight, CUDA artifact, database image, GPU kernel, or training
+workload changed or was acquired or executed.
+
+**Consequences:** The curriculum-design step may rely on the corrected canonical
+contract and its recorded sources, formulas, profiles, schemas, and refusal
+limits. It still has no authority to acquire the selected raw corpus pair, choose
+an imported model, add a prospective dependency, provision PostgreSQL, or execute
+a GPU workload; each requires a separately declared downstream step and exact
+admission evidence. The failed first run and its superseded publication remain
+immutable evidence and are not the accepted checkpoint.
+
+**Affected build, steps, and runs:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`define-functional-laptop-llm-resource-contract`,
+`design-functional-laptop-llm-curriculum-extension`,
+`20260813T181707Z-define-functional-laptop-llm-resource-contract-01`, and
+`20260813T195041Z-define-functional-laptop-llm-resource-contract-02`.

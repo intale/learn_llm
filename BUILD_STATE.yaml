@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-13T18:11:13Z"
+updated_at: "2026-08-13T20:04:37Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -41860,7 +41860,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 1
+      spent: 2
       notes: "High-priority curriculum expansion queued after the retained content-audit and Chapter 2 terminology work. Limited network access to official papers/specifications and license/model-card metadata is declared only by the audit and resource-contract steps. Dataset, model-weight, crate/CUDA, and other large-artifact downloads plus substantial CPU/GPU work are forbidden until the resource contract is accepted and an exact design-created implementation step declares them."
     completion_criteria:
       - "The existing 40-chapter tiny model is presented consistently as the exact scalar reference core and integration proof, never as a useful general-purpose or production-ready model."
@@ -42160,7 +42160,7 @@ builds:
       - id: define-functional-laptop-llm-resource-contract
         objective: "Freeze the laptop hardware profiles, dataset/model provenance policy, supporting-library boundary, artifact schemas, and refusal limits before any networked data acquisition or GPU implementation begins."
         depends_on: [audit-functional-laptop-llm-capability-gaps]
-        status: pending
+        status: completed
         inputs: ["Accepted functional-laptop-LLM capability coverage and requirements", "Official RTX 4070 Laptop GPU specifications", "Candidate dataset and open-model cards, licenses, revisions, and sizes", "Current Rust workspace and supporting-library policy", "Scalar reference-core APIs and exact evidence"]
         outputs: ["audits/2026-08-10-functional-llm-capability/resource-and-dependency-contract.md", "audits/2026-08-10-functional-llm-capability/validate-resource-contract.mjs", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
@@ -42178,8 +42178,221 @@ builds:
           - "Every held-out quality, equivalence, resource, latency, and memory threshold plus every training seed is frozen in the applicable implementation fingerprint before the corresponding validation or test result is observed."
           - "No model, corpus, CUDA dependency, or large artifact is downloaded and no GPU kernel or training job is run during this contract step."
         validate: ["./course run node audits/2026-08-10-functional-llm-capability/validate-resource-contract.mjs", "./course run node scripts/check-course-plan.mjs", "git diff --check", "./course audit-host"]
-        cost: {class: large, notes: "Read-heavy resource, licensing, dependency, and architecture boundary work. Limited network access is permitted for official metadata and source review only; no datasets, weights, crates, GPU execution, or product content are acquired."}
-        runs: []
+        cost: {class: large, notes: "Read-heavy resource, licensing, dependency, and architecture boundary work. Limited source-review network access is permitted; no dataset, weight, CUDA, database, GPU, or product acquisition occurs and no dependency is selected or changes either lockfile. The declared pinned validation may build or reuse the repository workspace image and rehydrate only its already-locked toolchain/dependency cache, which must be recorded separately from product acquisition."}
+        runs:
+          - run_id: "20260813T181707Z-define-functional-laptop-llm-resource-contract-01"
+            started_at: "2026-08-13T18:17:07Z"
+            finished_at: "2026-08-13T19:50:41Z"
+            status: failed
+            input_fingerprint:
+              commit: "d719c6dae3dcc74675e1ecb19a2b1fabd89a5925"
+              tree: "36a6779abea4c3bbbb8988a7d5b1988d062f99e2"
+              environment:
+                docker: "25.0.2"
+                rustc_product_pin: "1.93.1"
+                node_product_pin: "22.12.0"
+                python_orchestration: "3.13.1 with PyYAML 6.0.3"
+                notes: "Host npm 10.9.2 differs harmlessly from the recorded 10.9.0 product pin; product work remains inside the repository's pinned Docker workflow. Network reads are limited to official metadata and primary sources. No dataset, model weight, crate, CUDA artifact, container image, database image, GPU kernel, or training run is authorized."
+              files:
+                capability_coverage: "42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1"
+                capability_requirements: "d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006"
+                capability_validator: "ce71141c802c2411cc29a2322d20bef277a92ab550316cb4c295b13ac387bf0f"
+                capability_final_validation: "ade9397b9632ff1f61d890211dc2a68a5e07574cb00c70b88368a93d9bebf140"
+                course_plan: "7cbdcf3c03fcd9a9e50f3318c105570bd10d823e9d017312bf8973f3f5704cbc"
+                cargo_manifest: "e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                cargo_lock: "b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+                site_manifest: "4bce2f43a18bf5802d57900ddfd7cdb802b1edef2a0864c70503ff9f25ba3aa8"
+                site_lock: "e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"
+            staging_dir: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/"
+            commands:
+              - "Reconcile the accepted 79-capability audit into one fail-closed resource, provenance, dependency, artifact, configuration, and refusal contract before any bulk acquisition or GPU work."
+              - "Use disjoint official-source research lanes for hardware/profile arithmetic, dataset/open-model/license metadata, and dependency/artifact/backend policy; store only bounded reports under this run."
+              - "Compose and validate a staged contract/validator pair, continue from any failed boundary through END, then perform one clean 1..END replay before atomic publication."
+            artifacts:
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/hardware-and-profiles.md"
+                sha256: "3b386511afb3e1ddc4e87ca5df2ad5e66f21f5e0bfc515ea8692747623488f81"
+                notes: "Run-only hardware/profile research: 11 primary/official source records, four exact scale censuses, five proposed resource profiles, checked parameter/KV/MAC/state/communication arithmetic, exact 6.25 GiB partitions, calibration/refusal rules, numeric tolerances, and seed preregistration. No GPU work or bulk acquisition occurred."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/data-and-model-candidates.md"
+                sha256: "b8c14707c3b88ec0f08817f704638d01b3edadbccf533e3ffc6d427728075930"
+                notes: "Run-only official metadata/primary-source audit: selects only the two pinned TinyStories original raw text files for later governed acquisition and rejects or defers every examined imported model; no corpus, weight, tokenizer, or package was downloaded."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/dependencies-artifacts-persistence.md"
+                sha256: "8552345408cc86639cb041d1fb2e097dc4cc3fc2aeadad067e17372ca9b9aebe"
+                notes: "Run-only dependency/artifact/backend/persistence research: 34 official/primary URLs; prospective narrow plumbing versions/features; SafeTensors and wrapper schemas; GGUF parser admission gate; WGPU FP16/FP32-protected dtype reconciliation; immutable acquisition/cache/resume; exact local retrieval; and optional-only measured PostgreSQL trigger. No crate, image, service, lockfile, GPU job, or product file changed."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/compose-resource-contract.mjs"
+                sha256: "6cf822be1c06f5c88eae449356a69ef03afac64ad7f1271e0e24588dee8e6d66"
+                notes: "Run-only new-output composer: accepts only a direct, absent child of this run; rejects symlink/non-directory ancestors; verifies the exact frozen draft pair before writing; and never publishes canonical outputs."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/candidate-01/resource-and-dependency-contract.md"
+                sha256: "67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291"
+                notes: "First immutable staged candidate after N..END semantic correction: four exact scales, seven named profiles, one private autoregressive prepared-input seam, 55 frozen source records, complete artifact/config/run schemas, and conditional-only PostgreSQL rules."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/candidate-01/validate-resource-contract.mjs"
+                sha256: "5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff"
+                notes: "First immutable staged validator candidate; recomputes exact configuration/resource formulas, protects the scalar source manifest, closes exact machine/source/dependency inventories, and fails closed on malformed encodings and semantic mutations."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/candidate-01/composition-manifest.json"
+                sha256: "04568fea214c244348546c7cdad206ee27a2787969ba3a8c50889315076e6e5b"
+                notes: "Composer output manifest binding the exact staged contract and validator hashes; candidate files are mode 0600, regular, nonsymlink, and byte-identical to their frozen draft inputs."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/validator-mutation-audit-01.json"
+                sha256: "8d1b808357b3d167e8a96878a450179cd913abbe9f841fbbea154b8e6d5adce9"
+                notes: "Independent private-fixture mutation audit: baseline passed and all 43 single-field corruption cases failed closed; the initial BOM pass-through was corrected before this final replay."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/independent-semantic-audit-01.md"
+                sha256: "5ad051aed4541fd6865bce1b052baa6870b8cfef4ae5953bf61cb9bf12346ee9"
+                notes: "Independent exact-byte semantic audit: all scale/resource arithmetic, profiles, provenance, prepared-input and autoregressive-only boundaries, source/dependency closure, retrieval policy, and no-acquisition scope passed; three future-design hardening notes remain explicitly nonblocking."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/candidate-02/resource-and-dependency-contract.md"
+                sha256: "67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291"
+                notes: "Clean-replay contract candidate; byte-identical to independently audited candidate-01 and the published canonical contract."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/candidate-02/validate-resource-contract.mjs"
+                sha256: "5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff"
+                notes: "Clean-replay validator candidate; byte-identical to candidate-01 and the published canonical validator."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/candidate-02/composition-manifest.json"
+                sha256: "04568fea214c244348546c7cdad206ee27a2787969ba3a8c50889315076e6e5b"
+                notes: "Clean-replay composition manifest; identical hashes prove deterministic reproduction of the frozen staged pair."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/final-clean-replay-01.md"
+                sha256: "f1161f89a23ec8e3340fdc0d384029be94d2e2463ddf673bbd43c9e2ba42c906"
+                notes: "One clean composer/validator 1..END replay with candidate-02 byte identity and no network, acquisition, dependency, product, or GPU action."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/superseded-publication-01/resource-and-dependency-contract.md"
+                sha256: "67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291"
+                notes: "Superseded first publication, moved intact back into the failed run after precommit audit found its acquisition statement too broad; byte-identical to candidate-02."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/superseded-publication-01/validate-resource-contract.mjs"
+                sha256: "5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff"
+                notes: "Superseded first publication validator, moved intact back into the failed run; byte-identical to candidate-02."
+              - path: ".build/runs/20260813T181707Z-define-functional-laptop-llm-resource-contract-01/final-validation-01.md"
+                sha256: "84e3b60eb916ab274bb69352be28364e665bf3532bb53b97ce89600a551702a3"
+                notes: "Final canonical host and pinned-workspace validation report, binding workspace image sha256:024965572211dcbfb2a4fee60d913d5b6594f7518f4504a505bd62eda1807553."
+            validation:
+              - command: "Hardware/profile report structural, source-link, YAML, checked-formula, profile-partition, refusal-authority, and communication-fixture self-validation"
+                status: passed
+                notes: "Report SHA-256 3b386511afb3e1ddc4e87ca5df2ad5e66f21f5e0bfc515ea8692747623488f81; all four parameter/KV/causal-MAC/dense-MAC series and both 6,710,886,400-byte component partitions replayed exactly."
+              - command: "Dataset/model report structural, exact-metadata, local-link, whitespace, and run-boundary self-validation"
+                status: passed
+                notes: "Report SHA-256 b8c14707c3b88ec0f08817f704638d01b3edadbccf533e3ffc6d427728075930. TinyStories raw pair revision/bytes/digests/license boundary verified; imported-model acquisition remains fail-closed."
+              - command: "Dependency/artifact report source inventory, structure, role, feature, manifest, offline, retrieval, and non-selection self-validation"
+                status: passed
+                notes: "Report SHA-256 8552345408cc86639cb041d1fb2e097dc4cc3fc2aeadad067e17372ca9b9aebe; 34 unique official/primary URLs at source-inventory SHA-256 8cce5d47e6536c7a0058bfb8ad7778bae009549ff6194dfeca89cc0357f14654; no product/dependency/lockfile drift."
+              - command: "N..END semantic correction, exact source-register closure, staged candidate-01 composition, byte comparison, and explicit-path validator replay"
+                status: passed
+                notes: "Candidate-01 contract/validator SHA-256 67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291 / 5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff. The validator reports 4 scales, 7 profiles, 2 candidate dispositions, and the exact contract hash."
+              - command: "Independent baseline plus 43 one-change validator mutation cases in a private temporary repository"
+                status: passed
+                notes: "All 43 semantic, arithmetic, profile, provenance, dependency, retrieval/database, encoding, structure, and extra-field mutations failed closed. Final report SHA-256 8d1b808357b3d167e8a96878a450179cd913abbe9f841fbbea154b8e6d5adce9; no unexpected pass remains."
+              - command: "Independent exact-byte semantic audit of candidate-01"
+                status: passed
+                notes: "Report SHA-256 5ad051aed4541fd6865bce1b052baa6870b8cfef4ae5953bf61cb9bf12346ee9. It independently recomputed the scale, profile, state, KV, MAC, partition, seed, and communication witnesses and verified the decoder-only seam, sources, dependencies, retrieval/database policy, and no-acquisition boundary."
+              - command: "Clean 1..END composer syntax -> validator syntax -> draft validation -> new-only candidate-02 composition -> candidate validation -> candidate-01 byte comparison"
+                status: passed
+                notes: "Candidate-02 contract/validator/manifest are byte-identical to candidate-01 at SHA-256 67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291 / 5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff / 04568fea214c244348546c7cdad206ee27a2787969ba3a8c50889315076e6e5b. Replay report SHA-256 f1161f89a23ec8e3340fdc0d384029be94d2e2463ddf673bbd43c9e2ba42c906."
+              - command: "Atomic publication into two previously absent canonical output paths plus canonical/candidate-02 byte comparison"
+                status: passed
+                notes: "Canonical contract and validator are regular nonsymlink files, byte-identical to candidate-02, at SHA-256 67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291 / 5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff."
+              - command: "./course run node audits/2026-08-10-functional-llm-capability/validate-resource-contract.mjs"
+                status: passed
+                notes: "Pinned workspace image sha256:024965572211dcbfb2a4fee60d913d5b6594f7518f4504a505bd62eda1807553 passed the repository-wide Rust/site build layer and reported 4 scales, 7 profiles, 2 candidate dispositions, and exact canonical contract SHA-256 67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291."
+              - command: "./course run node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The same pinned cached image reported 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39."
+              - command: "node canonical validator; node --check canonical validator; Python PyYAML parse BUILD_STATE.yaml; git diff --check; ./course audit-host"
+                status: passed
+                notes: "Canonical host validation and syntax passed; the ledger parsed; the declared diff was whitespace-clean; the host artifact audit passed with site/dist as the documented static-release exception. Final validation report SHA-256 84e3b60eb916ab274bb69352be28364e665bf3532bb53b97ce89600a551702a3."
+              - command: "Independent final precommit scope, receipt, decision, and provenance audit"
+                status: failed
+                notes: "The exact product, artifact, scheduler, and history checks otherwise passed, but the audit found that candidate-02, final-validation-01, and the provisional completion notes claimed no crate or container acquisition even though the declared pinned validation rebuilt the workspace image and rehydrated its pre-existing locked Rust crate cache. The product dependency graph and lockfiles did not change. Candidate-02 and final-validation-01 remain immutable; correction continues in a successor candidate before completion."
+            notes: "Failed at final precommit provenance audit. All semantic/resource checks and canonical pinned validation passed, but the validation-only workspace-image rebuild rehydrated the pre-existing locked Rust crate cache and contradicted the absolute no-crate/no-container wording. Candidate-02, final-validation-01, and the first publication are preserved under this immutable run. No manifest, lockfile, selected dependency, product source, corpus/model/CUDA/database artifact, or GPU workload changed."
+          - run_id: "20260813T195041Z-define-functional-laptop-llm-resource-contract-02"
+            started_at: "2026-08-13T19:50:41Z"
+            finished_at: "2026-08-13T20:04:37Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "d719c6dae3dcc74675e1ecb19a2b1fabd89a5925"
+              environment:
+                docker: "25.0.2"
+                rustc_product_pin: "1.93.1"
+                node_product_pin: "22.12.0"
+                python_orchestration: "3.13.1 with PyYAML 6.0.3"
+                pinned_workspace_image: "sha256:024965572211dcbfb2a4fee60d913d5b6594f7518f4504a505bd62eda1807553"
+                notes: "Successor correction is local and deterministic. The already-built pinned workspace image may be reused for validation; no dependency selection, manifest/lock change, bulk artifact acquisition, GPU execution, or new official-source lookup is authorized."
+              files:
+                failed_candidate_contract: "67b45bc2bf5e5a2ac0ab06501c2a2dbeb405b8dc58ef8e1a05920a768bded291"
+                failed_candidate_validator: "5e15716c4f203c65f412ba99274a6c56b03cd47689ad917233f618e3765b08ff"
+                failed_precommit_audit_finding: "validation-only workspace-image rebuild rehydrated the existing locked Rust crate cache, so absolute no-crate/no-container claims were inaccurate"
+                capability_requirements: "d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006"
+            staging_dir: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/"
+            commands:
+              - "Copy the failed run's exact candidate-02 pair into new run-local successor drafts and change only the acquisition-state sentence plus its exact validator commitment."
+              - "Run explicit-path validation and independent provenance/mutation checks, then one clean new-only replay before atomic publication."
+              - "Reuse the already-built pinned workspace image for final validation and record any cache or network activity precisely."
+            artifacts:
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/resource-contract-draft-02.md"
+                sha256: "3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af"
+                notes: "Successor contract draft copied from failed candidate-02 and changed only at the acquisition-state sentence to record validation-image and pre-existing locked-crate cache hydration precisely."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/validate-resource-contract-draft-02.mjs"
+                sha256: "75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e"
+                notes: "Successor validator draft copied from failed candidate-02 and changed only at the exact acquisition-state commitment."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/compose-resource-contract-02.mjs"
+                sha256: "b4b78f605c04513c7072654a547ee08e1e2e8fc54e3348faf3863b5e8f69e847"
+                notes: "Run-local new-output composer bound to the exact successor draft hashes and names; output ancestry and absence protections are unchanged from the first run."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/candidate-01/resource-and-dependency-contract.md"
+                sha256: "3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af"
+                notes: "First immutable successor candidate contract; byte-identical to the corrected run-local draft."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/candidate-01/validate-resource-contract.mjs"
+                sha256: "75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e"
+                notes: "First immutable successor candidate validator; byte-identical to the corrected run-local draft."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/candidate-01/composition-manifest.json"
+                sha256: "ba755a4b0c2fda11150cd393e037440ae2f16ac68678faec655e64413081a330"
+                notes: "Successor composition manifest binding the exact candidate-01 contract and validator."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/validator-mutation-audit-02.json"
+                sha256: "37f7952f51452e7e9c45650b3cdff5e3441bcc07ca43b1f294b31676381dfc4b"
+                notes: "Independent successor mutation audit: exact baseline passed and all 43 one-change corruptions failed closed, including the corrected acquisition statement and malformed encoding/BOM cases."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/independent-semantic-audit-02.md"
+                sha256: "48712e6c9114d33c94787aa199e1f0c7bd055c9929928ed8c1cd38bb5ae58328"
+                notes: "Independent successor semantic/provenance audit: normalized comparison proves only the acquisition sentence and validator commitment changed; the correction is accurate and every prior architecture/resource/source/dependency/retrieval/scope semantic remains byte-identical."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/candidate-02/resource-and-dependency-contract.md"
+                sha256: "3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af"
+                notes: "Clean successor replay contract; byte-identical to independently audited candidate-01."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/candidate-02/validate-resource-contract.mjs"
+                sha256: "75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e"
+                notes: "Clean successor replay validator; byte-identical to independently audited candidate-01."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/candidate-02/composition-manifest.json"
+                sha256: "ba755a4b0c2fda11150cd393e037440ae2f16ac68678faec655e64413081a330"
+                notes: "Clean successor replay manifest; byte-identical to candidate-01."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/final-clean-replay-02.md"
+                sha256: "7af6a9fc7c81a0989bae36052b6c71af8bf4b2e000f5fa59aa59f75a06babdf4"
+                notes: "One local clean 1..END successor replay with exact candidate byte identity and no Docker, network, dependency, acquisition, GPU, database, product, or learner-facing action."
+              - path: "audits/2026-08-10-functional-llm-capability/resource-and-dependency-contract.md"
+                sha256: "3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af"
+                notes: "Canonical corrected contract; regular nonsymlink mode-0644 file and byte-identical to clean successor candidate-02."
+              - path: "audits/2026-08-10-functional-llm-capability/validate-resource-contract.mjs"
+                sha256: "75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e"
+                notes: "Canonical corrected fail-closed validator; regular nonsymlink mode-0644 file and byte-identical to clean successor candidate-02."
+              - path: ".build/runs/20260813T195041Z-define-functional-laptop-llm-resource-contract-02/final-validation-02.md"
+                sha256: "28a70583804e6a4afdac7b11930445c1b8b936f2c976e0eb46845f67022d7b63"
+                notes: "Final pinned validation report records exact image SHA, pass results, and the eleven already-locked crate versions hydrated into the validation image without dependency or lockfile change."
+            validation:
+              - command: "node --check successor composer and validator; explicit-path draft validation; new-only candidate-01 composition; candidate validation; draft/candidate byte comparison"
+                status: passed
+                notes: "Candidate-01 reports 4 scales, 7 profiles, 2 candidate dispositions, and contract SHA-256 3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af. Contract/validator/manifest SHA-256 are 3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af / 75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e / ba755a4b0c2fda11150cd393e037440ae2f16ac68678faec655e64413081a330."
+              - command: "node successor validator with an omitted --contract flag"
+                status: failed
+                notes: "A local orchestration invocation used the wrong CLI shape and failed at its usage guard before reading candidate bytes. The immediately corrected exact `--contract` invocation passed; no output or product file changed."
+              - command: "Independent successor baseline plus 43 one-change validator mutation cases in a private temporary repository"
+                status: passed
+                notes: "All 43 cases failed closed with zero unexpected passes. The acquisition-state mutation failed the exact preamble commitment; invalid UTF-8, BOM, control, embedded/unknown/extra-record, arithmetic, profile, provenance, dependency, and retrieval/database mutations also failed. Report SHA-256 37f7952f51452e7e9c45650b3cdff5e3441bcc07ca43b1f294b31676381dfc4b."
+              - command: "Independent exact-byte successor semantic and provenance audit"
+                status: passed
+                notes: "Frozen hashes remained exact; validator replay passed; normalized byte comparison proved the two intended one-line changes only; corrected wording matches the durable provenance record. Report SHA-256 48712e6c9114d33c94787aa199e1f0c7bd055c9929928ed8c1cd38bb5ae58328."
+              - command: "Clean successor 1..END composer syntax -> validator syntax -> draft validation -> new-only candidate-02 composition -> candidate validation -> candidate-01 byte comparison"
+                status: passed
+                notes: "Candidate-02 is byte-identical to candidate-01 at contract/validator/manifest SHA-256 3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af / 75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e / ba755a4b0c2fda11150cd393e037440ae2f16ac68678faec655e64413081a330. Replay report SHA-256 7af6a9fc7c81a0989bae36052b6c71af8bf4b2e000f5fa59aa59f75a06babdf4."
+              - command: "Atomic successor publication plus canonical/candidate-02 hash, byte, regular-file, nonsymlink, and mode checks"
+                status: passed
+                notes: "Canonical contract/validator are byte-identical to candidate-02 at SHA-256 3428a8f4702a2d8ea722876c0063b887556c12a623bb63c0d752293a181197af / 75e4fd8accac700737049f2e2efeea3b6c7860911db324271500a0ae284b635e and are regular nonsymlink mode-0644 files."
+              - command: "./course run node audits/2026-08-10-functional-llm-capability/validate-resource-contract.mjs"
+                status: passed
+                notes: "Pinned workspace image sha256:aa971e0f72bc0c6aed4a8ddb65020f8a583b4633b13955a47d41f786952adde3 passed Rust formatting and locked workspace/doc tests, Astro 220-file zero-diagnostic check, localized content/parity, 85-page build, 2,939-reference link/SEO/sitemap/analytics audit, and exact 4-scale/7-profile/2-disposition contract validation. The rebuild updated the Cargo index and hydrated exactly eleven versions already frozen in unchanged Cargo.lock; no dependency, manifest, lockfile, or course call site changed."
+              - command: "./course run node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The same image layers were fully cached; the plan reported 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39. Final validation report SHA-256 28a70583804e6a4afdac7b11930445c1b8b936f2c976e0eb46845f67022d7b63."
+              - command: "node canonical validator; node --check canonical validator; node course-plan check; Python PyYAML parse BUILD_STATE.yaml; git diff --check; ./course audit-host"
+                status: passed
+                notes: "Corrected canonical host validation and syntax passed; course plan remained 40/111/40; the running ledger parsed; the exact four-path diff was whitespace-clean; and the host artifact audit passed with site/dist as the documented static-release exception."
+            notes: "Succeeded. The corrected contract freezes seven named reference/bridge/laptop/adapter/production profiles, exact checked resource witnesses, one private PreparedDecoderInput seam inside the sole causal decoder-only text/token family, complete configuration/run/artifact/acquisition schemas, prospective dependency and scalar-source protections, and exact local retrieval with PostgreSQL/pgvector unselected. Only the pinned TinyStories raw pair is eligible for later governed acquisition; no imported model is selected. Baseline, 43/43 mutation cases, independent semantic audit, clean replay, canonical pinned validation, plan, and host gates pass. The pinned build hydrated only eleven exact pre-existing locked crate versions; no dependency selection, manifest/lockfile/product-source change, corpus/model/CUDA/database acquisition, GPU workload, Rust, learner, locale, or browser-facing product change occurred."
 
       - id: design-functional-laptop-llm-curriculum-extension
         objective: "Turn the accepted capability audit into a sequenced bilingual curriculum, Rust architecture, resource plan, and exact implementation queue before changing the functional path."
