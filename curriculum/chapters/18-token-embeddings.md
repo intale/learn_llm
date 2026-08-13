@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "concept_id": "token-embeddings",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 18,
   "objective": {
     "en": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.",
@@ -85,12 +85,12 @@
         "ru": "Разреженное one-hot-представление слова отводит одну координату каждому элементу словаря, но не выражает степень сходства между словами. Кроме того, явно создавать и обрабатывать такой вектор размером со словарь расточительно, когда нужна лишь одна строка."
       },
       "later_advance": {
-        "en": "Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.",
-        "ru": "Bengio и соавторы обучают общую плотную таблицу признаков слов вместе с нейросетевой моделью следующего слова. Transformer использует обучаемые эмбеддинги подсловных токенов: к ним добавляется позиционная информация, после чего результат поступает в стек слоёв внимания и сетей прямого распространения."
+        "en": "Bengio et al. learn one dense word-feature matrix jointly with a neural next-word model and reuse that matrix across context positions; each word index still selects its corresponding row. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.",
+        "ru": "Bengio и соавторы обучают одну плотную матрицу признаков слов вместе с нейросетевой моделью следующего слова и используют эту матрицу во всех позициях контекста; при этом индекс каждого слова выбирает соответствующую ему строку. Transformer использует обучаемые эмбеддинги подсловных токенов: к ним добавляется позиционная информация, после чего результат поступает в стек слоёв внимания и сетей прямого распространения."
       },
       "modern_llm_role": {
-        "en": "The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.",
-        "ru": "ID токенов поступают на числовой вход декодера: по ним выбираются строки одной обучаемой таблицы «словарь на признаки». Все вхождения повторяющегося ID используют одну и ту же строку параметров, поэтому их градиентные вклады при обратном проходе складываются. Позиционная информация, масштабирование эмбеддингов в прямом проходе, внимание и совместное использование весов с выходной проекцией рассматриваются позже."
+        "en": "One trainable vocabulary-by-feature matrix is reused at every batch item and sequence position. Each token ID selects its own vocabulary row: different IDs select different rows, while repeated occurrences of the same ID select the same row and accumulate gradients there. Reusing this input matrix across positions is separate from output-weight tying, which remains a later concern alongside positional information, embedding forward scaling, and attention.",
+        "ru": "Одна обучаемая матрица «словарь на признаки» используется для всех элементов пакета и позиций последовательности. Каждый ID токена выбирает соответствующую строку словаря: разные ID выбирают разные строки, а повторные вхождения одного ID снова выбирают ту же строку и накапливают в ней градиенты. Повторное использование этой входной матрицы во всех позициях — не то же самое, что связывание весов с выходной проекцией; оно, как и позиционная информация, масштабирование эмбеддингов и внимание, рассматривается позже."
       },
       "sources": [
         {
@@ -120,8 +120,8 @@
       "ru": "От разреженных индикаторов размером со словарь к обучаемым распределённым векторам токенов и прямому выбору строк таблицы"
     },
     "summary": {
-      "en": "One-hot vectors make token identity explicit but carry a vocabulary-sized field of zeros. Learned dense word features let neural language models share statistical strength, and Transformers keep learned token embeddings as the numeric entrance to deeper sequence computation. The algebraic one-hot identity explains direct row lookup, while the shared trainable row explains why repeated-token gradients add.",
-      "ru": "One-hot-векторы явно указывают выбранный токен, но имеют размер словаря и почти целиком состоят из нулей. Плотные обучаемые признаки позволяют нейросетевым языковым моделям использовать статистические сведения об одних словах при оценке других. В Transformer обучаемые эмбеддинги служат числовыми представлениями токенов на входе последующих слоёв обработки последовательности. Алгебраическое тождество для one-hot-вектора объясняет прямой выбор строки, а общая обучаемая строка — сложение градиентов повторяющихся токенов."
+      "en": "One-hot vectors make token identity explicit but carry a vocabulary-sized field of zeros. Learned dense word features let neural language models share statistical strength, and Transformers keep learned token embeddings as the numeric entrance to deeper sequence computation. One embedding matrix is reused across positions without merging its token rows: different IDs select different rows, while repeated occurrences of one ID reuse its row and add their gradients there.",
+      "ru": "One-hot-векторы явно указывают выбранный токен, но имеют размер словаря и почти целиком состоят из нулей. Плотные обучаемые признаки позволяют нейросетевым языковым моделям использовать статистические сведения об одних словах при оценке других. В Transformer обучаемые эмбеддинги служат числовыми представлениями токенов на входе последующих слоёв обработки последовательности. Одна матрица эмбеддингов используется во всех позициях, но строки разных токенов не объединяются: разные ID выбирают разные строки, а повторные вхождения одного ID снова выбирают его строку и складывают в ней градиенты."
     },
     "rust_contrast": "Construct the tiny table and IDs, multiply explicit one-hot rows by the table as a historical algebraic baseline, compare that result with the differentiable lookup layer, and reverse a nonuniform seed to expose repeated-row accumulation."
   },
@@ -190,13 +190,13 @@
     }
   ],
   "translation_notes": [
-    "Chapter 18 has the exact active locale set {en,ru}. Russian is translated directly from frozen English revision 7; its semantic, linguistic, accessibility, and rendered-layout review becomes stale whenever the English meaning or presentation changes.",
+    "Chapter 18 has the exact active locale set {en,ru}. Russian is translated directly from frozen English revision 8; its semantic, linguistic, accessibility, and rendered-layout review becomes stale whenever the English meaning or presentation changes.",
     "Keep E, X, z, V, d, b, t, i, overbars, the colon, shapes, IDs, values, parameter name, trace keywords, formula, and source URLs unchanged across locales.",
     "Distinguish a token ID, which is a non-differentiable integer selector, from its selected trainable vector. Numeric closeness between IDs says nothing about semantic closeness.",
     "Use ID токена, таблица эмбеддингов, ширина эмбеддинга, one-hot-вектор, выбор строки по индексу, накопление вкладов по индексам, повторяющийся токен, and проверенный план выбора строк по индексам in Russian. One-hot means exactly one active vocabulary coordinate; multiplication by it is an algebraic explanation, not a claim that Bengio et al. or this implementation materializes sparse vectors.",
-    "Repeated occurrences do not own separate embeddings. They select the same row, and reverse-mode contributions add feature by feature into that shared row; unused rows receive zero.",
+    "One parameter matrix is reused across positions, but different token IDs select different rows within it. Repeated occurrences do not own separate embeddings: the same ID selects the same row, and reverse-mode contributions add feature by feature into that row; unused rows receive zero. Equal numeric row values would not merge their row identities.",
     "Describe row-major layout, u32 IDs, initialization choice, parameter names, validation precedence, trace grammar, rounding, and accessibility projection as implementation policies, not paper claims.",
-    "Vaswani et al.'s multiplication of embeddings by sqrt(d_model) is a forward scale, not the shape-based initialization convention connected from Chapter 17. Embedding lookup itself does not encode position; later RoPE rotates projected queries and keys without creating occurrence-specific embedding rows.",
+    "Vaswani et al.'s multiplication of embeddings by sqrt(d_model) is a forward scale, not the shape-based initialization convention connected from Chapter 17. Embedding lookup itself does not encode position; later RoPE rotates projected queries and keys without creating occurrence-specific embedding rows. Reusing the input matrix across positions is not output-weight tying; Chapter 32 later adds that separate use of the matrix for vocabulary projection.",
     "Name Rust only for executable source, concrete types, and trace provenance. The mathematical lookup and gradient rule are language-independent."
   ],
   "acceptance_examples": [
@@ -266,6 +266,11 @@ Predict before running the example. Let the rows of `E` be `[10,11]`, `[20,21]`,
 selects one row, so the expected `[1,3,2]` output is
 `[[[30,31],[20,21],[30,31]]]`.
 
+The same matrix `E` serves all three positions. ID `1` and ID `2` select
+different parameter rows within that matrix, while the two occurrences of ID
+`2` both select row `2`. Sharing the table across positions does not make the
+rows for different token identities the same parameter coordinates or values.
+
 Now seed reverse mode with `[[[1,0],[0,2],[3,4]]]`. Row 1 is used once and gets
 `[0,2]`. Row 2 is shared by the first and third positions and gets
 `[1,0]+[3,4]=[4,4]`. Rows 0 and 3 are unused and stay zero. The repeated token
@@ -301,16 +306,20 @@ A sparse one-hot word representation assigns one coordinate to each vocabulary i
 
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction.
 
-Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.
+Bengio et al. learn one dense word-feature matrix jointly with a neural next-word model and reuse that matrix across context positions; each word index still selects its corresponding row. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.
 
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.
 
-The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.
+One trainable vocabulary-by-feature matrix is reused at every batch item and sequence position. Each token ID selects its own vocabulary row: different IDs select different rows, while repeated occurrences of the same ID select the same row and accumulate gradients there. Reusing this input matrix across positions is separate from output-weight tying, which remains a later concern alongside positional information, embedding forward scaling, and attention.
 
 The executable Rust contrast materializes tiny one-hot rows only as an algebraic
 baseline, then compares them with direct lookup and exposes the repeated-row
 gradient sum. The relevant progression runs from sparse word identity through
 learned distributed features to the token-vector entrance of a Transformer.
+Parameter sharing here means that every lookup site uses the same matrix, not
+that distinct token IDs alias one row. Even if two rows temporarily contain
+equal numbers, their token IDs still address different rows and parameter
+coordinates.
 Integer types, storage layouts, initialization, and error conventions are
 implementation choices rather than historical claims or parts of the lookup
 equation.
@@ -396,9 +405,10 @@ JavaScript enabled, while the semantic figure remains complete in built HTML for
 10. Source check: do Bengio et al. require an explicitly materialized one-hot implementation?
 11. Misconception check: does repeating a token create a new embedding parameter for that occurrence?
 
-The misconception answer is no. Every occurrence selects the same named table
-row. Forward values can repeat, and reverse contributions add into that shared
-row. Sequence position will be represented separately in a later chapter.
+The misconception answer is no. Every occurrence of that repeated token ID
+selects the same named table row. Forward values can repeat, and reverse
+contributions add into that shared row. Sequence position will be represented
+separately in a later chapter.
 
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
@@ -413,7 +423,7 @@ one embedding-table row.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English and Russian form the exact active locale set for Chapter 18 revision 7.
+English and Russian form the exact active locale set for Chapter 18 revision 8.
 Russian is translated directly from the frozen English revision and covers the
 complete contract, lesson, history, diagram labels, accessible names, exercises,
 and answers. Any later English change that affects meaning or presentation makes
@@ -422,7 +432,8 @@ the Russian review stale until it is refreshed from English and reviewed again.
 Keep formula symbols, shapes, IDs, values, parameter name, trace records, and
 source boundaries exact. Distinguish integer selector from trainable vector,
 one-hot algebra from materialized storage, forward output from reverse gradient,
-and repeated occurrence from shared parameter ownership. Do not turn the history
+matrix reuse across positions from row selection by token identity, and repeated
+occurrence from shared row ownership. Do not turn the history
 into programming-language history or attribute course-local APIs and layouts to
 the cited papers.
 

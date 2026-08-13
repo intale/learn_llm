@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 76,
+  "plan_revision": 77,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1262,7 +1262,7 @@ with JavaScript enabled.
 
 - **Chapter ID:** `18-token-embeddings`
 - **Implementation step:** `implement-ch18-token-embeddings`
-- **Revision status:** Content revision 7 makes the token-ID boundary validate shape, count, and the first bad `u32` ID once before handing owned converted selectors to Chapter 16's crate-private validated row-gather plan; it keeps the public generic gather checked and refreshes the direct Russian localization. Revision 6's borrowed `TensorValue` source projection remains in force, as do revision 5's formula, history, RoPE handoff, initialization, empty-tensor, and shared-diagram corrections.
+- **Revision status:** Content revision 8 distinguishes reuse of one embedding parameter matrix across all batch and sequence positions from row selection inside it: different token IDs select different rows, repeated occurrences of one ID reuse its row, and this position-wise reuse is separate from later output-weight tying. It refreshes Russian directly from the corrected English meaning; revision 7's validated token-ID handoff and all earlier formula, Rust, history, initialization, and diagram guarantees remain in force.
 - **Depends on:** `17-parameter-initialization`.
 - **Outcome:** Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.
 - **Scope boundary:** Teach lookup as one-hot multiplication, table/vocabulary dimensions, repeated-token gradient accumulation, and bounds; defer the separate position signal applied inside later attention.

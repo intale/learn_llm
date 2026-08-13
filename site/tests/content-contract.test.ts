@@ -994,7 +994,7 @@ describe("LLM-evolution history contract", () => {
 });
 
 describe("curriculum and catalog contracts", () => {
-  it("projects Chapter 23 history plan revision 76 and the exact bilingual chapter revisions", () => {
+  it("projects the Chapter 18 clarification in plan revision 77 and exact bilingual chapter revisions", () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, "curriculum/course-plan.md"),
@@ -1014,13 +1014,16 @@ describe("curriculum and catalog contracts", () => {
       }>;
     };
     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
-      "0904f2465b08a37fa4b6073156010095ebee068baa14701c6a0b504bd54dfabd",
+      "7cbdcf3c03fcd9a9e50f3318c105570bd10d823e9d017312bf8973f3f5704cbc",
     );
     expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
-      "91cedf56ed7d32783455cf0764d84fc302f2aa1935dfdbc1ab48b6acc3968183",
+      "d1ad1c3f16ecc37c0c1c051b5ddd915ff343e5ca6dce37b3decd17809a333716",
     );
-    expect(plan.plan_revision).toBe(76);
-    expect(projection.planRevision).toBe(76);
+    expect(plan.plan_revision).toBe(77);
+    expect(projection.planRevision).toBe(77);
+    expect(planSource).toContain(
+      "Content revision 8 distinguishes reuse of one embedding parameter matrix across all batch and sequence positions from row selection inside it: different token IDs select different rows, repeated occurrences of one ID reuse its row, and this position-wise reuse is separate from later output-weight tying.",
+    );
     expect(planSource).toContain(
       "- **Handoff:** Chapter 35 serializes the trainer-captured selected model and matching optimizer state for reproducible inference; the immutable evaluation report remains separate, and the sampling RNG is initialized independently.",
     );
@@ -1072,6 +1075,7 @@ describe("curriculum and catalog contracts", () => {
       ["00-llm-parts", 0, 5],
       ["02-corpus-partitions", 2, 9],
       ["07-language-model-metrics", 7, 7],
+      ["18-token-embeddings", 18, 8],
       ["22-adamw", 22, 8],
       ["33-training-selection", 33, 11],
       ["34-final-evaluation", 34, 7],
@@ -1681,7 +1685,7 @@ describe("curriculum and catalog contracts", () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 76',
+      '"plan_revision": 77',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

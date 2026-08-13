@@ -374,12 +374,44 @@ describe('Chapter 18 labels and static component', () => {
       /#111827|#182235|#4b5563|#7dd3fc|#38bdf8|var\(--border/,
     );
 
-    expect(contractSource).toContain('"content_revision": 7');
-    expect(lessonSource).toContain('"content_revision": 7');
-    expect(russianLessonSource).toContain('"content_revision": 7');
+    expect(contractSource).toContain('"content_revision": 8');
+    expect(lessonSource).toContain('"content_revision": 8');
+    expect(russianLessonSource).toContain('"content_revision": 8');
     const normalizedContract = contractSource.replace(/\s+/g, ' ');
     const normalizedEnglish = lessonSource.replace(/\s+/g, ' ');
     const normalizedRussian = russianLessonSource.replace(/\s+/g, ' ');
+    const englishSharingBoundary =
+      'One trainable vocabulary-by-feature matrix is reused at every batch item and sequence position. Each token ID selects its own vocabulary row: different IDs select different rows, while repeated occurrences of the same ID select the same row and accumulate gradients there.';
+    const russianSharingBoundary =
+      'Одна обучаемая матрица «словарь на признаки» используется для всех элементов пакета и позиций последовательности. Каждый ID токена выбирает соответствующую строку словаря: разные ID выбирают разные строки, а повторные вхождения одного ID снова выбирают ту же строку и накапливают в ней градиенты.';
+    expect(normalizedContract).toContain(englishSharingBoundary);
+    expect(normalizedContract).toContain(russianSharingBoundary);
+    expect(normalizedEnglish).toContain(englishSharingBoundary);
+    expect(normalizedRussian).toContain(russianSharingBoundary);
+    expect(normalizedEnglish).toContain(
+      'Reusing this input table at every position is not output-weight tying. Chapter 32 later adds that separate relationship by also using the embedding matrix for the vocabulary projection.',
+    );
+    expect(normalizedRussian).toContain(
+      'Повторное использование этой входной таблицы во всех позициях — не связывание весов с выходной проекцией. В главе 32 эта отдельная связь будет добавлена: матрица эмбеддингов также послужит для проекции на словарь.',
+    );
+    expect(normalizedContract).toContain(
+      'Every occurrence of that repeated token ID selects the same named table row.',
+    );
+    expect(normalizedContract).not.toContain(
+      'Every occurrence selects the same named table row.',
+    );
+    expect(normalizedEnglish).not.toContain(
+      'different token IDs share the same parameter row',
+    );
+    expect(normalizedRussian).not.toContain(
+      'разные ID выбирают одну и ту же строку',
+    );
+    expect(normalizedEnglish).not.toContain(
+      'reusing the input table across positions is output-weight tying',
+    );
+    expect(normalizedRussian).not.toContain(
+      'повторное использование входной таблицы во всех позициях — это совместное использование весов с выходной проекцией',
+    );
     expect(normalizedContract).toContain(
       'validates `token_shape` and computes its checked position count, then requires the flat ID count to equal that count, then scans IDs in flat order',
     );

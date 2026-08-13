@@ -22007,3 +22007,161 @@ traces, and learner outputs remain unchanged.
 
 **Affected step and run:** `correct-ch23-validation-history`,
 `20260813T064225Z-correct-ch23-validation-history-01`.
+
+## 2026-08-13 - Project the Chapter 18 parameter-sharing clarification through revision 8
+
+**Status:** Accepted during preflight for the Chapter 18 correction, before any
+learner-facing or shared projection byte changed.
+
+**Context:** The queued step corrects a low-risk but important ambiguity in the
+embedding explanation. One embedding matrix is reused at every batch and
+sequence position, but this does not mean that different token identities use
+one parameter row: token ID `i` selects row `i`, repeated occurrences of that
+same ID reuse that row, and different valid IDs select different rows of the
+same matrix. This meaning change advances the complete bilingual chapter from
+content revision 7 to revision 8. The course plan and locale registry carry the
+authoritative revision projection, and the content-contract suite locks their
+exact values.
+
+**Decision:** Expand `clarify-ch18-embedding-parameter-sharing` only to the
+necessary shared integration files `curriculum/course-plan.md`,
+`site/src/i18n/chapter-locales.json`, and
+`site/tests/content-contract.test.ts`. Advance the plan and projection from
+revision 76 to 77, describe Chapter 18 revision 8 with the exact
+matrix-versus-row distinction, and lock that distinction in the focused static
+and supported Firefox tests. Keep formulas, IDs, values, Rust, expected output,
+trace grammar, diagram structure and geometry, component/style code,
+dependencies, and every unrelated chapter unchanged.
+
+**Consequences:** English is corrected first and Russian is refreshed directly
+from that exact meaning. Fresh English and localization judgments, rendered
+Firefox checks, protected executable hashes, and a final complete validation
+must pass before publication. If a downstream boundary fails, the run resumes
+from that boundary through the end before one clean full replay; already-proven
+earlier stages are not repeated speculatively.
+
+**Affected step and run:** `clarify-ch18-embedding-parameter-sharing`,
+`20260813T084337Z-clarify-ch18-embedding-parameter-sharing-01`.
+
+## 2026-08-13 - Rebalance Chapter 18 full-view stage columns after Firefox evidence
+
+**Status:** Accepted after the first exact revision-8 Firefox run failed and
+before the diagram component changed. This supersedes only the earlier
+assumption that Chapter 18 component geometry would remain unchanged.
+
+**Context:** Five of six supported Firefox cases passed against the exact
+revision-8 build. The bilingual full-view case measured 250 pixels of English
+vertical travel against a 192-pixel budget. The expanded standalone diagram
+description is required semantic and accessibility content and cannot be
+clipped, hidden, shrunk, or removed. The full-view `ids-stage` was the tallest
+part of the two-column stage grid because the existing 0.55/1.45 column ratio
+gave its explanatory copy substantially less inline space than the table stage.
+
+**Decision:** Add only
+`site/src/components/chapters/TokenEmbeddingsDiagram.astro` to the running
+step's outputs. In the component-local desktop-fullscreen geometry, rebalance
+the ID and table stages to equal columns so the required text wraps less while
+the same semantic figure, DOM order, values, non-color state cues, tables,
+scroll regions, and ordinary/narrow geometry remain unchanged. Do not weaken
+the travel or containment assertions. Resume at the failed Firefox boundary
+through the remaining gates; after N-through-END passes, rebuild and run one
+fresh complete validation/review chain against the changed built bytes.
+
+**Consequences:** The component change is a validation-proven presentation fix,
+not a new lesson feature. It invalidates the prior rendered HTML and English
+review packages, but not the unchanged Rust/trace evidence or the diagnostic
+records retained under the run. Fresh rendered, English, localization, and
+Firefox evidence must bind the final component bytes before commit.
+
+**Affected step and run:** `clarify-ch18-embedding-parameter-sharing`,
+`20260813T084337Z-clarify-ch18-embedding-parameter-sharing-01`.
+
+## 2026-08-13 - Use measured Chapter 18 fullscreen geometry and concise Russian table labels
+
+**Status:** Accepted after two exact Firefox measurements and before the Russian
+labels changed. This supersedes the equal-column detail of the preceding
+full-view decision, not its bounded component scope or unchanged semantics.
+
+**Context:** Equal columns reduced the English ID-stage wrapping but made the
+table stage taller; English still exceeded its travel budget. A read-only
+Firefox ratio matrix established that a 0.8/1.2 ID/table split produces 177
+pixels of English travel against the 192-pixel budget with zero named-region
+horizontal debt. That measured ratio passed English, but Russian still required
+244 pixels. Row-height inspection showed that the Russian gradient table alone
+spent 45 pixels on wrapped headers and 64/53 pixels on verbose rule labels,
+although each label's table context already supplies row identity, positions,
+contributions, and accumulated result.
+
+**Decision:** Keep the measured 0.8/1.2 component-local fullscreen split. In the
+already-owned Russian lesson and exact Firefox lock, use natural concise table
+labels: `Позиции`, `Вклады`, `Правило`, `Градиент строки`, with rules
+`Оставить ноль`, `Скопировать вклад`, and `Сложить вклады`. These are direct,
+meaning-preserving Russian labels for the unchanged English concepts; formulas,
+numeric vectors, row IDs, stage order, state symbols, accessible figure
+description, and all relationships remain unchanged. Do not weaken travel,
+containment, forced-colors, direction, or full-view assertions.
+
+**Consequences:** The final Russian source and rendered bytes require a fresh
+localization review, and the component change already requires fresh rendered
+English review evidence. Preserve all predecessor builds and judgments, finish
+the corrected browser boundary through END, then run one complete final chain.
+
+**Affected step and run:** `clarify-ch18-embedding-parameter-sharing`,
+`20260813T084337Z-clarify-ch18-embedding-parameter-sharing-01`.
+
+## 2026-08-13 - Complete the measured Chapter 18 Russian full-view reflow
+
+**Status:** Accepted within the running Chapter 18 browser correction after the
+first measured ratio and concise gradient labels were validated separately.
+
+**Context:** The 0.8/1.2 stage split brought English within the unchanged travel
+budget. Concise, semantically equivalent Russian gradient headers and rule
+labels reduced Russian travel from 244 to 225 pixels, leaving 33 pixels above
+the 192-pixel budget. Read-only Firefox measurements attributed 24 pixels to one
+extra wrap of the selector note and 12 pixels to stacking the required title
+above the required standalone description.
+
+**Decision:** Preserve all selector meaning in the shorter natural Russian note:
+different IDs choose different rows of one matrix, a repeated ID chooses its
+own row again, and IDs stay outside the differentiation tape. In desktop full
+view only, place the figure title and its complete description in adjacent
+caption columns; ordinary and narrow figure flow remains stacked. Keep every
+text node visible, preserve DOM and reading order, and retain all existing
+containment, region-debt, forced-color, direction, Escape, and focus assertions.
+
+**Consequences:** The measured combined travel was expected to be 189 pixels,
+inside the unchanged 192-pixel limit. The final Russian copy and both built
+pages superseded all prior review packages and required fresh complete
+localization/English evidence only after the browser boundary reached END.
+
+**Affected step and run:** `clarify-ch18-embedding-parameter-sharing`,
+`20260813T084337Z-clarify-ch18-embedding-parameter-sharing-01`.
+
+## 2026-08-13 - Natural-size the Chapter 18 full-view action track
+
+**Status:** Accepted after the preceding measured reflow was built and the exact
+supported Firefox boundary exposed one final parent-grid allocation defect.
+
+**Context:** The adjacent caption columns were present and correctly placed,
+but the figure's root `2fr`/minimum-18-rem action split reserved about 438 pixels
+for a 140-pixel full-view control. That left too little width for the complete
+English caption, producing 251 pixels of block travel; Russian required 214,
+both above the unchanged 192-pixel budget. A read-only Firefox matrix on the
+exact build showed that natural-sizing only the action track reduces English
+travel to 141 pixels and Russian travel to 165, with zero figure, named-region,
+or bounded-box overflow and no change to stage geometry.
+
+**Decision:** In the already-owned component's desktop-fullscreen root, replace
+the fractional action track with `max-content` and give all remaining space to
+the caption through `minmax(0, 1fr)`. Keep the caption's explicit title and
+description columns, the measured 0.8/1.2 stage split, all semantic content,
+DOM order, typography, values, tables, scroll regions, and ordinary/narrow
+geometry. Do not change the travel budget or any containment assertion.
+
+**Consequences:** The final `rendered-site-v12` build passes all six supported
+Chapter 18 Firefox cases, including both localized full views. All prior builds
+and judgment packages remain immutable diagnostic evidence; only fresh packages
+bound to v12 may certify the final candidate.
+
+**Affected step and run:** `clarify-ch18-embedding-parameter-sharing`,
+`20260813T084337Z-clarify-ch18-embedding-parameter-sharing-01`.

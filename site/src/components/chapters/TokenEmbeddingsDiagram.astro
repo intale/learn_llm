@@ -318,7 +318,7 @@ const latexPositions = (values: ReadonlyArray<{ lexeme: string }>) =>
   @media (min-width: 64rem) and (min-height: 36rem) {
     .token-embeddings-diagram:fullscreen {
       --diagram-cell-padding-block: 0.2rem !important;
-      grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+      grid-template-columns: minmax(0, 1fr) max-content;
       grid-template-areas:
         "caption actions"
         "summary summary"
@@ -335,6 +335,20 @@ const latexPositions = (values: ReadonlyArray<{ lexeme: string }>) =>
 
     .token-embeddings-diagram:fullscreen > figcaption {
       grid-area: caption;
+      grid-template-columns: minmax(16rem, 0.65fr) minmax(0, 1.35fr);
+      grid-auto-flow: initial;
+      align-items: start;
+      column-gap: var(--diagram-gap);
+    }
+
+    .token-embeddings-diagram:fullscreen > figcaption > h3 {
+      grid-column: 1 !important;
+      grid-row: 1 !important;
+    }
+
+    .token-embeddings-diagram:fullscreen > figcaption > p {
+      grid-column: 2 !important;
+      grid-row: 1 !important;
     }
 
     .token-embeddings-diagram:fullscreen > :global(.diagram-full-view-actions) {
@@ -364,7 +378,7 @@ const latexPositions = (values: ReadonlyArray<{ lexeme: string }>) =>
 
     .token-embeddings-diagram:fullscreen > .stage-grid {
       grid-area: stages;
-      grid-template-columns: minmax(26rem, 0.55fr) minmax(0, 1.45fr);
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
     }
 
     .token-embeddings-diagram:fullscreen > .lookup-stage {

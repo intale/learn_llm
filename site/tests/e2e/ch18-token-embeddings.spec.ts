@@ -62,7 +62,7 @@ interface LocalizedCopy {
 }
 
 const chapterId = '18-token-embeddings';
-const contentRevision = 7;
+const contentRevision = 8;
 const formulaLatex = String.raw`X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}`;
 const upstreamAdjointLatex = String.raw`\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}`;
 const tableAdjointLatex = String.raw`\bar{E}_{i,:}=\partial L/\partial E_{i,:}`;
@@ -94,14 +94,14 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     historyHeading: 'From sparse identity to the vector entrance of a Transformer',
     historyFragments: [
       'A sparse one-hot word representation assigns one coordinate to each vocabulary item but expresses no graded similarity between words; explicitly carrying that vocabulary-wide vector also wastes work when only one row is needed.',
-      'Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.',
-      "The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.",
+      'Bengio et al. learn one dense word-feature matrix jointly with a neural next-word model and reuse that matrix across context positions; each word index still selects its corresponding row. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.',
+      'One trainable vocabulary-by-feature matrix is reused at every batch item and sequence position. Each token ID selects its own vocabulary row: different IDs select different rows, while repeated occurrences of the same ID select the same row and accumulate gradients there. Reusing this input matrix across positions is separate from output-weight tying, which remains a later concern alongside positional information, embedding forward scaling, and attention.',
       'Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction.',
       'Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.',
     ],
-    diagramTitle: 'Follow repeated token IDs through one shared table',
+    diagramTitle: 'Follow different and repeated token IDs through one shared table',
     diagramDescription:
-      'Read the exact Rust-authored token IDs, table rows, one-hot lookup equivalence, output vectors, and reverse contributions that accumulate into the shared embedding table.',
+      'Read the one-hot and direct-lookup equivalence as ID 1 selects row 1 and ID 2 selects row 2, then follow both occurrences of ID 2 as their reverse contributions add in that same row of one shared embedding table.',
     summaryLabels: [
       'Named parameter',
       'Vocabulary rows',
@@ -149,7 +149,7 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       none: 'None',
     },
     notes: [
-      'IDs name rows and stay outside the differentiation tape. Repeating an ID reuses one parameter row.',
+      'Different IDs name different rows of one parameter matrix and stay outside the differentiation tape. Repeating an ID reuses that ID’s row.',
       'The indicator exposes the algebra: one active coordinate selects one table row. The implementation performs direct lookup.',
       'Reverse mode returns each upstream feature vector to its selected row. Only the repeated row receives two vectors and sums them.',
     ],
@@ -240,14 +240,14 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
     historyHeading: 'От разреженного one-hot-кода к векторам на входе Transformer',
     historyFragments: [
       'Разреженное one-hot-представление слова отводит одну координату каждому элементу словаря, но не выражает степень сходства между словами. Кроме того, явно создавать и обрабатывать такой вектор размером со словарь расточительно, когда нужна лишь одна строка.',
-      'Bengio и соавторы обучают общую плотную таблицу признаков слов вместе с нейросетевой моделью следующего слова. Transformer использует обучаемые эмбеддинги подсловных токенов: к ним добавляется позиционная информация, после чего результат поступает в стек слоёв внимания и сетей прямого распространения.',
-      'ID токенов поступают на числовой вход декодера: по ним выбираются строки одной обучаемой таблицы «словарь на признаки». Все вхождения повторяющегося ID используют одну и ту же строку параметров, поэтому их градиентные вклады при обратном проходе складываются. Позиционная информация, масштабирование эмбеддингов в прямом проходе, внимание и совместное использование весов с выходной проекцией рассматриваются позже.',
+      'Bengio и соавторы обучают одну плотную матрицу признаков слов вместе с нейросетевой моделью следующего слова и используют эту матрицу во всех позициях контекста; при этом индекс каждого слова выбирает соответствующую ему строку. Transformer использует обучаемые эмбеддинги подсловных токенов: к ним добавляется позиционная информация, после чего результат поступает в стек слоёв внимания и сетей прямого распространения.',
+      'Одна обучаемая матрица «словарь на признаки» используется для всех элементов пакета и позиций последовательности. Каждый ID токена выбирает соответствующую строку словаря: разные ID выбирают разные строки, а повторные вхождения одного ID снова выбирают ту же строку и накапливают в ней градиенты. Повторное использование этой входной матрицы во всех позициях — не то же самое, что связывание весов с выходной проекцией; оно, как и позиционная информация, масштабирование эмбеддингов и внимание, рассматривается позже.',
       'Bengio и соавторы задают отображение индекса словарного слова в набор распределённых признаков с помощью обучаемой матрицы: каждому элементу словаря соответствует строка, а каждому обучаемому признаку — столбец. Одна и та же матрица используется для всех позиций контекста и обучается вместе с моделью предсказания следующего слова.',
       'Vaswani и соавторы используют для токенов BPE или WordPiece обучаемые эмбеддинги, ширина которых совпадает с шириной модели, и перед стеком Transformer добавляют к ним позиционное кодирование. Масштабирование эмбеддингов в прямом проходе не относится к инициализации параметров.',
     ],
-    diagramTitle: 'Повторяющийся ID в общей таблице',
+    diagramTitle: 'Разные и повторяющиеся ID в одной общей таблице',
     diagramDescription:
-      'Сопоставьте ID из примера на Rust со строками и выходами: one-hot-умножение даёт те же значения. Проследите сложение обратных вкладов в общих строках.',
+      'Сопоставьте one-hot-умножение с прямым выбором: ID 1 выбирает строку 1, ID 2 — строку 2. Затем проследите, как обратные вклады обоих вхождений ID 2 складываются в той же строке одной общей таблицы эмбеддингов.',
     summaryLabels: [
       'Именованный параметр',
       'Строки словаря',
@@ -282,10 +282,10 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       ],
       gradients: [
         'Строка таблицы',
-        'Плоские позиции, давшие вклад',
-        'Вклады по признакам',
-        'Обратное правило',
-        'Накопленный градиент строки',
+        'Позиции',
+        'Вклады',
+        'Правило',
+        'Градиент строки',
       ],
     },
     states: {
@@ -294,13 +294,13 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
       selectedRepeated: 'Общая для повторов',
       singleRow: 'Строка без повторов',
       repeatedRow: 'Общая с другой позицией',
-      unusedZero: 'Нет выборов — ноль',
-      singleCopy: 'Один выбор — скопировать его вклад',
-      repeatedSum: 'Повторы — сложить вклады',
+      unusedZero: 'Оставить ноль',
+      singleCopy: 'Скопировать вклад',
+      repeatedSum: 'Сложить вклады',
       none: 'Нет',
     },
     notes: [
-      'ID указывают номера строк и не записываются на ленту дифференцирования. Повторяющийся ID снова выбирает ту же строку параметров.',
+      'Разные ID выбирают разные строки одной матрицы; повторяющийся ID снова выбирает свою строку. Сами ID не входят в ленту дифференцирования.',
       'Единица one-hot-индикатора выбирает одну строку таблицы; реализация получает эту строку напрямую.',
       'В обратном проходе каждый входящий вектор поступает в выбранную строку. В повторно выбранной строке два вектора складываются.',
     ],
