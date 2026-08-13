@@ -22284,3 +22284,47 @@ chain is invalidated; only rendered Chapter 18 evidence is renewed.
 
 **Affected step and run:** `restore-ch18-shared-full-view-caption-contract`,
 `20260813T120703Z-restore-ch18-shared-full-view-caption-contract-01`.
+
+## 2026-08-13 - Restore the shared diagram inline-code text floor before closure
+
+**Status:** Accepted after the closure's changed-spec Firefox continuation
+exposed one shared cascade defect and before any product CSS changed.
+
+**Context:** The closure preserved and reused its completed semantic audit, then
+ran the previously untested changed specifications without repeating the 210
+already-passing Firefox cases. Seven of eight additional specifications passed;
+the six failures were all source-wide diagram-style assertions reporting
+visible `code` text at 11.95, 12.60, or 12.96 pixels below the unchanged
+14-pixel ordinary-role floor. The shared diagram rule's valid
+`max(0.875rem, 0.9em)` declaration has specificity `(0,3,2)`. A later generic
+lesson inline-code selector, rooted at the chapter article, has specificity
+`(0,3,3)` and therefore wins with `0.9em`. The measured values are exactly
+0.9 times their 13.28-, 14-, or 14.4-pixel parent sizes; this is a cascade
+ownership defect, not a Firefox `max()` defect or a reason to weaken the floor.
+The deterministic nineteen-spec union reached 404/410 before stopping.
+
+**Decision:** Insert `restore-shared-diagram-inline-code-floor` immediately
+before `close-independent-theory-evidence-audit`. In the shared diagram module,
+raise only the inline-technical selector's specificity by repeating its already
+established `course-diagram` class. Retain the exact
+`max(0.875rem, 0.9em)` value and leave the generic lesson selector unchanged.
+Add a static ownership assertion for that duplicated-class selector; the
+existing rendered Firefox floor assertion remains authoritative and must not be
+weakened. Do not edit components, learner content, contracts, Rust, revisions,
+locale projection, semantic roles, reading order, values, or review artifacts.
+
+**Consequences:** Mark closure run
+`20260813T123754Z-close-independent-theory-evidence-audit-02` failed at this
+next real boundary and preserve its 210/210 and 194/200 reports. The CSS-only
+checkpoint resumes with only the six failed diagram-style cases, continues
+through its remaining static/build/host gates, and then runs one clean complete
+diagram-style replay. Existing English and Russian semantic judgments remain
+valid because learner and structure bytes do not change; rendered evidence for
+the shared diagram surfaces is renewed. After this corrective checkpoint is
+committed independently, start a fresh closure run and perform the one final
+complete changed-spec replay required by the approved N-through-END strategy.
+
+**Affected steps and runs:** `restore-shared-diagram-inline-code-floor`,
+`20260813T125700Z-restore-shared-diagram-inline-code-floor-01`, and
+`close-independent-theory-evidence-audit`,
+`20260813T123754Z-close-independent-theory-evidence-audit-02`.

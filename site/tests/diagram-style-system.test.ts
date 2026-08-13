@@ -171,6 +171,9 @@ describe("course diagram design system", () => {
     const inlineTechnicalRule = cssRules(module).find(({ selector }) =>
       selector.includes(":is(code, bdi)"),
     );
+    expect(inlineTechnicalRule?.selector).toContain(
+      "figure.course-diagram.course-diagram[data-diagram-style='course-v1']",
+    );
     expect(inlineTechnicalRule?.body).toMatch(
       /font-size:\s*max\(0\.875rem,\s*0\.9em\)/,
     );

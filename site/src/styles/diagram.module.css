@@ -465,7 +465,10 @@
 }
 
 .host
-  :global(figure.course-diagram[data-diagram-style='course-v1'] :is(code, bdi)) {
+  :global(
+    figure.course-diagram.course-diagram[data-diagram-style='course-v1']
+      :is(code, bdi)
+  ) {
   font-size: max(0.875rem, 0.9em);
 }
 
