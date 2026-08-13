@@ -21216,3 +21216,699 @@ is assigned to the immediately following English-authoring-skill step.
 
 **Affected steps:** `strengthen-localization-independent-review` and
 `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Use parse5 only for canonical-English rendered-surface inventory
+
+**Status:** Accepted during preflight of the canonical-English authoring skill.
+
+**Context:** Independent English review must bind both source bytes and the exact
+static HTML learners receive, including a deterministic inventory of reading-order
+and isolated surfaces. Parsing HTML is standard plumbing rather than an LLM
+concept. `parse5` 7.3.0 is already present in the locked site graph through Astro
+and rehype, but relying on a transitive package or hand-writing an HTML parser
+would make the review tool brittle. The review CLI lives below `.agents/`, outside
+the normal `site/node_modules` ESM ancestry.
+
+**Decision:** Declare exact direct development dependency `parse5` 7.3.0. Its
+complete added direct closure is the already-locked `entities` 6.0.1 package:
+`parse5` is MIT and `entities` is BSD-2-Clause. Use `parse5` only to decode and
+traverse standards-compliant built HTML. Resolve it deliberately from
+`site/package.json`; do not depend on incidental hoisting. Course-owned code
+continues to choose learner roots, surface roles, reading order, isolation groups,
+formula treatment, coverage rules, and all publication invariants. Strong
+course-content reviewers—not the parser or deterministic CLI—judge factual
+support, pedagogy, clarity, English quality, and accessibility meaning.
+
+If a Docker dependency layer lacks these cached tarballs, the run may materialize
+only the exact lockfile-selected graph from the npm registry and must retain that
+fact in its provenance. This does not authorize dependency updates or speculative
+network retries. Luna may run and audit deterministic packaging; Terra remains
+limited to affected rendered-image review.
+
+**Consequences:** The English review tool gains a mature HTML parser without
+adding a selector engine, DOM runtime, content algorithm, production bundle, or
+course-wide browser sweep. A source, evidence, built-HTML, inventory, rubric,
+context, review-record, or publication-byte mismatch still fails closed.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Approve the planned-to-produced topology replacement
+
+**Status:** Accepted with explicit human approval.
+
+**Context:** The centralized artifact topology introduced planned record,
+receipt, seal, and output nodes, but the earlier writer code still registered
+parallel dynamic nodes after writing. Removing those duplicates initially
+triggered a safety hold because the common transition path had not yet been
+validated and the removal could appear to weaken provenance or acyclicity.
+The additive successor established the transition primitives and an independent
+read-only audit specified the exact replacement needed. The human then approved
+that exact change verbatim.
+
+**Decision:** Replace the dynamically registered review and adjudication
+record, receipt, and seal nodes with the already-planned nodes carrying the same
+IDs and logical artifact keys. After the common planned-to-produced transition,
+rerun global logical-sharing validation and raw-plus-record acyclicity. Apply the
+same transition model to every writer and the verification report, preserve
+exact output closure and provenance checks, and retain a verdict-neutral
+pre-adjudication review-phase validator. This approval does not authorize
+removing or weakening receipts, hashes, role separation, seal closure,
+no-overwrite behavior, or final publication gates.
+
+**Consequences:** The architect may remove only the now-redundant parallel node
+registrations after the common path is present and tested. Candidate-04 remains
+failed evidence; a successor still requires the full deterministic suite, a
+fresh independent strongest-model audit, an exact image rebuild, and the held-
+out forward test before publication.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Require reasoned assessment of every English review surface
+
+**Status:** Accepted after the first canonical-English forward-test
+adjudication.
+
+**Context:** The first frozen held-out set proved that an isolated reviewer could
+echo every required surface ID, report several valid blockers, and still skip the
+curator-mapped role-critical defect in an accessible description. The omitted
+description listed displayed values but did not carry the sharing, identity, and
+reuse relationships that made the figure pedagogically useful. The
+post-freeze adjudicator correctly treated this as a false negative even though
+the review's overall verdict was already `fail`. A bare coverage array therefore
+proved routing, not deliberate judgment of each surface.
+
+**Decision:** Replace bare review-surface coverage with one closed,
+hash-bound assessment per role-required unit. Each assessment states what the
+unit must establish for its declared role, gives a rationale grounded in the
+exact reviewer-visible words and evidence, records `pass`, `advisory`, or
+`blocking`, and links every finding that affects that unit. The deterministic
+tool rejects missing, extra, duplicate, reordered, empty, unlinked, or
+severity-inconsistent assessments. It does not judge whether the reasoning is
+substantive; a separate strongest-model adjudicator must do that after all raw
+records are frozen.
+
+For accessibility descriptions, the transferable review question is whether the
+nonvisual unit preserves the figure's teaching purpose: relevant objects,
+mappings, relationships, comparisons, identity or reuse, and state changes. This
+is not a Linden answer template or lexical rule, and displayed values are not
+automatically insufficient. Retain all failed evidence, retire every fixture
+whose concealed mapping has been revealed, and rerun both roles on a wholly new
+disjoint three-case set. A failure on some other valid issue does not excuse a
+false negative on the concealed defect.
+
+**Consequences:** Review records are longer, but course-content judgment is not
+resource-limited and the extra reasoning is targeted to the exact publication
+surface. Luna continues to validate structure and hashes only. No learner
+content, browser scope, or runtime behavior changes.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Freeze English surface requirements and route every judgment externally
+
+**Status:** Accepted after the second canonical-English protocol audit.
+
+**Context:** Per-surface assessments close the bare-coverage gap only when the
+criterion being assessed is independent of the reviewer. Letting a reviewer
+author its own `roleRequirement` permits the same false negative in a richer
+shape: the reviewer can unintentionally narrow the surface's purpose and then
+justify a pass against that weaker criterion. The first protocol also described
+one later adjudicator without making two role-preserving adjudications a
+publication gate, and review records self-reported their prompt and context
+hashes without an external manifest binding those claims to the actual files
+routed to the model.
+
+**Decision:** Derive and freeze one neutral role requirement for every complete
+source document, complete built document, reading-order unit, and isolated unit
+from the evidence and commitment map before review. Both reviewers repeat the
+applicable requirement byte-for-byte; the technical reviewer also judges whether
+the inventory's requirements cover their assigned commitments. A reviewer may
+not invent, replace, or narrow its own success criterion.
+
+After both review records are frozen, create two role-specific adjudication
+bundles and run two more strongest-model contexts. The technical adjudicator
+judges every technical-review assessment and finding. The isolated adjudicator
+judges every isolated-review assessment and finding without receiving source
+evidence, the technical bundle or record, or the sibling adjudication. The
+author, both reviewers, and both adjudicators must be pairwise distinct. Both
+adjudications are mandatory publication gates; a failing reviewer record remains
+valid adjudication input so its reasoning can be evaluated before the combined
+verdict is applied.
+
+For reviewers and adjudicators, freeze an external routing manifest over the
+actual context manifest, prompt, role-specific bundle, and output schema. Model-
+authored records repeat the routing hash but do not establish their own access
+boundary. The deterministic verifier parses and hashes the routed artifacts,
+validates all four records structurally before applying verdicts, and fails
+closed on any candidate, inventory, requirement, prompt, context, bundle,
+schema, record, routing, or publication-byte drift. It still does not judge the
+substance of English or of a model's reasoning.
+
+**Consequences:** English publication now requires five pairwise-distinct strong
+course-content contexts: author, two reviewers, and two role-specific
+adjudicators. This added judgment is deliberately not budget-limited. Luna owns
+only deterministic extraction, packaging, routing, hashing, and validation.
+Every exposed forward-test fixture is retired, and the corrected contract must
+pass a new disjoint three-case blind forward test before the skill can publish.
+No learner content, browser scope, or runtime behavior changes.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Seal English judgments in deterministic provenance receipts
+
+**Status:** Accepted; supersedes only the model-self-reporting portion of
+“Freeze English surface requirements and route every judgment externally.”
+
+**Context:** A later content audit found an impossible construction in the first
+external-routing design. A model cannot emit the SHA-256 of its own context
+manifest, or of a routing manifest that hashes that context, while receiving
+exactly the context manifest, prompt, bundle, and schema. Inserting the later
+hash into any earlier input changes that input and therefore changes the routing
+hash. Treating such values as model-authored fields would require an unrecorded
+fifth input or a special self-excluding hash and would make the provenance claim
+false.
+
+**Decision:** Separate semantic model output from deterministic execution
+provenance. The model-facing review and adjudication schemas contain only the
+candidate and role identifiers visible in the routed bundle plus assessments,
+findings, verdict, reviewer or adjudicator identity, model, reasoning,
+timestamps, and declared artifact IDs. They do not ask the model to guess hashes
+unavailable inside its four-artifact boundary.
+
+After each raw semantic response is immutable, Luna validates it and creates a
+closed deterministic receipt or envelope. That receipt binds the external
+routing-manifest hash, actual context-manifest hash, prompt hash, role-bundle
+hash, response-schema hash, raw-response hash, model and reasoning, and the
+candidate, scope, role, and shared binding. Final verification recomputes these
+receipts from actual files rather than trusting either the model or a packager's
+assertion. The author context is likewise an actual path-and-hash-bound manifest,
+not a free ID/hash pair.
+
+Use an acyclic order: freeze candidate and author context; prepare role bundles;
+freeze prompts; freeze reviewer contexts; freeze external reviewer routing; run
+and freeze raw review responses; seal review receipts; prepare role-specific
+adjudication bundles; freeze adjudicator prompts and contexts; freeze external
+adjudicator routing; run and freeze raw adjudication responses; seal
+adjudication receipts; then verify all actual files and apply verdicts. Do not
+weaken or omit provenance fields—move unknowable values from model output into
+the deterministic receipt that can truthfully compute them.
+
+**Consequences:** The routing boundary remains exactly four artifacts per model
+context, every provenance hash remains available to final verification, and the
+construction has no self-hash cycle or hidden input. This requires additional
+closed receipt tooling and mutation tests but no learner-content, browser,
+dependency, or network change.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Approve acyclic external receipts for English judgments
+
+**Status:** Accepted with explicit human approval; refines “Seal English
+judgments in deterministic provenance receipts.”
+
+**Context:** The safety boundary correctly stopped two attempts to remove
+provenance fields from model-authored review and adjudication records because a
+field removal could otherwise weaken the publication gate. The underlying
+contract was nevertheless impossible: a model receiving exactly a context
+manifest, prompt, role bundle, and schema cannot truthfully author the hash of
+its own context or of a later routing manifest that hashes that context. The
+human explicitly approved removing model-authored context, prompt, bundle,
+schema, and routing hash claims only when every value is preserved and
+recomputed in deterministic external evidence receipts.
+
+**Decision:** Keep semantic model records closed and limited to identifiers and
+judgment data that the model can truthfully supply: candidate, record, role and
+scope IDs; reviewer or adjudicator identity; fresh-context assertion; actual
+model and reasoning; timestamps; ordered declared artifact IDs; assessments,
+findings, and verdict. Remove context, prompt, bundle, schema, routing, candidate,
+built-HTML, evidence, commitment-map, inventory, rubric, and upstream-record
+hash claims from those semantic records.
+
+After each immutable raw response, create a deterministic external receipt that
+binds the actual routing-manifest file, context manifest, prompt, exact role
+bundle, response schema, raw response, receipt schema, shared candidate binding,
+inventory, model, reasoning, role, scope, and subject ID by path and exact
+SHA-256. A review receipt has no upstream receipt; an adjudication receipt must
+bind exactly its same-role review receipt. Reserve every `bundleSha256` in
+external artifacts for the exact bundle-file bytes. Do not embed a bundle
+self-hash, use a self-excluding hash, canonicalize an already frozen model
+response to manufacture a different identity, or accept a receipt whose actual
+files do not reproduce every recorded value.
+
+Final publication verification must require both review receipts, both
+adjudication receipts, the two external routing manifests, all four raw semantic
+records, an actual path-and-hash-bound author-context manifest, pairwise-distinct
+author/reviewer/adjudicator contexts, exact strongest-model routing, complete
+assessment and finding adjudication, and byte-identical publication outputs.
+Luna may construct and verify receipts but cannot provide semantic judgment.
+
+**Consequences:** Provenance is strengthened rather than relaxed: no model is
+asked to guess an unavailable hash, while every former hash claim is recomputed
+from the actual immutable files outside the model output. The tool and mutation
+suite must reject drift in any routing, context, prompt, bundle, schema, raw
+record, receipt, model, reasoning, candidate binding, or upstream receipt before
+a wholly fresh blind forward test may count.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Exclude immutable run evidence from the host-artifact sweep
+
+**Status:** Accepted
+
+**Context:** The English-skill step's required `./course audit-host` validation
+found no generated dependency or build tree in the product workspace, but the
+checker failed on `test-results` and Cargo `target` directories deliberately
+retained under `.build/runs/<run-id>/`. The checkpoint model requires those
+failure traces, browser results, and forward-test compilation artifacts to stay
+immutable and reusable. Deleting them to satisfy a hygiene check would destroy
+required provenance. The existing checker pruned `.git` but did not distinguish
+run evidence from an accidental generated tree elsewhere in `.build`.
+
+**Decision:** Prune exactly `.build/runs` from both directory-artifact and Python
+bytecode scans in `scripts/check-host-artifacts.sh`. Do not prune all of `.build`
+and do not weaken the existing checks for root or site dependency, build, test,
+coverage, report, or cache trees. Extend the course-CLI integration fixture to
+prove that `test-results` and Python bytecode inside one run directory are
+accepted while the same generated directory in a sibling `.build` path still
+fails. Run manifests and checkpoint hashes, rather than the clean-host sweep,
+remain responsible for the contents and provenance of immutable run staging.
+
+**Consequences:** `./course audit-host` now measures product-workspace hygiene
+without asking agents to erase retained evidence. A generated tree cannot evade
+the audit merely by living somewhere under `.build`; only the exact run-staging
+subtree is exempt. The English-skill step adds the checker and its integration
+test to its declared outputs before changing either file.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Fail closed on English judgment-context syntax and time
+
+**Status:** Accepted after the final canonical-English executable audit.
+
+**Context:** The held-out semantic review and adjudication chain correctly found
+both concealed defects and accepted the independently pre-audited clean control.
+A later complete policy reread nevertheless found three deterministic provenance
+gaps. Reviewer and adjudicator context manifests carried a `schemaVersion` field
+whose value was not pinned, all five author/reviewer/adjudicator contexts were
+hashed but not required to use the protocol's canonical JSON bytes, and the
+timestamp validator combined a shape regex with JavaScript date parsing that
+normalizes impossible calendar dates such as February 30.
+
+**Decision:** Require every bound author, reviewer, and adjudicator context to be
+canonical, duplicate-free JSON and to declare schema version one. Validate every
+semantic timestamp by exact RFC3339 shape, UTC calendar-component round trip,
+offset bounds, and parseability. Mutation-test author, reviewer, and adjudicator
+paths, including final verification, and retain positive leap-day, fractional,
+and offset cases. These are deterministic integrity checks only; they do not
+alter or reinterpret model-authored judgments.
+
+**Consequences:** The already-frozen semantic candidate, reviews,
+adjudications, receipts, and effectiveness result remain valid because their
+bound contexts and timestamps satisfy the stricter contract. The old workspace
+image and structural result are not sufficient publication evidence for the
+changed executable, so build a new exact image and replay every frozen chain
+through it before completing the step. No learner content, browser behavior,
+dependency graph, model budget, or judgment schema changes.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Enforce English judgment capacity and exact surface identity
+
+**Status:** Accepted after the successor executable-contract audit.
+
+**Context:** Canonical context bytes, schema versions, and timestamps were
+already fail-closed, but a later independent audit found three remaining ways
+that a structurally self-consistent review could understate the publication
+boundary. A review spec could nominate a weaker model or reasoning level, an
+empty or multiply matching HTML locator could silently select the first node,
+and the mutation suite exercised adjudication records more completely than the
+review records on which they depend.
+
+**Decision:** Treat the course-content model policy as executable authority, not
+spec-supplied configuration. The English author, both reviewers, and both
+adjudicators must use `gpt-5.6-sol` with `ultra` reasoning; a spec, context, or
+semantic record that declares another model or reasoning level fails. Luna may
+still perform deterministic packaging, routing, hashing, and verification, and
+Terra remains limited to rendered-image review.
+
+Require every reading or isolated surface locator to be a closed, nonempty
+combination of an exact tag, ID, and/or attribute name/value pair that resolves
+to exactly one built-HTML element. Preserve that locator in the inventory and
+technical-review bundle so the technical reviewer can audit extraction and
+classification, but omit it from the source-blind isolated bundle. Reject zero
+or multiple matches instead of choosing an occurrence. Exercise both review
+roles with missing, extra, duplicate, reordered, blank, unlinked,
+mis-severity-linked, and verdict-inconsistent assessment and finding mutations,
+in addition to the existing adjudication mutations.
+
+**Consequences:** A candidate cannot lower its own judgment capacity or hide an
+ambiguous extraction behind internally matching hashes. The deterministic tool
+still does not judge prose, technical correctness, pedagogy, or accessibility;
+the exact locator only lets the technical reviewer inspect the declared
+inventory boundary. These executable changes invalidate the prior workspace
+image and the unexecuted run-04 packaging helper, so freeze successor bytes,
+build a new exact image, and package only the wholly fresh held-out set.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Assign complex English evidence architecture to the strongest model
+
+**Status:** Accepted after direct human correction of the repeated implementation loop.
+
+**Context:** The English-review executable began as deterministic routing
+plumbing, so several successor fixes were delegated to Luna under the recorded
+routing budget. Independent adversarial audits repeatedly found new failures in
+the coupled artifact graph: seal membership, hard-link identity, role ordering,
+reserved publication targets, and writable-tree separation. Six named
+implementation cycles plus two safety-blocked attempts demonstrated that this
+was no longer a mechanical command-running task. The human challenged the
+repeated Luna restarts and approved continuing with the corrected allocation.
+
+**Decision:** Treat the review tool's artifact graph, path-identity model,
+immutability boundaries, construction order, and mutation design as complex
+course-quality architecture. Assign their design and implementation to
+`gpt-5.6-sol` with `ultra` reasoning, followed by a separate fresh strongest-
+model audit. Use one centralized, table-driven invariant system rather than
+successive edge-specific guards. Reserve Luna for executing already-frozen
+commands, deterministic packaging, hashing, routing, and other mechanical work;
+it must not own or extend this security-like invariant design. Continue to use
+Terra only for image review.
+
+**Consequences:** The interrupted Luna successor is not publication evidence
+and must not be resumed. The exact Docker rebuild, public fixture seal, reviewer
+chains, and publication stay held until the strongest-model implementation and
+independent audit both pass. A further architectural failure triggers redesign
+of the model and tests, not another low-budget patch cycle.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Freeze explicit English artifact identity and aggregate judgment sealing
+
+**Status:** Accepted after candidate-05's independent full-contract PASS.
+
+**Context:** Successive audits showed that filesystem provenance could not be
+made reliable through role-local checks or path equality. The final design also
+needed to allow a failing review to proceed to adjudication without postponing
+author/reviewer context separation, and every generated artifact needed the
+same planned-to-produced state transition. The human explicitly approved
+replacing redundant dynamic seal nodes once the planned transition existed.
+
+**Decision:** Give every review artifact occurrence one centrally derived
+logical artifact key. Repeated occurrences may share a canonical path and
+device/inode identity only when they name that same key; different keys may
+share neither. Treat absent publication targets as reserved keyed paths.
+
+Seal both reviewer responses in one `seal-reviews` transition and both
+adjudicator responses in one `seal-adjudications` transition. Each aggregate
+root contains exactly the two role directories, each containing exactly
+`record.json` and `receipt.json`; remove the unsafe singular free-form seal
+lifecycle. Use one in-place planned-to-produced graph transition for every
+writer and the verification report, preserving node ID, phase, path, and logical
+key while recording the produced identity, then rerunning global sharing,
+acyclicity, disjointness, and exact-tree closure.
+
+Before adjudication output is planned, validate both review chains and enforce
+three-way author/reviewer context-ID and exact-context-hash separation without
+requiring review success or publication-byte equality. Retain the final gate's
+four verdicts, five-way context separation, and exact source/built publication
+identity. The exported review-only compatibility function grants no CLI or
+publication bypass.
+
+**Consequences:** The deterministic suite is 63 cases and a fresh strongest-
+model audit found no publication blocker. The workflow assumes the repository's
+cooperative immutable-run/no-overlapping-writer model; it does not claim safety
+against a hostile concurrent filesystem mutator. Build a new exact image before
+sealing the held-out public cases or invoking any reviewer.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-12 - Separate repository regression evidence from course semantic correctness
+
+**Status:** Accepted after direct human correction.
+
+**Context:** The canonical-English skill step built the repository's workspace
+image and passed the existing locked Rust, site, content-structure,
+locale-parity, production-build, and link checks. Describing that result as a
+“full course PASS” could wrongly imply that the current learner content is
+semantically correct, even though known course corrections remain queued and
+the new skill was created precisely because existing automated checks do not
+establish that judgment. The human explicitly rejected using current course
+implementation as the skill's semantic acceptance surface.
+
+**Decision:** Treat `./course check` and the exact workspace image only as
+automated repository regression, build, and compatibility evidence for this
+skill/infrastructure change. Never describe that evidence as semantic
+certification of the current course. Evaluate the new skill's detection and
+negative-control behavior only on the separately curated, opaque, held-out
+synthetic chapter cases whose classifications remain concealed until every
+review and adjudication record is immutable.
+
+Do not apply the new skill to current course chapters inside this step. Complete
+and commit the skill/infrastructure step first; known learner-content
+corrections remain separate ordered steps and commits.
+
+**Consequences:** The exact image and its automated checks remain useful proof
+that the skill did not break the existing repository workflow, but they cannot
+close a semantic content defect. Forward-test reports and checkpoints must state
+their held-out-only scope. Any later course audit or correction requires its own
+eligible step, fresh evidence, localization workflow where applicable, and
+separate commit.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-13 - Make isolation role-scoped and adjudication explicitly review-directed
+
+**Status:** Accepted after the run-04 held-out effectiveness failure.
+
+**Context:** Candidate-05 passed its deterministic contract audit and repository
+regression/build checks, but the concealed forward test failed. The mapped clean
+control's isolated reviewer reported three blockers. Two exact diagram fragments
+did not contain the labels and comparison referents required by their own frozen
+standalone requirements; a third requirement incorrectly treated a contextual
+section heading as though its role were to restate the lesson concept. The prior
+private clean audit saw the complete lesson and therefore did not reproduce the
+source-blind review boundary. Separately, every isolated adjudicator supported
+its review findings, duplicated the candidate defects as new adjudicator
+findings, and returned `fail`. Its routed prompt and schema never stated plainly
+that adjudication judges the review rather than the candidate. Technical
+adjudicators inferred the intended distinction, but the three-of-three isolated
+pattern shows that inference is not a reliable contract.
+
+**Decision:** Treat an isolated unit as the smallest real learner-facing role,
+not automatically as one DOM element stripped of every legitimate semantic
+relationship. Group elements only when the rendered, reading-order, heading,
+control, or accessibility contract actually presents them as one unit. When a
+technical card, label, caption, or description is intentionally reviewed alone,
+its own words must carry the referents required for that role. Conversely, do
+not make a contextual subheading repeat the page title merely to satisfy an
+artificial context-free requirement. Freeze requirements against the actual
+unit and its real role before review; do not weaken a requirement afterward to
+manufacture a pass.
+
+Before sealing a held-out negative control, require two private, fresh
+`gpt-5.6-sol`/`ultra` audits over its exact final bytes: one complete
+technical/pedagogical audit and one role-matched source-blind isolated-surface
+audit that receives the same kind of isolated bundle as the later reviewer.
+Neither audit receives the case classification in its model-facing task, and
+neither conclusion is routed to the actual reviewers. Any finding changes the
+candidate or inventory, invalidates both private audits, and requires fresh
+contexts.
+
+Make adjudication semantics model-visible and executable. An adjudicator judges
+the quality and completeness of the same-role review. `pass` approves a sound
+review, including a sound review whose own verdict is `fail`; it never passes the
+candidate. `fail` means the review is unsound or incomplete. Adjudicator findings
+describe defects in the review's requirement, assessment, reasoning, finding,
+coverage, or severity; they must not restate a candidate defect already captured
+by a supported review finding. A supported review finding has no linked
+adjudicator correction finding. Put these definitions in the prepared
+adjudication bundle and schema guidance, state them in the neutral adjudicator
+task, and enforce every structural implication in the tool and mutation suite.
+
+**Consequences:** Run 04 is terminal failed evidence and candidate-05 is not
+publishable. Its exposed cases, mapping, prompts, records, receipts, and verdicts
+cannot certify a successor. A new run must create a changed skill/tool candidate,
+obtain a fresh independent policy audit and exact regression image, and use a
+wholly new disjoint concealed three-case set. No current course chapter is an
+acceptance fixture or an output of this correction.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-13 - Make the forward-test clean boundary exact and role-prompt identical
+
+**Status:** Accepted after the run-05 independent policy and executable audits.
+
+**Context:** Candidate 06 corrected role-scoped isolation and made adjudication
+polarity visible in prepared bundles, but independent audit found four remaining
+ways for an apparently complete chain to miss its intended judgment boundary.
+The adjudication route hashed arbitrary prompt bytes without proving that the
+five review-directed meanings were present. An adjudicator could copy a review's
+candidate finding under a new ID or reject it by borrowing an unrelated blocker
+on another surface. Finally, the private negative-control preaudits could use
+weaker prompts than the later actual reviewers and called advisory-only records
+“clean,” even though the accepted control rule said any finding required
+correction.
+
+**Decision:** Generate each adjudication prompt from the review tool's one
+exported canonical role-specific prompt function and reject every byte other
+than that exact UTF-8 JSON. It carries the five fixed `adjudicationSemantics`
+values, workflow-only framing, same-role instruction, and review-of-review task.
+Reject an adjudicator finding whose exact core payload—sorted surfaces,
+evidence, learner consequence, and correction criterion—duplicates any bound
+review finding, regardless of its ID, category, severity, or link placement.
+When an adjudicator rejects a review finding, require at least one linked
+blocking adjudicator finding to overlap that review finding's affected surfaces;
+the strong adjudicator still judges semantic relevance and paraphrases.
+
+For the held-out negative control only, define a clean record exactly as verdict
+`pass`, `findings: []`, and pass assessments with empty finding links on every
+surface. Advisory findings therefore disqualify the control without changing
+ordinary chapter-review semantics. Freeze one neutral prompt per reviewer role
+before the two private preaudits and reuse its exact bytes and hash for the
+same-role actual review. The role bundle, review schema, model/reasoning, and
+ordered artifact IDs also match; only fresh context and routing identities
+differ. Any finding or bound-input change requires a candidate or inventory
+correction and two new preaudit contexts.
+
+**Consequences:** Candidate 06 is preserved but superseded before image build or
+curation. The successor mutation suite must cover both roles, prompt drift,
+surface-only and rejected-link payload clones, unrelated-surface rejection,
+supported-finding links, and a valid overlapping review-defect correction. The
+new held-out curator/evaluator must enforce the exact clean-record and
+preaudit-to-review prompt equality rules; no current course chapter becomes an
+acceptance fixture.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-13 - Reject semantic adjudication repair and retire run-05 held-out cases
+
+**Status:** Accepted after the run-05 concealed-mapping effectiveness failure.
+
+**Context:** Candidate 07's fresh forward test detected both mapped defects and
+the private and actual negative-control reviews remained exactly clean. Four of
+the defect-case adjudicators nevertheless wrote `pass` for nine
+`surfaceAdjudications[].judgment` values while their rationales approved the
+same-role reviewers' blocking assessments. A host projection replaced those
+nine values with `blocking`, after which receipt sealing and final verification
+passed. The protocol defines each value as the adjudicator's model-authored
+supportable-severity judgment, so that projection changed semantic judgments;
+it was not ordering, serialization, or other deterministic normalization.
+
+**Decision:** Preserve run 05 as failed evidence. Never rewrite a model-authored
+review or adjudication judgment to make it agree with another record or pass a
+deterministic verifier. Require each raw adjudication response itself to give
+every surface the exact supportable severity of the same-role review assessment;
+reject a mismatch before creating any seal output. Keep deterministic
+normalization limited to representations that do not change semantic field
+values, and bind both the original raw response and any permitted canonical
+representation explicitly.
+
+The curator mapping is now exposed, so retire the complete run-05 set
+`set-q4f8s`, including its clean control, from held-out acceptance. Retain its
+cases, preaudits, reviews, adjudications, projections, receipts, seals,
+verification, and effectiveness report only as immutable diagnostic and
+regression evidence. Build candidate 08 from transferable enforcement only,
+then use a wholly new concept-disjoint opaque set, fresh private control
+preaudits, fresh reviewers and adjudicators, and a new concealed-mapping
+evaluator. Do not encode any run-05 ID, expected answer, defect phrase, or
+lexical shortcut in the skill or tool.
+
+**Consequences:** Candidate 07's deterministic topology, provenance, prompt,
+and regression-image evidence may be referenced as predecessor input, but it
+cannot close the step. The skill remains uncommitted and no course chapter may
+start until a successor passes the fresh held-out gate and receives its own
+completion checkpoint and commit. Current-course automated checks remain build
+compatibility evidence only and do not certify learner-facing semantics.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-13 - Put canonical semantic-response bytes in every role prompt
+
+**Status:** Accepted after the candidate-08 pre-curation comprehension probe.
+
+**Context:** Candidate 08 separated a reviewed surface's severity from the
+adjudicator's support/rejection decision and passed independent policy and
+executable audits. Before curating another held-out set, a fresh adjudicator
+received exactly the intended four artifacts. It correctly returned a sound
+blocking review as `reviewAssessmentJudgment: "blocking"`,
+`judgment: "supported"`, and role verdict `pass`, but serialized the otherwise
+valid record as indented JSON. The verifier correctly rejected those bytes
+because exact raw responses must already be compact recursively key-sorted JSON
+with one final LF. That byte contract appeared in repository policy but not in
+the model-visible canonical adjudication prompt. Reviewer prompts were even
+less constrained: arbitrary routed text was accepted, although review raw
+responses have the same exact-byte requirement and run 05 had already needed
+an impermissible post-response array-order correction.
+
+**Decision:** Preserve the candidate-08 probe response unchanged as failed
+pre-curation evidence. Define one executable canonical prompt for each review
+role as well as each adjudication role. Every canonical prompt states the
+role-specific semantic task and the exact response-byte contract: emit only one
+compact JSON object; recursively order every object key by UTF-8 bytes; preserve
+schema-required array ordering; use no whitespace outside JSON strings; and end
+with exactly one LF. Reject any routed prompt whose exact bytes differ from its
+canonical role prompt. Keep the held-out-control preaudit and actual-review
+prompts byte-identical by using that same canonical generator.
+
+Do not relax raw-response validation or canonicalize a model response on the
+host. A response that is semantically sound but serialized incorrectly remains
+failed evidence and is replaced only by a fresh context and route. Before a new
+held-out curation begins, run fresh isolated model-facing probes for both review
+roles and both adjudication roles; each must independently produce exact
+canonical bytes and the intended role semantics from only its four artifacts.
+
+**Consequences:** Candidate 08 remains useful audited predecessor evidence but
+is superseded before image rebuild or held-out curation. Candidate 09 expands
+the prompt contract and mutation suite without changing candidate content,
+review substance, external receipt topology, or current course bytes. This
+pre-curation probe prevents another expensive concealed run from failing on an
+unstated serialization requirement.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-13 - Ship a lean English-authoring skill pilot before further hardening
+
+**Status:** Accepted by the human after the run-06 judgment-boundary diagnosis.
+
+**Context:** The English-authoring skill, schemas, receipt verifier, canonical
+prompts, deterministic mutation suite, and repository regression image were
+implemented, but repeated multi-case held-out cycles kept discovering defects in
+the validation harness itself. Restarting the entire expensive cycle after each
+late-stage harness correction repeatedly recomputed already-proven early stages
+without producing a commit. A frozen technical reviewer also exposed an
+instruction-trigger conflict: the broad skill trigger required loading the full
+authoring skill while the judgment protocol allowed only four routed artifacts.
+The human selected the lean skill-plus-one-pilot strategy and directed future
+improvements to come from real chapter work in separate commits. The human also
+requested that repeatedly generated deterministic setup be promoted into the
+toolchain.
+
+**Decision:** Treat the authoring skill as outer-orchestration guidance and
+exclude execution inside a frozen reviewer or adjudicator context from its
+trigger. Such a context keeps platform and system instructions but opens only
+its context manifest, exact canonical prompt, role bundle, and output schema;
+the skill is not a fifth artifact.
+
+Close this step with one bounded representative staged lesson pilot that runs
+both independent reviews, both same-role adjudications, exact-byte sealing, and
+the deterministic final gate. A candidate containing supported blockers may
+finish the pilot at the expected fail-closed publication boundary; deterministic
+tests retain positive-path coverage. Do not require another concealed
+three-case effectiveness cycle before committing this v1 skill. Preserve the
+unfinished run-06 set as diagnostic evidence without revealing or reusing its
+mapping for acceptance.
+
+When a deterministic manifest, routing, or command sequence is generated more
+than once, move it into the maintained skill tool and test that reusable
+interface rather than creating another run-specific script. After this commit,
+improve the skill only through separately scoped commits prompted by real
+English chapter work; do not fold learner-content corrections into this step.
+
+**Consequences:** Candidate-09's prior exact manifest and image remain useful
+regression evidence but cannot bind the trigger correction. Run 06 is
+interrupted, and run 07 owns the trigger correction, reusable routing command,
+bounded pilot, final deterministic validation, checkpoint, and commit. This is
+an intentionally pragmatic v1 gate, not a claim that one pilot proves universal
+content-review effectiveness or that the current course is semantically
+correct.
+
+**Affected step:** `establish-canonical-english-authoring-skill`.

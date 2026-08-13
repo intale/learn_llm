@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learn-llm.local/schemas/english-evidence-receipt-v1.json",
+  "title": "Canonical-English externally sealed evidence receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kind",
+    "candidateId",
+    "subjectId",
+    "role",
+    "scopeId",
+    "binding",
+    "inventory",
+    "model",
+    "reasoning",
+    "routing",
+    "receiptSchema",
+    "context",
+    "prompt",
+    "bundle",
+    "schema",
+    "rawResponse",
+    "record",
+    "upstreamReceipt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "kind": { "enum": ["review", "adjudication"] },
+    "candidateId": { "$ref": "#/$defs/id" },
+    "subjectId": { "$ref": "#/$defs/id" },
+    "role": { "enum": ["technical-pedagogical", "isolated-surface"] },
+    "scopeId": { "$ref": "#/$defs/id" },
+    "binding": { "$ref": "#/$defs/artifact" },
+    "inventory": { "$ref": "#/$defs/artifact" },
+    "model": { "type": "string", "minLength": 1 },
+    "reasoning": { "type": "string", "minLength": 1 },
+    "routing": { "$ref": "#/$defs/artifact" },
+    "receiptSchema": { "$ref": "#/$defs/artifact" },
+    "context": { "$ref": "#/$defs/artifact" },
+    "prompt": { "$ref": "#/$defs/artifact" },
+    "bundle": { "$ref": "#/$defs/artifact" },
+    "schema": { "$ref": "#/$defs/artifact" },
+    "rawResponse": { "$ref": "#/$defs/artifact" },
+    "record": { "$ref": "#/$defs/artifact" },
+    "upstreamReceipt": {
+      "oneOf": [{ "$ref": "#/$defs/artifact" }, { "type": "null" }]
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/hash" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "review" } } },
+      "then": { "properties": { "upstreamReceipt": { "type": "null" } } }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "adjudication" } } },
+      "then": {
+        "properties": {
+          "upstreamReceipt": { "$ref": "#/$defs/artifact" }
+        }
+      }
+    }
+  ]
+}

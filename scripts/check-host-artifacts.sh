@@ -6,6 +6,7 @@ root=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 forbidden_directory=$(
   find "$root" \
     -path "$root/.git" -prune -o \
+    -path "$root/.build/runs" -prune -o \
     -type d \( \
       -name target -o \
       -name node_modules -o \
@@ -28,6 +29,7 @@ fi
 forbidden_python=$(
   find "$root" \
     -path "$root/.git" -prune -o \
+    -path "$root/.build/runs" -prune -o \
     -type f \( -name '*.pyc' -o -name '*.pyo' \) -print -quit
 )
 

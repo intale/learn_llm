@@ -1,0 +1,4 @@
+interface:
+  display_name: "Author LLM Course English"
+  short_description: "Author and orchestrate canonical English content"
+  default_prompt: "Use $author-llm-course-english to author or revise the requested canonical-English learn_llm surface, orchestrate independent reviews and role-specific adjudications, and prepare verified evidence for localization."

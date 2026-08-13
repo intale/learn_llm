@@ -91,6 +91,154 @@ chrome, or author intent. When compression would hide a required link, add the
 smallest sufficient explanation or a concrete example. Explicitness does not
 require repeating information that is already local and unambiguous.
 
+### Canonical-English authoring and review
+
+Use `.agents/skills/author-llm-course-english/SKILL.md` when authoring or revising
+canonical-English learner-facing content, and when orchestrating, packaging,
+auditing, setting up, or activating its review and adjudication workflow. This
+includes contract fields, lessons, metadata, SEO or catalog copy, diagrams,
+exercises, answers, navigation, accessibility labels or descriptions, and cheat
+sheets. Rust-only, CSS-only, and test-only work that leaves English
+learner-facing bytes, surface roles, role requirements, reading order, isolation
+groups, and extracted values unchanged does not invoke the skill.
+
+Do not invoke that skill inside a frozen four-artifact reviewer or adjudicator
+judgment context. Platform and system instructions already present in that
+context remain in force, but the judgment context must not open `AGENTS.md`,
+`SKILLS.md`, the authoring skill, its references, or another repository skill or
+protocol file. It follows the executable canonical prompt as its role instruction
+and reads only its context manifest, exact canonical prompt, role-specific
+bundle, and output schema. This instruction boundary adds no fifth artifact and
+does not weaken routing, exact-response, receipt, or verification requirements.
+
+Derive English claims from current executable, mathematical, historical, or
+course-policy evidence and record the commitments each affected surface must
+carry. Freeze a neutral role requirement for every complete document,
+reading-order unit, and isolated surface before assigning reviewers; a reviewer
+must not invent or narrow the requirement it is asked to judge. The technical
+review must also check those frozen requirements against the evidence and
+commitment map.
+
+Choose each isolated unit from its actual learner-facing or accessibility role,
+not from an arbitrary DOM boundary. Group semantically inseparable values only
+when the rendered reading order or accessibility relationship really presents
+them together. A fragment intentionally presented on its own must carry the
+referents required for that role, but a contextual heading must not be forced to
+repeat the page concept that its associated section already supplies. Never add
+unrelated surrounding prose merely to rescue incomplete standalone copy.
+
+The English author may revise and self-audit a draft but cannot certify it for
+publication. Freeze the exact source and built HTML, then require one fresh
+technical/pedagogical reviewer and a different fresh isolated-surface reviewer
+to judge the same hash-bound candidate. After both records are frozen, require
+two more fresh role-specific adjudicators: one judges the technical review and
+one judges the isolated-surface review without receiving the sibling role's
+private evidence. Every reviewer assessment must repeat its frozen role
+requirement exactly and receive substantive adjudicator approval before
+localization begins. The author, both reviewers, and both adjudicators must use
+pairwise-distinct contexts. Use the strongest available course-content model for
+authoring and all four judgments; use Luna only for deterministic packaging and
+Terra only for affected rendered-image review.
+
+An adjudicator judges the soundness and completeness of the same-role review,
+not the candidate directly. Its role verdict `pass` approves a sound review even
+when that review correctly gives the candidate `fail`; role verdict `fail` means
+the review is unsound or incomplete. For every reviewed surface, the
+adjudication must exact-echo the review assessment's `pass`, `advisory`, or
+`blocking` severity as `reviewAssessmentJudgment`, then judge that assessment as
+`supported` or `rejected`. `supported` approves the assessment at its echoed
+severity and has no adjudicator-finding links. `rejected` requires a linked
+blocking review-defect finding on that surface and makes the review chain
+unsound. Approving a sound blocking assessment never changes its severity to
+`pass`. Apply the same support/rejection distinction to review findings;
+adjudicator findings describe review defects and never duplicate supported
+candidate findings. Prepared adjudication bundles carry the fixed model-visible
+`adjudicationSemantics` object defined by the review protocol, and each exact
+canonical adjudication prompt repeats all five values verbatim as workflow
+semantics, never as candidate content or a disclosed expected verdict.
+Publication or localization still requires both review verdicts and both
+adjudication verdicts to be `pass`.
+
+Route every technical/pedagogical and isolated-surface reviewer through the
+exact UTF-8 JSON returned by the review tool's executable
+`canonicalReviewPrompt(role)` function, and route both same-role adjudicators
+through `canonicalAdjudicationPrompt(role)`. Each canonical prompt carries its
+role-specific task, four-artifact access boundary, and closed
+`responseByteContract`. That contract requires the response bytes themselves to
+contain only one compact JSON object, recursively sort every object key by UTF-8
+bytes, preserve every schema-required array order, contain no whitespace outside
+JSON strings, and end with exactly one final LF. Reject any routed prompt whose
+bytes differ from the applicable canonical output. A
+canonical prompt never supplies a candidate classification, expected defect,
+expected answer, or expected candidate, review, or adjudication verdict.
+
+Bind each reviewer and adjudicator to an externally frozen routing manifest that
+hashes the actual context manifest, prompt, role-specific bundle, and output
+schema. The model-authored record contains semantic judgments and identifiers it
+can read; it must not self-report hashes that are knowable only after its context
+or routing manifest is frozen. The exact raw response bytes are the semantic
+record. Deterministic tooling may extract, order, hash-bind, and package inputs
+before routing; after a response it may only validate the untouched bytes,
+compute exact-byte receipt hashes, and copy those same bytes into the seal. It
+must never normalize, reorder, reserialize, project, repair, inject, delete, or
+replace a semantic value or record. Preserve an invalid raw response as failed
+evidence, reject it before sealing, and obtain any replacement from a fresh
+judgment context. Seal each valid exact raw response in a deterministic external
+receipt that binds the actual routing manifest, context manifest, prompt,
+role-specific bundle, schema, raw response, byte-identical sealed record,
+candidate binding, inventory, and receipt schema; an adjudication receipt must
+also bind its same-role review receipt. Deterministic verification recomputes
+those artifacts, validates every review and adjudication record structurally
+before combining verdicts, and fails closed on any prompt, context, bundle,
+schema, raw-response, record, routing, receipt, upstream-receipt, candidate,
+inventory, or publication-byte drift. Bind the author identity through an actual
+frozen author-context manifest too; a free context ID and hash pair in the review
+spec is insufficient.
+
+Any English meaning, presentation, role requirement, extracted-surface, or
+rendered-text edit invalidates both English reviews, both adjudications, and
+every dependent locale review. A CSS-only change may retain English language
+reviews only when it changes no English text, surface role, role requirement,
+reading order, isolation group, or extracted value; it still invalidates
+affected rendered-image evidence. Deterministic tooling may prove bytes,
+provenance, inventory coverage, routing, context separation, and publication
+identity, but it must not claim to prove technical correctness, pedagogy,
+clarity, English quality, accessibility meaning, or the substance of a review.
+
+Before curating a held-out candidate set, require four fresh pre-curation prompt-
+comprehension probes: one for each reviewer role and one for each adjudicator
+role. Give each probe a neutral tiny fixture and exactly the same four artifact
+types as the corresponding real judgment: a fresh context manifest, its exact
+canonical role prompt, its exact role-specific bundle, and the applicable output
+schema. Preserve and validate the exact raw response bytes without host
+transformation. Do not create or route a curator mapping, answer key, candidate
+classification, expected defect, or expected verdict for any probe. All four
+probes must demonstrate the intended role semantics and satisfy the response-
+byte contract before held-out curation begins.
+
+Before using a concealed negative control in a held-out forward test, require two
+fresh private exact-byte preaudits: one full technical/pedagogical preaudit and
+one source-blind isolated-role preaudit. Each uses the same four-artifact shape
+as its actual reviewer—context manifest, canonical review prompt, exact role
+bundle, and review schema. Use the same-role canonical review prompt byte-for-
+byte, with the same hash, for the preaudit and the later actual review; only the
+fresh context and external routing identities differ. No model-facing task,
+path, or identifier may disclose the candidate's classification. Before the
+candidate may serve as the control, both
+preaudit records must have verdict `pass`, an empty `findings` array, and
+`judgment: "pass"` with empty `findingIds` for every surface assessment. For
+this gate, an advisory is a finding; any finding requires a candidate or
+inventory correction and invalidates both preaudits. Keep both preaudits out of
+later judgment bundles. Any edit to a role prompt or another bound input
+invalidates both and requires new contexts.
+
+If a held-out effectiveness test fails after its mapping or intended answers are
+exposed, retire the entire set, including any clean control. Preserve its exact
+artifacts only as labeled diagnostic or regression evidence; never rerun,
+repackage, or reseal that set as fresh held-out acceptance. A successor test
+uses new disjoint concepts, opaque identities, private preaudits, judgment
+contexts, routes, receipts, mapping, and evaluator evidence.
+
 ### Localization source and review
 
 English is the canonical semantic source for every localized course surface.

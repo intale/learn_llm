@@ -357,13 +357,121 @@ language tags, native names, and directions. The course plan defines which of
 those registered locales are active for a particular chapter. Do not hard-code
 an English/Russian pair in chapter logic.
 
-English is the canonical semantic source. Finish the current English lesson or
-catalog entry first, then translate every non-English locale directly from that
-English revision. Never translate through Russian or another localized version,
-and never reuse an older English revision as the source for a newer target
-revision. When English changes in meaning or presentation, invalidate the
-affected target-locale review until it has been refreshed from English. Invoke
-`.agents/skills/localize-llm-course/SKILL.md` for the target-language work.
+English is the canonical semantic source. For every English learner-facing
+change, invoke `.agents/skills/author-llm-course-english/SKILL.md` in the author
+or orchestration context and follow this publication order:
+
+```text
+current evidence -> evidence-led English authoring -> frozen source and built HTML
+-> independent technical/pedagogical and isolated-surface reviews
+-> separate role-specific adjudication of both frozen review records
+-> exact reviewed English revision -> localization of every active non-reference locale
+```
+
+The skill governs authoring and the outer setup, packaging, audit, adjudication,
+and activation workflow; it is not an input to a frozen reviewer or adjudicator
+judgment. Platform and system instructions already present remain in force, but
+that judgment context must not invoke the skill or open `AGENTS.md`, this
+playbook, the skill, its references, or another repository skill or protocol
+file. Its executable role instruction is the exact canonical prompt, and its
+only routed inputs are the context manifest, that prompt, the role-specific
+bundle, and the output schema. This separation adds no fifth artifact and does
+not relax exact routing, raw-response, receipt, or verification checks.
+
+The English author cannot certify the draft. Freeze each surface's neutral role
+requirement before review; the technical reviewer checks those requirements
+against the evidence, and neither reviewer may replace them with self-selected
+criteria. Define isolated units by the actual learner-facing or accessibility
+relationship, not by arbitrary DOM fragments. Group values only when the real
+rendered reading order or accessibility tree presents them together and their
+meaning is inseparable there. An intentionally standalone fragment carries its
+own required referents; a contextual heading need not repeat a page concept that
+its associated section supplies. Both independent English review verdicts must
+be `pass`, and both fresh role-specific adjudication verdicts must be `pass` to
+approve their same-role reviews, before translation begins.
+Externally frozen routing manifests, rather than record self-attestation, bind
+each reviewer and adjudicator to the actual context manifest, prompt,
+role-specific bundle, and schema it was allowed to read. Model-authored records
+contain only semantic judgments and identifiers available inside that boundary;
+the exact raw response bytes are the semantic record. Deterministic tooling may
+extract, order, hash-bind, and package inputs before routing. It may validate and
+exact-byte hash a response afterward, but it must not normalize, reorder,
+reserialize, project, repair, or replace any model-authored semantic value or
+record. Preserve and reject an invalid response before sealing; only a new fresh
+judgment context may replace it. Deterministic external receipts bind each exact
+raw response and byte-identical sealed record to its route and bind every
+adjudication receipt to its same-role review receipt. Verification recomputes
+the receipt-bound artifacts and fails closed on receipt, upstream-receipt,
+raw-response, or record drift. The author identity likewise comes from a bound
+author-context file. Each adjudicator judges its same-role review: role verdict
+`pass` approves a sound and complete review even when that review correctly
+fails the candidate, while role verdict `fail` means the review is unsound or
+incomplete. Each surface entry exact-echoes the review assessment severity as
+`reviewAssessmentJudgment`, then uses `judgment: supported` or
+`judgment: rejected` to judge that assessment. Support keeps the echoed
+`pass`, `advisory`, or `blocking` severity and has no adjudicator-finding links;
+rejection requires a linked blocking review-defect finding on that surface and
+makes the chain unsound. Adjudicator findings never duplicate a supported
+candidate finding. Prepared adjudication bundles carry the review protocol's
+fixed model-visible `adjudicationSemantics`; exact canonical adjudication prompts
+repeat all five values verbatim and identify them as workflow semantics, not
+candidate content or an expected verdict. Any later English
+meaning, presentation, role-requirement, extracted-surface, or rendered-text edit
+invalidates both English reviews, both adjudications, and every dependent locale
+review. Rust-only, CSS-only, and test-only work that leaves English
+learner-facing bytes, surface roles, role requirements, reading order, isolation
+groups, and extracted values unchanged does not invoke the English skill, though
+an affected CSS change still requires new rendered evidence.
+
+The tool exposes exact `canonicalReviewPrompt(role)` and
+`canonicalAdjudicationPrompt(role)` outputs for both `technical-pedagogical` and
+`isolated-surface`. Route those exact UTF-8 JSON bytes; a semantically equivalent
+prompt is drift and must fail. Every prompt names its role-specific task and
+authorized four-artifact boundary and requires the model to emit only one compact
+JSON object, recursively sort every object key by UTF-8 bytes, preserve every
+schema-required array order, use no whitespace outside JSON strings, and end
+with exactly one final LF. The canonical prompts never disclose the candidate's
+classification, an expected defect or answer, or an expected candidate, review,
+or adjudication verdict.
+
+Before curating a held-out set, run four fresh prompt-comprehension probes over
+neutral tiny fixtures: both reviewer roles and both adjudicator roles. Route
+each probe exactly a fresh context manifest, its canonical role prompt, its
+exact role-specific bundle, and its applicable output schema. Preserve the raw
+response bytes and require both the intended role semantics and exact response-
+byte contract to pass without host transformation. Do not create or route a
+mapping, answer key, classification, expected defect, or expected verdict. All
+four probes must pass before held-out curation begins.
+
+A concealed negative control used to forward-test the English workflow first
+needs two private exact-byte preaudits in fresh contexts. Route one full
+technical/pedagogical preaudit and one source-blind isolated-role preaudit through
+the same four artifact types as the corresponding actual review: context
+manifest, canonical review prompt, exact role bundle, and review schema. Reuse
+the same-role canonical review prompt's exact bytes and hash for that role's
+preaudit and later actual review; only context and routing identities may
+differ. Keep the classification out of every model-facing task, path, and
+identifier. Before the
+candidate may serve as the control, both preaudit records must have verdict
+`pass`, an empty `findings` array, and `judgment: "pass"` with empty `findingIds`
+for every surface assessment. For this gate, an advisory is a finding; any
+finding requires a candidate or inventory correction and invalidates both
+preaudits. Keep both preaudit results out of later judgment bundles. Any edit to
+a role prompt or another bound preaudit input invalidates both preaudits and
+requires new contexts.
+
+If the final held-out effectiveness evaluation fails after the mapping or
+intended answers are exposed, retire the complete set, including the clean
+control. Keep it only as labeled diagnostic or regression evidence. A successor
+held-out test uses new disjoint concepts, opaque identities, private preaudits,
+fresh judgments, routes, receipts, mapping, and evaluator evidence; rerunning or
+resealing the exposed set cannot count as fresh acceptance.
+
+After English passes, translate every non-English locale directly from that
+current reviewed revision. Never translate through Russian or another localized
+version, and never reuse an older English revision as the source for a newer
+target revision. Invoke `.agents/skills/localize-llm-course/SKILL.md` for the
+target-language work.
 
 Apply the repository's explicit-wording rule while authoring English, before any
 translation begins. At each point of use, supply the smallest explanation needed

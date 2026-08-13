@@ -52,6 +52,18 @@ expect_failure "$course" review 20260719T160959Z-does-not-exist-01 --check
 expect_failure "$course" release unexpected
 expect_failure "$course" unknown
 
+host_audit_run="$root/.build/runs/20260812T000000Z-host-audit-fixture-${BASHPID}-01"
+test_paths+=("$host_audit_run")
+mkdir -p "$host_audit_run/test-results" "$host_audit_run/retained"
+printf 'retained run result\n' > "$host_audit_run/test-results/result.txt"
+printf 'retained bytecode fixture\n' > "$host_audit_run/retained/evidence.pyc"
+"$course" audit-host >/dev/null
+
+host_audit_sibling="$root/.build/host-audit-${BASHPID}"
+test_paths+=("$host_audit_sibling")
+mkdir -p "$host_audit_sibling/test-results"
+expect_failure "$course" audit-host
+
 test_run_id="20260719T162400Z-cli-unlisted-${BASHPID}-01"
 test_run="$root/.build/runs/$test_run_id"
 test_paths+=("$test_run")

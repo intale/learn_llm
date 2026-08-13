@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learn-llm.local/schemas/english-review-record-v1.json",
+  "title": "Independent canonical-English semantic review record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "reviewId",
+    "role",
+    "scopeId",
+    "reviewer",
+    "surfaceAssessments",
+    "verdict",
+    "findings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "candidateId": { "$ref": "#/$defs/id" },
+    "reviewId": { "$ref": "#/$defs/id" },
+    "role": { "enum": ["technical-pedagogical", "isolated-surface"] },
+    "scopeId": { "$ref": "#/$defs/id" },
+    "reviewer": { "$ref": "#/$defs/reviewer" },
+    "surfaceAssessments": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/surfaceAssessment" }
+    },
+    "verdict": { "enum": ["pass", "fail"] },
+    "findings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contextId",
+        "freshContext",
+        "model",
+        "reasoning",
+        "startedAt",
+        "completedAt",
+        "accessBoundary"
+      ],
+      "properties": {
+        "contextId": { "$ref": "#/$defs/id" },
+        "freshContext": { "const": true },
+        "model": { "type": "string", "minLength": 1 },
+        "reasoning": { "type": "string", "minLength": 1 },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "accessBoundary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "declaredArtifactIdsRead"],
+          "properties": {
+            "mode": { "const": "declared-read-only" },
+            "declaredArtifactIdsRead": {
+              "type": "array",
+              "const": [
+                "context-manifest",
+                "prompt",
+                "review-bundle",
+                "review-record-schema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "surfaceAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surfaceId",
+        "judgment",
+        "roleRequirement",
+        "rationale",
+        "findingIds"
+      ],
+      "properties": {
+        "surfaceId": { "$ref": "#/$defs/id" },
+        "judgment": { "enum": ["pass", "advisory", "blocking"] },
+        "roleRequirement": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "rationale": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "findingIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "severity",
+        "surfaceIds",
+        "evidence",
+        "learnerConsequence",
+        "correctionCriterion"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "category": {
+          "enum": [
+            "source-ambiguity",
+            "technical",
+            "evidence-overreach",
+            "represented-arithmetic",
+            "history-source",
+            "pedagogy",
+            "prerequisite",
+            "causal-structure",
+            "formula-code-consistency",
+            "accessibility-isolation",
+            "surface-role",
+            "other"
+          ]
+        },
+        "severity": { "enum": ["blocking", "advisory"] },
+        "surfaceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "evidence": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "learnerConsequence": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "correctionCriterion": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "verdict": { "const": "pass" } } },
+      "then": {
+        "properties": {
+          "findings": {
+            "not": {
+              "contains": {
+                "required": ["severity"],
+                "properties": { "severity": { "const": "blocking" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
