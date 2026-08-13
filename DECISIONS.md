@@ -22416,3 +22416,307 @@ separate infrastructure limitation does not broaden this learner-content commit.
 `explain-ch02-bpe-in-cheat-sheet-20260808`,
 `add-ch02-bpe-cheat-sheet-term`, and
 `20260813T132444Z-add-ch02-bpe-cheat-sheet-term-01`.
+
+## 2026-08-13 - Bound the functional-laptop capability audit before design
+
+**Status:** Accepted during preflight for
+`audit-functional-laptop-llm-capability-gaps`, before any audit output or network
+lookup was created.
+
+**Context:** The next build is deliberately audit-first. Its purpose is to test
+the user's twelve findings and five priorities against the complete committed
+course and to discover omissions, not to select a fashionable stack or begin
+implementing a larger model. The audit is large and read-heavy, while its
+declared network input is narrow: primary papers and official specifications are
+needed for modern hardware, formats, data governance, training, evaluation,
+inference, serving, post-training, safety, interoperability, and persistence.
+Bulk artifacts, new dependencies, and expensive compute belong behind the later
+resource contract.
+
+**Decision:** Run three disjoint read-only lanes in parallel: current-course
+evidence and misleading-claim inventory; data/training/hardware capability and
+resource bounds; and inference/serving/post-training/application/safety
+capabilities. The parent reconciles them into the three declared audit outputs.
+Use only primary research or official specifications for external factual
+claims, record stable URLs and bounded claim scopes, and distinguish measured
+facts from conservative engineering estimates. Do not download a dataset,
+model weight, crate, CUDA component, database image, or other bulk artifact; do
+not run a GPU workload; do not change learner content, Rust, dependencies, or
+tests. Treat the exact supplied review as an input to verify, never as an answer
+key or an exhaustive taxonomy.
+
+**Consequences:** The audit can spend one large agent session and limited web
+lookups without a human approval pause because the build has no numeric budget
+ceiling and already declares this cost. Every requirement must end in a
+falsifiable gate, an affected-file/dependency map, a conservative laptop resource
+estimate, a learner-misconception risk, and one of four classifications:
+reference-core proven, mandatory laptop implementation, laptop-feasible advanced
+exercise, or bounded scale extension. Dataset/model selection, PostgreSQL use,
+dependency choices, and exact GPU profiles remain decisions for the following
+resource-contract step. Recovery follows the user's N-through-END rule: a
+failure in one lane or validator resumes at that boundary, and only after all
+downstream work passes is the complete audit replayed from 1 through END.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`, and
+`20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.
+
+## 2026-08-13 - Make functional-capability web lookup uncapped but source-bounded
+
+**Status:** Accepted from explicit user authorization during the running
+capability audit.
+
+**Context:** The initial audit preflight allowed limited primary/official source
+lookup. The user has now approved an unlimited web lookup budget for this task so
+that breadth or elapsed lookup time does not force an incomplete capability map.
+This changes the lookup budget, not the audit's evidence standard or authority to
+acquire executable artifacts.
+
+**Decision:** Permit uncapped web-search and page-read volume for the current
+audit. Continue to ground technical claims in primary research and official
+hardware, format, license, safety, serving, persistence, and interoperability
+specifications. Keep inference explicit when a number is a conservative
+engineering estimate rather than a sourced specification. Do not download
+datasets, model weights, crates, CUDA components, container images, database
+images, or other bulk artifacts, and do not run GPU workloads; those remain
+behind the accepted resource-contract and design checkpoints.
+
+**Consequences:** Research lanes may follow all relevant primary/official source
+branches needed for a complete and independently checked taxonomy without
+stopping for lookup cost. Citation quality, reproducible claim scope, and the
+separation between audit facts and later implementation choices remain
+fail-closed.
+
+**Affected step and run:** `audit-functional-laptop-llm-capability-gaps` and
+`20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.
+
+## 2026-08-13 - Keep retrieval requirements independent of PostgreSQL
+
+**Status:** Accepted from user clarification during
+`audit-functional-laptop-llm-capability-gaps`.
+
+**Context:** PostgreSQL was mentioned as a possible implementation when a
+functional application genuinely needs vector-database behavior. It was not a
+request to make PostgreSQL, pgvector, a relational service, or any database a
+course objective or default dependency. The bounded laptop endpoint can teach
+retrieval semantics with a small inspectable vector fixture and exact in-memory
+or filesystem-backed search.
+
+**Decision:** Specify retrieval, authorization-before-ranking, deterministic
+ordering, provenance, citation, persistence, and recovery semantics independently
+of their storage backend. Prefer the smallest local implementation that satisfies
+the measured endpoint: in-memory exact search or hash-bound files by default.
+Classify PostgreSQL/pgvector as an optional advanced adapter only if a later
+resource/design step demonstrates scale, concurrency, transaction, query, or
+recovery requirements that the simpler implementation cannot meet. Do not make
+the static course, model runtime, imported endpoint, or retrieval lesson depend
+on a database service.
+
+**Consequences:** The capability validator must test the backend-neutral boundary,
+not merely require the word PostgreSQL. Database-specific sources and exercises
+may remain as conditional evidence, but cannot satisfy or block the mandatory
+retrieval endpoint. The following resource-contract step must record a positive
+justification before selecting any database image, client, migration system, or
+vector extension.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`, and
+`20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.
+
+## 2026-08-13 - Narrow PostgreSQL authority to an optional vector adapter
+
+**Status:** Accepted as the precise interpretation of the user's persistence
+clarification; this supersedes the broader possible relational uses in the
+2026-08-10 PostgreSQL decisions and the preceding backend-neutral audit note.
+
+**Context:** The user mentioned PostgreSQL only in case the course needs vector
+database functionality. The mandatory laptop retrieval exercise is intentionally
+small and inspectable: provided provenance-bound vectors, authorization before
+scoring, deterministic exact ranking, and in-memory or filesystem persistence
+are sufficient. Generic run, request, evaluation, or observability metadata does
+not independently justify adding a database service to this course.
+
+**Decision:** Do not select PostgreSQL for the mandatory endpoint or generic
+metadata persistence. Keep retrieval and persistence backend-neutral and use the
+bounded in-memory/filesystem implementation as the canonical oracle and default.
+PostgreSQL with a pinned vector extension may be proposed only as a
+laptop-feasible advanced adapter if a later measured vector collection or query
+workload exceeds the simple exact-search design. That later decision must prove
+the need before acquiring an image, client, extension, or migration dependency.
+
+**Consequences:** The audit may retain conditional PostgreSQL/pgvector source and
+adapter records, but they cannot satisfy a mandatory capability, appear in a
+mandatory dependency/file surface, or block the functional endpoint. The resource
+contract first measures the vector workload; absent a demonstrated excess, it
+omits PostgreSQL entirely. If selected later, adapter conformance, migrations,
+recovery, and resource checks remain required without changing the static-site
+runtime or allowing the database to implement course-owned retrieval policy.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`, and
+`20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.
+## 2026-08-13 - Scale one autoregressive implementation through explicit profiles
+
+**Status:** Accepted from user clarification during the functional-capability
+audit.
+
+**Context:** Laptop feasibility is an execution and validation envelope, not a
+different small-model implementation. A student must be able to see precisely
+how the current roughly one-thousand-parameter reference becomes a larger
+teaching model, the measured laptop model, and a production-shaped decoder by
+changing declared settings. Hard-coded pedagogical dimensions would conceal
+that relationship. At the same time, the requested model family is
+autoregressive text/token generation; adding image, audio, video, or other model
+families would multiply scope without serving the course objective.
+
+**Decision:** Build one causal decoder-only autoregressive Rust architecture with
+a versioned semantic configuration. It owns vocabulary size, model width, layer
+count, query and KV head counts, FFN width, context/position policy, tying, and
+other parameter-family choices. Separate named resource profiles own batch,
+training-token, cache, serving-capacity, memory, disk, and time ceilings. Compiler
+features may expose optional CPU/GPU backends, devices, or kernels, but cannot
+change model semantics or silently select a reduced algorithm. World size,
+topology, sharding, collective policy, and other distributed semantics remain
+explicit versioned runtime configuration rather than compile-time choices.
+
+The curriculum and tests must include an exact scale ladder: the current 1,188
+parameter reference; one design-frozen approximately 8,000-parameter learner
+configuration; the measured laptop configuration; and at least one
+production-shaped plan-only configuration. For each, checked closed-form formulas
+and an enumerated tensor census report exact parameters plus optimizer, activation,
+KV, compute, and communication estimates. Changing profiles requires no model
+source edit. A production-shaped profile must parse and plan through the same
+interfaces, then fail before allocation under laptop ceilings; that is design
+evidence, not a claim of production execution, throughput, quality, or distributed
+validation.
+
+Limit the model track to decoder-only autoregressive text/token modeling.
+External retrieval and tools may supply or consume text tokens behind explicit
+trust boundaries, but image/audio/video encoders or generators, multimodal
+adapters, diffusion, encoder-only, encoder-decoder, and unrelated model families
+are out of scope and receive no placeholder implementation.
+
+**Consequences:** Laptop limits remain inspectable, overrideable named settings
+rather than algorithm constants. Invalid divisibility, integer overflow,
+unsupported backend combinations, and resource excess fail before allocation.
+The resource contract freezes the schema and profiles; the design assigns the
+formulas and scale-ladder lessons; implementation proves identical semantic
+configuration across scalar and accelerated feature matrices; closure scans for
+hard-coded model dimensions and false production or multimodal claims.
+
+**Affected build, steps, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`,
+`define-functional-laptop-llm-resource-contract`,
+`design-functional-laptop-llm-curriculum-extension`,
+`close-functional-laptop-llm-curriculum-extension`, and
+`20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.
+
+## 2026-08-13 - Preserve one prepared-input seam inside the autoregressive decoder
+
+**Status:** Accepted from the user's explicit scope clarification during the
+functional-laptop capability audit.
+
+**Context:** The current decoder couples token-ID validation and embedding lookup
+to transformer execution even though its blocks already consume residual-stream
+tensors shaped as batch by token by model width. That coupling would make a future
+input-preparation experiment rewrite the decoder core. The user wants the course
+to leave a deliberate extension point, but explicitly does not authorize any
+second encoder or decoder, multimodal implementation, or non-autoregressive model
+family.
+
+**Decision:** The extension design must introduce one internal, checked prepared
+decoder-input boundary for the existing causal decoder. It carries residual-stream
+embeddings `[B,T,D]`, explicit positions, attention and segment metadata, loss
+eligibility, dtype/device information, and configuration/artifact provenance.
+The ordinary text token-ID path remains the only supported producer: it validates
+IDs, performs the course-owned embedding lookup, and passes the result through
+that boundary. Cached single-token decoding must use the same internal core rather
+than maintain a second transformer path. Do not add a public generic modality
+trait, placeholder modality enum, image/audio/video encoder, encoder-only model,
+encoder-decoder model, alternate decoder, modality adapter implementation,
+dependency, dataset, objective, or learner claim.
+
+**Consequences:** The curriculum will teach the boundary between token preparation
+and causal-decoder execution and the Rust design will keep it independently
+testable. Exact differential gates must preserve the existing token path's logits,
+loss, gradients, parameter identity/order, cached KV state, RNG behavior, and work
+counters. A future separately authorized project could add a producer of compatible
+embeddings only after defining its own preprocessing, projection, positions,
+masks, provenance, training, evaluation, safety, and resource contract; this seam
+alone is not evidence of multimodal capability.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`, and
+`20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.
+
+## 2026-08-13 - Accept the functional laptop LLM capability audit
+
+**Status:** Accepted after staged composition, independent mutation and semantic
+audits, one clean deterministic replay, atomic publication, and canonical pinned
+workspace validation.
+
+**Context:** The committed Chapters 0–39 and cumulative Rust implementation are
+a coherent scalar reference core and integration proof, but they do not yet
+satisfy the active build's functional laptop endpoint. The audit independently
+checked the supplied twelve findings and five priorities, inventoried every
+current chapter/contract/locale/Rust/demo and bounded learner claim, and followed
+primary papers and official specifications across data, training, hardware,
+inference, serving, post-training, safety, artifacts, and scale. During the audit,
+the user clarified that PostgreSQL is conditional on a demonstrated vector-store
+need, laptop limits must be runtime profiles rather than model semantics, the
+only model family is causal decoder-only autoregressive text/token generation,
+and the existing decoder should contain a narrow internal prepared-input seam
+without implementing any other encoder or decoder.
+
+**Decision:** Accept canonical `coverage.md` SHA-256
+`42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1`,
+`requirements.md` SHA-256
+`d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006`,
+and validator SHA-256
+`ce71141c802c2411cc29a2322d20bef277a92ab550316cb4c295b13ac387bf0f`.
+The accepted taxonomy has 104 primary/official source records and 79 capability
+records connected by 245 acyclic prerequisite edges. It freezes exact mappings
+for F01–F12 and P01–P05, exact boundaries for all 40 current learner claims, and
+the 21 current overbroad presentation surfaces.
+
+Require one versioned causal decoder-only autoregressive text/token
+implementation to scale through runtime settings from 1,188 parameters to the
+exact 8,304-parameter bridge, the 32,514,560-parameter laptop profile, and a
+69,500,936,192-parameter production-shaped plan/refuse profile. Keep semantic
+dimensions and world-size/topology/sharding/collective policy in versioned
+runtime configuration; compiler features may select backend, device, or kernel
+plumbing only. Keep one crate-internal checked `PreparedDecoderInput` seam shared
+by full and cached token paths, with ordinary token IDs as its only supported
+producer and tied text-token logits as the only output family. Do not add a
+public modality abstraction, non-text producer, alternate encoder or decoder,
+multimodal implementation, or placeholder capability.
+
+Make bounded in-memory/filesystem exact retrieval and immutable filesystem
+artifacts the mandatory persistence path. PostgreSQL/pgvector remains an
+unselected optional advanced adapter and requires a later measured need. The
+terminal imported-model endpoint must bind one SFT adapter through the mandatory
+bounded preference update into a versioned successor artifact, evaluate the
+disabled/SFT/successor states, and serve that exact successor under one identity
+graph; independently passing artifacts cannot substitute for that composition.
+
+**Consequences:** The next resource-contract step may select no dataset, model,
+dependency, database, or bulk artifact until it verifies exact revision,
+architecture compatibility, license, hashes, resource ceilings, and acquisition
+authority. It must reconcile provisional 6.5 GiB ISA estimates to the accepted
+6.25 GiB hard course-allocation ceiling or define a separately justified named
+profile. In particular, model popularity is not compatibility evidence: the
+selected imported model must match the accepted decoder architecture or fail
+before allocation. This audit changes no Rust, learner content, locale bytes,
+site behavior, dependency, or browser surface; later learner-facing steps still
+require canonical-English review, direct Russian localization review, static
+evidence, and supported Firefox validation.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`audit-functional-laptop-llm-capability-gaps`, and
+`20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01`.

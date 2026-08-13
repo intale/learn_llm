@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-13T15:35:05Z"
+updated_at: "2026-08-13T18:11:13Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -14,7 +14,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images. Host Python 3.13.1 with user-provided PyYAML 6.0.3 is used only for read-only ledger validation; host Rust, Node, and npm remain outside product validation."
 
-active_build: null
+active_build: "extend-course-to-functional-laptop-llm-20260810"
 
 builds:
   - build_id: bootstrap-course
@@ -41855,12 +41855,12 @@ builds:
         runs: []
 
   - build_id: extend-course-to-functional-laptop-llm-20260810
-    objective: "Extend the from-scratch reference core with a production-shaped, laptop-feasible path whose final Rust system can prepare realistic data, train and fully resume, evaluate, adapt, generate, and serve a functional modern LLM without implying production scale or state-of-the-art quality."
-    status: pending
+    objective: "Extend the from-scratch reference core with a production-shaped, laptop-feasible path whose final Rust system can prepare realistic data, train and fully resume, evaluate, adapt, generate, and serve a functional decoder-only autoregressive text LLM without implying validated production scale or state-of-the-art quality."
+    status: active
     budget:
       unit: agent-session
       limit: null
-      spent: 0
+      spent: 1
       notes: "High-priority curriculum expansion queued after the retained content-audit and Chapter 2 terminology work. Limited network access to official papers/specifications and license/model-card metadata is declared only by the audit and resource-contract steps. Dataset, model-weight, crate/CUDA, and other large-artifact downloads plus substantial CPU/GPU work are forbidden until the resource contract is accepted and an exact design-created implementation step declares them."
     completion_criteria:
       - "The existing 40-chapter tiny model is presented consistently as the exact scalar reference core and integration proof, never as a useful general-purpose or production-ready model."
@@ -41868,26 +41868,294 @@ builds:
       - "One measured RTX 4070-class 8 GB run trains and resumes a narrow-domain model with held-out evidence, a cheaper prescribed profile runs multiple fixed training seeds with spread and uncertainty, and one open small pretrained model is imported, adapted, evaluated, and served locally; every dataset, license, download, duration, throughput, host-memory, VRAM, and quality boundary is recorded."
       - "Distributed execution and mixture-of-experts are either exercised through laptop-feasible exact simulations or placed in clearly labeled advanced extensions whose unvalidated scale boundary is explicit; no lesson equates production-shaped functionality with production scale, safety, reliability, or benchmark leadership."
       - "Every learner-facing algorithm and decision remains course-owned Rust, and each accelerated formulation is additionally cross-checked against the scalar reference oracle; supporting GPU, tensor, serialization, networking, compression, and CLI dependencies have narrow recorded roles, minimal features, locked allowlisted graphs, and do not supply ready-made masking, packing, attention, quantization, model, trainer, sampler, or cache-scheduler logic."
+      - "One versioned model/profile configuration drives the same decoder-only autoregressive implementation from the exact 1,188-parameter reference through an exact approximately-8,000-parameter teaching profile and the measured laptop profile to production-shaped plan-only configurations; formulas expose exact parameter, optimizer, activation, KV, compute, and communication costs, and no architectural dimension or laptop ceiling is hard-coded into model semantics."
+      - "Runtime settings own vocabulary, width, depth, query/KV heads, FFN width, context, batching, training and serving capacities plus world size, topology, sharding and collective policy; compiler features may select backend, device, or kernel plumbing only and must preserve the same model/config meaning and scalar-oracle behavior. Production-shaped configurations must validate and plan or refuse before allocation without being misreported as executed production evidence."
+      - "The model scope is causal decoder-only autoregressive text/token modeling. Image, audio, and video recognition or generation, multimodal encoders/adapters, diffusion, encoder-only, encoder-decoder, and unrelated model families are excluded rather than represented by hard-coded stubs."
+      - "The one autoregressive decoder has an internal checked prepared-input seam for residual embeddings, positions, attention/segment metadata, loss eligibility, dtype/device, and configuration/artifact provenance; ordinary token lookup and cached decoding share that core, while no second encoder, decoder, public modality interface, placeholder modality implementation, or non-text producer is added."
       - "The functional generation/serving endpoint proves the exact top-p cumulative-set rule, penalties without reusable-logit mutation, multi-token stop strings, per-token logprobs, Unicode-safe streaming, per-request RNG/cache isolation, serial-versus-batched equivalence, continuous admission and independent completion, cancellation reclamation, bounded queues, timeouts, backpressure, and resource/latency metrics."
-      - "Persistent state uses the smallest justified contract: immutable filesystem artifacts remain valid where sufficient; if relational persistence is required, the course teaches a backend-neutral domain contract plus deterministic in-memory/file oracle and a concrete learner-facing PostgreSQL adapter. Its Compose stack pins the latest stable minor and image digest at implementation time, includes only justified pinned extensions, migrations, health checks, backup/restore and upgrade evidence, and never becomes a runtime dependency of the static course site."
+      - "Persistent state and retrieval use the smallest justified backend-neutral contract: immutable filesystem artifacts and bounded in-memory/filesystem exact vector search are the mandatory laptop path. PostgreSQL/pgvector is not selected; it may become a learner-facing advanced adapter only if a later measured vector collection or query workload exceeds the simple path, and it never becomes a runtime dependency of the static course site."
       - "English is canonical and every Russian surface is translated directly from its frozen English revision with semantic, terminology, anti-calque, monolingual, accessibility, and JavaScript-enabled Firefox rendered validation before publication."
       - "All audit-created implementation steps are independently checkpointed and committed; the final closure maps every supplied and independently discovered gap to executable evidence, a validated lesson, or a precise honest boundary with no silent deferral."
     steps:
       - id: audit-functional-laptop-llm-capability-gaps
         objective: "Audit the complete course against the capabilities, operational contracts, and honest limitations required to build and use a functional modern LLM on laptop-class hardware."
         depends_on: [add-ch02-bpe-cheat-sheet-term]
-        status: pending
-        inputs: ["User's 2026-08-10 twelve-finding review and five priority gaps", "Committed reference-core course and Rust workspace", "Current English/Russian site, contracts, tests, and capstone evidence", "Primary literature and official specifications for modern data, training, evaluation, inference, serving, post-training, interoperability, safety, and RTX 4070-class hardware", "AGENTS.md supporting-library and localization boundaries"]
+        status: completed
+        inputs: ["User's 2026-08-10 twelve-finding review and five priority gaps", "User's 2026-08-13 unlimited-web-lookup, backend-neutral-vector-persistence, settings-driven scale, decoder-only model-family, and prepared-input-seam clarifications", "Committed reference-core course and Rust workspace", "Current English/Russian site, contracts, tests, and capstone evidence", "Primary literature and official specifications for modern data, training, evaluation, inference, serving, post-training, interoperability, safety, and RTX 4070-class hardware", "AGENTS.md supporting-library and localization boundaries"]
         outputs: ["audits/2026-08-10-functional-llm-capability/coverage.md", "audits/2026-08-10-functional-llm-capability/requirements.md", "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
           - "The audit inventories every chapter, contract, Rust module, executable, learner claim, and final objective, and independently verifies every supplied finding rather than assuming the list is exhaustive."
-          - "Coverage includes corpus acquisition/provenance/licensing/privacy, filtering/deduplication/decontamination/quality, tokenizer controls and efficiency, padding/packing/masks, architecture and initialization, device/dtype/kernels, memory-bounded optimization, complete resume, evaluation/generalization, artifact interchange, filesystem versus relational persistence, decoding, batching/cache serving, adaptation/alignment, retrieval/tools/structured output, safety/privacy, quantization, observability, distributed execution, and mixture-of-experts."
+          - "Coverage includes corpus acquisition/provenance/licensing/privacy, filtering/deduplication/decontamination/quality, tokenizer controls and efficiency, padding/packing/masks, architecture and initialization, device/dtype/kernels, memory-bounded optimization, complete resume, evaluation/generalization, artifact interchange, backend-neutral filesystem/in-memory persistence and retrieval plus an optional measured vector-database adapter, decoding, batching/cache serving, adaptation/alignment, retrieval/tools/structured output, safety/privacy, quantization, observability, distributed execution, and mixture-of-experts."
           - "Each capability is classified as already proven in the reference core, mandatory laptop implementation, laptop-feasible advanced exercise, or explicitly bounded scale extension, with source evidence, exact affected files, falsifiable acceptance gates, dependencies, resource estimates, and learner misconception risk."
           - "The hardware envelope is measured conservatively at 8 GB VRAM and records expected host RAM, storage, download, wall-time, throughput, and reproducibility constraints; no proposed acceptance requires hidden cloud compute or a multi-GPU system."
           - "The audit identifies every misleading title, objective, handoff, capstone, evaluation, and scope statement that must be reframed before new implementation is presented."
+          - "The audit requires one explicit decoder-only autoregressive configuration scale ladder from the exact reference through an exact approximately-8K teaching model and the laptop profile to production-shaped plan-only manifests; laptop ceilings are named resource profiles rather than hard-coded architectural limits, while multimodal and unrelated model families are explicitly outside scope."
+          - "The audit requires one internal prepared-decoder-input boundary within that same causal decoder, with exact text-token and cached-path differential gates; it rejects any second encoder/decoder, modality trait or enum, placeholder adapter, non-text producer, dependency, or capability claim."
         validate: ["./course run node audits/2026-08-10-functional-llm-capability/validate-coverage.mjs", "./course run node scripts/check-course-plan.mjs", "git diff --check", "./course audit-host"]
         cost: {class: large, notes: "Read-heavy course-wide and primary-source audit. Limited network access is expected for official specifications and papers; no model/dataset download, GPU run, dependency, or learner-content change occurs in this step."}
-        runs: []
+        runs:
+          - run_id: "20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01"
+            started_at: "2026-08-13T15:40:26Z"
+            finished_at: "2026-08-13T18:11:13Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "006a8f5553599dd28c0b01dfd6e5bbe51a840a50"
+              tree: "22e099406e2ce8fcb5dfe2bdecc7e04966bf6597"
+              environment:
+                docker: "25.0.2"
+                rustc_product_pin: "1.93.1"
+                node_product_pin: "22.12.0"
+                python_orchestration: "3.13.1 with PyYAML 6.0.3"
+                notes: "Repository inspection is local and read-only. The user explicitly approved an unlimited web-lookup budget on 2026-08-13, still restricted here to primary papers and official hardware, format, license, safety, serving, persistence, and interoperability specifications. No dataset, weight, crate, CUDA, container, or other bulk artifact download is permitted."
+              user_clarifications:
+                - "PostgreSQL/pgvector is conditional on a demonstrated vector-database need; bounded in-memory/filesystem exact search is the mandatory default."
+                - "One runtime-configured causal decoder-only autoregressive implementation must expose reference, approximately-8K, laptop, and production-shaped plan/refuse profiles; compile features select backend/device/kernel plumbing only."
+                - "Implement one internal prepared residual-input seam shared by text-token and cached paths, but no second encoder/decoder, multimodal or non-text implementation, public modality abstraction, placeholder adapter, or dependency."
+              files:
+                agents: "e619579d614d7fb8f2d711395a50247e80acc68280f99771fd358f4b58dfed51"
+                course_plan: "7cbdcf3c03fcd9a9e50f3318c105570bd10d823e9d017312bf8973f3f5704cbc"
+                cargo_manifest: "e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                cargo_lock: "b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+                site_manifest: "4bce2f43a18bf5802d57900ddfd7cdb802b1edef2a0864c70503ff9f25ba3aa8"
+                site_lock: "e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"
+            staging_dir: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/"
+            commands:
+              - "Inventory the complete committed course, contracts, Rust workspace, tests, claims, and capstone against the supplied and independently discovered functional-LLM capability gaps."
+              - "Use bounded primary/official source lookup only; classify each capability and produce executable coverage validation without downloading datasets, weights, dependencies, or GPU artifacts."
+              - "Compose versioned reports under the run staging directory, validate those exact bytes through explicit report paths, and only then publish them to the canonical audit paths."
+              - "After candidate-05 passed N..END plus independent semantic and mutation audits, run one fresh deterministic 1..END composition/validation replay and require byte identity before publication."
+              - "Publish the exact replayed pair with a staged directory swap, retain the pre-publication validator-only directory in run evidence, then execute every canonical validation command."
+            artifacts:
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "7ca6aae223ef815c5ee628e5030b0f35e1738dc9aad9c41fa7aefe7ee5a31f2e"
+                kind: "initial executable completeness validator fail-closed checkpoint; superseded in-place before final publication"
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "6a40f41917eb9edeeeb46784309b98abcbd8892bdf10a423db817559bccc327b"
+                kind: "strengthened executable completeness and global capability-reference validator checkpoint"
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "9c3c526ee5dc7a5c7f8d2c93cd54e96c01529959527dd18695bb05d21afdf006"
+                kind: "backend-neutral retrieval and explicit staged-report validation successor checkpoint"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/compose-audit.mjs"
+                sha256: "46f2296130479c650406de16a676fb443241a378caba1e20316e6f536324a2c9"
+                kind: "versioned lane reconciler that refuses canonical writes and creates one new run-scoped report pair"
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "aa06e703eb737eb79291002e39d4af8cc198c28bdc2e26120c618e55a5ad6545"
+                kind: "autoregressive configurable-scale and global source-reference validation successor checkpoint"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/compose-audit.mjs"
+                sha256: "028823e0814dcca8d6d501e212020acaa019c4584c28b315ff31c26ec6f41432"
+                kind: "scale-ladder mapping and corrected multi-seed resource successor checkpoint"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/course-inventory.md"
+                sha256: "e9124017220bb682ab947923f0c97b5b7f9505561fa2ece9f376a8a4fb2b47d3"
+                kind: "independent current-course, supplied-finding, claim-boundary, and overbroad-surface inventory"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/data-training-hardware.md"
+                sha256: "f662b8c706fd972b49fa4e1e6d9177bc5d33f9b5d6a5cf8dae8e93a1ff0af465"
+                kind: "primary-source data, training, hardware, evaluation, artifact, persistence, quantization, distributed, and mixture-of-experts capability lane"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/data-training-hardware.md"
+                sha256: "5d2b7b6799f5e6013d7fd3e6d0daebf79bc597b23ecad9b90c9c4d4412a9b054"
+                kind: "DTH successor with dropout, pinned GPT-2 tokenizer policy, optimized-CPU boundary, cheaper multi-seed profile, and closed source references"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/data-training-hardware.md"
+                sha256: "4b7753166138004f3d32dbafb32f774f0d755a0348898c28efbdc15560098fcf"
+                kind: "DTH scale-ladder successor binding one configurable decoder-only autoregressive implementation from reference to production-shaped profiles"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/data-training-hardware.md"
+                sha256: "c84196b8d9de32926dcb690c03fb682332a767c3790670b2e0f563e63af570da"
+                kind: "exact-formula DTH successor with four machine-readable semantic/run configuration tuples"
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "c26095e6f0f7b8a79a202133ce6b673d3d2c7631bbf43cdeb0ba517dd03cdff6"
+                kind: "formula-recomputing scale-ladder and model-family-scope validator successor"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/compose-audit.mjs"
+                sha256: "5f117a9d2a61cd2e1430df51aa04b786449dae0145f17915d398b01b6c3f3d41"
+                kind: "complete supplied-finding scale and serving-projection mapping successor"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/inference-serving-apps.md"
+                sha256: "4ead1c502a168705ecbf754b8f3b2521e2a501881ed6e68aec77790b21a34915"
+                kind: "primary-source inference, serving, post-training, retrieval, tools, safety, persistence, dependency-policy, and composite-endpoint capability lane"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/accidental-canonical-compose-01/coverage.md"
+                sha256: "c73a620e9cac5c2861f6fcba23dfcb331f7f68e0a5d4d4abce498376401f6bdf"
+                kind: "preserved invalidated intermediate coverage accidentally written by a side-effecting --help invocation; never canonical acceptance"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/accidental-canonical-compose-01/requirements.md"
+                sha256: "ac09a3ba15058c8d4c96c29325767745229be04645f1db6051b841bfc6de4722"
+                kind: "preserved invalidated intermediate requirements accidentally written by a side-effecting --help invocation; never canonical acceptance"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/accidental-canonical-compose-01/failure.json"
+                sha256: "91e6959bf6f6918d3400ef7e0ccae19c7b6ddf845e43860aaf5616c494698e91"
+                kind: "fail-closed diagnostic manifest binding the obsolete direct-canonical pair and its exclusion boundary"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/data-training-hardware.md"
+                sha256: "89c8e510aff7cbb9cc421add2c76297f269fa52a679abde46b79c64b78fc0b06"
+                kind: "DTH candidate-04 input with acyclic literal prerequisites, bilingual exact-path ownership, exact causal/dense work formulas, settings-owned scale, and the private prepared-decoder-input seam"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/inference-serving-apps.md"
+                sha256: "e5640da0d0a8f8e42c2ddd3c80d8e081b90831dd23a6d1e4adcd91e04909910d"
+                kind: "ISA candidate-04 input with acyclic dependencies, mandatory composite endpoint, backend-neutral retrieval, and optional measured-only PostgreSQL adapters"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/compose-audit.mjs"
+                sha256: "d5c9eda4eed47f543301279e1fe3987e68e8a027a26685dc2db561d4a56ed112"
+                kind: "run-child-only composer used for staged candidate-04"
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "92d644d6fc182afc090d77f0d81afbb4c87daffd8fe587bde230486e47fe2244"
+                kind: "candidate-04 validator with exact capability/source counts, exact supplied mappings, DAG checks, scale recomputation, and staged-path safety"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-01/validation-failure.json"
+                sha256: "509bb6aca02ba26b6b2610f49d600a80fa79fd1a8de47c2ab94216e677d41590"
+                kind: "preserved first staged-composition failure manifest"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-02/validation-failure.json"
+                sha256: "7f91af6a5ecdeeb2c5f4854dbf7fac2a12a02ef98d3f2cc57c37dae89d72cce2"
+                kind: "preserved second staged-composition formula-scope failure manifest"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-03/validation-failure.json"
+                sha256: "008d3b908611cd517e7075cda5dd3c2d493b0a7d21fe900af27992e8c55515cd"
+                kind: "preserved third staged-composition compile-feature boundary failure manifest"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-04/coverage.md"
+                sha256: "7a54dcfa1a56c40391f53e7751a1362f5c12a768b631d32f559657b166e35679"
+                kind: "first fully validator-passing staged coverage candidate"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-04/requirements.md"
+                sha256: "6e11d33a372d25b8ab5560318192ee873720380e9d8ca8b71849325634be7036"
+                kind: "first fully validator-passing staged requirements candidate"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-04/validation-pass.json"
+                sha256: "f0905b82ef5ff62010b6b3c2163aa88b79c34cc8f367d89064d71bc0f9238627"
+                kind: "immutable candidate-04 staged validation success manifest"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/inference-serving-apps.md"
+                sha256: "c71b7f445e7f0563cb034fb45814308bb69ed370f6464c76fedd0d1bc28851fb"
+                kind: "ISA endpoint successor binding the SFT adapter through bounded preference update to the exact versioned successor evaluated and served"
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "ce71141c802c2411cc29a2322d20bef277a92ab550316cb4c295b13ac387bf0f"
+                kind: "candidate-05 validator with exact claim fields, bidirectional locale-path ownership, frozen ID digests, source-use closure, and exact 31-edge terminal endpoint"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-05/coverage.md"
+                sha256: "7a54dcfa1a56c40391f53e7751a1362f5c12a768b631d32f559657b166e35679"
+                kind: "boundary-hardened staged coverage candidate"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-05/requirements.md"
+                sha256: "b269dad5716ac9efd35cd765227706041f41856bcc16ed3f6202a8458d01f6f1"
+                kind: "boundary-hardened staged requirements candidate with terminal post-preference artifact identity"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-05/validation-pass.json"
+                sha256: "2c3be702df79caee476a4d6b153aa9770031ae353e49b70a811af2f191057073"
+                kind: "immutable candidate-05 staged validation success manifest"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/validator-mutation-audit.json"
+                sha256: "eea14d97af09da61f746ab078aa3ff637ab88c77a13f63df179fb47b9de4ae36"
+                kind: "independent eight-case mutation and missing-canonical fail-closed audit"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/candidate-05-independent-audit.json"
+                sha256: "43c8eef649e9207ad43f605618216bc8023556ad8939f72dbd60561427846cf2"
+                kind: "independent exact candidate-05 semantic, dependency, provenance, localization, scale, scope, endpoint, and persistence audit"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-clean-replay-01/coverage.md"
+                sha256: "7a54dcfa1a56c40391f53e7751a1362f5c12a768b631d32f559657b166e35679"
+                kind: "clean 1..END deterministic replay coverage, byte-identical to candidate-05"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-clean-replay-01/requirements.md"
+                sha256: "b269dad5716ac9efd35cd765227706041f41856bcc16ed3f6202a8458d01f6f1"
+                kind: "clean 1..END deterministic replay requirements, byte-identical to candidate-05"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-clean-replay-01/replay.json"
+                sha256: "fa17cfa4bc058a407f838b6549c7fe848c585ac4336d11964c5a2424ebbcf445"
+                kind: "clean full-flow replay manifest binding all lane/tool/report inputs and exact counts"
+              - path: "audits/2026-08-10-functional-llm-capability/coverage.md"
+                sha256: "7a54dcfa1a56c40391f53e7751a1362f5c12a768b631d32f559657b166e35679"
+                kind: "canonical accepted complete-course coverage and supplied-finding reconciliation"
+              - path: "audits/2026-08-10-functional-llm-capability/requirements.md"
+                sha256: "b269dad5716ac9efd35cd765227706041f41856bcc16ed3f6202a8458d01f6f1"
+                kind: "canonical accepted primary-sourced capability, dependency, resource, risk, and boundary taxonomy"
+              - path: "audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                sha256: "ce71141c802c2411cc29a2322d20bef277a92ab550316cb4c295b13ac387bf0f"
+                kind: "canonical fail-closed executable audit validator"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-validation.json"
+                sha256: "65b61fa7844d03ab9d50d2155e3711658c1452e3983a6a94ab4f0c7342913e36"
+                kind: "final canonical publication, pinned workspace, course-plan, diff, YAML, and host-boundary validation summary"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/course-inventory.md"
+                sha256: "9e51fa56d27563cf0876082dadae128951dfa31ce484d33f49ae67d938296eeb"
+                kind: "whitespace-only course-inventory successor removing three trailing-space pairs discovered by the staged diff gate"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-06/coverage.md"
+                sha256: "42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1"
+                kind: "whitespace-clean staged coverage successor; semantic records are identical to candidate-05"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-06/requirements.md"
+                sha256: "d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006"
+                kind: "whitespace-clean staged requirements successor binding the corrected course-inventory hash"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-06/validation-pass.json"
+                sha256: "7dc5852d42dad432fa61a037d4708816e9afb13a11abd5188f171f5a9418d68e"
+                kind: "immutable candidate-06 staged validation success manifest"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-clean-replay-02/coverage.md"
+                sha256: "42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1"
+                kind: "clean post-correction 1..END replay coverage, byte-identical to candidate-06"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-clean-replay-02/requirements.md"
+                sha256: "d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006"
+                kind: "clean post-correction 1..END replay requirements, byte-identical to candidate-06"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-clean-replay-02/replay.json"
+                sha256: "bfbed7d725dd9a8bd95ad29b7a730d9dcb796e9277a06c16ae2ad8859e17fe55"
+                kind: "post-correction clean full-flow replay manifest binding the final whitespace-clean pair"
+              - path: "audits/2026-08-10-functional-llm-capability/coverage.md"
+                sha256: "42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1"
+                kind: "final canonical whitespace-clean complete-course coverage and supplied-finding reconciliation"
+              - path: "audits/2026-08-10-functional-llm-capability/requirements.md"
+                sha256: "d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006"
+                kind: "final canonical whitespace-clean primary-sourced capability, dependency, resource, risk, and boundary taxonomy"
+              - path: ".build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/final-validation-02.json"
+                sha256: "ade9397b9632ff1f61d890211dc2a68a5e07574cb00c70b88368a93d9bebf140"
+                kind: "final whitespace-clean canonical publication, pinned workspace, course-plan, validator, staged-diff, YAML, and host-boundary validation summary"
+            validation:
+              - command: "node --check audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                status: passed
+                notes: "Host Node syntax validation passed at the validator checkpoint. A deliberate pre-report execution failed closed with 520 missing-report/inventory/requirement errors, proving that absent prose cannot be mistaken for completed coverage; this is diagnostic evidence, not the final acceptance run."
+              - command: "Course-inventory lane structural validation and SHA-256 closure"
+                status: passed
+                notes: "Run-scoped report has 12 F and 5 P records with the required five single-line fields and allowed independent verdicts, 40 consecutive chapter claim records, current-tree evidence, and an explicit overbroad claim map; SHA-256 e9124017220bb682ab947923f0c97b5b7f9505561fa2ece9f376a8a4fb2b47d3. Its provisional capability section is explicitly excluded from canonical composition; the parent-owned live inventory and final requirement mapping remain downstream work."
+              - command: "node --check audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                status: passed
+                notes: "Post-integration syntax check passed after strengthening referential closure: each F/P record must cite an exact capability ID, and every CAP-* token anywhere in coverage or requirements—including table dependencies outside Requirement-links fields—must resolve to a canonical capability record. Validator SHA-256 is 6a40f41917eb9edeeeb46784309b98abcbd8892bdf10a423db817559bccc327b."
+              - command: "node --check audits/2026-08-10-functional-llm-capability/validate-coverage.mjs && node --check .build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/compose-audit.mjs && git diff --check"
+                status: passed
+                notes: "After the user's persistence clarification, validation now rejects a mandatory PostgreSQL/pgvector implementation surface and requires backend-neutral provided-vector exact search with authorization before scoring; database-specific capabilities may only remain conditional advanced exercises. The validator accepts an explicit staged coverage/requirements pair, and the reconciler now requires a new run-scoped output directory instead of writing canonical files directly. Validator SHA-256 9c3c526ee5dc7a5c7f8d2c93cd54e96c01529959527dd18695bb05d21afdf006; reconciler SHA-256 46f2296130479c650406de16a676fb443241a378caba1e20316e6f536324a2c9."
+              - command: "Data-training-hardware lane structural, source-reference, resource-gate, path-namespace, and SHA-256 closure"
+                status: passed
+                notes: "Run-scoped report has 48 primary/official source records and 26 capability records across the accepted exact field/domain/classification schema; all source links, resource units, measurable gates, exact paths, and references passed the lane checker. Future artifact paths are normalized to singular src/artifact/. SHA-256 f662b8c706fd972b49fa4e1e6d9177bc5d33f9b5d6a5cf8dae8e93a1ff0af465."
+              - command: "Data-training-hardware boundary-local successor validation"
+                status: passed
+                notes: "The DTH lane resumed only at the identified taxonomy boundary: 52 primary/official sources and 27 capabilities now include official pinned GPT-2 tokenizer behavior, optional deterministic dropout, explicit scalar/SIMD/BLAS differential gates, one <=30 h core run plus >=3 cheaper runs <=2 h each/<=6 h combined, backend-neutral persistence, and global source-reference closure. Lane SHA-256 5d2b7b6799f5e6013d7fd3e6d0daebf79bc597b23ecad9b90c9c4d4412a9b054."
+              - command: "node --check audits/2026-08-10-functional-llm-capability/validate-coverage.mjs && node --check .build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/compose-audit.mjs && git diff --check"
+                status: passed
+                notes: "The user's scale and model-family clarification is frozen without replaying the DTH lane: CAP-DTH-ARCH-02 now requires one serialized decoder-only autoregressive configuration, an exact 1,188 -> approximately-8,000 -> laptop -> production-shaped plan-only ladder, checked parameter/resource formulas, settings-owned semantic dimensions, backend-only compile features, preallocation refusal, and explicit multimodal/non-target exclusion. DTH SHA-256 4b7753166138004f3d32dbafb32f774f0d755a0348898c28efbdc15560098fcf; validator SHA-256 aa06e703eb737eb79291002e39d4af8cc198c28bdc2e26120c618e55a5ad6545; reconciler SHA-256 028823e0814dcca8d6d501e212020acaa019c4584c28b315ff31c26ec6f41432."
+              - command: "Formula-recomputing scale-ladder boundary validation"
+                status: passed
+                notes: "The DTH record now freezes the bias-free tied parameter formula P=V*D+L*(2*D*D+2*D*D*Hkv/Hq+3*D*F+2*D)+D and KV formula 2*B*L*C*Hkv*(D/Hq)*bkv. Independent BigInt recomputation gives exact P values 1,188; 8,304; 32,514,560; 69,500,936,192 and production BF16 KV 10,737,418,240 bytes for the four frozen tuples. The validator parses and recomputes every tuple/formula, requires scale links on F01/F03/F04/F05/F08/F12/P05, rejects model-family capability headings outside decoder-only autoregressive scope, and syntax/YAML/diff checks pass. DTH SHA-256 c84196b8d9de32926dcb690c03fb682332a767c3790670b2e0f563e63af570da; validator c26095e6f0f7b8a79a202133ce6b673d3d2c7631bbf43cdeb0ba517dd03cdff6; reconciler 5f117a9d2a61cd2e1430df51aa04b786449dae0145f17915d398b01b6c3f3d41."
+              - command: "Inference-serving-applications lane structural, source-reference, resource-gate, path, dependency-policy, and SHA-256 closure"
+                status: passed
+                notes: "Run-scoped report has 47 primary/official source records and 47 capability records (3 proven, 33 mandatory, 8 advanced, 3 bounded), with zero duplicate/unknown source references or missing fields and clean path/kind/domain/classification/whitespace checks. SHA-256 4ead1c502a168705ecbf754b8f3b2521e2a501881ed6e68aec77790b21a34915. Final canonical composition correctly remains downstream of the pending DTH dropout capability correction."
+              - command: "Intermediate composer --help boundary and canonical-path recovery"
+                status: failed
+                notes: "A lane helper invoked the old side-effecting composer with --help, which wrote an intermediate 70-capability/92-source pair directly to canonical paths. Those exact files were moved without alteration to accidental-canonical-compose-01 at coverage SHA-256 c73a620e9cac5c2861f6fcba23dfcb331f7f68e0a5d4d4abce498376401f6bdf and requirements SHA-256 ac09a3ba15058c8d4c96c29325767745229be04645f1db6051b841bfc6de4722; failure manifest SHA-256 91e6959bf6f6918d3400ef7e0ccae19c7b6ddf845e43860aaf5616c494698e91. Canonical report paths are absent pending staged validation. The composer now requires an explicit new run-child output directory and refuses canonical writes."
+              - command: "node audits/2026-08-10-functional-llm-capability/validate-coverage.mjs --coverage .build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-04/coverage.md --requirements .build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-04/requirements.md"
+                status: passed
+                notes: "Candidate-04 is the first complete N..END staged success: exact live inventory 40 contracts/40 English/40 Russian/78 sheets/181 Rust files/40 demos, 104 primary-or-official sources, and 79 capabilities passed the validator. Exact success manifest SHA-256 f0905b82ef5ff62010b6b3c2163aa88b79c34cc8f367d89064d71bc0f9238627. Upstream research and composition are now reusable while the final boundary-local claim/locale/DPO hardening proceeds before one clean 1..END replay."
+              - command: "node audits/2026-08-10-functional-llm-capability/validate-coverage.mjs --coverage .build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-05/coverage.md --requirements .build/runs/20260813T154026Z-audit-functional-laptop-llm-capability-gaps-01/composed-candidate-05/requirements.md"
+                status: passed
+                notes: "Candidate-05 continued only from the final hardening boundary and passed with the same exact live inventory, 104 sources, and 79 capabilities. The validator now proves four fields for every CLAIM-00..39 record, exact frozen source/capability ID sets, zero unused sources, English-to-Russian and Russian-to-English affected-path symmetry, and a 31-prerequisite terminal endpoint whose exact SFT artifact is preference-updated into the versioned successor evaluated and served. Success manifest SHA-256 2c3be702df79caee476a4d6b153aa9770031ae353e49b70a811af2f191057073. Independent mutation and semantic audit are downstream before the one clean replay."
+              - command: "Independent validator mutation audit against candidate-05 in an isolated temporary fixture"
+                status: passed
+                notes: "All eight one-change mutations failed closed: missing and misclassified CLAIM fields, Russian affected path without English peer, renamed capability/source IDs, missing PT-003 endpoint edge, unexpected optional endpoint edge, and altered bridge parameter count. Default validation with absent canonical reports exited 1 with diagnostics and no crash. Evidence SHA-256 eea14d97af09da61f746ab078aa3ff637ab88c77a13f63df179fb47b9de4ae36; temporary fixture removed and no tracked file changed by the auditor."
+              - command: "Independent read-only candidate-05 semantic and composition audit"
+                status: passed
+                notes: "Exact frozen pair passed: 40 claim records with 146 live/in-range evidence anchors, 104 sources, 79 capabilities, 17 exact F/P mappings, 245 unique dependency edges with zero cycles, zero unresolved/unused references, and 112 bilingual affected-path occurrences with bidirectional parity. The endpoint has exactly 31 direct prerequisites and binds SFT -> PT-003 successor -> three-state evaluation -> serving; scale/seam/model-family and optional-only database boundaries are coherent. Evidence SHA-256 43c8eef649e9207ad43f605618216bc8023556ad8939f72dbd60561427846cf2. Nonblocking next-step note: freeze one endpoint memory value by replacing provisional ISA 6.5 GiB estimates with the 6.25 GiB hard ceiling or a separately justified profile."
+              - command: "Clean 1..END composer syntax -> validator syntax -> fresh compose -> staged validation -> byte comparison replay"
+                status: passed
+                notes: "After N..END and independent audits passed, one clean replay created a fresh new run child, independently composed 104 sources and 79 capabilities, passed the exact live-inventory validator, and produced coverage/requirements byte-identical to candidate-05 at SHA-256 7a54dcfa1a56c40391f53e7751a1362f5c12a768b631d32f559657b166e35679 / b269dad5716ac9efd35cd765227706041f41856bcc16ed3f6202a8458d01f6f1. Replay manifest SHA-256 fa17cfa4bc058a407f838b6549c7fe848c585ac4336d11964c5a2424ebbcf445. No upstream research or expensive browser/model work was repeated."
+              - command: "./course run node audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                status: passed
+                notes: "Pinned workspace image sha256:f1bd0ed7e5039428f174a9ca22f7bd2e076bb1806d130c79ef506b09f29eb121 passed Rust formatting and all workspace tests, Astro check with 220 files/zero diagnostics, localized content and parity checks, 85-page static build, 2939-reference link/SEO/sitemap/analytics audit, and the canonical 40/40/40/78/181/40/104/79 coverage validator."
+              - command: "./course run node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "Pinned cached image reported 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39."
+              - command: "git diff --check and Python PyYAML parse BUILD_STATE.yaml"
+                status: passed
+                notes: "Final declared output diff has no whitespace error and the completion ledger parses as YAML."
+              - command: "./course audit-host"
+                status: passed
+                notes: "Host artifact audit passed with site/dist as the documented static-release exception."
+              - command: "git diff --cached --check"
+                status: failed
+                notes: "The first final staging gate found exactly three trailing-space pairs in the generated coverage header. No semantic record failed. The already-published pair and prior evidence remain immutable; correction resumed at the course-inventory formatting boundary."
+              - command: "Candidate-06 N..END composition, staged validation, and byte comparison"
+                status: passed
+                notes: "Only the three trailing-space pairs were removed from the run-scoped course inventory. Candidate-06 passed the exact validator with coverage SHA-256 42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1, requirements SHA-256 d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006, and success manifest SHA-256 7dc5852d42dad432fa61a037d4708816e9afb13a11abd5188f171f5a9418d68e. Compared with candidate-05, coverage differs only by those three whitespace pairs and requirements only by its bound course-inventory digest."
+              - command: "Post-correction clean 1..END composer syntax -> validator syntax -> fresh compose -> staged validation -> byte comparison replay"
+                status: passed
+                notes: "The one permitted clean successor replay produced coverage and requirements byte-identical to candidate-06 at SHA-256 42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1 / d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006. Replay manifest SHA-256 bfbed7d725dd9a8bd95ad29b7a730d9dcb796e9277a06c16ae2ad8859e17fe55. No research, browser, model, dataset, or GPU work was repeated."
+              - command: "./course run node audits/2026-08-10-functional-llm-capability/validate-coverage.mjs"
+                status: passed
+                notes: "Final whitespace-clean canonical bytes passed in pinned workspace image sha256:e791d76763b282f12dd592641300f5de644e3793871e45d30e683dd4d367eb02: Rust formatting and workspace tests, Astro check with 220 files/zero diagnostics, localized content/parity, 85-page static build, 2939-reference link/SEO/sitemap/analytics audit, and exact 40/40/40/78/181/40/104/79 coverage validation."
+              - command: "./course run node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The same final pinned cached image reported 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39."
+              - command: "node audits/2026-08-10-functional-llm-capability/validate-coverage.mjs; node --check audits/2026-08-10-functional-llm-capability/validate-coverage.mjs; git diff --check; git diff --cached --check; Python PyYAML parse BUILD_STATE.yaml; ./course audit-host"
+                status: passed
+                notes: "The final canonical reports pass the host validator and syntax check; the working tree and refreshed exact five-file index are whitespace-clean; the completion ledger parses as YAML; and the host artifact audit passes with site/dist as the documented static-release exception. Final evidence SHA-256 ade9397b9632ff1f61d890211dc2a68a5e07574cb00c70b88368a93d9bebf140."
+            notes: "Succeeded. The final canonical whitespace-clean reports are coverage SHA-256 42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1 and requirements SHA-256 d3ae678bcfb1695c8c7e21ac047f2da5b415f31220842e3be07c9d4b7e6d4006; they contain 40 exact learner-claim records, 17 supplied finding/priority reconciliations, 104 primary/official sources, and 79 capability records with 245 acyclic prerequisite edges. One runtime-configured decoder-only autoregressive text/token implementation owns the 1,188 -> 8,304 -> 32,514,560 -> 69,500,936,192 plan/refuse scale ladder and one private PreparedDecoderInput seam; no other encoder/decoder or modality capability is authorized. Mandatory persistence/retrieval is in-memory/filesystem exact search, with PostgreSQL/pgvector optional only after measured need. The terminal imported endpoint binds SFT through a versioned preference-updated successor into evaluation and serving. No product, learner, locale, dependency, browser, dataset, weight, or GPU workload changed. The next resource-contract step must freeze exact artifacts/licenses/dependencies and reconcile provisional 6.5 GiB estimates to the accepted 6.25 GiB hard course allocation or a separately justified profile."
 
       - id: define-functional-laptop-llm-resource-contract
         objective: "Freeze the laptop hardware profiles, dataset/model provenance policy, supporting-library boundary, artifact schemas, and refusal limits before any networked data acquisition or GPU implementation begins."
@@ -41897,12 +42165,15 @@ builds:
         outputs: ["audits/2026-08-10-functional-llm-capability/resource-and-dependency-contract.md", "audits/2026-08-10-functional-llm-capability/validate-resource-contract.mjs", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
           - "The contract defines reference-CI, 8 GB GPU smoke, 8 GB GPU core, and 8 GB adapter profiles with hard ceilings for parameters, context, train tokens, microbatch, accumulation, host RAM, VRAM, disk, download bytes, wall time, throughput calibration, and refusal-before-allocation behavior."
+          - "The contract defines one versioned decoder-only autoregressive model schema and separate named resource profiles: exact 1,188-parameter reference, exact design-selected approximately-8,000-parameter teaching model, measured laptop smoke/core/adapter profiles, and at least one production-shaped plan-only profile; all exact parameter/state/KV/activation/compute/communication formulas use checked arithmetic and resource ceilings remain settings rather than model constants."
+          - "The contract defines the one internal prepared-decoder-input record and checked constructor for `[B,T,D]` embeddings, positions, attention/segment metadata, loss eligibility, dtype/device, and configuration/artifact identity; only the text token-ID and cached-token paths produce it in the accepted course, and both reach one causal-decoder core."
+          - "Semantic dimensions, runtime capacities, world size, topology, sharding, and collective policy are configuration fields, while compile features are limited to optional backend/device/kernel plumbing with scalar-oracle equivalence; a production-shaped manifest can be parsed and costed without allocation, and the laptop profile refuses it before allocation without implying the implementation itself is capped at laptop scale."
           - "It defines one design-created bulk-artifact acquisition phase and an offline manifest containing exact revision, resolved URL, SHA-256 digest, byte count, media type, license-text SHA-256, attribution, filtering-script SHA-256, and redistribution decision; audit/design source lookup remains separately declared, and raw corpora and weights remain ignored cache artifacts."
           - "It chooses or defers datasets and open model revisions using verified licensing, provenance, language, contamination, size, and laptop feasibility rather than popularity, and separates dataset license from derived model and adapter licensing decisions."
           - "The crate boundary keeps the existing scalar implementation dependency-light and byte-protected, permits only proportionate allocation, transfer, GEMM, device/storage/tensor primitives and standard plumbing in adapters, and forbids ready-made masking, packing, attention/online-softmax, quantization, transformer layers, trainers, optimizers/autograd policy, tokenizers, samplers, KV schedulers, PEFT, or generation engines from replacing course-owned operations."
-          - "The persistence decision prefers immutable files when they satisfy lineage and replay. If relational state is justified, it requires a Dockerfile/Compose service pinned to the latest stable PostgreSQL minor and immutable image digest resolved at implementation time, only necessary version-pinned extensions, schema migrations, readiness/health checks, least-privilege credentials, durable volumes, backup/restore, corruption and upgrade tests, and an explicit boundary separating database state from portable model/training artifacts."
-          - "Mature PostgreSQL Rust clients, pools, migration tools, query builders, or ORMs may implement protocol and database plumbing without being reimplemented; their features and complete graphs are still pinned and recorded, while course-owned Rust retains experiment, resume, serving, isolation, retention, and authorization invariants."
-          - "When PostgreSQL is selected as a taught example, a narrow course-owned persistence interface names domain operations and transaction/idempotency semantics, a deterministic in-memory or immutable-file implementation serves as the test oracle, and the PostgreSQL adapter proves equivalent observable behavior without leaking SQL/client types into model, trainer, evaluator, retrieval, or scheduler cores."
+          - "The persistence and retrieval decision prefers immutable files plus bounded in-memory/filesystem exact vector search when they satisfy lineage, replay, and the measured query envelope. PostgreSQL/pgvector remains unselected unless the contract proves that a concrete vector collection or query workload exceeds that path."
+          - "If that vector-database need is proven, the contract may authorize mature PostgreSQL Rust clients, pools, migration tools, query builders, ORMs, and an exact version-pinned pgvector extension as plumbing; their complete feature/license graphs remain recorded, while course-owned Rust retains vector identity, authorization-before-ranking, retrieval ordering, provenance, experiment, resume, serving, retention, and recovery invariants."
+          - "A selected PostgreSQL/pgvector advanced example requires a narrow course-owned vector-store interface, deterministic in-memory/file oracle, Dockerfile/Compose service pinned to an exact stable PostgreSQL image digest and pgvector version, migrations, health checks, least privilege, backup/restore and upgrade evidence, and equivalent observable behavior without leaking SQL/client types into model, trainer, evaluator, retrieval-policy, or scheduler cores."
           - "The proposed differential tests define exact versus numeric tolerances per operation, hidden-CPU-fallback detection, OOM atomicity, configuration/run manifests, standard artifact schemas, and complete provenance. Resume is bitwise on the CPU/reference backend; GPU resume restores exact discrete cursor/RNG/event state and uses deterministic mode where supported or a predeclared numeric contract otherwise."
           - "Every held-out quality, equivalence, resource, latency, and memory threshold plus every training seed is frozen in the applicable implementation fingerprint before the corresponding validation or test result is observed."
           - "No model, corpus, CUDA dependency, or large artifact is downloaded and no GPU kernel or training job is run during this contract step."
@@ -41918,8 +42189,11 @@ builds:
         outputs: ["curriculum/functional-laptop-llm-extension-plan.md", "curriculum/course-plan.md", "curriculum/README.md", "scripts/check-functional-laptop-llm-plan.mjs", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
           - "The plan defines an explicit reference-core-to-capability-track handoff, prerequisites, chapter/module boundaries, historical context, formulas, Rust examples, useful visualizations, exercises, evaluation evidence, English/Russian surfaces, and two honest capstones without duplicating or erasing Chapters 0--39."
+          - "The architecture and curriculum show the same versioned causal-decoder configuration moving from 1,188 parameters to an exact approximately-8,000-parameter learner profile, the measured laptop profile, and a production-shaped planning profile; each step exposes which settings change and how exact parameters, memory, compute, and communication follow, with no source edit or semantic compiler fork."
+          - "All model, data, training, evaluation, artifact, adaptation, decoding, cache, and serving steps remain scoped to decoder-only autoregressive text/token modeling; multimodal recognition/generation and unrelated model families receive one explicit boundary rather than placeholder implementations or future steps."
+          - "The Rust architecture and relevant decoder/cached-generation lessons make token preparation, prepared residual input, causal transformer execution, and the tied text output head explicit; the design introduces no other encoder or decoder, public modality abstraction, placeholder adapter, non-text data path, or multimodal chapter."
           - "The architecture specifies scalar-oracle versus accelerator responsibilities, tensor/device/dtype interfaces, packed batch and mask semantics, trainer state, artifact formats, inference/serving contracts, interoperability boundaries, and supporting-library roles without importing a ready-made LLM implementation."
-          - "The architecture decides which state is portable immutable artifact data and whether any run/evaluation/serving metadata needs PostgreSQL; if selected, exact design-created lesson, domain-interface, deterministic-oracle, PostgreSQL-adapter, Dockerfile/Compose, migration, extension, recovery, Rust-integration, and static-site-separation steps make PostgreSQL an explicit example without coupling core LLM logic to it."
+          - "The architecture keeps mandatory retrieval and metadata in bounded in-memory/filesystem contracts and measures the selected vector collection/query workload; only if that workload exceeds exact local search may it design an advanced PostgreSQL/pgvector lesson, vector-store interface, deterministic oracle, adapter, Dockerfile/Compose, migration, recovery, Rust-integration, and static-site-separation sequence without coupling core LLM logic to it."
           - "The data/model choices have verified licenses and provenance, fit the resource envelope, include a narrow-domain from-scratch run and an open small pretrained adaptation path, and define offline-cache and reproducibility behavior."
           - "The validation plan sets measurable correctness, resume equivalence, quality, uncertainty, contamination, memory, throughput, latency, cancellation, safety, localization, static-site, and JavaScript-enabled Firefox rendered gates; it never uses fixture regression alone as evidence of generalization."
           - "The implementation order closes scalable governed data, variable/packed sequences, accelerator parity, full-job resume, and realistic multi-seed evaluation before expensive pretraining, serving, or application work; every packed path specifies segment IDs, position reset/continuation, no-cross-document attention, and valid-token loss/gradient equivalence."
@@ -41942,9 +42216,12 @@ builds:
           - "The from-scratch narrow-domain run, full interrupted/resumed equivalence, conventional multiple-seed and task evaluation, imported-model adaptation, LoRA/SFT plus bounded preference optimization, quantized generation, structured/tool or retrieval behavior, and continuous batched serving all reproduce from recorded manifests within the declared laptop envelope."
           - "Receipts prove unpadded/padded/packed logits and valid-token loss/gradient equivalence with explicit position policy; deep-model activation/gradient stability; GPU parity without hidden CPU fallback; accumulation and activation-checkpoint equivalence; exact discrete resume state; estimator-versus-measured peak VRAM; and predeclared quality/resource thresholds."
           - "Serving receipts prove serial-versus-batched equivalence, per-request RNG/cache isolation, continuous admission and independent completion, cancellation reclamation, bounded queues/timeouts/backpressure, and trust-boundary/safety fixtures without a general-safety claim."
-          - "If PostgreSQL is selected, closure proves persistence-interface conformance against the deterministic oracle, transaction/idempotency behavior, clean Compose initialization, migrations, extension inventory, health, concurrent Rust access, durable restart, backup/restore, schema upgrade/rollback, least-privilege and secret handling, backend substitution at the declared boundary, and portable artifact reconstruction; if it is not selected, closure records why immutable artifacts satisfy every persistence requirement."
+          - "If a measured vector workload selected the advanced PostgreSQL/pgvector adapter, closure proves vector-store conformance against the exact in-memory/file oracle, authorization-before-ranking, deterministic results, clean Compose initialization, migrations, pinned extension inventory, health, concurrent Rust access, durable restart, backup/restore, schema upgrade/rollback, least privilege, backend substitution, and portable artifact reconstruction; otherwise PostgreSQL is absent and closure records that bounded exact search satisfies the requirement."
           - "Complete locked Rust, dataset/artifact integrity, dependency-policy, static content, production build, links, accessibility, English/Russian semantic parity, and JavaScript-enabled Firefox rendered matrices pass."
           - "The final course title, objectives, map, reference-core handoff, capstones, resource disclosures, and limitation statements agree; no surface calls the 1,188-parameter fixture or the laptop demonstration production-ready."
+          - "Closure proves the exact reference, approximately-8K, and laptop configurations run through the same versioned decoder-only code paths, and that one production-shaped configuration produces an exact checked resource/communication plan then refuses under laptop ceilings before allocation; source scans and tests find no hard-coded pedagogical model dimensions or compiler feature that changes model semantics."
+          - "Closure proves ordinary token forward and cached decoding enter one checked prepared-input causal-decoder core and remain differentially identical to their frozen pre-refactor logits, loss, gradients, parameter identity/order, KV state, RNG behavior, and work counters."
+          - "Closure finds no claim, dependency, artifact, lesson, or implementation step for image/audio/video recognition or generation, multimodal adapters, diffusion, encoder-only, encoder-decoder, or another non-target model family; external retrieval and tools may contribute text tokens but do not change the autoregressive model scope."
           - "The final exact scope, independently committed checkpoints, scheduler, cleanup, and host-artifact boundary pass with no untracked model weights, corpora, caches, credentials, or licensed data in Git."
         validate: ["./course run node audits/2026-08-10-functional-llm-capability/validate-closure.mjs", "./course run cargo test --workspace --locked", "./course check", "./course run node scripts/check-course-plan.mjs", "git diff --check", "./course audit-host"]
         cost: {class: large, notes: "Final read-heavy closure plus cached CPU/GPU, artifact, full-site, and Firefox validation. No unplanned network or paid service; all large inputs must already have recorded provenance and checksums."}
