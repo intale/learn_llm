@@ -728,6 +728,12 @@ test.describe(
         ]);
 
         const composition = await diagram.evaluate((root) => {
+          const caption = root
+            .querySelector<HTMLElement>("figcaption")!
+            .getBoundingClientRect();
+          const actions = root
+            .querySelector<HTMLElement>("[data-diagram-full-view-controls]")!
+            .getBoundingClientRect();
           const train = root
             .querySelector<HTMLElement>('[data-partition="train"]')!
             .getBoundingClientRect();
@@ -742,6 +748,10 @@ test.describe(
               .gridTemplateColumns.split(/\s+/)
               .filter(Boolean).length;
           return {
+            captionActionTopDelta: Math.abs(caption.top - actions.top),
+            figureTracks: getComputedStyle(root)
+              .gridTemplateColumns.split(/\s+/)
+              .filter(Boolean).length,
             holdoutTopDelta: Math.abs(validation.top - test.top),
             trainBeforeHoldouts:
               train.bottom <= Math.min(validation.top, test.top) + 2,
@@ -752,6 +762,8 @@ test.describe(
             testTracks: trackCount('[data-partition="test"] .document-list'),
           };
         });
+        expect(composition.figureTracks).toBe(3);
+        expect(composition.captionActionTopDelta).toBeLessThanOrEqual(2);
         expect(composition.trainBeforeHoldouts).toBe(true);
         expect(composition.holdoutTopDelta).toBeLessThanOrEqual(2);
         expect(composition.trainTracks).toBe(4);
@@ -818,7 +830,7 @@ test.describe(
           };
         });
         expect(tracks).toEqual({
-          figure: 2,
+          figure: 3,
           partitions: 2,
           train: 4,
           validation: 2,

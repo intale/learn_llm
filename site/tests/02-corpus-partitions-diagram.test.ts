@@ -485,6 +485,16 @@ describe("corpus-partitions diagram component contract", () => {
       "grid-template-columns: repeat(2, minmax(0, 1fr));",
     );
     expect(fullViewStyles).toContain("align-content: start;");
+    expect(fullViewStyles).toContain(
+      "@media (min-width: 64rem) and (min-height: 42rem)",
+    );
+    expect(fullViewStyles).toContain(
+      "grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;",
+    );
+    expect(fullViewStyles).toContain(
+      "> :global(.diagram-full-view-actions)",
+    );
+    expect(fullViewStyles).toContain("grid-column: 1 / 3;");
     expect(source).not.toContain(
       "@container course-diagram (min-width: 64rem)",
     );
