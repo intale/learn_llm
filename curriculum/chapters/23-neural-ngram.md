@@ -2,7 +2,7 @@
 {
   "chapter_id": "23-neural-ngram",
   "concept_id": "neural-ngram",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 23,
   "objective": {
     "en": "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.",
@@ -165,7 +165,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 23 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 4 with SHA-256 3246b7a18c8e4077d9968f155692405a3dafd0f5a91102b9700ff22fcaf6d798 and becomes stale whenever that source changes.",
+    "Chapter 23 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 5 with SHA-256 6fc56422f84a6c3f285dc41102dcd1b1835946b82d67d5939b65dec227093a02 and becomes stale whenever that source changes.",
     "Keep V, C, D, H, E, h, W_o, ell, z with its indices, shapes, token IDs, parameter names, trace keywords, source roles, and source URLs unchanged across both locales.",
     "Translate neural n-gram as «нейронная n-граммная языковая модель»: a fixed-context feed-forward language model, not a count table and not a Transformer.",
     "Translate held-out validation loss as «функция потерь на отложенной валидационной выборке» when the distinction matters; do not use a calque that implies data are physically outside the model.",
@@ -173,6 +173,7 @@
     "The parameter-node proof means that the ordered registry and the persistent embedding, SwiGLU, and output-projection handles share the same five nodes before and after AdamW writes new values; never translate it as leaf replacement or layer reconstruction.",
     "The gradients-cleared proof belongs to the training fixture after its explicit zero_grad call. AdamW itself leaves each accumulated raw gradient unchanged on the live node.",
     "The test boundary proves that test text is not encoded or scored. Reading test document IDs from the frozen split manifest is not the same as using test text.",
+    "Keep the validation history in two stages: an exploratory benchmark inspected validation loss and established the 15-update budget; the subsequently frozen published run reports steps 0, 8, and 15 without using them for dynamic checkpoint selection.",
     "Bengio et al. support the distributed fixed-context language-model architecture, and Vaswani et al. support the later attention-only and masked-decoder claims. Neither paper defines this course's BPE, SwiGLU, dimensions, AdamW constants, seeds, target extraction, stopping rule, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and literal program data. The language-model architecture and history remain language-independent.",
     "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
@@ -249,6 +250,12 @@ residual connections, normalization, positional treatment, schedules,
 checkpoint serialization, validation-based model selection, stochastic
 sampling, weight tying, and distributed training remain later chapters.
 
+Before this teaching fixture was frozen, an exploratory benchmark inspected
+validation loss and established that a budget of $15$ updates cleared the
+chapter's improvement threshold. The published run then fixes that budget
+before it begins. It reports losses at steps $0$, $8$, and $15$ but never uses
+them to select a checkpoint dynamically.
+
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
 
@@ -290,7 +297,7 @@ training objective is the indexed mean negative log-likelihood
 
 $$
 L=-\frac{1}{B}\sum_{b=1}^{B}\log
-\frac{\exp(\ell_{b,y_b})}{\sum_{j=1}^{V}\exp(\ell_{b,j})}.
+\frac{\exp(\ell_{b,y_b})}{\sum_{j=0}^{V-1}\exp(\ell_{b,j})}.
 $$
 
 The Chapter 21 row contains $C$ shifted targets, but Chapter 23 uses only
@@ -427,7 +434,7 @@ attention-based causal information mixing between sequence positions.
 ## Localization notes
 
 English and Russian are the exact active Chapter 23 locales. English content
-revision 4 is the sole semantic source; the Russian lesson translates that exact
+revision 5 is the sole semantic source; the Russian lesson translates that exact
 revision directly and becomes stale whenever the English meaning or presentation
 changes. The contract, route, alternate links, lesson, diagram labels, accessible
 descriptions, exercises, answers, SEO, and terminology publish together.

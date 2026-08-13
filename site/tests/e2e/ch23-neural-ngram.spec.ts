@@ -8,6 +8,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type CourseChapterLink,
 } from './chapter-helpers';
@@ -52,6 +53,12 @@ const copy = {
     ],
     pipelineScroller: 'Scrollable fixed-context model pipeline',
     generationScroller: 'Scrollable generated token ID sequence',
+    checkpointHistory:
+      'Each loss covers its complete partition and weights every batch by its actual row count. An earlier exploratory benchmark inspected validation loss and established the 15-update budget. The published run fixes that budget before it begins and reports checkpoints without dynamically selecting one.',
+    resultHistory: [
+      'Before this teaching fixture was frozen, an exploratory benchmark inspected validation loss',
+      'measurements at steps 0, 8, and 15 are reports, not inputs to dynamic checkpoint selection',
+    ],
   },
   ru: {
     revisionLabel: 'Версия материала',
@@ -88,6 +95,12 @@ const copy = {
     ],
     pipelineScroller: 'Прокручиваемая схема модели с фиксированным контекстом',
     generationScroller: 'Прокручиваемая последовательность ID сгенерированных токенов',
+    checkpointHistory:
+      'Каждая функция потерь охватывает всю соответствующую выборку и взвешивает каждый пакет по фактическому числу строк. В ходе предварительного эксперимента результаты на валидационной выборке использовали, чтобы установить бюджет из 15 обновлений. В опубликованном запуске этот бюджет задан до начала обучения, а показанные измерения не используются для выбора контрольного шага.',
+    resultHistory: [
+      'До фиксации этого учебного примера в ходе предварительного эксперимента результаты на валидационной выборке использовали',
+      'измерения на шагах 0, 8 и 15 только попадают в отчёт и не используются для динамического выбора контрольного шага',
+    ],
   },
 } as const;
 
@@ -205,7 +218,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 23,
-    revision: 4,
+    revision: 5,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: locales,
@@ -224,6 +237,7 @@ async function expectChapterContent(
     String.raw`E\in\mathbb{R}^{V\times D}`,
     String.raw`[B,H][H,V]=[B,V]`,
     String.raw`L=-\frac{1}{B}\sum_{b=1}^{B}\log`,
+    String.raw`\sum_{j=0}^{V-1}\exp(\ell_{b,j})`,
     String.raw`y_b=\operatorname{target\_row}(b)_{C-1}`,
     String.raw`V=266,\ C=2,\ D=4,\ H=8`,
     String.raw`N_{\mathrm{train}}=1836,\ N_{\mathrm{val}}=467`,
@@ -304,6 +318,9 @@ async function expectChapterContent(
   await expect(cards.nth(4)).toContainText('0.002350');
 
   const checkpoints = diagram.locator('.checkpoint-card');
+  await expect(diagram.locator('.checkpoint-stage .stage-heading > p').last()).toHaveText(
+    localized.checkpointHistory,
+  );
   await expect(checkpoints).toHaveCount(3);
   expect(await checkpoints.evaluateAll((nodes) => nodes.map((node) => node.dataset.step))).toEqual([
     '0',
@@ -321,6 +338,9 @@ async function expectChapterContent(
   await expect(result).toContainText('5.583482');
   await expect(result).toContainText('5.557362');
   await expect(result).toContainText('0.026120');
+  const resultHistory = diagram.locator('xpath=following-sibling::p[1]');
+  const resultHistoryText = await readMathAwareText(resultHistory);
+  for (const fragment of localized.resultHistory) expect(resultHistoryText).toContain(fragment);
   const generated = diagram.locator('.token-list li');
   await expect(generated).toHaveCount(12);
   expect(
@@ -478,6 +498,66 @@ test.describe('chapter 23 neural n-gram vertical slice', {
       );
       await expect(diagram.locator('.proof-stage')).toHaveCSS('border-top-style', 'solid');
       await expectNoOverflowOrClientScripts(page);
+    }
+  });
+
+  test('corrected checkpoint history remains readable in full view for both locales', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="neural-ngram"]');
+      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+      await expect(toggle).toBeVisible();
+      await toggle.click();
+      await page.waitForFunction(
+        () =>
+          document.fullscreenElement?.getAttribute('data-visualization-id') ===
+          'neural-ngram',
+      );
+      await expect(diagram.locator('.checkpoint-stage .stage-heading > p').last()).toHaveText(
+        copy[locale].checkpointHistory,
+      );
+      const geometry = await diagram.evaluate((node) => {
+        const paintedDebt = (box: HTMLElement) => {
+          const bounds = box.getBoundingClientRect();
+          const style = getComputedStyle(box);
+          const inner = {
+            left: bounds.left + Number.parseFloat(style.borderLeftWidth),
+            right: bounds.right - Number.parseFloat(style.borderRightWidth),
+            top: bounds.top + Number.parseFloat(style.borderTopWidth),
+            bottom: bounds.bottom - Number.parseFloat(style.borderBottomWidth),
+          };
+          let inline = 0;
+          let block = 0;
+          const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+          for (let text = walker.nextNode(); text; text = walker.nextNode()) {
+            if (!text.textContent?.trim()) continue;
+            const parent = text.parentElement;
+            if (parent?.closest('[data-diagram-box]') !== box) continue;
+            const range = document.createRange();
+            range.selectNodeContents(text);
+            for (const ink of range.getClientRects()) {
+              inline = Math.max(inline, inner.left - ink.left, ink.right - inner.right);
+              block = Math.max(block, inner.top - ink.top, ink.bottom - inner.bottom);
+            }
+          }
+          return { inline: Math.max(0, inline), block: Math.max(0, block) };
+        };
+        return {
+          inlineDebt: Math.max(0, node.scrollWidth - node.clientWidth),
+          boxDebts: Array.from(
+            node.querySelectorAll<HTMLElement>('[data-diagram-box]'),
+            paintedDebt,
+          ),
+        };
+      });
+      expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+      expect(geometry.boxDebts.every(({ inline, block }) => inline <= 2 && block <= 2)).toBe(true);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
+      await expect(toggle).toBeFocused();
     }
   });
 

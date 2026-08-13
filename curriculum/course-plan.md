@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 75,
+  "plan_revision": 76,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -1342,7 +1342,7 @@ with JavaScript enabled.
 
 - **Chapter ID:** `23-neural-ngram`
 - **Implementation step:** `implement-ch23-neural-ngram`
-- **Revision status:** Content revision 4 gives the model persistent layer handles that share five live nodes with the ordered parameter registry, updates those nodes in place, and makes post-step gradient clearing explicit; the Russian lesson is refreshed directly from this English revision.
+- **Revision status:** Content revision 5 distinguishes the exploratory validation-observed benchmark that established the 15-update budget from the published frozen run, which reports steps 0, 8, and 15 without dynamic checkpoint selection; it also aligns the vocabulary-class loss sum with the implementation's zero-based token IDs, and the Russian lesson is refreshed directly from this English revision.
 - **Depends on:** `22-adamw`.
 - **Outcome:** Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.
 - **Scope boundary:** Integrate tokenizer, windows, tensors, model-critical VJPs, layers, indexed NLL, batches, and AdamW in a deterministic checkpoint model; defer attention.

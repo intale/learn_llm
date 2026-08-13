@@ -325,9 +325,9 @@ describe('Chapter 23 contract and lesson projection', () => {
   const russianLesson = frontmatter(russianLessonSource);
 
   it('keeps metadata, formula, LLM history, visualization, handoff, sources, and output aligned', () => {
-    expect(contract.content_revision).toBe(4);
-    expect(lesson.content_revision).toBe(4);
-    expect(russianLesson.content_revision).toBe(4);
+    expect(contract.content_revision).toBe(5);
+    expect(lesson.content_revision).toBe(5);
+    expect(russianLesson.content_revision).toBe(5);
     expect(contract.translation_notes.join(' ')).toContain(
       `SHA-256 ${createHash('sha256').update(lessonSource).digest('hex')}`,
     );
@@ -453,6 +453,35 @@ describe('Chapter 23 contract and lesson projection', () => {
       expect(normalizedBody).toContain(normalize(field));
     }
     expect(russianLessonBody).not.toMatch(/TypeScript|Python history|Rust history/i);
+  });
+
+  it('separates the exploratory validation-observed budget from the fixed published run', () => {
+    expect(contractSource).toContain(
+      'an exploratory benchmark inspected\nvalidation loss and established that a budget of $15$ updates',
+    );
+    expect(contractSource).toContain(
+      'reports losses at steps $0$, $8$, and $15$ but never uses\nthem to select a checkpoint dynamically',
+    );
+    expect(lessonBody).toContain(
+      'An earlier exploratory benchmark inspected validation loss and established the 15-update budget.',
+    );
+    expect(lessonBody).toContain(
+      'measurements at steps $0$, $8$, and $15$ are reports, not\ninputs to dynamic checkpoint selection',
+    );
+    expect(russianLessonBody).toContain(
+      'В ходе предварительного эксперимента результаты на валидационной выборке использовали, чтобы установить бюджет из 15 обновлений.',
+    );
+    expect(russianLessonBody).toContain(
+      'измерения на шагах $0$, $8$ и $15$ только попадают в отчёт и не используются для\nдинамического выбора контрольного шага',
+    );
+    for (const source of [contractSource, lessonBody, russianLessonBody]) {
+      expect(source).toContain('\\sum_{j=0}^{V-1}\\exp(\\ell_{b,j})');
+      expect(source).not.toContain('\\sum_{j=1}^{V}\\exp(\\ell_{b,j})');
+    }
+    expect(lessonBody).not.toContain('before validation was inspected');
+    expect(lessonBody).not.toMatch(/final checkpoint is fixed before evaluation/i);
+    expect(russianLessonBody).not.toContain('до просмотра результатов валидации');
+    expect(russianLessonBody).not.toContain('Конечный шаг задан до оценки');
   });
 
   it('orders pedagogy, renders declared history claims and formulas, and keeps model history language-neutral', () => {

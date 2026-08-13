@@ -21912,3 +21912,98 @@ content-review effectiveness or that the current course is semantically
 correct.
 
 **Affected step:** `establish-canonical-english-authoring-skill`.
+
+## 2026-08-13 - Project the Chapter 23 history correction through revision 5
+
+**Status:** Accepted during preflight for the Chapter 23 correction, before the
+shared course-plan and locale-projection files changed.
+
+**Context:** The queued step named the Chapter 23 contract, English and Russian
+lessons, focused tests, and ledgers. Evidence review established that the
+meaning correction advances the complete bilingual chapter from content revision
+4 to revision 5. The course plan carries a learner-visible revision-status
+projection, while `site/src/i18n/chapter-locales.json` must carry the exact same
+plan revision as `curriculum/course-plan.md`; the content-contract suite locks
+both values. Leaving those shared integration files unchanged would make the
+authoritative plan and checked projection stale even if the three chapter files
+agreed.
+
+**Decision:** Expand `correct-ch23-validation-history` only to
+`curriculum/course-plan.md`, `site/src/i18n/chapter-locales.json`, and the exact
+plan-revision assertions in `site/tests/content-contract.test.ts`. Advance the
+plan and projection from revision 75 to 76 and describe Chapter 23 revision 5 as
+the history-boundary correction: an exploratory validation-observed benchmark
+established the 15-step budget, while the published frozen run reports steps 0,
+8, and 15 without dynamic checkpoint selection. Keep every other chapter-policy,
+locale-activation, plan, and projection byte unchanged.
+
+**Consequences:** The semantic chapter revision has one coherent scheduler and
+locale projection. This is necessary shared integration for the same step, not a
+new course feature or authorization to change Rust, trace, formula, diagram
+structure, values, routes, or another chapter. Validation must prove the plan
+increment is the only shared projection change.
+
+**Affected step and run:** `correct-ch23-validation-history`,
+`20260813T064225Z-correct-ch23-validation-history-01`.
+
+## 2026-08-13 - Align Chapter 23's loss formula with zero-based token IDs
+
+**Status:** Accepted after the revision-5 English technical review exposed the
+separate formula/code mismatch and before the formula bytes changed.
+
+**Context:** The queued Chapter 23 step protects formulas unless validation
+proves a separate defect. The complete technical reviewer observed that the
+softmax denominator sums classes from $j=1$ through $V$, while the lesson,
+tokenizer, target rows, tensor implementation, and Rust `indexed_mean_nll`
+calls use unchanged zero-based token IDs $0$ through $V-1$. Direct source audit
+confirmed that mismatch. The outer orchestrator later made that review context
+ineligible for sealing by reactivating it for packaging; the raw response remains
+diagnostic, and the candidate will receive fresh post-correction reviews.
+
+**Decision:** Within the already-owned Chapter 23 contract, English lesson,
+Russian lesson, and focused tests, change only the vocabulary-class denominator
+from $\sum_{j=1}^{V}$ to $\sum_{j=0}^{V-1}$. Keep the batch-row sum
+$b=1,\ldots,B$, every token ID, numeric result, trace, Rust byte, and all other
+formula semantics unchanged. Extend the revision-5 course-plan status and tests
+to name and lock this zero-based alignment. Because the English and Russian
+learner bytes change, invalidate the current review/localization/render/browser
+packages and continue from this formula correction through fresh English reviews,
+adjudications, localization reviews, build, and Firefox before one final full
+step replay.
+
+**Consequences:** Revision 5 contains both validated corrections discovered in
+this step: truthful validation-history chronology and formula/code index parity.
+No Rust or executable output change is authorized. Failed and invalidated
+predecessor judgments remain immutable evidence rather than being relabeled.
+
+**Affected step and run:** `correct-ch23-validation-history`,
+`20260813T064225Z-correct-ch23-validation-history-01`.
+
+## 2026-08-13 - Record lockfile-pinned validation materialization for Chapter 23
+
+**Status:** Accepted after observation in run 01; this supersedes only the
+preflight assumption that the focused Docker validation would be cache-only.
+
+**Context:** The first focused Chapter 23 test command used the repository's
+standard `./course run` wrapper. Because learner-source bytes had changed, that
+wrapper rebuilt `learn-llm-workspace:local`; missing Docker build-cache layers
+then caused Cargo to materialize packages selected by the unchanged lockfiles.
+No new dependency, research source, dataset, model, generated learner asset, or
+course-owned product byte was introduced by that access. Treating the run as
+network-free would nevertheless make its provenance false.
+
+**Decision:** Preserve the original input fingerprint and record the observed
+boundary in the live run plus
+`.build/runs/20260813T064225Z-correct-ch23-validation-history-01/docker-validation-network-deviation.txt`.
+Freeze the resulting image identity and treat the access only as bounded
+validation-environment materialization. It grants no authority for subsequent
+network work. Run downstream deterministic and Firefox checks from the already
+built local images with pulls disabled and networking disabled whenever the
+validated command interface permits it.
+
+**Consequences:** The Chapter 23 evidence distinguishes a cache miss from a new
+semantic input. Lockfiles, dependency policy, Rust, chapter values, formulas,
+traces, and learner outputs remain unchanged.
+
+**Affected step and run:** `correct-ch23-validation-history`,
+`20260813T064225Z-correct-ch23-validation-history-01`.

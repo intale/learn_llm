@@ -2,7 +2,7 @@
 {
   "chapter_id": "23-neural-ngram",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 23,
   "concept_id": "neural-ngram",
   "title": "Train a fixed-context neural language model",
@@ -183,7 +183,7 @@ export const diagramLabels = {
     pipeline:
       'Every tensor and displayed value comes from the initial seeded forward pass. Concatenation changes layout, not values.',
     checkpoints:
-      'Each loss covers its complete partition and weights every batch by its actual row count. The final checkpoint is fixed before evaluation.',
+      'Each loss covers its complete partition and weights every batch by its actual row count. An earlier exploratory benchmark inspected validation loss and established the 15-update budget. The published run fixes that budget before it begins and reports checkpoints without dynamically selecting one.',
     generation:
       'These are token IDs and preserved bytes from an intentionally tiny undertrained model, not a claim of readable text.',
   },
@@ -257,7 +257,7 @@ One target $y_b$ belongs to each context row. The indexed mean loss is
 
 $$
 L=-\frac{1}{B}\sum_{b=1}^{B}\log
-\frac{\exp(\ell_{b,y_b})}{\sum_{j=1}^{V}\exp(\ell_{b,j})}.
+\frac{\exp(\ell_{b,y_b})}{\sum_{j=0}^{V-1}\exp(\ell_{b,j})}.
 $$
 
 Chapter 21 stores $C$ shifted targets in every row. This model deliberately uses
@@ -396,11 +396,14 @@ held-out improvement without mixing in a second set of hand-computed values:
 <NeuralNgramDiagram labels={diagramLabels} />
 
 The initial context rows concatenate without changing their numerical order.
-After $15$ AdamW updates, complete training loss falls from $5.583505$ to
-$5.555850$, while held-out validation loss falls from $5.583482$ to
-$5.557362$. The improvement is $0.026120$ nat at displayed precision. This
-does not claim monotonic loss or choose the best checkpoint: step $15$ was fixed
-before validation was inspected.
+Before this teaching fixture was frozen, an exploratory benchmark inspected
+validation loss and established that a budget of $15$ updates cleared the
+chapter's improvement threshold. The published frozen run then fixes that budget
+before it begins: measurements at steps $0$, $8$, and $15$ are reports, not
+inputs to dynamic checkpoint selection. In that run, complete training loss
+falls from $5.583505$ to $5.555850$, while held-out validation loss falls from
+$5.583482$ to $5.557362$. The improvement is $0.026120$ nat at displayed
+precision; the chapter does not claim monotonic loss.
 
 Greedy continuation emits token IDs
 $[259,211,211,211,211,211,211,211,211,211,211,211]$ and stops at the

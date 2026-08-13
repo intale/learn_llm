@@ -994,7 +994,7 @@ describe("LLM-evolution history contract", () => {
 });
 
 describe("curriculum and catalog contracts", () => {
-  it("projects retained-set/support plan revision 75 and the exact bilingual chapter revisions", () => {
+  it("projects Chapter 23 history plan revision 76 and the exact bilingual chapter revisions", () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, "curriculum/course-plan.md"),
@@ -1014,13 +1014,13 @@ describe("curriculum and catalog contracts", () => {
       }>;
     };
     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
-      "a1b32e08f141e51fee922d65429e911c0ffd47d263a443bafb25dd3de2c4787f",
+      "0904f2465b08a37fa4b6073156010095ebee068baa14701c6a0b504bd54dfabd",
     );
     expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
-      "da7dfe944c478fa9d1f837b3775bb4fdb6580e4180607d956d3ff6ce62717331",
+      "91cedf56ed7d32783455cf0764d84fc302f2aa1935dfdbc1ab48b6acc3968183",
     );
-    expect(plan.plan_revision).toBe(75);
-    expect(projection.planRevision).toBe(75);
+    expect(plan.plan_revision).toBe(76);
+    expect(projection.planRevision).toBe(76);
     expect(planSource).toContain(
       "- **Handoff:** Chapter 35 serializes the trainer-captured selected model and matching optimizer state for reproducible inference; the immutable evaluation report remains separate, and the sampling RNG is initialized independently.",
     );
@@ -1681,7 +1681,7 @@ describe("curriculum and catalog contracts", () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 75',
+      '"plan_revision": 76',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
