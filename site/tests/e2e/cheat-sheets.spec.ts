@@ -48,6 +48,7 @@ const englishSheets = [
       "Holdout",
       "Data leakage",
       "Provenance group",
+      "Byte-pair encoding (BPE)",
     ],
   },
   {
@@ -758,16 +759,30 @@ const sheets: BrowserSheet[] = [
 ];
 
 const chapter02BoundaryDefinitions = {
-  en: {
-    term: "Test partition",
-    definition:
-      "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate.",
-  },
-  ru: {
-    term: "Тестовая выборка",
-    definition:
-      "Документы, предназначенные для оценки после завершения обучения и выбора модели. В пределах одного запуска программа обеспечивает эту границу локально; в последующих запусках известный фиксированный пример используют для регрессионной проверки, а не для новой независимой оценки.",
-  },
+  en: [
+    {
+      term: "Test partition",
+      definition:
+        "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate.",
+    },
+    {
+      term: "Byte-pair encoding (BPE)",
+      definition:
+        "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
+    },
+  ],
+  ru: [
+    {
+      term: "Тестовая выборка",
+      definition:
+        "Документы, предназначенные для оценки после завершения обучения и выбора модели. В пределах одного запуска программа обеспечивает эту границу локально; в последующих запусках известный фиксированный пример используют для регрессионной проверки, а не для новой независимой оценки.",
+    },
+    {
+      term: "Кодирование пар байтов (BPE)",
+      definition:
+        "В этом курсе в начале обучения BPE каждому байту каждого обучающего документа соответствует один токен. Пары соседних токенов подсчитывают только внутри каждого обучающего документа; на основе этих подсчётов строят упорядоченный список правил слияния. Ранг слияния — позиция правила в этом списке. Валидационные и тестовые документы не участвуют в подсчёте пар, а токены по разные стороны границы документа не считаются соседними.",
+    },
+  ],
 } as const;
 
 const chapter34BoundaryDefinitions = {
@@ -1549,7 +1564,34 @@ for (const sheet of sheets) {
         );
       }
       if (sheet.chapterId === "02-corpus-partitions") {
-        expect(termPages.map((termPage) => termPage.length)).toEqual([9]);
+        expect(termPages.map((termPage) => termPage.length)).toEqual([10]);
+        expect(sortedTerms).toEqual(
+          sheet.locale === "en"
+            ? [
+                "Byte-pair encoding (BPE)",
+                "Corpus",
+                "Data leakage",
+                "Disjoint split",
+                "Holdout",
+                "Provenance group",
+                "Test partition",
+                "Training partition",
+                "Validation partition",
+                "Whole document",
+              ]
+            : [
+                "Валидационная выборка",
+                "Группа происхождения",
+                "Кодирование пар байтов (BPE)",
+                "Корпус",
+                "Непересекающееся разбиение",
+                "Обучающая выборка",
+                "Отложенные данные",
+                "Тестовая выборка",
+                "Утечка данных",
+                "Целый документ",
+              ],
+        );
       }
       if (sheet.chapterId === "36-temperature-top-k") {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
@@ -1673,15 +1715,18 @@ for (const sheet of sheets) {
         );
       }
       if (sheet.chapterId === "02-corpus-partitions") {
-        const expectedDefinition = chapter02BoundaryDefinitions[sheet.locale];
-        const entry = dialog.locator(".cheat-sheet-term").filter({
-          has: page.locator("dt", { hasText: expectedDefinition.term }),
-        });
-        await expect(entry).toHaveCount(1);
-        await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
-        await expect(entry.locator("dd")).toHaveText(
-          expectedDefinition.definition,
-        );
+        for (const expectedDefinition of chapter02BoundaryDefinitions[
+          sheet.locale
+        ]) {
+          const entry = dialog.locator(".cheat-sheet-term").filter({
+            has: page.locator("dt", { hasText: expectedDefinition.term }),
+          });
+          await expect(entry).toHaveCount(1);
+          await expect(entry.locator("dt")).toHaveText(expectedDefinition.term);
+          await expect(entry.locator("dd")).toHaveText(
+            expectedDefinition.definition,
+          );
+        }
       }
       if (sheet.chapterId === "34-final-evaluation") {
         const expectedDefinitions = chapter34BoundaryDefinitions[sheet.locale];

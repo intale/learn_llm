@@ -55,6 +55,10 @@ const expectedSheets = {
       ["Holdout", "fixed holdouts developed"],
       ["Data leakage", "particular leakage path"],
       ["Provenance group", "provenance group remains within one role"],
+      [
+        "Byte-pair encoding (BPE)",
+        "adjacent-byte pair counter will reset at every document boundary",
+      ],
     ],
   },
   "03-learn-bpe-merges": {
@@ -939,6 +943,8 @@ const exactDefinitions = {
   "02-corpus-partitions": {
     "Test partition":
       "Documents reserved for reporting after fitting and model selection. One course execution enforces that boundary locally; later executions reuse the known fixture as regression evidence, not a new independent estimate.",
+    "Byte-pair encoding (BPE)":
+      "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
   },
   "12-stable-softmax": {
     Underflow:
@@ -1276,6 +1282,18 @@ function localizedSheetSha256(locale: "en" | "ru", fileName: string) {
     .digest("hex");
 }
 
+function canonicalTermRecordsSha256(
+  terms: readonly CheatSheetData["terms"][number][],
+) {
+  const canonicalRecords = terms.map(({ definition, term }) => ({
+    definition,
+    term,
+  }));
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalRecords))
+    .digest("hex");
+}
+
 function readSheet(fileName: string) {
   return readLocalizedSheet("en", fileName);
 }
@@ -1302,15 +1320,21 @@ describe("English chapter cheat-sheet content", () => {
     );
   });
 
-  it("freezes the Chapter 2 post-selection test-partition boundary in one nine-term page", () => {
+  it("freezes the Chapter 2 test and training-only BPE boundaries in one ten-term page", () => {
     const english = readLocalizedSheet("en", "02-corpus-partitions.json");
     const russian = readLocalizedSheet("ru", "02-corpus-partitions.json");
 
     expect(localizedSheetSha256("en", "02-corpus-partitions.json")).toBe(
-      "c535f561f5968ba0c0d5b654939adb439f421b40d163af49be43269ae39dcd64",
+      "71b6eb208b86191179ceae987f54bed293a6e339d06a7b016dc2dd80d1d58895",
     );
     expect(localizedSheetSha256("ru", "02-corpus-partitions.json")).toBe(
-      "655a023d47db59fd993a2c920c77946b1ce1fedf9d4294423de16e33bd61d1f2",
+      "7ea7eb2a9938d89a3418b369bb77a9371ddc535e6cdb223158d240b58e9ac0b9",
+    );
+    expect(canonicalTermRecordsSha256(english.terms.slice(0, 9))).toBe(
+      "13aa5a582d9a11c3a3b29e5ba242afe25dce8b814613fa4f3f3d4b2c461620cd",
+    );
+    expect(canonicalTermRecordsSha256(russian.terms.slice(0, 9))).toBe(
+      "eaa643aa02f6d4a7aaacc39c76cd8a18b9143615dc4ed2b930783a50ba032271",
     );
     expect(english.terms.map(({ term }) => term)).toEqual([
       "Corpus",
@@ -1322,6 +1346,7 @@ describe("English chapter cheat-sheet content", () => {
       "Holdout",
       "Data leakage",
       "Provenance group",
+      "Byte-pair encoding (BPE)",
     ]);
     expect(russian.terms.map(({ term }) => term)).toEqual([
       "Корпус",
@@ -1333,6 +1358,7 @@ describe("English chapter cheat-sheet content", () => {
       "Отложенные данные",
       "Утечка данных",
       "Группа происхождения",
+      "Кодирование пар байтов (BPE)",
     ]);
     expect(
       english.terms.find(({ term }) => term === "Test partition")?.definition,
@@ -1344,16 +1370,26 @@ describe("English chapter cheat-sheet content", () => {
     ).toBe(
       "Документы, предназначенные для оценки после завершения обучения и выбора модели. В пределах одного запуска программа обеспечивает эту границу локально; в последующих запусках известный фиксированный пример используют для регрессионной проверки, а не для новой независимой оценки.",
     );
+    expect(english.terms[9]).toEqual({
+      term: "Byte-pair encoding (BPE)",
+      definition:
+        "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
+    });
+    expect(russian.terms[9]).toEqual({
+      term: "Кодирование пар байтов (BPE)",
+      definition:
+        "В этом курсе в начале обучения BPE каждому байту каждого обучающего документа соответствует один токен. Пары соседних токенов подсчитывают только внутри каждого обучающего документа; на основе этих подсчётов строят упорядоченный список правил слияния. Ранг слияния — позиция правила в этом списке. Валидационные и тестовые документы не участвуют в подсчёте пар, а токены по разные стороны границы документа не считаются соседними.",
+    });
     expect(
       paginateCheatSheetTerms(sortCheatSheetTerms(english.terms, "en")).map(
         (page) => page.length,
       ),
-    ).toEqual([9]);
+    ).toEqual([10]);
     expect(
       paginateCheatSheetTerms(sortCheatSheetTerms(russian.terms, "ru")).map(
         (page) => page.length,
       ),
-    ).toEqual([9]);
+    ).toEqual([10]);
   });
 
   it("freezes both Chapter 35 sheets and sorts each into exact ten-plus-three pages", () => {
@@ -1728,13 +1764,15 @@ describe("Russian chapter cheat-sheet localization", () => {
     expect(
       sheet.terms.find(
         (entry) =>
-          entry.term === "Затухание весов, отделённое от градиентного обновления",
+          entry.term ===
+          "Затухание весов, отделённое от градиентного обновления",
       )?.definition,
     ).toBe(
       "Пропорциональное параметру стягивание к нулю, применяемое вне градиента и его адаптивных моментов; при положительном затухании представимый в f64 результат умножения скорости обучения на коэффициент затухания должен быть конечным и строго лежать между нулём и единицей.",
     );
     expect(
-      sheet.terms.find((entry) => entry.term === "Скорость обучения")?.definition,
+      sheet.terms.find((entry) => entry.term === "Скорость обучения")
+        ?.definition,
     ).toBe(
       "Положительный скаляр, задающий масштаб адаптивного обновления и вклада затухания; при умножении на положительный коэффициент затухания он должен дать представимый в f64 результат строго между нулём и единицей, а нулевое затухание задаётся явно.",
     );
@@ -2083,9 +2121,7 @@ describe("cheat-sheet integration contract", () => {
     expect(component).toContain(
       "aria-describedby={isPaginated ? pageStatusId : undefined}",
     );
-    expect(component).toContain(
-      "grid-template-rows: minmax(0, 1fr) auto;",
-    );
+    expect(component).toContain("grid-template-rows: minmax(0, 1fr) auto;");
     const pageViewportStart = component.indexOf("data-cheat-sheet-pages");
     const headerStart = component.indexOf(
       '<header class="cheat-sheet-header">',
@@ -2107,9 +2143,9 @@ describe("cheat-sheet integration contract", () => {
     expect(descriptionStart).toBeGreaterThan(headerStart);
     expect(termPagesStart).toBeGreaterThan(descriptionStart);
     expect(paginationStart).toBeGreaterThan(termPagesStart);
-    expect(component.match(/<header class="cheat-sheet-header">/g)).toHaveLength(
-      1,
-    );
+    expect(
+      component.match(/<header class="cheat-sheet-header">/g),
+    ).toHaveLength(1);
     expect(component).toContain("position: 'dialog-start' | 'page-start'");
     expect(component).toContain("if (position === 'dialog-start')");
     expect(component).toContain("pageViewport.scrollTop = 0;");

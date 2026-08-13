@@ -120,6 +120,11 @@ const copy = {
     exerciseSummary: "Check your predictions",
     exerciseAnswer:
       "The changed corpus bytes cause a checksum mismatch first. If only the recorded checksum were refreshed, coverage validation would then report that the manifest omits doc-07.",
+    cheatSheetBpe: {
+      term: "Byte-pair encoding (BPE)",
+      definition:
+        "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources.",
+    },
   },
   ru: {
     indexTitle: "От текста к небольшой языковой модели",
@@ -182,6 +187,11 @@ const copy = {
     exerciseSummary: "Проверьте ответы",
     exerciseAnswer:
       "Сначала будет обнаружено несовпадение контрольной суммы, поскольку байты корпуса изменились. Если обновить только записанную контрольную сумму, проверка полноты затем сообщит, что в манифесте нет doc-07.",
+    cheatSheetBpe: {
+      term: "Кодирование пар байтов (BPE)",
+      definition:
+        "В этом курсе в начале обучения BPE каждому байту каждого обучающего документа соответствует один токен. Пары соседних токенов подсчитывают только внутри каждого обучающего документа; на основе этих подсчётов строят упорядоченный список правил слияния. Ранг слияния — позиция правила в этом списке. Валидационные и тестовые документы не участвуют в подсчёте пар, а токены по разные стороны границы документа не считаются соседними.",
+    },
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
@@ -339,6 +349,48 @@ async function expectChapterContent(
     revision: contentRevision,
     revisionLabel: localized.revisionLabel,
     title: localized.chapterTitle,
+  });
+
+  const staticResponse = await page.request.get(chapterPath(locale, chapterId));
+  expect(staticResponse.ok(), `${locale} Chapter 2 static response`).toBe(true);
+  const staticHtml = await staticResponse.text();
+  const staticCheatSheet = await page.evaluate(
+    ({ html, bpeTerm }) => {
+      const parsed = new DOMParser().parseFromString(html, "text/html");
+      const roots = parsed.querySelectorAll<HTMLElement>("[data-cheat-sheet]");
+      const root = roots.item(0);
+      const bpeEntries = root
+        ? [...root.querySelectorAll<HTMLElement>(".cheat-sheet-term")]
+            .filter(
+              (entry) => entry.querySelector("dt")?.textContent === bpeTerm,
+            )
+            .map((entry) => ({
+              definition: entry.querySelector("dd")?.textContent ?? "",
+              term: entry.querySelector("dt")?.textContent ?? "",
+            }))
+        : [];
+      return {
+        bpeEntries,
+        definitionCount: root?.querySelectorAll("dd").length ?? 0,
+        pageCount: root?.getAttribute("data-cheat-sheet-page-count") ?? null,
+        pageElementCount:
+          root?.querySelectorAll("[data-cheat-sheet-page]").length ?? 0,
+        paginationCount:
+          root?.querySelectorAll("[data-cheat-sheet-pagination]").length ?? 0,
+        rootCount: roots.length,
+        termCount: root?.querySelectorAll("dt").length ?? 0,
+      };
+    },
+    { html: staticHtml, bpeTerm: localized.cheatSheetBpe.term },
+  );
+  expect(staticCheatSheet).toEqual({
+    bpeEntries: [localized.cheatSheetBpe],
+    definitionCount: 10,
+    pageCount: "1",
+    pageElementCount: 1,
+    paginationCount: 0,
+    rootCount: 1,
+    termCount: 10,
   });
 
   for (const heading of Object.values(localized.headings)) {

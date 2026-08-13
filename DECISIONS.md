@@ -22328,3 +22328,91 @@ complete changed-spec replay required by the approved N-through-END strategy.
 `20260813T125700Z-restore-shared-diagram-inline-code-floor-01`, and
 `close-independent-theory-evidence-audit`,
 `20260813T123754Z-close-independent-theory-evidence-audit-02`.
+
+## 2026-08-13 - Refresh Chapter 2's cheat-sheet provenance note with the queued tenth term
+
+**Status:** Accepted during preflight for `add-ch02-bpe-cheat-sheet-term`, before
+any learner-facing or contract byte changed.
+
+**Context:** The queued step requires one new BPE entry while preserving the nine
+existing Chapter 2 entries. The current Chapter 2 contract's author-only
+`translation_notes` record says the sheets contain nine terms and pins their old
+whole-file hashes. Leaving that record unchanged would make the contract false,
+but the queued output list and its original no-contract-change sentence did not
+authorize the narrow provenance refresh. The older queue decision also named
+Chromium and a no-JavaScript presentation from the superseded browser policy;
+the current supported interactive boundary is the sole Firefox project with
+JavaScript enabled, while crawler evidence is the one complete static term tree.
+
+**Decision:** Expand this step by exactly the Chapter 2 contract and replace only
+the cheat-sheet provenance translation note with a stable ten-term invariant:
+the existing nine entries remain unchanged and ordered, then one BPE entry is
+appended. Keep the exact reviewed file hashes in the completion ledger instead
+of embedding future target bytes in the pre-localization contract; this avoids a
+circular English-review/localization dependency. Keep `content_revision: 9`,
+every learner-facing contract field, both lessons, and every other contract
+value unchanged. Retain the scoped Test-partition qualification. Include the
+complete changed contract in the canonical-English review package even though
+the edited note is author-only. Validate the
+interactive modal only in the repository's sole Firefox project with JavaScript
+enabled; verify crawler visibility in built static HTML instead of adding or
+claiming a second scripting-off interaction surface.
+
+**Consequences:** The final commit may change the contract, the two Chapter 2
+sheet records, the three already-declared static/browser tests, and the two
+ledgers—eight paths total. Chapter 2 remains revision 9, so the course plan and
+locale projection do not advance. The existing nine term objects remain
+byte-identical and ordered; Chapter 2/3 lessons, all Chapter 3 sheets, Rust,
+formulas, diagrams, routes, shared modal code, dependencies, and locale metadata
+remain protected.
+
+**Affected build, step, and run:**
+`explain-ch02-bpe-in-cheat-sheet-20260808`,
+`add-ch02-bpe-cheat-sheet-term`, and
+`20260813T132444Z-add-ch02-bpe-cheat-sheet-term-01`.
+
+## 2026-08-13 - Accept the Chapter 2 BPE reference after boundary-local recovery
+
+**Status:** Accepted after independent English and Russian judgment chains and
+one complete validation replay.
+
+**Context:** The learner change is one English/Russian cheat-sheet term, but the
+first English adjudication correctly found that the technical bundle could not
+prove the author-only contract note was the only contract change because it did
+not contain the prior contract. The candidate itself did not change: a versioned
+successor added that exact prior-contract evidence and fresh review/adjudication
+contexts completed cleanly. The first localization package then exposed an
+English alternate-route link to the target-only role; a versioned successor
+replaced only that over-broad rendered surface with the complete extracted
+Russian dialog group. These corrections resumed at their failing boundaries;
+they did not regenerate the learner candidate or repeat already valid upstream
+work.
+
+**Decision:** Publish the exact reviewed ten-term sheets: English SHA-256
+`71b6eb208b86191179ceae987f54bed293a6e339d06a7b016dc2dd80d1d58895`
+and Russian SHA-256
+`7ea7eb2a9938d89a3418b369bb77a9371ddc535e6cdb223158d240b58e9ac0b9`.
+Retain the first nine term objects byte-for-byte and keep Chapter 2 at content
+revision 9. Treat maintained verifier success as evidence of byte binding and
+structural completeness, while retaining the explicit limitation that semantic,
+technical, pedagogical, accessibility, and language judgments are
+model-provided. Do not claim the unrelated broad cheat-sheet test file is wholly
+green: its remaining Chapter 18 grounding mismatch predates and is outside this
+step. The two Chapter 2 assertions, exact built static term tree, protected-byte
+audit, and all nine affected Firefox cases are the scoped gates.
+
+**Consequences:** The completed commit changes exactly the Chapter 2 contract,
+both Chapter 2 sheet records, three scoped test files, and the two ledgers. It
+does not change either Chapter 2 lesson, any Chapter 3 content, Rust, formulas,
+diagrams, routes, shared modal code, dependencies, or locale metadata. The
+official Docker build needed cold-cache network rehydration despite the run's
+no-network expectation; no source or lockfile changed, and the authoritative
+complete validation was therefore rerun from the exact sealed image with
+networking disabled and Cargo/npm offline flags. A future tooling step may make
+the cold workspace-image bootstrap explicitly cacheable/offline, but that
+separate infrastructure limitation does not broaden this learner-content commit.
+
+**Affected build, step, and run:**
+`explain-ch02-bpe-in-cheat-sheet-20260808`,
+`add-ch02-bpe-cheat-sheet-term`, and
+`20260813T132444Z-add-ch02-bpe-cheat-sheet-term-01`.

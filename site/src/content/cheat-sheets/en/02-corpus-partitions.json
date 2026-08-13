@@ -39,6 +39,10 @@
     {
       "term": "Provenance group",
       "definition": "A label joining documents derived from the same source so related versions stay in one partition."
+    },
+    {
+      "term": "Byte-pair encoding (BPE)",
+      "definition": "In this course, BPE begins with one token per byte in each training document, counts adjacent token pairs only within that document, and learns an ordered list of pair-merging rules; a rule's position in that list is its merge rank. Validation and test documents contribute no pair counts, and a document boundary prevents a pair from spanning two sources."
     }
   ]
 }
