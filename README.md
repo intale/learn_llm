@@ -8,6 +8,9 @@ currently enabled; both locales publish the Chapter 0 orientation and
 implementation Chapters 1–39, progressing from text units to a tiny but
 functional decoder-only LLM.
 
+**Attention!** The course was generated using AI agent(codex 5.6-sol ultra), thus may contain inaccuracies. So treat it
+accordingly.
+
 ## Requirements
 
 The supported host is Linux with Bash 4 or newer, Git, `curl`, GNU
