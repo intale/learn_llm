@@ -213,6 +213,7 @@ enum Reduction {
     Max,
 }
 
+/// Executes one checked sum, mean, or maximum reduction and owns its output.
 fn reduce_axis(
     input: &TensorView<'_>,
     axis: usize,
@@ -294,6 +295,7 @@ fn reduce_axis(
 }
 // endregion:axis-reductions
 
+/// Fallibly reserves an empty buffer for an owned result of `elements` values.
 fn output_buffer(elements: usize) -> Result<Vec<f64>, TensorOpError> {
     let mut values = Vec::new();
     values
@@ -302,6 +304,7 @@ fn output_buffer(elements: usize) -> Result<Vec<f64>, TensorOpError> {
     Ok(values)
 }
 
+/// Projects input strides onto output axes, using zero where broadcasting reuses values.
 fn broadcast_effective_strides(input: &TensorView<'_>, output_rank: usize) -> Vec<usize> {
     let padding = output_rank - input.rank();
     (0..output_rank)
@@ -320,6 +323,7 @@ fn broadcast_effective_strides(input: &TensorView<'_>, output_rank: usize) -> Ve
         .collect()
 }
 
+/// Removes the reduced axis or retains it with extent one in the output shape.
 fn reduction_shape(input_shape: &[usize], axis: usize, keep_dim: bool) -> Vec<usize> {
     if keep_dim {
         let mut output = input_shape.to_vec();
@@ -334,6 +338,7 @@ fn reduction_shape(input_shape: &[usize], axis: usize, keep_dim: bool) -> Vec<us
     }
 }
 
+/// Maps output-group coordinates to source bases by removing or zeroing the reduced axis.
 fn reduction_group_strides(input_strides: &[usize], axis: usize, keep_dim: bool) -> Vec<usize> {
     if keep_dim {
         let mut group_strides = input_strides.to_vec();
