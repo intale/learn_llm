@@ -174,6 +174,7 @@ pub fn matmul_with_transpose(
 }
 
 impl MatmulPlan {
+    /// Validates matrix and batch dimensions, then records the output layout and traversal strides.
     fn new(
         left: &TensorView<'_>,
         right: &TensorView<'_>,
@@ -225,6 +226,7 @@ impl MatmulPlan {
     }
 }
 
+/// Reads the final two axes as rows and columns, swapping their extents and strides when transposed.
 fn effective_matrix_layout(input: &TensorView<'_>, transposed: bool) -> EffectiveMatrixLayout {
     let matrix_axis = input.rank() - 2;
     let stored = EffectiveMatrixLayout {
@@ -245,6 +247,7 @@ fn effective_matrix_layout(input: &TensorView<'_>, transposed: bool) -> Effectiv
     }
 }
 
+/// Right-aligns two batch shapes and returns their checked singleton-broadcast output shape.
 fn broadcast_batch_shape(left: &[usize], right: &[usize]) -> Result<Vec<usize>, MatmulError> {
     let output_rank = left.len().max(right.len());
     let left_padding = output_rank - left.len();
@@ -278,6 +281,7 @@ fn broadcast_batch_shape(left: &[usize], right: &[usize]) -> Result<Vec<usize>, 
     Ok(output)
 }
 
+/// Projects input strides onto output batch axes, using zero for missing or singleton axes.
 fn batch_effective_strides(input: &TensorView<'_>, output_batch_rank: usize) -> Vec<usize> {
     let input_batch_rank = input.rank() - 2;
     let padding = output_batch_rank - input_batch_rank;
@@ -298,6 +302,7 @@ fn batch_effective_strides(input: &TensorView<'_>, output_batch_rank: usize) -> 
 }
 // endregion:checked-matmul
 
+/// Fallibly reserves an empty `f64` buffer with capacity for the requested owned result.
 fn output_buffer(elements: usize) -> Result<Vec<f64>, MatmulError> {
     let mut values = Vec::new();
     values
