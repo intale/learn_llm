@@ -1,18 +1,26 @@
 # Localized chapter workflow
 
-The reviewed [complete course plan](course-plan.md) is the scheduling source for
-all remaining chapters. It fixes the target architecture, prerequisite order,
-per-chapter learning boundary, cumulative Rust contribution, visualization
-decision, and handoff. `BUILD_STATE.yaml` mirrors that order with one complete
-chapter implementation step per chapter.
+The reviewed [Chapters 0–39 plan](course-plan.md) remains the source of truth for
+the completed scalar reference core. The
+[functional-laptop extension plan](functional-laptop-llm-extension-plan.md) is
+the separate source of truth for Chapters 40–85. Each plan fixes its architecture,
+prerequisite order, per-chapter learning boundary, cumulative Rust contribution,
+visualization decision, and handoff. `BUILD_STATE.yaml` mirrors the selected plan
+with one complete bilingual chapter implementation step per chapter plus only the
+declared reusable infrastructure, acquisition, dependency, experiment, and audit
+checkpoints.
 
 Chapters 0–39 publish one exact English/Russian locale pair per chapter. The
 current revisions of Chapters 1–13 are 5, 8, 7, 9, 8, 5, 6, 5, 5, 4, 4, 8, and 6 respectively
 after their meaning-first language, notation, accessibility, and
-rendered-containment work. Chapter 2 onward
-extends one cumulative Rust decoder with a narrow, audited supporting-library
-boundary until the capstone can
-tokenize, train, evaluate, checkpoint, and generate with a small causal Transformer.
+rendered-containment work. Chapter 2 onward extends one cumulative Rust decoder
+with a narrow, audited supporting-library boundary. Chapters 0–39 end at a
+deterministic 1,188-parameter scalar integration proof. Chapters 40–85 continue
+that same causal decoder-only text/token implementation through runtime-configured
+bridge, laptop, and production-planning profiles. The extension may add one
+crate-private checked prepared-embedding seam inside that decoder, but it adds no
+other encoder or decoder, public modality API, non-text producer, or multimodal
+placeholder.
 
 Chapter 0 is the sole orientation exception. It carries
 `chapter_kind: "orientation"`, order zero, a null formula, a null Rust plan, no
@@ -29,12 +37,14 @@ An implementation-chapter step owns the whole localized vertical slice:
 2. implement and test the reusable Rust concept;
 3. add the runnable LLM-evolution contrast and deterministic expected output;
 4. implement a useful visualization, or record why one would not help;
-5. author the lessons for every locale in the chapter's checked `activeLocales`
-   entry in `site/src/i18n/chapter-locales.json` together;
-6. validate the formula, terminology, Rust evidence, localization, static routes,
-   links, accessibility, responsive rendering, and focused Firefox behavior with
-   JavaScript enabled;
-7. publish the complete slice atomically, finalize its build checkpoint, and
+5. author and freeze canonical English, then pass distinct technical/pedagogical
+   and isolated-surface reviews followed by two fresh same-role adjudications;
+6. translate Russian directly from that exact English revision, then pass a fresh
+   bilingual review and a different Russian-only review;
+7. validate the formula, terminology, Rust evidence, static routes, links,
+   accessibility, responsive rendering, and focused Firefox behavior with
+   JavaScript enabled for both locales and every registered full-view figure;
+8. publish the complete slice atomically, finalize its build checkpoint, and
    commit that chapter by itself.
 
 Outline, Rust, visualization, localization, and browser work are internal phases,

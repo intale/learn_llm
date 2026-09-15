@@ -994,7 +994,7 @@ describe("LLM-evolution history contract", () => {
 });
 
 describe("curriculum and catalog contracts", () => {
-  it("projects the Chapter 18 clarification in plan revision 77 and exact bilingual chapter revisions", () => {
+  it("projects the Chapter 18 clarification and functional successor handoff in plan revision 78 with exact bilingual chapter revisions", () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, "curriculum/course-plan.md"),
@@ -1014,13 +1014,13 @@ describe("curriculum and catalog contracts", () => {
       }>;
     };
     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
-      "7cbdcf3c03fcd9a9e50f3318c105570bd10d823e9d017312bf8973f3f5704cbc",
+      "bb150c85c12016c505e316d7cc79c1f39d78692ba04379de5ca06a7b58d9e1ee",
     );
     expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
-      "d1ad1c3f16ecc37c0c1c051b5ddd915ff343e5ca6dce37b3decd17809a333716",
+      "565880ee28fefc47178e8c9da788cca6150cfbaa06b22603df1453bb4b7dfd93",
     );
-    expect(plan.plan_revision).toBe(77);
-    expect(projection.planRevision).toBe(77);
+    expect(plan.plan_revision).toBe(78);
+    expect(projection.planRevision).toBe(78);
     expect(planSource).toContain(
       "Content revision 8 distinguishes reuse of one embedding parameter matrix across all batch and sequence positions from row selection inside it: different token IDs select different rows, repeated occurrences of one ID reuse its row, and this position-wise reuse is separate from later output-weight tying.",
     );
@@ -1685,7 +1685,7 @@ describe("curriculum and catalog contracts", () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 77',
+      '"plan_revision": 78',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1789,6 +1789,15 @@ describe("curriculum and catalog contracts", () => {
     expect(() => validateCoursePlanText(visualizationDrift)).toThrow(
       /body visualization decision mismatch/,
     );
+
+    const missingHistoricalCheckpointObjective = replaceOnce(
+      planSource,
+      "- **Historical checkpoint objective:** Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust.\n",
+      "",
+    );
+    expect(() =>
+      validateCoursePlanText(missingHistoricalCheckpointObjective),
+    ).toThrow(/Chapter 39 must preserve its historical checkpoint objective/);
 
     const objectiveDrift = replaceOnce(
       stateSource,

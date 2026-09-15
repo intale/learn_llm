@@ -1,8 +1,18 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 77,
+  "plan_revision": 78,
   "chapter_count": 40,
+  "successor_extension": {
+    "plan": "curriculum/functional-laptop-llm-extension-plan.md",
+    "first_chapter": "40-reference-core-handoff",
+    "last_chapter": "85-persistence-scale-decision",
+    "model_family": "causal-decoder-only-autoregressive-text-token",
+    "active_locales": [
+      "en",
+      "ru"
+    ]
+  },
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
@@ -770,14 +780,17 @@
 }
 ---
 
-# Complete decoder-only LLM course plan
+# Chapters 0–39 scalar reference-core plan
 
-This is the reviewed implementation map, not a topic wishlist. Every chapter leaves
-one observable Rust capability in the cumulative model and explains the mathematics
-and LLM-history transition needed to understand it. The final target is deliberately
-small enough to inspect and run on a CPU, but complete enough to partition data,
-learn a tokenizer, train and evaluate a causal decoder, persist it, and generate with
-a key/value cache.
+This is the reviewed implementation map for the 40-chapter scalar reference core,
+not a topic wishlist or the final functional-laptop endpoint. Every chapter leaves
+one observable Rust capability in the cumulative reference model and explains the
+mathematics and LLM-history transition needed to understand it. The exact tiny CPU
+path partitions data, learns a tokenizer, trains and evaluates a causal decoder,
+persists component state, and generates through a batch-one key/value cache. The
+separate [functional-laptop extension plan](functional-laptop-llm-extension-plan.md)
+owns governed data, accelerator training, whole-job resume, conventional evaluation,
+post-training, quantized artifacts, continuous serving, and the two larger endpoints.
 
 ## Chapter 1 audit
 
@@ -793,9 +806,9 @@ reviewed chapters 2–4 handoff. Revision 3 keeps that repair and records the
 meaning-first Russian editorial review. The strengthened formula, localization,
 and bilingual regression gates now pass. No additional Chapter 1 part is justified.
 
-## Target model and explicit boundaries
+## Target model and explicit boundaries for the Chapters 0–39 reference core
 
-The architecture and data protocol are fixed in the JSON frontmatter. The student
+The reference-core architecture and data protocol are fixed in the JSON frontmatter. The student
 will implement a deterministic byte-level BPE tokenizer, row-major tensors, reverse
 mode, a small LLaMA-like pre-norm decoder, AdamW training, three-way evaluation,
 versioned persistence, sampling, and cached inference—all in Rust without a library
@@ -809,10 +822,11 @@ evaluator receives test data. The checked-in test scores are fixed-fixture
 regression evidence, not untouched independent estimates of generalization.
 Fixed-length batches require BOS/EOS but no PAD.
 
-The course excludes dropout, padding-heavy serving, mixed precision, distributed
-training, quantization, mixture of experts, retrieval, instruction/preference tuning,
-and production serving. These are later extensions, not hidden prerequisites for the
-agreed functional teaching model.
+The Chapters 0–39 reference core excludes dropout, padding-heavy serving, mixed
+precision, distributed training, quantization, mixture of experts, retrieval,
+instruction/preference tuning, and production serving. Mandatory laptop-scale forms
+and explicitly bounded advanced forms are owned by the accepted successor plan; none
+is a hidden prerequisite for the exact scalar integration proof recorded here.
 
 ## One historical road to the target LLM
 
@@ -1496,7 +1510,7 @@ with JavaScript enabled.
 - **Visualization:** Useful — show token IDs flowing through embedding, N repeated blocks, final normalization, tied matrix, and vocabulary logits with shapes.
 - **Practice:** Compute parameter count for a tiny configuration and identify where the same embedding matrix is used twice.
 - **Integration evidence:** Zero/one/multi-block shapes, context/vocabulary errors, deterministic logits, tied storage/gradients, exact bias-free parameter names/counts, causality, and gradchecks pass.
-- **Handoff:** Chapter 33 trains this complete decoder and selects a state using validation loss only.
+- **Handoff:** Chapter 33 trains the complete scalar decoder graph assembled in Chapter 32 and selects a state using validation loss only.
 
 ## 33. Training loop and validation-based model selection
 
@@ -1591,7 +1605,7 @@ with JavaScript enabled.
 - **Visualization:** Useful — separate one-time prompt prefill from repeated single-token decode across a stack of distinct layer caches.
 - **Practice:** Assign cache ownership for a three-block model and compare uncached versus cached attention-score counts.
 - **Integration evidence:** Fixture newest-position logits match complete-prefix references within tolerance; restored cached and complete-prefix paths match selected tokens, sampling draws, final RNG state, and stops; bind-time configuration/parameter/layer checks, retained read guards, AdamW write exclusion and rollback, post-drop stale-cache rejection, dynamic operation checks, measured score tensors, multi-layer isolation, prefill, append, reset, and overflow pass.
-- **Handoff:** Chapter 39 proves the complete course as one train/evaluate/save/load/cached-generate program.
+- **Handoff:** Chapter 39 integrates the Chapters 0–39 scalar reference path as one train/evaluate/save/load/cached-generate program, then hands off to the governed functional-laptop track.
 - **Revision status:** Content revision 6 preserves the cache/session correctness boundary and qualifies the Chapter 39 handoff: test cannot affect the selected state inside one execution, while the checked-in decoder-lower-than-bigram loss ordering in Chapter 39 is retained only as fixed-fixture regression evidence rather than a new independent estimate on each repository run. Russian is refreshed directly from the frozen English revision.
 
 ## 39. Capstone: an end-to-end tiny LLM
@@ -1599,7 +1613,9 @@ with JavaScript enabled.
 - **Chapter ID:** `39-end-to-end-llm`
 - **Implementation step:** `implement-ch39-end-to-end-llm`
 - **Depends on:** `38-cached-generation`.
-- **Outcome:** Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust.
+- **Outcome:** Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one deterministic bilingual decoder-only scalar reference-core integration fixture in Rust.
+- **Historical checkpoint objective:** Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust.
+- **Reference-core interpretation:** Here “functional” means the exact deterministic 1,188-parameter scalar integration fixture and its bounded train/evaluate/reload/cache-generate path, not the governed-data, accelerator, whole-job-resume, generalization, adaptation, quantization, safety, or continuous-serving endpoint owned by Chapters 40–85.
 - **Scope boundary:** Synthesize the existing corpus, tokenizer, tensor/autodiff, model, optimizer, evaluation, checkpoint, and generation APIs; introduce no hidden framework or new model concept. Preserve the true within-execution boundary—test cannot affect the already selected state—while treating the ordering retained by later executions as fixed-fixture regression evidence rather than untouched independent generalization or architecture superiority. Report the existing test comparison as a mean over overlapping window-target slots; distinguish it from, but do not compute, a corpus metric that would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; numeric mean NLL and perplexity are not reported for that policy.
 - **Formula:** `P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`. For this fixture, `N_{\mathrm{slot}}=W_{\mathrm{test}}C=436\cdot4=1744`; `\operatorname{PPL}_{\mathrm{slot}}=\exp(\mathcal L_{\mathrm{slot}})`; and `N_{\mathrm{transition}}=\sum_d(|z^{(d)}|-1)=444-2=442`
 - **Historical contrast:** Compare the training-only one-token bigram with the validation-selected decoder on the same ordered 1,744 overlapping window-target slots. The decoder's context capacity is four tokens, while its four causal slot positions actually expose one, two, three, and four in-window context tokens. Treat the mean-NLL gap retained by later executions as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture-wide superiority; apply Dwork et al.'s adaptive-holdout warning only to the general evidence boundary.
@@ -1607,7 +1623,7 @@ with JavaScript enabled.
 - **Visualization:** Useful — render the complete static text → tokens → batches → decoder → loss/update and prompt → cached generation → text pipeline; keep the 1,744-slot denominator, its repeated transition occurrences, mean NLL in nats per slot, and window-slot perplexity explicit at the test stage.
 - **Practice:** Ask students to predict split provenance, batch and overlapping-slot arithmetic, the distinction between the 1,744 reported slots and 442 within-document transition occurrences, parameter count, validation selection, fixed-fixture baseline ordering and its evidence limits, exact checkpoint fields, the distinct `At` logit probe, and seeded output before executing the capstone.
 - **Integration evidence:** On the frozen CPU fixture, validation selects before test mini-batches are materialized; one local evaluator compares the decoder and bigram on the same ordered 1,744 overlapping window-target slots, reporting mean NLL 3.866087547 and 3.981342714 in nats per slot and dimensionless window-slot perplexities 47.755180205 and 53.588940583. Four within-document transition occurrences appear in one slot, four in two slots, four in three slots, and 430 in four slots; the decoder sees one, two, three, or four in-window context tokens across the four slot positions. The two test documents contain 442 within-document transition occurrences, but the conventional maximal-prefix metric that scores each occurrence once is explicitly not reported. Under that policy, the decoder would receive the longest available causal prefix capped at four tokens and only its newest-position distribution would be used; numeric mean NLL and PPL are not reported. Exact markers classify the retained slot-weighted ordering as fixed-fixture regression evidence and reject independent-generalization or architecture-superiority interpretations; checkpoint bytes, model, optimizer, tokenizer, step, and RNG round-trip exactly; logits for probe `At` match bit for bit; cached and complete-prefix generation from `A` with temperature 0.8, top-k 4, and seed 38 agrees on `[260,34,34]`, draws, stop, and final RNG state; and two training runs match by bit pattern.
-- **Handoff:** The student now owns every component required to inspect, modify, test, and extend a functional decoder-only LLM.
+- **Handoff:** The student now owns every Chapters 0–39 reference-core component and proceeds to the functional-laptop track for governed data, configurable scale, accelerator training, whole-job resume, conventional evaluation, adaptation, quantized artifacts, and continuous serving.
 - **Revision status:** Content revision 9 identifies the 1,744 reported observations as overlapping window-target slots, labels the fixed values as mean NLL in nats per slot and their exponentials as dimensionless window-slot perplexities, and distinguishes context capacity four from actual one-to-four-token slot contexts. It also states the complete unreported policy: score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, use only its newest-position distribution, and report no numeric mean NLL or perplexity. Russian is refreshed directly from this English revision; revision 8's fixed-fixture evidence scope and earlier ownership and checkpoint guarantees remain unchanged.
 
 

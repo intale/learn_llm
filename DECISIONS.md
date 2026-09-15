@@ -22935,3 +22935,1005 @@ immutable evidence and are not the accepted checkpoint.
 `design-functional-laptop-llm-curriculum-extension`,
 `20260813T181707Z-define-functional-laptop-llm-resource-contract-01`, and
 `20260813T195041Z-define-functional-laptop-llm-resource-contract-02`.
+
+## 2026-08-13 - Design the functional extension as a gated successor track
+
+**Status:** Accepted during preflight for
+`design-functional-laptop-llm-curriculum-extension`, before any canonical
+successor plan, validator, product implementation, dependency, artifact, or
+learner surface was changed.
+
+**Context:** The accepted capability audit and corrected resource contract now
+define 79 capabilities, 104 bounded sources, seven resource profiles, exact
+scale and resource formulas, complete artifact/provenance schemas, and a
+fail-closed laptop admission boundary. The existing Chapters 0--39 remain the
+committed scalar reference core. The next checkpoint must turn those records
+into a learnable, independently schedulable implementation path rather than
+silently treating an audit taxonomy as a course sequence or beginning expensive
+work before its prerequisites exist.
+
+**Decision:** Create one run-scoped design candidate that maps every accepted
+capability and supplied finding to an exact curriculum module, Rust ownership
+boundary, validation receipt, or explicit advanced-scale exclusion. Preserve
+the current 40 chapters and introduce a successor track whose same versioned
+causal decoder configuration runs the 1,188-parameter reference, exact
+8,304-parameter bridge, measured laptop profiles, and production-shaped
+plan/refuse profile. Semantic dimensions, resource limits, and distributed
+policy remain runtime settings; compiler features select backend, device, or
+kernel plumbing only.
+
+Keep the implementation exclusively decoder-only autoregressive text/token
+modeling. The design may require one private sealed checked
+`PreparedDecoderInput` boundary shared by full and cached token paths, but it
+must add no public modality interface, non-text producer, placeholder adapter,
+second encoder or decoder, multimodal chapter, or alternate model family.
+External retrieval and tools may contribute authorized text tokens only.
+
+Schedule governed data, variable and packed batches, scalar/accelerator parity,
+full-job resume, and multi-seed evaluation before any expensive pretraining,
+adaptation, serving, or application checkpoint. Keep exact in-memory/filesystem
+retrieval mandatory. PostgreSQL/pgvector remains absent unless a later declared
+measurement step crosses the accepted threshold and thereby selects the
+conditional advanced adapter. Insert every resulting implementation, content,
+English review/adjudication, direct Russian localization review, integration,
+GPU, evaluation, serving, and closure prerequisite as a distinct step before
+the existing closure; rewire closure to the last inserted step.
+
+Revise the internal Chapters 0--39 plan to revision 78 so its five audited
+course-plan surfaces name the scalar reference-core boundary and point to the
+successor. Updating that revision necessarily updates only the matching locale
+projection revision and its exact static assertion; it changes no English or
+Russian learner-facing byte, active locale, route, or content revision.
+
+**Consequences:** This checkpoint may use the accepted official/primary source
+register and narrowly declared official metadata lookup, but it may not acquire
+the TinyStories payload, model weights, new crates, CUDA artifacts, database
+images, or other bulk inputs, and it may not run training or GPU work. It changes
+planning, validation tooling, the exact plan-revision projection, state, and
+decisions only. Later learner-facing work must follow the canonical-English
+independent review and adjudication workflow, translate Russian directly from
+the frozen English revision, and pass static plus JavaScript-enabled Firefox
+validation before publication.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260813T201220Z-design-functional-laptop-llm-curriculum-extension-01`.
+
+## 2026-08-14 - Require executable offline, browser, artifact, and GPU boundaries in the functional track
+
+**Status:** Accepted as a design-stage correction after independent adversarial
+review rejected the first frozen successor candidate; no canonical successor plan
+or checker from that candidate was published.
+
+**Context:** The first staged design candidate mapped every accepted capability to
+Chapters 40--85 and an ordered queue, but independent review proved that several
+declared validation and execution commands were descriptions rather than usable
+boundaries. Ordinary `./course run` can rebuild with network access and has no
+persisted `.build` cache mount, installed Firefox payload, or GPU/Vulkan device
+contract. The staged queue therefore could not truthfully execute N0 validation,
+content-addressed corpus/model replay, the sole Firefox project, or the accepted
+WGPU profiles. Chapter 85 described its fixed retrieval workload without running
+it, and the optional PostgreSQL branch described conformance and recovery without
+an owned execution runner. The same review also found inconsistent lifecycle-cost
+projections and fail-closed gaps for the whole ledger graph, accepted claim bytes,
+the exact predecessor plan hash, and conditional measurement evidence.
+
+**Decision:** Preserve the rejected staged candidate as failed packaging/design
+evidence and generate a successor before publication. The successor queue must add
+four independently committable execution boundaries: a lock-bound offline
+workspace runner; the sole pinned Firefox runner; a content-addressed artifact
+cache/acquisition/transform runner; and a closed GPU runner with an exact
+NVML/WGPU/Vulkan preflight. Ordinary future validations may not rely on an
+implicitly networked `./course run` or `./course check`. The supporting-dependency
+checkpoint is the only later core lock-cache refresh and must admit the exact
+Vulkan loader as plumbing before GPU work. Missing hardware, browser, cache,
+source, or dependency bytes must refuse rather than fetch or fall back silently.
+
+Keep large bytes out of Git. Raw corpus/model inputs and generated tokenizer,
+split, checkpoint, adapter, quantized, evaluation, and serving bundles move only
+through run staging into the ignored content-addressed cache after manifest,
+inventory, license, hash, resource, fsync, and atomic-publication checks. Consumers
+mount only the exact receipt-selected entries read-only. Split the real admitted
+data execution into three checkpoints after the matching teaching chapters:
+filter/privacy; deduplication/decontamination/splitting; and train-only tokenizer
+plus tokenized splits. Fixture demonstrations cannot substitute for these full
+receipt-producing transforms.
+
+Every chapter owns bounded N1 retrieval of exactly its two preaccepted
+primary/official historical sources because the audit registry contains URLs and
+claim limits, not immutable source bytes. A closed allowlisted evidence runner
+must revision-pin living sources, hash exact bytes and bounded extracts, and bind
+review bundles; it grants no search, crawl, fallback citation, or bulk-artifact
+authority. N1 therefore means bounded retrieval of preaccepted source evidence or
+official metadata. N2 remains exact locked dependency/toolchain acquisition; N3
+remains one checksum-bound bulk corpus, model, browser, or conditional database
+image acquisition.
+
+Chapter 85 must execute and hash the frozen 100,000-by-384 exact-search workload,
+1,000 queries, all selected selectivities and concurrency levels, and three
+repetitions. The revision-2 PostgreSQL branch exists only when the checker reads
+that exact receipt and recomputes a two-of-three threshold crossing or verifies a
+predeclared four-writer atomic need. If selected, a closed conditional runner owns
+digest-pinned image acquisition, internal-network/no-host-port conformance,
+migrations, restart, recovery, backup/restore, upgrade, and cleanup receipts.
+
+Freeze lifecycle cost as the componentwise maximum of the exact evidence-producing
+steps named by each chapter, while implementation cost remains the chapter step
+itself. The corrected default queue contains 66 steps; the conditional selected
+PostgreSQL revision contains 70. The reusable checker must close dependencies and
+cycles across the entire ledger, exact-compare all 40 accepted claim records, pin
+predecessor plan SHA-256
+`20fda59082cdb47d69b25f9095d85f70e10ec5fd200cdd5fc245a8d76bf4c72a`,
+and validate real conditional receipts rather than path strings.
+
+**Consequences:** This correction expands only the design and future queue. It
+does not implement learner content, acquire a corpus/model/browser/database image,
+add a dependency, run a GPU workload, or select PostgreSQL now. The exclusive
+causal decoder-only text/token scope, private `PreparedDecoderInput` seam,
+runtime-configured scale ladder, English-first independent review, direct Russian
+localization, static deployment, and Firefox-only browser support remain
+unchanged. The initial staged hashes are not publication candidates even where
+their baseline tests passed.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260813T201220Z-design-functional-laptop-llm-curriculum-extension-01`.
+
+## 2026-08-14 - Keep the successor plan immutable and place external-model selection after the from-scratch capstone
+
+**Status:** Accepted during the corrected successor-design run after independent
+dependency adjudication; no successor plan, checker, implementation step, model,
+tokenizer, tensor fixture, or database branch has been published or acquired.
+
+**Context:** The rejected successor candidate described the optional measured
+PostgreSQL path as a second plan revision and initially coupled external-model
+selection to implementation work that the accepted capability graph permits on
+independent fixtures. That representation would require a completed future step
+to rewrite its own plan and checker, and it would unnecessarily block the
+from-scratch endpoint on an unrelated 20M--50M model candidate. Exact traversal
+of `CAP-AUDIT-FROM-SCRATCH-ENDPOINT-01` finds 21 direct and 27 transitive
+prerequisites but does not reach `CAP-ISA-ART-003`, the selected-base
+post-training capabilities, or `CAP-ISA-ENDPOINT-001`.
+
+**Decision:** Publish one byte-immutable successor plan and one self-contained
+checker that describe both the exact 66-step default queue and the exact 70-step
+measured-PostgreSQL template. Neither Chapter 85 nor a conditional database step
+may own, rewrite, or revise those files. The checker derives the only allowed
+lifecycle states from the immutable Chapter 85 measurement receipt and the
+ledger: premeasurement; measured local-file default; or measured selected
+PostgreSQL execution. A selected state inserts exactly the frozen four-step
+template before preclosure; an unselected state leaves the 66-step queue intact.
+The receipt bytes, hash, schema, fixed workload, repetitions, thresholds, and
+decision recomputation—not a plan status string—are authoritative. Chapter 85
+may publish only the exact predeclared learner-content/result template for the
+measured outcome.
+
+Place external-model selection and acquisition after Chapter 80 and before the
+adaptation execution frontier. This ordering is valid only when Chapter 44 first
+closes `CAP-DTH-TOK-02` with a real provenance-cleared standalone imported
+tokenizer artifact and an independent exact-ID/decoded-byte oracle over at least
+100 frozen strings, and Chapter 56 closes `CAP-DTH-ART-01` and
+`CAP-ISA-ART-002` with two independently produced licensed dense fixtures plus
+source-runtime parity. Chapter 61 owns the course quantizer and bounded GGUF
+implementation on redistribution-safe fixtures. Later external acquisition must
+reuse those implementations and emit typed selected-base integration receipts
+for tokenizer, dense, GGUF, adapter, post-training, prefix/context, evaluation,
+and serving identity before Chapter 81 can emit its terminal receipt.
+
+The imported endpoint remains genuinely external. A course-produced checkpoint,
+re-export, or new repository revision cannot satisfy external selection. If an
+early standalone tokenizer or dense fixture fails provenance, license, oracle,
+or parity admission, the queue blocks at that exact earlier gate. If those gates
+pass but no 20M--50M external model satisfies the frozen architecture, config,
+tokenizer, lineage, retained-license, and parity contract, Chapter 80 remains a
+valid completed endpoint while selection, Chapter 81, preclosure, and global
+closure remain blocked.
+
+**Consequences:** The prior decision's executable offline, Firefox, artifact,
+GPU, data, Chapter 85, and conditional PostgreSQL boundaries remain in force;
+only its mutable `revision-2` branch representation and earlier provisional
+external-selection placement are superseded. Capability ownership remains
+unique, while the plan records an immutable implementation receipt and ordered
+integration receipts wherever a teaching chapter precedes selected external
+identity. No fixture receipt may be substituted for a selected-base receipt, no
+blocked frontier may be skipped, and no new encoder, decoder, modality, model
+family, PostgreSQL dependency, or acquisition authority is introduced here.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260813T201220Z-design-functional-laptop-llm-curriculum-extension-01`.
+
+## 2026-08-14 - Interrupt the original successor-design attempt and design a SQLite ledger cutover before functional execution
+
+**Status:** Accepted scope correction during the still-running architecture step;
+no SQLite database, ledger tool, migration, functional implementation, model,
+corpus, dependency, or runtime image has been implemented or published.
+
+**Context:** After candidate 53 passed its independent design audits, the user
+required the project to migrate the growing `BUILD_STATE.yaml` and `DECISIONS.md`
+authority into one repo-tracked, constraint-rich SQLite ledger before any
+functional step executes. The user also required simple closed one-command tools
+for weaker models. This materially changes the immutable design specification,
+state lifecycle, first functional dependency, checker authority modes, validation
+runtime, and run fingerprint. It cannot be retroactively attributed to the
+fingerprint that started run
+`20260813T201220Z-design-functional-laptop-llm-curriculum-extension-01`.
+
+**Decision:** Preserve run 01 and its frozen candidate/audit evidence, mark it
+interrupted at this scope boundary, and start fresh run
+`20260814T133422Z-design-functional-laptop-llm-curriculum-extension-02` with a new
+staging directory and fingerprint. Reuse from run 01 is allowed only after exact
+byte verification and is recorded as inherited design input, never as proof that
+run 02 completed.
+
+Run 02 must finish architecture only. The immutable plan and checker must
+anticipate six pre-queue prefixes: the existing audit, resource, and design
+prefixes followed by three separately verifiable ledger infrastructure prefixes:
+runtime/tool implementation under legacy authority, exact migration/cutover, and
+independent post-cutover verification. Those three prefixes remain outside the
+unchanged 66/70 functional queue. The first functional step depends on the third.
+Only those later committed infrastructure steps may implement tools or migrate
+bytes.
+
+The design freezes one-way joint authority modes. Ordinary legacy authority is
+the exact pair of full legacy documents with no canonical cutover component.
+Prepared or mixed cutover state is recovery-only. Active authority is the exact
+pair of immutable sentinels plus an independently verified SQLite ledger whose
+activation ancestor and Git anchor agree. After activation the tracked database
+is the sole mutable orchestration ledger, is mounted separately from product
+source bytes, and is never self-hashed through its own artifact inventory.
+
+The design also freezes append-only normalized definitions and lifecycle events,
+exact constraints/indexes/views/triggers, independent bounded SQLite checker
+queries, a transaction/change chain, explicit phase producer/consumer rows,
+durable command reservation, trusted-host exact-argv execution, independently
+reopened outcomes, and closed crash recovery. Callers may not self-report command
+argv, evidence hashes, validation status, timestamps, arbitrary paths, or SQL.
+
+**Consequences:** Candidate 53 remains valid evidence for the pre-mandate design
+but is not the final publication candidate. Its canonical working bytes are not
+overwritten until run 02 produces a new independently frozen successor. Run 01
+may not be relabeled or completed. All successor candidate numbers and audits are
+run-02 evidence. The ledger migration is not executed by this architecture run;
+it begins only after the design step completes and is committed.
+
+**Affected build, step, and runs:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`,
+`20260813T201220Z-design-functional-laptop-llm-curriculum-extension-01`, and
+`20260814T133422Z-design-functional-laptop-llm-curriculum-extension-02`.
+
+## 2026-08-14 - Restart the revised design after an inaccurate copied-input fingerprint
+
+**Status:** Accepted pre-composition correction; no candidate, canonical design,
+SQLite implementation, dependency, or runtime artifact was published by the
+inaccurately fingerprinted attempt.
+
+**Context:** The run-02 startup copied byte-verified reusable staging inputs, but
+its checkpoint mislabeled unnumbered authority JSON as candidate-53 constants,
+schema, queue, and records, omitted checker-33 and several copied composer inputs,
+and recorded the candidate-53 checker instead of the checker-33 bytes actually
+opened by the ledger composer. Continuing would make the run non-reproducible even
+though no composition command had executed.
+
+**Decision:** Preserve run 02 as interrupted at this pre-execution audit. Start
+run `20260814T134441Z-design-functional-laptop-llm-curriculum-extension-03`
+with literal repository-relative path-to-hash entries for every copied material
+input. Treat subsequent composer/checker edits as run-03 commands and artifacts,
+not retroactive start inputs. Candidate 53 remains a separately named historical
+input only where its actual paths and hashes are bound.
+
+**Consequences:** This correction changes no architecture choice or product byte.
+Only run 03 may compose or freeze the SQLite-ledger successor. Runs 01 and 02
+remain immutable interrupted evidence.
+
+**Affected build, step, and runs:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`,
+`20260814T133422Z-design-functional-laptop-llm-curriculum-extension-02`, and
+`20260814T134441Z-design-functional-laptop-llm-curriculum-extension-03`.
+
+## 2026-08-14 - Replace the moving SQLite row/change draft with established Event Sourcing and restart the design
+
+**Status:** Accepted architecture correction during the still-running design
+step; no ledger implementation, migration, dependency installation, database,
+runtime image, functional implementation, or canonical successor was published.
+
+**Context:** The user explicitly directed the SQLite ledger design to use
+established Event Sourcing instead of continuing the moving bespoke mixture of
+normalized authority rows, transaction-change rows, semantic revisions, and
+derived lifecycle tables. That direction arrived after run
+`20260814T134441Z-design-functional-laptop-llm-curriculum-extension-03` began and
+materially changes its architecture input, schema, integrity model, checker,
+hash preimages, migration events, and projection semantics. The earlier SQLite
+mandate and the three ordered ledger-infrastructure prefixes remain accepted;
+only the moving internal ledger architecture is superseded.
+
+**Decision:** Preserve run 03 and its mixed-model candidate-63 bytes as
+nonauthoritative interruption evidence, mark that run interrupted, and start
+fresh run
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04` with an
+exact Event-Sourcing input fingerprint. Candidate 53 remains untouched until a
+complete successor passes independent audit.
+
+The successor design uses one conventional immutable event store as authority:
+closed versioned catalogs and schemas, content-addressed evidence blobs,
+per-aggregate streams, command-derived read/write stream preconditions with
+expected versions and heads, ordered events with per-stream hashes, and a global
+sealed commit hash chain. Build, step, run, decision, environment, queue-mode,
+execution, and output-policy tables are reducer-owned projections that must be
+discardable, independently replayable, and exact-compared; they are never a
+second source of truth. The prepared database contains a real genesis commit
+that imports exact legacy source bytes and explicit `Legacy*Imported` events.
+The activation database appends one bounded cutover-delta commit and the normal
+terminal and authority events. No database row may contain the SHA of the Git
+commit that will later contain that database.
+
+All event, stream-precondition, and commit preimages use RFC 8785 JSON Canonical
+Serialization Scheme bytes without a trailing newline; the latest verified
+event-commit hash is the sole logical ledger head. The later runtime prefix must
+materialize and verify a narrow locked ledger-tool dependency graph for standard
+plumbing: `canonicalize` for JCS, `yaml` for YAML syntax, the CommonMark parser
+for Markdown syntax, Ajv for JSON Schema, and `jsonc-parser` for strict
+duplicate-key-aware JSON intake. Project code retains all course-specific
+lifecycle, migration, projection, scheduler, ownership, and integrity promises.
+Exact versions, complete graphs, licenses, transport identities, cache-tree
+identities, roles, and rationale must be frozen and verified before that runtime
+prefix completes; this architecture decision grants no acquisition by itself.
+
+**Consequences:** The run-03 transformer and candidate-63 JSONs cannot be
+incrementally patched into the publication candidate. Run 04 must replace the
+old ledger contract wholesale, regenerate an independently implemented checker,
+and withhold composition until exact Event Store DDL and introspection, catalog,
+payload schemas, reducers, stream-to-promise enforcement map, projection catalog,
+hash framing, migration lifecycle, and negative fixtures agree. The six-prefix
+order and the unchanged 66/70 functional queue remain intact. Runs 01 through 03
+remain immutable interrupted evidence and do not certify the successor.
+
+**Affected build, step, and runs:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`,
+`20260814T134441Z-design-functional-laptop-llm-curriculum-extension-03`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-14 - Separate logical Event Store authority from physical SQLite evidence and use transactional expected-revision appends
+
+**Status:** Accepted refinement of the Event-Sourcing architecture during run
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`; the
+earlier v1 architecture bundle remains immutable audit evidence but is not an
+implementation or publication authority.
+
+**Context:** The first sealed Event Store bundle still fed physical database,
+Git, DDL, runtime, execution-evidence, and projection identities back into the
+logical commit history. It also treated disposable projections too much like
+authoritative state. Those feedback edges would make the same event history
+change when SQLite pages, indexes, projections, Git packaging, or external
+receipts changed. The user further clarified that stream concurrency must use
+the established ExpectedRevision append contract with the modes `any`,
+`no stream`, `stream exists`, and an exact revision number, and that the
+revision check belongs inside the append transaction.
+
+**Decision:** Preserve the v1 DDL, checker contract, compatibility matrix, and
+audit specification as superseded run evidence. The successor v2 design has one
+logical authority: immutable semantic-catalog revisions, exact stream
+preconditions, ordered events, and header-last event commits. The 27 reducer
+state tables and projector heads are disposable read models. SQLite page bytes,
+DDL and introspection identities, projection configuration, runtime and checker
+identities, Git object IDs, execution tickets and outcomes, migration envelopes,
+inventories, sentinels, and verification receipts remain one-way external
+evidence and never enter an event, request, reducer state, or logical commit
+hash.
+
+At the trusted append boundary, every command-derived stream role has exactly
+one external ExpectedRevision mode: `Any`, `NoStream`, `StreamExists`, or
+`Exact(n)`. The writer evaluates the complete mode map transactionally before
+authority DML, where absence is revision `-1` with the zero hash and the first
+event is revision `0`. It then persists and hash-binds only the resolved exact
+prior stream version and event hash. `Any` is therefore not a blind write, and
+`Any` and `Exact(current)` with otherwise identical domain input produce the
+same logical history. Public weak-model lifecycle commands do not accept raw
+CAS values, hashes, SQL, paths, argv, timestamps, or status claims; the closed
+command planner derives them.
+
+The SQLite implementation uses immutable stream identity rows and derives the
+revision from the last committed event rather than updating a mutable stream
+head row. Because SQLite provides neither `FOR UPDATE` nor native advisory
+locks, the later runtime must hold one stable repository ledger writer lock and
+one `BEGIN IMMEDIATE` transaction from the before-state read and ExpectedRevision
+check through the append, close, sidecar check, fsync, atomic publication, and
+writer-completion record. This global serialization is stronger than a
+per-stream advisory lock and prevents two writers from passing a stale check.
+SQL uniqueness and append guards independently recheck the resolved exact
+version and head and make any multi-stream mismatch a zero-change rollback.
+
+Semantic catalog families are append-only and versioned by integer version,
+with full immutable membership snapshots and an old-catalog activation event
+that takes effect only on the following commit. Promise positions are semantic,
+gapless per stream and catalog revision, and the stream-to-integrity-promise map
+is enforced by SQL where relationally expressible, by pure reducers for domain
+transitions, and by an independent checker plus negative fixtures for the whole
+contract.
+
+**Consequences:** Run 04 must consume only the separately sealed v2 schema,
+introspection, compatibility, checker, and audit artifacts after checkpointing
+their exact bytes. Its final architecture plan must schedule the unchanged three
+SQLite infrastructure prefixes before the unchanged 66/70 functional queue and
+must not claim that the database, writer, migration, projections, or weak-model
+CLI already exist. The runtime prefix will implement and test the lock, append
+API, closed command grammar, crash journal, authenticated reads, and supporting
+dependency graph; the migration and verification prefixes will cut over the two
+legacy documents and their operational consumers. The exact legacy sentinels
+remain non-authoritative and immutable after cutover.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-14 - Permit bounded jq/JCS equivalence only for ASCII catalog-seed design bytes
+
+**Status:** Accepted architecture-time tooling boundary; no production
+canonicalizer, dependency, database, migration, or runtime artifact has been
+implemented or acquired.
+
+**Context:** The architecture must freeze exact semantic-catalog seed bytes and
+roots before the later runtime prefix exists. The accepted production contract
+uses `canonicalize@3.0.0` for RFC 8785 JCS, but that package is not present in
+the current offline workspace and its acquisition belongs exclusively to the
+scheduled runtime/tool prefix. Deferring all catalog roots until that later step
+would leave the design under-specified. Handwriting a general JCS serializer or
+silently treating ordinary JSON output as RFC 8785 would violate the
+supporting-library boundary and the exact-byte contract.
+
+**Decision:** The architecture composer may use the recorded local `jq -cS`
+only as a bounded design-time assembler for catalog-seed values whose complete
+recursive domain is restricted to JSON null, booleans, canonical safe integers
+with no negative zero, float, exponent, or unsafe integer, arrays, and strings
+and object keys containing only printable ASCII bytes `0x20` through `0x7e`.
+Duplicate object keys must already be impossible. The composer rejects every
+control character, non-ASCII scalar, unsupported number, or other value before
+serialization, records the exact jq identity, hashes the literal emitted bytes,
+and checks the applicable sealed JCS golden vectors. Within that closed domain,
+UTF-8 key order, JSON escaping, and integer rendering are byte-identical to JCS.
+
+This is not a general RFC 8785 implementation, is not admitted into the future
+ledger runtime, and does not weaken the full Unicode JCS contract for native
+requests, events, evidence, or exports. The first SQLite runtime prefix must
+acquire and admit the exact locked `canonicalize@3.0.0` graph and license under
+its declared authority, recompute every architecture catalog byte and root with
+that implementation, and fail if any byte differs. No later step may use jq as
+the ledger canonicalizer or expand this exception's data domain.
+
+**Consequences:** The design can freeze non-provisional catalog roots without
+claiming that the production dependency already exists. Source and checker
+fixtures must distinguish the restricted design-time assembler from the future
+runtime canonicalizer, fail every out-of-domain mutation, and keep full RFC 8785
+golden vectors as runtime-prefix acceptance. Any catalog seed that cannot fit
+the closed ASCII/safe-integer domain requires a new recorded decision and
+admitted canonicalizer rather than silent normalization.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-14 - Make the three SQLite infrastructure prefixes exact ownership boundaries
+
+**Status:** Accepted clarification of the already-approved three-prefix order;
+it supersedes singular “migration step owns the tool tree” shorthand in an
+intermediate audit without adding a fourth prefix or changing the 66/70
+functional queue.
+
+**Context:** The architecture separates runtime implementation under legacy
+authority, authority migration/cutover, and independent post-cutover
+verification. One audit paragraph used “migration step” loosely for the whole
+SQLite program and could be read as assigning the wrapper, writer, checker, and
+tool graph to the second prefix. That would either duplicate output ownership or
+make migration depend on tools it is simultaneously supposed to create and use.
+
+**Decision:** `implement-project-ledger-sqlite-runtime` is the sole producer of
+the immutable ledger runtime/tool graph: materialized schema and catalogs, the
+closed `./course ledger` wrapper and internal writer/checker, tests, admitted
+supporting-dependency cache and receipts, and dual-mode consumer adapters that
+continue to operate correctly under full legacy authority. It may add only the
+narrow pre-ledger bootstrap instructions required to obtain that runtime. It
+does not publish compatibility sentinels, create active SQLite authority, or
+claim that migration occurred.
+
+`migrate-project-ledgers-to-sqlite` consumes the exact prefix-1 bytes. It owns
+the prepared D0 import, bounded final legacy delta, active D1, introduction of
+the canonical shared `state/learn-llm.sqlite3`, exact sentinels, activation and
+migration evidence, and every remaining operational-consumer instruction change
+needed for cutover. It never rewrites or re-owns the immutable runtime/tool tree.
+
+`verify-project-ledger-sqlite-cutover` consumes both predecessors, appends the
+independent verification facts through the same Event Store, and owns unique
+verification receipts and anchor evidence. The database is a declared shared
+append-only orchestration output from prefix 2 onward; later functional steps
+advance it only through cataloged events and their own unique transaction
+evidence. The immutable functional extension plan and independent checker stay
+owned by the current architecture step and are never re-owned by a prefix.
+
+The frozen implementation caps are a 1 GiB database, 1 MiB command request,
+16 MiB catalog or payload JSON value, 110-second inner operation, and 120-second
+outer supervisor. A larger or slower case fails closed and needs a separately
+recorded scope change.
+
+**Consequences:** Prefix dependencies are linear and tool availability is
+acyclic. Cutover can be recovery-safe without pretending that a multi-file
+publication is atomic, verification cannot mutate the runtime it audits, and
+the unchanged first functional step remains ineligible until prefix 3 completes.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-14 - Stage the SQLite tool implementation before migration and publish canonical tools only at cutover
+
+**Status:** Accepted correction that supersedes only the canonical-path
+ownership assignment in the immediately preceding three-prefix decision. The
+three prefix IDs, order, resource caps, shared-database policy, and unchanged
+66/70 functional queue remain accepted.
+
+**Context:** A direct reread of the already-sealed independent v2 audit showed
+that its architecture gate does not use “migration step owns the tool tree” as
+loose program-level shorthand. It requires the migration step to own the
+canonical SQLite database, wrapper, checker/writer tree, exports, sentinels, and
+checkpoint, and forbids any earlier or concurrent step from publishing those
+paths. Giving prefix 1 those canonical paths would fail the frozen A02 oracle.
+The dependency remains acyclic if implementation and publication are separated.
+
+**Decision:** `implement-project-ledger-sqlite-runtime` implements and validates
+one create-exclusive immutable *staged* ledger-tool bundle under its own
+artifact/staging paths. It owns the admitted dependency and runtime caches,
+licenses, graph and transport receipts, exact bundle inventory and hash, source
+and executable bytes inside that bundle, fixtures, and test evidence. It can run
+the staged wrapper/writer/checker against private fixture databases, but it does
+not publish canonical repository tool paths, alter live operational consumers,
+create canonical SQLite authority, or replace either legacy document.
+
+`migrate-project-ledgers-to-sqlite` consumes and independently revalidates the
+prefix-1 bundle, publishes its exact bytes to the canonical schema, wrapper,
+writer, checker, test, and dual-mode consumer paths, and in the same recoverable
+cutover program owns D0, the bounded legacy delta, active D1, the first canonical
+shared database, sentinels, activation/migration evidence, remaining consumer
+updates, and the migration checkpoint. Publication is journaled and fail-closed;
+it is not falsely described as a single multi-file atomic rename.
+
+`verify-project-ledger-sqlite-cutover` still appends independent verification
+through the now-canonical tool tree and shared Event Store and owns only its
+unique verification evidence. The functional plan/checker produced by the
+current design remains architecture-owned and immutable.
+
+**Consequences:** The prefix-1 objective “implement” remains accurate without
+violating canonical output ownership. Prefix 2 never invents tools while using
+them: it consumes an exact already-tested staged bundle, then promotes those
+same bytes before activation. The sealed audit, the dependency graph, and the
+user's required pre-course migration boundary now agree literally.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-14 - Keep post-cutover verification read-only after SQLite authority activates
+
+**Status:** Accepted correction that supersedes only the earlier statements that
+the third SQLite prefix appends verification facts to the Event Store or re-owns
+the shared database. The three prefix IDs and order, prefix-2 activation, resource
+caps, and unchanged 66/70 functional queue remain accepted.
+
+**Context:** The sealed Event Store v2 catalog classifies
+`LedgerVerificationCompleted` as a migration-only event and requires every
+migration-only event to be unreachable after `SQLiteAuthorityActivated`. The
+second prefix owns D1 and activation, while the third prefix runs afterward.
+Appending a verification event in prefix 3 would therefore violate the exact
+event catalog and the one-way authority transition. Moving activation into the
+third prefix would instead make the migration/cutover prefix falsely claim an
+active authority it had not produced.
+
+**Decision:** `migrate-project-ledgers-to-sqlite` performs the logical migration
+verification while its migration-only event vocabulary is still legal, appends
+the exact `LedgerVerificationCompleted` and `SQLiteAuthorityActivated` facts in
+the sealed D1 activation commit, publishes the canonical database and sentinels,
+and obtains the migration Git anchor under the existing cutover protocol.
+
+`verify-project-ledger-sqlite-cutover` is strictly read-only with respect to the
+database and logical Event Store. It independently opens and verifies the exact
+anchored database, replays the complete event history and projections, validates
+the schema, indexes, constraints, consumers, sentinels, authority tuple, Git
+ancestry, and downgrade/recovery exclusions, and publishes only its unique
+external verification receipt and Git-bound audit evidence. It neither declares
+`state/learn-llm.sqlite3` as an output nor emits any ledger event. The first
+functional step remains ineligible until this external verification completes
+and is the first ordinary post-activation step allowed to append to the Event
+Store.
+
+**Consequences:** The native/migration event reachability partition remains exact,
+post-cutover verification cannot perturb the authority it audits, and the course
+queue still has an independent fail-closed gate before functional implementation.
+The database remains a shared append-only output beginning with prefix 2 and
+resuming with the first functional step; prefix 3 is deliberately an evidence-only
+exception between those writers.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-14 - Let the verification prefix append only its ordinary terminal lifecycle
+
+**Status:** Accepted lifecycle correction that supersedes the immediately
+preceding claim that prefix 3 never mutates the Event Store. Prefix 3 remains
+read-only while performing its independent verification and still may not emit
+any migration-only event.
+
+**Context:** After cutover, `BUILD_STATE.yaml` is a non-authoritative sentinel and
+step/run status is derived exclusively from Event Store events. A wholly
+read-only third prefix could produce a valid external report but could never
+record its own successful run and step, so its dependent first functional step
+would remain permanently ineligible. Predicting prefix-3 success in prefix 2's
+D1 would be a false future fact. The sealed native event catalog already provides
+ordinary run and step lifecycle events for exactly this transition.
+
+**Decision:** Prefix 3's validation body opens prefix 2's anchored D1 read-only,
+replays and verifies it independently, and produces its external logical result.
+Only after that succeeds, the trusted finalizer performs one ordinary native
+Event Store append that records the exact prefix-3 run/step terminal transition
+and any catalog-required native logical-output fact. That append contains no
+`LedgerVerificationCompleted`, `SQLiteAuthorityActivated`, or other
+migration-only event and binds no physical receipt, raw database hash, Git
+identity, or other external evidence. The external verification receipt is
+published afterward and one-way binds the resulting database head.
+
+Prefix 3 therefore declares `state/learn-llm.sqlite3` as the shared output only
+for its terminal lifecycle append. Its verification computation remains
+query-only, and the first functional step begins from the completed prefix-3
+head. Prefix 2 remains the sole producer of the migration-only logical
+verification and activation events.
+
+**Consequences:** All three infrastructure prefixes remain independently
+schedulable and checkpointable, migration-only events remain unreachable after
+activation, and external verification cannot feed physical evidence back into
+logical history. The third prefix changes the database only to record its own
+ordinary lifecycle, not to rewrite or repeat the cutover result it audited.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-15 - Anchor architecture-source execution in an exact offline mount namespace
+
+**Status:** Accepted architecture-run execution boundary. This governs only the
+current design composers and checker; it neither implements nor changes the
+future project-ledger runtime assigned to the first SQLite infrastructure prefix.
+
+**Context:** Two immutable source candidates were rejected before execution. Both
+tried to establish file authority with pathname `lstat`/`realpath` checks followed
+by a final-component `O_NOFOLLOW` open. That does not prevent an ancestor rename,
+bind-mount, or swap between the pathname checks and the open. The installed
+`bubblewrap` 0.11.1 binary cannot create an unprivileged namespace on this host,
+so it cannot supply the missing anchor. The already-recorded Docker 25.0.2
+client/server and exact local workspace image can pin each bind-mounted inode
+before Node starts, with network disabled and without exposing the Docker socket
+inside the container.
+
+**Decision:** Every candidate-03 source is still created, mode/hash checkpointed,
+and independently statically audited before first execution. Its only admitted
+execution is an exact `/usr/bin/flock`-wrapped `/usr/local/bin/docker run` using
+client/server 25.0.2 and image
+`sha256:aa971e0f72bc0c6aed4a8ddb65020f8a583b4633b13955a47d41f786952adde3`
+with `--pull=never`, `--network none`, `--read-only`, all capabilities dropped,
+`no-new-privileges`, the host UID/GID, a bounded noexec/nosuid/nodev tmpfs, no
+Docker socket, and no repository-wide mount. Each source and immutable input is
+an individual read-only bind at a fixed container path. The exact live
+`BUILD_STATE.yaml` and `DECISIONS.md` inodes are separately read-only mounted and
+their one-read hashes are bound into the generated manifest; they are not
+hardcoded into the source and therefore create no checkpoint hash cycle. The
+only writable bind is one new mode-0700 run-local publication parent, created
+before the container starts and held under the same external lock.
+
+The host tools controlling the boundary are `/usr/local/bin/docker` SHA-256
+`85015dc7bc453725abf905fc7ea785aa5ad2502a0ca58634681d74124d235c2e`
+and `/usr/bin/flock` SHA-256
+`59bc254984eefd83939a22a590d746942a4583a702b8fd2753bbb92d956e7d4c`.
+Inside the image, Node v22.12.0 is `/usr/local/bin/node` SHA-256
+`177208bfc4a9403121a40c72d038c670f4fd937fa16ca7df0a720e90be0fe2d9`;
+`/usr/bin/env` SHA-256
+`615c46b39130a04a08da04163542ce7ce1164fa4b35408efb43aac0a8a9f7ae5`
+launches it with a literal empty/minimal environment. The bounded design-time
+JCS exception continues to use jq 1.8.1, but now as six individually read-only
+mounts invoked through its own host loader inside the container: jq
+`679fac51...e193b81e`, libjq `17f2f9c7...c086e89f`, libonig
+`2c32ca93...930cab`, libc `a3947513...2ed0c`, libm
+`beea4eea...9cd88`, and loader `c5e80a56...2c64e1`. The exact loader command
+passed in a network-disabled preflight. No container package lookup or fallback
+is allowed.
+
+The composer renders and validates a complete private set before publication.
+A journal is the first file in its create-exclusive invocation directory and
+predeclares every fixed output name and expected hash. Under the external lock,
+deterministic partial private files can be verified and resumed or removed only
+inside that invocation-owned directory. Publication is one same-filesystem
+directory rename after proving the destination absent; the lock supplies the
+no-competing-writer condition Node lacks. The journal is self-locating: its
+prepared state inside the private directory means ready, while the same exact
+state inside the final directory proves the rename completed, so no
+post-publication mutation or self-hash cycle is required. A second invocation
+validates the complete published set and exits without changing it.
+
+**Consequences:** Candidate source and input authority is established by mounted
+inodes rather than racy host pathnames, while every generated byte remains under
+the run's create-exclusive and crash-recovery rules. The decision does not make
+the unpullable workspace image a future ledger dependency and does not weaken
+the separately sealed pullable Node 22.12/SQLite 3.47 runtime contract.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-15 - Make candidate-03 reducers total over semantic aggregate state
+
+**Status:** Accepted corrective design boundary for the third immutable
+architecture-source attempt. It narrows how the already accepted Event Store v2
+catalog, reducers, projectors, fixtures, and architecture-run mount namespace are
+instantiated; it does not change the sealed DDL, stream/event inventory, public
+CLI, three-prefix ownership, or future runtime/cutover responsibilities.
+
+**Context:** Both rejected source sets preserved the sealed inventory counts, but
+the second still described several events too loosely, delegated promise checks
+to labels, and generated physical projector expressions from matching field names.
+Valid initial events therefore could not populate required non-null projection
+columns. Its checker repeated the same incomplete generator instead of proving
+literal expected semantic states and rows. The source set also tried to establish
+authority inside Node after pathname-based imports, which is too late to prevent
+an ancestor swap. The immediately preceding decision provides the accepted
+external Docker mount and flock boundary for that problem.
+
+**Decision:** Candidate 03 uses conventional event-specific domain facts and one
+closed, complete semantic aggregate-state schema for each of the 13 stream
+families. Every one of the 57 event types has its own recursively closed payload
+schema and one exact pure reducer program over prior semantic state, the decoded
+payload, and catalog-admitted strictly prior references and blobs. Every reducer
+must produce and validate a total semantic `state_after`. Initial, legacy-import,
+and complete-replacement events may carry a bounded full semantic after-state;
+append and delta events carry only their exact domain fact and compute the total
+after-state from the prior state. Event payloads never contain SQL table or column
+names, projection rows, database bytes, Git identities, receipts, or other
+physical evidence.
+
+The physical projector bundle consumes only independently reduced semantic state
+and the current logical event. For every affected one of the exact 27 disposable
+tables it freezes the slice key, delete/replace/append behavior, order, storage
+class, primary key, and one total expression for every `table_xinfo` column. It
+has no matching-name alias fallback, missing-value fallback, stored-projection
+input, or dynamic SQL dispatch. Literal fixtures independently state the prior
+state, event, expected complete after-state, and exact projected rows so the
+checker does not derive its oracle from candidate catalog or projector rows.
+The same independence applies to role use, all 34 semantic and two
+enforcement-only promises, the eight `ACTIVE_WORKING` execution prefixes, the
+ten semantic-catalog upgrade cases, all positive/negative/outward-evidence
+fixtures, command-specific request and response schemas, and descriptor query
+and material-read closure.
+
+The four source modules themselves contain no host-path authority mechanism and
+accept no caller-selected source or output path. A separately checkpointed
+mount-contract document freezes their fixed container paths and expected hashes,
+the individually read-only v2/base/tool mounts, and the two observed live ledger
+mounts. The externally recorded `/usr/bin/flock` plus Docker launcher authenticates
+those mounted inodes before Node evaluates any module. The composer authenticates
+all four sibling source bytes before dynamic import, renders and checks the whole
+candidate in memory, writes an immutable prepared journal first in its private
+invocation directory, and publishes that directory once by same-filesystem rename
+under the retained outer lock. The journal moves unchanged with the directory;
+the external launcher result records closure. An already complete final directory
+is verified without rereading later live ledger bytes and without a write.
+
+**Consequences:** Candidate 03 cannot certify an incomplete projector through a
+shared generator or hide domain rules behind prose labels. Logical history remains
+representation-independent and bounded, while every projection row is rebuildable
+from complete validated semantic state. Architecture-source authority is supplied
+before module evaluation without adding a future runtime dependency or a
+source-hash cycle. No candidate-03 source may be parsed or executed before its new
+four-file hash checkpoint and independent static audits pass.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-15 - Admit the exact cached YAML parser for candidate-03 state composition
+
+**Status:** Accepted narrow architecture-time supporting-tool addition. It changes
+neither the future Event Store runtime dependency receipt nor the product dependency
+graph and authorizes no network access.
+
+**Context:** The pure candidate-03 state renderer needs the exact current
+`BUILD_STATE.yaml` structure. Supplying an externally asserted JSON projection
+would bind the raw YAML hash but would not prove that the projection equals the
+mounted source. Handwriting a YAML parser would violate the supporting-library
+boundary. The pinned workspace lock already selects `yaml@2.9.0`, and its exact
+registry tarball is present in the existing local npm cache even though neither
+the host checkout nor the accepted architecture image has an installed package
+tree.
+
+**Decision:** Before candidate-03 source execution, copy and extract only the
+already cached `yaml@2.9.0` tarball into the private run-04 staging directory.
+The cached tarball is 112,086 bytes with SHA-256
+`008fa204cb1ba700e0272ba045abbf09a6ffe63456e8146ba97cac6c2ad1ef91`
+and SHA-512
+`d80be1357de66fccdde99cbb20d4ed4a9975175e475ba5a7aa3d2cad696428b729625fe03083098b2b86ab629e236605c543e376507edcb735d2c78c2ed2f870`,
+which equals the lockfile SRI. Record an ordered complete extracted-tree manifest,
+make the tree private and immutable for the attempt, and add that manifest and
+tree to the separately checkpointed mount contract. The Docker launcher mounts
+the tree read-only at `/tools/yaml`; source2 imports only
+`file:///tools/yaml/dist/index.js` after its own source and mount-contract
+authentication, parses the one-read live YAML bytes, and passes the resulting
+validated object to the pure state renderer.
+
+Parsing uses the sealed strict `yaml@2.9.0` contract: zero errors and warnings;
+unique mapping keys; no directives, custom tags, anchors, aliases, merge keys,
+timestamps as implicit non-string application values, unsafe integers, nonfinite
+numbers, duplicate keys, BOM, or trailing documents; string mapping keys only;
+and preservation of mapping/sequence order and the legacy source distinctions
+that the migration contract requires. The composer independently checks the sole
+running run, dependencies, statuses, and expected source hashes. No caller path,
+host `node_modules`, package-name resolution, npm install, cache lookup, or fallback
+is admitted at execution time.
+
+**Consequences:** Candidate-03 can prove the structural state it renders from the
+exact mounted YAML rather than trusting an unverified projection. The package is
+an architecture-run parser input only; prefix 1 must still acquire, license,
+inventory, and admit its own exact runtime package graph under the separately
+sealed Node 22.12 contract.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-08-15 - Preserve the candidate61 functional checker while replacing its ledger model
+
+**Status:** Accepted candidate-03 composition correction. It preserves the
+previously validated functional-course acceptance surface while replacing only
+the superseded project-ledger and authority implementation.
+
+**Context:** The new independent source4 correctly audits Event Store v2, but by
+itself it would replace candidate61's much larger functional plan, queue, schema,
+state, descriptor, phase, resource, and accounting checker. That would discard
+403 base plus seven closure validations, the 18 conditional validations, 1,146
+execution-boundary entries, 20 inherited phase rows, and many non-ledger
+invariants that already passed. Conversely, copying the old self-contained
+checker unchanged would retain its obsolete semantic-hash, run-transaction,
+single-prefix, and recovery model.
+
+**Decision:** Candidate 03 adds the exact run-04 candidate61 checker template
+(612,848 bytes, SHA-256
+`d31f668240c6a15301b2d9e665dfa058d25d174df776b864f946a3c9d81e21b1`)
+and its exact self-contained-33 reference (3,514,199 bytes, SHA-256
+`99552a4ceff317437df658d8a3bc4b5952ad3b529bff647ff02b353ae29d52a6`)
+as individually authenticated read-only mount inputs. A closed transformation
+manifest names nonoverlapping exact source markers for every ledger-specific
+replacement. All bytes and validator semantics outside those segments are
+preserved or independently normalized and hash-compared; the transformation may
+not broadly delete, skip, weaken, or count-substitute a functional validation.
+
+The transformed checker receives the fresh constants, schema, queue, records,
+plan, and state bytes; replaces the old ledger contract, authority classifier,
+run-history ledger branches, queue-prefix assumptions, and lifecycle checks;
+and embeds the independent Event Store v2 architecture checker. Its static and
+runtime self-audit requires the exact 410 default and 428 selected validation
+counts, 1,146 execution-boundary commands, 20 inherited phase rows, unchanged
+66/70 functional ID order, exact three-prefix insertion, and all candidate-03
+Event Store fixtures. A syntax-aware scan rejects active obsolete vocabulary.
+The old self-contained checker is a reference oracle only and is never published
+with its stale embedded candidate61 bytes.
+
+**Consequences:** The Event Store migration cannot gain acceptance by dropping
+previously passing course checks, and the inherited checker cannot keep a second
+ledger authority alive. Source2 and source4 must validate both the exact permitted
+replacement segments and the preserved functional kernel before the four-source
+seal and again before directory publication.
+
+**Affected build, step, and run:**
+`extend-course-to-functional-laptop-llm-20260810`,
+`design-functional-laptop-llm-curriculum-extension`, and
+`20260814T152619Z-design-functional-laptop-llm-curriculum-extension-04`.
+
+## 2026-09-15 - Abandon project-ledger migration and finish the text-based course plan
+
+Post-freeze maintenance compatibility: the August 28 / September 1 / September 3
+learner repair request is already recorded as the pending
+`repair-ch06-symbol-table-and-ch08-ch10-learning-surfaces` step immediately after
+design. It must remain there with its original definition, dependency, priority,
+and empty run history; finishing extension planning does not authorize deleting
+it, postponing it until after all extension chapters, or implementing it now.
+The recovered checker predates this request and rejects any extra active-build
+step, so the instruction below to keep that checker unchanged is superseded only
+for a narrowly enumerated compatibility amendment. Keep the extension plan and
+its 66-step base / 70-step conditional curriculum queue byte-identical. Bind the
+repair's exact immutable step definition separately from status and run history,
+validate its ordinary lifecycle, require its production presence and position,
+and prohibit extension execution before that prioritized repair completes.
+Do not permit arbitrary additional steps or weaken the existing queue, history,
+artifact, budget, or publication checks. Keep maintenance outside the extension's
+curriculum step/capability accounting. Retain the original checker regression
+artifacts as historical evidence and add focused compatibility failure cases
+through the required-maintenance validation path; no production option may bypass the repair
+requirement. Record the new checker hash and actual validation in run 05. This is
+completion of the existing text-file planning integration, not a ledger runtime,
+new storage architecture, or permission to begin learner-facing repair work.
+
+Recovery also restores the frozen text-authority wording in the curriculum
+README and the Chapters 0–39 plan. These are reversions of residual migration
+wording, not a change to the extension's scope or its frozen predecessor binding.
+Keep the original extension plan and checker unchanged. For content-test
+execution, npm's `--prefix site` makes the test selector relative to `site`;
+the corrected selector and bounded writable container temporary directories
+belong in the run's actual validation commands, not in a rewritten historical
+design-step projection.
+
+Validation-environment recovery: the historical pinned workspace image is no
+longer present locally. The earlier offline-only cost estimate is superseded
+solely for reconstructing the repository's existing `Dockerfile` `source` stage
+with its pinned Node/Rust versions and locked npm dependencies. This is a
+medium-cost environment-rehydration operation, with network access for existing
+base-image, apt, Rust-toolchain, and npm inputs; it introduces no course data,
+new dependency choice, paid service, or project-ledger work. Record the resulting
+image ID and actual commands in the new run, then run the plan checks without
+network access. Preserve the historical design-step command projection and
+identify the replacement image explicitly instead of claiming that the missing
+image was used. The pre-existing ignored root `target/` cache must not be deleted
+or moved: retain the original host-audit failure and additionally audit an
+isolated source snapshot without generated host caches, recording that scope
+distinction rather than claiming the original workspace audit passed.
+
+**Status:** Accepted explicit user direction. This supersedes all SQLite and
+Event Sourcing requirements for repository work records, including their runtime,
+migration, cutover, verification, sentinel, composer and fixture-generator work.
+
+**Context:** The user requested: "Completely abandon the development of event
+sourced approach and continue progress as it was before(in text files). Please
+finish planning of extending the course". The canonical extension plan remains
+candidate 53 at SHA-256
+`84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1`.
+Its matching self-contained-32 checker is already canonical at SHA-256
+`8aac5d062fe4bfb3a9f657f3942107ca2715038d55ffdc3504234be569bfbd06`.
+Both use the text records; the abandoned storage candidates were never executed
+or published as a runtime or database.
+
+**Decision:** Keep `BUILD_STATE.yaml` and `DECISIONS.md` authoritative under
+`AGENTS.md`. Interrupt the abandoned run 04, retain its staging artifacts and
+decisions as historical evidence, and finish the existing curriculum-design step
+in a fresh run. Reuse the matching canonical plan/checker pair and its existing
+independent audit evidence. Remove storage-migration acceptance requirements from
+the active plan; require no ledger infrastructure prefix or ledger CLI. The first
+functional implementation step depends directly on the completed design step.
+
+Preserve the 66-step base course queue and its measured 70-step conditional
+PostgreSQL variant, the single causal decoder-only text/token model, the private
+`PreparedDecoderInput` seam, resource and supporting-library boundaries, bilingual
+content commitments, and the reference-core/capability-track handoff. PostgreSQL
+remains only a conditional course topic; it is not a repository-state store.
+
+**Validation and cost:** Run the existing pinned offline planning checker,
+course-plan check, affected content-contract test, diff check and host audit.
+This is bounded local planning validation with no network acquisition, training,
+GPU work, paid generation or new dependency selection. Complete and commit this
+planning step; leave subsequent implementation steps pending for later execution.
+
+**Consequences:** No Event Store candidate, generator, migration or cutover is
+needed to finish the plan. Historical rejected artifacts remain recoverable in
+their ignored staging directories and impose no acceptance requirement on future
+text-file checkpoints. Existing course implementation and user changes remain
+within their original scope.
+
+**Affected build and step:**
+`extend-course-to-functional-laptop-llm-20260810` and
+`design-functional-laptop-llm-curriculum-extension`.

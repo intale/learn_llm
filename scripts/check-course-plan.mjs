@@ -47,6 +47,8 @@ const LLM_HISTORY_LIMITATION_PATTERN =
   /(?:cannot|do not|does not|poorly|unwieldy|overflow|underflow|harder|fixed context|shrink|explode|limitation|scale)/i;
 const IMPLEMENTATION_HISTORY_SPINE_PATTERN =
   /(?:FORTRAN|Genie|NumPy|programming-language history|array-library history)/i;
+const CH39_HISTORICAL_CHECKPOINT_OBJECTIVE =
+  "Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust.";
 
 function fail(message) {
   throw new Error(message);
@@ -542,6 +544,11 @@ export function validateCoursePlanText(
     const writtenStep = section.match(/^- \*\*Implementation step:\*\* `([^`]+)`/m)?.[1];
     const writtenDependency = section.match(/^- \*\*Depends on:\*\* ([^\n]+)$/m)?.[1];
     const outcome = section.match(/^- \*\*Outcome:\*\* ([^\n]+)$/m)?.[1];
+    const historicalCheckpointObjectives = [
+      ...section.matchAll(/^- \*\*Historical checkpoint objective:\*\* ([^\n]+)$/gm),
+    ];
+    const historicalCheckpointObjective =
+      historicalCheckpointObjectives[0]?.[1] ?? null;
     const formula = section.match(/^- \*\*Formula:\*\* `([^\n]+)`\./m)?.[1] ?? null;
     const orientationFormula = section.match(/^- \*\*Formula:\*\* ([^\n]+)$/m)?.[1];
     const historicalContrast = section.match(
@@ -551,6 +558,19 @@ export function validateCoursePlanText(
     assert(writtenId === chapter.chapter_id, `${path}: body chapter ID mismatch for ${chapter.chapter_id}`);
     assert(writtenStep === chapter.implementation_step, `${path}: body implementation step mismatch for ${chapter.chapter_id}`);
     assert(outcome, `${path}: missing outcome for ${chapter.chapter_id}`);
+    if (chapter.chapter_id === "39-end-to-end-llm") {
+      assert(
+        historicalCheckpointObjectives.length === 1 &&
+          historicalCheckpointObjective === CH39_HISTORICAL_CHECKPOINT_OBJECTIVE &&
+          outcome.includes("deterministic bilingual decoder-only scalar reference-core integration fixture"),
+        `${path}: Chapter 39 must preserve its historical checkpoint objective separately from the current reference-core outcome`,
+      );
+    } else {
+      assert(
+        historicalCheckpointObjectives.length === 0,
+        `${path}: only Chapter 39 may preserve a historical checkpoint objective`,
+      );
+    }
     if (chapter.order === 0) {
       assert(
         writtenDependency ===
@@ -618,6 +638,7 @@ export function validateCoursePlanText(
     );
 
     chapter.outcome = outcome;
+    chapter.historicalCheckpointObjective = historicalCheckpointObjective;
     chapter.formula = formula;
   }
 
@@ -829,14 +850,16 @@ export function validateLedgerText(
   const byId = new Map(steps.map((step) => [step.id, step]));
   for (const chapter of metadata.chapters.filter((entry) => entry.order >= 2)) {
     const step = byId.get(chapter.implementation_step);
+    const ledgerObjective =
+      chapter.historicalCheckpointObjective ?? chapter.outcome;
     assert(
-      scalarField(step, "objective") === chapter.outcome,
-      `${statePath}: ${step.id} objective does not match the reviewed outcome`,
+      scalarField(step, "objective") === ledgerObjective,
+      `${statePath}: ${step.id} objective does not match its reviewed ledger objective`,
     );
     const acceptance = listField(step, "acceptance") ?? [];
     assert(
-      acceptance[0] === chapter.outcome,
-      `${statePath}: ${step.id} first acceptance item does not match the reviewed outcome`,
+      acceptance[0] === ledgerObjective,
+      `${statePath}: ${step.id} first acceptance item does not match its reviewed ledger objective`,
     );
     const inputs = listField(step, "inputs") ?? [];
     const previousChapter = metadata.chapters.find(
