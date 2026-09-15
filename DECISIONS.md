@@ -24225,3 +24225,49 @@ editing the frozen plan or advancing Chapter 63. English-authoring requirements
 shape the evidence/role map and external review handoffs. Only planning records
 change; repairs and course implementation, acquisition, training, localization
 and publication remain held.
+
+### 2026-09-15 — Chapter 48 detailed packet keeps one checked text core and honest planning gates
+
+`detail-ch48-configurable-decoder-core` specifies config parsing, checked shape
+and resource arithmetic, admission before model allocation, and two private
+text producers feeding one decoder core. Full-forward gradient parity and
+cached graph-free inference parity are separate obligations; parameter identity,
+revision guards, all-layer commit/rollback and existing counters survive the
+refactor. Unequal-head execution remains Chapter63-owned, while Chapter48 may
+calculate its shapes without allocating a model.
+
+The packet derives the four exact parameter/KV/MAC series and TP8 traffic
+fixture, counts unique storage with per-buffer alignment, and distinguishes a
+complete declared accounting-model estimate from unknown backend demand and
+measured allocator evidence. A budget cap is not a workspace estimate; unknown
+reports refuse admission and do not satisfy a complete-estimate acceptance gate.
+
+The frozen seed-sensitivity tuple was found and retained, including Hq4/Hkv1;
+its parameter count alone was not used to guess its architecture. Baseline
+smoke's context128 ceiling has no explicit mapping from laptop capacity512.
+The packet records a conservative named C128 semantic fixture with separately
+chosen ceiling-sized run values and requires preflight reconciliation of
+capacity versus actual sequence-length semantics. It neither silently clamps
+input nor claims that this is an existing frozen projection rule.
+
+Current Rust has no SHA-256 helper. The frozen sha2=0.11.0 candidate remains
+prospective-graph-blocked; the separately owned offline/dependency checkpoint
+must admit its complete graph before Chapter48 consumes digest plumbing.
+The private seam adds no dependency and cannot handwrite crypto, substitute
+FNV or invent an inherited service to bypass that gate.
+
+The English-authoring skill shapes evidence commitments, isolated-role planning
+and external fresh-context review handoffs for the single future executor.
+This decision changes planning records only, not frozen course architecture,
+dependency admission, implementation, repairs, acquisition, training,
+localization or publication. The two-chapter batch ends here with Chapter49
+pending.
+
+The local Docker daemon could inspect the pinned image ID but rejected that
+same digest-form reference in `docker run` with exit125. Its existing local tag
+`learn-llm-plan-validation:20260915` resolves to the exact recorded image ID
+`sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad`;
+the same read-only, no-network checker passed through that tag. Chapter48's
+validation records an explicit tag-to-ID precheck and uses that local tag.
+The image content and input fingerprint are unchanged; no pull/build/install
+or mutation of the completed Chapter47 run is involved.

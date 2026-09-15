@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T13:13:58Z"
+updated_at: "2026-09-15T13:51:47Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 8
+      spent: 9
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -47774,13 +47774,13 @@ builds:
       - id: detail-ch48-configurable-decoder-core
         objective: "Make Chapter 48 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch47-depth-stable-decoder"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/47-depth-stable-decoder.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/48-configurable-decoder-core.md","curriculum/future-chapter-plans/index.json"]
+        outputs: ["curriculum/future-chapter-plans/48-configurable-decoder-core.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47788,9 +47788,73 @@ builds:
         validate:
           - "test -s curriculum/future-chapter-plans/48-configurable-decoder-core.md"
           - "git diff --check"
-          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+          - >-
+            test "$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace learn-llm-plan-validation:20260915 node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T131633Z-detail-ch48-configurable-decoder-core-01
+            started_at: "2026-09-15T13:16:33Z"
+            finished_at: "2026-09-15T13:51:47Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "c214fc9438c14fd3b7a98e4185e90a90968b718e"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              extension_plan_bytes: 1611864
+              guide_sha256: "fbc4b8040240386464dba0b57e0c6050c81366a252c7ba35d9411b830edf11e2"
+              guide_bytes: 11438
+              index_sha256: "e4c17183cc33320f338e860ddcfe8e5262c66185bbf2a11712183aca3c5925e7"
+              index_bytes: 10616
+              chapter47_packet_sha256: "fe857438b773bd9ca384424e00bcfc87debacdc773dcda5e46aa065a48bf47e0"
+              chapter47_packet_bytes: 42932
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3 for deterministic ledger checks; Node v23.7.0/npm 10.9.2 for orchestration; pinned Node 22.12.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T131633Z-detail-ch48-configurable-decoder-core-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, guide, index and Chapter 47 packet"
+              - "Read-only Chapter 47 completion and Chapter 48 dependency status audit"
+              - "Record the existing pinned offline checker image identity without rebuilding or invoking it"
+              - "Write the Chapter 48 run preflight record"
+              - "Read-only primary-source abstract checks for Megatron-LM and Training Compute-Optimal Large Language Models"
+              - "Independent read-only current Rust, ordered inventory and profile-literal audits; no implementation execution"
+              - "V8 BigInt derivation of parameter/KV/MAC/state/communication and seed-sensitivity accounting fixtures"
+              - "Author and validate the staged internal packet and planning evidence, then publish the packet, guide, index and decision"
+              - "Record Docker digest-form run exit125, inspect unchanged image identity, and use its verified existing local tag without pull/build/install"
+              - "Post-publication declared planning validations, staged/canonical identity, YAML, ready inventory and frozen held-scope checks"
+            artifacts:
+              - path: ".build/runs/20260915T131633Z-detail-ch48-configurable-decoder-core-01/preflight.md"
+                purpose: "Read-only Chapter 48 claim preflight and frozen input fingerprint."
+              - path: ".build/runs/20260915T131633Z-detail-ch48-configurable-decoder-core-01/planning-evidence.md"
+                sha256: "870340497be20c1f24d6862c52bdac3d3f1bbf41999ba1b6038c884e41240117"
+                bytes: 4416
+              - path: "curriculum/future-chapter-plans/48-configurable-decoder-core.md"
+                sha256: "3c2f8d3e22aecb03db8e5b246a9f4accba1485f60fc824ec8ba7cc7b27788a89"
+                bytes: 68207
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "0ba4828f19365b2a675c86392b05224e78a26bdb761235e8b63d119e3646d306"
+                bytes: 11512
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "d9aadcc11a011956b981dd0ae20d44e7cbddb93537f8e715595898f8ad3e4e08"
+                bytes: 10623
+            validation:
+              - command: "test -s curriculum/future-chapter-plans/48-configurable-decoder-core.md"
+                outcome: "passed; staged/canonical identity verified"
+              - command: "git diff --check"
+                outcome: "passed"
+              - command: "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+                outcome: "exit125; local Docker run reference lookup failed despite image inspection resolving the exact pinned image; preserved as failed invocation evidence, not a packet failure"
+              - command: >-
+                  test "$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                outcome: "passed; existing local tag has the exact original image identity; no pull/build/install"
+              - command: "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace learn-llm-plan-validation:20260915 node scripts/check-course-plan.mjs"
+                outcome: "passed; 40 chapters, 111 scheduled steps, 40 implemented contracts through Chapter39"
+              - command: "Deterministic YAML, frozen metadata, planning inventory and unchanged-held-block checks"
+                outcome: "passed; 9 prerequisites, 29 ordered outputs, 5 future commands, IDs, all seven profile caps and modes match; ready packets40–48 exist; Chapter49 pending; frozen plan and held original71-step block unchanged"
+              - command: "V8 BigInt accounting derivations and independent current-interface audit"
+                outcome: "passed; exact four-scale census/KV/MAC and TP8 traffic, 18P illustrative subtotal and complete frozen seed tuple recompute; full-gradient versus cached-inference obligations and raw-sum metric ownership are explicit. No production allocation or backend measurement inferred."
+            notes: "Planning-only checkpoint: one checked config/admission path and private text core, exact accounting and honest refusals, explicit tests and external review handoffs are specified. Smoke capacity interpretation, prospective SHA-256 dependency admission and complete accounting descriptors have named future readiness owners; no implementation gate is claimed passed. Verified existing-image tag invocation preserves the original fingerprint. Repairs and all course improvement/extension execution remain held. The requested two-chapter planning batch ends after48; Chapter49 remains pending."
       - id: detail-ch49-dropout-semantics
         objective: "Make Chapter 49 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch48-configurable-decoder-core"]
