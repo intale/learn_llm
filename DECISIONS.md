@@ -24118,3 +24118,19 @@ from Chapter 41's raw-pair schema. The packet bounds scan chunks at 64 MiB,
 working memory at 2 GiB for this algorithm and aggregate redacted findings and
 receipts below 100 MiB; failures remain provisional and are never truncated or
 published as success.
+
+## 2026-09-15 - Chapter 43 packet refinements remain proposed until implementation
+
+**Status:** Accepted as planning detail; does not alter the frozen high-level plan.
+
+**Decision:** Chapter 43 uses an exact matching view (Unicode case folding plus
+whitespace collapse as specified by the packet) with byte verification before
+aliasing. Exact aliases collapse to the smallest immutable record ID. Near
+variants remain retained and are coassigned by their complete connected
+component; they are not silently deleted as duplicates. Component identity is
+the full sorted original-member identity, not a truncated label. The prefix
+candidate proof, dense-bucket cap and explicit fail-closed outcome are part of
+the proposed deterministic contract. A required protected inventory must be
+present, nonempty and hash-verified; there is no empty-inventory clearance
+path. Core-subset preflight is evidence only and cannot replace complete
+inventory coverage or whole-component accounting.

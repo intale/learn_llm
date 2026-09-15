@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T11:43:12Z"
+updated_at: "2026-09-15T11:52:51Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 3
+      spent: 4
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -47411,13 +47411,13 @@ builds:
       - id: detail-ch43-deduplication-decontamination
         objective: "Make Chapter 43 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch42-deterministic-corpus-filtering"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/43-deduplication-decontamination.md","curriculum/future-chapter-plans/index.json"]
+        outputs: ["curriculum/future-chapter-plans/43-deduplication-decontamination.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47427,7 +47427,59 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T114300Z-detail-ch43-deduplication-decontamination-01
+            started_at: "2026-09-15T11:43:00Z"
+            finished_at: "2026-09-15T11:50:24Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "58c2d5b23da0a39a493f60f61a006098ff44cf99"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              extension_plan_bytes: 1611864
+              guide_sha256: "3915e3dad03379b6d4920e0ad769aede1812e464960451bc892b7cb40f3549f1"
+              guide_bytes: 11054
+              index_sha256: "78b243171459ae593638066f1aee00f2ee345dc1815dad81a591adc206481b89"
+              index_bytes: 10581
+              chapter42_packet_sha256: "4201ef6d7c31c8f1b868e091fa8b00c5b18fc41125d4448e49f9c1a80ebd9a04"
+              chapter42_packet_bytes: 37021
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3 for read-only ledger checks; Node v23.7.0/npm 10.9.2 for orchestration; pinned Node 22.12.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T114300Z-detail-ch43-deduplication-decontamination-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, guide, index and Chapter 42 packet"
+              - "Read-only Chapter 42 completion and Chapter 43 dependency status audit"
+              - "Record the existing pinned offline checker image identity without rebuilding or invoking it"
+              - "Write the Chapter 43 run preflight record"
+            artifacts:
+              - path: ".build/runs/20260915T114300Z-detail-ch43-deduplication-decontamination-01/preflight.md"
+                sha256: "abd184be112587edbf80d488319b812496b422ed2b6c35b2d37c939ddc7ede47"
+                bytes: 2187
+                purpose: "Read-only Chapter 43 claim preflight and frozen input fingerprint."
+              - path: ".build/runs/20260915T114300Z-detail-ch43-deduplication-decontamination-01/planning-evidence.md"
+                sha256: "ca22ae7fec46871092f01eb19530c4e670f521ba30d1a4017dfb9dc2b039972f"
+                bytes: 1459
+                purpose: "Chapter 43 bounded planning evidence and fixture arithmetic."
+              - path: "curriculum/future-chapter-plans/43-deduplication-decontamination.md"
+                sha256: "9c79ce4aabb62f31c926dcc2d5d36e5929850e2383773a004d024119c53f4fcc"
+                bytes: 31846
+                purpose: "Validated Chapter 43 detailed planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "9b348a25fb10b74d5338e4e1dd443a373a9bbc73620ee2b4dbc220334b34ea4b"
+                bytes: 11136
+                purpose: "Shared planning guide with Chapters 42 and 43 planning-ready progress."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "8a449d3bed42fb157916bb2e1b4998f0dafc4e1e6a0770662720c63127a369e4"
+                bytes: 10588
+                purpose: "46-entry planning inventory with Chapters 42 and 43 planning-ready statuses."
+            validation:
+              - "Passed exact pinned offline course-plan checker: Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm."
+              - "Passed test -s, git diff --check and staged/canonical packet byte comparison."
+              - "Passed structural audit: all 25 implementation outputs, all six frozen EN/RU outputs, ten numbered sections, formula/figure/capability/claim IDs and all five exact implementation commands present."
+              - "Passed current held functional-build extraction: 664197 bytes, SHA-256 223d5ca13c087dc2c334c223916cda42f5e65b822dac8c214f199a7f5a3adba4; HEAD and worktree byte-identical."
+              - "Passed byte-identity checks for completed Chapter 40 and Chapter 41 state blocks; no course implementation path changed."
+            notes: "Completed Chapter 43 planning-only handoff. Packet, shared README/index promotion, planning evidence and preflight were validated; repairs, implementation, acquisition, training, localization and publication remain held. Dedicated commit is required before claiming Chapter 44."
       - id: detail-ch44-scalable-bpe-tokenizer
         objective: "Make Chapter 44 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch43-deduplication-decontamination"]

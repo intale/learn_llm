@@ -36,7 +36,7 @@
       "id": "43-deduplication-decontamination",
       "planning_step": "detail-ch43-deduplication-decontamination",
       "planned_packet": "43-deduplication-decontamination.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 44,
