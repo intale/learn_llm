@@ -24134,3 +24134,24 @@ the proposed deterministic contract. A required protected inventory must be
 present, nonempty and hash-verified; there is no empty-inventory clearance
 path. Core-subset preflight is evidence only and cannot replace complete
 inventory coverage or whole-component accounting.
+
+## 2026-09-15 — Chapter 44 tokenizer identity and execution boundaries
+
+The detailed Chapter 44 packet preserves the layout-1, 266-ID, eight-merge,
+raw-byte, no-PAD course-reference contract. It does not introduce PADv2 or
+reinterpret the existing tiny-course tokenizer. The frozen laptop projection
+uses vocabulary 16,384, while the main train-only artifact role and separate
+reference-lineage receipt need an explicit coexistence mapping in the future
+execution spec. The packet proposes a same-policy eight-merge reference prefix
+and separately bound scalable payload, but records that mapping as a preflight
+gate, not an already authorized extra artifact role or a frozen-plan edit.
+
+Keep rank-by-rank scalar/optimized parity, repeat-training payload equality and
+producer-bound receipt identity distinct. The implementation-only N1 step does
+not acquire the four-file GPT-2 tokenizer or claim its independent oracle pass;
+those remain the following N3 execution step. No model payload or package
+download authority is added. Overlapping pair counts, leftmost nonoverlapping
+replacement, stale occurrence handling and chunk-boundary invariance are
+explicit tests. Chapter 45 will define padding in the batch-storage namespace,
+without mutating the immutable no-PAD tokenizer. Repairs, implementation,
+acquisition, training and publication remain held.

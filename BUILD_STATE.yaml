@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T11:52:51Z"
+updated_at: "2026-09-15T12:23:42Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 4
+      spent: 5
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -47483,13 +47483,13 @@ builds:
       - id: detail-ch44-scalable-bpe-tokenizer
         objective: "Make Chapter 44 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch43-deduplication-decontamination"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/43-deduplication-decontamination.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/44-scalable-bpe-tokenizer.md","curriculum/future-chapter-plans/index.json"]
+        outputs: ["curriculum/future-chapter-plans/44-scalable-bpe-tokenizer.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47499,7 +47499,56 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T120931Z-detail-ch44-scalable-bpe-tokenizer-01
+            started_at: "2026-09-15T12:09:31Z"
+            finished_at: "2026-09-15T12:23:42Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "8a334552dc7b7ccbcdedfb910f512f2cae1c480d"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              extension_plan_bytes: 1611864
+              guide_sha256: "9b348a25fb10b74d5338e4e1dd443a373a9bbc73620ee2b4dbc220334b34ea4b"
+              guide_bytes: 11136
+              index_sha256: "8a449d3bed42fb157916bb2e1b4998f0dafc4e1e6a0770662720c63127a369e4"
+              index_bytes: 10588
+              chapter43_packet_sha256: "9c79ce4aabb62f31c926dcc2d5d36e5929850e2383773a004d024119c53f4fcc"
+              chapter43_packet_bytes: 31846
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3 for deterministic ledger checks; Node v23.7.0/npm 10.9.2 for orchestration; pinned Node 22.12.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T120931Z-detail-ch44-scalable-bpe-tokenizer-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, guide, index and Chapter 43 packet"
+              - "Read-only Chapter 43 completion and Chapter 44 dependency status audit"
+              - "Record the existing pinned offline checker image identity without rebuilding or invoking it"
+              - "Write the Chapter 44 run preflight record"
+              - "Read frozen tokenizer/source/oracle contracts and primary historical sources; derive the tiny rank-by-rank fixture without corpus acquisition"
+              - "Author and internally audit the detailed Chapter 44 packet in run staging"
+              - "Run the exact pinned offline course-plan checker from this step's validate list; git diff --check"
+              - "Publish the byte-identical packet and update README/index; verify inventory, ready links and unchanged held functional block"
+            artifacts:
+              - path: ".build/runs/20260915T120931Z-detail-ch44-scalable-bpe-tokenizer-01/preflight.md"
+                purpose: "Read-only Chapter 44 claim preflight and frozen input fingerprint."
+              - path: ".build/runs/20260915T120931Z-detail-ch44-scalable-bpe-tokenizer-01/planning-evidence.md"
+                sha256: "05ab2fac2118e088416b5f999744bf40aea1cd3fc03d9425dfbbfff99875bed3"
+                bytes: 1720
+              - path: "curriculum/future-chapter-plans/44-scalable-bpe-tokenizer.md"
+                sha256: "ba31d33e3efcbd5861aff91febde36b7ca9b9d179febe2382a37e7fa52d4b873"
+                bytes: 34291
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "6245d374d7a8d118d490f5a26895bf06f8291e56b60eda99d25d893f8de0ac7f"
+                bytes: 11209
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "1c89bed4196c2a9d3e691e7acef3930c13fe9a8cf88e5cfff6cc93b58b3ebd8e"
+                bytes: 10595
+            validation:
+              - "Passed all frozen Chapter 44 output/prerequisite paths, formula/figure/capability/finding/claim IDs and five exact future implementation commands."
+              - "Passed exact pinned offline checker: Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm."
+              - "Passed canonical/staged byte identity, nonempty packet, index coverage40–85, ready links40–44 and pending45–85."
+              - "Passed git diff --check and held functional build byte identity to HEAD; no course implementation bytes changed."
+            notes: "Planning complete only. Preserved layout1/noPAD reference lineage; main/scalable/reference mapping is an explicit future phase-spec gate. Real acquisition, tokenizer processing, imported oracle, repairs, learner authoring/localization and publication remain pending. Independent internal design checks are not publication approval."
       - id: detail-ch45-padded-variable-batches
         objective: "Make Chapter 45 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch44-scalable-bpe-tokenizer"]
