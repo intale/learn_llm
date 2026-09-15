@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T12:41:48Z"
+updated_at: "2026-09-15T12:52:41Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 6
+      spent: 7
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -47624,13 +47624,13 @@ builds:
       - id: detail-ch46-packed-sequence-masks
         objective: "Make Chapter 46 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch45-padded-variable-batches"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/45-padded-variable-batches.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/46-packed-sequence-masks.md","curriculum/future-chapter-plans/index.json"]
+        outputs: ["curriculum/future-chapter-plans/46-packed-sequence-masks.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47640,7 +47640,62 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T124353Z-detail-ch46-packed-sequence-masks-01
+            started_at: "2026-09-15T12:43:53Z"
+            finished_at: "2026-09-15T12:52:41Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "350919cdb74b9d1279b79dbd71e499120891333a"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              extension_plan_bytes: 1611864
+              guide_sha256: "35c88cbdf0736191c16431e3979872fe52d4ee9f6e5bdba15e57887ade2169cd"
+              guide_bytes: 11279
+              index_sha256: "a477993c09d197ace135e488984931d47774d136ca3b37eb528c7f06b234a80d"
+              index_bytes: 10602
+              chapter45_packet_sha256: "2822843d14f6e3b75b6c081c52ad2db68ad0a7d9ca3ace1c8c33a80246afc81a"
+              chapter45_packet_bytes: 27790
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3 for deterministic ledger checks; Node v23.7.0/npm 10.9.2 for orchestration; pinned Node 22.12.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T124353Z-detail-ch46-packed-sequence-masks-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, guide, index and Chapter 45 packet"
+              - "Read-only Chapter 45 completion and Chapter 46 dependency status audit"
+              - "Record the existing pinned offline checker image identity without rebuilding or invoking it"
+              - "Write the Chapter 46 run preflight record"
+              - "Author staged Chapter 46 packet and planning evidence with apply_patch; bounded code/source and independent design checks"
+              - "Compute exact next-fit placement, attention-edge inventory and constructed loss arithmetic in V8"
+              - "Run the declared pinned offline course-plan checker; publish the byte-identical packet and update planning inventory"
+              - "Verify frozen metadata coverage, planning-ready links, unchanged high plan and held implementation block; git diff --check"
+            artifacts:
+              - path: ".build/runs/20260915T124353Z-detail-ch46-packed-sequence-masks-01/preflight.md"
+                purpose: "Read-only Chapter 46 claim preflight and frozen input fingerprint."
+              - path: ".build/runs/20260915T124353Z-detail-ch46-packed-sequence-masks-01/planning-evidence.md"
+                sha256: "63e7498830fc806ce7486bbca34083f6caa296c7a136eb9d81b4e83d3b7a2dba"
+                bytes: 2173
+              - path: "curriculum/future-chapter-plans/46-packed-sequence-masks.md"
+                sha256: "1652a5dceec7decf0af4714a160f39252cf26e43ca54a1f48dae5486a53930ac"
+                bytes: 42394
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "d62121033b7350141fd2318e9ad7e9eab0e6fb753a29da47b3c97a82c558c135"
+                bytes: 11360
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "6281124b1b57d8932abdb653b75be13ade90393e30e384e0d67df4a522fe8891"
+                bytes: 10609
+            validation:
+              - command: "test -s curriculum/future-chapter-plans/46-packed-sequence-masks.md"
+                outcome: "passed; staged and canonical bytes identical"
+              - command: "git diff --check"
+                outcome: "passed"
+              - command: "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+                outcome: "passed; 40 chapters, 111 scheduled steps, 40 implemented contracts through Chapter 39"
+              - command: "Deterministic packet/frozen metadata, planning-ready inventory and unchanged-held-block checks"
+                outcome: "passed; 10 prerequisites, 24 outputs, 5 future commands, identifiers and profile limits match; ready packets 40–46 exist; frozen high plan and original 71-step implementation block unchanged"
+              - command: "V8 deterministic next-fit, exact attention-edge and loss arithmetic check"
+                outcome: "passed; row occupancies 5 and 4, 9 valid targets, 19 edges per head, raw loss 11 ln(2), mean 11 ln(2)/9; no model performance or future implementation result inferred"
+            notes: "Planning-only checkpoint closes the requested next five packets, Chapters 42–46, with one commit per chapter. Segment-instance identity, local targets/positions, full gradient parity, explicit next-fit policy, profile-safe worked examples, honest performance boundaries and external review handoffs are specified. Chapter 47 remains pending; repairs and all course improvement/extension execution stay held. No future implementation command, acquisition, training, localization or publication review was executed."
       - id: detail-ch47-depth-stable-decoder
         objective: "Make Chapter 47 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch46-packed-sequence-masks"]

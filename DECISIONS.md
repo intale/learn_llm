@@ -24174,3 +24174,27 @@ padding masks and reference equivalence. The packet specifies independent
 English and Russian review handoffs for a future executor without sub-agents.
 Only planning records are published; repairs and all course implementation,
 acquisition, training, localization and publication remain held.
+
+## 2026-09-15 — Chapter 46 detailed planning checkpoint
+
+The packing packet freezes stable input-order next-fit over complete prediction-
+pair segments from Chapter 45. Segment identity belongs to each input occurrence,
+including repeated selections of the same source range; source identity alone
+cannot isolate them. Targets remain document/range-local, positions reset, and
+both query and key validity guard the same-segment causal predicate. The batch-
+local PAD sentinel stays outside the immutable tokenizer vocabulary.
+
+The frozen lengths 3, 2 and 4 denote prediction counts, not encoded token counts.
+Capacity 6 produces nine valid targets, three padding cells and nineteen allowed
+edges per head. It exceeds the reference profile's context cap 4, so the complete
+fixture belongs to bridge-ci. The packet explicitly distinguishes storage cells,
+dense attention-score positions and permitted edges: packing this example saves
+no cells and may increase dense score work. No throughput gain is asserted.
+
+Full logit/loss/gradient parity and fixed-shape cross-example activation tests
+separate illegal attention influence from legitimate shared-parameter gradients.
+The English authoring requirements shape frozen surface commitments and external
+review handoffs for the future single executor; no publication judgment is
+performed here. Chapters 42–46 now have individually validated planning packets
+and dedicated commits. Chapter 47 remains the next pending planning step; the
+original repair queue and all course extension execution remain held.
