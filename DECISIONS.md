@@ -24068,3 +24068,53 @@ license/attribution evidence require separately authorized, recorded inputs befo
 execution; neither the closed history-source runner nor the later two-file N3
 acquisition may silently fetch them. This run's metadata/RFC lookups do not expand
 either future network allowlist.
+
+## 2026-09-15 - Sequentially detail Chapters 42 through 46 under the existing hold
+
+**Status:** Accepted for the user-authorized planning batch.
+
+**Decision:** Complete `detail-ch42-deterministic-corpus-filtering`,
+`detail-ch43-deduplication-decontamination`, `detail-ch44-scalable-bpe-tokenizer`,
+`detail-ch45-padded-variable-batches`, and `detail-ch46-packed-sequence-masks`
+strictly in dependency order. Each planning step gets its own immutable run,
+validation checkpoint and dedicated Git commit. The executor may proceed from one
+of these five completed planning checkpoints to the next without a new permission
+pause; this authority does not authorize implementation or publication.
+
+**Hold and ledger boundary:** Repairs, course implementation, corpus or model
+acquisition, training, localization and publication review remain held. The
+existing functional build and its frozen queue remain unchanged. No event-sourced
+project ledger, database or new project ledger is introduced.
+
+**Cost and inputs:** Each step is medium-cost local planning with bounded,
+read-only primary-source lookup only. No dependency installation, corpus/model
+download, course build, GPU/training run or paid service is an input. The existing
+offline checker image remains pinned and must not be rebuilt.
+
+## 2026-09-15 - Chapter 42 packet refinements remain proposed until implementation
+
+**Status:** Accepted as planning detail; does not alter the frozen high-level plan.
+
+**Decision:** The Chapter 42 packet may propose a strict streaming framer with a
+65,536-byte production frame bound, exact separator/EOF behavior, strict UTF-8,
+narrow CRLF/ASCII-edge normalization, first-terminal ordered rules, body-free
+disposition records, source-span lineage and deterministic descendant invalidation.
+The synthetic fixture uses a 64-byte bound. The proposed rule set covers size,
+UTF-8, minimum length, ASCII-letter coverage, secret markers, manual markers and
+ASCII-coverage review; manual review has no release command. These are explicit
+course-policy proposals, not universal privacy, quality, language or legal
+guarantees.
+
+The packet records the required CAP-DTH-DATA-03 accounting concerns while making
+the token unit explicit as a proposal: before learned BPE training, use
+`token_count_kind="utf8-byte-base-v1"` for one symbol per valid UTF-8 byte, with
+invalid-UTF-8 coverage unavailable rather than zero. This is not a frozen
+requirement or merged-BPE count; Chapter 44 owns the later learned-tokenizer
+identity. Any foundation conflict must be reconciled before implementation.
+
+Rust ownership is proposed in `src/data/stream.rs`, `filter.rs`, `privacy.rs`,
+`governance.rs` and `deletion.rs`, with a typed filtered-stage schema distinct
+from Chapter 41's raw-pair schema. The packet bounds scan chunks at 64 MiB,
+working memory at 2 GiB for this algorithm and aggregate redacted findings and
+receipts below 100 MiB; failures remain provisional and are never truncated or
+published as success.

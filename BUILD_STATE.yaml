@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T10:55:41Z"
+updated_at: "2026-09-15T11:43:12Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 2
+      spent: 3
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -47329,13 +47329,13 @@ builds:
       - id: detail-ch42-deterministic-corpus-filtering
         objective: "Make Chapter 42 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch41-governed-corpus-acquisition"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/41-governed-corpus-acquisition.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md","curriculum/future-chapter-plans/index.json"]
+        outputs: ["curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47345,7 +47345,69 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T111044Z-detail-ch42-deterministic-corpus-filtering-01
+            started_at: "2026-09-15T11:10:44Z"
+            finished_at: "2026-09-15T11:40:19Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "41f7d211e8b9f72aa9566f8b2eca987a3221a29c"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              extension_plan_bytes: 1611864
+              guide_sha256: "aa22b498fd86d2098a260fb93ff6aa8c9c9044062a7fc365aeab66613089439e"
+              guide_bytes: 10965
+              index_sha256: "d74be2f9be812c5703ad331b4d54c5a0d001362eb7440a6d6a7e1ca0b7d40846"
+              index_bytes: 10574
+              chapter41_packet_sha256: "c5b07acabf9fc66df4b5e3af70c665aa872798e60f5950358add59a3fe8ec3bd"
+              chapter41_packet_bytes: 53328
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3 for read-only ledger checks; Node v23.7.0/npm 10.9.2 for orchestration; pinned Node 22.12.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T111044Z-detail-ch42-deterministic-corpus-filtering-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, guide, index and Chapter 41 packet"
+              - "Read-only full BUILD_STATE.yaml parse and active/running/dependency status audit"
+              - "Record the existing pinned offline checker image identity without rebuilding or invoking it"
+              - "Write the run preflight record"
+              - "Stage Chapter 42 packet and update the Chapter 42 guide/index entries with apply_patch"
+              - "test -s curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md"
+              - "git diff --check"
+              - "Pinned offline course-plan checker in the existing image"
+              - "Structural planning audit: 26 outputs, 10 sections, 5 implementation commands, IDs, source paths, and held-build/prior-step byte checks"
+            artifacts:
+              - path: ".build/runs/20260915T111044Z-detail-ch42-deterministic-corpus-filtering-01/preflight.md"
+                sha256: "c082a772cfd33989e4a726e0c7c3b8196c3e9685955d9e48ae51fee11a7f82c2"
+                bytes: 3499
+                purpose: "Read-only Chapter 42 claim preflight and frozen input fingerprint."
+              - path: ".build/runs/20260915T111044Z-detail-ch42-deterministic-corpus-filtering-01/source-evidence.md"
+                sha256: "c19ea018aa549497a7f434af995db1df0523c009cdb07f5fee8817db6bf48f00"
+                bytes: 1157
+                purpose: "Bounded read-only primary-source and repository evidence ledger."
+              - path: ".build/runs/20260915T111044Z-detail-ch42-deterministic-corpus-filtering-01/planning-audit.md"
+                sha256: "e9d88e285c96bb243a11287c7a0f7bb1f836d01e12d7c72bb3c59624a5981513"
+                bytes: 1427
+                purpose: "Internal planning-consistency audit, not publication review."
+              - path: "curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md"
+                sha256: "4201ef6d7c31c8f1b868e091fa8b00c5b18fc41125d4448e49f9c1a80ebd9a04"
+                bytes: 37021
+                purpose: "Validated Chapter 42 detailed planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "3915e3dad03379b6d4920e0ad769aede1812e464960451bc892b7cb40f3549f1"
+                bytes: 11054
+                purpose: "Shared planning guide with Chapter 42 planning-ready progress."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "78b243171459ae593638066f1aee00f2ee345dc1815dad81a591adc206481b89"
+                bytes: 10581
+                purpose: "46-entry planning inventory with Chapter 42 planning-ready status."
+            validation:
+              - "Passed exact pinned offline course-plan checker: Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm."
+              - "Passed test -s and git diff --check."
+              - "Passed staged/canonical packet byte comparison."
+              - "Passed structural audit: all 26 implementation outputs, all six frozen EN/RU outputs, ten numbered sections, formula/figure IDs and all five exact implementation commands present."
+              - "Passed current held functional-build extraction: 664197 bytes, SHA-256 223d5ca13c087dc2c334c223916cda42f5e65b822dac8c214f199a7f5a3adba4; HEAD and worktree byte-identical."
+              - "Passed byte-identity checks for completed Chapter 40 and Chapter 41 state blocks; no course implementation path changed."
+            notes: "Completed Chapter 42 planning-only handoff. Packet, shared README/index promotion, source evidence and planning audit were validated; repairs, implementation, acquisition, training, localization and publication remain held. Dedicated commit is required before claiming Chapter 43."
       - id: detail-ch43-deduplication-decontamination
         objective: "Make Chapter 43 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch42-deterministic-corpus-filtering"]

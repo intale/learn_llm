@@ -36,9 +36,10 @@ Completed planning checkpoints:
 
 - [Chapter 40: scalar-reference handoff](40-reference-core-handoff.md).
 - [Chapter 41: governed corpus acquisition](41-governed-corpus-acquisition.md).
+- [Chapter 42: deterministic corpus filtering](42-deterministic-corpus-filtering.md).
 
-Chapters 42–85 remain separate pending planning steps, beginning with deterministic
-corpus filtering. Do not substitute this guide for those individual packets.
+Chapters 43–85 remain separate pending planning steps, beginning with deduplication
+and decontamination. Do not substitute this guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
 
