@@ -32,10 +32,13 @@ missing completed artifact. A `planning-ready` entry means its internal packet
 passed a planning-consistency check; it does not mean the chapter exists or its
 content has passed publication review.
 
-This first checkpoint details
-[Chapter 40: scalar-reference handoff](40-reference-core-handoff.md).
-Chapters 41–85 remain separate pending planning steps, beginning with governed
-corpus acquisition. Do not substitute this guide for those individual packets.
+Completed planning checkpoints:
+
+- [Chapter 40: scalar-reference handoff](40-reference-core-handoff.md).
+- [Chapter 41: governed corpus acquisition](41-governed-corpus-acquisition.md).
+
+Chapters 42–85 remain separate pending planning steps, beginning with deterministic
+corpus filtering. Do not substitute this guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
 

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T09:33:00Z"
+updated_at: "2026-09-15T10:55:41Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 1
+      spent: 2
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -47256,13 +47256,14 @@ builds:
       - id: detail-ch41-governed-corpus-acquisition
         objective: "Make Chapter 41 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch40-reference-core-handoff"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/40-reference-core-handoff.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/41-governed-corpus-acquisition.md","curriculum/future-chapter-plans/index.json"]
+          - "Read-only planning context: pinned TinyStories dataset-card/license metadata and RFC 9110 range/redirect semantics; these do not expand the future closed N1 history-source set or N3 payload authority."
+        outputs: ["curriculum/future-chapter-plans/41-governed-corpus-acquisition.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47272,7 +47273,59 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T101101Z-detail-ch41-governed-corpus-acquisition-01
+            started_at: "2026-09-15T10:11:01Z"
+            finished_at: "2026-09-15T10:55:41Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "49004e5675fc0af0a0649f88cceb18b8f8effc45"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "fcc4e0bfa67579f4623167126548b3d399df96358424c377762f53c8d86b6f26"
+              index_sha256: "a8c83a6967b874b6caa988103ca930e75ba4712989feabd4b083a8d1b6f66215"
+              chapter40_packet_sha256: "a1ad7fc9fee8d1d64ffb67115730d56c14313127c9f1c109f1e01bce11e3ec82"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; read-only ledger validation with PyYAML 6.0.3; host Node 23.7.0 for synthetic fixture arithmetic; pinned Node 22.12.0 only inside the existing offline validation image checker."
+            staging_dir: ".build/runs/20260915T101101Z-detail-ch41-governed-corpus-acquisition-01/"
+            commands:
+              - "Read-only primary-source metadata lookup: Datasheets, ROOTS, pinned TinyStories card, TinyStories paper, official CDLA-Sharing-1.0 text and RFC 9110; no corpus bytes."
+              - "Host Node v23.7.0 crypto computation of the run's synthetic fixture-spec.json; baseline and attribution-variant canonical hashes."
+              - "Read-only Python/PyYAML structural and frozen-ledger comparison; 46-entry mapping, status/path/section/link and output-ownership checks."
+              - "test -s curriculum/future-chapter-plans/41-governed-corpus-acquisition.md"
+              - "git diff --check"
+              - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=/home/int/Dropbox/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+              - "cmp each of staging/README.md, staging/index.json and staging/41-governed-corpus-acquisition.md with its declared canonical planning path; all byte-identical."
+            artifacts:
+              - path: "curriculum/future-chapter-plans/41-governed-corpus-acquisition.md"
+                sha256: "c5b07acabf9fc66df4b5e3af70c665aa872798e60f5950358add59a3fe8ec3bd"
+                bytes: 53328
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "aa22b498fd86d2098a260fb93ff6aa8c9c9044062a7fc365aeab66613089439e"
+                bytes: 10965
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "d74be2f9be812c5703ad331b4d54c5a0d001362eb7440a6d6a7e1ca0b7d40846"
+                bytes: 10574
+              - path: ".build/runs/20260915T101101Z-detail-ch41-governed-corpus-acquisition-01/source-evidence.md"
+                sha256: "d28f6867be01876f4ba710d18ba0dbf7aa5512ddfed27fb784da04c9c21ec760"
+                bytes: 2452
+              - path: ".build/runs/20260915T101101Z-detail-ch41-governed-corpus-acquisition-01/fixture-spec.json"
+                sha256: "febab01f4fed2cfd2cdef35c5f907529268e396ab8e30e893dc7fa51ffecc5eb"
+                bytes: 2665
+              - path: ".build/runs/20260915T101101Z-detail-ch41-governed-corpus-acquisition-01/planning-audit.md"
+                sha256: "7295ef08a981a6a26f19e3b5cec570cf8920ffb90cdfc7ac9ab6fc3683cfacf7"
+                bytes: 5324
+              - path: ".build/runs/20260915T101101Z-detail-ch41-governed-corpus-acquisition-01/validation.md"
+                sha256: "bf4968dd594ea0a6a728623a18e9767008278c09333c9b673b8177f5e7a239c4"
+                bytes: 6554
+            validation:
+              - "Passed internal author planning audit with bounded design-consistency advice; not a publication review or adjudication."
+              - "Passed frozen-field closure: nine prerequisites, formula/capability/history IDs, source pins, 27 output paths, five future commands and chapter/acquisition ordering."
+              - "Passed 46-entry index and text-ledger checks; only Chapters 40/41 planning-ready, remaining 44 pending; entire held functional build and completed Chapter 40 preserved."
+              - "Synthetic baseline manifest 3084 bytes/SHA256 569de16c16720f73aca07de6a3184b779b80700c3f5f8eefc01f60fea3019b89; attribution variant bb4cd61a666c474f893ca2a9027005f00155b2f6fa573010188aa48258723305; not future Rust execution evidence."
+              - "Canonical test -s, git diff --check and three stage/canonical byte comparisons passed."
+              - "Exact offline pinned-image ordinary checker passed: 40 chapters, 111 scheduled steps, 40 implemented contracts through 39-end-to-end-llm."
+              - "Exactly five in-scope paths changed; no repair, Rust/site implementation, raw acquisition, training, localization or publication-review work."
+            notes: "Completed planning-only handoff from clean preflight at 49004e5; Chapter 40 planning completed, Chapter 41 is the second of 46 planning-ready packets, and Chapter 42 is next. Holds remain intact: no repair, implementation, acquisition, localization, training or publication-review work. Owns the Chapter 41 packet, inventory status and shared guide progress wording. Dedicated commit: detail-ch41-governed-corpus-acquisition."
       - id: detail-ch42-deterministic-corpus-filtering
         objective: "Make Chapter 42 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch41-governed-corpus-acquisition"]

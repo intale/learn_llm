@@ -23997,3 +23997,74 @@ and Early Stopping* (Dodge et al., 2020), not the title currently stored in the
 frozen source registry. The detailed packet records the correct linked evidence
 and a mandatory source/binding correction before implementation. That correction
 remains pending; this run does not modify the frozen registry or completed plan.
+
+## 2026-09-15 - Detail governed corpus acquisition without acquiring data
+
+The refined crash-accounting proposal distinguishes durably acknowledged body
+bytes from the conservative charge for an interrupted read grant. Success
+receipts expose both and their budget-charged sum; uncertainty is never reported
+as measured delivery. Grants are bounded at 65,536 bytes, settled once, and
+preserved across recovery without double charging. Check remaining-work
+admission before adding a new grant; allow zero-byte EOF at exact exhaustion.
+Progress replacement must fsync the new file and parent directory and use a
+separate stable lock file. This is ordinary private text-file recovery, not
+event-sourced repository state. These choices refine the Chapter 41 packet only
+and still require reconciliation with the completed foundation at execution.
+
+**Context:** The user said "continue" after the Chapter 40 planning checkpoint.
+The explicit planning-only instruction and repair/implementation hold remain in
+force. The next eligible planning step is
+`detail-ch41-governed-corpus-acquisition`.
+
+**Decision:** Detail Chapter 41's immutable provenance, manifest/payload checks,
+bounded transport, resumable-partial and atomic-publication behavior, offline
+worked fixtures, Rust ownership, tests, teaching sequence and external review
+handoffs. Distinguish the Chapter 41 capability implementation from the later
+cache-boundary and real-acquisition checkpoints. Preserve the frozen two-object
+TinyStories choice and all current functional steps. Do not implement or execute
+the acquisition command, repair earlier content or broaden the download policy.
+
+**Outputs and cost:** One new internal chapter packet and its inventory status.
+The shared guide's progress paragraph is a necessary integration output so it
+does not continue claiming that Chapter 41 is pending after completion; its
+packet/review requirements are unchanged. Medium-cost content planning and bounded
+read-only primary-source/dataset/license metadata lookup are allowed. Synthetic
+tiny fixture arithmetic/hashes may be checked deterministically as planning
+evidence. No corpus/model payload download, dependency installation, paid service,
+course build, training or language-publication review is an input.
+
+**Validation:** Check the packet against the frozen chapter/policy/output records,
+the 46-entry inventory, held-step preservation, source limits, worked bytes,
+relative links and ten-section guide. Use the existing offline image for the
+ordinary course-plan check and record an author planning-consistency audit.
+Preserve prior completed artifacts/runs; commit only this planning checkpoint.
+
+**Chapter 41 planning refinements:** The accepted plan fixes manifest-based
+identity, the raw pair, cache root, mode boundaries and numeric caps, but does not
+fully specify their mapping. The detailed packet selects one dataset bundle for
+both raw files plus shared retained license/attribution files; the cache-entry
+digest is the canonical artifact-manifest SHA-256 and `payload` is a directory.
+An outer acquisition binding carries the derived artifact ID/cache path, avoiding
+self-reference in the hashed artifact manifest. These are proposed implementation
+details to reconcile with prerequisite schemas before execution, not changes to
+the frozen high-level plan or a new storage architecture.
+
+The packet interprets the two requests as two immutable logical file identities.
+It applies the 2,000,000,000-byte ceiling conservatively to cumulative delivered
+HTTP body bytes, including failed/discarded attempts, not only accepted payloads;
+it does not claim that this meter measures TCP/TLS overhead or physical ingress.
+Attempts, redirects, spent/reserved allowance and deadline cannot reset on resume.
+Use one outer bounded pair retry driver and independent persistent per-file caps;
+do not multiply allowances with nested retries. Interrupted uncertain reservations
+remain charged, even when that means refusing further work. Publication copies
+into private temporary storage inside the cache-root mount, revalidates and
+fsyncs, then atomically promotes within that mount, without overwriting an existing
+digest entry. Implementation must test these refinements on offline fixtures;
+the later execution-boundary/acquisition steps own their real deployment.
+
+The Chapter 41 N1 implementation step has no new crate-download or dataset-card
+fetch authority. Missing pinned SHA/URL plumbing dependencies or retained
+license/attribution evidence require separately authorized, recorded inputs before
+execution; neither the closed history-source runner nor the later two-file N3
+acquisition may silently fetch them. This run's metadata/RFC lookups do not expand
+either future network allowlist.
