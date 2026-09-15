@@ -24155,3 +24155,22 @@ replacement, stale occurrence handling and chunk-boundary invariance are
 explicit tests. Chapter 45 will define padding in the batch-storage namespace,
 without mutating the immutable no-PAD tokenizer. Repairs, implementation,
 acquisition, training and publication remain held.
+
+## 2026-09-15 — Chapter 45 detailed planning checkpoint
+
+The padded-batch packet uses an out-of-vocabulary signed batch-cell sentinel,
+`PAD_CELL = -1`, while retaining the immutable layout-v1 tokenizer without a PAD
+class. Every padding path must branch before conversion, lookup or gradient
+scatter; the loss divides its raw sum once by the number of valid targets.
+Skipping an all-masked query produces a zero attention mixture, not a promise
+that later biased or residual hidden states are zero. Explicit document-range
+adapters preserve source identity and reject silent truncation.
+
+The existing batch implementation already retains a smaller final batch and
+tests its actual-token denominator. The older audit's broader gap wording is
+recorded as evidence to reconcile during authorized implementation, not repaired
+in this planning step. The new work concerns variable prediction lengths,
+padding masks and reference equivalence. The packet specifies independent
+English and Russian review handoffs for a future executor without sub-agents.
+Only planning records are published; repairs and all course implementation,
+acquisition, training, localization and publication remain held.
