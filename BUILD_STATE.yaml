@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T09:18:12Z"
+updated_at: "2026-09-15T09:33:00Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -14,7 +14,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images. Host Python 3.13.1 with user-provided PyYAML 6.0.3 is used only for read-only ledger validation; host Rust, Node, and npm remain outside product validation."
 
-active_build: "extend-course-to-functional-laptop-llm-20260810"
+active_build: "detail-future-chapter-execution-plans-20260915"
 
 builds:
   - build_id: bootstrap-course
@@ -20543,7 +20543,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 0
+      spent: 1
       notes: "No explicit resource limit applies. This medium localization build uses local authored translation and cached exact Linux, Chromium, and Firefox validation without paid or external services."
     completion_criteria:
       - "English Chapter 14 defines reverse accumulation over distinct operand-use edges without aliasing ambiguity and contains no learner-facing authoring, test, fixture, trace, or presentation-contract commentary."
@@ -41856,7 +41856,7 @@ builds:
 
   - build_id: extend-course-to-functional-laptop-llm-20260810
     objective: "Extend the from-scratch reference core with a production-shaped, laptop-feasible path whose final Rust system can prepare realistic data, train and fully resume, evaluate, adapt, generate, and serve a functional decoder-only autoregressive text LLM without implying validated production scale or state-of-the-art quality."
-    status: active
+    status: pending
     budget:
       unit: agent-session
       limit: null
@@ -47180,4 +47180,976 @@ builds:
         cost:
           class: "large"
           notes: "cpu=C3;gpu=G1;network=N0;paid=none;profile=8gb-gpu-smoke;execution=receipt-reuse-plus-bounded-closure-smoke;wall_seconds_max=900;host_bytes_max=8589934592;device_bytes_max=2147483648;disk_bytes_max=5000000000;new_download_authority_bytes=0"
+        runs: []
+
+  - build_id: detail-future-chapter-execution-plans-20260915
+    objective: "Write one evidence-led implementation packet per future Chapter 40–85 for a single gpt-6-astra max executor without sub-agents; planning only, with repairs and course implementation held pending."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+    completion_criteria:
+      - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
+      - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
+      - "Repairs, future Rust/site/content implementation, acquisition, calibration and training remain pending until a new explicit user authorization."
+    notes: "User-authorized planning phase supersedes the prior implementation-next scheduling assumption. The existing functional build and its frozen queue are preserved on hold. The frozen execution-state checker is not an applicable live-state planning gate; reconcile its lifecycle contract in a separately authorized run before resuming execution. See DECISIONS.md 2026-09-15 detailed-plan decision."
+    steps:
+      - id: detail-ch40-reference-core-handoff
+        objective: "Make Chapter 40 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["design-functional-laptop-llm-curriculum-extension"]
+        status: completed
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "AGENTS.md; DECISIONS.md; canonical-English authoring skill; Chapter 39 contract and Rust reference evidence"
+          - "User request 2026-09-15: planning only; single gpt-6-astra max executor, no sub-agents"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/README.md","curriculum/future-chapter-plans/40-reference-core-handoff.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/40-reference-core-handoff.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs:
+          - run_id: 20260915T093300Z-detail-ch40-reference-core-handoff-01
+            started_at: "2026-09-15T09:33:00Z"
+            finished_at: "2026-09-15T10:02:00Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "053f3d258a21429ef1a7c787440c5303803a1890"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              chapter39_contract_sha256: "f47fec042d238c8a862bc5932e9d5e8f22629d270c2e44e5723c4e7f6d4400c3"
+              pipeline_sha256: "0dbc3de6de7269423453cb00ac23eb35c9301739a627e4a22e514912de533e4d"
+              chapter39_demo_sha256: "f272407b852e9e97986e7148831a7b49e630f743ba3d185189e059039fbd06fc"
+              chapter39_stdout_sha256: "11273044c0fed87c9e49ca4f31d5585e9df1cf76e2b77184d6ca01b7ffbd45a3"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; read-only ledger parser PyYAML 6.0.3; Node 22.12.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T093300Z-detail-ch40-reference-core-handoff-01/"
+            commands:
+              - "python3 [read-only staged index/packet/relative-link/BUILD_STATE scope check]"
+              - "sha256sum .build/runs/20260915T093300Z-detail-ch40-reference-core-handoff-01/staging/README.md .build/runs/20260915T093300Z-detail-ch40-reference-core-handoff-01/staging/index.json .build/runs/20260915T093300Z-detail-ch40-reference-core-handoff-01/staging/40-reference-core-handoff.md"
+              - "cmp -s staging/README.md curriculum/future-chapter-plans/README.md; cmp -s staging/index.json curriculum/future-chapter-plans/index.json; cmp -s staging/40-reference-core-handoff.md curriculum/future-chapter-plans/40-reference-core-handoff.md; test -s curriculum/future-chapter-plans/README.md; test -s curriculum/future-chapter-plans/index.json; test -s curriculum/future-chapter-plans/40-reference-core-handoff.md"
+              - "git diff --check"
+              - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+            artifacts:
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "fcc4e0bfa67579f4623167126548b3d399df96358424c377762f53c8d86b6f26"
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "a8c83a6967b874b6caa988103ca930e75ba4712989feabd4b083a8d1b6f66215"
+              - path: "curriculum/future-chapter-plans/40-reference-core-handoff.md"
+                sha256: "a1ad7fc9fee8d1d64ffb67115730d56c14313127c9f1c109f1e01bce11e3ec82"
+            validation:
+              - command: "staged structural ID/section/link/inventory and functional-step preservation check"
+                status: passed
+              - command: "sha256sum, cmp -s, test -s, canonical relative-link check"
+                status: passed
+              - command: "git diff --check"
+                status: passed
+              - command: "ordinary static course-plan checker in pinned offline image"
+                status: passed
+                output: "Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm."
+            notes: "Preflight found clean HEAD and no active prior implementation owner. This run owns planning documents and state/decision integration only. Source lookup is limited to Model Cards and On the Stability of Fine-tuning BERT. Chapter 41–85 planning and all repairs/implementation remain pending. Optional independent packet audit remains INCOMPLETE; no functional checker, implementation, browser, Rust, dependency or network action was run."
+      - id: detail-ch41-governed-corpus-acquisition
+        objective: "Make Chapter 41 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch40-reference-core-handoff"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/40-reference-core-handoff.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/41-governed-corpus-acquisition.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/41-governed-corpus-acquisition.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch42-deterministic-corpus-filtering
+        objective: "Make Chapter 42 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch41-governed-corpus-acquisition"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/41-governed-corpus-acquisition.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch43-deduplication-decontamination
+        objective: "Make Chapter 43 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch42-deterministic-corpus-filtering"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/42-deterministic-corpus-filtering.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/43-deduplication-decontamination.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/43-deduplication-decontamination.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch44-scalable-bpe-tokenizer
+        objective: "Make Chapter 44 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch43-deduplication-decontamination"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/43-deduplication-decontamination.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/44-scalable-bpe-tokenizer.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/44-scalable-bpe-tokenizer.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch45-padded-variable-batches
+        objective: "Make Chapter 45 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch44-scalable-bpe-tokenizer"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/44-scalable-bpe-tokenizer.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/45-padded-variable-batches.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/45-padded-variable-batches.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch46-packed-sequence-masks
+        objective: "Make Chapter 46 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch45-padded-variable-batches"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/45-padded-variable-batches.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/46-packed-sequence-masks.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/46-packed-sequence-masks.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch47-depth-stable-decoder
+        objective: "Make Chapter 47 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch46-packed-sequence-masks"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/46-packed-sequence-masks.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/47-depth-stable-decoder.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/47-depth-stable-decoder.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch48-configurable-decoder-core
+        objective: "Make Chapter 48 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch47-depth-stable-decoder"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/47-depth-stable-decoder.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/48-configurable-decoder-core.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/48-configurable-decoder-core.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch49-dropout-semantics
+        objective: "Make Chapter 49 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch48-configurable-decoder-core"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/48-configurable-decoder-core.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/49-dropout-semantics.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/49-dropout-semantics.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch50-dependency-error-contract
+        objective: "Make Chapter 50 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch49-dropout-semantics"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/49-dropout-semantics.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/50-dependency-error-contract.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/50-dependency-error-contract.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch51-serving-config-admission
+        objective: "Make Chapter 51 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch50-dependency-error-contract"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/50-dependency-error-contract.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/51-serving-config-admission.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/51-serving-config-admission.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch52-accelerator-tensor-parity
+        objective: "Make Chapter 52 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch51-serving-config-admission"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/51-serving-config-admission.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/52-accelerator-tensor-parity.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/52-accelerator-tensor-parity.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch53-mixed-precision-training
+        objective: "Make Chapter 53 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch52-accelerator-tensor-parity"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/52-accelerator-tensor-parity.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/53-mixed-precision-training.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/53-mixed-precision-training.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch54-memory-bounded-training
+        objective: "Make Chapter 54 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch53-mixed-precision-training"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/53-mixed-precision-training.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/54-memory-bounded-training.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/54-memory-bounded-training.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch55-optimizer-schedules-clipping
+        objective: "Make Chapter 55 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch54-memory-bounded-training"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/54-memory-bounded-training.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/55-optimizer-schedules-clipping.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/55-optimizer-schedules-clipping.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch56-tensor-artifact-interchange
+        objective: "Make Chapter 56 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch55-optimizer-schedules-clipping"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/55-optimizer-schedules-clipping.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/56-tensor-artifact-interchange.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/56-tensor-artifact-interchange.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch57-immutable-artifact-persistence
+        objective: "Make Chapter 57 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch56-tensor-artifact-interchange"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/56-tensor-artifact-interchange.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/57-immutable-artifact-persistence.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/57-immutable-artifact-persistence.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch58-exact-job-resume
+        objective: "Make Chapter 58 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch57-immutable-artifact-persistence"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/57-immutable-artifact-persistence.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/58-exact-job-resume.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/58-exact-job-resume.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch59-resource-observability
+        objective: "Make Chapter 59 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch58-exact-job-resume"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/58-exact-job-resume.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/59-resource-observability.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/59-resource-observability.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch60-multi-seed-evaluation
+        objective: "Make Chapter 60 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch59-resource-observability"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/59-resource-observability.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/60-multi-seed-evaluation.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/60-multi-seed-evaluation.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch61-quantized-gguf-artifacts
+        objective: "Make Chapter 61 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch60-multi-seed-evaluation"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/60-multi-seed-evaluation.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/61-quantized-gguf-artifacts.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/61-quantized-gguf-artifacts.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch62-laptop-hardware-admission
+        objective: "Make Chapter 62 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch61-quantized-gguf-artifacts"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/61-quantized-gguf-artifacts.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/62-laptop-hardware-admission.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/62-laptop-hardware-admission.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch63-gqa-context-policy
+        objective: "Make Chapter 63 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch62-laptop-hardware-admission"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/62-laptop-hardware-admission.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/63-gqa-context-policy.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/63-gqa-context-policy.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch64-online-tiled-attention
+        objective: "Make Chapter 64 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch63-gqa-context-policy"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/63-gqa-context-policy.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/64-online-tiled-attention.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/64-online-tiled-attention.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch65-kv-block-pool
+        objective: "Make Chapter 65 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch64-online-tiled-attention"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/64-online-tiled-attention.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/65-kv-block-pool.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/65-kv-block-pool.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch66-nucleus-penalties-logprobs
+        objective: "Make Chapter 66 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch65-kv-block-pool"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/65-kv-block-pool.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/66-nucleus-penalties-logprobs.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/66-nucleus-penalties-logprobs.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch67-stop-strings-unicode-streaming
+        objective: "Make Chapter 67 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch66-nucleus-penalties-logprobs"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/66-nucleus-penalties-logprobs.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/67-stop-strings-unicode-streaming.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/67-stop-strings-unicode-streaming.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch68-continuous-batch-scheduling
+        objective: "Make Chapter 68 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch67-stop-strings-unicode-streaming"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/67-stop-strings-unicode-streaming.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/68-continuous-batch-scheduling.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/68-continuous-batch-scheduling.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch69-cancellation-backpressure-budgets
+        objective: "Make Chapter 69 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch68-continuous-batch-scheduling"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/68-continuous-batch-scheduling.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/69-cancellation-backpressure-budgets.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/69-cancellation-backpressure-budgets.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch70-loopback-serving-metrics
+        objective: "Make Chapter 70 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch69-cancellation-backpressure-budgets"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/69-cancellation-backpressure-budgets.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/70-loopback-serving-metrics.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/70-loopback-serving-metrics.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch71-lora-sft-adapters
+        objective: "Make Chapter 71 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch70-loopback-serving-metrics"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/70-loopback-serving-metrics.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/71-lora-sft-adapters.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/71-lora-sft-adapters.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch72-direct-preference-optimization
+        objective: "Make Chapter 72 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch71-lora-sft-adapters"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/71-lora-sft-adapters.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/72-direct-preference-optimization.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/72-direct-preference-optimization.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch73-qlora-boundary
+        objective: "Make Chapter 73 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch72-direct-preference-optimization"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/72-direct-preference-optimization.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/73-qlora-boundary.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/73-qlora-boundary.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch74-prefix-cache-reuse
+        objective: "Make Chapter 74 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch73-qlora-boundary"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/73-qlora-boundary.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/74-prefix-cache-reuse.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/74-prefix-cache-reuse.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch75-rope-context-scaling
+        objective: "Make Chapter 75 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch74-prefix-cache-reuse"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/74-prefix-cache-reuse.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/75-rope-context-scaling.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/75-rope-context-scaling.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch76-retrieval-provenance
+        objective: "Make Chapter 76 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch75-rope-context-scaling"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/75-rope-context-scaling.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/76-retrieval-provenance.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/76-retrieval-provenance.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch77-constrained-json-decoding
+        objective: "Make Chapter 77 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch76-retrieval-provenance"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/76-retrieval-provenance.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/77-constrained-json-decoding.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/77-constrained-json-decoding.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch78-authorized-tools
+        objective: "Make Chapter 78 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch77-constrained-json-decoding"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/77-constrained-json-decoding.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/78-authorized-tools.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/78-authorized-tools.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch79-safety-privacy-model-card
+        objective: "Make Chapter 79 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch78-authorized-tools"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/78-authorized-tools.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/79-safety-privacy-model-card.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/79-safety-privacy-model-card.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch80-from-scratch-laptop-capstone
+        objective: "Make Chapter 80 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch79-safety-privacy-model-card"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/79-safety-privacy-model-card.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/80-from-scratch-laptop-capstone.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/80-from-scratch-laptop-capstone.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch81-import-adapt-serve-capstone
+        objective: "Make Chapter 81 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch80-from-scratch-laptop-capstone"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/80-from-scratch-laptop-capstone.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/81-import-adapt-serve-capstone.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/81-import-adapt-serve-capstone.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch82-advanced-decoding-serving
+        objective: "Make Chapter 82 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch81-import-adapt-serve-capstone"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/81-import-adapt-serve-capstone.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/82-advanced-decoding-serving.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/82-advanced-decoding-serving.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch83-distributed-schedule-simulation
+        objective: "Make Chapter 83 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch82-advanced-decoding-serving"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/82-advanced-decoding-serving.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/83-distributed-schedule-simulation.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/83-distributed-schedule-simulation.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch84-moe-routing-simulation
+        objective: "Make Chapter 84 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch83-distributed-schedule-simulation"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/83-distributed-schedule-simulation.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/84-moe-routing-simulation.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/84-moe-routing-simulation.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
+        runs: []
+      - id: detail-ch85-persistence-scale-decision
+        objective: "Make Chapter 85 executable from one explicit chapter packet, without implementing the chapter."
+        depends_on: ["detail-ch84-moe-routing-simulation"]
+        status: pending
+        inputs:
+          - "curriculum/functional-laptop-llm-extension-plan.md"
+          - "curriculum/future-chapter-plans/README.md"
+          - "curriculum/future-chapter-plans/84-moe-routing-simulation.md"
+          - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
+        outputs: ["curriculum/future-chapter-plans/85-persistence-scale-decision.md","curriculum/future-chapter-plans/index.json"]
+        acceptance:
+          - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
+          - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
+          - "Planning inventory is accurate; user execution hold and frozen chapter scope are preserved; no course implementation bytes change."
+        validate:
+          - "test -s curriculum/future-chapter-plans/85-persistence-scale-decision.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+        cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
         runs: []

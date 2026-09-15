@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "scope": "planning-only",
+  "execution_hold": true,
+  "executor": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "sub_agents": false
+  },
+  "baseline_commit": "053f3d258a21429ef1a7c787440c5303803a1890",
+  "baseline_plan_sha256": "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1",
+  "chapters": [
+    {
+      "number": 40,
+      "id": "40-reference-core-handoff",
+      "planning_step": "detail-ch40-reference-core-handoff",
+      "planned_packet": "40-reference-core-handoff.md",
+      "status": "planning-ready"
+    },
+    {
+      "number": 41,
+      "id": "41-governed-corpus-acquisition",
+      "planning_step": "detail-ch41-governed-corpus-acquisition",
+      "planned_packet": "41-governed-corpus-acquisition.md",
+      "status": "pending"
+    },
+    {
+      "number": 42,
+      "id": "42-deterministic-corpus-filtering",
+      "planning_step": "detail-ch42-deterministic-corpus-filtering",
+      "planned_packet": "42-deterministic-corpus-filtering.md",
+      "status": "pending"
+    },
+    {
+      "number": 43,
+      "id": "43-deduplication-decontamination",
+      "planning_step": "detail-ch43-deduplication-decontamination",
+      "planned_packet": "43-deduplication-decontamination.md",
+      "status": "pending"
+    },
+    {
+      "number": 44,
+      "id": "44-scalable-bpe-tokenizer",
+      "planning_step": "detail-ch44-scalable-bpe-tokenizer",
+      "planned_packet": "44-scalable-bpe-tokenizer.md",
+      "status": "pending"
+    },
+    {
+      "number": 45,
+      "id": "45-padded-variable-batches",
+      "planning_step": "detail-ch45-padded-variable-batches",
+      "planned_packet": "45-padded-variable-batches.md",
+      "status": "pending"
+    },
+    {
+      "number": 46,
+      "id": "46-packed-sequence-masks",
+      "planning_step": "detail-ch46-packed-sequence-masks",
+      "planned_packet": "46-packed-sequence-masks.md",
+      "status": "pending"
+    },
+    {
+      "number": 47,
+      "id": "47-depth-stable-decoder",
+      "planning_step": "detail-ch47-depth-stable-decoder",
+      "planned_packet": "47-depth-stable-decoder.md",
+      "status": "pending"
+    },
+    {
+      "number": 48,
+      "id": "48-configurable-decoder-core",
+      "planning_step": "detail-ch48-configurable-decoder-core",
+      "planned_packet": "48-configurable-decoder-core.md",
+      "status": "pending"
+    },
+    {
+      "number": 49,
+      "id": "49-dropout-semantics",
+      "planning_step": "detail-ch49-dropout-semantics",
+      "planned_packet": "49-dropout-semantics.md",
+      "status": "pending"
+    },
+    {
+      "number": 50,
+      "id": "50-dependency-error-contract",
+      "planning_step": "detail-ch50-dependency-error-contract",
+      "planned_packet": "50-dependency-error-contract.md",
+      "status": "pending"
+    },
+    {
+      "number": 51,
+      "id": "51-serving-config-admission",
+      "planning_step": "detail-ch51-serving-config-admission",
+      "planned_packet": "51-serving-config-admission.md",
+      "status": "pending"
+    },
+    {
+      "number": 52,
+      "id": "52-accelerator-tensor-parity",
+      "planning_step": "detail-ch52-accelerator-tensor-parity",
+      "planned_packet": "52-accelerator-tensor-parity.md",
+      "status": "pending"
+    },
+    {
+      "number": 53,
+      "id": "53-mixed-precision-training",
+      "planning_step": "detail-ch53-mixed-precision-training",
+      "planned_packet": "53-mixed-precision-training.md",
+      "status": "pending"
+    },
+    {
+      "number": 54,
+      "id": "54-memory-bounded-training",
+      "planning_step": "detail-ch54-memory-bounded-training",
+      "planned_packet": "54-memory-bounded-training.md",
+      "status": "pending"
+    },
+    {
+      "number": 55,
+      "id": "55-optimizer-schedules-clipping",
+      "planning_step": "detail-ch55-optimizer-schedules-clipping",
+      "planned_packet": "55-optimizer-schedules-clipping.md",
+      "status": "pending"
+    },
+    {
+      "number": 56,
+      "id": "56-tensor-artifact-interchange",
+      "planning_step": "detail-ch56-tensor-artifact-interchange",
+      "planned_packet": "56-tensor-artifact-interchange.md",
+      "status": "pending"
+    },
+    {
+      "number": 57,
+      "id": "57-immutable-artifact-persistence",
+      "planning_step": "detail-ch57-immutable-artifact-persistence",
+      "planned_packet": "57-immutable-artifact-persistence.md",
+      "status": "pending"
+    },
+    {
+      "number": 58,
+      "id": "58-exact-job-resume",
+      "planning_step": "detail-ch58-exact-job-resume",
+      "planned_packet": "58-exact-job-resume.md",
+      "status": "pending"
+    },
+    {
+      "number": 59,
+      "id": "59-resource-observability",
+      "planning_step": "detail-ch59-resource-observability",
+      "planned_packet": "59-resource-observability.md",
+      "status": "pending"
+    },
+    {
+      "number": 60,
+      "id": "60-multi-seed-evaluation",
+      "planning_step": "detail-ch60-multi-seed-evaluation",
+      "planned_packet": "60-multi-seed-evaluation.md",
+      "status": "pending"
+    },
+    {
+      "number": 61,
+      "id": "61-quantized-gguf-artifacts",
+      "planning_step": "detail-ch61-quantized-gguf-artifacts",
+      "planned_packet": "61-quantized-gguf-artifacts.md",
+      "status": "pending"
+    },
+    {
+      "number": 62,
+      "id": "62-laptop-hardware-admission",
+      "planning_step": "detail-ch62-laptop-hardware-admission",
+      "planned_packet": "62-laptop-hardware-admission.md",
+      "status": "pending"
+    },
+    {
+      "number": 63,
+      "id": "63-gqa-context-policy",
+      "planning_step": "detail-ch63-gqa-context-policy",
+      "planned_packet": "63-gqa-context-policy.md",
+      "status": "pending"
+    },
+    {
+      "number": 64,
+      "id": "64-online-tiled-attention",
+      "planning_step": "detail-ch64-online-tiled-attention",
+      "planned_packet": "64-online-tiled-attention.md",
+      "status": "pending"
+    },
+    {
+      "number": 65,
+      "id": "65-kv-block-pool",
+      "planning_step": "detail-ch65-kv-block-pool",
+      "planned_packet": "65-kv-block-pool.md",
+      "status": "pending"
+    },
+    {
+      "number": 66,
+      "id": "66-nucleus-penalties-logprobs",
+      "planning_step": "detail-ch66-nucleus-penalties-logprobs",
+      "planned_packet": "66-nucleus-penalties-logprobs.md",
+      "status": "pending"
+    },
+    {
+      "number": 67,
+      "id": "67-stop-strings-unicode-streaming",
+      "planning_step": "detail-ch67-stop-strings-unicode-streaming",
+      "planned_packet": "67-stop-strings-unicode-streaming.md",
+      "status": "pending"
+    },
+    {
+      "number": 68,
+      "id": "68-continuous-batch-scheduling",
+      "planning_step": "detail-ch68-continuous-batch-scheduling",
+      "planned_packet": "68-continuous-batch-scheduling.md",
+      "status": "pending"
+    },
+    {
+      "number": 69,
+      "id": "69-cancellation-backpressure-budgets",
+      "planning_step": "detail-ch69-cancellation-backpressure-budgets",
+      "planned_packet": "69-cancellation-backpressure-budgets.md",
+      "status": "pending"
+    },
+    {
+      "number": 70,
+      "id": "70-loopback-serving-metrics",
+      "planning_step": "detail-ch70-loopback-serving-metrics",
+      "planned_packet": "70-loopback-serving-metrics.md",
+      "status": "pending"
+    },
+    {
+      "number": 71,
+      "id": "71-lora-sft-adapters",
+      "planning_step": "detail-ch71-lora-sft-adapters",
+      "planned_packet": "71-lora-sft-adapters.md",
+      "status": "pending"
+    },
+    {
+      "number": 72,
+      "id": "72-direct-preference-optimization",
+      "planning_step": "detail-ch72-direct-preference-optimization",
+      "planned_packet": "72-direct-preference-optimization.md",
+      "status": "pending"
+    },
+    {
+      "number": 73,
+      "id": "73-qlora-boundary",
+      "planning_step": "detail-ch73-qlora-boundary",
+      "planned_packet": "73-qlora-boundary.md",
+      "status": "pending"
+    },
+    {
+      "number": 74,
+      "id": "74-prefix-cache-reuse",
+      "planning_step": "detail-ch74-prefix-cache-reuse",
+      "planned_packet": "74-prefix-cache-reuse.md",
+      "status": "pending"
+    },
+    {
+      "number": 75,
+      "id": "75-rope-context-scaling",
+      "planning_step": "detail-ch75-rope-context-scaling",
+      "planned_packet": "75-rope-context-scaling.md",
+      "status": "pending"
+    },
+    {
+      "number": 76,
+      "id": "76-retrieval-provenance",
+      "planning_step": "detail-ch76-retrieval-provenance",
+      "planned_packet": "76-retrieval-provenance.md",
+      "status": "pending"
+    },
+    {
+      "number": 77,
+      "id": "77-constrained-json-decoding",
+      "planning_step": "detail-ch77-constrained-json-decoding",
+      "planned_packet": "77-constrained-json-decoding.md",
+      "status": "pending"
+    },
+    {
+      "number": 78,
+      "id": "78-authorized-tools",
+      "planning_step": "detail-ch78-authorized-tools",
+      "planned_packet": "78-authorized-tools.md",
+      "status": "pending"
+    },
+    {
+      "number": 79,
+      "id": "79-safety-privacy-model-card",
+      "planning_step": "detail-ch79-safety-privacy-model-card",
+      "planned_packet": "79-safety-privacy-model-card.md",
+      "status": "pending"
+    },
+    {
+      "number": 80,
+      "id": "80-from-scratch-laptop-capstone",
+      "planning_step": "detail-ch80-from-scratch-laptop-capstone",
+      "planned_packet": "80-from-scratch-laptop-capstone.md",
+      "status": "pending"
+    },
+    {
+      "number": 81,
+      "id": "81-import-adapt-serve-capstone",
+      "planning_step": "detail-ch81-import-adapt-serve-capstone",
+      "planned_packet": "81-import-adapt-serve-capstone.md",
+      "status": "pending"
+    },
+    {
+      "number": 82,
+      "id": "82-advanced-decoding-serving",
+      "planning_step": "detail-ch82-advanced-decoding-serving",
+      "planned_packet": "82-advanced-decoding-serving.md",
+      "status": "pending"
+    },
+    {
+      "number": 83,
+      "id": "83-distributed-schedule-simulation",
+      "planning_step": "detail-ch83-distributed-schedule-simulation",
+      "planned_packet": "83-distributed-schedule-simulation.md",
+      "status": "pending"
+    },
+    {
+      "number": 84,
+      "id": "84-moe-routing-simulation",
+      "planning_step": "detail-ch84-moe-routing-simulation",
+      "planned_packet": "84-moe-routing-simulation.md",
+      "status": "pending"
+    },
+    {
+      "number": 85,
+      "id": "85-persistence-scale-decision",
+      "planning_step": "detail-ch85-persistence-scale-decision",
+      "planned_packet": "85-persistence-scale-decision.md",
+      "status": "pending"
+    }
+  ]
+}

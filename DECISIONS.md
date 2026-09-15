@@ -23937,3 +23937,63 @@ within their original scope.
 **Affected build and step:**
 `extend-course-to-functional-laptop-llm-20260810` and
 `design-functional-laptop-llm-curriculum-extension`.
+
+## 2026-09-15 - Plan each future chapter for a single executor; hold implementation
+
+**Decision:** At the user's request, start a separate text-file planning build for
+Chapters 40–85. Each chapter receives an implementation packet detailed enough for
+one `gpt-6-astra max` executor operating without sub-agents. The first bounded
+checkpoint establishes the common packet contract, inventories all 46 chapters,
+and details Chapter 40. Subsequent packets are individually pending planning
+steps. No repair, course extension implementation, corpus/model acquisition,
+training, calibration, learner-content publication or localization starts here.
+
+**Why:** A subject list leaves interface choices, worked examples, invariants,
+failure handling, evidence limits and verification to be reconstructed during
+execution. These plans must make those choices explicit where evidence permits,
+label proposed interfaces and unmeasured expectations, and provide serial
+preflight/implementation/review/handoff instructions. A plan is not executable
+evidence, a completed chapter or an English publication approval.
+
+**Scheduling:** Put `extend-course-to-functional-laptop-llm-20260810` on a
+user-requested hold (`pending` at build level), preserving all completed runs and
+the existing repair/implementation steps byte-for-byte. Activate only
+`detail-future-chapter-execution-plans-20260915`. Completing any or all detailed
+plans does not lift the hold; a later explicit user request is required before
+repair or implementation. This changes scheduling, not the accepted curriculum,
+capability ownership, resource profiles, predecessor proofs or frozen queue.
+
+**Validation boundary:** The existing functional-plan checker freezes the former
+sole-active-build/no-successor-build lifecycle as well as curriculum invariants.
+It will reject this authorized planning phase under those lifecycle assertions;
+it is not an applicable live-state acceptance gate for the planning documents.
+Do not alter that checker, rewrite its completed design run, or represent an
+old-baseline pass as a pass of the new ledger. Ordinary static-course validation
+and `check-course-plan.mjs` do not invoke that checker and remain applicable.
+Before execution can resume, a separately authorized compatibility run must
+reconcile the execution checker's lifecycle assertions with this preserved
+planning history and revalidate its unchanged curriculum/resource/queue controls.
+That work remains pending, not an implied permission to weaken the checker.
+
+**Review boundary:** The future executor must not spawn agents, manufacture
+independence or self-certify publication. Its packet must name the frozen
+English and Russian review handoffs to separately provisioned fresh contexts.
+When those contexts or valid receipts are unavailable, leave publication staged
+and record the precise gate; do not substitute self-review. This planning run
+does not launch learner-publication reviews or draft translated lessons.
+
+**Scope and cost:** Planning documents, this decision and BUILD_STATE.yaml only.
+Bounded local evidence inspection, read-only lookup of the chapter's frozen
+primary sources, an independent planning-consistency audit, and the already
+available offline validation image are permitted. No dependency installation,
+large computation, paid service or data/model download is an input. The ignored
+host `target/` cache is unchanged. Project-ledger/Event-Sourcing development
+remains abandoned.
+
+**Deferred evidence correction:** Read-only checking of Chapter 40's existing
+`SRC-DTH-EVAL-01` URL, arXiv `2002.06305`, found that its primary title is
+*Fine-Tuning Pretrained Language Models: Weight Initializations, Data Orders,
+and Early Stopping* (Dodge et al., 2020), not the title currently stored in the
+frozen source registry. The detailed packet records the correct linked evidence
+and a mandatory source/binding correction before implementation. That correction
+remains pending; this run does not modify the frozen registry or completed plan.
