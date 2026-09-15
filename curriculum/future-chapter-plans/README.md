@@ -43,9 +43,10 @@ Completed planning checkpoints:
 - [Chapter 46: packed sequence masks](46-packed-sequence-masks.md).
 - [Chapter 47: depth-aware initialization and health](47-depth-stable-decoder.md).
 - [Chapter 48: configurable decoder core](48-configurable-decoder-core.md).
+- [Chapter 49: dropout semantics](49-dropout-semantics.md).
 
-Chapters 49–85 remain separate pending planning steps, beginning with dropout
-and reproducibility. Do not substitute this guide for those individual packets.
+Chapters 50–85 remain separate pending planning steps, beginning with the
+dependency and error contract. Do not substitute this guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
 

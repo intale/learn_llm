@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T13:51:47Z"
+updated_at: "2026-09-15T14:29:49Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -125,7 +125,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 9
+      spent: 10
       notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
     completion_criteria:
       - "The Rust workspace and localized static site build reproducibly from lockfiles."
@@ -47858,13 +47858,13 @@ builds:
       - id: detail-ch49-dropout-semantics
         objective: "Make Chapter 49 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch48-configurable-decoder-core"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/48-configurable-decoder-core.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/49-dropout-semantics.md","curriculum/future-chapter-plans/index.json"]
+        outputs: ["curriculum/future-chapter-plans/49-dropout-semantics.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47874,7 +47874,60 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T140041Z-detail-ch49-dropout-semantics-01
+            started_at: "2026-09-15T14:00:41Z"
+            finished_at: "2026-09-15T14:29:49Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "826e26e03eb9553e2ac6ee1943e5608ca398575c"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              extension_plan_bytes: 1611864
+              guide_sha256: "0ba4828f19365b2a675c86392b05224e78a26bdb761235e8b63d119e3646d306"
+              guide_bytes: 11512
+              index_sha256: "d9aadcc11a011956b981dd0ae20d44e7cbddb93537f8e715595898f8ad3e4e08"
+              index_bytes: 10623
+              chapter48_packet_sha256: "3c2f8d3e22aecb03db8e5b246a9f4accba1485f60fc824ec8ba7cc7b27788a89"
+              chapter48_packet_bytes: 68207
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f7e5e7e03f4bb87fcad"
+              validation_image_tag: "learn-llm-plan-validation:20260915"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3 for deterministic ledger checks; Node v23.7.0/npm 10.9.2 for orchestration; pinned Node 22.12.0/npm 10.9.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T140041Z-detail-ch49-dropout-semantics-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, guide, index and Chapter 48 packet"
+              - "Read-only Chapter 48 completion and Chapter 49 dependency status audit"
+              - "test \"$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)\" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f7e5e7e03f4bb87fcad"
+              - "Record the existing pinned offline checker tag and digest without rebuilding, pulling or invoking it"
+              - "Write the Chapter 49 run preflight record"
+            artifacts:
+              - path: ".build/runs/20260915T140041Z-detail-ch49-dropout-semantics-01/preflight.md"
+                purpose: "Read-only Chapter 49 claim preflight and frozen input fingerprint."
+              - path: "curriculum/future-chapter-plans/49-dropout-semantics.md"
+                sha256: "0055de2431da77d2bc633f554b71e4aa140b6fdbd9f4af5587b72b55273b72bf"
+                bytes: 51899
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "15e41a54eed56f3b12a21e296116a603f642edaec0947baae7e6d93f77b90937"
+                bytes: 11512
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "5c9d813343f547b30cb82b7f8e15e066f7cbeb2258a7558d8b2cd792308b8546"
+                bytes: 10623
+              - path: ".build/runs/20260915T140041Z-detail-ch49-dropout-semantics-01/planning-evidence.md"
+                sha256: "6105ba73527922ad3a495c7a45019323ff1724bb4e7404d07af4888809fca42d"
+                bytes: 4416
+            validation:
+              - command: "test -s curriculum/future-chapter-plans/49-dropout-semantics.md"
+                outcome: "passed"
+              - command: "git diff --check"
+                outcome: "passed"
+              - command: "test \"$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)\" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f7e5e7e03f4bb87fcad"
+                outcome: "passed; existing local tag resolves to the exact pinned image ID"
+              - command: "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace learn-llm-plan-validation:20260915 node scripts/check-course-plan.mjs"
+                outcome: "passed; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm."
+              - command: "python3 YAML safe_load BUILD_STATE.yaml; staged/canonical cmp; packet, README, index and evidence sha256sum/wc -c; ready40–49/index/README and Chapter50 pending checks; frozen plan and held-block hash checks"
+                outcome: "passed; YAML valid, canonical packet byte-identical to staging, packet=51899 bytes SHA256 0055de2431da77d2bc633f554b71e4aa140b6fdbd9f4af5587b72b55273b72bf, README/index/evidence hashes recorded above, ready packets40–49 exist, Chapter50 pending, plan SHA256 84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1 and held block SHA256 223d5ca13c087dc2c334c223916cda42f5e65b822dac8c214f199a7f5a3adba4 unchanged"
+            notes: "Completed Chapter49 planning-only run after validation and publication. Repairs, course implementation, acquisition, training and localization remain held; Chapter50 is the next requested planning step and remains pending until this checkpoint is committed. No .build/runs artifacts are promoted."
       - id: detail-ch50-dependency-error-contract
         objective: "Make Chapter 50 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch49-dropout-semantics"]

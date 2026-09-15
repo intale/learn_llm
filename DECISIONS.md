@@ -24271,3 +24271,49 @@ the same read-only, no-network checker passed through that tag. Chapter48's
 validation records an explicit tag-to-ID precheck and uses that local tag.
 The image content and input fingerprint are unchanged; no pull/build/install
 or mutation of the completed Chapter47 run is involved.
+
+## 2026-09-15 — continue detailed planning through Chapters 49–50
+
+- Context: Chapter 48 is completed and committed; the user authorized the next two planning checkpoints and requested no permission pause between them.
+- Decision: Plan Chapters 49 and 50 sequentially, with one fresh run, validation checkpoint and dedicated commit per chapter. Claim Chapter 50 only after Chapter 49 is completed and committed.
+- Consequences: This continuation authorizes internal packet planning and bounded primary-source inspection only. Repairs, course implementation, acquisition, training, localization and publication remain held; the frozen functional build, held 71-step block and existing validator image remain unchanged.
+- Affected steps: `detail-ch49-dropout-semantics`, `detail-ch50-dependency-error-contract`.
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
+## 2026-09-15 — Chapter 49 optional dropout, counter identity and replay scope
+
+The detailed packet freezes a proposed optional residual-output elementwise
+dropout policy: probability zero by default, one-half CI fixtures, two sites per
+complete block before residual addition, and exact disabled/Eval identity.
+Train/Eval is independent of autograd tracking; identity preserves an existing
+handle rather than detaching it. The mandatory core profile remains dropout-off,
+with no generalization-benefit claim.
+
+The frozen purpose registry assigns dropout ID4 but no exact word mapping.
+The packet proposes versioned random access through the existing SplitMix64
+primitive, with explicit seed/domain key, checked counter reservations, site/
+coordinate traversal and replay tickets. It preserves other streams and the
+original reference RNG behavior. Any accepted prerequisite mapping takes
+precedence after recorded preflight reconciliation. Modular PRNG arithmetic is
+not permission to wrap resource counts, and state isolation is not statistical
+independence. Finite53-bit threshold quantization qualifies the ideal expectation
+statement for off-grid probabilities.
+
+Ten fixed seeded fixtures and three site-recomputation plus three bounded
+training-resume interruption cases specify words, masks, derivatives, state and
+next-draw comparisons. Existing constant Multiply machinery retains the forward
+multiplier; the packet does not introduce a new autodiff operation. A code audit
+distinguished local negative-zero VJP values from the engine's accumulated
+positive-zero gradients and corrected the exact fixture expectations.
+
+Chapter54 still owns the complete activation-checkpoint scheduler and Chapter58
+the complete job artifact/state machine. Local snapshot/replay evidence is not
+a substitute for those capabilities. A verifier that requires unavailable later
+artifacts at Chapter49 must have that lifecycle dependency reconciled before
+implementation acceptance; no receipt is invented or gate weakened.
+
+The English-authoring skill shaped evidence commitments and external independent
+review handoffs. Only this internal packet and shared planning records change.
+Repairs, implementation, acquisition, training, localization and publication
+remain held; Chapter50 is the next requested planning step after this commit.
