@@ -24278,6 +24278,18 @@ or mutation of the completed Chapter47 run is involved.
 - Decision: Plan Chapters 49 and 50 sequentially, with one fresh run, validation checkpoint and dedicated commit per chapter. Claim Chapter 50 only after Chapter 49 is completed and committed.
 - Consequences: This continuation authorizes internal packet planning and bounded primary-source inspection only. Repairs, course implementation, acquisition, training, localization and publication remain held; the frozen functional build, held 71-step block and existing validator image remain unchanged.
 - Affected steps: `detail-ch49-dropout-semantics`, `detail-ch50-dependency-error-contract`.
+
+## 2026-09-15 — Chapter 49 checkpoint length erratum
+
+The original Chapter 49 run `20260915T140041Z-detail-ch49-dropout-semantics-01`
+and commit `da6450d259c0fd1ab234c97ca899a4ff6f51f84d` remain immutable. A fresh
+verification run found stale recorded lengths only: README was recorded as 11512
+but is 11578 bytes; index was recorded as 10623 but is 10630 bytes; and the
+original run's `planning-evidence.md` was recorded as 4416 but is 3406 bytes.
+The SHA-256 values are unchanged and correct. Run
+`20260915T143335Z-verify-ch49-planning-checkpoint-02` records the corrected
+lengths and is the bookkeeping authority for this metadata only; no chapter
+content or held implementation scope changed.
 Failed to create stream fd: Operation not permitted
 Failed to create stream fd: Operation not permitted
 Failed to create stream fd: Operation not permitted

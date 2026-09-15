@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T14:29:49Z"
+updated_at: "2026-09-15T14:37:22Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47928,6 +47928,64 @@ builds:
               - command: "python3 YAML safe_load BUILD_STATE.yaml; staged/canonical cmp; packet, README, index and evidence sha256sum/wc -c; ready40–49/index/README and Chapter50 pending checks; frozen plan and held-block hash checks"
                 outcome: "passed; YAML valid, canonical packet byte-identical to staging, packet=51899 bytes SHA256 0055de2431da77d2bc633f554b71e4aa140b6fdbd9f4af5587b72b55273b72bf, README/index/evidence hashes recorded above, ready packets40–49 exist, Chapter50 pending, plan SHA256 84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1 and held block SHA256 223d5ca13c087dc2c334c223916cda42f5e65b822dac8c214f199a7f5a3adba4 unchanged"
             notes: "Completed Chapter49 planning-only run after validation and publication. Repairs, course implementation, acquisition, training and localization remain held; Chapter50 is the next requested planning step and remains pending until this checkpoint is committed. No .build/runs artifacts are promoted."
+          - run_id: 20260915T143335Z-verify-ch49-planning-checkpoint-02
+            started_at: "2026-09-15T14:33:35Z"
+            finished_at: "2026-09-15T14:37:22Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "da6450d259c0fd1ab234c97ca899a4ff6f51f84d"
+              chapter49_packet_sha256: "0055de2431da77d2bc633f554b71e4aa140b6fdbd9f4af5587b72b55273b72bf"
+              chapter49_packet_bytes: 51899
+              guide_sha256: "15e41a54eed56f3b12a21e296116a603f642edaec0947baae7e6d93f77b90937"
+              guide_bytes: 11578
+              index_sha256: "5c9d813343f547b30cb82b7f8e15e066f7cbeb2258a7558d8b2cd792308b8546"
+              index_bytes: 10630
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f7e5e7e03f4bb87fcad"
+              validation_image_tag: "learn-llm-plan-validation:20260915"
+              held_block_sha256: "223d5ca13c087dc2c334c223916cda42f5e65b822dac8c214f199a7f5a3adba4"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3; existing tagged Node22.12.0/npm10.9.0 offline validation image"
+            staging_dir: ".build/runs/20260915T143335Z-verify-ch49-planning-checkpoint-02/"
+            commands:
+              - "test -s curriculum/future-chapter-plans/49-dropout-semantics.md"
+              - "git diff --check"
+              - "test \"$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)\" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f7e5e7e03f4bb87fcad"
+              - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace learn-llm-plan-validation:20260915 node scripts/check-course-plan.mjs"
+              - "python3 YAML safe_load BUILD_STATE.yaml"
+              - "cmp staged Chapter49 packet with canonical packet"
+              - "deterministic SHA-256 and wc -c comparison for packet, README, index and verification evidence"
+              - "ready40–49/index/README, Chapter50 pending, frozen extension-plan and held-block checks"
+            artifacts:
+              - path: ".build/runs/20260915T143335Z-verify-ch49-planning-checkpoint-02/preflight.md"
+                purpose: "Corrective Chapter 49 artifact-bookkeeping verification preflight."
+              - path: ".build/runs/20260915T143335Z-verify-ch49-planning-checkpoint-02/verification-evidence.md"
+                sha256: "85b0ae321aa8aa4452b64ec601add7e6f1c0b5200d031b7aca2a903dba28e6b2"
+                bytes: 1083
+                purpose: "Exact current artifact-length and hash reconciliation."
+              - path: "curriculum/future-chapter-plans/49-dropout-semantics.md"
+                sha256: "0055de2431da77d2bc633f554b71e4aa140b6fdbd9f4af5587b72b55273b72bf"
+                bytes: 51899
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "15e41a54eed56f3b12a21e296116a603f642edaec0947baae7e6d93f77b90937"
+                bytes: 11578
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "5c9d813343f547b30cb82b7f8e15e066f7cbeb2258a7558d8b2cd792308b8546"
+                bytes: 10630
+              - path: ".build/runs/20260915T140041Z-detail-ch49-dropout-semantics-01/planning-evidence.md"
+                sha256: "6105ba73527922ad3a495c7a45019323ff1724bb4e7404d07af4888809fca42d"
+                bytes: 3406
+            validation:
+              - command: "test -s curriculum/future-chapter-plans/49-dropout-semantics.md"
+                outcome: "passed"
+              - command: "git diff --check"
+                outcome: "passed"
+              - command: "test \"$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)\" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f7e5e7e03f4bb87fcad"
+                outcome: "passed; existing local tag resolves to the exact pinned image ID"
+              - command: "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace learn-llm-plan-validation:20260915 node scripts/check-course-plan.mjs"
+                outcome: "passed; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm."
+              - command: "python3 YAML safe_load BUILD_STATE.yaml; staged/canonical cmp; deterministic exact artifact length+hash comparison; ready40–49/index/README and Chapter50 pending; frozen extension-plan and held-block checks"
+                outcome: "passed; corrected packet=51899, README=11578, index=10630, original planning-evidence=3406; verification evidence=1083; old run and commit preserved"
+            notes: "Corrective Chapter 49 verification completed. The newest run is bookkeeping authority for corrected artifact lengths only; the original completed run, evidence and commit remain preserved. Repairs, course implementation, acquisition, training and localization remain held; Chapter50 remains pending. No .build/runs artifacts are promoted."
       - id: detail-ch50-dependency-error-contract
         objective: "Make Chapter 50 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch49-dropout-semantics"]
