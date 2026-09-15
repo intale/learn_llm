@@ -24329,3 +24329,50 @@ The English-authoring skill shaped evidence commitments and external independent
 review handoffs. Only this internal packet and shared planning records change.
 Repairs, implementation, acquisition, training, localization and publication
 remain held; Chapter50 is the next requested planning step after this commit.
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
+Failed to create stream fd: Operation not permitted
+## 2026-09-15 — Chapter 50 detailed planning checkpoint
+
+The user requested the next two detailed chapter plans without an intervening
+permission pause. This checkpoint completes the second, Chapter 50, after
+Chapter 49's completed planning commit and separate bookkeeping verification.
+Chapter 51 planning remains pending. Repairs, extension implementation,
+acquisition, training, localization and publication remain held; the text-file
+state/decision architecture and frozen functional schedule are unchanged.
+
+The packet freezes a proposed exact context-bound dependency comparison and
+separates structural graph match, source binding and substantive call-site
+role approval. The worked ten-record fixture is synthetic teaching data, not a
+Cargo schema, real package admission or a new project ledger. The existing
+name-only checker and eleven external locked packages are recorded as baseline
+evidence; unimplemented modules and prospective dependencies are labeled.
+
+Fail-loud capability ARCH-002 and dependency-graph capability ARCH-003 keep their
+frozen assignments. Eighteen graph and 52 boundary mutations specify category,
+reason, phase and state effects. Local, inherited and future-integration scopes
+are distinguished; these 70 planned cases do not claim executed coverage.
+Checkpoint checksum/extent precedence follows actual existing code. Typed
+source preservation, safe public diagnostics, fixed snapshot boundaries,
+retained-capacity accounting and committed-result/cancellation distinctions
+avoid stronger rollback claims than the actual boundary can support.
+
+The later full dependency-admission step depends on Chapter 50 and retains its
+own N2 authority. Its future receipt is not made a circular prerequisite or
+fabricated from this chapter's fixtures. The Chapter 50 implementation remains
+C3/G0/N1; stricter profile limits still apply. Package/source acquisition and
+new direct supporting calls remain separately governed.
+
+The two frozen historical sources are Cargo documentation and do not establish
+LLM history. The future history/contract owner must bind an eligible approved
+primary model anchor or record an explicit scope/source amendment before
+content approval. This planning checkpoint does not edit the source inventory
+or waive the historical gate. The packet also preserves null visualization,
+Rust-owned policy examples, and externally provisioned independent English
+reviews/adjudications followed by direct Russian localization and its reviews.
+
+Internal planning audits and deterministic checks establish packet consistency,
+not publication-quality certification or actual capability completion.
+The final checkpoint must compare every recorded artifact length and hash
+programmatically before its dedicated commit. Only the packet, shared planning
+README/index, BUILD_STATE.yaml and this decision entry are canonical outputs.
