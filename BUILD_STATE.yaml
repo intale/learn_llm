@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T12:52:41Z"
+updated_at: "2026-09-15T13:13:58Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 7
+      spent: 8
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -47699,13 +47699,13 @@ builds:
       - id: detail-ch47-depth-stable-decoder
         objective: "Make Chapter 47 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch46-packed-sequence-masks"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
           - "curriculum/future-chapter-plans/46-packed-sequence-masks.md"
           - "Read-only primary-source lookup for the chapter's frozen historical/technical references; no corpus or model acquisition."
-        outputs: ["curriculum/future-chapter-plans/47-depth-stable-decoder.md","curriculum/future-chapter-plans/index.json"]
+        outputs: ["curriculum/future-chapter-plans/47-depth-stable-decoder.md","curriculum/future-chapter-plans/index.json","curriculum/future-chapter-plans/README.md"]
         acceptance:
           - "Packet fixes scope, prerequisites, existing versus proposed interfaces, mathematical/worked evidence, tests, lesson/figure commitments, costs, failure/recovery and serial execution order."
           - "Independent English reviews/adjudications and Russian reviews are external fresh-context handoffs, never executor self-certification."
@@ -47715,7 +47715,62 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260915T125858Z-detail-ch47-depth-stable-decoder-01
+            started_at: "2026-09-15T12:58:58Z"
+            finished_at: "2026-09-15T13:13:58Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "acfac72328cfb7a8ca3d00a5fb8eeec27c60d067"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              extension_plan_bytes: 1611864
+              guide_sha256: "d62121033b7350141fd2318e9ad7e9eab0e6fb753a29da47b3c97a82c558c135"
+              guide_bytes: 11360
+              index_sha256: "6281124b1b57d8932abdb653b75be13ade90393e30e384e0d67df4a522fe8891"
+              index_bytes: 10609
+              chapter46_packet_sha256: "1652a5dceec7decf0af4714a160f39252cf26e43ca54a1f48dae5486a53930ac"
+              chapter46_packet_bytes: 42394
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3 for deterministic ledger checks; Node v23.7.0/npm 10.9.2 for orchestration; pinned Node 22.12.0 only inside the existing offline validation image."
+            staging_dir: ".build/runs/20260915T125858Z-detail-ch47-depth-stable-decoder-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, guide, index and Chapter 46 packet"
+              - "Read-only Chapter 46 completion and Chapter 47 dependency status audit"
+              - "Record the existing pinned offline checker image identity without rebuilding or invoking it"
+              - "Write the Chapter 47 run preflight record"
+              - "Author staged Chapter 47 packet with apply_patch; bounded primary-source, code and independent design checks"
+              - "V8 factor and parameter-census arithmetic; preserve the unmeasured future health boundary"
+              - "Run declared pinned offline checker; verify frozen metadata; publish byte-identical packet and update planning inventory"
+              - "Verify ready links, unchanged frozen plan and held implementation block; git diff --check"
+            artifacts:
+              - path: ".build/runs/20260915T125858Z-detail-ch47-depth-stable-decoder-01/preflight.md"
+                purpose: "Read-only Chapter 47 claim preflight and frozen input fingerprint."
+              - path: ".build/runs/20260915T125858Z-detail-ch47-depth-stable-decoder-01/planning-evidence.md"
+                sha256: "8d710611704db1be68581d5db3ad9735063bd0b2a78716995b8ceaa6dc4aebc0"
+                bytes: 2238
+              - path: "curriculum/future-chapter-plans/47-depth-stable-decoder.md"
+                sha256: "fe857438b773bd9ca384424e00bcfc87debacdc773dcda5e46aa065a48bf47e0"
+                bytes: 42932
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "fbc4b8040240386464dba0b57e0c6050c81366a252c7ba35d9411b830edf11e2"
+                bytes: 11438
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "e4c17183cc33320f338e860ddcfe8e5262c66185bbf2a11712183aca3c5925e7"
+                bytes: 10616
+            validation:
+              - command: "test -s curriculum/future-chapter-plans/47-depth-stable-decoder.md"
+                outcome: "passed; staged/canonical identity verified"
+              - command: "git diff --check"
+                outcome: "passed"
+              - command: "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+                outcome: "passed; 40 chapters, 111 scheduled steps, 40 implemented contracts through Chapter 39"
+              - command: "Deterministic frozen metadata, planning inventory and unchanged-held-block checks"
+                outcome: "passed; 9 prerequisites, 23 outputs, 5 future commands, IDs and profile limits match; ready packets 40–47 exist; original frozen plan and held 71-step implementation block unchanged"
+              - command: "V8 depth-factor and parameter-census arithmetic"
+                outcome: "passed; narrow depths 1/2/8 have 1188/1308/2028 parameters; actual bridge 8304; symbolic laptop 32514560. No actual initialization or health pass inferred."
+            notes: "Planning-only checkpoint: initialization-only scale, exact depth-one compatibility, prefrozen finite-fixture health gates, transactional/read-only evidence and external review handoffs are specified. Unequal-head GQA remains owned by Chapter 63; laptop is plan-only. Repairs and all course improvement/extension execution remain held. Chapter 48 is the next requested planning step."
       - id: detail-ch48-configurable-decoder-core
         objective: "Make Chapter 48 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch47-depth-stable-decoder"]

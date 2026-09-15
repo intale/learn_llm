@@ -41,9 +41,10 @@ Completed planning checkpoints:
 - [Chapter 44: scalable BPE tokenizer](44-scalable-bpe-tokenizer.md).
 - [Chapter 45: padded variable-length batches](45-padded-variable-batches.md).
 - [Chapter 46: packed sequence masks](46-packed-sequence-masks.md).
+- [Chapter 47: depth-aware initialization and health](47-depth-stable-decoder.md).
 
-Chapters 47–85 remain separate pending planning steps, beginning with deeper
-configurable decoder blocks. Do not substitute this guide for those individual packets.
+Chapters 48–85 remain separate pending planning steps, beginning with the
+configurable decoder core. Do not substitute this guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
 

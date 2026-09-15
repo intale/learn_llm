@@ -24198,3 +24198,30 @@ review handoffs for the future single executor; no publication judgment is
 performed here. Chapters 42–46 now have individually validated planning packets
 and dedicated commits. Chapter 47 remains the next pending planning step; the
 original repair queue and all course extension execution remain held.
+
+## 2026-09-15 — Chapter 47 depth policy and evidence boundary
+
+The detailed planning packet chooses one course-local initialization policy:
+scale only fresh attention-output and SwiGLU-down weights by 1/sqrt(L), where L
+counts complete blocks. Depth one bypasses the transform exactly, preserving the
+original scalar parameters, RNG sequence and behavior. Loaded weights are never
+rescaled, and no second runtime residual multiplier is introduced. The existing
+bias-free architecture makes the initialization-time formula applicable without
+an unmentioned bias transform.
+
+Before any future trace, the packet fixes seed 4701, exact narrow/bridge inputs
+and inclusive [0.01,100] residual activation/fully accumulated adjoint ratios.
+These are finite-fixture regression limits, not CAP-derived stability bounds or
+a convergence theorem. Absolute normalizers, nonfinite/degenerate failure modes,
+unrounded comparisons and unchanged failed evidence are mandatory. New narrow
+depth-2/8 fixtures have 1,308/2,028 parameters and fit bridge bounds; they are not
+the separately tested 8,304-parameter canonical bridge model.
+
+Existing code implements equal query/KV heads. The frozen unequal-head GQA owner
+is Chapter 63, not Chapter 47 or 48. Reference/bridge execution can use the equal-
+head special cases; laptop/production values remain plans until the proper
+kernel and execution gates exist. This records the dependency boundary without
+editing the frozen plan or advancing Chapter 63. English-authoring requirements
+shape the evidence/role map and external review handoffs. Only planning records
+change; repairs and course implementation, acquisition, training, localization
+and publication remain held.
