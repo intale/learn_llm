@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T07:13:11Z"
+updated_at: "2026-09-16T07:36:52Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 10
+      spent: 11
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -48166,7 +48166,7 @@ builds:
       - id: detail-ch52-accelerator-tensor-parity
         objective: "Make Chapter 52 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch51-serving-config-admission"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -48182,7 +48182,67 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260916T071553Z-detail-ch52-accelerator-tensor-parity-01
+            started_at: "2026-09-16T07:15:53Z"
+            finished_at: "2026-09-16T07:36:52Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "c758c2c0a6a15bf27340fe29887a06e8b84363fc"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "69ee71007a854f5336a492f962477abe2dc99f4fa50e7585c4b25cf4c2d4d973"
+              index_sha256: "36094d1cfab4cd65942826c337b77a91fec3fca3b1be3059a11f8b26da4dd7b4"
+              chapter51_packet_sha256: "80a6f0d7336ec62be2437ee46b4ffa2f7f46eb1c4d7db43a4bf4dfaa0dc35eed"
+              inputs_json_sha256: "09405d50063c2d81e8ee4893c7dc796be0ac230b3008239b40bba9d1d0f96ae8"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; read-only ledger parser PyYAML 6.0.3; host Node 23.7.0 for orchestration only; Node 22.12.0 inside the existing offline validation image."
+            staging_dir: ".build/runs/20260916T071553Z-detail-ch52-accelerator-tensor-parity-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, planning guide, index and Chapter 51 packet"
+              - "Read-only Chapter 51 completion and Chapter 52 dependency status audit"
+              - "Extract exact Chapter 52 chapter/implementation metadata from the frozen plan and functional BUILD_STATE into inputs.json"
+              - "test \"$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)\" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - "Record the existing pinned offline checker tag and digest without rebuilding or pulling"
+              - "Write the Chapter 52 run preflight record"
+            artifacts:
+              - path: ".build/runs/20260916T071553Z-detail-ch52-accelerator-tensor-parity-01/inputs.json"
+                sha256: "09405d50063c2d81e8ee4893c7dc796be0ac230b3008239b40bba9d1d0f96ae8"
+                bytes: 27579
+                purpose: "Exact frozen Chapter 52 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T071553Z-detail-ch52-accelerator-tensor-parity-01/preflight.md"
+                purpose: "Read-only Chapter 52 claim preflight and frozen input fingerprint."
+              - path: "curriculum/future-chapter-plans/52-accelerator-tensor-parity.md"
+                sha256: "4585fbc113f0218c6ee24d663b1ed12c4dc0ef4006775cb471876c3eb75a3d22"
+                bytes: 52609
+                purpose: "Published byte-identical Chapter 52 planning packet after explicit root release."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "9bf5b36379ef1ff2f50ad1a49adf8ce19c82e2c779eea6512e725f1c028e0908"
+                bytes: 11769
+                purpose: "Published planning guide inventory update for Chapter 52."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "dfe16e19062e72b0f33ac545ea79f684f47785107da06f1cfc5827bc0aea778e"
+                bytes: 10651
+                purpose: "Published Chapter 52 planning-ready index status."
+              - path: "DECISIONS.md"
+                sha256: "461deb08e3cb7958f7930bc559abfb3f34b8b16b90e660a2501354e01df14c98"
+                bytes: 1450286
+                purpose: "Appended exact Chapter 52 planning decision entry."
+            validation:
+              - command: "Exact staged/canonical packet comparison"
+                outcome: "passed; 52609 bytes and SHA-256 4585fbc113f0218c6ee24d663b1ed12c4dc0ef4006775cb471876c3eb75a3d22 match"
+              - command: "Packet UTF-8, final-LF, ordered-section, metadata/count, placeholder and link audit"
+                outcome: "passed; sections 1–10; body 43936 bytes; prerequisites=9, outputs=30, validate=6, profiles=3, sources=2"
+              - command: "Pinned offline course-plan checker with image-ID precheck"
+                outcome: "passed; learn-llm-plan-validation:20260915 image ID sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm"
+              - command: "Published README/index and exact decision-entry suffix checks"
+                outcome: "passed; Chapter 52 planning-ready, README/index paths aligned, DECISIONS suffix byte-identical to staged decision-entry"
+              - command: "git diff --check and held-step audit"
+                outcome: "passed; repair and functional implementation/GPU-boundary steps remain pending; no course implementation paths changed"
+              - command: "Final exact artifact SHA-256 and byte-length reconciliation"
+                outcome: "passed; packet 52609/4585fbc1; README 11769/9bf5b363; index 10651/dfe16e19; DECISIONS 1450286/461deb08"
+            notes: "Claimed after dedicated Chapter 51 commit verification. Root released Chapter 52; exact full packet was published byte-identically and planning records/checker passed. Repairs, implementation, acquisition, training, localization and publication review remain held. Chapter 61 remains unclaimed. No .build/runs artifacts are promoted."
       - id: detail-ch53-mixed-precision-training
         objective: "Make Chapter 53 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch52-accelerator-tensor-parity"]

@@ -24441,3 +24441,39 @@ PagedAttention supplies the model-serving memory-pressure connection. The
 frozen source IDs, six profile modes, artifact-selection hold and scope remain
 unchanged. Only internal planning records change; after this dedicated commit,
 continue Chapter52 planning under the user's51–60 authorization.
+
+## 2026-09-16 — Chapter 52 tensor-backend parity planning boundary
+
+Context: `detail-ch52-accelerator-tensor-parity` follows the completed Chapter 51
+planning checkpoint. The accepted Chapter 52 record selects WGPU Vulkan, owns
+course WGSL primitive paths and preserves scalar/autodiff oracles, while current
+course code is host `f64` and AGENTS.md requires course-owned Rust for taught
+operations. Implementation remains held; this checkpoint is an internal packet.
+
+Decision: Record explicit device/dtype/layout/ownership contracts, a rectangular
+forward-and-backward example, 32 reproducible shape/layout cases, both rounded-
+input kernel and original-input total-error references, pre-frozen bounded
+numeric comparisons, strict backend traps and completion-aware failure cleanup.
+Retain the exact frozen WGPU paths, source pair, outputs, commands and profiles.
+BLAS and CUDA history do not select a backend or authorize hidden math-library
+implementations. Do not infer successful SIMD/BLAS execution from refusal tests.
+
+Before implementation, the policy and GPU-boundary owners must resolve the
+Rust/WGSL taught-implementation conflict, shared wiring/dependency output
+ownership and any required optimized-CPU acceptance. The profile owner must
+provide a legitimate smoke-calibration runner/receipt contract; matrix counts
+cannot be relabeled valid tokens. These are named future gates, not scope changes
+or permission to adopt CUDA, Rust-GPU, a shader translator, new dependencies or
+extra downloads. Propagate the resolved backend contract to Chapters 53 and 54.
+
+Consequences: Planning readiness remains distinct from implementation readiness.
+No implementation/repair hold, resource authority, source registry, kernel,
+locale or course route changes. Future English publication still requires two
+external independent reviews and two further role adjudications before direct
+Russian localization and its reviews/rendered checks. Chapter 52 executes only
+the frozen smoke profile; core/adapter remain planned, with no fabricated device,
+throughput, training or parity result.
+
+Affected steps: `detail-ch52-accelerator-tensor-parity` and future
+`implement-ch52-accelerator-tensor-parity`; downstream prerequisite reconciliation
+for Chapters 53 and 54 does not start or alter those pending implementation steps.

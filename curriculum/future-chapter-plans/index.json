@@ -99,7 +99,7 @@
       "id": "52-accelerator-tensor-parity",
       "planning_step": "detail-ch52-accelerator-tensor-parity",
       "planned_packet": "52-accelerator-tensor-parity.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 53,
