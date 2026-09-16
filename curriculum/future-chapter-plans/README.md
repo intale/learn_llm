@@ -62,8 +62,9 @@ Completed planning checkpoints:
 - [Chapter 65: KV block pool](65-kv-block-pool.md).
 - [Chapter 66: nucleus penalties and logprobs](66-nucleus-penalties-logprobs.md).
 - [Chapter 67: stop strings and Unicode streaming](67-stop-strings-unicode-streaming.md).
+- [Chapter 68: continuous batch scheduling](68-continuous-batch-scheduling.md).
 
-Chapters 63–85 remain separate pending planning steps. Do not substitute this
+Chapters 69–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

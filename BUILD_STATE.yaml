@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T14:02:55Z"
+updated_at: "2026-09-16T14:06:05Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 26
+      spent: 27
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -49585,7 +49585,7 @@ builds:
       - id: detail-ch68-continuous-batch-scheduling
         objective: "Make Chapter 68 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch67-stop-strings-unicode-streaming"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -49601,7 +49601,87 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: "20260916T140439Z-detail-ch68-continuous-batch-scheduling-01"
+            started_at: "2026-09-16T14:04:39Z"
+            status: succeeded
+            finished_at: "2026-09-16T14:24:06Z"
+            input_fingerprint:
+              commit: "346b83c960c0d7a982a02b9091f6cd2dad6ae4ea"
+              implementation_build_id: "extend-course-to-functional-laptop-llm-20260810"
+              implementation_step_id: "implement-ch68-continuous-batch-scheduling"
+              inputs_json: ".build/runs/20260916T140439Z-detail-ch68-continuous-batch-scheduling-01/inputs.json"
+              inputs_json_sha256: "2416c5e06ff0e1290118915268eb12d46354a7e6e866bb97006348857ed723d8"
+              inputs_json_bytes: 22214
+              preflight_sha256: "a115c579a2c1f60de3a0ad01d6d6a2a8b3b9c5e2719ead92bea3ac85f57bc69d"
+              preflight_bytes: 2736
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "78f1247a04df3d5cccc80e6be23d2b5e5da422828014a860a15a3d1d6a3b459e"
+              predecessor_packet_sha256: "268d2f682507a0fa38e554c92b2ee11b41467cacd582688f73741bfea27735ce"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T140439Z-detail-ch68-continuous-batch-scheduling-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only exact implementation-ID/build/predecessor lookup in build extend-course-to-functional-laptop-llm-20260810"
+              - "Extract Chapter 68 planning record and exact implement-ch68-continuous-batch-scheduling metadata into inputs.json"
+              - "Extract authoritative 19-command implementation-plan array and numeric profile literals into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T140439Z-detail-ch68-continuous-batch-scheduling-01/inputs.json"
+                sha256: "2416c5e06ff0e1290118915268eb12d46354a7e6e866bb97006348857ed723d8"
+                bytes: 22214
+                purpose: "Exact frozen Chapter 68 planning and implementation metadata, command array and profile literals extracted before adding this run."
+              - path: ".build/runs/20260916T140439Z-detail-ch68-continuous-batch-scheduling-01/preflight.md"
+                sha256: "a115c579a2c1f60de3a0ad01d6d6a2a8b3b9c5e2719ead92bea3ac85f57bc69d"
+                bytes: 2736
+                purpose: "Read-only Chapter 68 claim preflight with programmatically derived authority counts and pre-claim held-scope snapshot."
+              - path: ".build/runs/20260916T140439Z-detail-ch68-continuous-batch-scheduling-01/68-continuous-batch-scheduling.md"
+                sha256: "188aa538411e171c153c137ae69cb679cd2fa9b8b7d127778b278602f7ac606e"
+                bytes: 47817
+                purpose: "Exact staged Chapter 68 planning packet."
+              - path: ".build/runs/20260916T140439Z-detail-ch68-continuous-batch-scheduling-01/planning-evidence.md"
+                sha256: "64b5b53dce5dee45e02e28419f18dbf77c49214d9b20afc716d5ddfc581554b6"
+                bytes: 2917
+                purpose: "Chapter 68 planning evidence handoff."
+              - path: ".build/runs/20260916T140439Z-detail-ch68-continuous-batch-scheduling-01/decision-entry.md"
+                sha256: "0858ad217bf3f43c15ebdb9a313b89c9981e635a42556e2bbf54ab1d8e90b5e2"
+                bytes: 2762
+                purpose: "Chapter 68 decision-entry source for durable DECISIONS.md append."
+              - path: "curriculum/future-chapter-plans/68-continuous-batch-scheduling.md"
+                sha256: "188aa538411e171c153c137ae69cb679cd2fa9b8b7d127778b278602f7ac606e"
+                bytes: 47817
+                purpose: "Published exact Chapter 68 planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "848442dc99ce7f3bfbb13ddd4e19e8d964d3ff07878213c44ac6c21f0b81b447"
+                bytes: 12953
+                purpose: "Published future-chapter planning navigation updated for Chapter 68."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "11830dd75113de6f5d7967b788a4e2c039c6912d23552bd97af0130a3ed60943"
+                bytes: 10763
+                purpose: "Published future-chapter inventory with Chapter 68 planning-ready status."
+              - path: "DECISIONS.md"
+                sha256: "43eec7b4e35c48ee8d7eb562653a5509c5ca1779f1c814207800ff2379e3fd0c"
+                bytes: 1488950
+                purpose: "Durable Chapter 68 continuous-batch scheduling decision entry."
+            validation:
+              - command: "Exact implementation-ID/build/predecessor lookup and metadata reconciliation"
+                outcome: "passed; implementation_state_step.id=implement-ch68-continuous-batch-scheduling from build extend-course-to-functional-laptop-llm-20260810; dependency implement-ch67-stop-strings-unicode-streaming asserted"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 22214/2416c5e0; preflight.md 2736/a115c579"
+              - command: "Programmatic metadata count reconciliation"
+                outcome: "passed; 9 prerequisites, 25 implementation outputs, 6 BUILD_STATE implementation validation commands, 3 planning-step validation commands, 19 frozen implementation-plan commands, 3 profiles, 2 historical sources, 3 capabilities, 0 claims, 2 findings"
+              - command: "Exact stage-to-canonical packet comparison and released-hash assertion"
+                outcome: "passed; Chapter 68 packet 47817/188aa538; canonical bytes matched released stage before completion"
+              - command: "Metadata, section, source, profile, prerequisite/output/command, link and hold audit"
+                outcome: "passed; 10 sections, 9 prerequisites, 25 outputs, 6 implementation commands, 19 frozen implementation-plan commands, 3 profiles, 2 historical sources, 3 capabilities, 0 claims and findings F10/P05; frozen plan and 71-step execution hold unchanged"
+              - command: "Pinned offline course-plan checker"
+                outcome: "passed; pinned image sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
+                outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed"
+            notes: "Claimed only after Chapter 67 dedicated commit 346b83c verification. Planning metadata snapshot was captured before adding this run; exact implementation build, step and predecessor identity asserted. Published only after root released exact packet 47817/188aa538. Budget incremented from actual 26 to 27 once. No prior run was modified; Chapter 69 and Chapter 71 remain unclaimed."
       - id: detail-ch69-cancellation-backpressure-budgets
         objective: "Make Chapter 69 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch68-continuous-batch-scheduling"]

@@ -25038,3 +25038,45 @@ not a silently implemented server.
 Keep smoke-only execution, blocked adapter selection, exact-tuple admission,
 backend/Rust-only policy and inherited calibration accounting gates. Planning
 quality does not establish a physical measurement or publication approval.
+## Chapter 68 detailed planning: continuous request batches
+
+Prepare only the claimed Chapter 68 packet and companion notes. Preserve the
+exact Chapter 67 implementation predecessor, SRV-001/002/003 bindings, empty
+claims, shared partial F10/P05 scope, 25 outputs, six outer commands, 19 plan
+commands and three profile modes. Implementation, repairs, acquisition and formal
+publication judgments remain held.
+
+Propose deterministic iteration-boundary placement from a bounded arrival queue,
+whole prefill and one pending decode token per eligible request, followed by
+same-iteration quiescent terminal removal. Keep one mutable state owner per
+request. Row-map RNG fields are immutable request/epoch references, never cloned
+generators per prefill row. Sample only the final valid prefill row or completed
+decode row; padding and intermediate prefill rows consume no sampling RNG.
+
+The V=16 scripted fixture uses the real stochastic sampler to establish lifecycle
+and exact draws, but cannot establish model batch equivalence. Require a separately
+accepted real decoder, genuine compatible-operation batching, all required layout
+comparisons and the explicit 1,000-trace construction. Freeze identities, schedule
+policy, numerical rules and perturbations before results; retain failures rather
+than replacing seeds. Small logit tolerance cannot excuse changed legal support,
+tokens, terminal outcome, RNG or cache length.
+
+Propose a shared compute phase using Chapter 65 reservations/private uncommitted
+tails and synchronized validation before logical cache commit, followed by each
+request's accepted sampler/byte commit phases. Roll back only after leases permit
+safe retirement; no in-flight reuse or physical zeroing promise. Local validation
+errors are isolated before allocation; unattributable device faults are explicitly
+batch/context failures, not guaranteed per-request recovery. Exactly one terminal
+record is internal accounting, not exactly-once network delivery.
+
+Consume one KV pool and upstream resource reservation. Declare shared batch-forward,
+module/trace and backend ownership before implementation. Chapter 69 retains
+resource-admission policy, cancellation and backpressure; optional chunked prefill,
+fairness and starvation guarantees are not silently promoted. Resident arena bytes
+remain charged after assigned blocks drain.
+
+Training microbatch one is neither authorization nor prohibition for active-four
+inference. Exact inference shapes/backend/pool/workspace require owner admission,
+complete estimates and inherited calibration-accounting reconciliation. Smoke's
+2 GiB allocator cap overrides larger estimates; core's 64 MiB KV component is not
+borrowable. Core/blocked adapter consumption bindings authorize no new execution.
