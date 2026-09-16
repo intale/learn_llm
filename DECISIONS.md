@@ -24831,3 +24831,40 @@ Chapter 71 remains outside the requested batch.
 
 Affected planning step: `detail-ch61-quantized-gguf-artifacts` only. The author
 stages three files; ops owns validation, canonical publication, state and commit.
+
+## 2026-09-16 — Detail exact laptop admission without performing it
+
+Context: Chapter62 is the next internal packet in the authorized61–70 batch.
+An initial bounded extraction mistakenly selected the planning step rather than
+the exact implementation record. The author caught this before writing; ops
+preserved .01 as failed and claimed fresh .02. Its ancillary prospective
+self-hash placeholders are not evidence identities; the separate exact held
+implementation record and externally verified hashes remain authoritative.
+
+Decision: keep seven frozen profile roles, with only core executing definitive
+calibration. Synthetic byte/window fixtures demonstrate the validator only.
+Keep component ceilings nonborrowable and distinguish course allocations from
+device-wide free memory consumed by other processes or the driver. Propose an
+explicit nearest-rank p10 rule for ten windows, to freeze before outcomes; it is
+not a previously accepted estimator or statistical confidence claim.
+
+Propose a version-compatible, nonempty unique PCI join between WGPU/Vulkan and
+NVML, preserving UUID/raw observations. Live successor NVML documentation and
+WGPU30.0.1 API evidence support investigation, not dependency adoption or frozen
+source-ID repair. Missing mandatory identity/free-memory evidence refuses;
+optional energy/power unavailability does not substitute for those requirements.
+The frozen hyphenated `nvml-name` is compared through a proposed pre-frozen
+ASCII-space normalization rule while retaining the raw runtime name; spelling
+and case are otherwise unchanged. It is never the sole physical identity proof.
+
+Bind definitive admission to the exact P/C/model/backend/kernel/code/precision
+and workload tuple. Future GQA/attention/kernel changes invalidate that binding
+and require explicit recalibration through the same boundary. If the exact core
+cannot run with accepted predecessors, stop for lifecycle reconciliation; do not
+implement future chapters early or promote smaller/provisional smoke evidence.
+Preserve Chapter59's unresolved measurement-budget accounting and all held
+backend, dependency, interchange and repair gates.
+
+Only the three staged planning files are authored here. Ops owns internal
+validation, publication, state and commit. No physical probe, implementation,
+acquisition, training or localization is authorized; Chapter71 remains unclaimed.

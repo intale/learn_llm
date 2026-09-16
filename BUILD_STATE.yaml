@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T11:12:49Z"
+updated_at: "2026-09-16T11:42:37Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 20
+      spent: 21
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -48967,7 +48967,7 @@ builds:
       - id: detail-ch62-laptop-hardware-admission
         objective: "Make Chapter 62 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch61-quantized-gguf-artifacts"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -48983,7 +48983,111 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: "20260916T111606Z-detail-ch62-laptop-hardware-admission-01"
+            started_at: "2026-09-16T11:16:06Z"
+            finished_at: "2026-09-16T11:21:40Z"
+            status: failed
+            input_fingerprint:
+              commit: "e448a1a71fa430389a924387029577b0a8d48163"
+              inputs_json: ".build/runs/20260916T111606Z-detail-ch62-laptop-hardware-admission-01/inputs.json"
+              inputs_json_sha256: "034921b97d5179b1353687b9726db40c7cc6594c15de0c0ca57ca7320e39f24f"
+              inputs_json_bytes: 27075
+              preflight_sha256: "4b82fce55484788784f5b6e5afc1c660906e24a1388b3801afbe7e938d3835c3"
+              preflight_bytes: 2105
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "ea3ecd15f804fa45494037aecdc289b9c42e41cde75bf1fdc0a07490a63729ae"
+              predecessor_packet_sha256: "7940c3caec3ed900bde41c090fd97cb84be9645b55043a28109e5c4d239206b2"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T111606Z-detail-ch62-laptop-hardware-admission-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only Chapter 61 completion and Chapter 62 dependency/status audit"
+              - "Extract exact Chapter 62 chapter/implementation metadata, capabilities, sources and profiles into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T111606Z-detail-ch62-laptop-hardware-admission-01/inputs.json"
+                sha256: "034921b97d5179b1353687b9726db40c7cc6594c15de0c0ca57ca7320e39f24f"
+                bytes: 27075
+                purpose: "Exact frozen Chapter 62 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T111606Z-detail-ch62-laptop-hardware-admission-01/preflight.md"
+                sha256: "4b82fce55484788784f5b6e5afc1c660906e24a1388b3801afbe7e938d3835c3"
+                bytes: 2105
+                purpose: "Read-only Chapter 62 claim preflight and frozen input fingerprint."
+            validation:
+              - command: "Read-only frozen chapter/implementation metadata, capabilities, source IDs, profiles, outputs, acceptance, validation commands and holds"
+                outcome: "passed; Chapter 62 exact metadata extracted; implementation, repairs, acquisition, training and localization remain held"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 27075/034921b9; preflight.md 2105/4b82fce5"
+            notes: "Failed during input-validation: the extracted implementation_state_step was the detail-ch62 planning record (2 outputs/3 planning validation commands), not the exact frozen implement-ch62-laptop-hardware-admission record in build extend-course-to-functional-laptop-llm-20260810. Preserved as failed evidence; no canonical Chapter 62 files changed and no prior run was modified."
+          - run_id: "20260916T112210Z-detail-ch62-laptop-hardware-admission-02"
+            started_at: "2026-09-16T11:22:10Z"
+            finished_at: "2026-09-16T11:42:37Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "e448a1a71fa430389a924387029577b0a8d48163"
+              implementation_build_id: "extend-course-to-functional-laptop-llm-20260810"
+              implementation_step_id: "implement-ch62-laptop-hardware-admission"
+              inputs_json: ".build/runs/20260916T112210Z-detail-ch62-laptop-hardware-admission-02/inputs.json"
+              inputs_json_sha256: "614d7d034cec37f11851e5f39fff84dd7a7407ea06cd53a0a3bcf4e461ec4df0"
+              inputs_json_bytes: 41985
+              preflight_sha256: "a02d2e32888cc0917ed5299a059096baaed982c231d4f7d246013ab7a1ecd8f5"
+              preflight_bytes: 1742
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "ea3ecd15f804fa45494037aecdc289b9c42e41cde75bf1fdc0a07490a63729ae"
+              predecessor_packet_sha256: "7940c3caec3ed900bde41c090fd97cb84be9645b55043a28109e5c4d239206b2"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T112210Z-detail-ch62-laptop-hardware-admission-02/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only exact implementation record lookup in build extend-course-to-functional-laptop-llm-20260810"
+              - "Extract Chapter 62 chapter record and exact implement-ch62-laptop-hardware-admission metadata into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create corrected claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T112210Z-detail-ch62-laptop-hardware-admission-02/inputs.json"
+                sha256: "614d7d034cec37f11851e5f39fff84dd7a7407ea06cd53a0a3bcf4e461ec4df0"
+                bytes: 41985
+                purpose: "Exact frozen Chapter 62 chapter and implementation metadata, bound to implement-ch62-laptop-hardware-admission in its implementation build."
+              - path: ".build/runs/20260916T112210Z-detail-ch62-laptop-hardware-admission-02/preflight.md"
+                sha256: "a02d2e32888cc0917ed5299a059096baaed982c231d4f7d246013ab7a1ecd8f5"
+                bytes: 1742
+                purpose: "Corrected read-only Chapter 62 claim preflight and frozen input fingerprint."
+              - path: "curriculum/future-chapter-plans/62-laptop-hardware-admission.md"
+                sha256: "e7c8e77845d89eb6de996abea429f51941a67a96d1afc4f14a1701945099f1ff"
+                bytes: 35453
+                purpose: "Published exact Chapter 62 planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "1415618702d81b8c4875d6bf1c696a9f63957b877566b4e090c083f6eeb74cf7"
+                bytes: 12513
+                purpose: "Published future-chapter planning navigation updated for Chapter 62."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "04de30fbbf79eaf96a0719790dee7187470ea96a4215e96df6b27ba402a57478"
+                bytes: 10721
+                purpose: "Published future-chapter inventory with Chapter 62 planning-ready status."
+              - path: "DECISIONS.md"
+                sha256: "c2c6724daac53e4a76a2bf9cf6398e844afe95d2b098ba01573084b675bb4ed6"
+                bytes: 1475410
+                purpose: "Durable Chapter 62 planning decision and corrected extraction rationale."
+            validation:
+              - command: "Exact implementation-ID/build lookup and metadata reconciliation"
+                outcome: "passed; implementation_state_step.id=implement-ch62-laptop-hardware-admission from build extend-course-to-functional-laptop-llm-20260810; planning step remains separate"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 41985/614d7d03; preflight.md 1742/a02d2e32"
+              - command: "Exact stage-to-canonical packet comparison and released-hash assertion"
+                outcome: "passed; Chapter 62 packet 35453/e7c8e778; canonical bytes match released stage before checkpoint"
+              - command: "Metadata, section, source, profile, prerequisite/output/command, link and hold audit"
+                outcome: "passed; 10 sections, 9 prerequisites, 26 outputs, 6 implementation commands, 7 profiles, 2 historical sources; frozen plan and 71-step execution hold unchanged"
+              - command: "Pinned offline course-plan checker"
+                outcome: "passed; pinned image sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contracts through 39-end-to-end-llm"
+              - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
+                outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed"
+            notes: "Fresh corrected claim after preserving run 20260916T111606Z...01 as failed input-validation evidence. Exact implementation build and step identity asserted. Published only after root released exact packet 35453/e7c8e778. The nested planning_step_record snapshot in inputs.json retains prospective self-reference placeholders from the failed ledger projection and is nonauthoritative; top-level .02 fingerprints and this run's artifacts are the actual validated records. Budget incremented from actual 20 to 21 once. No prior run was modified; Chapter 71 remains unclaimed."
       - id: detail-ch63-gqa-context-policy
         objective: "Make Chapter 63 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch62-laptop-hardware-admission"]
