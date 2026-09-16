@@ -24868,3 +24868,32 @@ backend, dependency, interchange and repair gates.
 Only the three staged planning files are authored here. Ops owns internal
 validation, publication, state and commit. No physical probe, implementation,
 acquisition, training or localization is authorized; Chapter71 remains unclaimed.
+## 2026-09-16 — Detail GQA and context semantics without executing them
+
+Context: Chapter 63 is the next planning packet. Exact frozen implementation
+depends on freeze-functional-from-scratch-experiment, not simply Chapter 62.
+An ancillary preflight sentence was preserved and corrected in a separate
+hash-bound note; the valid inputs/frozen records were not changed.
+
+Decision: use one decoder with explicit query-to-KV mapping, compact ownership,
+summed shared gradients and full/sliding causal segment masks. The duplicated-MHA
+construction is a bounded test oracle, not the runtime cache or a claim that
+arbitrary MHA checkpoints can be converted without changing their semantics.
+
+Propose separate diagnostic contexts: a capacity-four aligned-byte comparison;
+and width-two sliding retention with absolute-position limit 8 and prompt cap 4. Absolute
+RoPE positions continue through eviction. A prompt longer than W but within its
+own admitted caps is processed fully, not silently truncated. Full-sequence
+execution under the same per-layer sliding mask is the cached parity oracle;
+recomputing only the cropped suffix need not preserve multi-layer hidden states.
+
+Preserve all-layer transactional cache updates; stage/journal eviction and charge
+its memory before an atomic commit. Cache-window/code/attention changes bind new
+identities and invalidate incompatible Chapter 62 admission. Page pools and
+tiled attention remain later work. Proposals must reconcile with existing shared
+owners before implementation; no new competing config or artifact format.
+
+Only planning files are staged. Long sensitivity/core jobs are consumed settings,
+not executed by this chapter; smoke is the sole future executed profile. Held
+backend, experiment, probe, dependency and repair gates remain. No implementation,
+acquisition, training, localization or Chapter 71 work is authorized.
