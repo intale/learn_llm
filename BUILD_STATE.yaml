@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T10:20:26Z"
+updated_at: "2026-09-16T11:12:49Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 19
+      spent: 20
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -48886,7 +48886,7 @@ builds:
       - id: detail-ch61-quantized-gguf-artifacts
         objective: "Make Chapter 61 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch60-multi-seed-evaluation"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -48902,7 +48902,68 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: "20260916T104932Z-detail-ch61-quantized-gguf-artifacts-01"
+            started_at: "2026-09-16T10:49:32Z"
+            finished_at: "2026-09-16T11:12:49Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "fa7a6f47329673cf718e79f2ab7283869ee09bd7"
+              inputs_json: ".build/runs/20260916T104932Z-detail-ch61-quantized-gguf-artifacts-01/inputs.json"
+              inputs_json_sha256: "d497e2a403a952046d23886712c8c28569ec338bd711b1b1b2b16312ab2055e1"
+              inputs_json_bytes: 30725
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "ea3ecd15f804fa45494037aecdc289b9c42e41cde75bf1fdc0a07490a63729ae"
+              predecessor_packet_sha256: "e97e9b3cfcce94949eb282f74e18d896b8a45b97faf6d421fd47f9d28e9390d0"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T104932Z-detail-ch61-quantized-gguf-artifacts-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only Chapter 60 completion and Chapter 61 dependency/status audit"
+              - "Extract exact Chapter 61 chapter/implementation metadata, capabilities, sources and profiles into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T104932Z-detail-ch61-quantized-gguf-artifacts-01/inputs.json"
+                sha256: "d497e2a403a952046d23886712c8c28569ec338bd711b1b1b2b16312ab2055e1"
+                bytes: 30725
+                purpose: "Exact frozen Chapter 61 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T104932Z-detail-ch61-quantized-gguf-artifacts-01/preflight.md"
+                sha256: "a38229b314006a1f25d032f91ad07b2c45ee3cf073b5dc93f008dfc07379407b"
+                bytes: 2800
+                purpose: "Read-only Chapter 61 claim preflight and frozen input fingerprint."
+              - path: "curriculum/future-chapter-plans/61-quantized-gguf-artifacts.md"
+                sha256: "7940c3caec3ed900bde41c090fd97cb84be9645b55043a28109e5c4d239206b2"
+                bytes: 48097
+                purpose: "Published exact Chapter 61 planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "b49ac687c999be168ad91c6f76ca548d16ef796da309597eb5770c64900bdbb6"
+                bytes: 12437
+                purpose: "Published future-chapter planning navigation updated for Chapter 61."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "b7ffba004deef292baa7902fecd0ddeedfe31dc14998ef24bc21fd46c9a5a1e9"
+                bytes: 10714
+                purpose: "Published future-chapter inventory with Chapter 61 planning-ready status."
+              - path: "DECISIONS.md"
+                sha256: "da2c671f84632967b9ba3e19bad7b6b36ce22f7688aa5b709e40c46ca55880b0"
+                bytes: 1473027
+                purpose: "Durable Chapter 61 planning decision and held-scope rationale."
+            validation:
+              - command: "Read-only frozen chapter/implementation metadata, capabilities, source IDs, profiles, outputs, acceptance, validation commands and holds"
+                outcome: "passed; Chapter 61 exact metadata extracted; implementation, repairs, acquisition, training and localization remain held"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 30725/d497e2a4; preflight.md 2800/a38229b3"
+              - command: "Exact stage-to-canonical packet comparison and released-hash assertion"
+                outcome: "passed; Chapter 61 packet 48097/7940c3ca; canonical bytes match released stage before checkpoint"
+              - command: "Metadata, section, source, profile, prerequisite/output/command, link and hold audit"
+                outcome: "passed; 10 sections, 9 prerequisites, 30 outputs, 8 outer commands, 2 profiles, 2 canonical-relative links; frozen plan and 71-step execution hold unchanged"
+              - command: "Pinned offline course-plan checker"
+                outcome: "passed; pinned image sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contracts through 39-end-to-end-llm"
+              - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
+                outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed"
+            notes: "Claimed after Chapter 60 dedicated commit fa7a6f4 verification. Published only after root released exact packet 48097/7940c3ca. Budget incremented from actual 19 to 20 once. No prior run was modified; Chapter 71 remains unclaimed."
       - id: detail-ch62-laptop-hardware-admission
         objective: "Make Chapter 62 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch61-quantized-gguf-artifacts"]

@@ -55,8 +55,9 @@ Completed planning checkpoints:
 - [Chapter 58: exact job resume](58-exact-job-resume.md).
 - [Chapter 59: resource observability](59-resource-observability.md).
 - [Chapter 60: multi-seed evaluation](60-multi-seed-evaluation.md).
+- [Chapter 61: quantized GGUF artifacts](61-quantized-gguf-artifacts.md).
 
-Chapters 61–85 remain separate pending planning steps. Do not substitute this
+Chapters 62–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

@@ -24788,3 +24788,46 @@ and URL; registry correction stays separately held. Smoke-only implementation
 does not execute later sensitivity/core budgets or authorize acquisition. No
 Chapter61 work, broad competence, production, universal privacy or SOTA claim
 is introduced.
+
+## 2026-09-16 — Detail Chapter 61 without releasing implementation
+
+Context: the user requested detailed internal plans for Chapters 61–70 only.
+The frozen Chapter 61 lifecycle includes selected-base quantized interchange,
+but its implementation step explicitly delivers tiny course fixtures and
+provisional device smoke without claiming selected-base integration.
+
+Decision: preserve that boundary and exact metadata. The packet separates
+signed mathematical levels from storage codes, a proposed adjacent-nibble
+FP32-scale diagnostic from any named GGML ABI, structural container parsing
+from semantic model admission, and quantized-kernel parity from float-to-quantized
+quality. A finite-candidate calibration toy chooses clip3.5 and fails its
+predeclared held-out bound; it may not be rescued by post-test policy selection.
+
+Propose a separately identified D32/F64/L2/H4/V266/C16 synthetic census rather
+than changing Chapter 56's D16/F20 bridge or silently padding rows. A Q4_0 wire
+target is conditional on immutable codec source, exact stored-scale/layout
+proof and shared QUANT-01 representation identity. Independent fixture producer,
+actual calibration/quality policy, dependency graph and module integration must
+be frozen before implementation. Existing single-file ownership descriptions
+must reconcile with the frozen split modules without creating parallel owners.
+
+Declare official same-repository `src/ggml-common.h` and `src/ggml-quants.c` as
+separate technical source inputs requiring permitted acquisition, revision,
+license and hashes before implementation, not a third fallback historical
+citation. The distinct-half decoder fixture prevents adjacent-nibble packing
+from passing accidentally. Proposed positive-normal FP16 encoder scales reuse
+the accepted Chapter 52/53 conversion boundary; a narrow encoder subset does
+not redefine the broader Q4_0 wire decoder or upstream quantization heuristic.
+
+Consequences: use Chapter 56 dense interchange, Chapter 57 publication/lineage,
+Chapter 59 accounting and Chapter 60 versioned scoring/pre-results policies.
+Optional energy unavailability does not fail an otherwise valid run; required
+quality, bytes, synchronized latency and allocator evidence still gates it.
+Carry inherited source/backend/probe/llama2.c conflicts without repairs. The
+eight outer commands and 18 runner-internal commands remain distinct inventories.
+No implementation, acquisition, training, localization or repair is authorized;
+selected-base evidence belongs to later selection/acquisition and adapter steps.
+Chapter 71 remains outside the requested batch.
+
+Affected planning step: `detail-ch61-quantized-gguf-artifacts` only. The author
+stages three files; ops owns validation, canonical publication, state and commit.

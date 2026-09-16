@@ -162,7 +162,7 @@
       "id": "61-quantized-gguf-artifacts",
       "planning_step": "detail-ch61-quantized-gguf-artifacts",
       "planned_packet": "61-quantized-gguf-artifacts.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 62,
