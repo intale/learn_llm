@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 28
+      spent: 29
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -49785,7 +49785,7 @@ builds:
       - id: detail-ch70-loopback-serving-metrics
         objective: "Make Chapter 70 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch69-cancellation-backpressure-budgets"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -49801,7 +49801,87 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: "20260916T145144Z-detail-ch70-loopback-serving-metrics-01"
+            started_at: "2026-09-16T14:51:44Z"
+            status: succeeded
+            finished_at: "2026-09-16T15:20:22Z"
+            input_fingerprint:
+              commit: "c28161a64fa9ae18e9dc12959ec373485c9a274d"
+              implementation_build_id: "extend-course-to-functional-laptop-llm-20260810"
+              implementation_step_id: "implement-ch70-loopback-serving-metrics"
+              inputs_json: ".build/runs/20260916T145144Z-detail-ch70-loopback-serving-metrics-01/inputs.json"
+              inputs_json_sha256: "4020dcbe3e2fa8c77917c92d002f093cc07768dcdc8ee17b4b0218fdc9da523b"
+              inputs_json_bytes: 22324
+              preflight_sha256: "e2b645c509ecb88f8cf61236d8ffefc26399bd5c2171caaadcf4ad988b971191"
+              preflight_bytes: 3005
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "fa4d87e19187d785eb8dece759a5d6602bee1e2c0c8855e5f7dec3a8147cea01"
+              predecessor_packet_sha256: "0b5b2970d543a4094a1c2bd44f94ac6c56a0d21ab2104f37d2cecfc9e731d401"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T145144Z-detail-ch70-loopback-serving-metrics-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only exact implementation record lookup in build extend-course-to-functional-laptop-llm-20260810"
+              - "Extract Chapter 70 chapter record and exact implement-ch70-loopback-serving-metrics metadata into inputs.json"
+              - "Extract authoritative 19-command implementation-plan array and numeric profile literals into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T145144Z-detail-ch70-loopback-serving-metrics-01/inputs.json"
+                sha256: "4020dcbe3e2fa8c77917c92d002f093cc07768dcdc8ee17b4b0218fdc9da523b"
+                bytes: 22324
+                purpose: "Exact frozen Chapter 70 planning and implementation metadata, command array and profile literals extracted before adding this run."
+              - path: ".build/runs/20260916T145144Z-detail-ch70-loopback-serving-metrics-01/preflight.md"
+                sha256: "e2b645c509ecb88f8cf61236d8ffefc26399bd5c2171caaadcf4ad988b971191"
+                bytes: 3005
+                purpose: "Read-only Chapter 70 claim preflight with programmatically derived authority counts and pre-claim held-scope snapshot."
+              - path: ".build/runs/20260916T145144Z-detail-ch70-loopback-serving-metrics-01/70-loopback-serving-metrics.md"
+                sha256: "63f779ac2fe267f1dd0aaa466502e44f3ac6a754c24af13119a5aacbe700fd2b"
+                bytes: 58657
+                purpose: "Exact staged Chapter 70 planning packet."
+              - path: ".build/runs/20260916T145144Z-detail-ch70-loopback-serving-metrics-01/planning-evidence.md"
+                sha256: "b5caf4ff09d4621307ebc95be4281ae8f8e81cb10ad6df68ac19bd85178ef962"
+                bytes: 2917
+                purpose: "Chapter 70 planning evidence handoff."
+              - path: ".build/runs/20260916T145144Z-detail-ch70-loopback-serving-metrics-01/decision-entry.md"
+                sha256: "1e6a757c139ba20216781735c8f151b38ae551408ccb9c9a02ebb835f863658e"
+                bytes: 2951
+                purpose: "Chapter 70 decision-entry source for durable DECISIONS.md append."
+              - path: "curriculum/future-chapter-plans/70-loopback-serving-metrics.md"
+                sha256: "63f779ac2fe267f1dd0aaa466502e44f3ac6a754c24af13119a5aacbe700fd2b"
+                bytes: 58657
+                purpose: "Published exact Chapter 70 planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "e4a722596feef5c13b36c8a7515ae622988197cc9e61ec00fa6d3854d74f6b31"
+                bytes: 13129
+                purpose: "Published future-chapter planning navigation updated for Chapter 70."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "e8c5a955c0c5d96f10bb58e04756814ac12c88ee188519ac6c082d221865bbf0"
+                bytes: 10777
+                purpose: "Published future-chapter inventory with Chapter 70 planning-ready status."
+              - path: "DECISIONS.md"
+                sha256: "126ebc73ba0374fa5d66f9551da6dd089058ae5833c024c451660b8bc3700090"
+                bytes: 1494667
+                purpose: "Durable Chapter 70 loopback-serving metrics decision entry."
+            validation:
+              - command: "Exact implementation-ID/build/predecessor lookup and metadata reconciliation"
+                outcome: "passed; implementation_state_step.id=implement-ch70-loopback-serving-metrics from build extend-course-to-functional-laptop-llm-20260810; dependency implement-ch69-cancellation-backpressure-budgets asserted"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 22324/4020dcbe; preflight.md 3005/e2b645c5"
+              - command: "Programmatic metadata count reconciliation"
+                outcome: "passed; 9 prerequisites, 27 implementation outputs, 6 BUILD_STATE implementation validation commands, 3 planning-step validation commands, 19 frozen implementation-plan commands, 3 profiles, 2 historical sources, 3 capabilities, 0 claims, 0 findings"
+              - command: "Exact stage-to-canonical packet comparison and released-hash assertion"
+                outcome: "passed; Chapter 70 packet 58657/63f779ac; canonical bytes matched released stage before completion"
+              - command: "Metadata, section, source, profile, prerequisite/output/command, link and hold audit"
+                outcome: "passed; 10 sections, 9 prerequisites, 27 outputs, 6 implementation commands, 19 frozen implementation-plan commands, 3 profiles, 2 historical sources, 3 capabilities, 0 claims and 0 findings; frozen plan and 71-step execution hold unchanged"
+              - command: "Pinned offline course-plan checker"
+                outcome: "passed; pinned image sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
+                outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed; duplicate pending/running status bookkeeping was corrected before authoring and input/preflight fingerprints remained unchanged"
+            notes: "Claimed only after Chapter 69 dedicated commit c28161a verification. Planning metadata snapshot was captured before adding this run; exact implementation build, step and predecessor identity asserted. Published only after root released exact packet 58657/63f779ac. The pre-authoring duplicate-status bookkeeping correction changed only the current Chapter 70 step from pending to running; inputs.json and preflight.md fingerprints remained unchanged. Budget incremented from actual 28 to 29 once. No prior run was modified; Chapter 71 remains unclaimed."
       - id: detail-ch71-lora-sft-adapters
         objective: "Make Chapter 71 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch70-loopback-serving-metrics"]

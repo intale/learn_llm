@@ -225,7 +225,7 @@
       "id": "70-loopback-serving-metrics",
       "planning_step": "detail-ch70-loopback-serving-metrics",
       "planned_packet": "70-loopback-serving-metrics.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 71,

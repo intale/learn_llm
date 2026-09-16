@@ -25123,3 +25123,48 @@ inference. Exact inference shapes/backend/pool/workspace require owner admission
 complete estimates and inherited calibration-accounting reconciliation. Smoke's
 2 GiB allocator cap overrides larger estimates; core's 64 MiB KV component is not
 borrowable. Core/blocked adapter consumption bindings authorize no new execution.
+## Chapter 70 detailed planning: loopback serving metrics
+
+Complete only the internal plan for `70-loopback-serving-metrics`, consuming
+`implement-ch69-cancellation-backpressure-budgets`. Implementation, acquisition,
+repairs, formal reviews and Chapter 71 remain held. Bind the claimed input and
+preflight fingerprints recorded in the packet/evidence; author output is limited
+to the three staged planning files.
+
+Preserve the newer frozen same-crate mapping: the binary and versioned config
+belong in `rust/crates/llm-from-scratch`, not a separate server crate mentioned in
+older affected-file audits. Preserve the actual `ch70-` E2E filename. Earlier
+summary/key bookkeeping was reconciled before authoring without changing the
+material inputs or repairing frozen authority.
+
+Propose `course-local-v1` schemas and a strictly loopback service, using HTTP/
+runtime/serializer/exposition libraries only as admitted plumbing. The course
+continues to own admission, sampling, stream finish, lifecycle and measurements.
+Human port 8765 and exclusive test port 64175 are proposed; no process starts in
+this turn. Bind exact identity/caps to readiness and responses, reject unknown
+fields and retain exact u64 strings. Loopback/CORS/Host policy is not auth.
+
+Propose `pure-decode-busy-v1`: numerator and denominator use the same completed
+pure-decode interval cohort, with prefill/mixed counts separately disclosed.
+Count terminal/suppressed/error selections once if they committed; take the union
+of global completed intervals, not summed overlapping request times. Proposed
+TTFT means first complete text-bearing data event enqueued on the server, not
+client receipt; terminal-only streams have no text latency. Freeze window,
+warmup, availability, units, fixed names/buckets and overhead comparison before
+outcomes. Corrected diagnostic: nine selections, four pure selections/30 ms,
+400/3 tokens/s, six UTF-8 bytes and 30/10/12 ms enqueue latencies.
+
+Terminal aggregation waits for real Chapter 69 cleanup, including charged frames
+and permits. Propose a bounded pending-terminal sink plus consumed-record lookup
+ring; counters survive retirement, stale IDs cannot alias checked monotone
+identities in nonreused instance epochs, and exhaustion refuses new admission.
+No replay, durable request history or exactly-once delivery is promised. Freeze
+the actual epoch/restart mechanism through the existing identity owner.
+
+The implementation owner may finalize scoped versioned policy proposals in
+DECISIONS without a new human approval pause. Genuine authority conflicts remain
+gates: static “zero service URLs” versus inert copyable commands, inherited
+backend/calibration/byte-policy/fence admission, and undeclared shared integration
+or dependency authority. Do not add a live site panel, relax profile limits,
+invent unavailable measurements, or treat internal planning audit as publication
+approval. The requested planning batch ends at Chapter 70.
