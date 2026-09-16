@@ -24731,3 +24731,32 @@ not elapsed time/run IDs. GPU tolerances require predeclared operation-specific
 nondeterminism evidence and never excuse changed discrete transitions. Shared
 export/import hooks and module ownership remain pre-implementation gates; no
 cross-chapter repairs or future implementation were performed.
+
+### 2026-09-16 — Chapter 59 accountable resource measurement planning
+
+Prepared the internal packet only, preserving frozen metadata and all execution/
+repair holds. Separate conservative plans, owned event accounting and external
+sampled observations. Aliases/pools count physical storage once; asynchronous
+releases remain charged through completion; every owned event updates the peak
+independently of the <=2 Hz telemetry sampler. Unknown/unavailable is not zero.
+
+Reuse Chapter 58's safe stop/checkpoint and Chapter 57's receipt storage. Keep
+network communication separate from host/device transfers, valid-target rates
+separate from padding/enqueue counts, and semantic events separate from restart
+timestamps. Privacy uses finite content-free labels. No monitoring service or
+causal bottleneck claim is introduced.
+
+The compression requirement needs a mature codec/version/full-graph/features and
+provenance decision before implementation; no codec or download is authorized
+now. The optional NVML binding is likewise prospective, while required memory/
+headroom evidence still gates acceptance. Source IDs remain fixed; external
+metric convention versions and the course receipt schema must be pinned.
+
+Probe feasibility is explicitly unresolved: the frozen 300–900s,100-successful-
+microstep,ten-equal-duration-window policy must fit one smoke schedule and its
+resource/token accounting. N_max is labeled valid train-token ceiling without
+an explicit warmup/probe/overhead exemption. Four independent300s calibrations
+do not fit900s and are not accepted. Freeze a complete bounded schedule and
+overhead baseline/scope before measurement; do not insert sleep, hide work or
+call optional-emission cost the cost of all instrumentation. Shared module/
+prior-owner integration remains a declared pre-implementation gate.
