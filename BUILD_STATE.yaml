@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T09:55:00Z"
+updated_at: "2026-09-16T10:20:26Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 18
+      spent: 19
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -48806,7 +48806,7 @@ builds:
       - id: detail-ch60-multi-seed-evaluation
         objective: "Make Chapter 60 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch59-resource-observability"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -48822,7 +48822,67 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260916T095639Z-detail-ch60-multi-seed-evaluation-01
+            started_at: "2026-09-16T09:56:39Z"
+            finished_at: "2026-09-16T10:20:26Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "7d8b5d8ef3dfb395ee6f23e0fb128f122ee2b9e0"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "a7525a36f2d88b73e3918ba01e4495c7fae61c8795eafa7f9d0901d8c625cfd4"
+              chapter59_packet_sha256: "eed1207a12bd8f7fe45f1060e26113ead63ef609f2540df7a7bf564020572bea"
+              index_sha256: "9127a51dfd130a7c8eedfe1928a03de5c363ed9ca404f774085bf6170e2af89f"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; read-only ledger parser PyYAML 6.0.3; host Node 23.7.0 for orchestration only; Node 22.12.0 inside the existing offline validation image."
+            staging_dir: ".build/runs/20260916T095639Z-detail-ch60-multi-seed-evaluation-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, planning guide, index and Chapter 59 packet"
+              - "Read-only Chapter 59 completion and Chapter 60 dependency status audit"
+              - "Extract exact Chapter 60 chapter/implementation metadata from the frozen plan and functional BUILD_STATE into inputs.json"
+              - "test \"$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)\" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - "Record the existing pinned offline checker tag and digest without rebuilding or pulling"
+            artifacts:
+              - path: ".build/runs/20260916T095639Z-detail-ch60-multi-seed-evaluation-01/inputs.json"
+                sha256: "327880637e9c93db105ec76542129b21fd5d01df6138798d92461e654a6aaf36"
+                bytes: 28326
+                purpose: "Exact frozen Chapter 60 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T095639Z-detail-ch60-multi-seed-evaluation-01/preflight.md"
+                sha256: "d582fc1ad5eeb26991129947a4c6c38afb45020f8a245db526d9b903278a09cf"
+                bytes: 1540
+                purpose: "Read-only Chapter 60 claim preflight and frozen input fingerprint; corrected profile list to match exact inputs.json."
+              - path: "curriculum/future-chapter-plans/60-multi-seed-evaluation.md"
+                sha256: "e97e9b3cfcce94949eb282f74e18d896b8a45b97faf6d421fd47f9d28e9390d0"
+                bytes: 30678
+                purpose: "Published byte-identical Chapter 60 planning packet after explicit root release."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "ea3ecd15f804fa45494037aecdc289b9c42e41cde75bf1fdc0a07490a63729ae"
+                bytes: 12363
+                purpose: "Published planning guide inventory update for Chapter 60."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "ec1297ba39e7696f2dc7026451afcda6681c040c674e94a315f5aa64ceb9b87c"
+                bytes: 10707
+                purpose: "Published Chapter 60 planning-ready index status."
+              - path: "DECISIONS.md"
+                sha256: "3af5ff39c4543d7529fb872e68cc6fc05fb35fcd6c27e06c199cfadaddc5dce4"
+                bytes: 1470257
+                purpose: "Appended exact Chapter 60 planning decision entry."
+            validation:
+              - command: "Exact staged/canonical packet comparison immediately before and after publication"
+                outcome: "passed; 30678 bytes and SHA-256 e97e9b3cfcce94949eb282f74e18d896b8a45b97faf6d421fd47f9d28e9390d0 match"
+              - command: "Packet UTF-8, final-LF, ordered-section, metadata/count, authorized cleanup, placeholder and canonical-relative link audit"
+                outcome: "passed; sections 1–10; prerequisites=9, outputs=31, commands=6, profiles=4; authorized spacing and substring correction present; links resolve from curriculum/future-chapter-plans"
+              - command: "Pinned offline course-plan checker with image-ID precheck"
+                outcome: "passed; learn-llm-plan-validation:20260915 image ID sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm"
+              - command: "Published README/index and exact decision-entry suffix checks"
+                outcome: "passed; Chapter 60 planning-ready, README/index paths aligned, DECISIONS suffix byte-identical to staged decision-entry"
+              - command: "git diff --check and held-step audit"
+                outcome: "passed; non-active builds and 71-step functional build unchanged; repairs and functional implementation/GPU-boundary steps remain pending; Chapter 61 remains unclaimed"
+              - command: "Final exact artifact SHA-256 and byte-length reconciliation before checkpoint"
+                outcome: "passed; packet 30678/e97e9b3c; README 12363/ea3ecd15; index 10707/ec1297ba; DECISIONS 1470257/3af5ff39"
+            notes: "Claimed after dedicated Chapter 59 commit verification. Root released Chapter 60; exact full packet was published byte-identically and planning records/checker passed. Repairs, implementation, acquisition, training, localization and publication review remain held. Chapter 61 remains unclaimed. No .build/runs artifacts are promoted."
       - id: detail-ch61-quantized-gguf-artifacts
         objective: "Make Chapter 61 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch60-multi-seed-evaluation"]

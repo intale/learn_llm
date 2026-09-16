@@ -24760,3 +24760,31 @@ do not fit900s and are not accepted. Freeze a complete bounded schedule and
 overhead baseline/scope before measurement; do not insert sleep, hide work or
 call optional-emission cost the cost of all instrumentation. Shared module/
 prior-owner integration remains a declared pre-implementation gate.
+
+### 2026-09-16 — Chapter 60 scoring and seed-evidence planning boundary
+
+Prepared only the final requested internal packet, preserving frozen inputs,
+implementation/repair holds and Chapter61's pending state. Ops corrected a
+current-run preflight profile-list typo; the author did not alter preflight,
+state or canonical records.
+
+Preserve the current overlapping-slot scalar regression and its14-slot golden.
+Add an explicitly versioned once-per-document-transition longest-capped-prefix
+policy with nine occurrences on that same fixture. Occurrence identity is
+document ID plus target position, never token-pair deduplication. Stable
+log-probability scoring, raw-sum/count normalization and finite final-score
+validation remain distinct from lower-level assigned-probability diagnostics.
+
+Propose, then freeze before outcomes, exact enumeration of27 ordered three-run
+resamples with nearest-rank2.5/97.5 percentiles. Label its interval coarse and
+conditional, not population-coverage assurance. Enumerating consumes no RNG.
+Keep all three prescribed cheap seed runs/failures visible and the single core
+point separate. Additional task/baseline/quality/overlap/privacy policies require
+pre-results choices; missing thresholds block real quality reporting rather
+than authorizing convenient defaults or post-result resplitting.
+
+Use the actual title of linked source2002.06305 while retaining its frozen ID
+and URL; registry correction stays separately held. Smoke-only implementation
+does not execute later sensitivity/core budgets or authorize acquisition. No
+Chapter61 work, broad competence, production, universal privacy or SOTA claim
+is introduced.
