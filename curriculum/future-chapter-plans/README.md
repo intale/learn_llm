@@ -49,8 +49,9 @@ Completed planning checkpoints:
 - [Chapter 52: accelerator tensor parity](52-accelerator-tensor-parity.md).
 - [Chapter 53: mixed-precision training](53-mixed-precision-training.md).
 - [Chapter 54: memory-bounded training](54-memory-bounded-training.md).
+- [Chapter 55: optimizer schedules and clipping](55-optimizer-schedules-clipping.md).
 
-Chapters 55–85 remain separate pending planning steps. Do not substitute this
+Chapters 56–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

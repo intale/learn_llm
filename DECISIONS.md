@@ -24538,3 +24538,34 @@ implementation and repair holds are preserved.
 Affected planning step: `detail-ch54-memory-bounded-training`; future consumer:
 `implement-ch54-memory-bounded-training`, followed by Chapter 55's optimizer
 event. No later implementation or core-profile execution begins here.
+
+## 2026-09-16 — Chapter 55 ordered optimizer-event planning
+
+Context: `detail-ch55-optimizer-schedules-clipping` follows Chapter 54 planning.
+Current f64 AdamW already has transactional updates and exact-name groups; the
+trainer's explicit learning-rate vector does not establish a resumable schedule
+family or mixed-precision/accumulation event composition.
+
+Decision: Stage a scoped warmup-linear schedule and clipping/decay packet using
+existing course-owned AdamW, robust norm and parameter-group boundaries. Freeze
+unscale, pre-normalization health, one valid-target mean, post-normalization
+health, global clip, grouped AdamW preparation and atomic commit order. Schedule
+lookup previews the next successful index; overflow/refusal never consumes it.
+The two finite guards feed one whole-window health/skip decision and one scaler
+transition, reconciling Chapter 55's pre-averaging check with Chapter 54's final
+post-normalization boundary. Stage ownership forbids double unscale, average,
+clip or scaler advancement when composing predecessor helpers.
+The optimizer stays uncommitted on overflow while Chapter 53's separate prescribed
+skip/scaler/window outcome still advances. Distinct canonical parameter identity
+prevents duplicate clipping/decay through aliases.
+
+Consequences: Tiny schedule/decay hyperparameters are teaching fixtures, not
+production defaults or a convergence recommendation. Profile owners must freeze
+real configurations; later resume/metrics consumers preserve these exact clocks
+and event identities. Existing shared-output, backend/language, resource and
+independent bilingual/static/Firefox gates remain binding. No execution hold,
+source registry, GPU/core permission or product surface changes.
+
+Affected planning step: `detail-ch55-optimizer-schedules-clipping`; future consumer:
+`implement-ch55-optimizer-schedules-clipping`, followed by Chapter 56's portable
+parameter artifact. No later implementation starts here.
