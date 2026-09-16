@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T13:03:59Z"
+updated_at: "2026-09-16T13:35:30Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 24
+      spent: 25
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -49385,7 +49385,7 @@ builds:
       - id: detail-ch66-nucleus-penalties-logprobs
         objective: "Make Chapter 66 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch65-kv-block-pool"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -49401,7 +49401,82 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: "20260916T130601Z-detail-ch66-nucleus-penalties-logprobs-01"
+            started_at: "2026-09-16T13:06:01Z"
+            status: succeeded
+            finished_at: "2026-09-16T13:35:30Z"
+            input_fingerprint:
+              commit: "b54687c9e3cb001e29cf6eebbcd7296c69963051"
+              implementation_build_id: "extend-course-to-functional-laptop-llm-20260810"
+              implementation_step_id: "implement-ch66-nucleus-penalties-logprobs"
+              inputs_json: ".build/runs/20260916T130601Z-detail-ch66-nucleus-penalties-logprobs-01/inputs.json"
+              inputs_json_sha256: "0f27a716675d76d39800b858c884be687328ecdc294b1d8f2e9bf96504ae41fb"
+              inputs_json_bytes: 19234
+              preflight_sha256: "a91c4d04766485f970dd9fd4a0593252590ce0ba481932d5666564f841b5a8de"
+              preflight_bytes: 2639
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "24bd45f04b8130c9467820ee7bfc86827f2580400bb53737b00f9d45a660461a"
+              predecessor_packet_sha256: "27cd1d77523d1f2f52f29ebd53b8cca36f613e1f4448103944c4abb5812cb471"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T130601Z-detail-ch66-nucleus-penalties-logprobs-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only exact implementation record lookup in build extend-course-to-functional-laptop-llm-20260810"
+              - "Extract Chapter 66 chapter record and exact implement-ch66-nucleus-penalties-logprobs metadata into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T130601Z-detail-ch66-nucleus-penalties-logprobs-01/inputs.json"
+                sha256: "0f27a716675d76d39800b858c884be687328ecdc294b1d8f2e9bf96504ae41fb"
+                bytes: 19234
+                purpose: "Exact frozen Chapter 66 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T130601Z-detail-ch66-nucleus-penalties-logprobs-01/preflight.md"
+                sha256: "a91c4d04766485f970dd9fd4a0593252590ce0ba481932d5666564f841b5a8de"
+                bytes: 2639
+                purpose: "Read-only Chapter 66 claim preflight with exact source-path hash labels and derived metadata counts."
+              - path: ".build/runs/20260916T130601Z-detail-ch66-nucleus-penalties-logprobs-01/planning-evidence.md"
+                sha256: "c1fe922e9b230de4f509e49c8425cecd9b56b268e5dd27332377078c4fd28250"
+                bytes: 1975
+                purpose: "Chapter 66 planning evidence handoff."
+              - path: ".build/runs/20260916T130601Z-detail-ch66-nucleus-penalties-logprobs-01/decision-entry.md"
+                sha256: "274d1c7c5afa455caef3e15e30ad9c516562f2894a54edc2f1ced55dbe93e7c2"
+                bytes: 1712
+                purpose: "Chapter 66 decision-entry source for durable DECISIONS.md append."
+              - path: "curriculum/future-chapter-plans/66-nucleus-penalties-logprobs.md"
+                sha256: "260284643ad6cce61e60a3b91a6f05164e81fe15693233f748e3f4e56ac324d3"
+                bytes: 32789
+                purpose: "Published exact Chapter 66 planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "fddb3dd55dd5c7690e21b7a4e6bee51c4d464b77a14a68cbe8a07c68b652fd19"
+                bytes: 12783
+                purpose: "Published future-chapter planning navigation updated for Chapter 66."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "98482e336783e0c9d1cef432c3e9faf82f1a76c684d5b0d0bb6b5a42a1d3beef"
+                bytes: 10749
+                purpose: "Published future-chapter inventory with Chapter 66 planning-ready status."
+              - path: "DECISIONS.md"
+                sha256: "0119929d5004e71e5c65fbbcfd6b2459172fce2254c25ff940cf578c89a68f87"
+                bytes: 1483256
+                purpose: "Durable Chapter 66 sampler-policy decision entry."
+            validation:
+              - command: "Exact implementation-ID/build/predecessor lookup and metadata reconciliation"
+                outcome: "passed; implementation_state_step.id=implement-ch66-nucleus-penalties-logprobs from build extend-course-to-functional-laptop-llm-20260810; dependency implement-ch65-kv-block-pool asserted"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 19234/0f27a716; preflight.md 2639/a91c4d04"
+              - command: "Programmatic metadata count reconciliation"
+                outcome: "passed; 9 prerequisites, 26 implementation outputs, 6 implementation validation commands, 3 profiles, 2 historical sources, 4 capabilities, 2 claims, 1 finding"
+              - command: "Exact stage-to-canonical packet comparison and released-hash assertion"
+                outcome: "passed; Chapter 66 packet 32789/26028464; canonical bytes matched released stage before completion"
+              - command: "Metadata, section, source, profile, prerequisite/output/command, link and hold audit"
+                outcome: "passed; 10 sections, 9 prerequisites, 26 outputs, 6 implementation commands, 3 profiles, 2 historical sources, 4 capabilities, 2 claims and 1 finding; frozen plan and 71-step execution hold unchanged"
+              - command: "Pinned offline course-plan checker"
+                outcome: "passed; pinned image sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
+                outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed"
+            notes: "Claimed only after Chapter 65 dedicated commit b54687c verification. Planning metadata snapshot was captured before adding this run; exact implementation build, step and predecessor identity asserted. Published only after root released exact packet 32789/26028464. Budget incremented from actual 24 to 25 once. No prior run was modified; Chapter 67 and Chapter 71 remain unclaimed."
       - id: detail-ch67-stop-strings-unicode-streaming
         objective: "Make Chapter 67 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch66-nucleus-penalties-logprobs"]

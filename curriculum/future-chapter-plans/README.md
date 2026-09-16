@@ -60,6 +60,7 @@ Completed planning checkpoints:
 - [Chapter 63: GQA and context policy](63-gqa-context-policy.md).
 - [Chapter 64: online tiled attention](64-online-tiled-attention.md).
 - [Chapter 65: KV block pool](65-kv-block-pool.md).
+- [Chapter 66: nucleus penalties and logprobs](66-nucleus-penalties-logprobs.md).
 
 Chapters 63–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.

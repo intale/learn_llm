@@ -24964,3 +24964,32 @@ integration explicitly. No parallel page pool, Event Sourcing store, database or
 new artifact format. Arena plus metadata/temporary ownership must fit the accepted
 component/global ledger; core's 64 MiB KV ceiling is nonborrowable. No acquisition,
 training, hardware execution, localization or repair is authorized by this plan.
+
+## 2026-09-16 — Freeze sampler order and separate observation from choice
+
+The frozen capability requires full-vocabulary compensated top-p before stable
+top-k intersection. The initially discussed top-k-first idea is explicitly
+rejected. The packet preserves the exact additive-count fixture and separates
+dyadic threshold tests from represented logarithmic arithmetic.
+
+Preserve score/ID rank separately from ascending-ID categorical intervals,
+zero greedy draws and exactly one stochastic SplitMix64 draw including k=1.
+Keep base logits immutable and commit request-local counts/RNG only with an
+accepted token. No global RNG, byte emitter or future scheduler is introduced.
+
+Propose versioned Neumaier prefix accumulation and a complete-distribution
+endpoint of one if no earlier represented prefix crosses. Earlier crossing still
+wins, including underflow tails. Preserve legacy APIs/traces and require owner
+reconciliation before claiming enhanced neutral-policy compatibility. No epsilon
+or silent p=1 bypass may conceal conflicting requirements.
+
+Propose finite signed coefficients with explicit negative-value boost semantics,
+and at most 20 raw-model-ranked alternatives with named model/sampler fields and
+selected token separate. These domains/schema choices are not existing defaults
+and freeze before implementation. Exact token bytes are retained without lossy
+Unicode presentation. Stable logprob observation cannot change the selected
+sequence, intervals, finish reasons or RNG.
+
+Implementation, acquisition, training, repair, localization and Chapter 67 stop
+work remain held. The patch-format retry affected only unpublished run staging;
+no canonical or semantic policy record was repaired.
