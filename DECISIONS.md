@@ -25038,6 +25038,49 @@ not a silently implemented server.
 Keep smoke-only execution, blocked adapter selection, exact-tuple admission,
 backend/Rust-only policy and inherited calibration accounting gates. Planning
 quality does not establish a physical measurement or publication approval.
++## Chapter 69 detailed planning: bounded request lifecycle
+
+Prepare only the claimed Chapter 69 packet/notes. Preserve the Chapter 68
+implementation prerequisite, SRV-004/005/007 scope, empty claim/finding bindings,
+26 outputs, six outer commands, 19 plan commands and three profile modes.
+Implementation, repairs, model acquisition and formal reviews remain held.
+
+Propose a sole-owner cancellation observation point before another launch/draw
+or token-event authorization. Previously submitted work reaches an actual fence;
+discard private output/tails and release every request-owned page/output permit
+before the next iteration begins. Quarantine remains charged and cannot satisfy
+zero ownership. The 100 ms unloaded estimate is not a guarantee. Pure-cancel
+fixtures expect one Cancelled record; higher observed fatal/stop/EOS/limit causes
+retain Chapter 67 precedence through an explicit capability-owner reconciliation.
+
+Propose absolute monotonic deadlines with expiry only when now>deadline, checked
+timestamp arithmetic and no progress/keepalive reset. Phase-tagged timeouts occupy
+the existing cancellation-priority class, with explicit cancellation winning a
+same-observation within-class tie; freeze this extension/phase anchors before
+implementation. Request execution deadlines are not training wall caps.
+
+Separate device/host/disk lanes, whole-lane peaks, per-request increments and
+logical pool credits. A quota is not a physical page lease. Reserve all lanes
+atomically and reject unknown/overflowing/unadmitted tuples before request model/
+KV/RNG. The proposed margin is max(ceil(modeled base/10), matching measured excess),
+with explicit denominator/rounding and reconciliation against already charged
+slack. Injected 40/80-byte test values prove arithmetic only. Consume a prior
+accepted measurement or obtain separate conservative calibration authorization;
+never allocate outside admission to discover a peak.
+
+Reserve bounded terminal-record capacity separately from the eight-event token
+queue. Full output does not block internal sealing; pending token events are
+discarded at cancellation, but required terminal evidence is retained once.
+Bound record retention and block later admission when it cannot drain; no hidden
+buffers, unbounded history/tasks or network exactly-once claim. The active-one
+A/B/C trace is supplemented by real active-two slow-reader control evidence.
+
+Keep fairness.rs within bounded lifecycle/admission accounting, not optional
+token-cost scheduling. Declare shared scheduler/pool/runtime ownership and carry
+backend, inference-shape, strict-buffer and probe-accounting gates. Handoff to
+Chapter 70 is typed lifecycle/transport integration, not a new HTTP policy or
+permission to implement a public service.
+
 ## Chapter 68 detailed planning: continuous request batches
 
 Prepare only the claimed Chapter 68 packet and companion notes. Preserve the

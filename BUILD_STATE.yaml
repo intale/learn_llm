@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 27
+      spent: 28
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -49685,7 +49685,7 @@ builds:
       - id: detail-ch69-cancellation-backpressure-budgets
         objective: "Make Chapter 69 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch68-continuous-batch-scheduling"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -49701,7 +49701,87 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: "20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01"
+            started_at: "2026-09-16T14:29:45Z"
+            status: succeeded
+            finished_at: "2026-09-16T14:49:31Z"
+            input_fingerprint:
+              commit: "8cca810169e88cef1b06473d54499bd5b6bbf475"
+              implementation_build_id: "extend-course-to-functional-laptop-llm-20260810"
+              implementation_step_id: "implement-ch69-cancellation-backpressure-budgets"
+              inputs_json: ".build/runs/20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01/inputs.json"
+              inputs_json_sha256: "282fb9d3963ffebb82bc9572d06cb4c5e7d435ef0cfa1166d9384da4ec148667"
+              inputs_json_bytes: 22678
+              preflight_sha256: "bb5eccaa18c778174116d541511cbfc12b22e6173f830a7e7782cff8a4e1f7c0"
+              preflight_bytes: 2716
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "848442dc99ce7f3bfbb13ddd4e19e8d964d3ff07878213c44ac6c21f0b81b447"
+              predecessor_packet_sha256: "188aa538411e171c153c137ae69cb679cd2fa9b8b7d127778b278602f7ac606e"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only exact implementation record lookup in build extend-course-to-functional-laptop-llm-20260810"
+              - "Extract Chapter 69 chapter record and exact implement-ch69-cancellation-backpressure-budgets metadata into inputs.json"
+              - "Extract authoritative 19-command implementation-plan array and numeric profile literals into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01/inputs.json"
+                sha256: "282fb9d3963ffebb82bc9572d06cb4c5e7d435ef0cfa1166d9384da4ec148667"
+                bytes: 22678
+                purpose: "Exact frozen Chapter 69 planning and implementation metadata, command array and profile literals extracted before adding this run."
+              - path: ".build/runs/20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01/preflight.md"
+                sha256: "bb5eccaa18c778174116d541511cbfc12b22e6173f830a7e7782cff8a4e1f7c0"
+                bytes: 2716
+                purpose: "Read-only Chapter 69 claim preflight with programmatically derived authority counts and pre-claim held-scope snapshot."
+              - path: ".build/runs/20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01/69-cancellation-backpressure-budgets.md"
+                sha256: "0b5b2970d543a4094a1c2bd44f94ac6c56a0d21ab2104f37d2cecfc9e731d401"
+                bytes: 48686
+                purpose: "Exact staged Chapter 69 planning packet."
+              - path: ".build/runs/20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01/planning-evidence.md"
+                sha256: "f7302d3d880bb1c5be1dd248c5cda89856e353924e0b7268c334cbe30ac46414"
+                bytes: 3035
+                purpose: "Chapter 69 planning evidence handoff."
+              - path: ".build/runs/20260916T142945Z-detail-ch69-cancellation-backpressure-budgets-01/decision-entry.md"
+                sha256: "20d0789955a293295cd0879548966e0ea417e4773507c43598f336832af307f1"
+                bytes: 2762
+                purpose: "Chapter 69 decision-entry source for durable DECISIONS.md append."
+              - path: "curriculum/future-chapter-plans/69-cancellation-backpressure-budgets.md"
+                sha256: "0b5b2970d543a4094a1c2bd44f94ac6c56a0d21ab2104f37d2cecfc9e731d401"
+                bytes: 48686
+                purpose: "Published exact Chapter 69 planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "fa4d87e19187d785eb8dece759a5d6602bee1e2c0c8855e5f7dec3a8147cea01"
+                bytes: 13051
+                purpose: "Published future-chapter planning navigation updated for Chapter 69."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "a961ae18611e93e3d2d2dcfec579c1139cefb4c9d0df8b7733817a9ed388b430"
+                bytes: 10770
+                purpose: "Published future-chapter inventory with Chapter 69 planning-ready status."
+              - path: "DECISIONS.md"
+                sha256: "e9f0a69280e0fa265a2c433ea6a5313a5436bd94aa988cbf9da9cdaa710667b1"
+                bytes: 1491714
+                purpose: "Durable Chapter 69 cancellation, backpressure and budget decision entry."
+            validation:
+              - command: "Exact implementation-ID/build/predecessor lookup and metadata reconciliation"
+                outcome: "passed; implementation_state_step.id=implement-ch69-cancellation-backpressure-budgets from build extend-course-to-functional-laptop-llm-20260810; dependency implement-ch68-continuous-batch-scheduling asserted"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 22678/282fb9d3; preflight.md 2716/bb5eccaa"
+              - command: "Programmatic metadata count reconciliation"
+                outcome: "passed; 9 prerequisites, 26 implementation outputs, 6 BUILD_STATE implementation validation commands, 3 planning-step validation commands, 19 frozen implementation-plan commands, 3 profiles, 2 historical sources, 3 capabilities, 0 claims, 0 findings"
+              - command: "Exact stage-to-canonical packet comparison and released-hash assertion"
+                outcome: "passed; Chapter 69 packet 48686/0b5b2970; canonical bytes matched released stage before completion"
+              - command: "Metadata, section, source, profile, prerequisite/output/command, link and hold audit"
+                outcome: "passed; 10 sections, 9 prerequisites, 26 outputs, 6 implementation commands, 19 frozen implementation-plan commands, 3 profiles, 2 historical sources, 3 capabilities, 0 claims and 0 findings; frozen plan and 71-step execution hold unchanged"
+              - command: "Pinned offline course-plan checker"
+                outcome: "passed; pinned image sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
+                outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed; planning step was corrected from pending to running before authoring, with inputs/preflight fingerprints unchanged"
+            notes: "Claimed only after Chapter 68 dedicated commit 8cca810 verification. Planning metadata snapshot was captured before adding this run; exact implementation build, step and predecessor identity asserted. Published only after root released exact packet 48686/0b5b2970. The planning step status was corrected from pending to running before authoring; inputs.json and preflight.md fingerprints remained unchanged. Budget incremented from actual 27 to 28 once. No prior run was modified; Chapter 70 and Chapter 71 remain unclaimed."
       - id: detail-ch70-loopback-serving-metrics
         objective: "Make Chapter 70 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch69-cancellation-backpressure-budgets"]
