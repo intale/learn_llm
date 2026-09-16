@@ -24698,3 +24698,36 @@ request-hash outcomes, corruption refusal and exact authorized ranks survive
 restart. Use the course-owned RT oracle for provided vectors; a bounded basis-
 vector diagnostic is not an embedding generator or semantic retrieval claim.
 No database/vector service or Event Sourcing dependency is introduced.
+
+### 2026-09-16 — Chapter 58 complete-state continuation planning
+
+Prepared the internal Chapter 58 packet only, preserving frozen metadata and
+implementation/repair holds. Existing Chapter 35 checkpoint evidence remains
+bounded; no whole-job capability is retrospectively claimed for it.
+
+Proposed five-boundary test policy includes a complete finite quiescent prefix
+inside an accumulation window, raw-ready finalization, accepted-update commit,
+overflow-skip commit and evaluation/early-stop commit. The prefix stores scaled
+raw gradient sums, unscaled raw loss, valid count, fixed scale, phase and matched
+cursor/RNG state. Missing/malformed accumulation is rejected, but a valid prefix
+is not categorically forbidden. Pending nonfinite or in-flight capture instead
+returns `NotCheckpointable`, preserves last-good and leaves normal window
+consumption/overflow handling unchanged; terminal skip reasons survive resume.
+
+Restore validates the complete immutable candidate and compatibility envelope
+before one owner swap, with old-plus-new resource admission and device completion.
+The job quiescence/ownership guard is separate from the file-publication guard;
+outstanding execution/borrow leases cannot be bypassed by a file lock. A terminal
+state at schedule update T remains loadable without asking for T+1; loading
+preserves its stop reason and does not restart training.
+Use Chapter 57's existing publication/retention protocol and shard objects below
+its 2 GiB bound; a 2.5 GB whole-checkpoint limit does not enlarge an object or a
+profile's total disk budget. Resume cannot refund already spent resource budget.
+
+The separate course-owned decoder fixture exercises actual NLL/backward and
+dropout under accepted predecessor policies; it is not external producer parity
+or frozen GPU smoke acceptance. CPU bitwise comparisons cover semantic state,
+not elapsed time/run IDs. GPU tolerances require predeclared operation-specific
+nondeterminism evidence and never excuse changed discrete transitions. Shared
+export/import hooks and module ownership remain pre-implementation gates; no
+cross-chapter repairs or future implementation were performed.
