@@ -25168,3 +25168,32 @@ backend/calibration/byte-policy/fence admission, and undeclared shared integrati
 or dependency authority. Do not add a live site panel, relax profile limits,
 invent unavailable measurements, or treat internal planning audit as publication
 approval. The requested planning batch ends at Chapter 70.
+## 2026-09-16 — Chapters 61–70 planning-history reconciliation
+
+Context: the user supplied historical ledger/status and Chapter 62 packet excerpts,
+then requested that the reconciliation findings be persisted in a separate commit.
+Live read-only inspection confirmed baseline `f9554cdc9fb1ce756984c70c3f59b7e335808d64`,
+completed Chapter 61–70 planning, failed Chapter 62 `.01`, successful `.02`, and
+pending/unclaimed Chapter 71.
+
+Decision: preserve the findings in
+`audits/2026-09-16-ch61-ch70-planning-reconciliation.md`. Distinguish verified local
+hashes/statuses from supplied text and its unverified `5d8149ca…` hash claim.
+Retain the eight ancillary prospective placeholders in the immutable `.02` input
+projection; do not confuse them with the concrete authoritative bindings. Record
+the existing literal `+## Chapter 69` marker and 69-before-68 decision-entry order
+as history/navigation anomalies without editing or moving those old entries.
+
+Consequences: schedule only `reconcile-ch61-ch70-planning-history-20260916` after
+completed Chapter 70 and before pending Chapter 71. This is a small documentation
+step, not another chapter packet; charge one `agent-session` on successful
+completion (29 to 30). Preserve every existing step, dependency, completed run,
+packet, inventory status, frozen curriculum input, and implementation/repair hold.
+No hardware, course-content, English/Russian publication judgment, implementation,
+acquisition or Chapter 71 work is authorized by this note. The ordinary offline
+pinned course-plan checker remains the applicable planning check; the held
+functional lifecycle compatibility gate is not relabeled as passing.
+
+Affected step: `reconcile-ch61-ch70-planning-history-20260916`; its only canonical
+outputs are the audit note and its necessary `BUILD_STATE.yaml`/`DECISIONS.md`
+bookkeeping. The prior planning steps are evidence inputs, not reopened work.

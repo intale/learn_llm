@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T14:06:05Z"
+updated_at: "2026-09-16T15:58:44Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 29
+      spent: 30
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -49882,6 +49882,93 @@ builds:
               - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
                 outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed; duplicate pending/running status bookkeeping was corrected before authoring and input/preflight fingerprints remained unchanged"
             notes: "Claimed only after Chapter 69 dedicated commit c28161a verification. Planning metadata snapshot was captured before adding this run; exact implementation build, step and predecessor identity asserted. Published only after root released exact packet 58657/63f779ac. The pre-authoring duplicate-status bookkeeping correction changed only the current Chapter 70 step from pending to running; inputs.json and preflight.md fingerprints remained unchanged. Budget incremented from actual 28 to 29 once. No prior run was modified; Chapter 71 remains unclaimed."
+      - id: reconcile-ch61-ch70-planning-history-20260916
+        objective: "Record a read-only provenance and status reconciliation for the completed Chapter 61-70 planning packets without reopening or implementing any chapter."
+        depends_on: ["detail-ch70-loopback-serving-metrics"]
+        status: completed
+        inputs:
+          - "f9554cdc9fb1ce756984c70c3f59b7e335808d64 verified baseline commit"
+          - "BUILD_STATE.yaml; DECISIONS.md; curriculum/future-chapter-plans/README.md; curriculum/future-chapter-plans/index.json"
+          - "curriculum/future-chapter-plans/62-laptop-hardware-admission.md"
+          - ".build/runs/20260916T111606Z-detail-ch62-laptop-hardware-admission-01/{inputs.json,preflight.md}"
+          - ".build/runs/20260916T112210Z-detail-ch62-laptop-hardware-admission-02/{inputs.json,preflight.md}"
+          - "curriculum/functional-laptop-llm-extension-plan.md unchanged frozen plan"
+          - "User instruction to persist contradictory historical-message and Chapter 61-70 planning findings; the supplied Chapter 62 SHA-256 5d8149caeffbcdf235c4cce58cae1617badb00aa8760745c4ee319c377a823b0 is an unverified chat claim"
+        outputs:
+          - "audits/2026-09-16-ch61-ch70-planning-reconciliation.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The internal note distinguishes live repository evidence from the user-supplied historical packet claim, records the Chapter 62 .01 failure and .02 success, confines eight placeholders to the ancillary planning snapshot, and binds the verified 35453-byte packet at e7c8e77845d89eb6de996abea429f51941a67a96d1afc4f14a1701945099f1ff."
+          - "The note records the literal +## Chapter 69 and 69-before-68 DECISIONS history as an observed anomaly without rewriting any prior decision, packet, or run."
+          - "Chapter 61-70 remain completed planning steps, Chapter 71 remains pending, and the planning/implementation hold, absence of substantive pedagogical or publication certification, and no-course-repair boundary are explicit."
+          - "Only this documentation step is claimed; no prior completed run, Chapter 71 step, course implementation, repair, acquisition, training, localization, or publication artifact is reopened or changed."
+        validate:
+          - "test -s audits/2026-09-16-ch61-ch70-planning-reconciliation.md"
+          - "git diff --check"
+          - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
+          - "Read-only YAML/status/order, Chapter 62 byte/hash, staged/canonical cmp, and eight-placeholder confinement assertions"
+          - "Tracked-scope and unchanged-prior-run audit; functional checker diagnostic remains out of scope and is not rerun"
+        cost: "small; local read-only documentation/evidence reconciliation only; no network, paid service, GPU, build, dependency installation or course implementation"
+        runs:
+          - run_id: "20260916T154833Z-reconcile-ch61-ch70-planning-history-20260916-01"
+            started_at: "2026-09-16T15:48:33Z"
+            finished_at: "2026-09-16T15:58:44Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "f9554cdc9fb1ce756984c70c3f59b7e335808d64"
+              build_state_sha256_before_claim: "10ad3cb11535c06755c3476e1aa67836d271c5a0ce70cc9c92e127d42f60dc95"
+              decisions_sha256_before_claim: "126ebc73ba0374fa5d66f9551da6dd089058ae5833c024c451660b8bc3700090"
+              inputs_json: ".build/runs/20260916T154833Z-reconcile-ch61-ch70-planning-history-20260916-01/inputs.json"
+              inputs_json_sha256: "81d6d182b9448690e31912f6ad5e1ae017454f3d96203290fa089e58a361d1c8"
+              inputs_json_bytes: 3659
+              preflight: ".build/runs/20260916T154833Z-reconcile-ch61-ch70-planning-history-20260916-01/preflight.md"
+              preflight_sha256: "e127308202e24892d0f594d1ab1e2f22b349028f198ed9f2c7c537d4b9dfc22c"
+              preflight_bytes: 2543
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned course-plan Node 22.12.0"
+            staging_dir: ".build/runs/20260916T154833Z-reconcile-ch61-ch70-planning-history-20260916-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read BUILD_STATE.yaml and latest/referenced DECISIONS.md entries completely"
+              - "Verify Chapter 62 .01/.02 status, bytes and SHA-256 from local files and ledger"
+              - "Verify eight placeholders occur only in the ancillary .02 inputs.json planning snapshot"
+              - "Verify the .02 staged packet is byte-identical to the canonical Chapter 62 packet"
+              - "Create run-bound inputs.json and preflight.md via apply_patch and hash them"
+            artifacts:
+              - path: ".build/runs/20260916T154833Z-reconcile-ch61-ch70-planning-history-20260916-01/inputs.json"
+                sha256: "81d6d182b9448690e31912f6ad5e1ae017454f3d96203290fa089e58a361d1c8"
+                bytes: 3659
+                purpose: "Frozen read-only reconciliation inputs and live-versus-supplied provenance classification."
+              - path: ".build/runs/20260916T154833Z-reconcile-ch61-ch70-planning-history-20260916-01/preflight.md"
+                sha256: "e127308202e24892d0f594d1ab1e2f22b349028f198ed9f2c7c537d4b9dfc22c"
+                bytes: 2543
+                purpose: "Pre-claim acceptance, hold, ownership and validation boundary."
+              - path: "audits/2026-09-16-ch61-ch70-planning-reconciliation.md"
+                sha256: "edca48926c66f39bad5c0ffcf7d91c23db2b1bcbad9824c71c7ba09eed71b276"
+                bytes: 7780
+                purpose: "Published internal provenance and status reconciliation."
+              - path: "DECISIONS.md"
+                sha256: "23981c4fc668727670d0eebdf113dcb42e5f3cadba9fcff944c91a9f2a93a26c"
+                bytes: 1496578
+                purpose: "Append-only decision rationale for the reconciliation step."
+            validation:
+              - command: "Pre-claim status, HEAD and clean-worktree check"
+                outcome: "passed; baseline f9554cdc9fb1ce756984c70c3f59b7e335808d64 and clean worktree before staging"
+              - command: "Staging artifact exact hash/byte reconciliation"
+                outcome: "passed; inputs.json 3659/81d6d182; preflight.md 2543/e1273082"
+              - command: "Pinned ordinary course-plan checker"
+                outcome: "passed after narrowly scoped Docker escalation; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contracts through 39-end-to-end-llm"
+              - command: "Functional checker diagnostic"
+                outcome: "not run for this step; prior host probe lacked site yaml dependency and is non-acceptance diagnostic only"
+              - command: "Canonical audit note, append-only DECISIONS prefix, and exact staged-to-published byte checks"
+                outcome: "passed; audit note 7780/edca4892; DECISIONS prefix preserved and published hash 23981c4f"
+              - command: "YAML/JSON/status/order/hash/placeholder/location/hold assertions"
+                outcome: "passed; all existing step/run objects and Chapter 61-70 packets remained unchanged; sole new completed claim is this step; Chapter 71 remains pending/unclaimed"
+              - command: "test -s audits/2026-09-16-ch61-ch70-planning-reconciliation.md; git diff --check"
+                outcome: "passed"
+            notes: "Completed one small internal documentation reconciliation. Active planning budget incremented once from 29 to 30 agent-session units; this is not a chapter. Canonical audit note and append-only DECISIONS entry were published byte-identically from staging. All prior Chapter 61-70 runs and Chapter 71 pending state remain untouched; no old decision-history repair was performed."
       - id: detail-ch71-lora-sft-adapters
         objective: "Make Chapter 71 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch70-loopback-serving-metrics"]
