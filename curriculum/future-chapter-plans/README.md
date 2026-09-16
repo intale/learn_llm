@@ -50,8 +50,9 @@ Completed planning checkpoints:
 - [Chapter 53: mixed-precision training](53-mixed-precision-training.md).
 - [Chapter 54: memory-bounded training](54-memory-bounded-training.md).
 - [Chapter 55: optimizer schedules and clipping](55-optimizer-schedules-clipping.md).
+- [Chapter 56: tensor artifact interchange](56-tensor-artifact-interchange.md).
 
-Chapters 56–85 remain separate pending planning steps. Do not substitute this
+Chapters 57–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

@@ -24569,3 +24569,81 @@ source registry, GPU/core permission or product surface changes.
 Affected planning step: `detail-ch55-optimizer-schedules-clipping`; future consumer:
 `implement-ch55-optimizer-schedules-clipping`, followed by Chapter 56's portable
 parameter artifact. No later implementation starts here.
+
+## 2026-09-16 — Correct duplicate Chapter 53 ledger attribution
+
+During the Chapter 56 planning checkpoint, a read-only comparison of the
+Chapter 53 commit against its parent found that two Chapter 53 run artifacts
+(`inputs.json`, SHA-256
+`85d727591ba997a0a9ab8d8c1e9dfab847db01d0438c9b208776dc7398ad2018`, 24,897
+bytes; and `preflight.md`, SHA-256
+`d24580d591b4cebf868d7c95ab01d6dcf841dfb7469d46faeb1e9e884eb00488`, 1,313
+bytes) had also been attributed to the unrelated interrupted run
+`20260802T104925Z-consolidate-full-course-audit-01`. The actual Chapter 53
+run `20260916T073906Z-detail-ch53-mixed-precision-training-01` already carried
+both records correctly. The current Chapter 56 checkpoint restores only the
+unrelated old run's `artifacts` field to its prior `[]`; it does not amend the
+completed Chapter 53 commit, alter completed-run staging, or change any product
+or frozen functional-plan bytes. The duplicate attribution was clerical ledger
+bookkeeping, not a course repair or implementation authorization.
+
+## 2026-09-16 — Chapter 56 bounded container and model-bundle planning
+
+Context: `detail-ch56-tensor-artifact-interchange` follows Chapter 55 planning.
+The frozen chapter owns dense selected-decoder SafeTensors interchange and two
+independent licensed untrained fixtures, not arbitrary architecture import or
+full job continuation. Existing LLMCP35 remains its custom teaching format.
+
+Decision: Stage a bounded container/manifest/conversion plan that separates syntax,
+course-owned byte/census/identity checks and model materialization. Require a
+duplicate-aware standard serde visitor before lossy maps, independently exercised
+course invariants, same-immutable-byte hashing/import and explicit host budgets.
+Preserve the exact two producer/toolchain/tokenizer-lineage requirements and
+100-prompt full-logit acceptance; the diagnostic224-byte container is no substitute.
+Serving uses the same validated bundle/parser. The canonical embedded fixture
+record fixes bridge config/census, producer commits/seeds and F32 tolerances;
+preserve those values. The planned per-finite-logit comparator inherits Chapter
+52's symmetric rule: absolute error is at most `atol + rtol * max(abs(course),
+abs(source))`, using `atol = 1e-5`, `rtol = 1e-4`, and the corresponding native
+source runtime as the named reference. Freeze this policy before execution;
+it is not a claim about an existing runtime default. Reject nonfinite logits
+before comparison. Actual prompt payloads/hash, producer/license evidence and
+prospective parser/hash graph remain pre-execution gates, not convenience defaults.
+
+Chapter 56 owns a narrowly scoped local complete-bundle publication operation in
+its declared `src/artifact/conversion.rs`: private per-run same-filesystem
+staging and one cooperating writer, complete shard/hash validation, owned-file
+and candidate-directory synchronization, rename to a fresh complete-bundle name,
+final-parent synchronization, and atomic root-reference publication last. The
+destination must be absent/immutable, or reused only after verified byte-identical
+comparison; this is not a rename-overwrite guarantee under arbitrary concurrent
+writers. A pre-reference-commit failure leaves the last-good root unchanged;
+reference-rename/synchronization failure reports uncertain publication durability
+without claiming rollback or success, and every visible root names a complete
+validated bundle. Chapter 57 may
+later extract/generalize locking and reference durability; no Chapter 57
+implementation is assumed here. Path/receipt binding and supported filesystem
+semantics must be frozen before implementation, alongside the shared
+module-registration integration gate. Process-kill tests demonstrate only their
+tested interruption behavior, not power-loss durability.
+
+Pinned-source discrepancy: the immutable record declares `signed_vocab_size=-266`
+as tied/shared, but pinned llama2.c run.c at
+`350e04fe35433e6d2941dce5a1f53308f87058eb` selects sharing only for positive
+vocabulary. Its two legacy RoPE arrays add 512 bytes outside the 33,216 parameter
+bytes. The 33,756-byte native file matches the tied positive convention; an
+unshared head adds 17,024 bytes. Preserve the held record and require authorized
+repair/reconciliation before producer B executes. Do not silently change sign,
+census, padding, source arithmetic or the accepted output inventory.
+
+Consequences: Format allowance for empty/rank-zero/non-finite tensors remains
+distinct from selected-model policy. Same-dtype bits are exact; dtype-changing
+conversion requires pre-frozen bounds and new lineage/identity. Alias records own
+no duplicate physical ranges. SHA-256 is integrity, not authentication or license
+proof. Chapter 57 retains general crash-consistent publication ownership; later
+job checkpoints retain resume semantics. No acquisition, new dependency, GPU use,
+implementation hold change or language-review waiver is introduced.
+
+Affected planning step: `detail-ch56-tensor-artifact-interchange`; future consumer:
+`implement-ch56-tensor-artifact-interchange`, with external producer/admission and
+publication gates kept explicit.

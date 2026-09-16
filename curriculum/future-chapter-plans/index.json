@@ -127,7 +127,7 @@
       "id": "56-tensor-artifact-interchange",
       "planning_step": "detail-ch56-tensor-artifact-interchange",
       "planned_packet": "56-tensor-artifact-interchange.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 57,
