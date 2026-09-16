@@ -24931,3 +24931,36 @@ are consumed settings and later execution authorities remain separate. Preserve
 probe-envelope, dependency, module/autodiff ownership and external review gates.
 No acquisition, training, localization, repair or Chapter 65 implementation is
 started by this planning packet.
+
+## 2026-09-16 — Detail exclusive-owner KV blocks and safe physical recycling
+
+Context: Chapter 65's implementation depends on the actual pretraining execution
+checkpoint. Its planning dependency on Chapter 64 does not relax that authority.
+The bounded input/preflight counts agree; no frozen record was repaired.
+
+Decision: propose an all-layer block bundle and exact logical-token/block/slot
+mapping. The four-block diagnostic distinguishes live payload, assigned blocks,
+tail waste and resident arena bytes. A multi-token append reserves the complete
+need and publishes only a successful all-layer candidate; a free tail slot does
+not authorize partial success when the next block is unavailable.
+
+Request ownership is exclusive; prefix sharing/copy-on-write stays disabled.
+Physical storage may be recycled after safe release without reusing old logical
+K/V contents. Pool/request epochs and checked block generations reject stale
+handles; owner references and in-flight device pins are separate. Abandoned
+reservations remain owned and charged until both reads and writes are safely
+completed; a host-wrapper drop is not permission to recycle them. No counter may
+wrap. Exhaustion requires refusal without mutation and explicit safe retirement
+before a new pool identity, not silent epoch reset.
+
+Preserve the exact one-scheduler-iteration terminal reclamation requirement.
+Chapter 65's quiescent harness can prove only its bounded local cases; pending
+device readers cannot be freed to satisfy a counter. Full asynchronous acceptance
+remains a named integration gate for the later scheduler/cancellation owners,
+without implementing those chapters early or weakening the requirement.
+
+Keep the sole serving/cache_pool.rs owner and reconcile shared reader/request
+integration explicitly. No parallel page pool, Event Sourcing store, database or
+new artifact format. Arena plus metadata/temporary ownership must fit the accepted
+component/global ledger; core's 64 MiB KV ceiling is nonborrowable. No acquisition,
+training, hardware execution, localization or repair is authorized by this plan.
