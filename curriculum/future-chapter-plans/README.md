@@ -45,9 +45,10 @@ Completed planning checkpoints:
 - [Chapter 48: configurable decoder core](48-configurable-decoder-core.md).
 - [Chapter 49: dropout semantics](49-dropout-semantics.md).
 - [Chapter 50: dependency and error contract](50-dependency-error-contract.md).
+- [Chapter 51: serving configuration and admission](51-serving-config-admission.md).
 
-Chapters 51–85 remain separate pending planning steps, beginning with
-serving configuration and admission. Do not substitute this guide for those individual packets.
+Chapters 52–85 remain separate pending planning steps, beginning with
+accelerator tensor parity. Do not substitute this guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
 

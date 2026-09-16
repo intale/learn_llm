@@ -92,7 +92,7 @@
       "id": "51-serving-config-admission",
       "planning_step": "detail-ch51-serving-config-admission",
       "planned_packet": "51-serving-config-admission.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 52,

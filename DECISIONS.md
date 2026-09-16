@@ -24376,3 +24376,68 @@ not publication-quality certification or actual capability completion.
 The final checkpoint must compare every recorded artifact length and hash
 programmatically before its dedicated commit. Only the packet, shared planning
 README/index, BUILD_STATE.yaml and this decision entry are canonical outputs.
+
+## 2026-09-16 — Continue detailed planning through Chapters 51–60
+
+**Context:** The user authorized the next ten detailed future-chapter plans after
+the completed Chapter 50 checkpoint, with planning only and no intervening
+permission pause. The active planning build records budget `spent: 9` with no
+limit; this batch records one medium planning unit per chapter and does not
+infer budget from the number of completed chapters.
+
+**Decision:** Claim and complete `detail-ch51-serving-config-admission` through
+`detail-ch60-multi-seed-evaluation` strictly in dependency order. Each chapter
+gets a fresh immutable run, state checkpoint, planning validation and dedicated
+commit. Chapter 61 is not claimed by this batch. The root executor owns staged
+packet text; operational state, decision, shared guide/index integration and
+publication bookkeeping remain owned by the operations handoff.
+
+**Scope and hold:** Each step permits medium-cost planning and bounded,
+read-only primary-source lookup for its frozen historical/technical references.
+No package installation, course build, browser or Rust execution, repair,
+corpus/model acquisition, training, localization or publication review is an
+input. The functional implementation build, repair queue and execution hold
+remain unchanged.
+
+**Validation boundary:** Chapter 51 uses the current workspace bind mount
+`/home/int/rust/learn_llm` and first verifies the local
+`learn-llm-plan-validation:20260915` tag resolves to the recorded image ID
+`sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad`.
+The checker then runs with `--pull=never`, no network, read-only root and
+read-only workspace. The earlier digest-form Docker invocation's exit-125
+history remains immutable and is not rewritten.
+
+**Affected steps:**
+`detail-ch51-serving-config-admission`, `detail-ch52-accelerator-tensor-parity`,
+`detail-ch53-mixed-precision-training`, `detail-ch54-memory-bounded-training`,
+`detail-ch55-optimizer-schedules-clipping`, `detail-ch56-tensor-artifact-interchange`,
+`detail-ch57-immutable-artifact-persistence`, `detail-ch58-exact-job-resume`,
+`detail-ch59-resource-observability`, and `detail-ch60-multi-seed-evaluation`.
+
+## 2026-09-16 — Chapter 51 serving projection and preallocation admission plan
+
+The Chapter51 packet preserves the frozen serving-only boundary and exact
+implementation predecessor, supporting-dependency admission. Model/run
+configuration semantics remain Chapter48-owned; typed failures remain
+Chapter50-owned. Proposed projection, complete estimator and indivisible
+quota/lease checks do not introduce a server, backend or page scheduler.
+
+The worked CPU accounting fixture distinguishes per-buffer alignment,
+request-count precedence, memory equality and one-byte rejection, reservation
+ownership and eventual physical allocation. Existing eager full-context caches
+must be charged at full capacity; request-bound accounting is conditional on
+matching accepted storage behavior. Resident pool bytes and block quotas are
+separate constraints, and future pool growth requires prior admission.
+
+The four exact scale witnesses retain their authoritative axes. Production KV
+alone is10737418240bytes and is plan/refuse evidence only. Feature invariance
+requires two meaningful admitted build contexts, never fabricated flags or
+accelerator parity claims. Missing prerequisite/later integration evidence is
+an explicit gate, not a passing mock receipt.
+
+The authoring skill shaped the historical LLM connection, role commitments and
+external independent-review handoffs. HTTP is supporting transport evidence;
+PagedAttention supplies the model-serving memory-pressure connection. The
+frozen source IDs, six profile modes, artifact-selection hold and scope remain
+unchanged. Only internal planning records change; after this dedicated commit,
+continue Chapter52 planning under the user's51–60 authorization.
