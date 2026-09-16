@@ -47,8 +47,9 @@ Completed planning checkpoints:
 - [Chapter 50: dependency and error contract](50-dependency-error-contract.md).
 - [Chapter 51: serving configuration and admission](51-serving-config-admission.md).
 - [Chapter 52: accelerator tensor parity](52-accelerator-tensor-parity.md).
+- [Chapter 53: mixed-precision training](53-mixed-precision-training.md).
 
-Chapters 53–85 remain separate pending planning steps. Do not substitute this
+Chapters 54–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

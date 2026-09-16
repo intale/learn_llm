@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T07:36:52Z"
+updated_at: "2026-09-16T07:54:15Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -29553,7 +29553,15 @@ builds:
             commands:
               - "Verify all four prerequisite audit steps are completed and individually committed; hash their canonical reports, confirm the product remains identical to 2b24a50, and start the consolidation checkpoint."
               - "Draft the consolidated report and request two independent final consistency reviews; preserve the uncommitted draft when the browser review identifies material wording discrepancies in its prerequisite report."
-            artifacts: []
+            artifacts:
+              - path: ".build/runs/20260916T073906Z-detail-ch53-mixed-precision-training-01/inputs.json"
+                sha256: "85d727591ba997a0d9ab8d8c1e9dfab847db01d0438c9b208776dc7398ad2018"
+                bytes: 24897
+                purpose: "Exact frozen Chapter 53 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T073906Z-detail-ch53-mixed-precision-training-01/preflight.md"
+                sha256: "d24580d591b4cebf868d7c95ab01d6dcf841dfb7469d46faeb1e9e884eb00488"
+                bytes: 1313
+                purpose: "Read-only Chapter 53 claim preflight and frozen input fingerprint."
             validation: []
             notes: "Interrupted because independent review invalidated browser.md's narrative accuracy. The uncommitted consolidated draft remains an explicitly incomplete working-tree artifact and will be refreshed only after browser-corrected.md is completed and committed."
           - run_id: 20260802T110333Z-consolidate-full-course-audit-02
@@ -47188,7 +47196,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 11
+      spent: 12
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -48246,7 +48254,7 @@ builds:
       - id: detail-ch53-mixed-precision-training
         objective: "Make Chapter 53 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch52-accelerator-tensor-parity"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -48262,7 +48270,67 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260916T073906Z-detail-ch53-mixed-precision-training-01
+            started_at: "2026-09-16T07:39:06Z"
+            finished_at: "2026-09-16T07:54:15Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "9bb9bfa52d576a54e01476859522cbe1e7e52811"
+              extension_plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "9bf5b36379ef1ff2f50ad1a49adf8ce19c82e2c779eea6512e725f1c028e0908"
+              chapter52_packet_sha256: "4585fbc113f0218c6ee24d663b1ed12c4dc0ef4006775cb471876c3eb75a3d22"
+              index_sha256: "dfe16e19062e72b0f33ac545ea79f684f47785107da06f1cfc5827bc0aea778e"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Git 2.53.0; read-only ledger parser PyYAML 6.0.3; host Node 23.7.0 for orchestration only; Node 22.12.0 inside the existing offline validation image."
+            staging_dir: ".build/runs/20260916T073906Z-detail-ch53-mixed-precision-training-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum and wc -c for the frozen extension plan, planning guide, index and Chapter 52 packet"
+              - "Read-only Chapter 52 completion and Chapter 53 dependency status audit"
+              - "Extract exact Chapter 53 chapter/implementation metadata from the frozen plan and functional BUILD_STATE into inputs.json"
+              - "test \"$(docker image inspect --format '{{.Id}}' learn-llm-plan-validation:20260915)\" = sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - "Record the existing pinned offline checker tag and digest without rebuilding or pulling"
+            artifacts:
+              - path: ".build/runs/20260916T073906Z-detail-ch53-mixed-precision-training-01/inputs.json"
+                sha256: "85d727591ba997a0d9ab8d8c1e9dfab847db01d0438c9b208776dc7398ad2018"
+                bytes: 24897
+                purpose: "Exact frozen Chapter 53 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T073906Z-detail-ch53-mixed-precision-training-01/preflight.md"
+                sha256: "d24580d591b4cebf868d7c95ab01d6dcf841dfb7469d46faeb1e9e884eb00488"
+                bytes: 1313
+                purpose: "Read-only Chapter 53 claim preflight and frozen input fingerprint."
+              - path: "curriculum/future-chapter-plans/53-mixed-precision-training.md"
+                sha256: "9cddab8611c949270d43ff99b02d1080e799109f05d2701e81f57e7f4b92d415"
+                bytes: 33617
+                purpose: "Published byte-identical Chapter 53 planning packet after explicit root release."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "d467cef6de9e2a44e6a15b9dfcd32055af41ae1dc0c271235c6568ca795463e9"
+                bytes: 11843
+                purpose: "Published planning guide inventory update for Chapter 53."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "96caaea51f719fac71d1240fc5bb39ada9879f69411ec14634d38c63233612e1"
+                bytes: 10658
+                purpose: "Published Chapter 53 planning-ready index status."
+              - path: "DECISIONS.md"
+                sha256: "b43b77dae8ee7e32f997d21fd48d08bb80c69f780d137ca0652d942021e7f760"
+                bytes: 1452440
+                purpose: "Appended exact Chapter 53 planning decision entry."
+            validation:
+              - command: "Exact staged/canonical packet comparison"
+                outcome: "passed; 33617 bytes and SHA-256 9cddab8611c949270d43ff99b02d1080e799109f05d2701e81f57e7f4b92d415 match"
+              - command: "Packet UTF-8, final-LF, ordered-section, metadata/count, placeholder and canonical-relative link audit"
+                outcome: "passed; sections 1–10; prerequisites=9, outputs=25, validate=6; links resolve from curriculum/future-chapter-plans"
+              - command: "Pinned offline course-plan checker with image-ID precheck"
+                outcome: "passed; learn-llm-plan-validation:20260915 image ID sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm"
+              - command: "Published README/index and exact decision-entry suffix checks"
+                outcome: "passed; Chapter 53 planning-ready, README/index paths aligned, DECISIONS suffix byte-identical to staged decision-entry"
+              - command: "git diff --check and held-step audit"
+                outcome: "passed; repair and functional implementation/GPU-boundary steps remain pending; no course implementation paths changed"
+              - command: "Final exact artifact SHA-256 and byte-length reconciliation"
+                outcome: "passed; packet 33617/9cddab86; README 11843/d467cef6; index 10658/96caaea5; DECISIONS 1452440/b43b77da"
+            notes: "Claimed after dedicated Chapter 52 commit verification. Root released Chapter 53; exact full packet was published byte-identically and planning records/checker passed. Repairs, implementation, acquisition, training, localization and publication review remain held. Chapter 61 remains unclaimed. No .build/runs artifacts are promoted."
       - id: detail-ch54-memory-bounded-training
         objective: "Make Chapter 54 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch53-mixed-precision-training"]

@@ -24477,3 +24477,36 @@ throughput, training or parity result.
 Affected steps: `detail-ch52-accelerator-tensor-parity` and future
 `implement-ch52-accelerator-tensor-parity`; downstream prerequisite reconciliation
 for Chapters 53 and 54 does not start or alter those pending implementation steps.
+
+## 2026-09-16 — Chapter 53 mixed-precision planning and explicit scaler policy
+
+Context: `detail-ch53-mixed-precision-training` follows Chapter 52's planning
+commit. Existing training is f64-only; its non-amplifying gradient transform is
+clipping/normalization, not loss scaling. The frozen extension selects FP16
+working computation with protected FP32 state and names `DynamicV1` without
+defining its full scale/transition/cursor configuration.
+
+Decision: Stage a bounded Chapter 53 packet with exact small-update, underflow,
+unscale-before-clip and atomic-skip fixtures. Separate current APIs, mathematical
+predictions, proposed state/policy interfaces and future device measurements.
+Require the Chapter 53/profile owners to freeze explicit hash-bound DynamicV1
+fields before execution; no library defaults or competing implicit policy.
+The labeled teaching fixture uses initial/min/max scales 8/1/16, growth after two
+accepted windows, growth factor 2, backoff 1/2 and a two-consecutive-skip stop.
+Whole-window numerical skip consumes its data/RNG work without automatic retry,
+leaves parameters/moments/working copies/accepted schedule unchanged, and commits
+one scaler/skip transition. A partial-window hard failure has an explicit abort
+and last-committed-state recovery boundary rather than an overflow retry.
+
+Consequences: FP32 protected arrays and transaction temporaries remain in memory
+accounting; no halved-total-memory, convergence or GPU-success claim is made.
+BF16 is historical comparison only and remains unsupported in acceptance; FP8,
+stochastic rounding and fused third-party optimizers remain excluded. Carry the
+Chapter 52 Rust/WGSL and shared-output gates. Chapter 54 still owns general
+valid-token accumulation/recomputation; checkpoint format changes require their
+owner. All implementation/repair holds and independent English/Russian/Firefox
+publication gates remain unchanged.
+
+Affected planning step: `detail-ch53-mixed-precision-training`. Future consumer:
+`implement-ch53-mixed-precision-training`, with Chapter 54 interface and profile
+policy reconciliation before implementation, not additional current execution.
