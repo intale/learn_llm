@@ -183,7 +183,7 @@
       "id": "64-online-tiled-attention",
       "planning_step": "detail-ch64-online-tiled-attention",
       "planned_packet": "64-online-tiled-attention.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 65,

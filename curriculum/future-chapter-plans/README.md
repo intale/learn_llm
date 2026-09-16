@@ -58,6 +58,7 @@ Completed planning checkpoints:
 - [Chapter 61: quantized GGUF artifacts](61-quantized-gguf-artifacts.md).
 - [Chapter 62: laptop hardware admission](62-laptop-hardware-admission.md).
 - [Chapter 63: GQA and context policy](63-gqa-context-policy.md).
+- [Chapter 64: online tiled attention](64-online-tiled-attention.md).
 
 Chapters 63–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.

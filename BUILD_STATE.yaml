@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-16T12:12:08Z"
+updated_at: "2026-09-16T12:44:53Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 22
+      spent: 23
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -49191,7 +49191,7 @@ builds:
       - id: detail-ch64-online-tiled-attention
         objective: "Make Chapter 64 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch63-gqa-context-policy"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -49207,7 +49207,86 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: "20260916T121742Z-detail-ch64-online-tiled-attention-01"
+            started_at: "2026-09-16T12:17:42Z"
+            status: succeeded
+            finished_at: "2026-09-16T12:44:53Z"
+            input_fingerprint:
+              commit: "73da94b7c3e54f159d6a5524124db4ab900222e1"
+              implementation_build_id: "extend-course-to-functional-laptop-llm-20260810"
+              implementation_step_id: "implement-ch64-online-tiled-attention"
+              inputs_json: ".build/runs/20260916T121742Z-detail-ch64-online-tiled-attention-01/inputs.json"
+              inputs_json_sha256: "dfb8b25cb03468f3c6786f2ad9d885f67bc5cfdb8a2827dbf7e8f942b5339de6"
+              inputs_json_bytes: 17930
+              preflight_sha256: "4248f61bcc4faebac6cc1ae6e4ad467eece499a20037258446b465d87efec695"
+              preflight_bytes: 2020
+              plan_sha256: "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+              guide_sha256: "2e01eac4dd1827c0e89eb1d706c7cb4a9fdd7754b23100e50a0d840f949934ab"
+              predecessor_packet_sha256: "66d655e90dd6ee9684924754d4b04321ba3fb980df8012f0f80c7b05ed6b14bf"
+              validation_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              tools: "Docker 25.0.2; Rust 1.93.1; host Node 23.7.0/npm 10.9.2 for orchestration only; pinned validation image Node 22.12.0; Git 2.53.0"
+            staging_dir: ".build/runs/20260916T121742Z-detail-ch64-online-tiled-attention-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "Read-only exact implementation record lookup in build extend-course-to-functional-laptop-llm-20260810"
+              - "Extract Chapter 64 chapter record and exact implement-ch64-online-tiled-attention metadata into inputs.json"
+              - "Record exact actual tool versions and pinned offline checker image identity"
+              - "Create claim preflight with frozen input fingerprint and held-scope notes"
+            artifacts:
+              - path: ".build/runs/20260916T121742Z-detail-ch64-online-tiled-attention-01/inputs.json"
+                sha256: "dfb8b25cb03468f3c6786f2ad9d885f67bc5cfdb8a2827dbf7e8f942b5339de6"
+                bytes: 17930
+                purpose: "Exact frozen Chapter 64 planning and implementation metadata extracted before authoring."
+              - path: ".build/runs/20260916T121742Z-detail-ch64-online-tiled-attention-01/preflight.md"
+                sha256: "4248f61bcc4faebac6cc1ae6e4ad467eece499a20037258446b465d87efec695"
+                bytes: 2020
+                purpose: "Read-only Chapter 64 claim preflight and frozen input fingerprint."
+              - path: ".build/runs/20260916T121742Z-detail-ch64-online-tiled-attention-01/preflight-correction.md"
+                sha256: "29400e75aa7817f1c4a7a98b5be115cc62da9045c9035b05574341e5a03d2714"
+                bytes: 1109
+                purpose: "Count-only correction: authoritative implementation outputs are 25; the original inputs and preflight remain unchanged."
+              - path: ".build/runs/20260916T121742Z-detail-ch64-online-tiled-attention-01/planning-evidence.md"
+                sha256: "37b41c0dcb3457eded39181bab1a848149be8a2db898c90614585a51122e4e0f"
+                bytes: 2384
+                purpose: "Chapter 64 planning evidence handoff."
+              - path: ".build/runs/20260916T121742Z-detail-ch64-online-tiled-attention-01/decision-entry.md"
+                sha256: "81ce563bd79d9370af377a5c2d3aeebe65d42f9c592dad80d53dc11574aaad13"
+                bytes: 2152
+                purpose: "Chapter 64 decision-entry source for durable DECISIONS.md append."
+              - path: "curriculum/future-chapter-plans/64-online-tiled-attention.md"
+                sha256: "56a0f678b7d142a19c0cb2916d7527880ba4919227e6c1aa832551bd78fef0fc"
+                bytes: 39027
+                purpose: "Published exact Chapter 64 planning packet."
+              - path: "curriculum/future-chapter-plans/README.md"
+                sha256: "6b78adc07730b3e2381c7da034aaa2a6ecce2fb4ef9f4e5fe3f8328992e9a83f"
+                bytes: 12649
+                purpose: "Published future-chapter planning navigation updated for Chapter 64."
+              - path: "curriculum/future-chapter-plans/index.json"
+                sha256: "db7adb5f74d2480b3c6b8c4a0a504fddf94120bbf813264c8a547fe363cc174f"
+                bytes: 10735
+                purpose: "Published future-chapter inventory with Chapter 64 planning-ready status."
+              - path: "DECISIONS.md"
+                sha256: "614b6b22e5f3a55ebc906a4cc1226cc2794e62dee3cbf3804c2c79d038a1d730"
+                bytes: 1479443
+                purpose: "Durable Chapter 64 planning decision and count-correction rationale."
+            validation:
+              - command: "Exact implementation-ID/build lookup and metadata reconciliation"
+                outcome: "passed; implementation_state_step.id=implement-ch64-online-tiled-attention from build extend-course-to-functional-laptop-llm-20260810; dependency implement-ch63-gqa-context-policy asserted"
+              - command: "Input and preflight byte/hash reconciliation"
+                outcome: "passed; inputs.json 17930/dfb8b25c; preflight.md 2020/4248f61b"
+              - command: "Authoritative implementation output-count reconciliation"
+                outcome: "passed; implementation_state_step.outputs and inputs.json ordered outputs both contain 25 paths; original preflight count 28 corrected in separate preflight-correction.md; authoring-skill label verified against 2e01eac4 and unchanged"
+              - command: "Exact stage-to-canonical packet comparison and released-hash assertion"
+                outcome: "passed; Chapter 64 packet 39027/56a0f678; canonical bytes matched released stage before completion"
+              - command: "Metadata, section, source, profile, prerequisite/output/command, link and hold audit"
+                outcome: "passed; 10 sections, 9 prerequisites, 25 outputs, 6 implementation commands, 5 profiles, 2 historical sources, 2 claims and 0 findings; frozen plan and 71-step execution hold unchanged"
+              - command: "Pinned offline course-plan checker"
+                outcome: "passed; pinned image sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              - command: "Canonical navigation, decision suffix, YAML validity, diff-check and artifact-hash verification"
+                outcome: "passed; README/index/DECISIONS/BUILD_STATE reconciled and no implementation, repair, acquisition, training or localization bytes changed"
+            notes: "Claimed only after Chapter 63 dedicated commit 73da94b verification. Exact implementation build and step identity asserted before running checkpoint. Published only after root released exact packet 39027/56a0f678. Count-only preflight correction records that the authoritative implementation outputs count is 25, while inputs.json and preflight.md remain byte-identical; the authoring-skill SHA label is verified correct. Budget incremented from actual 22 to 23 once. No prior run was modified; Chapter 71 remains unclaimed."
       - id: detail-ch65-kv-block-pool
         objective: "Make Chapter 65 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch64-online-tiled-attention"]

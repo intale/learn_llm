@@ -24897,3 +24897,37 @@ Only planning files are staged. Long sensitivity/core jobs are consumed settings
 not executed by this chapter; smoke is the sole future executed profile. Held
 backend, experiment, probe, dependency and repair gates remain. No implementation,
 acquisition, training, localization or Chapter 71 work is authorized.
+
+## 2026-09-16 — Detail exact online attention without claiming a tuned kernel
+
+Context: Chapter 64 follows the actual Chapter 63 implementation boundary. This
+is internal planning under the implementation/repair hold, not course delivery.
+Operational state preparation was corrected before the run was admitted; its
+provenance remains separate from the frozen curriculum. The ancillary preflight
+output count was corrected to 25 in a separately preserved note, without changing
+semantic records or inventing paths. Independent verification confirmed the
+authoring-skill hash label was already correct; no hash-label repair was needed.
+
+Decision: propose one course-owned online recurrence with an explicit
+unnormalized numerator, rescaling both old sums, empty-tile no-op and distinct
+padded-query versus invalid all-masked-row behavior. A single seven-slot fixture
+has three legal keys, unequal/empty tiles and exact forward/backward fractions.
+The f64 diagnostic tolerance and finite-difference settings are proposed policies
+to freeze before outcomes, not existing production defaults.
+
+Save linear-size output/normalizer and bounded input ownership, then reconstruct
+probabilities in backward. Do not retain a square mask, full probabilities or a
+graph of every tile. GQA gradients reduce by summation into compact owners.
+Memory accounting distinguishes output, scratch, inputs, gradients, alignment,
+candidate state and device workspaces; byte reductions alone do not prove speed.
+
+Preserve the frozen WGSL path while retaining the explicit inherited Rust-only
+teaching-policy reconciliation gate. No alternate backend, opaque attention
+operator or hidden dense/CPU fallback is authorized. Changed kernel/tile/dtype
+identity requires the accepted hardware admission boundary, not a surrogate.
+
+The chapter executes only its future bounded smoke profile; sensitivity/core
+are consumed settings and later execution authorities remain separate. Preserve
+probe-envelope, dependency, module/autodiff ownership and external review gates.
+No acquisition, training, localization, repair or Chapter 65 implementation is
+started by this planning packet.
