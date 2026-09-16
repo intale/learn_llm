@@ -61,6 +61,7 @@ Completed planning checkpoints:
 - [Chapter 64: online tiled attention](64-online-tiled-attention.md).
 - [Chapter 65: KV block pool](65-kv-block-pool.md).
 - [Chapter 66: nucleus penalties and logprobs](66-nucleus-penalties-logprobs.md).
+- [Chapter 67: stop strings and Unicode streaming](67-stop-strings-unicode-streaming.md).
 
 Chapters 63–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.

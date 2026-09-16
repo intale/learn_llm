@@ -24993,3 +24993,48 @@ sequence, intervals, finish reasons or RNG.
 Implementation, acquisition, training, repair, localization and Chapter 67 stop
 work remain held. The patch-format retry affected only unpublished run staging;
 no canonical or semantic policy record was repaired.
+
+## Chapter 67 detailed planning: literal stops and strict streaming
+
+Prepare only the Chapter 67 internal packet and companion notes in the claimed
+run. Preserve the exact implementation predecessor, two capability IDs, empty
+direct claim/finding arrays, 24 outputs, six state commands and three profile
+bindings. The separate preflight correction records the verified 19-command
+implementation-plan inventory; original inputs/preflight remain unchanged.
+No frozen authority repair, implementation, acquisition, formal language review
+or next-chapter work is authorized by this entry.
+
+Proposed `literal-byte-stop-stream-v1` uses earliest start-byte position and
+configured-order ties, retaining a completed later candidate while an earlier
+or higher-priority prefix can still win. No selection follows a decisive stop;
+EOS/limits/cancel seal available input and resolve already completed candidates.
+Stops search generated content bytes only, without normalization or replacement.
+Duplicate entries retain their configured identities/order and are fully charged.
+These choices require owner freeze before implementation, not post-result tuning.
+
+Propose an explicit selected-token commit before strict byte processing. A
+post-selection byte error retains that token/history count and its one stochastic
+draw, emits no bytes from the failing transaction, and gives one typed finish.
+Pre-sampling errors leave those states unchanged. Validate all already-selected
+piece bytes, including suppressed overhang; bytes of unselected future tokens are
+outside the domain. EOS is the configured tokenizer control ID, not printable
+content. Other non-content IDs need an explicit accepted control policy or error.
+Preserve current terminal-token-not-in-KV and zero-output/no-cache regressions.
+
+Do not silently relax the original `longest_stop_bytes - 1` plus one-piece bound.
+Separate logical stop holdback, at-most-three-byte UTF-8 suffix, incoming piece
+and event queue in the proposed accounting, counting shared physical storage
+once. The single-byte-stop counterexample requires capability-owner reconciliation
+if the original bound covered total storage. Keep this an implementation gate.
+
+Course Rust owns matcher/prefix/finish decisions; standard UTF-8 validation and
+admitted `serde_json` are syntax plumbing. Declare shared generation/trace/module
+and bounded SSE adapter ownership before edits outside the frozen inventory.
+Producer events are complete and immutable at enqueue, not atomic on a socket.
+Partial wire delivery cannot be recalled; no exactly-once claim is made. Later
+serving owners receive queue/backpressure/cancellation and lease-release gates,
+not a silently implemented server.
+
+Keep smoke-only execution, blocked adapter selection, exact-tuple admission,
+backend/Rust-only policy and inherited calibration accounting gates. Planning
+quality does not establish a physical measurement or publication approval.
