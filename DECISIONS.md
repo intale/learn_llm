@@ -24647,3 +24647,54 @@ implementation hold change or language-review waiver is introduced.
 Affected planning step: `detail-ch56-tensor-artifact-interchange`; future consumer:
 `implement-ch56-tensor-artifact-interchange`, with external producer/admission and
 publication gates kept explicit.
+
+### 2026-09-16 — Chapter 57 immutable persistence planning boundary
+
+Prepared only the internal `57-immutable-artifact-persistence` packet after
+Chapter 56 planning commit. The frozen chapter, capabilities, source IDs,
+prerequisites, outputs, commands and profiles remain unchanged. Implementation,
+repair, source acquisition and independent publication reviews remain held.
+
+Proposed Chapter 57 design adopts Chapter 56's local publisher into one common
+course-owned immutable-file boundary. Use a persistent non-truncating lock file
+and one nonblocking exclusive guard across full bounded reads, existing-object
+verification, publication and reachability/retention. Do not unlink/recreate a
+held lockfile, silently overwrite an immutable object, or delete behind readers.
+Expected-old-root validation prevents stale cooperating callers from losing an
+update. This is a private cooperative local namespace, not hostile-filesystem,
+network-filesystem or arbitrary concurrent-writer security.
+
+The frozen fsync/rename formula is the core artifact step, not a claim that two
+operations alone establish universal durability. Flush buffered bytes, sync
+files/directories, publish complete children and manifest before the root, and
+distinguish post-reference synchronization uncertainty from precommit refusal.
+Never manufacture rollback by deleting a possibly published successor.
+Process-kill tests do not prove power-cut durability.
+
+Canonical snapshot schema and module placement require explicit pre-execution
+reconciliation. ISA requirements name a separate persistence crate while frozen
+outputs name `llm-from-scratch/src/persistence`; do not create both. Shared
+artifact registration, Chapter 56 conversion wiring and existing acquisition/
+manifest consumers need approved ownership; complete job-state serialization
+remains Chapter 58. No Event Sourcing, database or build-authority migration.
+
+The diagnostic fixture fixes raw payloads, exact compact manifests plus one LF,
+whole-file SHA-256 references outside the hashed file, ancestor retention and
+explicit orphan quarantine. Production schema is not inferred from serializer
+defaults. One-object scratch, 2 GiB object bound, strict host overhead, metadata,
+managed-store and whole-run budgets remain separate; a future larger checkpoint
+bundle must use bounded children rather than relaxing the object limit.
+
+Distinguish strong restore dependencies from provenance-only history: retained
+strong roots preserve their required payloads, while bounded lineage metadata
+can survive an explicitly receipted payload prune. Historical snapshots with
+pruned payloads are non-loadable, not silently reconstructed. This prevents
+provenance chains from keeping every checkpoint's weights forever and preserves
+Chapter 58's bounded rotations. The tiny fixture deliberately uses a strong edge.
+
+PER-002 remains a mandatory bounded local memory/file adapter contract, not an
+omitted retrieval feature: canonical record/snapshot bytes, idempotency-key plus
+request-hash outcomes, corruption refusal and exact authorized ranks survive
+restart. Use the course-owned RT oracle for provided vectors; a bounded basis-
+vector diagnostic is not an embedding generator or semantic retrieval claim.
+No database/vector service or Event Sourcing dependency is introduced.

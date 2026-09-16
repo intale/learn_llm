@@ -51,8 +51,9 @@ Completed planning checkpoints:
 - [Chapter 54: memory-bounded training](54-memory-bounded-training.md).
 - [Chapter 55: optimizer schedules and clipping](55-optimizer-schedules-clipping.md).
 - [Chapter 56: tensor artifact interchange](56-tensor-artifact-interchange.md).
+- [Chapter 57: immutable artifact persistence](57-immutable-artifact-persistence.md).
 
-Chapters 57–85 remain separate pending planning steps. Do not substitute this
+Chapters 58–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
