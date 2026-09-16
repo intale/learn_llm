@@ -48,8 +48,9 @@ Completed planning checkpoints:
 - [Chapter 51: serving configuration and admission](51-serving-config-admission.md).
 - [Chapter 52: accelerator tensor parity](52-accelerator-tensor-parity.md).
 - [Chapter 53: mixed-precision training](53-mixed-precision-training.md).
+- [Chapter 54: memory-bounded training](54-memory-bounded-training.md).
 
-Chapters 54–85 remain separate pending planning steps. Do not substitute this
+Chapters 55–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

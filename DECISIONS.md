@@ -24510,3 +24510,31 @@ publication gates remain unchanged.
 Affected planning step: `detail-ch53-mixed-precision-training`. Future consumer:
 `implement-ch53-mixed-precision-training`, with Chapter 54 interface and profile
 policy reconciliation before implementation, not additional current execution.
+
+## 2026-09-16 — Chapter 54 accumulation/recomputation planning boundary
+
+Context: `detail-ch54-memory-bounded-training` follows the Chapter 53 planning
+checkpoint. Existing batch statistics and graph retention do not implement
+cross-microbatch gradient accumulation or activation rematerialization. Frozen
+Chapter 54 is single-device and executes smoke while only planning core/adapter.
+
+Decision: Stage a packet that accumulates raw loss/gradient numerators and valid
+target counts, normalizes once and finalizes one Chapter 53 update window.
+Derive uneven-batch and chain-recomputation fixtures from actual planned Rust
+backward evidence; distinguish final saved payload from lifetime peak and full
+allocator/resource totals. Reuse the exact Chapter 49 dropout replay tickets
+without live-RNG consumption. Require 20 measured estimator fixtures, one-byte
+preallocation refusal and OOM preservation of last-good state/artifact identity.
+
+Consequences: Smoke's at-most-1,024 valid targets/update is not proof of the
+mandatory core range; its 16,384–32,768 feasible intersection with the frozen
+core profile remains a separate owned measurement gate. Existing checkpoint
+immutability does not establish Chapters 57/58 durable training-job recovery.
+ZeRO is historical comparison, not a single-device implementation feature.
+Chapter 52 policy/allocator, Chapter 53 transaction, shared-output ownership and
+independent bilingual/static/Firefox publication gates remain intact. All
+implementation and repair holds are preserved.
+
+Affected planning step: `detail-ch54-memory-bounded-training`; future consumer:
+`implement-ch54-memory-bounded-training`, followed by Chapter 55's optimizer
+event. No later implementation or core-profile execution begins here.
