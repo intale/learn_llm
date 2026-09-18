@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 
 /// An exact-shape residual merge that could not be formed.
 #[derive(Clone, Debug, PartialEq)]
@@ -50,6 +50,15 @@ pub fn residual_add(
     identity: &TensorValue,
     branch_output: &TensorValue,
 ) -> Result<TensorValue, ResidualError> {
+    residual_add_with_context(AutogradContext::recording(), identity, branch_output)
+}
+
+/// Adds a residual branch under the caller's explicit recording policy.
+pub fn residual_add_with_context(
+    context: AutogradContext,
+    identity: &TensorValue,
+    branch_output: &TensorValue,
+) -> Result<TensorValue, ResidualError> {
     let identity_shape = identity.shape();
     let branch_shape = branch_output.shape();
     if identity_shape != branch_shape {
@@ -58,7 +67,7 @@ pub fn residual_add(
             branch: branch_shape,
         });
     }
-    Ok(identity.add(branch_output)?)
+    Ok(identity.add_with_context(context, branch_output)?)
 }
 // endregion:residual-add
 

@@ -271,7 +271,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 37,
-    revision: 5,
+    revision: 6,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -289,7 +289,7 @@ async function expectChapterContent(
   for (const expected of [
     "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
     "[B,H,C,d_h]",
-    "[B,H,1,t+1]",
+    "[B,H,1,t]",
     "[1,2,3,2]",
     "K_{2,0}=-1.325444263",
     "K_{2,1}=0.493150590",

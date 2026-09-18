@@ -3,7 +3,7 @@ use std::fmt;
 use std::fmt::Write;
 
 use ch35_checkpoints::learner_evidence as checkpoint_evidence;
-use llm_from_scratch::autograd::tensor_core::no_grad;
+use llm_from_scratch::autograd::tensor_core::AutogradContext;
 use llm_from_scratch::checkpoint::{Checkpoint, CheckpointError, CheckpointTokenizer};
 use llm_from_scratch::generation::kv_cache::{
     CachedDecoderOutput, CachedGenerationError, CachedGenerationResult, DecoderKvCache,
@@ -265,7 +265,8 @@ fn complete_prefix_evidence(
     model: &DecoderModel,
     prefix: &[u32],
 ) -> Result<(Vec<f64>, usize), FixtureError> {
-    let forward = no_grad(|| model.forward(prefix, &[1, prefix.len()]))?;
+    let forward =
+        model.forward_with_context(AutogradContext::no_grad(), prefix, &[1, prefix.len()])?;
     let attention_score_values = forward.blocks().iter().try_fold(0usize, |total, block| {
         total
             .checked_add(block.attention_weights().value().len())

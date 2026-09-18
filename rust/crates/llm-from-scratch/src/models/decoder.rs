@@ -6,7 +6,7 @@ use std::fmt;
 use crate::attention::multi_head::{MultiHeadAttention, MultiHeadAttentionError};
 use crate::attention::qkv::{QkvError, QkvProjection};
 use crate::attention::rope::RotaryEmbedding;
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::models::decoder_block::{
     DecoderBlock, DecoderBlockComponent, DecoderBlockConfig, DecoderBlockError, DecoderBlockForward,
 };
@@ -804,10 +804,20 @@ impl DecoderModel {
         token_ids: &[u32],
         token_shape: &[usize],
     ) -> Result<DecoderModelForward, DecoderModelError> {
+        self.forward_with_context(AutogradContext::recording(), token_ids, token_shape)
+    }
+
+    /// Runs the complete model under an explicit graph-recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        token_ids: &[u32],
+        token_shape: &[usize],
+    ) -> Result<DecoderModelForward, DecoderModelError> {
         self.validate_tokens(token_ids, token_shape)?;
         let embedding = self
             .embedding
-            .forward(token_ids, token_shape)
+            .forward_with_context(context, token_ids, token_shape)
             .map_err(DecoderModelError::Embedding)?;
         let mut current = embedding.clone();
         let mut block_forwards = Vec::new();
@@ -818,24 +828,24 @@ impl DecoderModel {
             })?;
         for (layer, block) in self.blocks.iter().enumerate() {
             let forward = block
-                .forward(&current, 0)
+                .forward_with_context(context, &current, 0)
                 .map_err(|source| DecoderModelError::Block { layer, source })?;
             current = forward.output().clone();
             block_forwards.push(forward);
         }
         let final_norm = self
             .final_norm
-            .forward_with_intermediates(&current)
+            .forward_with_intermediates_and_context(context, &current)
             .map_err(DecoderModelError::FinalNorm)?;
         let tied_weight = self
             .embedding
             .table()
             .tensor()
-            .transpose(0, 1)
+            .transpose_with_context(context, 0, 1)
             .map_err(autodiff_error(DecoderModelStage::TiedWeightTranspose))?;
         let logits = final_norm
             .output()
-            .matmul(&tied_weight)
+            .matmul_with_context(context, &tied_weight)
             .map_err(autodiff_error(DecoderModelStage::TiedVocabularyProjection))?;
 
         Ok(DecoderModelForward {
@@ -849,6 +859,22 @@ impl DecoderModel {
     /// Computes one mean next-token loss over the vocabulary axis.
     pub fn loss(
         &self,
+        token_ids: &[u32],
+        token_shape: &[usize],
+        targets: &[u32],
+    ) -> Result<TensorValue, DecoderModelError> {
+        self.loss_with_context(
+            AutogradContext::recording(),
+            token_ids,
+            token_shape,
+            targets,
+        )
+    }
+
+    /// Computes next-token loss under an explicit graph-recording policy.
+    pub fn loss_with_context(
+        &self,
+        context: AutogradContext,
         token_ids: &[u32],
         token_shape: &[usize],
         targets: &[u32],
@@ -878,9 +904,9 @@ impl DecoderModel {
             target_indices
                 .push(usize::try_from(id).expect("validated target token ID must fit usize"));
         }
-        self.forward(token_ids, token_shape)?
+        self.forward_with_context(context, token_ids, token_shape)?
             .into_logits()
-            .indexed_mean_nll(2, &target_indices)
+            .indexed_mean_nll_with_context(context, 2, &target_indices)
             .map_err(autodiff_error(DecoderModelStage::IndexedMeanLoss))
     }
 

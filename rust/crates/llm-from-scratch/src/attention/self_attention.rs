@@ -3,7 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::tensor::storage::{Tensor, TensorError};
 
 // region:self-attention-errors
@@ -229,16 +229,26 @@ pub fn scaled_dot_product_self_attention(
     key: &TensorValue,
     value: &TensorValue,
 ) -> Result<SelfAttentionForward, SelfAttentionError> {
-    let prepared = scaled_self_attention_scores(query, key, value)?;
+    scaled_dot_product_self_attention_with_context(AutogradContext::recording(), query, key, value)
+}
+
+/// Computes one unmasked attention head under an explicit recording policy.
+pub fn scaled_dot_product_self_attention_with_context(
+    context: AutogradContext,
+    query: &TensorValue,
+    key: &TensorValue,
+    value: &TensorValue,
+) -> Result<SelfAttentionForward, SelfAttentionError> {
+    let prepared = scaled_self_attention_scores_with_context(context, query, key, value)?;
     let log_weights = prepared
         .scaled_scores
-        .log_softmax(2)
+        .log_softmax_with_context(context, 2)
         .map_err(autodiff_error(SelfAttentionStage::LogSoftmax))?;
     let weights = log_weights
-        .exp()
+        .exp_with_context(context)
         .map_err(autodiff_error(SelfAttentionStage::Probabilities))?;
     let output = weights
-        .matmul(value)
+        .matmul_with_context(context, value)
         .map_err(autodiff_error(SelfAttentionStage::ValueMixture))?;
 
     Ok(SelfAttentionForward {
@@ -252,7 +262,8 @@ pub fn scaled_dot_product_self_attention(
     })
 }
 
-pub(crate) fn scaled_self_attention_scores(
+pub(crate) fn scaled_self_attention_scores_with_context(
+    context: AutogradContext,
     query: &TensorValue,
     key: &TensorValue,
     value: &TensorValue,
@@ -314,10 +325,10 @@ pub(crate) fn scaled_self_attention_scores(
     }
 
     let key_transposed = key
-        .transpose(1, 2)
+        .transpose_with_context(context, 1, 2)
         .map_err(autodiff_error(SelfAttentionStage::KeyTranspose))?;
     let raw_scores = query
-        .matmul(&key_transposed)
+        .matmul_with_context(context, &key_transposed)
         .map_err(autodiff_error(SelfAttentionStage::RawScores))?;
 
     let scale = 1.0 / (query_shape[2] as f64).sqrt();
@@ -329,7 +340,7 @@ pub(crate) fn scaled_self_attention_scores(
     let scale_value = TensorValue::constant(scale_tensor)
         .map_err(autodiff_error(SelfAttentionStage::ScaleTensor))?;
     let scaled_scores = raw_scores
-        .mul(&scale_value)
+        .mul_with_context(context, &scale_value)
         .map_err(autodiff_error(SelfAttentionStage::ScaledScores))?;
     Ok(ScaledSelfAttentionScores {
         raw_scores,

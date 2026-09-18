@@ -1516,13 +1516,13 @@ with JavaScript enabled.
 
 - **Chapter ID:** `33-training-selection`
 - **Implementation step:** `implement-ch33-training-selection`
-- **Revision status:** Content revision 11 preserves stable layout, snapshot, transaction, and selection mechanics while teaching that AdamW receives an ordinary uniform gradient transform or a normalized structured fallback when an extreme finite vector's ordinary scale would underflow; raw gradients remain unchanged, the gradient transform is not applied to decoupled weight decay, and test-data rejection remains scoped to this training execution; Russian is refreshed directly from the matching English revision.
+- **Revision status:** Content revision 12 replaces ambient thread-local no-gradient state with an immutable explicit `AutogradContext`: a new result tracks gradients only when its context permits recording and at least one parent tracks gradients, context-aware model calls carry one policy through every child operation, and `zero_grad` remains the separate operation that clears accumulated gradients. Revision 11's stable layout, snapshot, transaction, clipping, selection, and test-data scope remain in force; Russian is refreshed directly from the matching English revision.
 - **Depends on:** `32-decoder-model`.
 - **Outcome:** Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data.
-- **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic no-grad validation, and best-state selection; defer final test comparison and generation.
+- **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic validation with an explicit no-gradient autograd context, and best-state selection; defer final test comparison and generation.
 - **Formula:** `\begin{aligned}g_s&=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1}),\\ \widetilde g_s&=\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s,\\ (\theta_s,m_s,v_s)&=\operatorname{AdamW}_{\eta_s}\!\left(\theta_{s-1},\widetilde g_s,m_{s-1},v_{s-1}\right),\quad s=1,\ldots,8,\\ s^*&=\min\left\{s\in\mathcal{C}:\mathcal{L}_{va}(\theta_s)=\min_{k\in\mathcal{C}}\mathcal{L}_{va}(\theta_k)\right\}\end{aligned}`.
 - **Historical contrast:** Contrast full-corpus updates and training-set-only reporting with mini-batch optimization plus validation-based model selection.
-- **Rust contribution:** Add trainer and no-grad validation APIs with a CPU-bounded tiny configuration, fixed schedule, best-state snapshot, and deterministic trace.
+- **Rust contribution:** Add trainer validation that passes an explicit no-gradient `AutogradContext` through the decoder, with a CPU-bounded tiny configuration, fixed schedule, best-state snapshot, and deterministic trace.
 - **Visualization:** Useful — plot discrete train/validation checkpoints and mark the selected step without drawing invented values between observations.
 - **Practice:** Order the training operations, identify which partition may choose hyperparameters, and predict the effect of uncleared gradients.
 - **Integration evidence:** Exact batch/step order, finite gradients, clipping, schedule checkpoints, decreasing train loss, validation-only selection, no graph during validation, determinism, and runtime ceiling pass.
@@ -1580,17 +1580,17 @@ with JavaScript enabled.
 
 - **Chapter ID:** `37-incremental-attention`
 - **Implementation step:** `implement-ch37-incremental-attention`
+- **Revision status:** Content revision 6 states that inference constructs an explicit `AutogradContext::no_grad()` and passes it through every autograd-aware child operation without changing ambient state. Revision 5's parameter-node/value-revision binding, shared prepared calculation, transactional append, and direct Russian parity remain in force.
 - **Depends on:** `36-temperature-top-k`.
 - **Outcome:** Append one position's rotated keys and unrotated values to a single layer cache and match full-prefix attention at the new position.
 - **Scope boundary:** Teach cache tensor shapes, capacity, append offsets, RoPE absolute positions, reset, and incremental multi-head attention. Defer threading independent caches through a decoder stack and generation API.
 - **Formula:** `K^{(\ell)}_{1:t}=[K^{(\ell)}_{1:t-1};k^{(\ell)}_t],\quad V^{(\ell)}_{1:t}=[V^{(\ell)}_{1:t-1};v^{(\ell)}_t]`.
 - **Historical contrast:** Contrast recomputing every earlier key/value projection for a new token with retaining layer-local inference state.
-- **Rust contribution:** Keep the standalone incremental entry fully checked, then route it through one crate-private preparation calculation that a model-wide cache session may reuse only after establishing the same layer/cache relationships.
+- **Rust contribution:** Keep the standalone incremental entry fully checked, then route it through one crate-private preparation calculation that passes an explicit no-gradient context through every autograd-aware child and that a model-wide cache session may reuse only after establishing the same layer/cache relationships.
 - **Visualization:** Useful — show one layer's retained K/V rows, absolute RoPE positions, the single new query, and the appended row at each step.
 - **Practice:** Predict cache shapes and RoPE position after three appends, then count which projections are avoided.
 - **Integration evidence:** Per-step last-position outputs match full-prefix attention within tolerance; append, reset, overflow, model/head mismatch, RoPE offsets, and operation counts pass.
 - **Handoff:** Chapter 38 gives every decoder block its own cache and separates prompt prefill from one-token decode.
-- **Revision status:** Content revision 5 preserves the parameter-node and value-revision binding, separates the fully checked standalone boundary from one crate-private already-bound preparation path, proves that both paths prepare and commit identical state through one attention calculation, and refreshes the Russian lesson directly from this English revision.
 
 ## 38. Model-wide prefill and cached generation
 

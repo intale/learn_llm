@@ -1,0 +1,79 @@
+{
+  "candidateId": "autograd-context-ch33-ch37.en.r12-r6.20260918.r2",
+  "commitments": [
+    {
+      "affectedSurfaceIds": ["built.ch33.complete", "isolated.ch33.context-card", "isolated.ch33.policy-card", "reading.ch33.main", "source.ch33.complete"],
+      "claim": "AutogradContext is an immutable Copy value. recording() permits eligible graph recording, no_grad() forbids new operation edges, and Default selects recording().",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs", "region": "autograd-context"}],
+      "id": "explicit-context-value",
+      "limitations": "The context controls operations created with it; it is not a mutable model mode and does not detach an existing TensorValue.",
+      "prerequisite": "Learners know that reverse-mode nodes may retain parent edges."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch33.complete", "isolated.ch33.policy-card", "reading.ch33.main", "source.ch33.complete"],
+      "claim": "A new result tracks gradients only when its context permits recording and at least one parent tracks gradients. Finite checking occurs before that decision; no_grad clears the new node's parent edges. recording over only constants remains untracked.",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs", "region": "autograd-operation-policy"}, {"path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs", "test": "autograd_context_is_explicit_graph_free_and_does_not_leak_between_calls"}],
+      "id": "operation-tracking-rule",
+      "limitations": "A recording context may retain parent edges even when every parent is untracked; the conjunction determines tracks_gradient, not whether recording-context parents are stored.",
+      "prerequisite": "Learners distinguish a node's tracking flag from the context policy."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch33.complete", "reading.ch33.main", "source.ch33.complete"],
+      "claim": "No-gradient operations still execute arithmetic, shape validation, and finite-result checks; their result is untracked, has one-node topology, rejects backward, and does not clear or alter existing parameter gradients. zero_grad is the separate gradient-clearing operation.",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs", "test": "autograd_context_is_explicit_graph_free_and_does_not_leak_between_calls"}, {"path": "rust/crates/llm-from-scratch/src/training/trainer.rs", "region": "no-grad-evaluation"}],
+      "id": "no-gradient-forward-boundary",
+      "limitations": "This claim concerns newly created nodes and existing gradient buffers, not arbitrary mutation outside the shown APIs.",
+      "prerequisite": "Learners know the difference between a computation graph and stored parameter gradients."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch33.complete", "reading.ch33.main", "source.ch33.complete"],
+      "claim": "Tracked convenience APIs select recording(), while context-aware tensor, layer, attention, decoder, loss, evaluation, generation, checkpoint, and pipeline paths propagate the caller-selected context through child operations. Calls can interleave without ambient-state restoration or leakage.",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"}, {"path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"}, {"path": "rust/crates/llm-from-scratch/src/models/decoder.rs"}, {"path": "rust/crates/llm-from-scratch/src/training/trainer.rs"}],
+      "id": "explicit-propagation",
+      "limitations": "AutogradContext is Copy, so 'same context' means the same immutable selected policy value, not object identity.",
+      "prerequisite": "Learners can follow parent-to-child function arguments."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch33.complete", "reading.ch33.main", "source.ch33.complete"],
+      "claim": "evaluate_no_grad creates one no-gradient context before its epoch loop, passes it into DecoderModel::loss_with_context, checks every batch loss is untracked, computes one token-weighted epoch mean, and verifies parameter-gradient bits are unchanged.",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/training/trainer.rs", "region": "no-grad-evaluation"}],
+      "id": "evaluation-policy",
+      "limitations": "The evaluator accepts the partition policy enforced by its caller; the statement about untracked values is specifically about each returned batch loss.",
+      "prerequisite": "Learners understand mini-batch means and token weighting."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch37.complete", "reading.ch37.main", "source.ch37.complete"],
+      "claim": "The standalone incremental wrapper creates no_grad after request checks, while a model-wide KV session selects no_grad before embedding and passes it into the same context-aware prepared calculation.",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/attention/incremental.rs"}, {"path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs"}],
+      "id": "incremental-context-boundaries",
+      "limitations": "The context-aware prepared entry is crate-private and inference-only; it is not a public training path.",
+      "prerequisite": "Learners know the difference between a standalone layer call and a model-wide cached session."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch37.complete", "reading.ch37.main", "source.ch37.complete"],
+      "claim": "Incremental attention applies Q/K/V projections, head splits, and RoPE, computes raw-tensor weights of shape [B,H,1,t] for the resulting prefix length t and mixes values, wraps the head output as an untracked constant, then merges heads and applies the output projection under the same no-gradient context before a later transactional cache commit.",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/attention/incremental.rs"}, {"path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs"}],
+      "id": "incremental-order-and-shape",
+      "limitations": "The raw-tensor mixture is intentionally inference-only and does not claim to preserve a training graph through cached history.",
+      "prerequisite": "Learners know Q, K, V, head splitting, RoPE, and the cache-length convention."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch37.complete", "isolated.ch37.cheat-sheet-dialog", "source.ch37.cheat-sheet"],
+      "claim": "A layer-bound KV cache captures parameter-node identities and every parameter's value revision together with its geometry and RoPE configuration. Matching node identity alone is insufficient after an in-place weight update advances a revision.",
+      "evidence": [{"path": "rust/crates/llm-from-scratch/src/attention/incremental.rs"}, {"path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs"}],
+      "id": "cache-identity-and-revision",
+      "limitations": "Reset changes logical length but does not refresh captured parameter bindings or make a stale cache compatible.",
+      "prerequisite": "Learners distinguish parameter identity from the revision of the value stored by that parameter."
+    },
+    {
+      "affectedSurfaceIds": ["built.ch37.complete", "isolated.ch37.reset-proof", "source.ch37.diagram-component"],
+      "claim": "The reset proof renders logical cache length changing from 3 to 0 with a mathematical right arrow while showing that allocation is reused and stored values remain unchanged.",
+      "evidence": [{"path": "rust/demos/ch37-incremental-attention/diagram-trace.txt"}, {"path": "site/src/components/chapters/IncrementalAttentionDiagram.astro"}],
+      "id": "reset-arrow-and-invariants",
+      "limitations": "The proof concerns logical reset; it does not claim that physical storage was zeroed or rebound.",
+      "prerequisite": "Learners distinguish logical cache length from backing allocation and stored values."
+    }
+  ],
+  "schemaVersion": 1,
+  "scopeId": "autograd-context-ch33-ch37.en.20260918.r2"
+}

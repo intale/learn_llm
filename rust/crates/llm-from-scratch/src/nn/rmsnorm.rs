@@ -3,7 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, validate_name};
 use crate::tensor::storage::Tensor;
 
@@ -227,13 +227,31 @@ impl RmsNorm {
 
     /// Normalizes the final feature axis and returns only the scaled output.
     pub fn forward(&self, input: &TensorValue) -> Result<TensorValue, RmsNormError> {
-        self.forward_with_intermediates(input)
+        self.forward_with_context(AutogradContext::recording(), input)
+    }
+
+    /// Normalizes under the caller's explicit graph-recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+    ) -> Result<TensorValue, RmsNormError> {
+        self.forward_with_intermediates_and_context(context, input)
             .map(RmsNormForward::into_output)
     }
 
     /// Normalizes the final feature axis and preserves each teaching value.
     pub fn forward_with_intermediates(
         &self,
+        input: &TensorValue,
+    ) -> Result<RmsNormForward, RmsNormError> {
+        self.forward_with_intermediates_and_context(AutogradContext::recording(), input)
+    }
+
+    /// Preserves teaching values under an explicit graph-recording policy.
+    pub fn forward_with_intermediates_and_context(
+        &self,
+        context: AutogradContext,
         input: &TensorValue,
     ) -> Result<RmsNormForward, RmsNormError> {
         let shape = input.shape();
@@ -248,10 +266,10 @@ impl RmsNorm {
         }
         let feature_axis = shape.len() - 1;
         let squared = input
-            .mul(input)
+            .mul_with_context(context, input)
             .map_err(autodiff_error(RmsNormStage::Square))?;
         let mean_square = squared
-            .mean_axis(feature_axis, true)
+            .mean_axis_with_context(context, feature_axis, true)
             .map_err(autodiff_error(RmsNormStage::MeanSquare))?;
         if self.epsilon == 0.0 {
             for (row, value) in mean_square.value().as_slice().iter().enumerate() {
@@ -262,23 +280,23 @@ impl RmsNorm {
         }
         let epsilon = scalar_constant(self.epsilon, RmsNormStage::EpsilonConstant)?;
         let stabilized = mean_square
-            .add(&epsilon)
+            .add_with_context(context, &epsilon)
             .map_err(autodiff_error(RmsNormStage::Stabilize))?;
         let log_mean_square = stabilized
-            .log()
+            .log_with_context(context)
             .map_err(autodiff_error(RmsNormStage::LogMeanSquare))?;
         let exponent = scalar_constant(-0.5, RmsNormStage::ExponentConstant)?;
         let scaled_log = log_mean_square
-            .mul(&exponent)
+            .mul_with_context(context, &exponent)
             .map_err(autodiff_error(RmsNormStage::ScaleLog))?;
         let inverse_rms = scaled_log
-            .exp()
+            .exp_with_context(context)
             .map_err(autodiff_error(RmsNormStage::ReciprocalRoot))?;
         let normalized = input
-            .mul(&inverse_rms)
+            .mul_with_context(context, &inverse_rms)
             .map_err(autodiff_error(RmsNormStage::Normalize))?;
         let output = normalized
-            .mul(self.gain().tensor())
+            .mul_with_context(context, self.gain().tensor())
             .map_err(autodiff_error(RmsNormStage::ApplyGain))?;
 
         Ok(RmsNormForward {

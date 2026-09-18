@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::no_grad;
+use crate::autograd::tensor_core::AutogradContext;
 use crate::models::decoder::{DecoderModel, DecoderModelError};
 use crate::nn::init::SplitMix64;
 
@@ -848,6 +848,7 @@ pub fn generate_uncached(
 ) -> Result<GenerationResult, GenerationError> {
     let model_config = model.config();
     let vocabulary_size = model_config.vocabulary_size();
+    let context = AutogradContext::no_grad();
     generate_with(
         vocabulary_size,
         model_config.max_positions(),
@@ -855,7 +856,7 @@ pub fn generate_uncached(
         config,
         rng,
         |prefix| {
-            let forward = no_grad(|| model.forward(prefix, &[1, prefix.len()]))?;
+            let forward = model.forward_with_context(context, prefix, &[1, prefix.len()])?;
             let logits = forward.logits().value();
             let expected = prefix
                 .len()

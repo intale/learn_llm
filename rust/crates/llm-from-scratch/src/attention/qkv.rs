@@ -3,7 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::TensorValue;
+use crate::autograd::tensor_core::{AutogradContext, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
 use crate::nn::linear::{Linear, LinearError};
 
@@ -233,6 +233,15 @@ impl QkvProjections {
 
     /// Projects exactly `[batch, tokens, model_width]` into three head-width views.
     pub fn forward(&self, input: &TensorValue) -> Result<QkvForward, QkvError> {
+        self.forward_with_context(AutogradContext::recording(), input)
+    }
+
+    /// Projects Q, K, and V under the caller's explicit recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+    ) -> Result<QkvForward, QkvError> {
         let shape = input.shape();
         if shape.len() != 3 {
             return Err(QkvError::InputRank { rank: shape.len() });
@@ -246,15 +255,15 @@ impl QkvProjections {
 
         let query = self
             .query
-            .forward(input)
+            .forward_with_context(context, input)
             .map_err(projection_error(QkvProjection::Query))?;
         let key = self
             .key
-            .forward(input)
+            .forward_with_context(context, input)
             .map_err(projection_error(QkvProjection::Key))?;
         let value = self
             .value
-            .forward(input)
+            .forward_with_context(context, input)
             .map_err(projection_error(QkvProjection::Value))?;
         Ok(QkvForward { query, key, value })
     }

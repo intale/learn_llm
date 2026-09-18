@@ -3,8 +3,8 @@
 use std::error::Error;
 use std::fmt;
 
-use super::self_attention::{SelfAttentionError, scaled_self_attention_scores};
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use super::self_attention::{SelfAttentionError, scaled_self_attention_scores_with_context};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::tensor::storage::{Tensor, TensorError};
 
 // region:causal-masking-errors
@@ -166,15 +166,30 @@ pub fn causal_scaled_dot_product_self_attention(
     key: &TensorValue,
     value: &TensorValue,
 ) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
-    let prepared = scaled_self_attention_scores(query, key, value)?;
+    causal_scaled_dot_product_self_attention_with_context(
+        AutogradContext::recording(),
+        query,
+        key,
+        value,
+    )
+}
+
+/// Computes causal attention under the caller's explicit recording policy.
+pub fn causal_scaled_dot_product_self_attention_with_context(
+    context: AutogradContext,
+    query: &TensorValue,
+    key: &TensorValue,
+    value: &TensorValue,
+) -> Result<CausalSelfAttentionForward, CausalMaskingError> {
+    let prepared = scaled_self_attention_scores_with_context(context, query, key, value)?;
     let tokens = query.shape()[1];
     let additive_mask = causal_additive_mask(tokens)?;
     let weights = prepared
         .scaled_scores
-        .causal_softmax()
+        .causal_softmax_with_context(context)
         .map_err(autodiff_error(CausalMaskingStage::MaskedSoftmax))?;
     let output = weights
-        .matmul(value)
+        .matmul_with_context(context, value)
         .map_err(autodiff_error(CausalMaskingStage::ValueMixture))?;
 
     Ok(CausalSelfAttentionForward {

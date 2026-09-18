@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "autograd-context-ch33-ch37.ru.r12-r6.20260918.v3",
+  "scopeId": "autograd-context-ch33-ch37.ru.20260918.v3",
+  "referenceLocale": "en",
+  "targetLocale": "ru",
+  "authorContext": {
+    "id": "collab:root:ru_localization_author",
+    "sha256": "354a2a4e9531e7dfbf865021c9c685d4c51e7dd8a20a78319f6c2f260462d549"
+  },
+  "requiredReviewers": {
+    "bilingual": {"model": "gpt-5.6-sol", "reasoning": "ultra"},
+    "targetOnly": {"model": "gpt-5.6-sol", "reasoning": "ultra"}
+  },
+  "requiredSurfaceIds": [
+    "ch33.autograd-explanation",
+    "ch33.complete",
+    "ch33.context-card",
+    "ch33.policy-card",
+    "ch37.cheat-sheet.complete",
+    "ch37.cheat-sheet.layer-bound-cache",
+    "ch37.complete",
+    "ch37.context-explanation"
+  ],
+  "rubrics": {
+    "bilingual": {"path": "audits/2026-09-18-autograd-context/ru-v3/rubrics/bilingual.txt", "sha256": "bc998e490516d418c2e5f5d99b44acbc36eba42da991c00b1236990669b50c0b"},
+    "targetOnly": {"path": "audits/2026-09-18-autograd-context/ru-v3/rubrics/target-only.txt", "sha256": "5c858e4b36c4992b312dd75772fd04d6d045fda76f415add9135cc5dc7047428"}
+  },
+  "surfaces": [
+    {
+      "id": "ch33.autograd-explanation",
+      "kind": "isolated-reading-unit",
+      "order": 2,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/en/ch33-autograd-explanation.txt", "sha256": "7e83fb8ed73dbd617210f76a4b93b513276cf7e827fa1e4e847f91cf33b66f1d"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/ru/ch33-autograd-explanation.txt", "sha256": "8951cb4b784d9c1f993b90cbbd79c3508bb382886e41ea51d518d511467ca9f4"}
+    },
+    {
+      "id": "ch33.complete",
+      "kind": "complete-document",
+      "order": 1,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/frozen/source/33-training-selection.mdx", "sha256": "32b83e7b01cf9100c287def1d61b76d3c2457e879c5f74c5f06ff871e0b6ccfc"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/frozen/ru/33-training-selection.mdx", "sha256": "1beb3e70775a1da887d5f4568da9a96fb06ac364db422b74d47a4400177e9d51"},
+      "publicationPath": "site/src/content/chapters/ru/33-training-selection.mdx"
+    },
+    {
+      "id": "ch33.context-card",
+      "kind": "isolated-source-card-copy",
+      "order": 3,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/en/ch33-context-card.txt", "sha256": "5d3facd163086c6e786fc1383d6d45546ccfdfe571a2cd0f3723e9fe542af4ab"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/ru/ch33-context-card.txt", "sha256": "0b186a81e08b3ab3b2d4078559ba510a35836ab9602375c8772246eb6ea0dd15"}
+    },
+    {
+      "id": "ch33.policy-card",
+      "kind": "isolated-source-card-copy",
+      "order": 4,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/en/ch33-policy-card.txt", "sha256": "1430f25420f88efbdaa40dd5113db84aa57a9d90f7c0c227ecbde281e69d5cca"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/ru/ch33-policy-card.txt", "sha256": "460f8935f4c15c3829da58285fa980a82da465fe82e64370ce916e0be140504c"}
+    },
+    {
+      "id": "ch37.cheat-sheet.complete",
+      "kind": "complete-document",
+      "order": 7,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/frozen/source/37-incremental-attention.cheat-sheet.json", "sha256": "64626ff4733d56dc8bf46a70399ae3aab74d17b31b29d24e49c69bafad901f0b"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/frozen/ru/37-incremental-attention.cheat-sheet.json", "sha256": "93a66ef137600d6950766b1d803ab2902e03d88dc196cac0ebdd0bde37956bce"},
+      "publicationPath": "site/src/content/cheat-sheets/ru/37-incremental-attention.json"
+    },
+    {
+      "id": "ch37.cheat-sheet.layer-bound-cache",
+      "kind": "isolated-cheat-sheet-term",
+      "order": 8,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/en/ch37-layer-bound-cache.txt", "sha256": "6f054a6e772b4265d30b530b3273bbc2a723fd92201cdbf3481c24524310ca69"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/ru/ch37-layer-bound-cache.txt", "sha256": "ace1e91469fe7261280e190dbd1e437dbf851e848ee6e393f7f903227899f09c"}
+    },
+    {
+      "id": "ch37.complete",
+      "kind": "complete-document",
+      "order": 5,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/frozen/source/37-incremental-attention.mdx", "sha256": "4519da8cdf77196b8f940c669e89a2d5edca49f87fed6a04a0969900f9d65d54"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/frozen/ru/37-incremental-attention.mdx", "sha256": "7a715c4d5d5658555036a1159405767d3a45a01759c1fc075296ab89ef77ed4d"},
+      "publicationPath": "site/src/content/chapters/ru/37-incremental-attention.mdx"
+    },
+    {
+      "id": "ch37.context-explanation",
+      "kind": "isolated-reading-unit",
+      "order": 6,
+      "localization": "translate",
+      "source": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/en/ch37-context-explanation.txt", "sha256": "6c46ebc6d01216026af19584d9fc0c843ad7a3b0669eaad1281e3459c577645b"},
+      "target": {"path": "audits/2026-09-18-autograd-context/ru-v3/surfaces/ru/ch37-context-explanation.txt", "sha256": "58b118cab63c71e41ed179f64065c2388f04151105aa984c6d3f48e891eb8735"}
+    }
+  ]
+}

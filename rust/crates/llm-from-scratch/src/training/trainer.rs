@@ -3,7 +3,9 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{GraphRetention, TensorAutodiffError, TensorValue, no_grad};
+use crate::autograd::tensor_core::{
+    AutogradContext, GraphRetention, TensorAutodiffError, TensorValue,
+};
 use crate::corpus::Partition;
 use crate::models::decoder::{
     DecoderModel, DecoderModelConfig, DecoderModelError, DecoderParameterSource,
@@ -805,14 +807,14 @@ pub fn evaluate_no_grad(
     let mut weighted_sum = 0.0;
     let mut token_count = 0_usize;
     let mut recorded_graphs = 0_usize;
+    let context = AutogradContext::no_grad();
     for (batch_index, batch) in epoch.batches().iter().enumerate() {
-        let loss = no_grad(|| {
-            model.loss(
-                batch.inputs(),
-                &[batch.batch_width(), batch.context_length()],
-                batch.targets(),
-            )
-        })?;
+        let loss = model.loss_with_context(
+            context,
+            batch.inputs(),
+            &[batch.batch_width(), batch.context_length()],
+            batch.targets(),
+        )?;
         if loss.tracks_gradient() {
             return Err(TrainerError::ValidationRecordedGraph {
                 partition: epoch.partition(),

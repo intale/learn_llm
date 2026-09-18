@@ -4,11 +4,14 @@ use std::error::Error;
 use std::fmt;
 
 use super::multi_head::{
-    HeadLayoutError, MultiHeadAttention, MultiHeadInput, merge_heads, split_heads,
+    HeadLayoutError, MultiHeadAttention, MultiHeadInput, merge_heads_with_context,
+    split_heads_with_context,
 };
 use super::qkv::QkvError;
 use super::rope::RopeError;
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue, TensorValueBinding, no_grad};
+use crate::autograd::tensor_core::{
+    AutogradContext, TensorAutodiffError, TensorValue, TensorValueBinding,
+};
 use crate::nn::linear::LinearError;
 use crate::nn::probability::{ProbabilityError, softmax};
 use crate::tensor::storage::{Tensor, TensorError};
@@ -845,95 +848,111 @@ impl MultiHeadAttention {
         input: &TensorValue,
         cache: &LayerKvCache,
     ) -> Result<PreparedIncrementalAttention, IncrementalAttentionError> {
-        no_grad(|| {
-            let position = cache.len();
-            let projected = self
-                .qkv()
-                .forward(input)
-                .map_err(IncrementalAttentionError::QkvProjection)?;
-            let projected_query_heads =
-                split_heads(projected.query(), self.heads()).map_err(|source| {
-                    IncrementalAttentionError::HeadLayout {
-                        input: MultiHeadInput::Query,
-                        source,
-                    }
-                })?;
-            let projected_key_heads =
-                split_heads(projected.key(), self.heads()).map_err(|source| {
-                    IncrementalAttentionError::HeadLayout {
-                        input: MultiHeadInput::Key,
-                        source,
-                    }
-                })?;
-            let projected_value_heads =
-                split_heads(projected.value(), self.heads()).map_err(|source| {
-                    IncrementalAttentionError::HeadLayout {
-                        input: MultiHeadInput::Value,
-                        source,
-                    }
-                })?;
-            let rotated_query_heads = self
-                .rope()
-                .rotate(&projected_query_heads, position)
-                .map_err(|source| IncrementalAttentionError::Rotary {
+        let context = AutogradContext::no_grad();
+        self.prepare_incremental_bound_with_context(context, input, cache)
+    }
+
+    /// Prepares one already-validated row under the caller's no-gradient context.
+    ///
+    /// The model-wide cache session uses this entry so its one explicitly
+    /// selected inference context reaches every child operation. Callers must
+    /// establish the same binding, shape, and capacity preconditions as
+    /// [`Self::prepare_incremental_bound`].
+    pub(crate) fn prepare_incremental_bound_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        cache: &LayerKvCache,
+    ) -> Result<PreparedIncrementalAttention, IncrementalAttentionError> {
+        debug_assert!(
+            !context.records_graph(),
+            "incremental cache preparation is inference-only"
+        );
+        let position = cache.len();
+        let projected = self
+            .qkv()
+            .forward_with_context(context, input)
+            .map_err(IncrementalAttentionError::QkvProjection)?;
+        let projected_query_heads =
+            split_heads_with_context(context, projected.query(), self.heads()).map_err(
+                |source| IncrementalAttentionError::HeadLayout {
                     input: MultiHeadInput::Query,
                     source,
-                })?;
-            let rotated_key_heads =
-                self.rope()
-                    .rotate(&projected_key_heads, position)
-                    .map_err(|source| IncrementalAttentionError::Rotary {
-                        input: MultiHeadInput::Key,
-                        source,
-                    })?;
-            let candidate_key = rotated_key_heads.value_snapshot();
-            let candidate_value = projected_value_heads.value_snapshot();
-            let (attention_weights, head_output_tensor) = incremental_mixture(
-                &rotated_query_heads.value(),
-                &candidate_key,
-                &candidate_value,
-                cache,
-            )?;
-            let head_outputs = TensorValue::constant(head_output_tensor).map_err(|source| {
-                IncrementalAttentionError::Autodiff {
-                    stage: IncrementalAttentionStage::HeadOutputLeaf,
-                    source,
-                }
-            })?;
-            let merged =
-                merge_heads(&head_outputs).map_err(IncrementalAttentionError::MergeLayout)?;
-            let output = self
-                .output_projection()
-                .forward(&merged)
-                .map_err(IncrementalAttentionError::OutputProjection)?;
-            let cache_len = position + 1;
-            let result = IncrementalAttentionForward {
-                projected_query_heads,
-                projected_key_heads,
-                projected_value_heads,
-                rotated_query_heads,
-                rotated_key_heads,
-                attention_weights,
-                head_outputs,
-                merged,
-                output,
-                work: IncrementalAttentionWork {
-                    position,
-                    full_prefix_rows_per_projection: cache_len,
-                    incremental_rows_per_projection: 1,
-                    reused_key_value_rows: position,
                 },
-                cache_len,
-            };
-            cache.validate_append(&candidate_key, &candidate_value)?;
-            Ok(PreparedIncrementalAttention {
-                forward: result,
-                candidate_key,
-                candidate_value,
-                expected_len: position,
-                key_storage: cache.key_storage().as_ptr(),
-                value_storage: cache.value_storage().as_ptr(),
-            })
+            )?;
+        let projected_key_heads = split_heads_with_context(context, projected.key(), self.heads())
+            .map_err(|source| IncrementalAttentionError::HeadLayout {
+                input: MultiHeadInput::Key,
+                source,
+            })?;
+        let projected_value_heads =
+            split_heads_with_context(context, projected.value(), self.heads()).map_err(
+                |source| IncrementalAttentionError::HeadLayout {
+                    input: MultiHeadInput::Value,
+                    source,
+                },
+            )?;
+        let rotated_query_heads = self
+            .rope()
+            .rotate_with_context(context, &projected_query_heads, position)
+            .map_err(|source| IncrementalAttentionError::Rotary {
+                input: MultiHeadInput::Query,
+                source,
+            })?;
+        let rotated_key_heads = self
+            .rope()
+            .rotate_with_context(context, &projected_key_heads, position)
+            .map_err(|source| IncrementalAttentionError::Rotary {
+                input: MultiHeadInput::Key,
+                source,
+            })?;
+        let candidate_key = rotated_key_heads.value_snapshot();
+        let candidate_value = projected_value_heads.value_snapshot();
+        let (attention_weights, head_output_tensor) = incremental_mixture(
+            &rotated_query_heads.value(),
+            &candidate_key,
+            &candidate_value,
+            cache,
+        )?;
+        let head_outputs = TensorValue::constant(head_output_tensor).map_err(|source| {
+            IncrementalAttentionError::Autodiff {
+                stage: IncrementalAttentionStage::HeadOutputLeaf,
+                source,
+            }
+        })?;
+        let merged = merge_heads_with_context(context, &head_outputs)
+            .map_err(IncrementalAttentionError::MergeLayout)?;
+        let output = self
+            .output_projection()
+            .forward_with_context(context, &merged)
+            .map_err(IncrementalAttentionError::OutputProjection)?;
+        let cache_len = position + 1;
+        let result = IncrementalAttentionForward {
+            projected_query_heads,
+            projected_key_heads,
+            projected_value_heads,
+            rotated_query_heads,
+            rotated_key_heads,
+            attention_weights,
+            head_outputs,
+            merged,
+            output,
+            work: IncrementalAttentionWork {
+                position,
+                full_prefix_rows_per_projection: cache_len,
+                incremental_rows_per_projection: 1,
+                reused_key_value_rows: position,
+            },
+            cache_len,
+        };
+        cache.validate_append(&candidate_key, &candidate_value)?;
+        Ok(PreparedIncrementalAttention {
+            forward: result,
+            candidate_key,
+            candidate_value,
+            expected_len: position,
+            key_storage: cache.key_storage().as_ptr(),
+            value_storage: cache.value_storage().as_ptr(),
         })
     }
 }

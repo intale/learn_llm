@@ -370,6 +370,15 @@ describe("Chapter 33 static diagram and content boundary", () => {
     );
   });
 
+  it("binds both learner-visible autograd evidence regions in the contract", () => {
+    expect(contractSource).toContain(
+      "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs#autograd-context",
+    );
+    expect(contractSource).toContain(
+      "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs#autograd-operation-policy",
+    );
+  });
+
   it("keeps the contract, lesson, Rust evidence, LLM history, formulas, and locale policy aligned", () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
@@ -507,17 +516,17 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     );
-    expect(contract.content_revision).toBe(11);
-    expect(lesson.content_revision).toBe(11);
-    expect(russianLesson.content_revision).toBe(11);
+    expect(contract.content_revision).toBe(12);
+    expect(lesson.content_revision).toBe(12);
+    expect(russianLesson.content_revision).toBe(12);
     expect(contract.translation_notes).toContain(
-      `Canonical English revision 11 has SHA-256 ${createHash("sha256").update(lessonSource).digest("hex")}; the reviewed direct Russian revision 11 has SHA-256 ${createHash("sha256").update(russianLessonSource).digest("hex")}.`,
+      "Canonical English revision 12 is the sole semantic source for Russian revision 12; bind their exact reviewed hashes in the independent English and localization audit records.",
     );
     expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
-      "4c67a2d91a7782c1ef2469e211f37c32c4f752fbd2e13dc513fe6fe41d0b862e",
+      "32b83e7b01cf9100c287def1d61b76d3c2457e879c5f74c5f06ff871e0b6ccfc",
     );
     expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
-      "44c380ee079829b88c12f4d8085fdcde428e0bcbde58f97d661189e306b58484",
+      "3d609072eca9afa081a76e025d281925a668a3bc921ef97408f87a2eb4317ca8",
     );
     expect(coursePlanSource).not.toContain("s^\\*");
     expect(contractSource).not.toContain("s^\\*");
@@ -529,7 +538,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
       expect(normalizedLesson).toContain(source.claim);
     }
     expect(lessonSource.match(/chapter-section:/g)).toHaveLength(8);
-    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(11);
+    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(12);
     expect(lessonSource).toContain(
       "<TrainingSelectionDiagram labels={diagramLabels} />",
     );
@@ -543,7 +552,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
       /byte for byte|final newline|page parses|static diagram|implementation languages/i,
     );
     expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
-    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(11);
+    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(12);
     expect(russianLessonSource).toContain(
       "<TrainingSelectionDiagram labels={diagramLabels} />",
     );
@@ -718,7 +727,26 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
       "после обычного шага AdamW пересобирать декодер не нужно.",
     );
-    expect(tapeSource).toContain("region:no-grad-scope");
+    expect(tapeSource).toContain("region:autograd-context");
+    const autogradContextSource = sourceRegion(
+      tapeSource,
+      "autograd-context",
+    );
+    expect(autogradContextSource).toContain("pub struct AutogradContext");
+    expect(autogradContextSource).toContain("pub const fn recording()");
+    expect(autogradContextSource).toContain("pub const fn no_grad()");
+    expect(autogradContextSource).not.toContain("thread_local!");
+    expect(tapeSource).toContain("region:autograd-operation-policy");
+    const autogradOperationPolicySource = sourceRegion(
+      tapeSource,
+      "autograd-operation-policy",
+    );
+    expect(autogradOperationPolicySource).toContain("check_finite_forward");
+    expect(autogradOperationPolicySource).toContain("context.records_graph()");
+    expect(autogradOperationPolicySource).toContain(
+      "edge.parent.tracks_gradient()",
+    );
+    expect(autogradOperationPolicySource).toContain("parents.clear()");
     expect(decoderSource).toContain("region:decoder-parameter-rebuild");
     const parameterRebuildSource = sourceRegion(
       decoderSource,

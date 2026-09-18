@@ -375,7 +375,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 33,
-    revision: 11,
+    revision: 12,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -439,7 +439,7 @@ async function expectChapterContent(
   await expect(
     page.locator('.lesson-body a[href^="https://arxiv.org/"]'),
   ).toHaveCount(3);
-  await expect(page.locator("figure.rust-source")).toHaveCount(11);
+  await expect(page.locator("figure.rust-source")).toHaveCount(12);
   await expectVisualizationDecision(page, {
     decision: "useful",
     id: "training-validation-checkpoints",

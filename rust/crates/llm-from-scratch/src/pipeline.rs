@@ -5,7 +5,7 @@ use std::error::Error;
 use std::fmt;
 use std::path::Path;
 
-use crate::autograd::tensor_core::no_grad;
+use crate::autograd::tensor_core::AutogradContext;
 use crate::bigram::BigramModel;
 use crate::checkpoint::{Checkpoint, CheckpointTokenizer};
 use crate::corpus::{Corpus, Partition, SPLIT_STRATEGY, SplitManifest};
@@ -939,7 +939,7 @@ fn training_replays_bitwise(left: &TrainingResult, right: &TrainingResult) -> bo
 fn logits_bits(model: &DecoderModel, prompt: &[u32]) -> Result<Vec<u64>, PipelineError> {
     let logits = map(
         PipelineStage::Checkpoint,
-        no_grad(|| model.forward(prompt, &[1, prompt.len()])),
+        model.forward_with_context(AutogradContext::no_grad(), prompt, &[1, prompt.len()]),
     )?;
     Ok(logits
         .into_logits()

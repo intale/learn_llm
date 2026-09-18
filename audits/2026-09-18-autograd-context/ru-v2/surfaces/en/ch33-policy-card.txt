@@ -1,0 +1,3 @@
+Check each forward result, require both a recording-enabled context and a tracked parent for gradient tracking, and discard parent edges under the no-gradient policy.
+Check the result, combine context policy with parent state, and omit no-gradient parent edges
+Rust source applying the Chapter 33 autograd operation-recording policy

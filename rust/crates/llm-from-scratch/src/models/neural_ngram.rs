@@ -3,7 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::nn::embedding::{Embedding, EmbeddingError};
 use crate::nn::init::{InitializationError, NamedParameter, SplitMix64};
 use crate::nn::linear::{Linear, LinearError};
@@ -465,6 +465,16 @@ impl NeuralNgram {
         context_ids: &[u32],
         batch_size: usize,
     ) -> Result<NeuralNgramForward, NeuralNgramError> {
+        self.forward_with_context(AutogradContext::recording(), context_ids, batch_size)
+    }
+
+    /// Runs the fixed-context model under an explicit recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        context_ids: &[u32],
+        batch_size: usize,
+    ) -> Result<NeuralNgramForward, NeuralNgramError> {
         if batch_size == 0 {
             return Err(NeuralNgramError::EmptyBatch);
         }
@@ -482,18 +492,22 @@ impl NeuralNgram {
         }
         let embeddings = self
             .embedding
-            .forward(context_ids, &[batch_size, self.config.context_length])
+            .forward_with_context(
+                context,
+                context_ids,
+                &[batch_size, self.config.context_length],
+            )
             .map_err(NeuralNgramError::Embedding)?;
         let concatenated = embeddings
-            .reshape(&[batch_size, self.config.context_feature_width])
+            .reshape_with_context(context, &[batch_size, self.config.context_feature_width])
             .map_err(NeuralNgramError::Autodiff)?;
         let hidden = self
             .feed_forward
-            .forward(&concatenated)
+            .forward_with_context(context, &concatenated)
             .map_err(NeuralNgramError::SwiGlu)?;
         let logits = self
             .output
-            .forward(&hidden)
+            .forward_with_context(context, &hidden)
             .map_err(NeuralNgramError::Linear)?;
         Ok(NeuralNgramForward {
             embeddings,
@@ -505,6 +519,15 @@ impl NeuralNgram {
 
     /// Scores only the token following each complete context row.
     pub fn loss(&self, batch: &MiniBatch) -> Result<TensorValue, NeuralNgramError> {
+        self.loss_with_context(AutogradContext::recording(), batch)
+    }
+
+    /// Scores the batch under an explicit graph-recording policy.
+    pub fn loss_with_context(
+        &self,
+        context: AutogradContext,
+        batch: &MiniBatch,
+    ) -> Result<TensorValue, NeuralNgramError> {
         if batch.context_length() != self.config.context_length {
             return Err(NeuralNgramError::BatchContextLengthMismatch {
                 expected: self.config.context_length,
@@ -532,9 +555,9 @@ impl NeuralNgram {
             }
             targets.push(target);
         }
-        self.forward(batch.inputs(), batch_size)?
+        self.forward_with_context(context, batch.inputs(), batch_size)?
             .into_logits()
-            .indexed_mean_nll(1, &targets)
+            .indexed_mean_nll_with_context(context, 1, &targets)
             .map_err(NeuralNgramError::Autodiff)
     }
 

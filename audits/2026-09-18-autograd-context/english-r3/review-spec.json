@@ -1,0 +1,159 @@
+{
+  "adjudicationSchema": {"path": ".agents/skills/author-llm-course-english/references/adjudication-record.schema.json", "sha256": "6463982e2e84c5cea564699242abc5e681d13364e3b7457961d62f9b3c26ca69"},
+  "authorContext": {"path": "audits/2026-09-18-autograd-context/english-r3/contexts/author.json", "sha256": "6584ff38924d50f3dd9352743549b54644c647d3f67e4239059ae15591d281e5"},
+  "builtDocuments": [
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/built/33-training-selection.html", "sha256": "827aada6e7706f26d2dd4e8fa229b80dd890480d594e92adf143a1df930fd44a"},
+      "id": "built.ch33.complete",
+      "kind": "complete-built-html",
+      "publicationPath": "site/dist/en/course/33-training-selection/index.html",
+      "roleRequirement": "The complete built Chapter 33 page must preserve the lesson's established training and selection sequence while rendering the explicit AutogradContext policy, two-condition gradient-tracking rule, forward-check boundary, existing-graph limitation, zero_grad distinction, evaluation behavior, and both new Rust evidence cards in learner-readable order.",
+      "route": "/en/course/33-training-selection/"
+    },
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/built/37-incremental-attention.html", "sha256": "d82f18023433cc9ede143dae9556005264e0627501fbe329019d48cec1f8c1c2"},
+      "id": "built.ch37.complete",
+      "kind": "complete-built-html",
+      "publicationPath": "site/dist/en/course/37-incremental-attention/index.html",
+      "roleRequirement": "The complete built Chapter 37 page must preserve the established cache lesson while rendering the standalone and model-wide no-gradient boundaries, the shared context-aware calculation, the executable operation order, the [B,H,1,t] weight shape and prefix-length meaning, the untracked raw-mixture boundary, transactional append scope, cache binding to both parameter-node identities and captured value revisions, and the reset proof as 3 right-arrow 0 without an ambient-mode claim.",
+      "route": "/en/course/37-incremental-attention/"
+    }
+  ],
+  "candidateId": "autograd-context-ch33-ch37.en.r12-r6.20260918.r3",
+  "commitmentMap": {"path": "audits/2026-09-18-autograd-context/english-r3/evidence/commitment-map.json", "sha256": "f612fe2aee58ed03305216edf8a8693422116c49b45a657cc378ad3b472ecd74"},
+  "evidence": [
+    {"id": "demo-ch33-diagram-source", "path": "rust/demos/ch33-training-selection/src/diagram_trace.rs", "sha256": "9e2114bff49a2dd5a6d55c9adf2d5e609277032ea4589f1c443459fe162bb4b8"},
+    {"id": "demo-ch33-diagram-trace", "path": "rust/demos/ch33-training-selection/diagram-trace.txt", "sha256": "97b90e3e25963366ecd2edd7290436ba05bc8023d414191ef685f2fc9f7f4b12"},
+    {"id": "demo-ch33-lib", "path": "rust/demos/ch33-training-selection/src/lib.rs", "sha256": "e7c3c69fb8dd4c610a84b59c81a192a418ddbf0db18d7c2aa39ff10d66d84bab"},
+    {"id": "demo-ch33-main", "path": "rust/demos/ch33-training-selection/src/main.rs", "sha256": "2a2b17469d551b60ac32461a24942d9fe827d5baf6b1e8835df49e549936ac8b"},
+    {"id": "demo-ch33-stdout", "path": "rust/demos/ch33-training-selection/expected.txt", "sha256": "22ad9e85f1e8fe036ef9ae1731dbc3f82e3723102e91b21755e4e7da4e6639ba"},
+    {"id": "demo-ch37-diagram-trace", "path": "rust/demos/ch37-incremental-attention/diagram-trace.txt", "sha256": "8f4d8921018a048c0058c236443436380e0d05dc5c8487244c4ea523c9507fab"},
+    {"id": "demo-ch37-lib", "path": "rust/demos/ch37-incremental-attention/src/lib.rs", "sha256": "ab3842c1cde18d7a98af27cdcc847119d15cc630ed028f460ea34c99e7ca3824"},
+    {"id": "demo-ch37-main", "path": "rust/demos/ch37-incremental-attention/src/main.rs", "sha256": "16b30a7fce54c68f62d5f623da104a043939fbfa6b1b1396ca23ba12116d93ba"},
+    {"id": "demo-ch37-stdout", "path": "rust/demos/ch37-incremental-attention/expected.txt", "sha256": "a82b1cc0e2bedc009f1d8fa231e9f44666ce205644022baff146e188bbbe5ac0"},
+    {"id": "rust-adamw", "path": "rust/crates/llm-from-scratch/src/training/adamw.rs", "sha256": "a8eaff0d9d6d6e54f6f9208134c3be0a23b26563cb8c7e8759975fa26e5867f7"},
+    {"id": "rust-autograd-core", "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs", "sha256": "1ba934b249c22620ac65a4dba7e51933e47a75acb328c3821253d086448d29ce"},
+    {"id": "rust-autograd-model-ops", "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs", "sha256": "d60d355c1bf939d34d4b2d01ebf037396bdbfa7cf746a1af856db79f57b925ca"},
+    {"id": "rust-decoder", "path": "rust/crates/llm-from-scratch/src/models/decoder.rs", "sha256": "98272f875d6acd96c9754f765bd85841cf11ce5e0a6d71b5a6b205dd3eb2963f"},
+    {"id": "rust-incremental-attention", "path": "rust/crates/llm-from-scratch/src/attention/incremental.rs", "sha256": "bffee80a8b4a3f235601c06d6113ceec02d9518375de619ae04f1e28a51db1de"},
+    {"id": "rust-kv-cache", "path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs", "sha256": "872ed3565fa357d0feb0606b56295da9dd06f2fc4b6d9d43345b9ebf415a2c41"},
+    {"id": "rust-trainer", "path": "rust/crates/llm-from-scratch/src/training/trainer.rs", "sha256": "620d52f303db63162e0325d64c497746bbc044041a95efc2dfdb95c66cd92d17"}
+  ],
+  "isolatedSurfaces": [
+    {
+      "documentId": "built.ch33.complete",
+      "id": "isolated.ch33.context-card",
+      "kind": "isolated-rust-source-card",
+      "literals": [{"kind": "identifier", "value": "AutogradContext"}, {"kind": "identifier", "value": "no_grad"}, {"kind": "identifier", "value": "recording"}, {"kind": "path", "value": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs#autograd-context"}],
+      "locator": {"attribute": {"name": "data-source-region", "value": "autograd-context"}, "tag": "figure"},
+      "order": 1,
+      "roleRequirement": "The complete standalone source card must identify an explicit non-ambient autograd recording context and show the immutable value plus its recording and no-gradient constructors with an accessible purpose label.",
+      "value": {"type": "text"}
+    },
+    {
+      "documentId": "built.ch33.complete",
+      "id": "isolated.ch33.policy-card",
+      "kind": "isolated-rust-source-card",
+      "literals": [{"kind": "identifier", "value": "check_finite_forward"}, {"kind": "identifier", "value": "parents.clear"}, {"kind": "identifier", "value": "records_graph"}, {"kind": "identifier", "value": "tracks_gradient"}, {"kind": "path", "value": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs#autograd-operation-policy"}],
+      "locator": {"attribute": {"name": "data-source-region", "value": "autograd-operation-policy"}, "tag": "figure"},
+      "order": 2,
+      "roleRequirement": "The complete standalone source card must state and show that operation creation first checks the forward result, combines explicit context policy with parent tracking to determine the result tracking flag, and removes parent edges for no-gradient execution.",
+      "value": {"type": "text"}
+    },
+    {
+      "documentId": "built.ch37.complete",
+      "id": "isolated.ch37.cheat-sheet-dialog",
+      "kind": "isolated-cheat-sheet-dialog",
+      "literals": [{"kind": "identifier", "value": "Layer-bound KV cache"}, {"kind": "identifier", "value": "Matching parameter-node identity alone is insufficient"}, {"kind": "identifier", "value": "captured value revision"}],
+      "locator": {"id": "cheat-sheet-37-incremental-attention", "tag": "dialog"},
+      "order": 3,
+      "roleRequirement": "The complete standalone Chapter 37 quick-reference dialog must define a layer-bound KV cache using both parameter-node identities and each parameter's captured value revision, explicitly state that node identity alone is insufficient after an in-place update, and preserve the surrounding cache terms needed to interpret that definition.",
+      "value": {"type": "text"}
+    },
+    {
+      "documentId": "built.ch37.complete",
+      "id": "isolated.ch37.reset-proof",
+      "kind": "isolated-diagram-proof-card",
+      "literals": [{"kind": "code", "value": "allocation_reused=true"}, {"kind": "code", "value": "storage_unchanged=true"}, {"kind": "formula", "value": "3\\to0"}],
+      "locator": {"attribute": {"name": "data-proof", "value": "reset"}, "tag": "article"},
+      "order": 4,
+      "roleRequirement": "The standalone reset proof card must show logical length changing from 3 to 0 with a rendered right arrow and must independently state that the allocation is reused and stored values remain unchanged.",
+      "value": {"type": "text"}
+    }
+  ],
+  "readingSurfaces": [
+    {
+      "documentId": "built.ch33.complete",
+      "id": "reading.ch33.main",
+      "kind": "reading-main",
+      "locator": {"id": "main-content", "tag": "main"},
+      "order": 1,
+      "roleRequirement": "In rendered reading order, Chapter 33 must connect the pre-forward context choice to child propagation, the exact tracking conjunction and no-gradient edge rule, unchanged forward checks, the existing-graph limitation, evaluation's batch-loss and token-weight behavior, and the separate zero_grad operation without disrupting the surrounding training-selection lesson.",
+      "value": {"type": "text"}
+    },
+    {
+      "documentId": "built.ch37.complete",
+      "id": "reading.ch37.main",
+      "kind": "reading-main",
+      "locator": {"id": "main-content", "tag": "main"},
+      "order": 2,
+      "roleRequirement": "In rendered reading order, Chapter 37 must distinguish standalone and model-wide context selection, follow the actual projection, rotation, raw-mixture, merge, projection, and later-commit order, define t as the resulting prefix length in [B,H,1,t], scope graph detachment to the inference-only raw mixture without implying ambient state, preserve cache identity plus value-revision compatibility, and render the reset transition as 3 right-arrow 0.",
+      "value": {"type": "text"}
+    }
+  ],
+  "receiptSchema": {"path": ".agents/skills/author-llm-course-english/references/evidence-receipt.schema.json", "sha256": "fd3a1d8ce1230959551456015b642044fd2d60acae11bbf8ef2b5a0efbddeb87"},
+  "requiredAdjudicators": {"isolatedSurface": {"model": "gpt-5.6-sol", "reasoning": "ultra"}, "technicalPedagogical": {"model": "gpt-5.6-sol", "reasoning": "ultra"}},
+  "requiredAuthor": {"model": "gpt-5.6-sol", "reasoning": "ultra"},
+  "requiredReviewers": {"isolatedSurface": {"model": "gpt-5.6-sol", "reasoning": "ultra"}, "technicalPedagogical": {"model": "gpt-5.6-sol", "reasoning": "ultra"}},
+  "reviewSchema": {"path": ".agents/skills/author-llm-course-english/references/review-record.schema.json", "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177"},
+  "rubrics": {
+    "isolatedSurface": {"path": "audits/2026-09-18-autograd-context/english-r3/rubrics/isolated-surface.txt", "sha256": "0de220787c3b60fc81b1009b038ce0102c1356108bec1ec23ca44b000aee95d1"},
+    "technicalPedagogical": {"path": "audits/2026-09-18-autograd-context/english-r3/rubrics/technical-pedagogical.txt", "sha256": "0c435d1c937f068491a7a243391c63c1ce72c3756fe6ae234a61aa2e15ee9024"}
+  },
+  "schemaVersion": 1,
+  "scopeId": "autograd-context-ch33-ch37.en.20260918.r3",
+  "sourceDocuments": [
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/source/33-training-selection.mdx", "sha256": "32b83e7b01cf9100c287def1d61b76d3c2457e879c5f74c5f06ff871e0b6ccfc"},
+      "id": "source.ch33.complete",
+      "kind": "complete-source",
+      "publicationPath": "site/src/content/chapters/en/33-training-selection.mdx",
+      "roleRequirement": "The complete canonical Chapter 33 lesson must preserve its established bounded training and validation-selection teaching while accurately adding the explicit immutable context API, the exact result-tracking conjunction, no-gradient parent-edge removal, unchanged forward checks, the existing-graph limitation, child propagation, batch-loss evaluation behavior, and the distinction from zero_grad."
+    },
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/contract/33-training-selection.md", "sha256": "149241ac3cbbb5fb091fba432b8358faf06a49fdbdd90e3fd20f8e68278e60a7"},
+      "id": "source.ch33.contract",
+      "kind": "complete-source",
+      "publicationPath": "curriculum/chapters/33-training-selection.md",
+      "roleRequirement": "The complete Chapter 33 contract must bind content revision 12, the new source regions, explicit context and tracking semantics, evaluation and zero_grad boundaries, prior training-selection invariants, and English-before-Russian review order without preserving an obsolete ambient-scope claim."
+    },
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/source/37-incremental-attention.cheat-sheet.json", "sha256": "64626ff4733d56dc8bf46a70399ae3aab74d17b31b29d24e49c69bafad901f0b"},
+      "id": "source.ch37.cheat-sheet",
+      "kind": "complete-source",
+      "publicationPath": "site/src/content/cheat-sheets/en/37-incremental-attention.json",
+      "roleRequirement": "The complete canonical Chapter 37 quick reference must stay concise and grounded in the lesson while defining the layer-bound cache with parameter-node identities, each parameter's captured value revision, and the explicit warning that identity alone is insufficient after an in-place update."
+    },
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/source/37-incremental-attention.mdx", "sha256": "4519da8cdf77196b8f940c669e89a2d5edca49f87fed6a04a0969900f9d65d54"},
+      "id": "source.ch37.complete",
+      "kind": "complete-source",
+      "publicationPath": "site/src/content/chapters/en/37-incremental-attention.mdx",
+      "roleRequirement": "The complete canonical Chapter 37 lesson must preserve cache identity, capacity, RoPE, output-equivalence, and transaction teaching while accurately distinguishing standalone and model-wide context selection, the shared context-aware calculation, executable operation order, [B,H,1,t] weight shape, untracked raw-mixture boundary, and later cache commit."
+    },
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/contract/37-incremental-attention.md", "sha256": "ef9365af1b8c422f7eb20dff2e134ad1ad2a768401a127937a883ae719ed28a9"},
+      "id": "source.ch37.contract",
+      "kind": "complete-source",
+      "publicationPath": "curriculum/chapters/37-incremental-attention.md",
+      "roleRequirement": "The complete Chapter 37 contract must bind content revision 6, retain all cache and transactional invariants, accurately state the standalone wrapper, model-wide caller-selected context, shared calculation, operation order, one-based prefix-length shape, absence of ambient recording state, and canonical-English revision 6 localization provenance."
+    },
+    {
+      "file": {"path": "audits/2026-09-18-autograd-context/english-r3/frozen/source/IncrementalAttentionDiagram.astro", "sha256": "8cd719ed3519e5a9bdab3ad7788c33bf1b81c830a3481c345914f5225e28b76d"},
+      "id": "source.ch37.diagram-component",
+      "kind": "complete-source",
+      "publicationPath": "site/src/components/chapters/IncrementalAttentionDiagram.astro",
+      "roleRequirement": "The complete Chapter 37 diagram component must project the Rust-authored trace without changing its arithmetic, render reset as the TeX transition 3 right-arrow 0 rather than a tab or plain letters, and retain the allocation-reuse and storage-unchanged proof tokens."
+    }
+  ]
+}

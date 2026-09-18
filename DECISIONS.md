@@ -25197,3 +25197,122 @@ functional lifecycle compatibility gate is not relabeled as passing.
 Affected step: `reconcile-ch61-ch70-planning-history-20260916`; its only canonical
 outputs are the audit note and its necessary `BUILD_STATE.yaml`/`DECISIONS.md`
 bookkeeping. The prior planning steps are evidence inputs, not reopened work.
+
+## 2026-09-18 — Replace ambient no-gradient state with an explicit AutogradContext
+
+**Status:** Accepted for the independently authorized corrective build.
+
+**Context:** `TensorValue::operation_node` currently decides whether to retain
+parent edges by reading a module-wide thread-local nesting counter. The public
+`no_grad` closure mutates that ambient counter and relies on a drop guard for
+nesting and unwind restoration. The same parameter can legitimately participate
+in tracked training and graph-free evaluation, so parent state alone cannot
+select the recording policy. The user explicitly requested an
+`AutogradContext` after reviewing the tradeoff between an implicit dynamic scope
+and an explicit value passed from parent calls to child operations.
+
+**Decision:** Temporarily return the Chapter 71-85 planning build to `pending`
+and run one independent corrective build. Replace `NO_GRAD_DEPTH`,
+`NoGradGuard`, `no_grad_active`, and the closure-style `no_grad` API with an
+immutable explicit `AutogradContext`. Keep tracked behavior as the default public
+API for compatibility, add explicit context-aware entry points, and require every
+no-gradient execution boundary to pass the selected context through all nested
+model, attention, neural-layer, and tensor operations until operation-node
+creation. A result tracks gradients only when its context permits recording and
+at least one parent tracks gradients. A no-gradient context preserves forward
+arithmetic, validation, finite checks, deterministic values, and stable trace meaning while
+discarding parent edges and producing an untracked result.
+
+The stable machine-evidence key `no_grad` may remain where it means “zero graphs
+were recorded”; it is not authority to retain an ambient Rust API. Update the
+Chapter 33 explanation and source excerpt from thread-local nesting/unwind
+semantics to the explicit context/parent conjunction, update Chapter 37's
+incremental path, and remove obsolete ambient-scope assumptions from future
+Chapter 48/49 plans. Canonical English must complete its independent review and
+adjudication chain before direct Russian refresh and independent localization
+review. No dependency, network access, numerical change, future chapter
+implementation, or unrelated repair is authorized.
+
+**Consequences:** Callers that need graph-free execution state that policy at the
+execution boundary instead of relying on hidden thread state. Tracked callers
+retain their existing convenience methods. Tests must interleave tracked and
+no-gradient contexts over the same parameters and prove there is no nesting,
+panic-restoration, or cross-call state to manage. After the corrective step is
+validated and committed independently, restore
+`detail-future-chapter-execution-plans-20260915` to `active` with Chapter 71 still
+the first pending packet.
+
+**Execution deviation:** The fresh English author context invoked `./course run`
+for a contract check. That wrapper first launched an undeclared network-enabled
+Docker build, which contacted Docker Hub and crates.io before failing on the stale
+Russian source-region gate; the requested contract check never ran. A subsequent
+`docker build --network none` recovery attempt failed during `apt-get`. Neither
+attempt changed repository files or published an image, but both may have changed
+external Docker/BuildKit cache metadata. Treat every result from those attempts as
+noncanonical and excluded. The root orchestration reruns accepted site work only
+with the pinned image, `--pull=never`, and `--network none`; the incident does not
+expand this build's network authority.
+
+**Affected build, step, and run:**
+`replace-thread-local-no-grad-with-autograd-context-20260918`,
+`replace-thread-local-no-grad-with-autograd-context`, and
+`20260918T062935Z-replace-thread-local-no-grad-with-autograd-context-01`.
+
+### 2026-09-18 Firefox validation cache deviation
+
+The final rendered-validation preflight found that the locally cached
+`learn-llm-plan-validation` image contains project dependencies but not the
+lockfile-matched Firefox 1532 executable. The host Playwright cache contains
+Chromium only, and a read-only audit of retained browser/run volumes found no
+reusable Firefox bundle. The first focused run therefore stopped before any page
+assertion with Playwright's missing-executable error; it is infrastructure
+evidence, not a candidate failure.
+
+Permit one bounded reacquisition of the repository's already accepted official
+Playwright 1.61.1 Noble image at exactly
+`mcr.microsoft.com/playwright:v1.61.1-noble@sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48`.
+Verify the resulting repository digest before use, then execute acceptance with
+`--pull=never` and `--network none`. This does not permit a tag-only pull, a
+browser/version substitution, package installation, dependency change, or any
+other network operation, and the image is validation plumbing rather than a
+product artifact.
+
+### 2026-09-18 Localization isolation and package-path correction
+
+The first Russian localization package used `frozen/target/`, which collides
+with the host-artifact audit's intentional ban on generated directories named
+`target`. Renaming that directory in place would mutate already bound review
+evidence. Preserve the complete superseded package under the current run's
+`.build/runs/.../retired-localization-review-ru-v1/` directory and create
+successor packages with `frozen/ru/`; do not weaken or special-case the host
+audit.
+
+The target-only review of successor package `ru-v2` also exposed an inventory
+boundary defect rather than a learner-text defect: the isolated Chapter 37 unit
+began with “После этих проверок”, while the immediately preceding paragraph that
+names those checks was outside the unit. Those two paragraphs are semantically
+inseparable in rendered reading order. Keep the already reviewed English and
+published Russian bytes unchanged, expand `ch37.context-explanation` in both
+languages to include the preceding paragraph, and freeze that inventory change
+as successor package `ru-v3`. Preserve `ru-v2` as failed diagnostic evidence and
+require two fresh localization reviewers for `ru-v3`; no earlier localization
+record may certify the changed isolation group.
+
+The `ru-v3` bilingual review passed, but its fresh target-only review found a
+different blocking ambiguity in Chapter 33: “рёбра, которые создадут будущие
+операции” can grammatically make edges the actor that creates operations. Keep
+that failed package unchanged. A fresh localization author must revise only the
+Russian sentence to state that the context permits or forbids future operations
+from creating new parent edges, freeze successor package `ru-v4`, and obtain two
+more fresh reviews. The English source remains unchanged and retains its approved
+review/adjudication chain.
+
+Successor `ru-v4` passed both fresh reviews with no findings. Its verified
+binding is
+`69a7f560a04a47992e5bde9b3f2fdd983b95ef78a89ca2ddf40989a7a0ffcebb`;
+the bilingual and target-only record hashes are respectively
+`82440a2766c8d00fae8dbea45ea2e5e9b78022a2c58fab60af7abe480367a8bb`
+and
+`285a668fffed6a333e7eee08461c34417d81397d4f2927a264ba65619f44c3ca`.
+This package, not either failed predecessor, is the Russian publication gate for
+the corrective AutogradContext build.

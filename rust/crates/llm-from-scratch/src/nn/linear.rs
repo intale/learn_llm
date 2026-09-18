@@ -3,7 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
 use crate::tensor::storage::Tensor;
 
@@ -192,6 +192,15 @@ impl Linear {
 
     /// Projects only the final feature axis and preserves every leading axis.
     pub fn forward(&self, input: &TensorValue) -> Result<TensorValue, LinearError> {
+        self.forward_with_context(AutogradContext::recording(), input)
+    }
+
+    /// Projects the final feature axis under an explicit recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+    ) -> Result<TensorValue, LinearError> {
         let input_shape = input.shape();
         if input_shape.is_empty() {
             return Err(LinearError::InputRank { rank: 0 });
@@ -205,17 +214,17 @@ impl Linear {
         }
 
         let projected = if input_shape.len() == 1 {
-            let promoted = input.reshape(&[1, self.input_width])?;
-            let output = promoted.matmul(self.weight().tensor())?;
+            let promoted = input.reshape_with_context(context, &[1, self.input_width])?;
+            let output = promoted.matmul_with_context(context, self.weight().tensor())?;
             let output = match self.bias() {
-                Some(bias) => output.add(bias.tensor())?,
+                Some(bias) => output.add_with_context(context, bias.tensor())?,
                 None => output,
             };
-            output.reshape(&[self.output_width])?
+            output.reshape_with_context(context, &[self.output_width])?
         } else {
-            let output = input.matmul(self.weight().tensor())?;
+            let output = input.matmul_with_context(context, self.weight().tensor())?;
             match self.bias() {
-                Some(bias) => output.add(bias.tensor())?,
+                Some(bias) => output.add_with_context(context, bias.tensor())?,
                 None => output,
             }
         };

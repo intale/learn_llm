@@ -3,7 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::tensor::storage::{Tensor, TensorError};
 
 /// A rejected rotary configuration, input shape, or position interval.
@@ -321,6 +321,16 @@ impl RotaryEmbedding {
         input: &TensorValue,
         position_offset: usize,
     ) -> Result<TensorValue, RopeError> {
+        self.rotate_with_context(AutogradContext::recording(), input, position_offset)
+    }
+
+    /// Rotates feature pairs under the caller's explicit recording policy.
+    pub fn rotate_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+    ) -> Result<TensorValue, RopeError> {
         let shape = input.shape();
         if shape.len() < 2 {
             return Err(RopeError::InputRank { rank: shape.len() });
@@ -364,7 +374,9 @@ impl RotaryEmbedding {
         let table_shape = [tokens, pairs];
         let cosines = copy_table_slice(&self.cosines.as_slice()[start..end], &table_shape)?;
         let sines = copy_table_slice(&self.sines.as_slice()[start..end], &table_shape)?;
-        input.rotary_pairs(&cosines, &sines).map_err(Into::into)
+        input
+            .rotary_pairs_with_context(context, &cosines, &sines)
+            .map_err(Into::into)
     }
     // endregion:rope-rotation
 

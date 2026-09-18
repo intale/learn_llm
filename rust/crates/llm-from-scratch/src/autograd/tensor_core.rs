@@ -18,49 +18,40 @@ use crate::tensor::view::{TensorView, TensorViewError};
 
 type NodeKey = *const Node;
 
-// region:no-grad-scope
-thread_local! {
-    static NO_GRAD_DEPTH: Cell<usize> = const { Cell::new(0) };
+// region:autograd-context
+/// Explicitly selects whether newly created operations record reverse-mode edges.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AutogradContext {
+    records_graph: bool,
 }
 
-struct NoGradGuard;
+impl AutogradContext {
+    /// Creates the default training context that records eligible parent edges.
+    pub const fn recording() -> Self {
+        Self {
+            records_graph: true,
+        }
+    }
 
-impl Drop for NoGradGuard {
-    fn drop(&mut self) {
-        NO_GRAD_DEPTH.with(|depth| {
-            depth.set(
-                depth
-                    .get()
-                    .checked_sub(1)
-                    .expect("a no-grad guard must balance one entered scope"),
-            );
-        });
+    /// Creates an evaluation context that keeps forward checks but records no graph.
+    pub const fn no_grad() -> Self {
+        Self {
+            records_graph: false,
+        }
+    }
+
+    /// Returns whether operations created with this context may retain parent edges.
+    pub const fn records_graph(self) -> bool {
+        self.records_graph
     }
 }
 
-fn no_grad_active() -> bool {
-    NO_GRAD_DEPTH.with(|depth| depth.get() != 0)
+impl Default for AutogradContext {
+    fn default() -> Self {
+        Self::recording()
+    }
 }
-
-/// Runs `operation` without recording reverse-mode parent edges.
-///
-/// The scope is thread-local, nestable, and restored even if `operation`
-/// unwinds. Forward arithmetic and finite-value checks are unchanged, but every
-/// result created inside the scope is untracked and cannot mutate parameter
-/// gradients through `backward`.
-pub fn no_grad<T>(operation: impl FnOnce() -> T) -> T {
-    NO_GRAD_DEPTH.with(|depth| {
-        depth.set(
-            depth
-                .get()
-                .checked_add(1)
-                .expect("no-grad nesting depth must fit usize"),
-        );
-    });
-    let _guard = NoGradGuard;
-    operation()
-}
-// endregion:no-grad-scope
+// endregion:autograd-context
 
 /// The tensor operation represented by one tape node.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -537,21 +528,26 @@ impl TensorValue {
         }
     }
 
+    // region:autograd-operation-policy
     fn operation_node(
+        context: AutogradContext,
         value: Tensor,
         operation: TensorOperation,
         mut parents: Vec<ParentEdge>,
     ) -> Result<Self, TensorAutodiffError> {
         check_finite_forward(&value, operation)?;
-        let tracked = !no_grad_active() && parents.iter().any(|edge| edge.parent.tracks_gradient());
-        if no_grad_active() {
+        let tracked =
+            context.records_graph() && parents.iter().any(|edge| edge.parent.tracks_gradient());
+        if !context.records_graph() {
             parents.clear();
         }
         Ok(Self::new_node(value, operation, parents, tracked, None))
     }
+    // endregion:autograd-operation-policy
 
-    /// Builds one checked model-operation node without exposing tape internals.
-    pub(crate) fn model_operation<const N: usize>(
+    /// Builds one checked model-operation node under an explicit recording policy.
+    pub(crate) fn model_operation_with_context<const N: usize>(
+        context: AutogradContext,
         operation: TensorOperation,
         operands: [&Self; N],
         forward: impl FnOnce(
@@ -569,7 +565,7 @@ impl TensorValue {
                 ParentEdge::capture(parent, TensorSavedContext::Model(context))
             })
             .collect();
-        Self::operation_node(value, operation, parents)
+        Self::operation_node(context, value, operation, parents)
     }
 
     /// Borrows the node-owned primal tensor.
@@ -839,6 +835,15 @@ impl TensorBackwardObserver for RecordTensorBackwardTrace {
 impl TensorValue {
     /// Adds two tensors using trailing-axis broadcasting.
     pub fn add(&self, other: &Self) -> Result<Self, TensorAutodiffError> {
+        self.add_with_context(AutogradContext::recording(), other)
+    }
+
+    /// Adds two tensors under the caller's explicit graph-recording policy.
+    pub fn add_with_context(
+        &self,
+        context: AutogradContext,
+        other: &Self,
+    ) -> Result<Self, TensorAutodiffError> {
         ensure_operands_available(TensorOperation::Add, &[self, other])?;
         let left = self.value();
         let right = other.value();
@@ -848,11 +853,20 @@ impl TensorValue {
             ParentEdge::capture(self, broadcast_context(left.shape(), &output_shape)),
             ParentEdge::capture(other, broadcast_context(right.shape(), &output_shape)),
         ];
-        Self::operation_node(value, TensorOperation::Add, parents)
+        Self::operation_node(context, value, TensorOperation::Add, parents)
     }
 
     /// Multiplies two tensors and records one ordered edge per operand use.
     pub fn mul(&self, other: &Self) -> Result<Self, TensorAutodiffError> {
+        self.mul_with_context(AutogradContext::recording(), other)
+    }
+
+    /// Multiplies two tensors under the caller's explicit graph-recording policy.
+    pub fn mul_with_context(
+        &self,
+        context: AutogradContext,
+        other: &Self,
+    ) -> Result<Self, TensorAutodiffError> {
         ensure_operands_available(TensorOperation::Multiply, &[self, other])?;
         let left = self.value();
         let right = other.value();
@@ -868,11 +882,20 @@ impl TensorValue {
                 multiply_context(right.shape(), &output_shape, Tensor::clone(&left)),
             ),
         ];
-        Self::operation_node(value, TensorOperation::Multiply, parents)
+        Self::operation_node(context, value, TensorOperation::Multiply, parents)
     }
 
     /// Changes shape without changing row-major element order.
     pub fn reshape(&self, shape: &[usize]) -> Result<Self, TensorAutodiffError> {
+        self.reshape_with_context(AutogradContext::recording(), shape)
+    }
+
+    /// Changes shape under the caller's explicit graph-recording policy.
+    pub fn reshape_with_context(
+        &self,
+        context: AutogradContext,
+        shape: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
         ensure_operands_available(TensorOperation::Reshape, &[self])?;
         let input = self.value();
         let value = input.view().reshape(shape)?.materialize()?;
@@ -881,6 +904,7 @@ impl TensorValue {
             output_shape: value.shape().to_vec(),
         };
         Self::operation_node(
+            context,
             value,
             TensorOperation::Reshape,
             vec![ParentEdge::capture(self, saved)],
@@ -890,6 +914,16 @@ impl TensorValue {
     /// Swaps two axes and materializes the logical result as owned storage.
     pub fn transpose(
         &self,
+        first_axis: usize,
+        second_axis: usize,
+    ) -> Result<Self, TensorAutodiffError> {
+        self.transpose_with_context(AutogradContext::recording(), first_axis, second_axis)
+    }
+
+    /// Swaps two axes under the caller's explicit graph-recording policy.
+    pub fn transpose_with_context(
+        &self,
+        context: AutogradContext,
         first_axis: usize,
         second_axis: usize,
     ) -> Result<Self, TensorAutodiffError> {
@@ -906,6 +940,7 @@ impl TensorValue {
             output_shape: value.shape().to_vec(),
         };
         Self::operation_node(
+            context,
             value,
             TensorOperation::Transpose,
             vec![ParentEdge::capture(self, saved)],
@@ -914,6 +949,15 @@ impl TensorValue {
 
     /// Broadcasts exactly to `shape`; the requested shape may only expand axes.
     pub fn broadcast_to(&self, shape: &[usize]) -> Result<Self, TensorAutodiffError> {
+        self.broadcast_to_with_context(AutogradContext::recording(), shape)
+    }
+
+    /// Broadcasts under the caller's explicit graph-recording policy.
+    pub fn broadcast_to_with_context(
+        &self,
+        context: AutogradContext,
+        shape: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
         ensure_operands_available(TensorOperation::Broadcast, &[self])?;
         let input = self.value();
         let inferred = broadcast_shape(input.shape(), shape)?;
@@ -927,6 +971,7 @@ impl TensorValue {
         let blank = zeros(shape)?;
         let value = map_binary(&input.view(), &blank.view(), |value, _| value)?;
         Self::operation_node(
+            context,
             value,
             TensorOperation::Broadcast,
             vec![ParentEdge::capture(
@@ -938,16 +983,37 @@ impl TensorValue {
 
     /// Sums one axis and records how to expand its exact-shape VJP.
     pub fn sum_axis(&self, axis: usize, keep_dim: bool) -> Result<Self, TensorAutodiffError> {
-        self.reduce_axis(axis, keep_dim, false)
+        self.sum_axis_with_context(AutogradContext::recording(), axis, keep_dim)
+    }
+
+    /// Sums one axis under the caller's explicit graph-recording policy.
+    pub fn sum_axis_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+        keep_dim: bool,
+    ) -> Result<Self, TensorAutodiffError> {
+        self.reduce_axis(context, axis, keep_dim, false)
     }
 
     /// Averages one nonempty axis and records the divisor for its VJP.
     pub fn mean_axis(&self, axis: usize, keep_dim: bool) -> Result<Self, TensorAutodiffError> {
-        self.reduce_axis(axis, keep_dim, true)
+        self.mean_axis_with_context(AutogradContext::recording(), axis, keep_dim)
+    }
+
+    /// Averages one nonempty axis under the caller's explicit graph-recording policy.
+    pub fn mean_axis_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+        keep_dim: bool,
+    ) -> Result<Self, TensorAutodiffError> {
+        self.reduce_axis(context, axis, keep_dim, true)
     }
 
     fn reduce_axis(
         &self,
+        context: AutogradContext,
         axis: usize,
         keep_dim: bool,
         mean: bool,
@@ -972,7 +1038,12 @@ impl TensorValue {
             input_shape: input.shape().to_vec(),
             output_shape: value.shape().to_vec(),
         };
-        Self::operation_node(value, operation, vec![ParentEdge::capture(self, saved)])
+        Self::operation_node(
+            context,
+            value,
+            operation,
+            vec![ParentEdge::capture(self, saved)],
+        )
     }
 }
 // endregion:tensor-forward-operations
@@ -2442,9 +2513,13 @@ mod tests {
     }
 
     #[test]
-    fn no_grad_is_graph_free_nestable_and_restored_after_unwind() {
+    fn autograd_context_is_explicit_graph_free_and_does_not_leak_between_calls() {
         let parameter = TensorValue::parameter(tensor(&[2], &[1.0, 2.0])).unwrap();
-        let untracked = no_grad(|| no_grad(|| parameter.mul(&parameter).unwrap()));
+        let no_grad = AutogradContext::no_grad();
+        let recording = AutogradContext::recording();
+        assert_eq!(AutogradContext::default(), recording);
+
+        let untracked = parameter.mul_with_context(no_grad, &parameter).unwrap();
 
         assert_eq!(untracked.operation(), TensorOperation::Multiply);
         assert!(!untracked.tracks_gradient());
@@ -2457,16 +2532,36 @@ mod tests {
             })
         );
 
-        let panic = std::panic::catch_unwind(|| no_grad(|| panic!("no-grad unwind probe")));
-        assert!(panic.is_err());
-
-        let tracked = parameter.mul(&parameter).unwrap();
+        let tracked = parameter.mul_with_context(recording, &parameter).unwrap();
         assert!(tracked.tracks_gradient());
         let seed = tensor(&[2], &[1.0, 1.0]);
         tracked
             .backward_with_seed(&seed.view(), GraphRetention::Release)
             .unwrap();
         assert_eq!(parameter.gradient().unwrap().as_slice(), [2.0, 4.0]);
+
+        let untracked_again = parameter.mul_with_context(no_grad, &parameter).unwrap();
+        assert!(!untracked_again.tracks_gradient());
+
+        let constant = TensorValue::constant(tensor(&[2], &[3.0, 4.0])).unwrap();
+        let constant_result = constant.mul_with_context(recording, &constant).unwrap();
+        assert!(!constant_result.tracks_gradient());
+
+        let incompatible = TensorValue::constant(tensor(&[3], &[1.0, 2.0, 3.0])).unwrap();
+        assert!(matches!(
+            parameter.add_with_context(no_grad, &incompatible),
+            Err(TensorAutodiffError::Operation(_))
+        ));
+
+        let maximum = TensorValue::parameter(tensor(&[1], &[f64::MAX])).unwrap();
+        assert!(matches!(
+            maximum.mul_with_context(no_grad, &maximum),
+            Err(TensorAutodiffError::NonFiniteForward {
+                operation: TensorOperation::Multiply,
+                index: 0,
+                ..
+            })
+        ));
     }
 
     #[test]

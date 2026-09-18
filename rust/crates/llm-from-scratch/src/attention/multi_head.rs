@@ -3,10 +3,12 @@
 use std::error::Error;
 use std::fmt;
 
-use super::causal_mask::{CausalMaskingError, causal_scaled_dot_product_self_attention};
+use super::causal_mask::{
+    CausalMaskingError, causal_scaled_dot_product_self_attention_with_context,
+};
 use super::qkv::{QkvError, QkvProjections};
 use super::rope::{RopeError, RotaryEmbedding};
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
 use crate::nn::linear::{Linear, LinearError};
 
@@ -99,6 +101,15 @@ fn layout_autodiff(stage: HeadLayoutStage) -> impl FnOnce(TensorAutodiffError) -
 
 /// Converts `[batch, tokens, model_width]` to `[batch, heads, tokens, head_width]`.
 pub fn split_heads(input: &TensorValue, heads: usize) -> Result<TensorValue, HeadLayoutError> {
+    split_heads_with_context(AutogradContext::recording(), input, heads)
+}
+
+/// Splits model-width rows under the caller's explicit recording policy.
+pub fn split_heads_with_context(
+    context: AutogradContext,
+    input: &TensorValue,
+    heads: usize,
+) -> Result<TensorValue, HeadLayoutError> {
     let shape = input.shape();
     if shape.len() != 3 {
         return Err(HeadLayoutError::SplitRank { rank: shape.len() });
@@ -115,15 +126,23 @@ pub fn split_heads(input: &TensorValue, heads: usize) -> Result<TensorValue, Hea
     }
     let head_width = width / heads;
     let reshaped = input
-        .reshape(&[shape[0], shape[1], heads, head_width])
+        .reshape_with_context(context, &[shape[0], shape[1], heads, head_width])
         .map_err(layout_autodiff(HeadLayoutStage::SplitReshape))?;
     reshaped
-        .transpose(1, 2)
+        .transpose_with_context(context, 1, 2)
         .map_err(layout_autodiff(HeadLayoutStage::SplitTranspose))
 }
 
 /// Converts `[batch, heads, tokens, head_width]` back to model-width rows.
 pub fn merge_heads(input: &TensorValue) -> Result<TensorValue, HeadLayoutError> {
+    merge_heads_with_context(AutogradContext::recording(), input)
+}
+
+/// Merges attention heads under the caller's explicit recording policy.
+pub fn merge_heads_with_context(
+    context: AutogradContext,
+    input: &TensorValue,
+) -> Result<TensorValue, HeadLayoutError> {
     let shape = input.shape();
     if shape.len() != 4 {
         return Err(HeadLayoutError::MergeRank { rank: shape.len() });
@@ -142,10 +161,10 @@ pub fn merge_heads(input: &TensorValue) -> Result<TensorValue, HeadLayoutError> 
                 head_width: shape[3],
             })?;
     let transposed = input
-        .transpose(1, 2)
+        .transpose_with_context(context, 1, 2)
         .map_err(layout_autodiff(HeadLayoutStage::MergeTranspose))?;
     transposed
-        .reshape(&[shape[0], shape[2], model_width])
+        .reshape_with_context(context, &[shape[0], shape[2], model_width])
         .map_err(layout_autodiff(HeadLayoutStage::MergeReshape))
 }
 // endregion:head-layout
@@ -556,6 +575,16 @@ impl MultiHeadAttention {
         input: &TensorValue,
         position_offset: usize,
     ) -> Result<MultiHeadAttentionForward, MultiHeadAttentionError> {
+        self.forward_with_context(AutogradContext::recording(), input, position_offset)
+    }
+
+    /// Runs causal attention under the caller's explicit recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+    ) -> Result<MultiHeadAttentionForward, MultiHeadAttentionError> {
         let shape = input.shape();
         if shape.len() != 3 {
             return Err(MultiHeadAttentionError::InputRank { rank: shape.len() });
@@ -585,21 +614,23 @@ impl MultiHeadAttention {
 
         let projected = self
             .qkv
-            .forward(input)
+            .forward_with_context(context, input)
             .map_err(MultiHeadAttentionError::QkvProjection)?;
-        let projected_query_heads = split_heads(projected.query(), self.heads)
-            .map_err(head_layout(MultiHeadInput::Query))?;
-        let projected_key_heads =
-            split_heads(projected.key(), self.heads).map_err(head_layout(MultiHeadInput::Key))?;
-        let projected_value_heads = split_heads(projected.value(), self.heads)
-            .map_err(head_layout(MultiHeadInput::Value))?;
+        let projected_query_heads =
+            split_heads_with_context(context, projected.query(), self.heads)
+                .map_err(head_layout(MultiHeadInput::Query))?;
+        let projected_key_heads = split_heads_with_context(context, projected.key(), self.heads)
+            .map_err(head_layout(MultiHeadInput::Key))?;
+        let projected_value_heads =
+            split_heads_with_context(context, projected.value(), self.heads)
+                .map_err(head_layout(MultiHeadInput::Value))?;
         let rotated_query_heads = self
             .rope
-            .rotate(&projected_query_heads, position_offset)
+            .rotate_with_context(context, &projected_query_heads, position_offset)
             .map_err(rotary_error(MultiHeadInput::Query))?;
         let rotated_key_heads = self
             .rope
-            .rotate(&projected_key_heads, position_offset)
+            .rotate_with_context(context, &projected_key_heads, position_offset)
             .map_err(rotary_error(MultiHeadInput::Key))?;
 
         let lanes =
@@ -611,29 +642,34 @@ impl MultiHeadAttention {
                 })?;
         let lane_shape = [lanes, shape[1], self.head_width];
         let query_lanes = rotated_query_heads
-            .reshape(&lane_shape)
+            .reshape_with_context(context, &lane_shape)
             .map_err(multi_autodiff(MultiHeadStage::QueryLanes))?;
         let key_lanes = rotated_key_heads
-            .reshape(&lane_shape)
+            .reshape_with_context(context, &lane_shape)
             .map_err(multi_autodiff(MultiHeadStage::KeyLanes))?;
         let value_lanes = projected_value_heads
-            .reshape(&lane_shape)
+            .reshape_with_context(context, &lane_shape)
             .map_err(multi_autodiff(MultiHeadStage::ValueLanes))?;
-        let attended =
-            causal_scaled_dot_product_self_attention(&query_lanes, &key_lanes, &value_lanes)
-                .map_err(MultiHeadAttentionError::CausalAttention)?;
+        let attended = causal_scaled_dot_product_self_attention_with_context(
+            context,
+            &query_lanes,
+            &key_lanes,
+            &value_lanes,
+        )
+        .map_err(MultiHeadAttentionError::CausalAttention)?;
         let attention_weights = attended
             .weights()
-            .reshape(&[shape[0], self.heads, shape[1], shape[1]])
+            .reshape_with_context(context, &[shape[0], self.heads, shape[1], shape[1]])
             .map_err(multi_autodiff(MultiHeadStage::RestoreWeights))?;
         let head_outputs = attended
             .output()
-            .reshape(&[shape[0], self.heads, shape[1], self.head_width])
+            .reshape_with_context(context, &[shape[0], self.heads, shape[1], self.head_width])
             .map_err(multi_autodiff(MultiHeadStage::RestoreHeadOutputs))?;
-        let merged = merge_heads(&head_outputs).map_err(MultiHeadAttentionError::MergeLayout)?;
+        let merged = merge_heads_with_context(context, &head_outputs)
+            .map_err(MultiHeadAttentionError::MergeLayout)?;
         let output = self
             .output
-            .forward(&merged)
+            .forward_with_context(context, &merged)
             .map_err(MultiHeadAttentionError::OutputProjection)?;
 
         Ok(MultiHeadAttentionForward {

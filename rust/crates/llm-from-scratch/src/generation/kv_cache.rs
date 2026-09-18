@@ -5,11 +5,13 @@ use std::error::Error;
 use std::fmt;
 
 use crate::attention::incremental::{IncrementalAttentionError, LayerKvCache, LayerKvCacheError};
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue, TensorValueBinding, no_grad};
+use crate::autograd::tensor_core::{
+    AutogradContext, TensorAutodiffError, TensorValue, TensorValueBinding,
+};
 use crate::models::decoder::{DecoderModel, DecoderModelConfig};
 use crate::nn::embedding::EmbeddingError;
 use crate::nn::init::SplitMix64;
-use crate::nn::residual::{ResidualError, residual_add};
+use crate::nn::residual::{ResidualError, residual_add_with_context};
 use crate::nn::rmsnorm::RmsNormError;
 use crate::nn::swiglu::SwiGluError;
 use crate::tensor::storage::Tensor;
@@ -713,11 +715,12 @@ impl DecoderKvSession<'_, '_> {
     ) -> Result<CachedDecoderOutput, DecoderKvCacheError> {
         let position = self.cache.len;
         let layer_count = self.cache.layers.len();
-        let (logits, prepared, score_values) = no_grad(|| {
+        let context = AutogradContext::no_grad();
+        let (logits, prepared, score_values) = {
             let embedding = self
                 .model
                 .embedding()
-                .forward(&[token_id], &[1, 1])
+                .forward_with_context(context, &[token_id], &[1, 1])
                 .map_err(DecoderKvCacheError::Embedding)?;
             let mut current = embedding;
             let mut prepared = Vec::new();
@@ -736,11 +739,11 @@ impl DecoderKvSession<'_, '_> {
             {
                 let attention_norm = block
                     .attention_norm()
-                    .forward(&current)
+                    .forward_with_context(context, &current)
                     .map_err(|source| DecoderKvCacheError::AttentionNorm { layer, source })?;
                 let ticket = block
                     .attention()
-                    .prepare_incremental_bound(&attention_norm, cache)
+                    .prepare_incremental_bound_with_context(context, &attention_norm, cache)
                     .map_err(|source| DecoderKvCacheError::IncrementalAttention {
                         layer,
                         source,
@@ -750,42 +753,42 @@ impl DecoderKvSession<'_, '_> {
                     ticket.attention_score_values(),
                     DecoderKvCacheCounter::AttentionScoreValues,
                 )?;
-                let after_attention = residual_add(&current, ticket.output())
+                let after_attention = residual_add_with_context(context, &current, ticket.output())
                     .map_err(|source| DecoderKvCacheError::AttentionResidual { layer, source })?;
                 let feed_forward_norm = block
                     .feed_forward_norm()
-                    .forward(&after_attention)
+                    .forward_with_context(context, &after_attention)
                     .map_err(|source| DecoderKvCacheError::FeedForwardNorm { layer, source })?;
                 let feed_forward = block
                     .feed_forward()
-                    .forward(&feed_forward_norm)
+                    .forward_with_context(context, &feed_forward_norm)
                     .map_err(|source| DecoderKvCacheError::FeedForward { layer, source })?;
-                current = residual_add(&after_attention, &feed_forward)
+                current = residual_add_with_context(context, &after_attention, &feed_forward)
                     .map_err(|source| DecoderKvCacheError::FeedForwardResidual { layer, source })?;
                 prepared.push(ticket);
             }
             let final_norm = self
                 .model
                 .final_norm()
-                .forward(&current)
+                .forward_with_context(context, &current)
                 .map_err(DecoderKvCacheError::FinalNorm)?;
             let tied_weight = self
                 .model
                 .tied_embedding()
                 .tensor()
-                .transpose(0, 1)
+                .transpose_with_context(context, 0, 1)
                 .map_err(|source| DecoderKvCacheError::Autodiff {
                     stage: CachedDecoderStage::TiedWeightTranspose,
                     source,
                 })?;
-            let logits = final_norm.matmul(&tied_weight).map_err(|source| {
-                DecoderKvCacheError::Autodiff {
+            let logits = final_norm
+                .matmul_with_context(context, &tied_weight)
+                .map_err(|source| DecoderKvCacheError::Autodiff {
                     stage: CachedDecoderStage::TiedVocabularyProjection,
                     source,
-                }
-            })?;
+                })?;
             Ok::<_, DecoderKvCacheError>((logits, prepared, score_values))
-        })?;
+        }?;
 
         for (layer, (ticket, cache)) in prepared.iter().zip(&self.cache.layers).enumerate() {
             if ticket.cache_len() != position + 1 || !ticket.matches_cache(cache) {
@@ -1288,7 +1291,8 @@ mod tests {
     }
 
     fn final_logits(model: &DecoderModel, prefix: &[u32]) -> Vec<f64> {
-        let logits = no_grad(|| model.forward(prefix, &[1, prefix.len()]))
+        let logits = model
+            .forward_with_context(AutogradContext::no_grad(), prefix, &[1, prefix.len()])
             .unwrap()
             .logits()
             .value_snapshot();

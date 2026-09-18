@@ -249,6 +249,9 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(componentSource).toContain("data-diagram-card");
     expect(componentSource).toContain("border-style: double");
     expect(componentSource).toContain("<InlineMath latex={`[${step.cacheShape.join(',')}]`} />");
+    expect(componentSource).toContain(
+      '<p><InlineMath latex={`${trace.reset.before}\\\\to${trace.reset.after}`} /></p>',
+    );
     expect(componentSource).toContain("trace.errors.layer_mismatch");
     expect(componentSource).toContain("trace.errors.rope_mismatch");
     expect(componentSource).toContain("trace.errors.rope_positions_mismatch");
@@ -306,19 +309,30 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
     );
-    expect(contract.content_revision).toBe(5);
-    expect(lesson.content_revision).toBe(5);
-    expect(russianLesson.content_revision).toBe(5);
+    expect(contract.content_revision).toBe(6);
+    expect(lesson.content_revision).toBe(6);
+    expect(russianLesson.content_revision).toBe(6);
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set {en, ru}",
     );
+    const localizationNotes = contractSource
+      .split("<!-- contract-section:localization -->")[1]
+      .split("<!-- contract-section:acceptance -->")[0];
+    const normalizedLocalizationNotes = localizationNotes.replace(/\s+/g, " ");
+    expect(normalizedLocalizationNotes).toContain(
+      "English revision 6 is the canonical source. Russian revision 6 must be translated directly from independently reviewed canonical English revision 6",
+    );
+    expect(normalizedLocalizationNotes).not.toContain("English revision 5");
     const canonicalEnglishHash =
-      "fd7e7fa58d9601eb3e383a78ae1f63a737fcc3e9450cdc585307a3a966cabcdd";
+      "4519da8cdf77196b8f940c669e89a2d5edca49f87fed6a04a0969900f9d65d54";
     expect(createHash("sha256").update(lessonSource).digest("hex")).toBe(
       canonicalEnglishHash,
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      `SHA-256 ${canonicalEnglishHash}`,
+      "Russian content revision 6 must be translated directly from the independently reviewed canonical English revision 6",
+    );
+    expect(createHash("sha256").update(russianLessonSource).digest("hex")).toBe(
+      "7a715c4d5d5658555036a1159405767d3a45a01759c1fc075296ab89ef77ed4d",
     );
     expect(russianLesson.formula).toEqual({
       latex: contract.formula.latex,

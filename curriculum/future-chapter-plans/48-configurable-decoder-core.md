@@ -78,10 +78,11 @@ Current code evidence:
 | [incremental.rs](../../rust/crates/llm-from-scratch/src/attention/incremental.rs) | Private prepared layer tickets, cache binding and K/V row snapshots. This is not the new model-wide prepared-input seam. |
 | Crate `Cargo.toml` | Existing `serde` derive and `serde_json` support JSON plumbing. No new dependency is needed to parse configs; course code still owns all semantics and arithmetic. |
 
-The cached model path runs under `no_grad`: prepared K/V values are snapshots,
-cached head outputs/logits are untracked, and existing training gradients remain
-unchanged. A shared input type must preserve that behavior, not accidentally turn
-cached inference into training through detached history.
+The cached model path passes `AutogradContext::no_grad()` explicitly from its
+inference boundary: prepared K/V values are snapshots, cached head outputs and
+logits are untracked, and existing training gradients remain unchanged. A shared
+input type must preserve that behavior, not accidentally turn cached inference
+into training through detached history.
 
 The Chapter 39 golden uses V266/D4/L1/Hq1/F4/context4, training seed39 and
 generation seed38, with exact P1188. Its fixed generation prompt `"A"` maps to
@@ -492,7 +493,8 @@ have the same gradients” claim:
 
 1. Full before/after refactor: same parameter identities/order, connected
    embedding lookup and tied head, valid logits, loss, complete gradients and
-   work. The full producer preserves the caller's ambient gradient mode.
+   work. The full producer accepts and propagates the caller's explicit
+   `AutogradContext`.
 2. Cached before/after refactor: untracked prepared embeddings and logits,
    bitwise-unchanged preexisting training gradients, identical KV rows/bindings,
    RNG and work. The cached path remains inference-only.
@@ -500,16 +502,17 @@ have the same gradients” claim:
    including logits and KV contents. Detached cached history is not full-prefix
    training backpropagation.
 
-Enter the existing scoped `no_grad` before the cached embedding producer, not
-only around the shared core. Restore the previous gradient mode on success and
-every error, including nested `no_grad`; never blindly re-enable gradients.
+Create one `AutogradContext::no_grad()` before the cached embedding producer,
+not only around the shared core, and pass that immutable value through every
+autograd-aware child operation. There is no previous ambient mode to restore on
+success or error.
 Full execution must not copy the embedded values into a new constant or detached
 leaf. Retain the exact `TensorValue` handle and its lookup graph. Repeated token
 IDs must accumulate their lookup contribution into the same tied embedding
 parameter that also receives the vocabulary-head contribution.
 
 Keep the session's existing `Ref<Tensor>` parameter guards alive for their
-current lifetime. No-gradient mode does not replace identity/revision binding
+current lifetime. An explicit no-gradient context does not replace identity/revision binding
 or mutation protection. A same-shaped/value-equal model with different parameter
 nodes cannot borrow another model's cache or prepared input.
 
@@ -593,7 +596,7 @@ Freeze reference and bridge configs exactly as Section 3, including token/
 vocabulary bindings and Chapter 47's accepted depth policy. Use seed39 for the
 unchanged reference golden and seed4701 for the new health/config comparison;
 do not make one replace the other. Before measurement, bind exact parameter
-order, epsilon/RoPE bits, dtype, caller gradient mode and resource profile.
+order, epsilon/RoPE bits, dtype, caller-selected autograd context and resource profile.
 
 For a small forward/seam fixture use source tokens `[0,99,100,1]`, inputs
 `[0,99,100]`, targets `[99,100,1]`, one row and local positions `[0,1,2]`.
@@ -674,7 +677,7 @@ Do not expand tolerances after a failure or demand cross-backend bit identity.
 | One actual core | Both supported producers reach the same block loop, final RMSNorm and tied head; mode-dependent attention/cache preparation does not duplicate a second decoder loop. |
 | Private construction | Only the two named model-owned text producers construct the carrier; no public constructor, raw-embedding entry point, third producer or modality trait. Test the module/API boundary as well as call counts. |
 | Full graph preservation | Valid lookup values are not rebuilt from detached storage. Repeated IDs receive both lookup and tied-head contributions; padding and loss-ineligible sites follow Chapter46's actual masks. |
-| Ambient mode | Full forward respects its caller's gradient mode. Cached no-gradient scope starts before embedding; nested calls, ordinary errors and controlled unwind restore the preceding mode. Never force tracking on after a call. |
+| Explicit autograd context | Full forward propagates the caller's `AutogradContext`. Cached inference constructs one no-gradient context before embedding and passes it through every child; errors require no ambient-mode restoration and a later recording call remains independent. |
 | Metadata shape | Reject wrong B/T/D, positions or segment lengths, invalid loss eligibility, forbidden cached segments, mismatched mask mode and incompatible provenance/config/dtype/device/artifact bindings before any block runs. |
 | Cache identity | Equal-value/different-node parameters, changed revision, stale prepared embeddings, changed RoPE bits, wrong prefix length and context overflow all reject. Hash equality alone cannot authorize a stale cache. |
 | All-layer validation | Corrupt only the last layer binding or mix prepared tickets from different cache sessions; no earlier layer may commit. Reject ticket reuse and out-of-order position advancement. |
@@ -691,9 +694,9 @@ Useful existing tests to retain by their current names include
 `final_normalization_failure_after_layer_preparation_commits_nothing`,
 `cached_inference_survives_a_released_training_graph_without_grad_changes`
 and `checked_counter_helpers_reject_overflow` in `generation/kv_cache.rs`.
-Keep `no_grad_is_graph_free_nestable_and_restored_after_unwind` in the autograd
-module too. Inspect their actual predecessor locations rather than depending
-on planning-time line numbers.
+Keep `autograd_context_is_explicit_graph_free_and_does_not_leak_between_calls`
+in the autograd module too. Inspect its actual predecessor location rather than
+depending on planning-time line numbers.
 
 ### 5.4 Predictable exercises and negative fixtures
 

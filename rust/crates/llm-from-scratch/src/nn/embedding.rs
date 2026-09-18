@@ -4,7 +4,7 @@ use std::error::Error;
 use std::fmt;
 
 use crate::autograd::model_ops::RowGatherPlan;
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, SplitMix64};
 use crate::tensor::storage::{TensorError, checked_row_major_layout};
 
@@ -177,6 +177,16 @@ impl Embedding {
         token_ids: &[u32],
         token_shape: &[usize],
     ) -> Result<TensorValue, EmbeddingError> {
+        self.forward_with_context(AutogradContext::recording(), token_ids, token_shape)
+    }
+
+    /// Selects embedding rows under the caller's explicit recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        token_ids: &[u32],
+        token_shape: &[usize],
+    ) -> Result<TensorValue, EmbeddingError> {
         let (_, expected) =
             checked_row_major_layout(token_shape).map_err(EmbeddingError::TokenShape)?;
         if token_ids.len() != expected {
@@ -208,7 +218,7 @@ impl Embedding {
         }
         self.table
             .tensor()
-            .gather_rows_with_plan(move |table| {
+            .gather_rows_with_plan_and_context(context, move |table| {
                 RowGatherPlan::from_validated_indices(table, indices, token_shape.to_vec())
             })
             .map_err(EmbeddingError::Autodiff)

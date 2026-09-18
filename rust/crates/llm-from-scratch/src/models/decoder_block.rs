@@ -6,9 +6,9 @@ use std::fmt;
 use crate::attention::multi_head::{
     MultiHeadAttention, MultiHeadAttentionError, MultiHeadAttentionForward,
 };
-use crate::autograd::tensor_core::TensorValue;
+use crate::autograd::tensor_core::{AutogradContext, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
-use crate::nn::residual::{ResidualError, residual_add};
+use crate::nn::residual::{ResidualError, residual_add_with_context};
 use crate::nn::rmsnorm::{RmsNorm, RmsNormError, RmsNormForward};
 use crate::nn::swiglu::{SwiGlu, SwiGluError, SwiGluForward};
 
@@ -312,25 +312,35 @@ impl DecoderBlock {
         input: &TensorValue,
         position_offset: usize,
     ) -> Result<DecoderBlockForward, DecoderBlockError> {
+        self.forward_with_context(AutogradContext::recording(), input, position_offset)
+    }
+
+    /// Runs both pre-normalized branches under an explicit recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+        position_offset: usize,
+    ) -> Result<DecoderBlockForward, DecoderBlockError> {
         let attention_norm = self
             .attention_norm
-            .forward_with_intermediates(input)
+            .forward_with_intermediates_and_context(context, input)
             .map_err(DecoderBlockError::AttentionNorm)?;
         let attention = self
             .attention
-            .forward(attention_norm.output(), position_offset)
+            .forward_with_context(context, attention_norm.output(), position_offset)
             .map_err(DecoderBlockError::Attention)?;
-        let after_attention = residual_add(input, attention.output())
+        let after_attention = residual_add_with_context(context, input, attention.output())
             .map_err(DecoderBlockError::AttentionResidual)?;
         let feed_forward_norm = self
             .feed_forward_norm
-            .forward_with_intermediates(&after_attention)
+            .forward_with_intermediates_and_context(context, &after_attention)
             .map_err(DecoderBlockError::FeedForwardNorm)?;
         let feed_forward = self
             .feed_forward
-            .forward_with_intermediates(feed_forward_norm.output())
+            .forward_with_intermediates_and_context(context, feed_forward_norm.output())
             .map_err(DecoderBlockError::FeedForward)?;
-        let output = residual_add(&after_attention, feed_forward.output())
+        let output = residual_add_with_context(context, &after_attention, feed_forward.output())
             .map_err(DecoderBlockError::FeedForwardResidual)?;
 
         Ok(DecoderBlockForward {

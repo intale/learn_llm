@@ -1,0 +1,2 @@
+Layer-bound KV cache
+Fixed key/value storage tied to one attention layer's parameter-node identities, each parameter's captured value revision, and its RoPE, batch, model, head, capacity, and head-width configuration. Matching parameter-node identity alone is insufficient after an in-place weight update advances a value revision.

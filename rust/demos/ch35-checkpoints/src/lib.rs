@@ -5,7 +5,9 @@ use std::io;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ch33_training_selection::learner_evidence as selection_evidence;
-use llm_from_scratch::autograd::tensor_core::{GraphRetention, TensorAutodiffError, no_grad};
+use llm_from_scratch::autograd::tensor_core::{
+    AutogradContext, GraphRetention, TensorAutodiffError,
+};
 use llm_from_scratch::checkpoint::{
     CHECKPOINT_VERSION, Checkpoint, CheckpointError, CheckpointTensorDescriptor,
     CheckpointTensorRole, CheckpointTokenizer,
@@ -225,7 +227,7 @@ fn literal_tokenizer() -> Result<CheckpointTokenizer, FixtureError> {
 }
 
 fn logits_bits(model: &DecoderModel) -> Result<Vec<u64>, FixtureError> {
-    let forward = no_grad(|| model.forward(&LOGIT_INPUTS, &[1, 2]))?;
+    let forward = model.forward_with_context(AutogradContext::no_grad(), &LOGIT_INPUTS, &[1, 2])?;
     Ok(forward
         .logits()
         .value()

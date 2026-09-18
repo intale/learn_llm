@@ -1,0 +1,3 @@
+Represent graph recording as an immutable value that callers pass explicitly while retaining ordinary forward checks.
+Choose graph recording explicitly without ambient thread state
+Rust source defining the explicit Chapter 33 autograd recording context

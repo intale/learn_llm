@@ -209,11 +209,12 @@ actual tensor API. Do not multiply by a tensor of ones, divide by one, detach,
 copy numerical values into a new leaf or force graph tracking on. Test parameter
 and graph identities, exact f64 bits and signed zero, not only approximate values.
 
-The table concerns creation of new operations. `no_grad` does not retroactively
-detach an already-tracked input handle: an identity return can still expose that
-handle's tracking flag. Test absence of a new graph and preservation of identity,
-not a blanket assertion that every identity result becomes untracked. Cached
-embeddings are already created under `no_grad`, so their existing graph-free
+The table concerns creation of new operations. Passing
+`AutogradContext::no_grad()` does not retroactively detach an already-tracked
+input handle: an identity return can still expose that handle's tracking flag.
+Test absence of a new graph and preservation of identity, not a blanket assertion
+that every identity result becomes untracked. Cached embeddings are already
+created with the explicit no-gradient context, so their existing graph-free
 behavior remains intact.
 
 Probability validation occurs at configuration admission even when evaluation
@@ -223,8 +224,8 @@ silently changing bound configuration bytes. Active arithmetic must reject an
 unrepresentable scale or nonfinite generated value with a declared error;
 neither clipping nor replacing a failed value with zero is a valid repair.
 
-Cached generation remains evaluation-only. Its existing scoped `no_grad` starts
-before embedding and does not stand in for Eval mode. A future explicit Train
+Cached generation remains evaluation-only. Its explicit no-gradient context is
+selected before embedding and does not stand in for Eval mode. A future explicit Train
 request to the cached path must reject before changing cache, work or dropout
 state. Legacy public cached entry points adapt explicitly to Eval and keep their
 old behavior.
@@ -384,12 +385,12 @@ Retain the forward multiplier through the existing multiplication graph. Do not
 implement a custom dropout backward node unless the actual predecessor cannot
 support this construction and the necessary integration change is recorded.
 Never reconstruct the input as a detached parameter or infer the multiplier
-from output values. Train under `no_grad` uses the same numerical mask but does
-not retain an unnecessary training graph.
+from output values. Train mode combined with an explicit no-gradient context
+uses the same numerical mask but does not retain an unnecessary training graph.
 
 Record probability, placement/granularity version, RNG mapping version and seed
 in the accepted run/training-policy record; explicit per-call Train/Eval control
-is distinct from the autograd guard. The model's unique parameter census stays
+is distinct from the explicit autograd recording context. The model's unique parameter census stays
 1188/8304/32514560 for the three profiles. Changing dropout policy changes its
 run binding and replay compatibility, not the number of learned parameters.
 Do not add a persistent global training-mode flag whose stale value can leak
@@ -422,7 +423,7 @@ training update requires the last-good training snapshot and phase policy;
 blindly retrying with the now-advanced cursor would silently change the mask.
 
 Preserve the predecessor's public error precedence on the disabled path.
-Cached generation adapts to Eval and retains the existing no-gradient scope,
+Cached generation adapts to Eval and retains the existing explicit no-gradient context,
 parameter guards, all-layer ticket checks, token-step unchanged-state behavior
 and whole-prefill reset behavior. Do not add stochastic cached attention or
 relax a cache binding just because dropout is disabled.
@@ -712,7 +713,7 @@ checkpoint is accepted. These are phases of one coherent chapter delivery.
 | --- | --- | --- |
 | 49.1 / Chapter48 | Actual core/config APIs, original goldens and purpose registry → frozen dropout/fixture manifest | Probability, sites, granularity, counter version, identity paths, bounds and replay scope fixed before results. Reconcile any inherited counter mapping first. |
 | 49.2 / 49.1 | Existing SplitMix and Multiply VJP → checked counter adapter and dropout primitive | Ten hand fixtures, fixed-mask derivative, invalid/identity/finite-grid/counter tests pass without a new autodiff operation or RNG dependency. |
-| 49.3 / 49.2 | One core and scoped call contexts → optional two-site-per-block integration | p0/Eval preserve reference/bridge and cached behavior; active mode is explicit and candidate counter commits only with successful forward. |
+| 49.3 / 49.2 | One core and explicit call contexts → optional two-site-per-block integration | p0/Eval preserve reference/bridge and cached behavior; active mode is explicit and candidate counter commits only with successful forward. |
 | 49.4 / 49.3 | Frozen bridge loop and replay tickets → three R and three U interruption records | Full declared state and next-word comparisons pass; local scope is explicit and later acceptance is not forged. |
 | 49.5 / 49.4 | Passing Rust/history/resource evidence → contract and canonical English candidate | Complete/reading-order/isolated role requirements, static values and Firefox candidate checks frozen before external judgment. |
 | 49.6 / 49.5 | Accepted independent English chain → direct Russian and locale/render evidence | Both reviews and both adjudications pass; Russian independent language/layout gates pass against the matching English. |

@@ -4,7 +4,7 @@ use std::error::Error;
 use std::fmt;
 
 use super::tensor_core::{
-    TensorAutodiffError, TensorOperation, TensorValue, accumulate_unbroadcast,
+    AutogradContext, TensorAutodiffError, TensorOperation, TensorValue, accumulate_unbroadcast,
 };
 use crate::nn::probability::{indexed_mean_nll_forward, log_softmax_forward};
 use crate::tensor::matmul::{matmul, matmul_with_transpose};
@@ -229,27 +229,41 @@ impl RowGatherPlan {
 impl TensorValue {
     /// Multiplies rank-two or batched tensors and records both matrix pullbacks.
     pub fn matmul(&self, right: &Self) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::MatMul, [self, right], |primals| {
-            let left = primals[0];
-            let right = primals[1];
-            let value = matmul(&left.view(), &right.view())?;
-            let output_shape = value.shape().to_vec();
-            Ok((
-                value,
-                [
-                    ModelSavedContext::MatmulLeft {
-                        right: Tensor::clone(right),
-                        input_shape: left.shape().to_vec(),
-                        output_shape: output_shape.clone(),
-                    },
-                    ModelSavedContext::MatmulRight {
-                        left: Tensor::clone(left),
-                        input_shape: right.shape().to_vec(),
-                        output_shape,
-                    },
-                ],
-            ))
-        })
+        self.matmul_with_context(AutogradContext::recording(), right)
+    }
+
+    /// Multiplies tensors under the caller's explicit graph-recording policy.
+    pub fn matmul_with_context(
+        &self,
+        context: AutogradContext,
+        right: &Self,
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::MatMul,
+            [self, right],
+            |primals| {
+                let left = primals[0];
+                let right = primals[1];
+                let value = matmul(&left.view(), &right.view())?;
+                let output_shape = value.shape().to_vec();
+                Ok((
+                    value,
+                    [
+                        ModelSavedContext::MatmulLeft {
+                            right: Tensor::clone(right),
+                            input_shape: left.shape().to_vec(),
+                            output_shape: output_shape.clone(),
+                        },
+                        ModelSavedContext::MatmulRight {
+                            left: Tensor::clone(left),
+                            input_shape: right.shape().to_vec(),
+                            output_shape,
+                        },
+                    ],
+                ))
+            },
+        )
     }
 
     // region:model-row-gather-operation
@@ -261,26 +275,49 @@ impl TensorValue {
         indices: &[usize],
         index_shape: &[usize],
     ) -> Result<Self, TensorAutodiffError> {
-        self.gather_rows_with_plan(|table| RowGatherPlan::checked(table, indices, index_shape))
+        self.gather_rows_with_context(AutogradContext::recording(), indices, index_shape)
     }
 
-    /// Builds one row-gather plan after operand availability is established.
-    pub(crate) fn gather_rows_with_plan(
+    /// Selects rows under the caller's explicit graph-recording policy.
+    pub fn gather_rows_with_context(
         &self,
+        context: AutogradContext,
+        indices: &[usize],
+        index_shape: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.gather_rows_with_plan_and_context(context, |table| {
+            RowGatherPlan::checked(table, indices, index_shape)
+        })
+    }
+
+    /// Builds one row-gather plan under an explicit graph-recording policy.
+    pub(crate) fn gather_rows_with_plan_and_context(
+        &self,
+        context: AutogradContext,
         build_plan: impl FnOnce(&Tensor) -> Result<RowGatherPlan, TensorAutodiffError>,
     ) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::GatherRows, [self], |primals| {
-            let table = primals[0];
-            let plan = build_plan(table)?;
-            let value = gather_rows_forward(table, &plan)?;
-            Ok((value, [plan.into_saved_context()]))
-        })
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::GatherRows,
+            [self],
+            |primals| {
+                let table = primals[0];
+                let plan = build_plan(table)?;
+                let value = gather_rows_forward(table, &plan)?;
+                Ok((value, [plan.into_saved_context()]))
+            },
+        )
     }
     // endregion:model-row-gather-operation
 
     /// Applies the elementwise exponential and saves its output for reversal.
     pub fn exp(&self) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::Exp, [self], |primals| {
+        self.exp_with_context(AutogradContext::recording())
+    }
+
+    /// Applies the elementwise exponential under an explicit recording policy.
+    pub fn exp_with_context(&self, context: AutogradContext) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(context, TensorOperation::Exp, [self], |primals| {
             let value = map_unary(&primals[0].view(), f64::exp)?;
             Ok((value.clone(), [ModelSavedContext::Exp { output: value }]))
         })
@@ -289,7 +326,12 @@ impl TensorValue {
     /// Applies the natural logarithm; zero and negative inputs are rejected by
     /// the tape's finite-forward invariant.
     pub fn log(&self) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::Log, [self], |primals| {
+        self.log_with_context(AutogradContext::recording())
+    }
+
+    /// Applies the natural logarithm under an explicit recording policy.
+    pub fn log_with_context(&self, context: AutogradContext) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(context, TensorOperation::Log, [self], |primals| {
             let input = primals[0];
             let value = map_unary(&input.view(), f64::ln)?;
             Ok((
@@ -303,7 +345,12 @@ impl TensorValue {
 
     /// Applies SiLU, `x * sigmoid(x)`, with a branchwise stable sigmoid.
     pub fn silu(&self) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::Silu, [self], |primals| {
+        self.silu_with_context(AutogradContext::recording())
+    }
+
+    /// Applies SiLU under the caller's explicit graph-recording policy.
+    pub fn silu_with_context(&self, context: AutogradContext) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(context, TensorOperation::Silu, [self], |primals| {
             let input = primals[0];
             let sigmoid = map_unary(&input.view(), stable_sigmoid)?;
             let value = map_binary(&input.view(), &sigmoid.view(), |x, probability| {
@@ -322,21 +369,35 @@ impl TensorValue {
     // region:model-log-softmax-saved-forward
     /// Applies stable log-softmax along one explicit class axis.
     pub fn log_softmax(&self, axis: usize) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::LogSoftmax, [self], |primals| {
-            let input = primals[0];
-            let forward = log_softmax_forward(&input.view(), axis, true)?;
-            let probabilities = forward
-                .probabilities
-                .expect("the autodiff log-softmax forward requests saved probabilities");
-            Ok((
-                forward.value,
-                [ModelSavedContext::LogSoftmax {
-                    probabilities,
-                    axis,
-                    input_shape: input.shape().to_vec(),
-                }],
-            ))
-        })
+        self.log_softmax_with_context(AutogradContext::recording(), axis)
+    }
+
+    /// Applies stable log-softmax under an explicit recording policy.
+    pub fn log_softmax_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::LogSoftmax,
+            [self],
+            |primals| {
+                let input = primals[0];
+                let forward = log_softmax_forward(&input.view(), axis, true)?;
+                let probabilities = forward
+                    .probabilities
+                    .expect("the autodiff log-softmax forward requests saved probabilities");
+                Ok((
+                    forward.value,
+                    [ModelSavedContext::LogSoftmax {
+                        probabilities,
+                        axis,
+                        input_shape: input.shape().to_vec(),
+                    }],
+                ))
+            },
+        )
     }
     // endregion:model-log-softmax-saved-forward
 
@@ -346,19 +407,32 @@ impl TensorValue {
     /// the additive negative-infinity mask as a branch, so non-finite values
     /// never enter the operation tape.
     pub fn causal_softmax(&self) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::CausalSoftmax, [self], |primals| {
-            let input = primals[0];
-            let probabilities = causal_softmax_forward(input)?;
-            let tokens = input.shape()[input.rank() - 1];
-            Ok((
-                probabilities.clone(),
-                [ModelSavedContext::CausalSoftmax {
-                    probabilities,
-                    input_shape: input.shape().to_vec(),
-                    tokens,
-                }],
-            ))
-        })
+        self.causal_softmax_with_context(AutogradContext::recording())
+    }
+
+    /// Applies causal softmax under an explicit graph-recording policy.
+    pub fn causal_softmax_with_context(
+        &self,
+        context: AutogradContext,
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::CausalSoftmax,
+            [self],
+            |primals| {
+                let input = primals[0];
+                let probabilities = causal_softmax_forward(input)?;
+                let tokens = input.shape()[input.rank() - 1];
+                Ok((
+                    probabilities.clone(),
+                    [ModelSavedContext::CausalSoftmax {
+                        probabilities,
+                        input_shape: input.shape().to_vec(),
+                        tokens,
+                    }],
+                ))
+            },
+        )
     }
 
     /// Rotates adjacent feature pairs with one precomputed angle row per token.
@@ -366,25 +440,32 @@ impl TensorValue {
     /// Shape and position-range validation belongs to the rotary-embedding
     /// owner. Keeping this primitive crate-private prevents callers from
     /// constructing inconsistent sine and cosine tables.
-    pub(crate) fn rotary_pairs(
+    /// Rotates feature pairs under an explicit graph-recording policy.
+    pub(crate) fn rotary_pairs_with_context(
         &self,
+        context: AutogradContext,
         cosines: &Tensor,
         sines: &Tensor,
     ) -> Result<Self, TensorAutodiffError> {
         let cosines = cosines.clone();
         let sines = sines.clone();
-        Self::model_operation(TensorOperation::RotaryPairs, [self], move |primals| {
-            let input = primals[0];
-            let value = rotary_pairs_forward(input, &cosines, &sines, false)?;
-            Ok((
-                value,
-                [ModelSavedContext::RotaryPairs {
-                    cosines,
-                    sines,
-                    input_shape: input.shape().to_vec(),
-                }],
-            ))
-        })
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::RotaryPairs,
+            [self],
+            move |primals| {
+                let input = primals[0];
+                let value = rotary_pairs_forward(input, &cosines, &sines, false)?;
+                Ok((
+                    value,
+                    [ModelSavedContext::RotaryPairs {
+                        cosines,
+                        sines,
+                        input_shape: input.shape().to_vec(),
+                    }],
+                ))
+            },
+        )
     }
 
     // region:model-indexed-nll-saved-forward
@@ -394,24 +475,39 @@ impl TensorValue {
         axis: usize,
         targets: &[usize],
     ) -> Result<Self, TensorAutodiffError> {
-        Self::model_operation(TensorOperation::IndexedMeanNll, [self], |primals| {
-            let logits = primals[0];
-            let forward = indexed_mean_nll_forward(&logits.view(), axis, targets, true)?;
-            let probabilities = forward
-                .probabilities
-                .expect("the autodiff indexed-NLL forward requests saved probabilities");
-            let value = Tensor::from_vec(Vec::new(), vec![forward.loss])?;
-            Ok((
-                value,
-                [ModelSavedContext::IndexedMeanNll {
-                    probabilities,
-                    targets: targets.to_vec(),
-                    axis,
-                    input_shape: logits.shape().to_vec(),
-                    groups: targets.len(),
-                }],
-            ))
-        })
+        self.indexed_mean_nll_with_context(AutogradContext::recording(), axis, targets)
+    }
+
+    /// Computes indexed mean NLL under an explicit graph-recording policy.
+    pub fn indexed_mean_nll_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+        targets: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::IndexedMeanNll,
+            [self],
+            |primals| {
+                let logits = primals[0];
+                let forward = indexed_mean_nll_forward(&logits.view(), axis, targets, true)?;
+                let probabilities = forward
+                    .probabilities
+                    .expect("the autodiff indexed-NLL forward requests saved probabilities");
+                let value = Tensor::from_vec(Vec::new(), vec![forward.loss])?;
+                Ok((
+                    value,
+                    [ModelSavedContext::IndexedMeanNll {
+                        probabilities,
+                        targets: targets.to_vec(),
+                        axis,
+                        input_shape: logits.shape().to_vec(),
+                        groups: targets.len(),
+                    }],
+                ))
+            },
+        )
     }
     // endregion:model-indexed-nll-saved-forward
 }
@@ -1023,7 +1119,7 @@ mod tests {
 
         let checked = checked_table.gather_rows(&indices, &[2, 2]).unwrap();
         let planned = planned_table
-            .gather_rows_with_plan(|table| {
+            .gather_rows_with_plan_and_context(AutogradContext::recording(), |table| {
                 RowGatherPlan::from_validated_indices(table, indices.to_vec(), vec![2, 2])
             })
             .unwrap();
@@ -1051,7 +1147,7 @@ mod tests {
                 .gather_rows(&edge_indices, &edge_shape)
                 .unwrap();
             let planned_edge = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0])
-                .gather_rows_with_plan(|table| {
+                .gather_rows_with_plan_and_context(AutogradContext::recording(), |table| {
                     RowGatherPlan::from_validated_indices(
                         table,
                         edge_indices.clone(),

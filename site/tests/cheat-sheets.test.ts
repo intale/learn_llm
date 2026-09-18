@@ -1182,7 +1182,7 @@ const exactDefinitions = {
     "Incremental multi-head attention":
       "A one-row attention path that projects the current row for every head, reads retained layer-local keys and values plus the candidate pair, and returns the newest output.",
     "Layer-bound KV cache":
-      "Fixed key/value storage tied to one attention layer's parameter-node, RoPE, batch, model, head, capacity, and head-width identity.",
+      "Fixed key/value storage tied to one attention layer's parameter-node identities, each parameter's captured value revision, and its RoPE, batch, model, head, capacity, and head-width configuration. Matching parameter-node identity alone is insufficient after an in-place weight update advances a value revision.",
     "Absolute RoPE position":
       "The zero-based position used to rotate the current query and key, equal to the cache's old logical length before append.",
     "Rotated key":
@@ -1793,6 +1793,17 @@ describe("Russian chapter cheat-sheet localization", () => {
       )?.definition,
     ).toBe(
       "Фактический градиент, полученный из исходного градиента проверенным преобразованием с единым множителем либо нормализованным структурированным преобразованием и используемый AdamW для обновления обоих моментов; сохранённые исходные градиенты не меняются, а преобразование не применяется к отдельной поправке затухания весов.",
+    );
+  });
+
+  it("keeps the Chapter 37 parameter-revision cache binding explicit in Russian", () => {
+    const sheet = readLocalizedSheet("ru", "37-incremental-attention.json");
+    expect(
+      sheet.terms.find(
+        (entry) => entry.term === "Привязанный к слою KV-кэш",
+      )?.definition,
+    ).toBe(
+      "Фиксированное хранилище ключей и значений, привязанное к идентичностям узлов всех параметров одного слоя внимания, зафиксированным версиям значений каждого из них и всей конфигурации слоя и кэша: параметрам RoPE, размеру пакета, ширине модели, числу голов, ёмкости и ширине головы. Одного совпадения идентичностей узлов недостаточно: после обновления весов на месте узлы остаются прежними, но версия значения хотя бы одного параметра увеличивается.",
     );
   });
 

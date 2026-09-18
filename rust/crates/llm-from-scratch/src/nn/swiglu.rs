@@ -3,7 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
+use crate::autograd::tensor_core::{AutogradContext, TensorAutodiffError, TensorValue};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
 use crate::nn::linear::{Linear, LinearError};
 
@@ -262,7 +262,18 @@ impl SwiGlu {
 
     /// Applies the same gated feature transformation at every leading position.
     pub fn forward(&self, input: &TensorValue) -> Result<TensorValue, SwiGluError> {
-        Ok(self.forward_with_intermediates(input)?.into_output())
+        self.forward_with_context(AutogradContext::recording(), input)
+    }
+
+    /// Applies the gated transformation under an explicit recording policy.
+    pub fn forward_with_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+    ) -> Result<TensorValue, SwiGluError> {
+        Ok(self
+            .forward_with_intermediates_and_context(context, input)?
+            .into_output())
     }
 
     /// Returns each branch tensor for inspection without changing the computation.
@@ -270,23 +281,32 @@ impl SwiGlu {
         &self,
         input: &TensorValue,
     ) -> Result<SwiGluForward, SwiGluError> {
+        self.forward_with_intermediates_and_context(AutogradContext::recording(), input)
+    }
+
+    /// Returns branch tensors under an explicit graph-recording policy.
+    pub fn forward_with_intermediates_and_context(
+        &self,
+        context: AutogradContext,
+        input: &TensorValue,
+    ) -> Result<SwiGluForward, SwiGluError> {
         let gate_linear = self
             .gate
-            .forward(input)
+            .forward_with_context(context, input)
             .map_err(projection_error(SwiGluProjection::Gate))?;
         let gate_silu = gate_linear
-            .silu()
+            .silu_with_context(context)
             .map_err(autodiff_error(SwiGluOperation::SiluGate))?;
         let up = self
             .up
-            .forward(input)
+            .forward_with_context(context, input)
             .map_err(projection_error(SwiGluProjection::Up))?;
         let product = gate_silu
-            .mul(&up)
+            .mul_with_context(context, &up)
             .map_err(autodiff_error(SwiGluOperation::ElementwiseGate))?;
         let output = self
             .down
-            .forward(&product)
+            .forward_with_context(context, &product)
             .map_err(projection_error(SwiGluProjection::Down))?;
         Ok(SwiGluForward {
             gate_linear,
