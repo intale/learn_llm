@@ -65,8 +65,9 @@ Completed planning checkpoints:
 - [Chapter 68: continuous batch scheduling](68-continuous-batch-scheduling.md).
 - [Chapter 69: cancellation, backpressure, and budgets](69-cancellation-backpressure-budgets.md).
 - [Chapter 70: loopback serving and metrics](70-loopback-serving-metrics.md).
+- [Chapter 71: LoRA and response-masked SFT adapters](71-lora-sft-adapters.md).
 
-Chapters 71–85 remain separate pending planning steps. Do not substitute this
+Chapters 72–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

@@ -25316,3 +25316,46 @@ and
 `285a668fffed6a333e7eee08461c34417d81397d4f2927a264ba65619f44c3ca`.
 This package, not either failed predecessor, is the Russian publication gate for
 the corrective AutogradContext build.
+
+### 2026-10-02 — Chapter 71 frozen-base and response-masked adapter planning
+
+Prepared only `detail-ch71-lora-sft-adapters`, the next eligible internal packet,
+against the September 18 corrected planning state. Chapter 72 remains unclaimed; course
+implementation, repairs, acquisition, real adaptation and publication stay held.
+The text-file ledger remains authoritative; no Event Sourcing or database work.
+Recovered the interrupted September 30 drafting run into a new hash-bound attempt,
+preserving its original artifacts before final clarification and validation.
+
+Explicitly transpose the conventional LoRA matrices into existing Rust Linear's
+input-by-output storage. Use two literal VJP fixtures, including a non-square
+scaled case, and a second backward that exercises A after zero-initialized B
+has changed. Excluding base parameters from AdamW is not sufficient: the future
+graph boundary must suppress base gradients while preserving input gradients.
+First-step unchanged A is a no-decay SGD diagnostic, not an AdamW promise.
+Nonzero loss-driven updates are required per selected factor/module, not merely
+in a global gradient norm; the gradient-free invariant covers the entire base.
+Disabled adapter construction must not consume allocation or initialization RNG.
+
+Propose a bounded single-turn response-plus-owned-EOS template policy and a
+synthetic two-color copy smoke fixture. Targets follow shifted target roles,
+not input roles or token identity; prompt context remains visible. Reject
+ambiguous token boundaries, unsupported turns/empty responses and over-context
+records before training. Accumulate raw eligible loss/count and normalize once
+under prior scaler/clipping/optimizer rules. Real task/base/rank/target/optimizer
+choices remain with the later pre-results adaptation freeze; no acquisition or
+three-seed SFT is authorized by these implementation fixtures.
+
+Preserve CAP-ISA-PT-002's fixed FP32 max-absolute 1e-6 merge gate, exact original
+base-bit unmerge, quantized-merge refusal and mixed-request adapter isolation.
+Unmerge reuses a pinned original base, never rounded subtraction. Reuse immutable
+artifact/job-state and request/cache identity boundaries; validate before an
+atomic owner change and keep the later SFT reference separate from a mutable
+Chapter 72 successor. No parallel framework or hot-swap feature is introduced.
+
+The exact smoke/adapter profile budgets, blocked artifact selection and inherited
+probe/token/warmup accounting gates remain unchanged. Host Rust/Cargo 1.98.1 and
+Node 23.7.0 differ from recorded/pinned execution versions; no runtime repair or
+Rust build was performed, and planning validation uses the existing pinned
+offline image. External independent English/Russian review handoffs remain
+mandatory for later implementation; internal planning audit is not publication
+approval.

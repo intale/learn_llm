@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-18T09:46:39Z"
+updated_at: "2026-10-02T04:49:19Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 30
+      spent: 31
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -49972,7 +49972,7 @@ builds:
       - id: detail-ch71-lora-sft-adapters
         objective: "Make Chapter 71 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch70-loopback-serving-metrics"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -49988,7 +49988,132 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20260930T055325Z-detail-ch71-lora-sft-adapters-01
+            started_at: "2026-09-30T05:53:25Z"
+            finished_at: "2026-10-02T04:41:12Z"
+            status: interrupted
+            input_fingerprint:
+              git: "9f38a060903c472c4d571efd8e52da1f17e553ff"
+              worktree: "clean; main...origin/main"
+              files:
+                curriculum/functional-laptop-llm-extension-plan.md: "sha256:84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+                curriculum/future-chapter-plans/README.md: "sha256:e4a722596feef5c13b36c8a7515ae622988197cc9e61ec00fa6d3854d74f6b31"
+                curriculum/future-chapter-plans/index.json: "sha256:e8c5a955c0c5d96f10bb58e04756814ac12c88ee188519ac6c082d221865bbf0"
+                curriculum/future-chapter-plans/70-loopback-serving-metrics.md: "sha256:63f779ac2fe267f1dd0aaa466502e44f3ac6a754c24af13119a5aacbe700fd2b"
+                BUILD_STATE.yaml: "sha256:b836ec95c4a37659e94b81feed4b73be65dc6be88177eb89cc63afd245621b80"
+                DECISIONS.md: "sha256:610994bed8886ea8f6edbad10ad94f636c5fd2af25967c4566ef10b02598d058"
+              tools:
+                rustc: "1.98.1 (48a229cea 2026-09-01); recorded 1.93.1"
+                cargo: "1.98.1 (797e8a9bc 2026-08-05); recorded 1.93.1"
+                node: "23.7.0; recorded 22.12.0"
+                npm: "10.9.2; recorded 10.9.0"
+                git: "2.53.0"
+                docker: "25.0.2"
+                docker_compose: "2.17.3"
+                pinned_validator_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+            staging_dir: ".build/runs/20260930T055325Z-detail-ch71-lora-sft-adapters-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "sha256sum curriculum/functional-laptop-llm-extension-plan.md curriculum/future-chapter-plans/README.md curriculum/future-chapter-plans/index.json curriculum/future-chapter-plans/70-loopback-serving-metrics.md BUILD_STATE.yaml DECISIONS.md"
+              - "Extract exact Chapter 71 chapter/implementation/planning metadata, source IDs, capability IDs, profile literals, command array and held-scope snapshot into inputs.json"
+              - "node scripts/check-course-plan.mjs"
+              - "docker image inspect sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad --format '{{.Id}} {{.RepoTags}}'"
+            artifacts:
+              - path: ".build/runs/20260930T055325Z-detail-ch71-lora-sft-adapters-01/inputs.json"
+                sha256: "295ef1ec3cc613dae0af42f9f2b3fa2b90264b7724407593fb268c96066d75e0"
+                bytes: 22915
+                purpose: "Exact frozen Chapter 71 record, implementation/planning records, sources, capabilities, full profile literals, command inventory, hashes and environment snapshot; excludes this run's own state entry."
+              - path: ".build/runs/20260930T055325Z-detail-ch71-lora-sft-adapters-01/preflight.md"
+                sha256: "d5eccb70ea139b1adec2a65e9380cce04eb17705c079c99065faba3d77d33ed7"
+                bytes: 10007
+                purpose: "Read-only Chapter 71 planning claim preflight with exact metadata counts, paths, literals, source URLs, environment drift and planning-only hold."
+            validation:
+              - command: "git status --short --branch; git rev-parse HEAD"
+                outcome: "passed; clean main...origin/main at 9f38a060903c472c4d571efd8e52da1f17e553ff"
+              - command: "python3 YAML parse of complete BUILD_STATE.yaml"
+                outcome: "passed; active build detail-future-chapter-execution-plans-20260915; no running steps or runs; Chapter 71 first pending before claim"
+              - command: "node scripts/check-course-plan.mjs"
+                outcome: "passed; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm"
+              - command: "docker image inspect pinned validator digest"
+                outcome: "passed; sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad [learn-llm-plan-validation:20260915]; no pull/install"
+              - command: "node scripts/check-functional-laptop-llm-plan.mjs"
+                outcome: "not run; held functional checker explicitly excluded from this planning claim"
+            notes: "Interrupted after daemon/session loss before acceptance validation. Staged packet, planning evidence, decision entry, inputs and preflight remain preserved and byte-verified at this run path; no canonical packet, README, index, DECISIONS publication, implementation, repair, acquisition, training or localization bytes changed. Material host Rust/Node drift is recorded; no functional checker rerun."
+          - run_id: 20261002T044112Z-detail-ch71-lora-sft-adapters-recovery-01
+            started_at: "2026-10-02T04:41:12Z"
+            finished_at: "2026-10-02T04:49:19Z"
+            status: succeeded
+            input_fingerprint:
+              git: "9f38a060903c472c4d571efd8e52da1f17e553ff"
+              worktree: "only BUILD_STATE.yaml ledger drift before recovery; product paths clean"
+              files:
+                curriculum/functional-laptop-llm-extension-plan.md: "sha256:84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1"
+                curriculum/future-chapter-plans/README.md: "sha256:e4a722596feef5c13b36c8a7515ae622988197cc9e61ec00fa6d3854d74f6b31"
+                curriculum/future-chapter-plans/index.json: "sha256:e8c5a955c0c5d96f10bb58e04756814ac12c88ee188519ac6c082d221865bbf0"
+                curriculum/future-chapter-plans/70-loopback-serving-metrics.md: "sha256:63f779ac2fe267f1dd0aaa466502e44f3ac6a754c24af13119a5aacbe700fd2b"
+                BUILD_STATE.yaml: "sha256:1751ea223e22f2ea902231d7a6edf996883b23cf4604ce7c095f6dd9efe34c04"
+                DECISIONS.md: "sha256:610994bed8886ea8f6edbad10ad94f636c5fd2af25967c4566ef10b02598d058"
+              tools:
+                rustc: "1.98.1 (48a229cea 2026-09-01); recorded 1.93.1"
+                cargo: "1.98.1 (797e8a9bc 2026-08-05); recorded 1.93.1"
+                node: "23.7.0; recorded 22.12.0"
+                npm: "10.9.2; recorded 10.9.0"
+                git: "2.53.0"
+                docker: "25.0.2"
+                docker_compose: "2.17.3"
+                pinned_validator_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+            staging_dir: ".build/runs/20261002T044112Z-detail-ch71-lora-sft-adapters-recovery-01/"
+            commands:
+              - "git status --short --branch"
+              - "git rev-parse HEAD"
+              - "python3 YAML parse of complete BUILD_STATE.yaml"
+              - "sha256sum preserved stale-run artifacts and new recovery staging artifacts"
+              - "rg canonical Chapter 71 output paths"
+              - "apply_patch copy of stale packet, planning evidence and decision entry into new staging path"
+              - "apply_patch publication of Chapter 71 packet, README/index updates and DECISIONS entry"
+              - "test -s packet; git diff --check; JSON metadata assertions"
+              - 'docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs'
+            artifacts:
+              - path: ".build/runs/20261002T044112Z-detail-ch71-lora-sft-adapters-recovery-01/71-lora-sft-adapters.md"
+                sha256: "42b547581203e4128a1e10f6d641cd39cc1f4e7ac313e9f16ee71ed24e9430c9"
+                bytes: 75837
+                purpose: "Final staged Chapter 71 planning packet published byte-identically."
+              - path: ".build/runs/20261002T044112Z-detail-ch71-lora-sft-adapters-recovery-01/planning-evidence.md"
+                sha256: "c269b95d7ba5151656ef6bcc4d1b618be12810779c4fe34b8350ac70fd9ac16d"
+                bytes: 9389
+                purpose: "Final internal planning evidence for the published packet."
+              - path: ".build/runs/20261002T044112Z-detail-ch71-lora-sft-adapters-recovery-01/decision-entry.md"
+                sha256: "8c25f6c8be11073fe4b9135471e40bd4bf6194acbbeac306d9b60763419e2780"
+                bytes: 2852
+                purpose: "Final decision entry appended to DECISIONS.md."
+              - path: ".build/runs/20261002T044112Z-detail-ch71-lora-sft-adapters-recovery-01/inputs.json"
+                sha256: "1e5fa94999bd2a55f0c419d4de213a9c71fbae3d87ab6308245b99ef203c7bb8"
+                bytes: 23062
+                purpose: "Fresh recovery input snapshot with pre-recovery ledger fingerprint and exact Chapter 71 metadata."
+              - path: ".build/runs/20261002T044112Z-detail-ch71-lora-sft-adapters-recovery-01/preflight.md"
+                sha256: "4530bf5f11965786bd65f6160400cb5729e75a09364e1c52bae55060b322b247"
+                bytes: 3291
+                purpose: "Fresh recovery preflight recording stale-run interruption, copied artifacts, environment drift and planning-only hold."
+            validation:
+              - command: "git status --short --branch; git rev-parse HEAD"
+                outcome: "passed before recovery; only BUILD_STATE.yaml was modified and HEAD was 9f38a060903c472c4d571efd8e52da1f17e553ff"
+              - command: "python3 YAML parse of complete BUILD_STATE.yaml"
+                outcome: "passed before recovery; active build detail-future-chapter-execution-plans-20260915, budget spent 30, Chapter 71 sole running step"
+              - command: "sha256sum old and new staged artifacts"
+                outcome: "passed; old run preserved unchanged and new packet/evidence/decision copies match old hashes"
+              - command: "canonical Chapter 71 path search"
+                outcome: "passed; no canonical Chapter 71 packet, implementation, site, artifact or review outputs present"
+              - command: "test -s curriculum/future-chapter-plans/71-lora-sft-adapters.md; git diff --check; JSON metadata assertions"
+                outcome: "passed after publication; packet nonempty, index marks Chapter 71 planning-ready, README links the packet, and Chapter 72 remains pending"
+              - command: 'docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs'
+                outcome: "passed; Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm"
+              - command: "staged/canonical SHA-256 and byte-identity checks"
+                outcome: "passed; final packet and published packet are byte-identical; all five registered staging artifacts match their final hashes and sizes"
+              - command: "scope diff guard"
+                outcome: "passed; only Chapter 71 planning packet, README/index, DECISIONS and BUILD_STATE changed; Chapter 72 remains pending; no implementation/acquisition/repair outputs changed"
+            notes: "Succeeded Chapter 71 planning-only publication after daemon/session recovery. Published the final packet, README/index metadata and append-only decision entry; no implementation, repair, acquisition, training, localization, course build, formal review or held functional-checker rerun. Active planning budget incremented once from 30 to 31 agent-session units."
       - id: detail-ch72-direct-preference-optimization
         objective: "Make Chapter 72 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch71-lora-sft-adapters"]
