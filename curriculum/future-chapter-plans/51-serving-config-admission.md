@@ -637,8 +637,7 @@ CPU envelope, not as an over-context reference-model execution.
 Content budgets remain eight successful contexts, at most16 attempts, per-context
 input2097152 bytes/200000 tokens and output1048576 bytes/40000 tokens; aggregate
 input33554432 bytes, output16777216 bytes, wall28800 seconds. One rendered-image
-review allows16777216 input bytes,262144 output bytes and900 seconds at Terra or
-lower; ordinary operations are Luna or lower. These limits grant no external
+review allows16777216 input bytes,262144 output bytes and900 seconds using the user-selected model; ordinary operations use the user-selected model. These limits grant no external
 service or network authority.
 
 Preserve the core partition: state805306368, activations3221225472,

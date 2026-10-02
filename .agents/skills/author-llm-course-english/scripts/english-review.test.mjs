@@ -20,8 +20,6 @@ import {
   ArtifactTopology,
   InputError,
   REPORT_LIMITATIONS,
-  REQUIRED_COURSE_CONTENT_MODEL,
-  REQUIRED_COURSE_CONTENT_REASONING,
   VerificationError,
   assertAdjudicationSchemaShape,
   assertIsolatedAdjudicationBundle,
@@ -44,8 +42,8 @@ import {
 } from "./english-review.mjs";
 
 const ROLES = ["technical-pedagogical", "isolated-surface"];
-const MODEL = REQUIRED_COURSE_CONTENT_MODEL;
-const REASONING = REQUIRED_COURSE_CONTENT_REASONING;
+const MODEL = "selected-model-fixture";
+const REASONING = "configured-reasoning-fixture";
 const ADJUDICATION_SEMANTICS = {
   subject: "same-role-review",
   passMeaning:
@@ -313,20 +311,20 @@ function fixture(options = {}) {
     "isolated.label":
       "The accessible label must independently identify the control action.",
   };
-  const strongest = { model: policyModel, reasoning: policyReasoning };
+  const selected = { model: policyModel, reasoning: policyReasoning };
   const spec = {
     schemaVersion: 1,
     candidateId,
     scopeId,
     authorContext: { path: paths.authorContext, sha256: hashes.authorContext },
-    requiredAuthor: strongest,
+    requiredAuthor: selected,
     requiredReviewers: {
-      technicalPedagogical: strongest,
-      isolatedSurface: strongest,
+      technicalPedagogical: selected,
+      isolatedSurface: selected,
     },
     requiredAdjudicators: {
-      technicalPedagogical: strongest,
-      isolatedSurface: strongest,
+      technicalPedagogical: selected,
+      isolatedSurface: selected,
     },
     evidence: [
       { id: "contract", path: paths.evidence, sha256: hashes.evidence },
@@ -3215,9 +3213,9 @@ test("every complete, reading, and isolated surface freezes a byte-exact role re
 
 test("author manifest is a closed, time-ordered, role-bound contract", () => {
   expectCode(
-    () => fixture({ authorModel: "gpt-5.6-luna" }),
+    () => fixture({ authorModel: "unselected-model-fixture" }),
     VerificationError,
-    "model-policy",
+    "author-context",
   );
   for (const mutation of [
     {
@@ -4450,34 +4448,57 @@ test("review and adjudication receipts cannot cross roles or upstream chains", (
   }
 });
 
-test("the executable model policy rejects coherently weaker declarations during prepare and final verification", () => {
-  assert.equal(REQUIRED_COURSE_CONTENT_MODEL, "gpt-5.6-sol");
-  assert.equal(REQUIRED_COURSE_CONTENT_REASONING, "ultra");
+test("user-selected models and configured reasoning pass preparation and full verification without a preset", () => {
   for (const policy of [
-    { policyModel: "gpt-5.6-luna" },
-    { policyModel: "gpt-5.6-terra" },
-    { policyModel: "gpt-5.4" },
-    { policyReasoning: "low" },
-  ])
-    expectCode(() => fixture(policy), VerificationError, "model-policy");
-
-  for (const policy of [
-    { model: "gpt-5.6-luna", reasoning: "ultra" },
-    { model: "gpt-5.6-terra", reasoning: "ultra" },
-    { model: "gpt-5.6-sol", reasoning: "low" },
+    { policyModel: "user-selected-model-a" },
+    { policyModel: "provider/model-b", policyReasoning: "configured-setting-b" },
+    { policyModel: "local-model-c", policyReasoning: "not-configured" },
   ]) {
-    const f = fixture();
+    const f = fixture(policy);
     try {
-      rewriteAllPolicyDeclarations(f, policy.model, policy.reasoning);
-      expectCode(() => verifyFixture(f), VerificationError, "model-policy");
+      verifyFixture(f);
     } finally {
       f.cleanup();
     }
   }
 });
 
-test("reviewer and adjudicator strongest model and reasoning are enforced externally", () => {
-  for (const lane of ["review", "adjudication"]) {
+test("model and reasoning provenance must be nonblank", () => {
+  for (const field of ["model", "reasoning"]) {
+    const f = fixture();
+    try {
+      const spec = readJson(f.root, f.paths.spec);
+      spec.requiredAuthor[field] = "   ";
+      writeJson(f.root, f.paths.spec, spec);
+      expectCode(() => verifyFixture(f), InputError, "schema");
+    } finally {
+      f.cleanup();
+    }
+  }
+});
+
+test("changing the selected configuration cannot relabel an existing frozen review chain", () => {
+  for (const policy of [
+    { model: "newly-selected-model", reasoning: REASONING },
+    { model: MODEL, reasoning: "changed-configured-setting" },
+  ]) {
+    const f = fixture();
+    try {
+      rewriteAllPolicyDeclarations(f, policy.model, policy.reasoning);
+      assert.throws(() => verifyFixture(f), VerificationError);
+    } finally {
+      f.cleanup();
+    }
+  }
+});
+
+test("reviewer and adjudicator selection drift is rejected externally", () => {
+  for (const [lane, field] of [
+    ["review", "model"],
+    ["review", "reasoning"],
+    ["adjudication", "model"],
+    ["adjudication", "reasoning"],
+  ]) {
     const f = fixture();
     try {
       const routingPath =
@@ -4486,7 +4507,7 @@ test("reviewer and adjudicator strongest model and reasoning are enforced extern
       const entries =
         lane === "review" ? routing.reviewers : routing.adjudicators;
       const context = readJson(f.root, entries[0].context.path);
-      context.reasoning = "low";
+      context[field] = "unselected-configuration";
       entries[0].context.sha256 = writeJson(
         f.root,
         entries[0].context.path,
@@ -4533,9 +4554,31 @@ test("reviewer and adjudicator strongest model and reasoning are enforced extern
                 root: f.root,
                 parserRoot: REPO,
               });
-      expectCode(invoke, VerificationError, "model-policy");
+      expectCode(invoke, VerificationError, `${lane}-routing-context`);
     } finally {
       f.cleanup();
+    }
+  }
+});
+
+test("reviewer and adjudicator requirements cannot substitute the user-selected author model", () => {
+  for (const lane of ["requiredReviewers", "requiredAdjudicators"]) {
+    for (const role of ["technicalPedagogical", "isolatedSurface"]) {
+      const f = fixture();
+      try {
+        const spec = readJson(f.root, f.paths.spec);
+        spec[lane][role].model = "substituted-model";
+        writeJson(f.root, f.paths.spec, spec);
+        expectCode(() => prepareEvidence({
+          specPath: join(f.root, f.paths.spec),
+          outDir: join(f.root, "replacement-bundle"),
+          root: f.root,
+          parserRoot: REPO,
+        }), VerificationError, "model-selection");
+        assert.equal(existsSync(join(f.root, "replacement-bundle")), false);
+      } finally {
+        f.cleanup();
+      }
     }
   }
 });

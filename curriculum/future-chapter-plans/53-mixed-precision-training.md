@@ -1,7 +1,7 @@
 # Chapter 53 implementation packet: mixed-precision training
 
 Planning only. This internal packet follows the [shared packet contract](README.md)
-for one `gpt-6-astra max` executor without sub-agents. It is not implemented
+for one executor using the user-selected model without sub-agents. It is not implemented
 training, reviewed English or permission to release the execution hold.
 
 ## 1. Scope and boundary
@@ -404,7 +404,7 @@ driver/timing data. Firefox uses only the shared JS-enabled project and its
 explicit loopback automated-preview configuration, never an unrelated server.
 
 The README's independent review contract is mandatory: actual frozen author
-context, two fresh strongest-model English reviewers and two further role-specific
+context, two fresh English reviewers using the user-selected model and two further role-specific
 adjudicators, all pairwise distinct, exact canonical prompts/four-artifact routes,
 untouched raw responses and verified external receipts. Both review and both
 adjudication verdicts must pass before direct Russian translation. Obtain its
@@ -442,9 +442,8 @@ requirements: 300–900 seconds, at least 100 microsteps, 10 windows, at least
 thermal-stability statistic. Consume the accepted runner/receipt contract from
 Chapter 52; do not rename numeric stress iterations “tokens” or infer throughput.
 Core/adapter budgets are not execution authority here. Content authority remains
-eight successful contexts, at most sixteen attempts, strongest course-content
-models, and the full byte/token/wall caps in inputs; rendered review is at most
-one Terra-ceiling context. No paid service is authorized.
+eight successful contexts, at most sixteen attempts, user-selected models, and the full byte/token/wall caps in inputs; rendered review is at most
+one context using the user-selected model. No paid service is authorized.
 
 Outstanding owners: Chapter 52 resolves backend/language/shared-wiring gates;
 Chapter 53 and the profile owner bind DynamicV1 and update tolerances; Chapter

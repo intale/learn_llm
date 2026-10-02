@@ -585,8 +585,8 @@ Frozen content/render budgets: 8 successful learner-content contexts, at most
 16 attempts; per context input 2,097,152 bytes / 200,000 tokens and output
 1,048,576 bytes / 40,000 tokens; aggregates 33,554,432 input bytes,
 16,777,216 output bytes, 28,800 seconds. At most one rendered-image context,
-Terra ceiling, 16,777,216 input bytes, 262,144 output bytes and 900 seconds.
-Use strongest available course-content author/judgment contexts with external
+user-selected model, 16,777,216 input bytes, 262,144 output bytes and 900 seconds.
+Use the user-selected model for author/judgment contexts with external
 review provisioning, not self-certification.
 
 Separate `execute-functional-corpus-filtering` limits:

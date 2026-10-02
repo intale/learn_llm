@@ -33,13 +33,14 @@ environment.
 
 ### Codex resource routing and deterministic tooling
 
-Rendered-image checks and visual review may use models up to `gpt-5.6-terra`.
-Operational routing, including ordinary Bash execution and evidence collection,
-may use models up to `gpt-5.6-luna`. Course-related content generation is
-uncapped by those two ceilings; teaching quality is the primary model-selection
-criterion. Each named tier is a maximum, not a requirement to use that exact
-model. These budgets do not expand network, paid-service, destructive-action,
-or output-scope authority.
+Use the user-selected model for content, review, rendered-image checks and
+operational work, including Bash execution and evidence collection. Inherit that
+selection in required fresh contexts; do not impose a named model, tier ceiling,
+strongest-model selector or reasoning preset. Record actual model and configured
+reasoning settings truthfully in frozen evidence. If the selected model is
+unavailable, report that constraint rather than silently substituting one.
+Model selection does not expand network, paid-service, destructive-action or
+output-scope authority.
 
 Prefer or create deterministic host tools or pinned-container tools when they
 reduce lower-budget agent context, repetition, or error. Offload computation to
@@ -136,9 +137,9 @@ one judges the isolated-surface review without receiving the sibling role's
 private evidence. Every reviewer assessment must repeat its frozen role
 requirement exactly and receive substantive adjudicator approval before
 localization begins. The author, both reviewers, and both adjudicators must use
-pairwise-distinct contexts. Use the strongest available course-content model for
-authoring and all four judgments; use Luna only for deterministic packaging and
-Terra only for affected rendered-image review.
+pairwise-distinct contexts. Use the user-selected model for authoring and all
+four judgments, deterministic packaging and affected rendered-image review.
+Packaging and image review do not replace the independent language judgments.
 
 An adjudicator judges the soundness and completeness of the same-role review,
 not the candidate directly. Its role verdict `pass` approves a sound review even

@@ -328,6 +328,8 @@ function validateReviewerRequirement(value, label) {
   assertExactKeys(value, ["model", "reasoning"], [], label);
   assertString(value.model, `${label}.model`);
   assertString(value.reasoning, `${label}.reasoning`);
+  if (!value.model.trim() || !value.reasoning.trim())
+    throw new InputError("schema", `${label} model or reasoning is blank`);
   return { model: value.model, reasoning: value.reasoning };
 }
 
@@ -399,6 +401,11 @@ function loadSpec(specPath, root) {
       "spec.requiredReviewers.targetOnly",
     ),
   };
+  if (requiredReviewers.targetOnly.model !== requiredReviewers.bilingual.model)
+    throw new VerificationError(
+      "model-selection",
+      "localization reviewer requirements must retain the same user-selected model",
+    );
 
   assertSortedUniqueIds(spec.requiredSurfaceIds, "spec.requiredSurfaceIds");
   if (!Array.isArray(spec.surfaces) || spec.surfaces.length === 0) {

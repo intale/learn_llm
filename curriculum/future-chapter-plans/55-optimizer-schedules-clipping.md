@@ -1,7 +1,7 @@
 # Chapter 55 implementation packet: optimizer schedules and clipping
 
 Planning only. Follow the [shared packet contract](README.md) for one
-`gpt-6-astra max` executor without sub-agents. Implementation/repair holds and
+executor using the user-selected model without sub-agents. Implementation/repair holds and
 independent publication gates remain unchanged.
 
 ## 1. Scope and boundary
@@ -353,7 +353,7 @@ dtype/path, full-batch/accumulated update comparison and atomic failure receipts
 a missing-device skip is not pass. Host audit cannot establish those results.
 
 Use the [shared external review contract](README.md#one-executor-and-independent-review):
-two fresh strongest-model English reviewers and two further same-role
+two fresh English reviewers using the user-selected model and two further same-role
 adjudicators, exact canonical prompts/four-artifact routes, untouched raw records
 and external receipts; all four verdicts pass before direct Russian translation
 and its independent bilingual/target-only reviews. The author cannot certify

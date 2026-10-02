@@ -20,13 +20,17 @@ honest about what it can establish.
 
 Use five roles when their work is needed:
 
-| Role                    | Responsibility                                                                                 | Model boundary                                                        |
-| ----------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Translation author      | Produce the target candidate from frozen English                                               | Strongest available course-content model                              |
-| Bilingual reviewer      | Judge semantic parity, technical accuracy, terminology, and isolated meaning                   | Strongest available course-content model in a fresh context           |
-| Target-only reviewer    | Judge native technical prose, coherence, explicit referents, and isolated copy without English | Strongest available course-content model in a different fresh context |
-| Packager                | Extract, hash, route, and verify evidence                                                      | Luna; no language judgment                                            |
-| Rendered-image reviewer | Inspect affected rendered surfaces                                                             | Terra; no substitution for language review                            |
+| Role | Responsibility | Context boundary |
+| --- | --- | --- |
+| Translation author | Produce the target candidate from frozen English | Dedicated author context |
+| Bilingual reviewer | Judge semantic parity, technical accuracy, terminology, and isolated meaning | Fresh context |
+| Target-only reviewer | Judge native technical prose, coherence, explicit referents, and isolated copy without English | Different fresh context |
+| Packager | Extract, hash, route, and verify evidence | No language judgment |
+| Rendered-image reviewer | Inspect affected rendered surfaces | No substitution for language review |
+
+Use the user-selected model for every role. Inherit that selection without a
+model-name, tier or reasoning-preset override; freeze the actual configured
+settings as provenance, not as a repository-owned model choice.
 
 Require pairwise-distinct author, bilingual-reviewer, and target-only-reviewer
 context IDs and context hashes. Start both reviewers without inherited authoring
@@ -34,9 +38,13 @@ conversation. Do not show either reviewer the other review, earlier findings,
 suspected defects, or expected corrections. A reviewer context used on one frozen
 candidate cannot certify a successor candidate.
 
-Record the actual model and reasoning level. The same strongest model may fill
+Record the actual model and reasoning settings. The selected model may fill
 different judgment roles, but each role requires a separate fresh context. A
 packaging or image-review context cannot issue a language verdict.
+
+The two reviewer declarations must retain the same selected model identity.
+Their reasoning fields record actual configured settings without a required
+preset; routed records must match their frozen declarations exactly.
 
 Tooling proves only the recorded input and context separation. Do not claim
 stronger isolation than the runtime actually supplied. When reviewers share a
@@ -235,8 +243,8 @@ regular nonsymlinked files inside the supplied repository root.
     "sha256": "<64 lowercase hex>"
   },
   "requiredReviewers": {
-    "bilingual": { "model": "<strongest content model>", "reasoning": "high" },
-    "targetOnly": { "model": "<strongest content model>", "reasoning": "high" }
+    "bilingual": { "model": "<user-selected model>", "reasoning": "<actual configured setting>" },
+    "targetOnly": { "model": "<user-selected model>", "reasoning": "<actual configured setting>" }
   },
   "requiredSurfaceIds": ["chapter.complete", "chapter.diagram.caption"],
   "rubrics": {

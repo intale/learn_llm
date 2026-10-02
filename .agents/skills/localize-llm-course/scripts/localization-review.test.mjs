@@ -27,7 +27,10 @@ function write(path, text) {
   return sha256(Buffer.from(text, "utf8"));
 }
 
-function createFixture() {
+function createFixture({
+  model = "selected-model-fixture",
+  reasoning = "configured-setting-fixture",
+} = {}) {
   const root = mkdtempSync(join(tmpdir(), "learn-llm-localization-review-"));
   for (const directory of [
     "source",
@@ -96,8 +99,8 @@ function createFixture() {
     targetLocale: "ru",
     authorContext: { id: "ctx-author-a", sha256: digest("author-context") },
     requiredReviewers: {
-      bilingual: { model: "gpt-5.6-sol", reasoning: "high" },
-      targetOnly: { model: "gpt-5.6-sol", reasoning: "high" },
+      bilingual: { model, reasoning },
+      targetOnly: { model, reasoning },
     },
     requiredSurfaceIds: ["lesson.complete", "lesson.label", "literal.output"],
     rubrics: {
@@ -169,8 +172,8 @@ function createFixture() {
       contextId: role === "bilingual" ? "ctx-bilingual-a" : "ctx-target-only-a",
       contextSha256: digest(`${role}-context`),
       freshContext: true,
-      model: "gpt-5.6-sol",
-      reasoning: "high",
+      model,
+      reasoning,
       promptSha256: digest(`${role}-prompt`),
       startedAt: "2026-08-11T20:00:00Z",
       completedAt: "2026-08-11T20:05:00Z",
@@ -530,13 +533,48 @@ test("publication bytes must equal the reviewed candidate", () => {
   }
 });
 
+test("user-selected localization configurations verify without a model preset", () => {
+  for (const selection of [
+    { model: "user-selected-model-a", reasoning: "configured-setting-a" },
+    { model: "provider/model-b", reasoning: "not-configured" },
+  ]) {
+    const fixture = createFixture(selection);
+    try {
+      fixture.verify();
+    } finally {
+      fixture.cleanup();
+    }
+  }
+});
+
+test("localization model declarations cannot be blank or substitute the selected model", () => {
+  for (const [value, Type, code] of [
+    ["   ", InputError, "schema"],
+    ["substituted-model", VerificationError, "model-selection"],
+  ]) {
+    const fixture = createFixture();
+    try {
+      const spec = structuredClone(fixture.spec);
+      spec.requiredReviewers.targetOnly.model = value;
+      fixture.rewriteSpec(spec);
+      expectError(() => prepareEvidence({
+        specPath: join(fixture.root, fixture.paths.spec),
+        outDir: join(fixture.root, "replacement-bundle"),
+        root: fixture.root,
+      }), Type, code);
+    } finally {
+      fixture.cleanup();
+    }
+  }
+});
+
 test("model, reasoning, and bundle bindings cannot drift", () => {
   for (const drift of ["model", "reasoning", "binding"]) {
     const fixture = createFixture();
     try {
       const next = structuredClone(fixture.bilingualRecord);
-      if (drift === "model") next.reviewer.model = "gpt-5.6-luna";
-      else if (drift === "reasoning") next.reviewer.reasoning = "low";
+      if (drift === "model") next.reviewer.model = "unselected-model-fixture";
+      else if (drift === "reasoning") next.reviewer.reasoning = "changed-setting";
       else next.targetSha256 = digest("different-target");
       fixture.rewriteRecord("bilingual", next);
       expectError(

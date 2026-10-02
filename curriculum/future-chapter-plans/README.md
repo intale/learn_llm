@@ -12,11 +12,19 @@ PostgreSQL decision are not replaced by this directory. BUILD_STATE.yaml and
 DECISIONS.md remain the text-file scheduling authority. No event store, database
 or new project ledger is introduced.
 
-The user requested these packets for one `gpt-6-astra max` executor with no
-sub-agent facility. This is an execution constraint supplied by the user, not a
-claim about a model's general capabilities. Detail must reduce reconstruction
+The user requested these packets for one executor without a sub-agent facility,
+using the user-selected model. The no-sub-agent constraint is supplied by the
+user, not a claim about a model's general capabilities. Detail must reduce reconstruction
 and ambiguity without pretending that an unimplemented interface or unmeasured
 result exists.
+
+Use the user-selected model for authoring, external review, rendered review and
+operational work, with the actual configured reasoning settings. No named model,
+tier ceiling or reasoning preset is required. The model-policy-only successor
+binding supersedes earlier routing rules in the extension plan without changing
+its curriculum, resource limits or execution hold. Recorded baseline hashes and
+historical model identities remain evidence of their original runs, not live
+model-selection requirements.
 
 Repairs and implementation are held pending. Planning completion never releases
 that hold. Before execution, obtain the user's explicit instruction to resume,

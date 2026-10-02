@@ -661,10 +661,10 @@ substitutes for the inherited completion policy.
 Future cost is `C3/G1/N1`, paid service none. Source-network input is capped at
 134,217,728 bytes; model acquisition authority is zero. Profile download ceilings
 are not new acquisition permission. Successful content contexts are exactly
-eight, attempts at most 16, strongest course-content tier; per-context limits
+eight, attempts at most 16, user-selected model; per-context limits
 are 2,097,152 input bytes/200,000 input tokens and 1,048,576 output bytes/40,000
 output tokens, aggregate input/output 33,554,432/16,777,216 bytes, wall 28,800
-seconds. Rendered review permits at most one context, Terra ceiling, 16,777,216
+seconds. Rendered review permits at most one context, user-selected model, 16,777,216
 input bytes, 262,144 output bytes and 900 seconds. These future costs are not
 executed measurements or review receipts for this planning turn.
 

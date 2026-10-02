@@ -3,7 +3,7 @@
 Status: internal planning only. No tokenizer training, acquisition, implementation
 or publication is authorized by this packet. Use [the common guide](README.md)
 and [Chapter 43](43-deduplication-decontamination.md). The executor is one
-`gpt-6-astra max` context without subagents; independent reviews require external
+context using the user-selected model without subagents; independent reviews require external
 provisioning, not self-certification.
 
 ## 1. Scope and boundary
@@ -565,7 +565,7 @@ Honor narrower tokenizer bounds inside the larger runner envelope.
 Common content/review limits: 8 successful contexts, at most 16 attempts;
 2,097,152 input bytes / 200,000 input tokens and 1,048,576 output bytes /
 40,000 output tokens per context; aggregate input 33,554,432 bytes, output
-16,777,216 bytes, wall 28,800 seconds. One Terra-or-lower image review context,
+16,777,216 bytes, wall 28,800 seconds. One image review context using the user-selected model,
 16,777,216 input bytes, 262,144 output bytes, 900 seconds. Strong independent
 course-content contexts are externally provisioned.
 

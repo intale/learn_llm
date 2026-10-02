@@ -610,7 +610,7 @@ routing/receipt bindings. Both review verdicts and both adjudication verdicts
 must pass. An adjudicator approving a sound blocking assessment does not erase
 that candidate blocker.
 
-The single future `gpt-6-astra max` executor does not spawn agents or self-certify.
+The single future executor using the user-selected model does not spawn agents or self-certify.
 External judgment capacity must provide those contexts; otherwise keep the
 candidate staged. Deterministic tools may validate/hash/copy exact records but
 must not normalize, reserialize or repair semantic response bytes.
@@ -662,9 +662,9 @@ still apply.
 Content budget: eight successful content contexts, at most sixteen
 attempts; per context input2,097,152bytes/200,000tokens and output1,048,576bytes/
 40,000tokens; aggregate input33,554,432bytes, output16,777,216bytes and
-wall28,800seconds. One Terra-or-lower rendered-image context permits
+wall28,800seconds. One rendered-image context using the user-selected model permits
 input16,777,216bytes, output262,144bytes and wall900seconds. Operational work
-uses Luna-or-lower routing. No budget grants extra action authority.
+uses the user-selected model for routing. No budget grants extra action authority.
 
 Readiness owners: Chapter 46 supplies actual masked batch/model contracts;
 the existing scalar oracle supplies exact baseline behavior; this chapter owns

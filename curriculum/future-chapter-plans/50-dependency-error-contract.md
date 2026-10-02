@@ -1049,7 +1049,7 @@ routing/receipts. Both review and both adjudication verdicts must pass for the
 same unchanged candidate. Supporting a sound blocking review does not turn the
 candidate into a pass.
 
-The future single `gpt-6-astra max` executor cannot spawn agents or approve its
+The future single executor using the user-selected model cannot spawn agents or approve its
 own publication. Supply those judgments externally; absent capacity leaves the
 candidate staged. Deterministic tools may verify binding and coverage but cannot
 prove that a library call is pedagogically permissible or that prose teaches it
@@ -1109,9 +1109,9 @@ This packet reports no measured throughput, model quality or device availability
 Content budget: eight successful contexts, at most sixteen attempts; per
 context input 2,097,152 bytes/200,000 tokens and output 1,048,576 bytes/40,000
 tokens; aggregate input 33,554,432 bytes, output 16,777,216 bytes and wall
-28,800 seconds. One Terra-or-lower rendered-image context permits input
+28,800 seconds. One rendered-image context using the user-selected model permits input
 16,777,216 bytes, output 262,144 bytes and wall 900 seconds. Operational
-routing is Luna-or-lower. These budgets do not waive external independence.
+routing uses the user-selected model. These budgets do not waive external independence.
 
 Readiness ownership and decision rules:
 

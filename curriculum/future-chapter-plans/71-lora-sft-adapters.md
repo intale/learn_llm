@@ -952,8 +952,7 @@ use the device selected by the accepted receipt, not an opportunistic substitute
 
 ### External language gates for the single executor
 
-The author cannot approve its own English. Use the strongest available course
-content model for the author, one fresh technical/pedagogical reviewer and one
+The author cannot approve its own English. Use the user-selected model for the author, one fresh technical/pedagogical reviewer and one
 different fresh isolated-surface reviewer, then two further fresh same-role
 adjudicators. All five contexts are distinct and bound to the same unchanged
 candidate. Use exact canonical prompts, four-artifact judgment contexts,
@@ -1053,11 +1052,11 @@ device 2,147,483,648 and disk 5,000,000,000 bytes. Source-evidence download cap 
 536,870,912-byte profile download ceiling is not acquisition permission.
 
 Preserve the frozen future content budget: eight successful learner-content
-contexts, at most 16 attempts, strongest available course-content model; per
+contexts, at most 16 attempts, user-selected model; per
 context at most 2,097,152 input bytes / 200,000 input tokens and 1,048,576 output
 bytes / 40,000 output tokens; aggregate at most 33,554,432 input bytes,
 16,777,216 output bytes and 28,800 seconds. Affected rendered-image review has
-at most one context, model ceiling `gpt-5.6-terra`, 16,777,216 input bytes,
+at most one context, user-selected model, 16,777,216 input bytes,
 262,144 output bytes and 900 seconds. These are future execution budget limits,
 not permission to skip an independent gate or call a paid service now.
 

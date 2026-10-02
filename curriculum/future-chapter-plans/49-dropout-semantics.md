@@ -776,7 +776,7 @@ external routing/receipts against the candidate. Both review and both
 adjudication verdicts must pass; adjudicator support does not erase a sound
 blocking review finding.
 
-The future single `gpt-6-astra max` executor cannot spawn agents or certify its
+The future single executor using the user-selected model cannot spawn agents or certify its
 own publication. Use externally supplied judgment contexts; absent capacity
 leaves the candidate staged. Deterministic tools may validate/hash/copy exact
 records, never normalize or repair their semantic bytes.
@@ -820,8 +820,8 @@ or executed by this chapter's G0 step.
 Content budget: eight successful contexts, at most sixteen attempts; per context
 input2,097,152 bytes/200,000 tokens and output1,048,576 bytes/40,000 tokens;
 aggregate input33,554,432 bytes, output16,777,216 bytes and wall28,800 seconds.
-One Terra-or-lower rendered-image context permits input16,777,216 bytes,
-output262,144 bytes and wall900 seconds. Operations use Luna-or-lower routing.
+One rendered-image context using the user-selected model permits input16,777,216 bytes,
+output262,144 bytes and wall900 seconds. Operations use the user-selected model for routing.
 The executor's lack of sub-agents does not remove external review gates.
 
 Readiness owners: Chapter48 supplies actual core/admission/config binding;

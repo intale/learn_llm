@@ -3,8 +3,7 @@
   "scope": "planning-only",
   "execution_hold": true,
   "executor": {
-    "model": "gpt-6-astra",
-    "effort": "max",
+    "model_policy": "user-selected-model",
     "sub_agents": false
   },
   "baseline_commit": "053f3d258a21429ef1a7c787440c5303803a1890",

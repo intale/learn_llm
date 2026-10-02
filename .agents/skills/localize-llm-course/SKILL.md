@@ -52,7 +52,8 @@ stop and correct English first; do not guess or silently repair it in translatio
 
 ## Author in a dedicated context
 
-Use the strongest available course-content model for translation. Give the
+Use the user-selected model for translation, without a model-name, tier or
+reasoning-preset override. Give the
 translation author the frozen English source, contract, language-neutral evidence,
 approved terminology history, and relevant translation notes.
 
@@ -76,10 +77,10 @@ publication review.
 Freeze exact English and target bytes plus a deterministic, duplicate-free
 inventory of complete reading-order surfaces and isolated learner-facing labels.
 Use `scripts/localization-review.mjs prepare` as described in the review protocol.
-Bind the source, candidate, surface inventory, rubrics, required model and reasoning
-level, and author context before assigning reviewers.
+Bind the source, candidate, surface inventory, rubrics, selected model and actual
+configured reasoning settings, and author context before assigning reviewers.
 
-Use Luna only for deterministic packaging, hashing, evidence routing, and command
+Use the user-selected model for deterministic packaging, hashing, evidence routing and command
 execution. Do not use a routing context to make semantic, linguistic, pedagogical,
 or accessibility judgments.
 
@@ -97,9 +98,11 @@ Run both reviews against the same frozen candidate:
    mappings, terminology mappings, translation notes, author reasoning, suspected
    defects, expected answers, earlier findings, or the bilingual review.
 
-Use the strongest available course-content model for both judgments and record
+Use the user-selected model for both judgments and record
 the actual model, reasoning level, prompt hash, bundle hash, and distinct context
-identity. A clean pass is valid; do not demand stylistic rewriting without a
+identity. Freeze those actual settings without a repository-owned model or
+reasoning preset. Report an unavailable selection; do not silently substitute a
+model or fabricate provenance. A clean pass is valid; do not demand stylistic rewriting without a
 concrete learner-facing problem.
 
 Reviewers report findings and verdicts only; they do not edit the candidate. A
@@ -130,7 +133,7 @@ view; include direction-sensitive and forced-color checks when relevant.
 - Change shared geometry only when the shared design is the cause, then validate
   every affected locale rather than unrelated chapters.
 
-Use Terra only for rendered-image judgment. It does not replace either language
+Use the user-selected model for rendered-image judgment. It does not replace either language
 review. Run `scripts/localization-review.mjs verify` immediately before publication
 to rehash source, candidate, inventory, rubrics, bundles, contexts, review records,
 and publication paths. Publish only when both reviewer verdicts pass, every required

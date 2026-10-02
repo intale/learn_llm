@@ -25409,3 +25409,99 @@ test is revised. No repair, acquisition, hardware probe, training, publication
 review or implementation is authorized. Validation of these internal policy and
 planning changes is structural and scope-oriented; it is not certification of
 future English, pedagogy, hardware or course capability.
+
+## 2026-10-02 — Authorize an independent Chapter 17 problem-first content revision
+
+**Status:** Interrupted at explicit user hold; canonical content has not been
+edited and the step is pending for a future user-selected-model scope.
+
+**Context:** Chapter 17 currently teaches Glorot/Xavier-style parameter
+initialization with a correct formula, exact Rust-authored fixtures, history,
+diagram, and Chapter 18 handoff, but its learner-facing opening and practice
+still use the legacy prediction-first sequence. The user requested a Chapter 17
+content rewrite under the current problem-first authoring policy while
+preserving the topic, formula, Rust implementation, and exact evidence.
+
+**Decision:** Create the independent build
+`rewrite-ch17-problem-first-content-20261002`, step
+`rewrite-ch17-problem-first-content-20261002`, and run
+`20261002T055344Z-rewrite-ch17-problem-first-content-01`. Its canonical content
+scope is the Chapter 17 contract, English and directly refreshed Russian lesson,
+and English/Russian Chapter 17 cheat sheets, plus the required state and
+decision records. The revision must open with the concrete problem and cause,
+explain the worked result, formula, and Rust connection before history and
+visualization, and replace learner prediction prompts with reproduction,
+inspection, or explanation tasks. Technical uses such as next-token prediction
+remain unchanged.
+
+Rust implementation and Cargo.lock, exact stdout and diagram-trace fixtures,
+formula, topic, source paths and region IDs, diagram ID and geometry, tests,
+shared authoring template/checker infrastructure, and all future
+implementation/repair holds are protected exclusions. The three Chapter 17
+historical research URLs are read-only inputs. The active future-planning build
+remains active; this build is concurrent only because its declared outputs are
+disjoint from planning packets and its execution is explicitly authorized.
+
+The first interrupted attempt was prepared under the then-current executable
+model binding, now superseded by the user-selected-model decision below. The
+English candidate requires two fresh independent English reviews and two fresh
+same-role adjudications. Russian must be translated directly from the
+approved English candidate and receive its two localization reviews. Pinned
+offline content/build/link checks and the repository's sole Firefox project are
+publication gates; no network installation, model acquisition, training,
+hardware probe, paid service, or implementation work is authorized.
+
+The immutable read-only author input manifest and baseline hashes remain at
+`.build/runs/20261002T055344Z-rewrite-ch17-problem-first-content-01/author-inputs.json`.
+The interrupted run preserves that manifest as evidence; no publish overlay,
+canonical content, test, or review package was written. The prior Chapter17
+runs and all prior review records remain historical evidence and are not
+relabeled for this revision. A future user-selected-model attempt must use a
+new run and must not mutate this interrupted record.
+
+## 2026-10-02 — Use the user-selected model without fixed model definitions
+
+The user explicitly removed all model-specific requirements. Use the model
+selected by the user for authoring, translation, judgments, rendered review and
+operational work; inherit that selection when creating a required fresh context.
+Do not substitute a named model, tier ceiling, strongest-model selector or fixed
+reasoning preset. Record the actual model and configured reasoning settings in
+the frozen spec/context/receipt. Those values are provenance and a drift check,
+not a repository-owned choice; an unavailable selection is reported honestly.
+
+`user-selected-model-policy-20261002` owns the skills, executable English check,
+associated tests/protocols, repository instructions and live future planning
+requirements. This explicitly authorizes a model-policy-only successor binding
+of the functional plan and its embedded checker projections, plus matching
+pending execution cost records. Preserve exact old baseline copies and hashes.
+Only model selection/ceiling fields and their derived identity hashes may change;
+all substantive curriculum, resources, budgets, sources, queue/ownership maps,
+execution boundaries and lifecycle assertions remain unchanged. The separately
+held execution/lifecycle compatibility work is not released or presented as
+passing here. Historical model identities in completed/interrupted runs and
+review receipts remain historical evidence and must not be rewritten.
+
+The Chapter17 rewrite remains pending with its stopped author's read-only
+findings and immutable input manifest. A later attempt uses new inputs and a
+fresh selected-model author context. No chapter, Rust, formula, diagram, language
+review or training work is performed by this policy step. The user-authorized
+policy amendment takes scheduling priority; pending Chapter72–85 plans and all
+functional implementation/repair holds remain unchanged. Shared ledger updates
+are serialized by the main context, and current packet revisions touched here
+belong only to already-planned Chapter40–71, not the pending planning outputs.
+
+Validation is bounded offline script testing, skill/schema checks and explicit
+structural comparison of the model-only design change. It cannot certify future
+English, localization, pedagogy, hardware or review substance. The skill-creator
+guidance keeps selection configurable while preserving fragile evidence gates.
+
+**Completion:** The scoped policy amendment passed all 107 final staged and
+published tests, both skill validators, the ordinary pinned course-plan checker,
+and an exact non-model/history invariance audit. All 38 publication identities
+were verified before the completion checkpoint. The original and rebound
+functional execution checkers both report the same pre-existing diagnostic:
+"extension does not bind immutable final revision-78 course plan". That held
+predecessor/lifecycle gate is not repaired, waived or represented as passing.
+Canonical role prompts, judgment schemas, historical evidence, and all learner
+content/Rust/formula bytes remain unchanged. The new human-reported visual-issue
+request will be handled in its own policy step before Chapter 17 resumes.

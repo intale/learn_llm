@@ -694,7 +694,7 @@ npm --prefix site run test:links
 The English author cannot certify publication. After the executable evidence,
 candidate source and built HTML, commitment map, neutral role requirements,
 reading-order and isolated-surface inventories and author context are frozen,
-route two fresh strongest-model contexts: a technical/pedagogical reviewer and a
+route two fresh contexts using the user-selected model: a technical/pedagogical reviewer and a
 different source-blind isolated-surface reviewer. Then route two further fresh
 same-role adjudicators; neither receives sibling-role private evidence. All five
 English contexts are pairwise distinct. Use exact executable canonical prompts,
@@ -777,14 +777,13 @@ artifact/config/code/kernel/profile identities and policy versions.
 
 Frozen cost classes are `C3/G1/N1`, no paid service. Closed historical source
 traffic is capped at 134,217,728 bytes; model acquisition is zero. Future content
-work has exactly eight successful contexts, at most sixteen attempts, strongest
-course-content models: English author, two reviewers, two adjudicators, Russian
+work has exactly eight successful contexts, at most sixteen attempts, user-selected models: English author, two reviewers, two adjudicators, Russian
 translator, bilingual reviewer and target-only reviewer. Each input is at most
 2,097,152 bytes/200,000 tokens and each output at most 1,048,576 bytes/40,000
 tokens; aggregate input/output caps are 33,554,432/16,777,216 bytes and wall cap
-28,800 seconds. Rendered work allows at most one context at the Terra ceiling,
+28,800 seconds. Rendered work allows at most one context using the user-selected model,
 16,777,216 input bytes, 262,144 output bytes and 900 seconds. Ordinary operation
-and evidence collection route at the Luna ceiling. These are bounds, not a
+and evidence collection route using the user-selected model. These are bounds, not a
 requirement to spend them or authority to run the work in this planning step.
 
 Readiness gates are explicit and bounded:

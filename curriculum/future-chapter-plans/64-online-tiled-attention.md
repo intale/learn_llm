@@ -602,9 +602,8 @@ download authority is zero. The profile's existing download allowance is not
 permission for a new model/corpus acquisition or dependency install.
 
 Preserve the full frozen content-context ceilings in the input record: eight
-successful learner-content contexts, at most sixteen attempts, strongest available
-course-content model, bounded per-context/aggregate input and output, and one
-Terra-or-lower rendered-image context. These are future handoff budgets, not
+successful learner-content contexts, at most sixteen attempts, user-selected model, bounded per-context/aggregate input and output, and one
+rendered-image context using the user-selected model. These are future handoff budgets, not
 reviews performed here. No paid or GPU work occurs in this planning task.
 
 Readiness requires accepted Chapter 63 semantics; shared autodiff/decoder/module

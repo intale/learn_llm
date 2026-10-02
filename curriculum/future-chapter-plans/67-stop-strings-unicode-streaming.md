@@ -667,10 +667,10 @@ The future cost class is `C3/G1/N1`, with no paid service. Historical source
 network input is capped at 134,217,728 bytes; model acquisition authority is zero.
 Profile download ceilings do not authorize acquiring a model or introduce an
 alternative runtime. Successful content contexts are exactly eight, at most 16
-attempts, using the strongest course-content tier. Each has at most 2,097,152
+attempts, using the user-selected model. Each has at most 2,097,152
 input bytes/200,000 input tokens and 1,048,576 output bytes/40,000 output tokens;
 aggregate input/output limits are 33,554,432/16,777,216 bytes, with 28,800 seconds
-wall time. Rendered review allows at most one context, Terra ceiling,
+wall time. Rendered review allows at most one context, user-selected model,
 16,777,216 input bytes, 262,144 output bytes and 900 seconds. These future limits
 are not evidence that reviews or GPU work occurred in this planning run.
 

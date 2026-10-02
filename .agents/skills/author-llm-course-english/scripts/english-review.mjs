@@ -18,8 +18,6 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const SHA = /^[a-f0-9]{64}$/;
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const ROLES = ["technical-pedagogical", "isolated-surface"];
-export const REQUIRED_COURSE_CONTENT_MODEL = "gpt-5.6-sol";
-export const REQUIRED_COURSE_CONTENT_REASONING = "ultra";
 const LITERAL_KINDS = [
   "formula",
   "code",
@@ -47,13 +45,13 @@ const INVENTORY_LIMITATION =
   "This evidence covers only the explicitly declared inventory. Completeness and classification of learner-facing surfaces remain reviewer-judged; the tool does not discover or certify omitted surfaces.";
 export const REPORT_LIMITATIONS = Object.freeze({
   inventoryCompleteness:
-    "Inventory completeness remains a strong-model judgment; deterministic verification covers only the explicitly declared inventory.",
+    "Inventory completeness remains a reviewer judgment; deterministic verification covers only the explicitly declared inventory.",
   roleRequirementAdequacy:
-    "Role-requirement adequacy remains a strong-model judgment; deterministic verification checks only the frozen requirement's exact binding and coverage.",
+    "Role-requirement adequacy remains a reviewer judgment; deterministic verification checks only the frozen requirement's exact binding and coverage.",
   classification:
-    "Learner-facing surface classification remains a strong-model judgment; deterministic extraction cannot certify omitted or misclassified surfaces.",
+    "Learner-facing surface classification remains a reviewer judgment; deterministic extraction cannot certify omitted or misclassified surfaces.",
   reviewAdjudicationSubstance:
-    "Review and adjudication substance remains a strong-model judgment; deterministic verification checks structural completeness, binding, and verdict consistency, not technical, pedagogical, accessibility, or language correctness.",
+    "Review and adjudication substance remains a reviewer/adjudicator judgment; deterministic verification checks structural completeness, binding, and verdict consistency, not technical, pedagogical, accessibility, or language correctness.",
   accessIsolation:
     "Access isolation is procedural evidence, not cryptographic isolation, because judgment contexts share a filesystem.",
 });
@@ -469,16 +467,11 @@ function assertCourseContentModelPolicy(value, label) {
   for (const field of ["model", "reasoning"])
     if (!Object.hasOwn(value, field))
       throw new InputError("missing-key", `${label}.${field} is required`);
-  string(value.model, `${label}.model`);
-  string(value.reasoning, `${label}.reasoning`);
-  if (
-    value.model !== REQUIRED_COURSE_CONTENT_MODEL ||
-    value.reasoning !== REQUIRED_COURSE_CONTENT_REASONING
-  )
-    throw new VerificationError(
-      "model-policy",
-      `${label} must use ${REQUIRED_COURSE_CONTENT_MODEL} with ${REQUIRED_COURSE_CONTENT_REASONING} reasoning`,
-    );
+  // The frozen spec records the user's selection; no model or reasoning preset
+  // is owned by this tool. Context/receipt checks below still enforce exact
+  // agreement with that selection and the configured settings.
+  nonblankString(value.model, `${label}.model`);
+  nonblankString(value.reasoning, `${label}.reasoning`);
 }
 function hash(value, label) {
   string(value, label, SHA);
@@ -2276,6 +2269,11 @@ function loadSpec(specPath, root, parserRoot = root) {
       spec.requiredReviewers[key],
       `spec.requiredReviewers.${key}`,
     );
+    if (spec.requiredReviewers[key].model !== spec.requiredAuthor.model)
+      throw new VerificationError(
+        "model-selection",
+        `${role} reviewer substitutes the selected author model`,
+      );
     reviewers[role] = spec.requiredReviewers[key];
   }
   exact(
@@ -2300,6 +2298,11 @@ function loadSpec(specPath, root, parserRoot = root) {
       spec.requiredAdjudicators[key],
       `spec.requiredAdjudicators.${key}`,
     );
+    if (spec.requiredAdjudicators[key].model !== spec.requiredAuthor.model)
+      throw new VerificationError(
+        "model-selection",
+        `${role} adjudicator substitutes the selected author model`,
+      );
     adjudicators[role] = spec.requiredAdjudicators[key];
   }
   const evidence = spec.evidence.map((entry, i) => {

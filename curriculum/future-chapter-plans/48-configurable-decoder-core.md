@@ -895,7 +895,7 @@ prompts, untouched raw response bytes and external routing/receipt bindings.
 Both review verdicts and both adjudication verdicts must pass. A sound blocking
 review remains blocking even when its adjudicator approves that review.
 
-The single future `gpt-6-astra max` executor cannot spawn agents and cannot
+The single future executor using the user-selected model cannot spawn agents and cannot
 self-certify. It needs externally supplied fresh judgment contexts; without
 them preserve a staged candidate, not a published chapter. Deterministic tools
 may validate/hash/copy exact bytes, never normalize or repair semantic records.
@@ -1049,8 +1049,8 @@ No plan-ready packet is an implementation or review receipt.
 Content budget: eight successful contexts, at most sixteen attempts; per context
 input2,097,152bytes/200,000tokens and output1,048,576bytes/40,000tokens;
 aggregate input33,554,432bytes, output16,777,216bytes and wall28,800seconds.
-One Terra-or-lower rendered-image context permits input16,777,216bytes,
-output262,144bytes and wall900seconds. Ordinary operations use Luna-or-lower
+One rendered-image context using the user-selected model permits input16,777,216bytes,
+output262,144bytes and wall900seconds. Ordinary operations use selected-model
 routing. The single executor does not spawn agents; external review contexts
 remain separately supplied. No budget expands action authority.
 

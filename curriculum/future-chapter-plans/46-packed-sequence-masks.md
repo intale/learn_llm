@@ -611,7 +611,7 @@ evidence. Do not infer Russian layout safety from English or bypass a pending
 English finding. Refreshed English meaning/presentation invalidates dependent
 reviews; retain them only under the actual byte/role/inventory rules.
 
-The future single `gpt-6-astra max` executor cannot spawn extra agents, act as its
+The future single executor using the user-selected model cannot spawn extra agents, act as its
 own reviewer or fabricate external receipts. A separately provisioned review
 service or orchestrator must supply the required fresh contexts. If unavailable,
 keep the candidate staged and record the missing external capacity; do not
@@ -654,7 +654,7 @@ Narrower CPU profile host limits continue to apply.
 Content/review ceilings: eight successful contexts, at most sixteen attempts;
 per context 2,097,152 input bytes/200,000 tokens and 1,048,576 output bytes/40,000
 tokens; aggregate input 33,554,432 bytes, output 16,777,216 bytes and wall 28,800
-seconds. One Terra-or-lower rendered-image context has input 16,777,216 bytes,
+seconds. One rendered-image context using the user-selected model has input 16,777,216 bytes,
 output 262,144 bytes and wall 900 seconds. Strong course-content judgments are
 externally provisioned; these budgets confer no additional authority.
 

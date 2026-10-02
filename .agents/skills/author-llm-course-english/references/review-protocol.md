@@ -21,15 +21,19 @@ deterministic tooling honest about what it can establish.
 
 Use seven roles when their work is needed:
 
-| Role                      | Responsibility                                                     | Model boundary                                                              |
-| ------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| English author            | Derive and draft the candidate from frozen evidence                | Strongest available course-content model                                    |
-| Technical reviewer        | Judge evidence, correctness, scope, causal structure, and teaching | Strongest available course-content model in a fresh context                 |
-| Isolated-surface reviewer | Judge standalone English learner and accessibility surfaces        | Strongest available course-content model in a different fresh context       |
-| Technical adjudicator     | Judge the soundness and completeness of the technical review       | Strongest available course-content model in a third fresh judgment context  |
-| Isolated adjudicator      | Judge the isolated review's soundness without sibling-role leakage | Strongest available course-content model in a fourth fresh judgment context |
-| Packager                  | Extract, hash, route, and verify evidence                          | Luna; no content judgment                                                   |
-| Rendered-image reviewer   | Inspect affected rendered surfaces                                 | Terra; no substitution for English review or adjudication                   |
+| Role | Responsibility | Context boundary |
+| --- | --- | --- |
+| English author | Derive and draft the candidate from frozen evidence | Dedicated author context |
+| Technical reviewer | Judge evidence, correctness, scope, causal structure, and teaching | Fresh context |
+| Isolated-surface reviewer | Judge standalone English learner and accessibility surfaces | Different fresh context |
+| Technical adjudicator | Judge the soundness and completeness of the technical review | Third fresh judgment context |
+| Isolated adjudicator | Judge the isolated review's soundness without sibling-role leakage | Fourth fresh judgment context |
+| Packager | Extract, hash, route, and verify evidence | No content judgment |
+| Rendered-image reviewer | Inspect affected rendered surfaces | No substitution for English review or adjudication |
+
+Use the user-selected model for every role. Inherit that selection without a
+model-name, tier or reasoning-preset override; freeze the actual configured
+settings as provenance, not as a repository-owned model choice.
 
 Require pairwise-distinct author, technical-reviewer, isolated-reviewer,
 technical-adjudicator, and isolated-adjudicator context IDs and exact context-file
@@ -50,7 +54,7 @@ The bound author-context manifest is a closed JSON object. It must contain
 ISO timestamps with completion no earlier than start. It may contain only one
 optional nonempty `sharedContextNote`; every other extra field is rejected.
 
-Record the actual model and reasoning level. The same strongest model may fill
+Record the actual model and reasoning settings. The selected model may fill
 different judgment roles only through distinct fresh contexts. A packaging or
 image-review context cannot issue an English publication verdict.
 
@@ -738,9 +742,15 @@ from 1 within the reading and isolated lists.
 The role requirements below are illustrative values for a causal-masking
 candidate, not boilerplate to copy. A real spec derives concept-specific actors,
 operations, relationships, boundaries, and learner consequences from its own
-commitment map. The model declarations are not self-authorizing configuration:
-the current executable policy requires `gpt-5.6-sol` with `ultra` reasoning for
-the author, both reviewers, and both adjudicators.
+commitment map. Populate the model declarations from the user's selection and
+the actual configured reasoning settings for the author, both reviewers and
+both adjudicators. The executable tool accepts nonblank identities without a
+fixed model or reasoning preset, then checks exact agreement between the frozen
+spec, actual context manifests, routing and receipts.
+All five declarations retain the same selected model identity; reasoning fields
+record each context's actual settings rather than a required preset.
+It cannot establish the user's choice or model availability from a self-authored declaration; the outer
+orchestrator must route the actual selection and report unavailability honestly.
 
 ```json
 {
@@ -752,27 +762,27 @@ the author, both reviewers, and both adjudicators.
     "sha256": "<64 lowercase hex>"
   },
   "requiredAuthor": {
-    "model": "gpt-5.6-sol",
-    "reasoning": "ultra"
+    "model": "<user-selected model>",
+    "reasoning": "<actual configured setting>"
   },
   "requiredReviewers": {
     "technicalPedagogical": {
-      "model": "gpt-5.6-sol",
-      "reasoning": "ultra"
+      "model": "<user-selected model>",
+      "reasoning": "<actual configured setting>"
     },
     "isolatedSurface": {
-      "model": "gpt-5.6-sol",
-      "reasoning": "ultra"
+      "model": "<user-selected model>",
+      "reasoning": "<actual configured setting>"
     }
   },
   "requiredAdjudicators": {
     "technicalPedagogical": {
-      "model": "gpt-5.6-sol",
-      "reasoning": "ultra"
+      "model": "<user-selected model>",
+      "reasoning": "<actual configured setting>"
     },
     "isolatedSurface": {
-      "model": "gpt-5.6-sol",
-      "reasoning": "ultra"
+      "model": "<user-selected model>",
+      "reasoning": "<actual configured setting>"
     }
   },
   "evidence": [
@@ -897,7 +907,7 @@ combined verdict. Its success means only that model-provided judgments are
 internally exact and that all four required judgments passed. The canonical
 final report contains a `limitations` object stating explicitly that inventory
 completeness, role-requirement adequacy, learner-facing surface classification,
-and review/adjudication substance remain strong-model judgments, and that
+and review/adjudication substance remain reviewer/adjudicator judgments, and that
 access isolation is procedural evidence rather than cryptographic isolation on
 a shared filesystem.
 
@@ -983,7 +993,7 @@ changed figure inline and in desktop full view, formulas, code, headings,
 controls, keyboard order, focus, page overflow, and nearest-box text and formula
 containment. Include forced-color and direction-sensitive cases when relevant.
 
-Use Terra only for affected rendered-image judgment. A rendered pass does not
+Use the user-selected model for affected rendered-image judgment. A rendered pass does not
 replace either English review or either adjudication. Record screenshot or trace
 identity and invalidate that evidence after any content or relevant presentation
 change.
@@ -1126,7 +1136,7 @@ expected answer or lexical shortcut to the skill.
 
 After all reviewer and role-adjudicator raw responses, semantic records, routes,
 and receipts are immutable and verified, a curator reveals the concealed mapping
-only to a new strongest-model forward-test evaluator. Give it the frozen mapping,
+only to a new forward-test evaluator using the user-selected model. Give it the frozen mapping,
 candidate bindings, raw review and adjudication records, their verified receipts,
 and the negative-control identity. It passes a defective case only when the
 mapped defect was reported by the required reviewer and supported by its role

@@ -684,10 +684,10 @@ objects, staging/readback and old/new retained versions remain separately charge
 The optional larger imported-model estimate is not this chapter's authority.
 
 The full immutable input record retains the exact content-context cost limits:
-eight successful learner-content contexts, at most 16 attempts, strongest
-available content model, 2 MiB/200,000 input tokens and 1 MiB/40,000 output tokens
+eight successful learner-content contexts, at most 16 attempts, user-selected
+model, 2 MiB/200,000 input tokens and 1 MiB/40,000 output tokens
 per context, aggregate 32 MiB input/16 MiB output and 28,800 seconds; at most one
-Terra-or-lower rendered-image context with 16 MiB input, 256 KiB output and 900
+rendered-image context using the user-selected model with 16 MiB input, 256 KiB output and 900
 seconds. These are future implementation ceilings, not evidence of review success.
 
 Readiness gates have explicit owners and decisions:

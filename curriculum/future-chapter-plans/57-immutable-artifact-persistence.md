@@ -578,7 +578,7 @@ source evidence downloads are capped at 134217728 bytes and new artifact downloa
 authority is zero. The exact cost record additionally caps successful learner
 contexts at 8, attempts at 16, per-context input/output at 2097152/1048576 bytes
 and 200000/40000 tokens, aggregate input/output at 33554432/16777216 bytes and
-wall time at 28800 seconds. One rendered-image review, ceiling `gpt-5.6-terra`,
+wall time at 28800 seconds. One rendered-image review, using the user-selected model,
 is capped at 16777216 input bytes, 262144 output bytes and 900 seconds. These are
 future workflow bounds, not permission to start downloads/reviews in this run.
 

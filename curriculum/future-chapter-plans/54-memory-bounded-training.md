@@ -1,7 +1,7 @@
 # Chapter 54 implementation packet: memory-bounded training
 
 Planning only; implementation remains held. This packet follows the
-[shared packet contract](README.md) for one `gpt-6-astra max` executor without
+[shared packet contract](README.md) for one executor using the user-selected model without
 sub-agents. It supplies no hardware result, publication approval or resume authority.
 
 ## 1. Scope and boundary
@@ -349,7 +349,7 @@ replay masks, overflow/OOM and last-good artifact identity. No unavailable-GPU
 skip, simulated allocation or ordinary host audit may count as that success.
 
 Follow the [README review contract](README.md#one-executor-and-independent-review):
-two independent strongest-model English reviewers followed by two fresh same-role
+two independent English reviewers using the user-selected model followed by two fresh same-role
 adjudicators, exact canonical four-artifact routes and untouched response/receipt
 verification, then direct Russian translation and independent bilingual/target-
 only reviews. The author cannot self-certify; all four English verdicts must
@@ -382,7 +382,7 @@ cap is 50,000,000. Preserve the full calibrated-profile requirements from the
 predecessor runner, not only these abbreviated caps. No throughput is measured
 by this packet. Content/review context and byte/token/wall caps remain exactly
 those in inputs (eight successful content contexts, at most sixteen attempts;
-rendered review at most one Terra-ceiling context).
+rendered review at most one context using the user-selected model).
 
 The capability's mandatory core range is 16,384–65,536 valid tokens/update, while
 the frozen core profile caps it at 32,768. Its feasible admitted intersection is

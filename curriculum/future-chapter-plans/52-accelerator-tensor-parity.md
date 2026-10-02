@@ -1,7 +1,7 @@
 # Chapter 52 implementation packet: accelerator tensor parity
 
 Status: **planning only**. This packet is an internal execution handoff for one
-`gpt-6-astra max` executor without sub-agents. It neither implements a backend nor
+executor using the user-selected model without sub-agents. It neither implements a backend nor
 certifies English, localization, hardware capability or performance. The
 [packet contract](README.md), [accepted extension plan](../functional-laptop-llm-extension-plan.md),
 BUILD_STATE.yaml and DECISIONS.md retain authority. Repairs and implementation
@@ -564,7 +564,7 @@ No Chromium, scripting-off fallback or GPU browser renderer is part of this gate
 The single executor authors and self-audits; it cannot certify publication. Freeze
 the actual author context, evidence/commitment map, English source and built HTML,
 complete-document/reading-order/isolated inventories and neutral role requirements.
-An external workflow then provides two fresh strongest-model reviewers and two
+An external workflow then provides two fresh reviewers using the user-selected model and two
 further fresh same-role adjudicators using exact canonical prompts, four-artifact
 boundaries, untouched compact raw responses and deterministic routing/receipts.
 The technical role checks equations, bounds, support claims, gradients and
@@ -742,5 +742,5 @@ profile(8gb-adapter;state=blocked-artifact-selection;scale=selected-compatible-2
 Exact implementation cost notes:
 
 ```text
-cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=strongest-available-course-content-no-lower-ceiling;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;rendered_image_review_contexts_max=1;rendered_image_review_model_ceiling=gpt-5.6-terra;rendered_image_review_input_bytes_max=16777216;rendered_image_review_output_bytes_max=262144;rendered_image_review_wall_seconds_max=900
+cpu=C3;gpu=G1;network=N1;paid=none;profile=8gb-gpu-smoke;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;rendered_image_review_contexts_max=1;rendered_image_review_model_policy=user-selected-model;rendered_image_review_input_bytes_max=16777216;rendered_image_review_output_bytes_max=262144;rendered_image_review_wall_seconds_max=900
 ```

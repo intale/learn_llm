@@ -431,7 +431,7 @@ and exact candidate bytes. Both reviews and both adjudications must pass.
 Adjudicator support for a sound blocking finding does not remove that finding.
 
 Russian follows only accepted English, with distinct bilingual and target-only
-reviews and affected rendered evidence. The single `gpt-6-astra max` executor
+reviews and affected rendered evidence. The single executor using the user-selected model
 cannot spawn agents or self-certify; unavailable external judgment capacity keeps
 publication staged. Meaning, role, reading order and extracted-surface changes
 invalidate dependent reviews. Preserve the ignored root `target/` cache and any
@@ -467,7 +467,7 @@ execution is not authorized by this chapter's G0 cost.
 Content/review ceilings: 8 successful contexts, at most16 attempts; per context
 2,097,152 input bytes/200,000 tokens and 1,048,576 output bytes/40,000 tokens;
 aggregate input33,554,432 bytes, output16,777,216 bytes, wall28,800 seconds.
-One Terra-or-lower image review context: input16,777,216 bytes,
+One image review context using the user-selected model: input16,777,216 bytes,
 output262,144 bytes, wall900 seconds. Independent strong course-content contexts
 are externally provisioned.
 

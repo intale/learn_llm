@@ -165,7 +165,8 @@ diagram position, color, interface chrome, or author intent.
 
 ## Author each surface for its role
 
-Use the strongest available course-content model in a dedicated author context.
+Use the user-selected model in a dedicated author context. Inherit the user's
+selection; do not override it with a model name, tier or reasoning preset.
 Give it the frozen evidence, commitment map, learner prerequisites, contract, and
 current affected surfaces. Exclude reviewer conclusions and held-out answers.
 
@@ -192,12 +193,13 @@ verdict.
 Build the exact staged English candidate. Freeze exact candidate source,
 evidence, commitment-map, built-HTML, role requirements, reading-order inventory,
 isolated-surface inventory, review-record and adjudication-record schemas,
-rubrics, model and reasoning requirements, author-context manifest, and
+rubrics, the selected model and actual configured reasoning settings,
+author-context manifest, and
 publication-path bytes.
 
 Use `scripts/english-review.mjs prepare` as defined in the review protocol. Use
-Luna only for deterministic extraction, hashing, packaging, evidence routing,
-and command execution. A packaging context must not judge technical correctness,
+the user-selected model for deterministic extraction, hashing, packaging,
+evidence routing and command execution. A packaging context must not judge technical correctness,
 pedagogy, prose quality, or accessibility.
 
 Use `scripts/english-review.mjs prepare-routing` to create canonical role
@@ -283,8 +285,10 @@ comparisons, reuse or identity, and state changes must be present when the figur
 depends on them; a list of displayed values alone is not automatically a
 complete description.
 
-Use the strongest available course-content model for the author and all four
-judgments. The external receipt records the actual model and reasoning beside
+Use the user-selected model for the author and all four judgments. Freeze that
+selection and the actual configured reasoning settings in the spec; do not
+invent an identity or silently substitute a model if the selection is unavailable.
+The external receipt records the actual model and reasoning beside
 the closed artifact descriptors above; the semantic record contains no
 provenance hash unavailable to its model. Author, reviewer, and adjudicator
 contexts must be pairwise distinct. This access record is procedural evidence,
@@ -295,13 +299,13 @@ clean pass is valid. Do not demand a preference-only rewrite.
 The deterministic verifier checks that assessments are complete, every surface
 adjudication exact-echoes its bound review severity, and support/rejection
 judgments and finding links agree. It rejects a mismatch; it never fills or
-rewrites one. A separate strong-model adjudicator must judge whether each frozen
+rewrites one. A separate adjudicator must judge whether each frozen
 role requirement and rationale is substantive and supported; the verifier
 cannot establish that from field presence.
 
 After both review records and their external receipts are immutable and
 verified, use `prepare-adjudication` to build two role-specific adjudication
-bundles. Start two new strongest-model contexts: one adjudicates the
+bundles. Start two new contexts using the user-selected model: one adjudicates the
 technical/pedagogical record and one adjudicates the isolated-
 surface record. Each receives only its external context manifest, exact prompt,
 role-specific adjudication bundle, and adjudication-record schema. Do not expose
@@ -390,7 +394,7 @@ controls, keyboard order, focus, page overflow, and text or formula ink against
 the nearest bounded box. Never hide, clip, truncate, overlap, or shrink text to
 make a defect disappear.
 
-Use Terra only for affected rendered-image judgment. It does not replace either
+Use the user-selected model for affected rendered-image judgment. It does not replace either
 English review or either adjudication. Run `scripts/english-review.mjs verify`
 immediately before publication or localization. Proceed only when both review
 verdicts are `pass` and both role-specific adjudication verdicts are `pass`, every
