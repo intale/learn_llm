@@ -488,10 +488,26 @@ stand in for unavailable observation.
 
 ## 6. Teaching and surface commitments
 
-Build these lesson sections around one prediction-to-reproduction sequence:
+### Problem-first presentation
 
-1. Predict the ties-to-even signed codes, then inspect their nibble bytes and
-   reconstruction. Define the group and distinguish level from stored code.
+**Problem definition.** Explain that storing dense weights at full precision consumes
+memory, but reducing their representation introduces rounding error and does not by
+itself make the resulting file a compatible model. Establish the need to define
+quantized codes and scales, measure the relevant error, and validate the derivative
+artifact's layout and identity.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Retain these worked-example and optional-practice commitments:
+
+1. Show and explain the ties-to-even signed codes, their nibble bytes and reconstruction. Define the group and distinguish level from stored code.
 2. Render the frozen formula through the math pipeline; define weight $w$,
    positive scale $s$, integer zero point $z$, signed code $q$, saturation range
    and reconstructed $\widehat w$. Explain that the diagnostic uses $z=0$.
@@ -505,7 +521,7 @@ Build these lesson sections around one prediction-to-reproduction sequence:
    teaches float/reference RTN and the course calibration search, not GPTQ.
 5. Follow Rust's checked packing, parsing and semantic admission. The 128-byte
    fixture makes “readable bytes but not an admitted model” observable.
-6. Ask prediction exercises before answers, then connect the admitted derivative
+6. Offer optional reproduction with checked answers, then connect the admitted derivative
    and immutable lineage to later serving/adaptation without claiming those runs.
 
 Answer expectations: first code zero at the positive half tie; first packed byte

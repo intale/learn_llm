@@ -174,7 +174,7 @@ current reference evidence. The checked-in output records:
   (a Cyrillic letter followed by two spaces). Do not trim its spaces or describe
   that output as evidence of useful language generation.
 
-Prediction: ask which statements this run supports: (a) a reproducible scalar
+Explain the evidence boundary using these four claims: (a) a reproducible scalar
 reference pipeline under its fixture/configuration, (b) useful English/Russian
 generation, (c) laptop throughput, (d) complete resumption of a realistic data
 job. Expected answer: only (a), within the recorded checks. Merely displaying a
@@ -294,16 +294,33 @@ changes require a separately justified corrective run, not new golden values.
 
 ## 6. Teaching and surface commitments
 
-Planned reading order:
+### Problem-first presentation
 
-1. Recall the exact scalar pipeline and ask what its existing checks establish.
+**Problem definition.** Explain that a small scalar decoder can provide a checked
+reference for individual calculations while still lacking the capabilities needed for a
+useful laptop system. Establish the need to preserve that reference as a comparison
+point while adding larger-system capabilities and checking that the taught behavior
+remains intact.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage:
+
+1. Recall the exact scalar pipeline and explain what its existing checks establish.
 2. Inspect the tiny configuration, fixture and reference observation together.
 3. Introduce the identity relation, its three bound inputs and its limits.
 4. Compare reference regression, empirical quality, realistic job resume and
    laptop serving as different evidence requirements.
 5. Briefly explain the two historical reporting/evaluation lessons, with the
    course-local Rust reporting contrast and its scope.
-6. Use the boundary visualization, then answer the predict/observe/explain task.
+6. Use the boundary visualization, then inspect and explain the recorded evidence.
 7. Reproduce the reference checks and hand off to governed corpus acquisition.
 
 Required misconceptions and answer expectations:

@@ -493,9 +493,26 @@ accelerator parity, latency, startup, memory or overhead acceptance.
 
 ## 6. Teaching sequence and English commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that a local request passes through validation, queuing,
+model work, streaming and cleanup, so a bare latency or tokens-per-second value can hide
+what was actually counted. Establish the need to bind request behavior to its
+configuration and report metrics with explicit cohorts, observation points and
+non-overlapping time denominators.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 The learner should leave able to audit a local request from its declared model
 identity through its terminal cleanup and explain a throughput denominator.
-Organize these lesson sections around the single worked trace:
+Retain these evidence commitments from the single worked trace:
 
 1. Show a copyable local request and the same versioned configuration driving the
    binary. Explain that a static lesson can describe a local process without

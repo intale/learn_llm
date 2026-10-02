@@ -424,6 +424,22 @@ small. Preserve exact structural-zero tests in the scalar reference.
 
 ## 6. English lesson, exercise and role commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that packing short examples together reduces unused
+storage, but ordinary adjacency can incorrectly make one example's tokens available as
+another example's context or prediction target. Establish the need to preserve each
+example's boundaries independently of where its tokens are stored.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 This packet is author-facing. Do not copy workflow, dependency, fixture authority,
 test requirements or deployment instructions into learner-facing prose. Derive
 the English lesson from actual future Rust traces and accepted source evidence.
@@ -440,7 +456,7 @@ reading-order unit and intentionally isolated surface before independent review.
 | Loss unit | Name nats, nine valid targets, raw sum and denominator; explain why unequal row/document means cannot be averaged uniformly. |
 | Storage/performance unit | Distinguish token-cell counts, dense score positions and permitted edges; make no unmeasured speed or memory claim. |
 | Historical unit / Rust comparison | Separate early packing/isolation evidence from later IO tiling; label the tiny tile traversal as an illustration, not a kernel reproduction. |
-| Exercise prompt | Supply prediction lengths `3,2,4`, capacity six and source token arrays; ask the learner to predict placement, targets, segment IDs, local positions, attention eligibility and loss eligibility before running Rust. |
+| Exercise prompt | Supply prediction lengths `3,2,4`, capacity six and source token arrays; have the learner reproduce the explained placement, targets, segment IDs, local positions, attention eligibility and loss eligibility in Rust, then compare with the checked trace. |
 | Exercise answer | Reconstruct every array and mask, nine-target denominator and boundary rule; explain a specific wrong cross-segment edge and a specific wrong global-position assignment. |
 | Catalog / SEO / navigation | Describe this small capability and prerequisites without claiming a trained/scalable production model or an implementation milestone not yet attained. |
 | Cheat sheet | Only chapter-used LLM terms: sequence packing, segment, block-causal mask, position reset, valid target and token-weighted loss; define them in this context. |

@@ -406,7 +406,23 @@ KV elements; measurement remains an independently scoped future receipt.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict the 8→2 map; inspect the four-head numeric row;
+### Problem-first presentation
+
+**Problem definition.** Explain that storing separate keys and values for every query
+head increases projection and cache costs. Establish the need to share selected
+key/value heads through an explicit head map while preserving each query's computation,
+legal context and positional constraints.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the shown 8→2 head map; inspect the four-head numeric row;
 define the frozen formula's symbols and capacity unit; derive projection/cache
 counts; explain MQA→GQA history with the Rust endpoints; enumerate full/sliding
 segment masks and absolute positions; inspect compact storage/gradient sums;

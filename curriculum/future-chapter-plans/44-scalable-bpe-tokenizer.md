@@ -394,7 +394,23 @@ it never creates the course tokenizer or selected-model payload.
 
 ## 6. Teaching and surface commitments
 
-Sequence: predict the first pair; recompute after replacement; resolve the tie;
+### Problem-first presentation
+
+**Problem definition.** Explain that repeatedly scanning a corpus for each BPE merge is
+expensive, while changing the order of merge decisions can change the resulting
+tokenizer. Establish the need to make merge computation more efficient without changing
+the scalar reference's ordered decisions and replacements.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the selected first pair from the shown counts and tie-break rule; recompute after replacement; resolve the tie;
 compare reference/fast traces; expose overlap and chunk-boundary pitfalls;
 derive content tokens per byte; distinguish byte coverage from imported-policy
 compatibility; identify fixed controls/artifact identity; hand tokenized sequences

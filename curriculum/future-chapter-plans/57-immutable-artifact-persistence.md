@@ -99,7 +99,7 @@ behavior must refuse the durable mode rather than inherit a local guarantee.
 
 ## 3. Inputs and worked example
 
-Ask the learner first: after writing a successor, which root may a reader see
+For optional end-of-lesson practice, ask: after writing a successor, which root may a reader see
 at each interruption point, and which old bytes can be deleted? Use a private
 temporary store, no model files, no seed and a two-byte diagnostic stream buffer.
 The following payloads have no newline:
@@ -427,14 +427,30 @@ prove logic, not unmeasured 2 GiB throughput or a trained-model resume.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections in the required course reading order:
+### Problem-first presentation
 
-- Worked example: predict K1, K4 and K6 root visibility and explain why the old payload remains reachable from the successor.
+**Problem definition.** Explain that an interrupted write can expose incomplete state,
+and that making a new name visible is not the same as confirming durable storage.
+Establish the need to publish complete immutable artifacts through a guarded root
+transition while preserving the earlier usable state and its required dependencies.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Retain these evidence and optional-practice commitments:
+
+- Worked example: explain K1, K4 and K6 root visibility from the shown interruption trace and explain why the old payload remains reachable from the successor.
 - Formula and symbol glossary: staged versus final path, file sync versus directory sync, atomic visibility versus confirmed durability, SHA-256 object ID versus root alias. Explain the frozen formula's conditional scope locally.
 - History: ONNX's portable representation and CheckFreq's coordinated recovery needs lead to complete immutable inputs; show the Rust model-only/manifest contrast without claiming a CheckFreq implementation.
 - Rust implementation: connect byte hashing, guarded publication and graph traversal to the exact trace, including the uncertain-commit return. Keep code examples Rust; the site never reimplements publication logic.
 - Visualization: follow old root, private candidate and new root through K0–K7; labels state what is visible and whether durable confirmation has occurred.
-- Exercises: predict extra-byte refusal; identify why an existing wrong-byte object cannot be replaced; calculate 327 reachable immutable bytes; explain why deleting the old root alias does not collect its ancestor; diagnose the K6 error without assuming rollback.
+- Exercises: reproduce the explained extra-byte refusal; identify why an existing wrong-byte object cannot be replaced; calculate 327 reachable immutable bytes; explain why deleting the old root alias does not collect its ancestor; diagnose the K6 error without assuming rollback.
 - Decoder connection: Chapter 56's model/config/tokenizer/lineage objects become a portable complete snapshot. Chapter 58 adds job-state completeness and continuation, not a second persistence protocol.
 
 Answer expectations are the exact §3 hashes/counts and §5 state effects. The

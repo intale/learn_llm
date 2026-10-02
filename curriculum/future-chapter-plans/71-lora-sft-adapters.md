@@ -226,9 +226,7 @@ diagnostic_sgd_learning_rate = 1/4
 
 There is no randomness, bias, dropout, clipping, weight decay or accumulation in
 this primitive diagnostic. Its two outputs are local test classes, not a claim
-that the real adapter target is an LM head. Ask the learner to predict which
-factor gets its first loss gradient and whether freezing W removes its input
-gradient. Then derive:
+that the real adapter target is an LM head. Explain which factor gets its first loss gradient and why freezing W does not remove its input gradient. Derive:
 
 1. $Ax=3$, initial logits are $(0,0)$, target probability is $1/2$, and stable
    NLL is $\ln 2$.
@@ -710,16 +708,33 @@ remains mandatory even if an estimated envelope is wider; that path then fails.
 
 ## 6. Teaching and surface commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that adapting a model by updating all base weights
+requires many trainable values and changes the original model, while training on prompt
+targets can optimize a different objective from learning the response. Establish the
+need for a bounded trainable correction on a frozen base and explicit response-loss
+eligibility that still preserves prompt context.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 This is an author/executor outline, not approved learner-facing English. Author
 the actual lesson from Rust evidence using the English skill after execution
 is authorized. Do not copy run logistics, test instructions or review machinery
 into the lesson. Keep the chapter about changing a projection while preserving
 the base and choosing response loss, rather than a survey of tuning methods.
 
-Use this ordered lesson:
+Retain these evidence and optional-practice commitments:
 
-1. Predict which of A, B and W0 can change on the first tiny update. Show the
-   literal arrays and response eligibility strip before showing the answer.
+1. Explain which of A, B and W0 can change on the first tiny update. Use the
+   literal arrays and response eligibility strip to explain the worked outcome.
 2. Name input/output/rank axes, show the conventional formula, and explicitly
    map it to the Rust row-layout tensors. Derive the factor count; explain why
    the tiny fixture itself saves no parameters.

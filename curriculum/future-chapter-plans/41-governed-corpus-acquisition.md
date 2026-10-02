@@ -301,19 +301,16 @@ The fixture assignment specification retained with the planning run is evidence
 for these calculations; this packet contains every value needed to reconstruct
 it and does not make ignored run files a future implementation prerequisite.
 
-### Predict, observe, explain, reproduce
+### Explained cases and optional reproduction
 
-1. Predict whether a renamed filename with unchanged bytes is sufficient for
-   admission. Answer: no; requested identity, path, inventory and provenance must
+1. Explain why a renamed filename with unchanged bytes is insufficient for admission. Answer: no; requested identity, path, inventory and provenance must
    also match the bound manifest.
-2. Predict whether changing the attribution file while leaving both raw files
-   unchanged preserves artifact identity. Answer: raw hashes stay the same, but
+2. Explain the artifact-identity change when the attribution file changes but both raw files remain unchanged. Answer: raw hashes stay the same, but
    the updated inventory/source metadata produces a different artifact manifest
    and therefore a different fixture artifact ID.
-3. Predict whether a verified training file and a truncated validation file
-   permit publication. Answer: neither a pair entry nor a success receipt may be
+3. Explain why a verified training file and a truncated validation file do not permit publication. Answer: neither a pair entry nor a success receipt may be
    published; verified run-staged bytes can be retained for a permitted resume.
-4. Predict a toy transfer budget: two discarded body bytes already charged, 9
+4. Work through the toy transfer budget: two discarded body bytes already charged, 9
    remaining raw bytes needed, ceiling 10. Projected need is 11, so refuse before
    dispatch; observed spent bytes remain 2. Do not report 11 as bytes transferred.
 
@@ -620,9 +617,25 @@ inventory. Run-only partials/logs are not fresh-clone canonical dependencies.
 
 ## 6. Teaching and surface commitments
 
-Planned lesson sequence:
+### Problem-first presentation
 
-1. Predict whether “download succeeded” is sufficient to use a training corpus.
+**Problem definition.** Explain that a successful download does not establish that
+corpus bytes match the declared artifact or that their provenance and permitted use are
+known. Establish the need to bind admission evidence to the exact corpus bytes before
+treating them as training input.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage:
+
+1. Explain why “download succeeded” does not establish corpus admission.
 2. Audit the two-file fixture's bytes, inventory and provenance together.
 3. Define payload hash versus manifest identity and reproduce the attribution
    change counterexample.

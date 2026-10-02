@@ -434,7 +434,24 @@ lifecycle against the same contract.
 
 ## 6. Teaching sequence and commitments
 
-Use these lesson sections:
+### Problem-first presentation
+
+**Problem definition.** Explain that a client stopping does not instantly stop
+already-dispatched device work, and that a slow reader can otherwise cause output
+buffers to grow without bound. Establish the need for explicit cancellation,
+backpressure and deadline transitions that release resources only when their actual
+lifetimes end.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage:
 
 1. **A request can stop without its kernel stopping instantly.** Distinguish
    cancellation observation, an existing device fence and actual reclamation.
@@ -451,7 +468,7 @@ Use these lesson sections:
    incomplete-UTF-8/stop overlap cases. Name which RNG/history state was already
    committed, what output is discarded and what bytes cannot be recalled.
 6. **History, failures and handoff.** Compare request-count limits with token-cost
-   concerns without inventing a fairness SLA. Predict the A/B/C trace and hand
+   concerns without inventing a fairness SLA. Reproduce and explain the A/B/C trace and hand
    the bounded lifecycle to Chapter 70's loopback wrapper.
 
 The contract, English lesson, Rust demo/output, formula, figure, exercises,

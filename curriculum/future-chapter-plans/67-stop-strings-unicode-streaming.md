@@ -426,10 +426,26 @@ its local state machine and accepted framing boundary.
 
 ## 6. Teaching sequence and surface commitments
 
-Use these lesson sections, all based on the same Rust trace:
+### Problem-first presentation
 
-1. **A token is not a complete character.** Start with the three pieces and ask
-   which bytes can be displayed after each. Explain token IDs, raw byte pieces,
+**Problem definition.** Explain that a generated token piece can end inside a UTF-8
+character or a stop string, so immediately displaying every arriving byte can emit
+invalid text or reveal bytes that should be withheld. Establish the need to release only
+a prefix known to satisfy both character and stopping boundaries.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Retain these evidence and optional-practice commitments from the same Rust trace:
+
+1. **A token is not a complete character.** Show the three pieces and explain
+   which bytes can safely be displayed after each. Explain token IDs, raw byte pieces,
    Unicode scalar boundaries, and why a valid tokenizer piece can be incomplete
    text by itself.
 2. **A stop is a byte interval, not a token.** Introduce `€!`, generated-only
@@ -450,8 +466,7 @@ Use these lesson sections, all based on the same Rust trace:
    SSE framing through the two historical sources and Rust-generated fixtures.
    Contrast queue atomicity with arbitrary network chunking and incomplete-frame
    discard, not with an invented reliable-delivery guarantee.
-7. **Predict, modify, and verify.** Change the stop ordering or final piece, derive
-   the winner/output/counts, and run the bounded Rust example. Hand off complete
+7. **Reproduce and explain.** Run the bounded Rust example for the shown stop-ordering and final-piece cases, compare the winner/output/counts with their checked traces, and explain the differences. Hand off complete
    request-local events and terminal intent to later scheduling/cancellation work.
 
 The contract, English chapter, Rust captions, expected output, cheat sheet,

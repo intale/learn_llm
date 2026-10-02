@@ -94,7 +94,7 @@ three seeds, percentile method, quality thresholds or contamination/privacy rule
 
 ## 3. Inputs and worked example
 
-First predict which targets count. For document token IDs `[10,11,12,13]` and
+Show and explain which target occurrences count. For document token IDs `[10,11,12,13]` and
 context cap two, score target 11 from prefix `[10]`, target 12 from `[10,11]`,
 and target 13 from `[11,12]`, exactly once each. With assigned probabilities
 $[1/2,1/4,1/2]$, total loss is $\ln16$, denominator is three, mean NLL is
@@ -321,7 +321,23 @@ does not establish broad usefulness, independence, privacy or interval coverage.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict which transitions count; derive token-weighted
+### Problem-first presentation
+
+**Problem definition.** Explain that a score changes when the counted token occurrences
+or their context changes, and that a single training seed cannot reveal variation across
+runs. Establish the need for a fixed scoring denominator and separately reported
+multi-seed evidence before interpreting model quality.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain which transitions count using the worked occurrence trace; derive token-weighted
 NLL/PPL and define occurrence/context/denominator; connect NLP uncertainty and
 fine-tuning sensitivity history; inspect old/new Rust scoring plus seed
 enumeration; read the separate evidence panels; solve denominator/seed-unit

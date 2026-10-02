@@ -84,7 +84,7 @@ there is no requirement to run either ecosystem's server or collect content.
 
 ## 3. Inputs and worked example
 
-Predict the peak before adding component maxima. This is a deterministic
+Explain the lifetime peak from the trace and why adding independent component maxima does not compute it. This is a deterministic
 synthetic **charged-byte** allocator trace, not a claim about real malloc/device
 alignment. Names identify disjoint owned allocations; all unlisted model-state,
 KV, batch and slack categories are explicitly zero in this fixture.
@@ -301,7 +301,23 @@ clock/counter prove accounting logic, not hardware behavior or production scale.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict the lifetime peak; define the two formula
+### Problem-first presentation
+
+**Problem definition.** Explain that occasional memory samples can miss short-lived
+peaks, while asynchronous work can keep buffers live after their owner requests release.
+Establish the need to distinguish exact owned-allocation accounting from sampled
+observations, with explicit units, lifetimes and throughput denominators.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the lifetime peak from the trace; define the two formula
 parts and units; explain the metric-vocabulary history; inspect Rust accounting
 and measurement boundaries; read the ledger figure; solve breach/denominator
 exercises; hand stable denominators and identities to Chapter 60.

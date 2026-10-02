@@ -159,7 +159,7 @@ Component identity hashes a canonical record containing policy identity and all
 sorted original member IDs, including exact aliases. Union-find root selection,
 traversal order or input shuffling must not affect this identity.
 
-Predictions:
+Worked observations:
 
 1. `a` and `c` belong together without a direct above-threshold edge.
 2. Assigning `b` to validation violates component isolation even though IDs differ.
@@ -367,7 +367,23 @@ Restart from immutable inputs into new staging. No v1 resumable append is claime
 
 ## 6. Teaching and isolated-surface commitments
 
-Reading sequence: predict whether different IDs imply independent data; derive
+### Problem-first presentation
+
+**Problem definition.** Explain that different record identifiers can still refer to
+duplicate or closely related text, allowing overlapping material to enter both training
+and evaluation. Establish the need to identify connected groups of overlapping records
+and keep each group within a single split.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain why different IDs do not establish independent data; derive
 the exact alias; construct three bigram sets and fractions; distinguish direct
 edges from transitive membership; assign whole components; insert protected `q`;
 explain refusal; compare historical overlap evidence; inspect policy sensitivity;

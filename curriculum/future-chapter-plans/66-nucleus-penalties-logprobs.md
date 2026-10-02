@@ -383,7 +383,23 @@ behavior are not proved by these cases.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict count-adjusted scores; distinguish presence
+### Problem-first presentation
+
+**Problem definition.** Explain that repetition penalties and sampling restrictions
+change token selection differently depending on their order, and that model
+probabilities need not equal final sampling probabilities. Establish the need for one
+explicit transformation order, support rule and request-local random decision.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the count-adjusted scores using the worked counts; distinguish presence
 and frequency; follow full-vocabulary nucleus then top-k intersection; inspect
 ties/crossing boundaries; separate rank from interval order; replay request-local
 RNG; compare model and final-sampler logprobs; practice refusals; hand selected

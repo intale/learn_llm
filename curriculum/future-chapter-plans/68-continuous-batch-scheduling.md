@@ -434,7 +434,23 @@ GPU smoke allowance or exempt their token work from inherited accounting.
 
 ## 6. Lesson sequence and commitments
 
-Use these lesson sections:
+### Problem-first presentation
+
+**Problem definition.** Explain that requests arrive and finish at different times,
+while their packed execution rows can move as batch membership changes. Establish the
+need to admit and remove requests without transferring one request's cache, random state
+or output history to another.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage:
 
 1. **Why a fixed group can wait for its longest request.** Start with A and B,
    then introduce C while A still generates. Compare membership, not unsupported
@@ -454,8 +470,7 @@ Use these lesson sections:
 6. **History and limits.** Contrast Orca's iteration scheduling with later
    chunked-prefill work without quietly implementing optional policies. Explain
    why active membership, reserved memory and resident pool capacity differ.
-7. **Predict and reproduce.** Derive C's first sampling row, the iteration-2
-   block peak, final RNG/cache values, and a compaction bug's effect. Hand off
+7. **Reproduce and explain.** Reproduce the worked trace, compare C's first sampling row, the iteration-2 block peak and final RNG/cache values with the checked results, and explain the shown compaction bug's effect. Hand off
    terminal intent and owned leases to later admission/cancellation work.
 
 Bind contract fields, English lesson, Rust example/output, formula, table,

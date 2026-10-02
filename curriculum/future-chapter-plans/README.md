@@ -26,6 +26,52 @@ curriculum/resource/queue checks. That reconciliation is also pending now.
 
 ## Inventory and this checkpoint
 
+### Current learner-facing authoring policy (2026-10-02)
+
+All future chapters, including the existing Chapter 40–71 packets and pending
+Chapter 72–85 packets, follow **problem definition → solution → history →
+visualization and small optional practice**. The opening explains the concrete
+problem, why it arises and why the chapter's capability is needed. It contains
+no questions for the student, including rhetorical questions or predictions.
+The solution explains a tiny worked result before generalizing it, names formula
+symbols locally and connects the reasoning to Rust. History then supplies the
+bounded contrast; diagrams clarify the taught relationship; reproduction,
+inspection and explanation tasks are optional practice after the explanation.
+Do not ask students to predict outcomes anywhere in the chapter, including its
+optional practice. The user explicitly replaced that activity, not just its
+placement. Technical terms such as next-token prediction remain unchanged.
+
+The English authoring skill distills the explanatory approach from
+`dev_scripts/EXPLANATIONS.md`: causal motivation, concrete-to-general reasoning,
+explicit formula/code connections and the purpose of invariants. Its technical
+examples are not a mandatory checklist for every chapter. The source file and
+published Chapters 0–39 remain unchanged.
+
+This user-authorized presentation amendment supersedes earlier **opening-order
+and learner-prediction** instructions in these packets and the frozen extension
+plan. It does not remove worked inputs, Rust traces, substantive exercise
+coverage, checked answers, mathematical facts, historical evidence, acceptance
+tests, resource limits or any execution hold. Practice is optional for the
+student, not permission for the executor to discard required evidence. Existing
+field/section IDs such as `worked_inputs` and `worked-example` are compatibility
+labels, not a requirement to open with a quiz; required Rust excerpts keep their
+contract-owned surface while the solution explains the relevant code mapping.
+
+Section 6 of each completed packet now supplies a chapter-specific opening
+problem and the current sequence. Its retained evidence/practice checklist is
+coverage, not the old reading order. Replace learner prediction prompts with
+guided explanations or optional reproduction/inspection tasks while preserving
+their underlying evidence and checked answers. These are author instructions, not newly
+written or publication-approved learner-facing chapters.
+
+The reconciliation step `reconcile-future-chapter-opening-sequence-20261002`
+binds the amended current packet revisions. Original completed planning runs,
+commits and hashes remain historical evidence and are not overwritten. The
+frozen extension plan is retained; its eventual execution compatibility check
+must honor this explicit presentation amendment without weakening substantive
+checks. No implementation, repair, chapter publication or new chapter planning
+is started by this reconciliation.
+
 [index.json](index.json) enumerates every Chapter 40–85 with its stable planning
 step, proposed packet path and status. A `pending` entry is a queued plan, not a
 missing completed artifact. A `planning-ready` entry means its internal packet
@@ -87,7 +133,8 @@ does not apply must state why and identify the replacement evidence.
 3. **Inputs and worked example.** Literal small inputs or a complete reproducible
    construction; dimensions, units, axes, ordering, seeds, state transitions,
    exact discrete results and justified floating-point comparisons. Give the
-   learner's prediction, observable output, explanation and reproduction task.
+   observable output and its explanation, plus optional end-of-lesson
+   reproduction/inspection tasks. Do not add learner prediction prompts.
 4. **Rust design and ownership.** Existing versus proposed modules and signatures,
    data representation, invariants, mutations, errors, dependency roles,
    resource bounds, serialization/compatibility boundaries and downstream API

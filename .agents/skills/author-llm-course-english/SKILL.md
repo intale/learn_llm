@@ -91,11 +91,70 @@ merely to make otherwise incomplete standalone copy pass.
 
 ## Design the learner sequence
 
-Choose the smallest sequence that lets the learner predict, observe, explain,
-and reproduce the new behavior. Put prerequisites before dependent claims. Use a
-tiny worked input, name the transformation and its order, connect the formula to
-the same evidence, expose an important boundary or misconception, and make the
-exercise and handoff follow from what the learner has already seen.
+For new chapters, use this learner-facing progression:
+
+1. **Problem definition.** Explain the concrete difficulty the chapter addresses,
+   why it arises, and what capability or invariant is needed. When a simpler
+   approach makes the difficulty clearer, explain its supported limitation;
+   do not invent an inadequate baseline. Establish the need before naming the
+   new concept's machinery. The opening is an explanation, not a test: do not ask
+   the student questions, including rhetorical questions, or request a prediction
+   there.
+2. **Solution.** Work through the main example with small concrete inputs and
+   explain its outcome. Build from that evidence to the general rule, formula
+   and local meanings of its symbols, then connect the rule to the relevant Rust
+   operations. Name the
+   transformation, required order, assumptions, and important failure boundary.
+   Do not withhold the explanation until the learner guesses a result.
+3. **History.** Explain the earlier approach, its useful intuition and limitation,
+   and how the chapter's solution relates to it, with the bounded historical
+   evidence and related Rust contrast.
+4. **Visualization and optional practice.** Use a diagram when it clarifies the
+   relationship already introduced. Offer small reproduction, inspection or
+   explanation tasks afterward as optional practice, with checked answers.
+   Do not ask the student to predict an outcome anywhere in the lesson, including
+   practice; the prediction-first activity has been replaced, not relocated.
+   Understanding the lesson must not depend on attempting the optional task.
+
+Retain the required worked evidence, substantive exercise coverage and checked
+answers in the course contract, recasting any prediction prompt as an explained
+example or a reproduction/inspection task. Optional means the learner may skip
+the practice, not that the author may omit required evidence or tests. Technical
+uses of prediction, such as a model's next-token prediction, remain unchanged.
+Put prerequisites before dependent claims and keep the handoff tied to what the
+learner has learned. Existing published chapters are not retroactively revised
+by this authoring rule. Future contracts
+may retain legacy field or section IDs such as `worked_inputs` or
+`worked-example`; those names do not require a prediction-first opening.
+
+### Generate explanations from causes, not syntax
+
+Apply the teaching approach drawn from `dev_scripts/EXPLANATIONS.md`, without
+importing its topic-specific implementation details as a universal checklist:
+
+- Establish why the operation exists before explaining its mechanics. Let a
+  concrete difficulty motivate the abstraction, rather than introducing notation
+  and asking the student to discover its purpose.
+- Prefer a tiny input and an explained observable result before a broad symbolic
+  derivation. Connect the example, general rule, mathematical terms, human
+  meaning and Rust variables explicitly; do not make the learner infer the links.
+- Explain why each important condition or check is needed and what failure it
+  prevents. Name the invariant, not merely the comparison or loop in the code.
+- Separate the required behavior from the current implementation strategy.
+  Explain complexity only when it serves a concrete correctness, resource,
+  ownership or performance need; do not defend it just because it exists.
+- Keep mathematical correctness, represented numerical behavior and measured
+  model quality distinct. Inspect the exact evidence before making exact code
+  claims, and do not turn an illustrative example into an empirical guarantee.
+- Define terms where they become necessary, distinguish similar concepts when
+  confusion would matter, and keep formulas beside their interpretation. Use
+  direct causal prose and helpful diagrams, not jargon or decorative machinery.
+
+Use only the detail needed for the chapter's concept. The learner should come
+away understanding why the mechanism is needed, how it works, and how the
+evidence supports its behavior—not merely what the code does. These principles
+guide generation and human judgment; they are not a phrase template or an
+automated language-quality score.
 
 At each point where understanding depends on it, name the concrete actor,
 referent, and operation; state each relevant quantity and unit, the mapping from

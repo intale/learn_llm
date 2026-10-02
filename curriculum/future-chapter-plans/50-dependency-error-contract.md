@@ -249,8 +249,7 @@ approval is transitively bound to the entire graph context and source snapshot.
 The toy count does not preserve stale semantic approval. Do not present this
 ten-record toy as the actual Cargo graph or copy its counts into a real receipt.
 
-First ask the learner which mutations a package-name-only check misses. Then
-run the Rust comparison and show both missing and added records. Finally replace
+Run the Rust comparison, show both missing and added records, and explain which mutations a package-name-only check misses. Finally replace
 the name-only source reference with a real source binding and show why identical
 package names still do not prove the call is permitted.
 
@@ -858,18 +857,34 @@ improved model quality.
 
 ## 6. Teaching and surface commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that adding supporting libraries can obscure ownership
+of taught operations, while failures at library boundaries can leave partially changed
+state. Establish the need to keep course-owned decisions explicit and make typed
+failures preserve the state promised by each operation.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 This is a bounded lesson about keeping a model's operations inspectable as its
 surrounding software grows, not a detour through package-manager design.
 
-| Reading order | Learner action and evidence | Required commitment |
+| Retained coverage | Learner action and evidence | Required commitment |
 | --- | --- | --- |
-| 1. Predict the boundary | Compare parsing the tiny width/head record with computing attention. | Name exactly what the supporting package does and what course Rust still decides. |
+| 1. Explain the boundary | Compare parsing the tiny width/head record with computing attention. | Name exactly what the supporting package does and what course Rust still decides. |
 | 2. Read the graph | Expand C/J/U into package, edge, feature and role records. | Explain direction, dependency kind, exact identity and record counts locally. |
-| 3. Try one mutation | Predict the added/missing records before running Rust. | A name-only allowlist misses version, edge, feature and source-role changes. |
+| 3. Optional mutation practice | Inspect the Rust comparison and explain the added/missing records; optionally reproduce the comparison. | A name-only allowlist misses version, edge, feature and source-role changes. |
 | 4. Decode is not validate | Run valid, bad-shape and zero-head JSON. | Syntax success is not shape validity; zero heads is checked before division. |
 | 5. Follow a failure | Read code, phase, reason, state effect and allowed recovery separately. | A typed failure is observable and does not silently select a different model/device/configuration. |
 | 6. Revisit an earlier model mechanism | Use the approved historical anchor and course-owned contrast once its gate is resolved. | Dependency policy preserves visibility; it did not cause the historical modeling improvement. |
-| 7. Reproduce and transfer | Add an unauthorized feature, remove a role binding, inject a pre-commit error. | Predict the exact refusal and verify the declared state counters remain unchanged. |
+| 7. Reproduce and transfer | Add an unauthorized feature, remove a role binding, inject a pre-commit error. | Inspect the exact refusal and verify the declared state counters remain unchanged. |
 
 Keep build instructions, artifact receipts, authority rules, model routing,
 review machinery and static-site implementation outside learner-facing prose.

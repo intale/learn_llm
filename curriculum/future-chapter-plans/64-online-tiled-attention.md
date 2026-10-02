@@ -174,8 +174,7 @@ Visit half-open tiles `[0,2)`, `[2,3)`, `[3,6)`, `[6,7)`, of widths 2, 1,
 | Tile `[6,7)` | unchanged | unchanged | unchanged | Fully masked tail |
 | Complete | $L=\log7$ | — | $O=[27/7,0]$ | Legal probabilities $[1,2,4]/7$ |
 
-Predict the changed maximum and the factor applied to **both** old sums before
-showing the trace. The deliberately wrong average of normalized nonempty tile
+Show the trace and explain the changed maximum and the factor applied to **both** old sums. The deliberately wrong average of normalized nonempty tile
 outputs is $([7/3,0]+[5,0])/2=[11/3,0]$, not $[27/7,0]$.
 Unequal legal weight totals make the error visible; tile size does not define a
 mixture weight.
@@ -424,7 +423,23 @@ unbounded dense oracle. The actual frozen hardware smoke is a separate test.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict the two nonempty tile updates; identify the
+### Problem-first presentation
+
+**Problem definition.** Explain that materializing all attention scores and
+probabilities can require large temporary arrays even though the output only needs their
+weighted sum. Establish the need to process tiles while carrying the normalization state
+that preserves the same masked attention operation.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the two nonempty tile updates from the trace; identify the
 memory that dense attention retains; derive maximum rescaling; inspect empty
 and masked tiles; reproduce the complete numerator/output trace; reconstruct
 backward probabilities; compare owned storage with measured runtime; practice

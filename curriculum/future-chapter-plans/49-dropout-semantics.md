@@ -162,8 +162,8 @@ gradient. The linear probe $\mathcal L=\sum_i g_i y_i$ equals $-12$ in training.
 This probe fixes upstream gradients deliberately; it does not claim a nonlinear
 model loss has a mask-independent gradient.
 
-Predict the output and derivative before running the Rust example. Then show
-the saved mask alongside both results, including the kept-zero position.
+Explain the output and derivative using the saved mask alongside both results,
+including the kept-zero position. Offer optional reproduction of this worked calculation and compare with its checked result.
 The supplied mask is a deterministic mathematical fixture, not a claim that
 an arbitrary seed produced those four bits.
 
@@ -634,6 +634,22 @@ bitwise-stable scalar results on the same pinned environment.
 
 ## 6. Teaching sequence and frozen surface commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that dropout changes a training computation through
+random masks, making the result depend on execution mode and random-number state as well
+as tensor values. Establish the need for explicit training, evaluation, backward-pass,
+and replay behavior so each computation uses the intended mask and state.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 Keep run machinery, contracts, reviewer routing and framework constraints out of
 visible learner prose. The English-authoring skill requires evidence-led
 commitments and a neutral role requirement for each complete document,
@@ -642,7 +658,7 @@ reading-order unit and intentionally isolated surface.
 | Surface / unit | Minimum local commitment |
 | --- | --- |
 | Introduction | Name optional training dropout and its correctness scope; do not promise improved generalization. |
-| Predict-first fixture | Give input, drop/keep probabilities, mask-bit meanings and upstream gradient before asking for output and derivative. |
+| Optional fixture practice | Give input, drop/keep probabilities, mask-bit meanings and upstream gradient alongside the explained output and derivative. |
 | Formula and symbols | Define each element index, mask, probability, training scale and derivative; distinguish ideal expectation from finite-grid/f64 behavior. |
 | Kept-zero explanation | Identify the zero-valued input that was kept and explain its nonzero derivative from the saved mask. |
 | Mode comparison | Explain Train/Eval separately from gradient tracking; evaluation and p0 perform identity and consume no draws. |
@@ -654,9 +670,7 @@ reading-order unit and intentionally isolated surface.
 | Catalog / SEO / navigation | Describe reproducible optional dropout, not a better-trained model or production training result. |
 | Cheat sheet | Limit terms to dropout, keep probability, inverted dropout, saved mask, residual branch, training/evaluation mode and random stream/counter as taught here. |
 
-Order the lesson: fixed-mask prediction → formula/derivative → mode table →
-selected decoder placement → seeded Rust evidence → replay/state failures →
-historical contrast → checked exercises → Chapter50 handoff. Preserve the
+Retained coverage, under the problem-first sequence above: explained fixed-mask output → formula/derivative → mode table → selected decoder placement → seeded Rust evidence → replay/state failures → historical contrast → optional reproduction → Chapter50 handoff. Preserve the
 required chapter-section markers when projecting the actual contract.
 
 Exercises should ask why a kept zero still differentiates, why backward cannot

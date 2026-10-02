@@ -101,8 +101,7 @@ $$R_i=[o_i,o_i+e_i b_i),\qquad e_i=\prod_j d_{ij}.$$
 
 $o_i$ is relative to the data-buffer start, $e_i$ counts elements, $b_i$ is bytes
 per element and $d_{ij}$ are dimensions. Products, endpoints and absolute offsets
-use checked arithmetic. Predict a hole, overlap and wrong-length rejection from
-the table before running. Same-dtype round-trip preserves tensor bits, not
+use checked arithmetic. Explain the hole, overlap and wrong-length rejections using the table, then offer optional reproduction. Same-dtype round-trip preserves tensor bits, not
 necessarily another writer's JSON spacing/key order. A deterministic course
 export may additionally promise its own exact file bytes.
 
@@ -295,7 +294,23 @@ to arbitrary public models or the later laptop profile.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: worked byte-range prediction; formula/glossary for
+### Problem-first presentation
+
+**Problem definition.** Explain that tensor bytes can be intact while their ranges,
+shapes, aliases or model/tokenizer identities are incompatible. Establish the need to
+validate both the container's byte layout and the model meaning before constructing a
+usable bundle.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: worked byte-range explanation; formula/glossary for
 relative/absolute offsets, dimensions and byte width; ONNX/container history;
 Rust duplicate/range/census/identity validation; the evidence-table visualization
 section; corruption/classification exercises; selected-decoder/Chapter 57 handoff.

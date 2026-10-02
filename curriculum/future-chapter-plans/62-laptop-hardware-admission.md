@@ -152,8 +152,7 @@ sum is 6,710,886,400 bytes. Planned and observed usage are separate columns in
 the actual receipt. Every allocation has one owner/category; unknown overhead
 cannot be hidden in a favorable zero or counted twice in slack and workspace.
 
-First ask the learner whether adding one state byte and removing one activation
-byte changes admission. The sum is unchanged, but state becomes 805,306,369 bytes
+Explain the admission change when one state byte is added and one activation byte is removed. The sum is unchanged, but state becomes 805,306,369 bytes
 and must refuse before allocation. Unused activation capacity cannot be borrowed.
 Conversely, a synthetic vector exactly equal to all six ceilings passes these
 component/global comparisons only; it says nothing about real allocation or the
@@ -398,7 +397,23 @@ not claims of one-byte sensor precision.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict whether the synthetic laptop/workload passes;
+### Problem-first presentation
+
+**Problem definition.** Explain that a laptop's advertised memory size does not
+establish whether a particular workload fits or runs at a sustainable rate. Establish
+the need to admit the exact device/workload pair against separate resource, precision,
+throughput and stability conditions.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the synthetic laptop/workload verdict from its component and rate checks;
 define each unit and the admission conjunction; derive component accounting and
 the time projection; compare specification-only planning with runtime evidence;
 inspect Rust's pure validator and measured adapter; ask boundary/refusal

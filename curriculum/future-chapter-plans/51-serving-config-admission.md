@@ -201,8 +201,8 @@ At $t=5$, aligning aggregate KV payload gives 320 bytes, whereas the four real
 buffer extents require 512. The incorrect aggregate calculation would undercount
 by 192 bytes. A shared-buffer alias must not be counted as a fifth allocation.
 
-The learner predicts the event outcomes and the alignment jump before running
-Rust, then reproduces the independent cap/memory failures. No RNG is used. For the historical contrast, full-context reservation at8 tokens
+Explain the event outcomes and alignment jump in the guided example; offer
+optional reproduction of the independent cap/memory failures. No RNG is used. For the historical contrast, full-context reservation at8 tokens
 charges640 per request; shared256 plus two such requests is1536 and fails1024.
 The explicitly request-bound t4 strategy charges384 each and fits exactly1024.
 That is a comparison of declared storage strategies, not a saving obtained by
@@ -463,7 +463,23 @@ Do not print sensitive prompt text or platform-dependent error strings.
 
 ## 6. Lesson sequence, exercises and role commitments
 
-1. Predict whether A and B fit, naming the tokens and bytes being reserved.
+### Problem-first presentation
+
+**Problem definition.** Explain that a serving request can exceed available resources
+even when its individual configuration fields look valid, because token limits and
+allocation sizes interact. Establish the need to check the combined token and byte
+requirements before allocating request resources.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+1. Show the admission results for A and B and explain the reserved token and byte counts.
 2. Explain the request-byte formula and show all four categories.
 3. Show the per-buffer alignment jump and why aggregate rounding is wrong.
 4. Walk the projection/identity checks before the allocation boundary.
@@ -475,7 +491,7 @@ Do not print sensitive prompt text or platform-dependent error strings.
 
 Exercises: compute t5's640 bytes; identify the192-byte undercount from aggregate
 rounding; explain why C's first refusal is request-count, then isolate memory by
-the separately declared count3 fixture; release A twice and predict unchanged
+the separately declared count3 fixture; release A twice and verify unchanged
 640 on the second attempt; show why a production refusal must not lower context.
 Answers must name the relevant boundary and state, not only say “fails.”
 

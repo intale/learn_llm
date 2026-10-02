@@ -311,7 +311,23 @@ pending work; this planning step does not repair them.
 
 ## 6. Teaching and surface commitments
 
-Lesson order: distinguish encoded-document length from prediction length; derive
+### Problem-first presentation
+
+**Problem definition.** Explain that examples of different lengths require extra storage
+positions in a rectangular batch, but those padding positions do not supply real
+next-token prediction evidence. Establish the need to exclude padding from attended
+keys, prediction targets, and the counts used to summarize loss.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: distinguish encoded-document length from prediction length; derive
 the two shifted rows; build the rectangle; label padding/positions/segments;
 enumerate legal keys; compute the six-target denominator and wrong alternatives;
 compare separate and padded execution; state the no-PAD-vocabulary boundary;

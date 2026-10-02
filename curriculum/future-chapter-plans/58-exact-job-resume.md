@@ -86,9 +86,7 @@ future CPU/GPU measurements must remain separate evidence classes.
 
 ## 3. Inputs and worked example
 
-First ask: if the first microbatch has finished backward, what must be saved so
-the second is processed once and the final gradient is not scaled or averaged
-twice? Use the diagnostic linear loss from Chapters 54/55, not decoder NLL:
+Explain the saved state after the first microbatch finishes backward, showing why the second is processed once and the final gradient is not scaled or averaged twice. Use the diagnostic linear loss from Chapters 54/55, not decoder NLL:
 $\ell_i=\theta\cdot v_i$, with $\theta=[1,0]$ and vectors
 $v_1=[1,2]$, $v_2=[3,6]$, $v_3=[8,-2]$. Window scale is fixed at $S=8$.
 
@@ -328,7 +326,23 @@ unpassed, even if every CPU diagnostic succeeds.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict the mid-window continuation; render/define
+### Problem-first presentation
+
+**Problem definition.** Explain that restoring weights alone does not determine the next
+training operation: accumulated gradients, optimizer state, data position and
+random-generator state also affect continuation. Establish the need to capture and
+restore one complete, coherent job state without repeating or omitting work.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the mid-window continuation from the shown complete-state trace; render/define
 the complete-state formula; distinguish activation versus job checkpoint history;
 inspect Rust capture/validate/swap and the real replay trace; read the dependency
 figure; answer omission/phase exercises; connect the result to Chapter 59.

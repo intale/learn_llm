@@ -698,9 +698,9 @@ Keep `autograd_context_is_explicit_graph_free_and_does_not_leak_between_calls`
 in the autograd module too. Inspect its actual predecessor location rather than
 depending on planning-time line numbers.
 
-### 5.4 Predictable exercises and negative fixtures
+### 5.4 Reproduction tasks and negative fixtures
 
-Provide small inputs before answers, then generate the accepted trace from Rust:
+Generate and explain the accepted Rust trace for the small inputs, then offer optional reproduction:
 
 - Recompute reference P from embedding1064 + attention64 + FFN48 + norms12.
   A second untied vocabulary matrix would add1064, yielding2252; that is a
@@ -734,6 +734,22 @@ like measured production allocation traces.
 
 ## 6. Teaching sequence and frozen surface commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that changing decoder dimensions in several independent
+places can produce incompatible tensor shapes, incorrect parameter counts, or unintended
+changes to the model being taught. Establish the need for one validated configuration
+that determines a consistent decoder at each supported scale.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 The learner should learn configuration-driven construction and honest resource
 planning, not the repository's authoring workflow. Keep build machinery,
 contracts, model routing, review instructions and deployment rules out of visible
@@ -744,7 +760,7 @@ intentionally isolated surface before judgment.
 | Surface / unit | Minimum local commitment |
 | --- | --- |
 | Introduction | Name the single causal text-decoder family; explain that dimensions change through checked data while supported algorithms remain fixed. |
-| Predict-first census | Supply a complete tiny tuple, tied-head rule and parameter categories before asking the learner to count. Show Rust-derived counts afterward. |
+| Optional census practice | Supply a complete tiny tuple, tied-head rule and parameter categories before asking the learner to count. Show Rust-derived counts afterward. |
 | Formula and symbols | Define V,D,L,Hq,Hkv,F,B,C, element-byte width and tensor axes locally; distinguish model dimensions from run choices and nominal capacity from current token count. |
 | Config identities | Explain which concrete semantic/run changes alter which identity, what bytes are hashed and why a matching digest does not replace live parameter/cache binding. |
 | Admission sequence | Explain parse, validate, calculate, compare limits and only then construct; distinguish invalid shape, unsupported kernel and resource refusal. |
@@ -757,8 +773,7 @@ intentionally isolated surface before judgment.
 | Cheat sheet | Use only taught LLM-related terms such as tied head, query/KV head, parameter count, KV capacity, tensor parallelism, activation lifetime and MAC; avoid a generic JSON/Rust vocabulary glossary. |
 | Successor handoff | A checked config and one text core become inputs to Chapter49's dropout/reproducibility work; this chapter does not add its stochastic policy. |
 
-Recommended order: predict a tiny census → one family and two configuration
-records → shape/parameter derivation → Rust reference and bridge evidence →
+Retained coverage, under the problem-first sequence above: explain the tiny census → one family and two configuration records → shape/parameter derivation → Rust reference and bridge evidence →
 resource/lifetime/communication planning → typed refusal → shared text-core
 parity evidence → historical comparison → checked exercises and handoff.
 

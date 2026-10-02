@@ -226,7 +226,7 @@ numerator counts its terminal dispositions. Name whether that numerator is
 rejection or manual-review. Zero seen gives an unavailable rate (`null` /
 `not-evaluated`), never a fabricated zero. The two underlying zero counts remain.
 
-Prediction questions and answers:
+Optional explanation tasks and checked answers:
 
 1. Why is there no manual result for `r7`? The earlier secret match terminated
    evaluation; “not evaluated” does not mean no contact marker exists.
@@ -431,11 +431,27 @@ is authorized as a Chapter 42 shortcut.
 
 ## 6. Teaching and surface commitments
 
-Lesson sequence: predict an ambiguous rejection-rate statement; inspect the
+### Problem-first presentation
+
+**Problem definition.** Explain that a record can fail several filters, so independently
+counting every failure makes rejection reasons and reported rates ambiguous. Establish
+the need for deterministic filter order, one terminal outcome per record, and an
+explicit denominator for every reported rate.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain the ambiguity in a rejection-rate statement; inspect the
 eight raw payloads/source identities; walk first-terminal paths; derive stage
 denominators and final counts; compare blanket filtering with auditable evidence;
 teach the C4-to-RefinedWeb contrast within its limits; show manual exclusion and
-known deletion descendants; answer predictions; hand retained records to Chapter 43.
+known deletion descendants; inspect the explained counts; hand retained records to Chapter 43.
 
 The future Rust trace exposes fixture label, rule ID, seen/terminal/survivor
 counts, terminal kind, rate numerator/denominator and final totals. Per-record

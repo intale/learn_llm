@@ -81,7 +81,7 @@ the third plus masked padding with sentinel vector `[1000,1000]`.
 | 2 | 1 | 8 / 8 | `[8,-2]` / `[8,-2]` |
 | Combined logical update | 3 | 12 / 4 | `[12,6]` / `[4,2]` |
 
-Predict the combined gradient before running. Averaging the two means gives
+Explain the combined gradient and offer optional reproduction of the calculation. Averaging the two means gives
 `[5,1]`, and averaging their loss means gives 5: both incorrectly give the
 one-target microbatch the same weight as the two-target microbatch. Padding
 contributes neither loss, gradient nor count. Backpropagate the actual diagnostic
@@ -245,7 +245,24 @@ planning budget until measured, not a universal runtime claim.
 
 ## 6. Teaching and surface commitments
 
-The future seven lesson sections follow: predict unequal-token weighting; formula
+### Problem-first presentation
+
+**Problem definition.** Explain that activation storage can limit training before the
+model parameters do, while splitting a batch into unequal microbatches can change the
+effective gradient if their averages receive equal weight. Establish the need to
+preserve token-weighted training semantics while controlling which activations remain
+live or must be recomputed.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Retain the following evidence and optional-practice coverage: explain unequal-token weighting from the worked gradient sums and counts; formula
 and symbol glossary; history distinguishing activation memory from distributed
 persistent-state partitioning; Rust accumulation and local VJP; liveness figure;
 checked exercises; the optimizer-event handoff. Explain raw numerator versus mean

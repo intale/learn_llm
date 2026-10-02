@@ -120,9 +120,9 @@ behavior observable before implementing it.
 
 The contract must establish:
 
-- one outcome the student can predict, implement, and verify;
+- one outcome the student can explain, implement, and verify;
 - the explicit scope boundary and the next-chapter handoff;
-- a tiny predict-first worked input, including edge or failure behavior;
+- a tiny explained worked input, including edge or failure behavior;
 - one notation-only formula and a definition for every symbol;
 - the earlier language model, neural architecture, model-building or training
   practice, evaluation method, or inference design; its useful intuition and
@@ -132,7 +132,8 @@ The contract must establish:
 - the cumulative Rust package, exact source paths, any stable excerpt regions to
   declare in the lessons, and byte-exact expected stdout;
 - the visualization decision and rationale;
-- prediction exercises with checked answers;
+- reproduction/inspection exercises with checked answers, offered as optional
+  end-of-lesson practice for the student;
 - one common misconception and its correction;
 - the contribution to the final decoder-only model;
 - locale-specific terminology and translation notes; and
@@ -143,6 +144,21 @@ notation and symbol order, Rust paths and regions, historical Rust source,
 visualization identity, code, and deterministic trace data locale-neutral.
 Formulae contain notation only; explanations belong in localized prose and
 symbol definitions.
+
+For new chapters, the learner-facing order is problem definition → solution →
+history → visualization and small optional practice. Begin by explaining the
+concrete problem, why it arises and why a solution is needed. Do not ask the
+student questions in the opening, and do not use learner prediction prompts
+anywhere else in the chapter. Explain a small worked example, its general rule,
+formula meanings and Rust connection before asking the learner
+to apply it. Preserve the existing evidence and checked-answer requirements;
+optional practice is not a prerequisite to understanding the explanation.
+Recast legacy prediction prompts as explained examples or optional reproduction,
+inspection or explanation tasks; do not relocate them to the end. This does not
+change technical terms such as next-token prediction.
+Legacy contract/section IDs do not prescribe an opening quiz. Follow the English
+authoring skill's generation guidance. This policy does not itself authorize
+revising any existing published chapter.
 
 Validate the contract structure early, before its code and locale projections
 make changes expensive:
@@ -607,10 +623,13 @@ markup when its role changes. Source tests must reject math-shaped code spans, a
 rendered tests must inspect the expected math annotations plus desktop/narrow
 spacing and containment.
 
-Render every declared Rust source or region with `RustSource`. Put predict-first
-numbered questions before checked numbered answers in `<details>`. Invoke a useful
-chapter diagram inside its visualization section. Keep route generation, locale
-switching, alternate links, previous/next navigation, and all output static. Every
+Render every declared Rust source or region with `RustSource`. In the optional
+practice section after the explanation, put numbered reproduction or explanation
+tasks before checked numbered answers in `<details>`; do not move them into the
+opening.
+Invoke a useful chapter diagram inside its visualization section. Keep route
+generation, locale switching, alternate links, previous/next navigation, and all
+output static. Every
 localized page emits manifest-derived `lang` and `dir`; shared layout styles use
 logical properties, while technical LTR islands are isolated without changing the
 direction of surrounding prose.
@@ -658,7 +677,9 @@ policy, deterministic output, locale completeness, static output, local links,
 and browser behavior. It does not prove pedagogy, factual accuracy, or natural
 language. Add a manual mapping that answers all of these:
 
-- Can a student predict the tiny example before running it?
+- Does the opening explain the concrete problem and its cause without asking
+  the student questions, and does the worked solution explain the result before
+  optional reproduction/inspection practice, with no learner prediction prompts?
 - Can a learner identify every essential referent and operation, each relevant
   quantity and its unit, any mapping from a value to its meaning, the required
   order, prerequisite or condition, causal link, and scope at the point of use
@@ -746,8 +767,9 @@ A chapter is complete only when all answers are yes:
 
 - Is the step the first eligible one, claimed before product work, and within its
   recorded cost?
-- Is there one narrow objective, predict-first example, notation-only formula,
-  historical contrast, misconception, and explicit handoff?
+- Is there one narrow objective, a problem-first opening and explained worked
+  example, notation-only formula, historical contrast, misconception, optional
+  practice with checked answers, and explicit handoff?
 - Does every explanation satisfy the explicit-wording rule at its point of use
   without needless repetition of local, unambiguous information?
 - Is the taught behavior implemented and tested in cumulative Rust without a

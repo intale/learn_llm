@@ -78,7 +78,7 @@ measurements. All source acquisition uses the exact bounded N1 receipt runner.
 
 ## 3. Inputs and worked example
 
-### Three predictions with different causes
+### Three numerical cases with different causes
 
 1. **Lost updates:** start at weight $w=1$ and subtract $2^{-14}$ sixteen times.
    With round-to-nearest, ties-to-even after each FP16 subtraction, every stored
@@ -284,7 +284,24 @@ The exact beta-zero fixture tests atomic policy, not arbitrary AdamW conditionin
 
 ## 6. Teaching and surface commitments
 
-Order the future lesson's required sections around a learner prediction:
+### Problem-first presentation
+
+**Problem definition.** Explain that lower-precision arithmetic can lose small numerical
+contributions or produce non-finite gradients, making an apparently completed training
+step unsafe to apply. Establish the need to coordinate precision, gradient scaling,
+finite checks, and update skipping so invalid gradients cannot partially change training
+state.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Retain the following evidence coverage under the problem-first sequence above:
 worked example (lost update, lost gradient, wrong clipping order); formula and
 symbol glossary (scaled/unscaled derivative and one window's scale); history
 (protected state and the distinct BF16 range/precision tradeoff); Rust

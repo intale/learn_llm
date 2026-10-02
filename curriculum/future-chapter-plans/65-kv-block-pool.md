@@ -448,7 +448,23 @@ paper speedup threshold.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections: predict block demand and last-block waste; distinguish
+### Problem-first presentation
+
+**Problem definition.** Explain that reserving a full contiguous cache for every
+variable-length request wastes capacity and that recycled storage can accidentally
+expose another request's history. Establish the need to map logical token positions to
+bounded, ownership-checked physical blocks without changing attention semantics.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Evidence coverage: explain block demand and last-block waste from the worked allocation; distinguish
 logical positions from physical handles; follow the full-pool append refusal;
 inspect read pins and safe release; recycle physical memory with a new generation;
 reconcile ownership and resident bytes; compare cached logits; practice terminal

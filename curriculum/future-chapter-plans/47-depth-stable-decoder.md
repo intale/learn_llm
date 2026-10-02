@@ -153,7 +153,7 @@ policy/config metadata and restores exact values; it does not initialize again.
 Represent fresh base weights and already-initialized weights as distinct states
 or constructors so the transform cannot be applied twice accidentally.
 
-### 3.2 Predict the factors and selected values
+### 3.2 Worked factors and selected values
 
 | Complete blocks | Factor | A base coefficient of $0.2$ becomes |
 | --- | --- | --- |
@@ -440,6 +440,23 @@ the original attempt into a pass. No initial-health result proves convergence.
 
 ## 6. Teaching sequence and frozen surface commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that stacking more residual decoder layers can change
+the scale of activations and gradients, so behavior observed in a shallow model does not
+establish that a deeper model remains well behaved. Establish the need for an explicit
+depth-aware initialization rule and measurements at named layer locations to inspect its
+effects.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 Keep implementation machinery, process rules, test requirements and model-routing
 instructions out of visible learner prose. English claims must distinguish
 observed Rust evidence, mathematical assumptions, primary-source history and
@@ -450,7 +467,7 @@ intentional isolated surface before independent judgment.
 | Surface / reading unit | Minimum local commitment |
 | --- | --- |
 | Introduction / outcome | Name depth-aware initialization as the operation, the two selected projection roles and the finite-fixture scope. Do not imply a convergence theorem from the chapter title. |
-| Predict-first example | Give the base coefficient vector and depths one, two and eight; ask which parameter roles change and predict factors before showing Rust output. |
+| Worked factor explanation and optional reproduction | Give the base coefficient vector and depths one, two and eight; show the Rust output and explain the changed parameter roles and factors, then offer optional reproduction. |
 | Formula / symbol glossary | Define complete-block count versus residual-sublayer index, RMSNorm, residual-state axes, initial base weight and stored weight; state initialization-only interpretation locally. |
 | Historical comparison | Explain fan-based variance reasoning and later depth-aware Transformer design, retaining source assumptions and distinguishing the local factor from DeepNorm. |
 | Gradient explanation | Separate derivatives with respect to stored scaled weights from upstream derivatives; initial scaling is not a persistent multiplier on optimizer updates. |
@@ -461,9 +478,10 @@ intentional isolated surface before independent judgment.
 | Catalog, SEO and navigation | Describe the narrow mechanism and prerequisite honestly; do not advertise useful-scale training, arbitrary-depth robustness or completed production validation. |
 | Cheat sheet | Only terms taught here: fan-in/fan-out, depth factor, residual branch, activation RMS, gradient RMS, initialization and finite-fixture envelope. |
 
-The lesson order should be predict → selected tensors/factors → formula and
-initialization semantics → historical contrast → actual Rust evidence →
-health trace and visualization → checked exercises → Chapter 48 handoff.
+Follow the problem-first sequence above: explain the depth-related difficulty,
+then the selected tensors/factors, formula, initialization semantics and Rust
+evidence; add the historical contrast, health visualization, optional checked
+exercises and Chapter 48 handoff.
 Retain the required chapter-section markers when projecting the contract.
 No untranslated Russian draft is produced by this packet.
 
@@ -472,8 +490,7 @@ Useful exercise extensions:
 1. Explain why scaling the vocabulary output matrix would change the declared
    policy even if its filename also contains “output.”
 2. Explain why a checkpoint load cannot reapply the factor.
-3. With a fixed stored weight, predict whether differentiating its product adds
-   a second depth factor to that weight's own gradient.
+3. With a fixed stored weight, inspect the shown derivative and explain why differentiating its product does not add a second initialization-depth factor to that weight's own gradient.
 4. Decide whether an equal ratio at every layer proves the absolute gradients
    are large enough to train. It does not; inspect the reported absolute values
    and retain the initialization-only scope.

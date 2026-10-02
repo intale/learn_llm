@@ -18,8 +18,7 @@ capability is `CAP-DTH-BACKEND-01`. Its exact frozen outcome is:
 The one taught concept is **an execution path must preserve a tensor operation's
 logical meaning while making its device, representation and numerical error
 observable**. A device label or a close final answer alone cannot establish that
-the requested operation actually ran there. The learner predicts one rectangular
-matrix product and its gradients, follows an explicit upload/dispatch/completion/
+the requested operation actually ran there. The learner follows the explained rectangular matrix product and its gradients, follows an explicit upload/dispatch/completion/
 readback sequence, and distinguishes exact metadata from bounded numeric parity.
 
 The exact implementation prerequisite is
@@ -122,8 +121,7 @@ B=\begin{bmatrix}2&0\\-1&1\\3&2\end{bmatrix},\qquad C=AB.
 $$
 
 $A$ has two rows and three reduction entries per row; $B$ has three rows and two
-output columns. Thus $C$ has two rows and two columns. Predict its first entry
-before execution: the three products are $2,-2,-3$, so that entry is $-3$.
+output columns. Thus $C$ has two rows and two columns. Compute and explain its first entry: the three products are $2,-2,-3$, so that entry is $-3$.
 All four dot products give
 
 $$C=\begin{bmatrix}-3&0\\9&11\end{bmatrix}.$$
@@ -151,7 +149,7 @@ coordinates receive the logical gradient and untouched padding receives zero.
 Show two host buffers with these same logical inputs, an explicitly chosen dtype,
 the actual device/kernel receipt, completed output, and the comparison result.
 The learner reproduces the dot products and the base-coordinate gradient map,
-then changes one shape or requested device and predicts refusal before dispatch.
+then optionally reproduces a shown shape/device refusal and verifies that dispatch did not occur.
 
 ### Reproducible differential suite
 
@@ -379,11 +377,27 @@ timing or driver into `expected/ch52_accelerator_tensor_parity.txt`.
 
 ## 6. Teaching and surface commitments
 
+### Problem-first presentation
+
+**Problem definition.** Explain that an accelerator can store and traverse a tensor
+differently from the scalar implementation, so matching buffer contents or obtaining a
+plausible output does not establish computational parity. Establish the need to compare
+the same logical forward and backward operations while making layout assumptions and
+numerical tolerances explicit.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
 The future English lesson follows the eight required lesson sections while
 keeping all execution-hold and tooling details in this internal packet:
 
-1. **Worked example:** predict the rectangular product, identify logical axes,
-   observe completed output, then predict the two gradients. State that a
+1. **Worked example:** explain the rectangular product, identify logical axes, show completed output and work through both gradients. State that a
    transpose-backed input changes storage traversal, not the mathematical matrix.
 2. **Formula:** distinguish exact contracts from the absolute/relative comparison;
    derive the bounded reduction-error term from multiply/add roundings and show
@@ -403,7 +417,7 @@ keeping all execution-hold and tooling details in this internal packet:
    can allocate/submit; it cannot replace the learner's operation.
 6. **Visualization:** follow the same logical inputs through scalar and admitted
    device paths, then compare metadata and numerical results by different rules.
-7. **Exercises:** predict the exact first output and both gradient shapes; map a
+7. **Optional reproduction:** reproduce the explained first output and both gradient shapes; map a
    logical gradient to a transpose-backed base; explain why a close answer with
    a CPU receipt fails forced-GPU acceptance; distinguish quantization from
    accumulation error; explain why submission success permits neither readback

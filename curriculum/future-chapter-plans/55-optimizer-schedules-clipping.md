@@ -250,7 +250,24 @@ comparison bound before measurement, never post-hoc epsilon widening.
 
 ## 6. Teaching and surface commitments
 
-Use these lesson sections from the playbook. The worked example
+### Problem-first presentation
+
+**Problem definition.** Explain that skipped updates make attempted-step and
+successful-update counts diverge, while changing the order of clipping and weight decay
+can change the parameter update. Establish the need for an explicit successful-update
+clock and a defined update sequence that binds the learning rate, gradient treatment,
+and decay to the same committed operation.
+
+Follow the current [authoring policy](README.md#current-learner-facing-authoring-policy-2026-10-02): problem definition, guided solution, history,
+visualization, then small optional practice. The opening explains the problem and its
+cause without questions. Explain the worked results and their formula/Rust connection.
+Remove learner prediction prompts entirely; do not move them to optional practice.
+Optional tasks reproduce, inspect or explain behavior already taught. The retained
+commitments below specify evidence coverage, not the old opening order.
+
+### Retained evidence and optional-practice commitments
+
+Retain these evidence commitments from the playbook. The worked example
 asks which rate a skipped candidate consumes; formula/glossary define the
 successful index, warmup count, final index, peak/floor, global norm, threshold
 and multiplier; history contrasts clipping and coupled/decoupled decay; Rust

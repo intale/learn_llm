@@ -25359,3 +25359,53 @@ Rust build was performed, and planning validation uses the existing pinned
 offline image. External independent English/Russian review handoffs remain
 mandatory for later implementation; internal planning audit is not publication
 approval.
+
+### 2026-10-02 — Problem-first future authoring and causal explanations
+
+The user requested better student-facing explanations and a new chapter opening,
+then clarified that `dev_scripts/EXPLANATIONS.md` supplies a method rather than
+technical details to transplant. Distill that method into the English authoring
+skill: motivate the operation, explain a small concrete example, connect the
+example to the general rule, formula and Rust, and explain the invariant or
+failure behind important checks. Distinguish the promised behavior from an
+implementation strategy and mathematical evidence from numerical or empirical
+claims. Do not turn the source file into a universal technical checklist. The
+source file itself remains unchanged.
+
+New chapters explain their concrete problem and its cause without opening
+questions, rhetorical questions or prediction demands. Their progression is
+problem definition, explained solution, historical contrast, useful visualization
+and small optional practice. The user's subsequent clarification, “No predict
+any more,” removes learner prediction prompts altogether, including optional
+practice; the activity is replaced, not relocated. Explain worked outcomes and
+offer reproduction, inspection or explanation tasks. Preserve technical uses
+such as next-token prediction. Optional means the learner need not attempt the practice to
+understand the lesson; it does not remove required examples, exercises, answers,
+Rust evidence or acceptance checks. Legacy contract/section identifiers remain
+compatible labels and do not require a quiz-first opening.
+
+`reconcile-future-chapter-opening-sequence-20261002` owns the current revisions
+of the English skill, shared playbook, packet README and all 32 ready Chapter
+40–71 packets. Each packet receives its own concrete problem brief and the new
+presentation policy; retained coverage lists no longer prescribe the old reading
+order. Shared policy also governs the pending Chapter 72–85 packets. Chapter 72
+depends on this reconciliation in addition to Chapter 71; no new chapter plan is
+started by this change.
+
+This is an explicit presentation-policy amendment to earlier predict-first and
+learner-prediction instructions, including those in the frozen extension plan.
+Recast their pedagogical prompt while preserving its taught fact, substantive
+exercise coverage, checked answer and executable evidence. Preserve that plan,
+the old planning run artifacts and their recorded hashes as historical evidence.
+The new reconciliation run binds current packet revisions; do not rewrite old
+successful runs to imply they produced these bytes. Preserve all substantive
+scope, formulas, worked data, algorithm and test requirements, source limits,
+resource profiles, review independence and execution holds. The separately held
+execution-checker lifecycle reconciliation must account for this authorized
+presentation change without weakening substantive gates.
+
+No existing learner-facing chapter, translation, diagram, Rust implementation or
+test is revised. No repair, acquisition, hardware probe, training, publication
+review or implementation is authorized. Validation of these internal policy and
+planning changes is structural and scope-oriented; it is not certification of
+future English, pedagogy, hardware or course capability.
