@@ -382,7 +382,7 @@ cap is 50,000,000. Preserve the full calibrated-profile requirements from the
 predecessor runner, not only these abbreviated caps. No throughput is measured
 by this packet. Content/review context and byte/token/wall caps remain exactly
 those in inputs (eight successful content contexts, at most sixteen attempts;
-rendered review at most one context using the user-selected model).
+optional reported-issue diagnostics follow the README policy, not a routine image gate).
 
 The capability's mandatory core range is 16,384–65,536 valid tokens/update, while
 the frozen core profile caps it at 32,768. Its feasible admitted intersection is

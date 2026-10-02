@@ -584,8 +584,8 @@ new artifact-download authority.
 Frozen content/render budgets: 8 successful learner-content contexts, at most
 16 attempts; per context input 2,097,152 bytes / 200,000 tokens and output
 1,048,576 bytes / 40,000 tokens; aggregates 33,554,432 input bytes,
-16,777,216 output bytes, 28,800 seconds. At most one rendered-image context,
-user-selected model, 16,777,216 input bytes, 262,144 output bytes and 900 seconds.
+16,777,216 output bytes, 28,800 seconds. No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits.
 Use the user-selected model for author/judgment contexts with external
 review provisioning, not self-certification.
 

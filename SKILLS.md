@@ -437,7 +437,12 @@ invalidates both English reviews, both adjudications, and every dependent locale
 review. Rust-only, CSS-only, and test-only work that leaves English
 learner-facing bytes, surface roles, role requirements, reading order, isolation
 groups, and extracted values unchanged does not invoke the English skill, though
-an affected CSS change still requires new rendered evidence.
+an affected CSS change still requires new automated Firefox layout evidence.
+Routine image checks, model rendered-image review and screenshot approval passes
+are excluded from development. A human adjudicator reports visual artifacts;
+only then may the user-selected model use browser screenshots when needed to
+diagnose the reported issue. Retain the report and scoped diagnostic evidence,
+without adding a human visual-approval pause or replacing language judgments.
 
 The tool exposes exact `canonicalReviewPrompt(role)` and
 `canonicalAdjudicationPrompt(role)` outputs for both `technical-pedagogical` and
@@ -548,13 +553,14 @@ in the run's manual review.
    spoken descriptions, focus instructions, table headers, controls, exercise
    prompts, and answer summaries in isolation. They must make sense to a screen
    reader and must not depend on color, position, or an untranslated label.
-9. **Rendered pass.** Inspect the exact built target page in Firefox with
+9. **Automated Firefox layout/behavior pass.** Validate the exact built target page in Firefox with
    JavaScript enabled at desktop and narrow widths; never infer fit from English. Check the complete
-   page for unintended horizontal overflow and inspect text and formula ink
-   against the nearest bounded box. Inspect every registered figure inline and in
+   page for unintended horizontal overflow and check text and formula ink
+   against the nearest bounded box. Test every registered figure inline and in
    desktop full view, including boxes inside sanctioned scroll regions. Check line
    breaks, formulas, code direction, mixed-script isolation, keyboard order,
-   visible labels, and the full lesson flow. Include an RTL locale's
+   visible labels and reading order. These are programmatic assertions, not
+   screenshot interpretation or an image-review verdict. Include an RTL locale's
    direction-sensitive checks whenever one is active for the chapter. Repair
    failures through concise natural wording, wrapping, or safe reflow, never by
    clipping, truncating, hiding overflow, overlapping content, or shrinking text.
@@ -565,7 +571,8 @@ followed by the numeric value over a brittle singular/plural shortcut. Never
 encode one language's plural rule in a shared component.
 
 The target-language lesson and rendered labels must pass the distinct meaning,
-terminology, anti-calque, monolingual, accessibility, and rendered reviews above.
+terminology, anti-calque, monolingual and accessibility reviews above, plus the
+automated Firefox layout/behavior checks. No routine image-review gate applies.
 Record the locale, revision, English source revision, candidate checksum, review
 findings, and browser/viewport surfaces in the run. Structural parity or a machine
 score cannot replace those checks. Do not add a pre-publication human-approval
@@ -713,7 +720,8 @@ After the complete staged overlay passes:
    rename or another atomic operation where practical;
 4. verify canonical files against the same manifest;
 5. rerun every declared command against canonical paths;
-6. record the manual and rendered reviews;
+6. record independent language judgments and automated Firefox results, plus any
+   human-reported visual issue and optional screenshot diagnostics;
 7. finish the run as `succeeded` and the step as `completed` in the same valid
    `BUILD_STATE.yaml` checkpoint; and
 8. create the chapter's dedicated Git commit before selecting another step.
@@ -780,7 +788,8 @@ A chapter is complete only when all answers are yes:
 - Are the demo, contract, `expected.txt`, rendered sources, and diagram fixture
   exact views of the same evidence?
 - Does every chapter-active locale form a same-revision set and pass meaning,
-  terminology, anti-calque, monolingual, accessible-label, and rendered review?
+  terminology, anti-calque, monolingual and accessible-label review, plus
+  automated Firefox layout/behavior checks without a routine image review?
 - Is the visualization useful, accessible, locale-neutral, static, registered
   with the shared full-view controller, and driven by Rust evidence, or is its
   omission justified?

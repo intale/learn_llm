@@ -31,9 +31,23 @@ formula and figure assertions, links, SEO, and sitemap checks are the
 crawler-facing guarantee and do not claim interactive behavior in an unsupported
 environment.
 
+### Visual-issue reports and screenshot diagnostics
+
+Do not run routine image checks, model rendered-image reviews or screenshot
+approval passes during development. A human adjudicator reports visual
+artifacts. Only after such a report may the user-selected model use browser
+screenshots when needed to investigate the reported issue; keep diagnostics
+scoped to its route, state and viewport. Record the report and any diagnostic
+evidence, not a new publication verdict. No human visual-approval pause is added.
+
+Retain automated static-content, formula, accessibility, behavior and Firefox
+layout/containment assertions. These checks use programmatic evidence and do
+not require image interpretation. Screenshot diagnostics do not replace any
+independent English or localization review or adjudication.
+
 ### Codex resource routing and deterministic tooling
 
-Use the user-selected model for content, review, rendered-image checks and
+Use the user-selected model for content, review and
 operational work, including Bash execution and evidence collection. Inherit that
 selection in required fresh contexts; do not impose a named model, tier ceiling,
 strongest-model selector or reasoning preset. Record actual model and configured
@@ -137,9 +151,9 @@ one judges the isolated-surface review without receiving the sibling role's
 private evidence. Every reviewer assessment must repeat its frozen role
 requirement exactly and receive substantive adjudicator approval before
 localization begins. The author, both reviewers, and both adjudicators must use
-pairwise-distinct contexts. Use the user-selected model for authoring and all
-four judgments, deterministic packaging and affected rendered-image review.
-Packaging and image review do not replace the independent language judgments.
+pairwise-distinct contexts. Use the user-selected model for authoring, all
+four judgments and deterministic packaging. Packaging and optional reported-issue
+diagnostics do not replace the independent language judgments.
 
 An adjudicator judges the soundness and completeness of the same-role review,
 not the candidate directly. Its role verdict `pass` approves a sound review even
@@ -201,7 +215,8 @@ rendered-text edit invalidates both English reviews, both adjudications, and
 every dependent locale review. A CSS-only change may retain English language
 reviews only when it changes no English text, surface role, role requirement,
 reading order, isolation group, or extracted value; it still invalidates
-affected rendered-image evidence. Deterministic tooling may prove bytes,
+affected automated layout evidence and any prior issue-specific screenshot
+evidence. It does not trigger routine image review. Deterministic tooling may prove bytes,
 provenance, inventory coverage, routing, context separation, and publication
 identity, but it must not claim to prove technical correctness, pedagogy,
 clarity, English quality, accessibility meaning, or the substance of a review.

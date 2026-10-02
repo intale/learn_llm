@@ -442,8 +442,8 @@ requirements: 300–900 seconds, at least 100 microsteps, 10 windows, at least
 thermal-stability statistic. Consume the accepted runner/receipt contract from
 Chapter 52; do not rename numeric stress iterations “tokens” or infer throughput.
 Core/adapter budgets are not execution authority here. Content authority remains
-eight successful contexts, at most sixteen attempts, user-selected models, and the full byte/token/wall caps in inputs; rendered review is at most
-one context using the user-selected model. No paid service is authorized.
+eight successful contexts, at most sixteen attempts, user-selected models, and the full byte/token/wall caps in inputs. No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. No paid service is authorized.
 
 Outstanding owners: Chapter 52 resolves backend/language/shared-wiring gates;
 Chapter 53 and the profile owner bind DynamicV1 and update tolerances; Chapter

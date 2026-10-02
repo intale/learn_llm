@@ -670,8 +670,8 @@ alternative runtime. Successful content contexts are exactly eight, at most 16
 attempts, using the user-selected model. Each has at most 2,097,152
 input bytes/200,000 input tokens and 1,048,576 output bytes/40,000 output tokens;
 aggregate input/output limits are 33,554,432/16,777,216 bytes, with 28,800 seconds
-wall time. Rendered review allows at most one context, user-selected model,
-16,777,216 input bytes, 262,144 output bytes and 900 seconds. These future limits
+wall time. No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. These future limits
 are not evidence that reviews or GPU work occurred in this planning run.
 
 Implementation readiness requires all of the following, with an explicit owner

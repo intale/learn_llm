@@ -662,8 +662,8 @@ still apply.
 Content budget: eight successful content contexts, at most sixteen
 attempts; per context input2,097,152bytes/200,000tokens and output1,048,576bytes/
 40,000tokens; aggregate input33,554,432bytes, output16,777,216bytes and
-wall28,800seconds. One rendered-image context using the user-selected model permits
-input16,777,216bytes, output262,144bytes and wall900seconds. Operational work
+wall28,800seconds. No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. Operational work
 uses the user-selected model for routing. No budget grants extra action authority.
 
 Readiness owners: Chapter 46 supplies actual masked batch/model contracts;

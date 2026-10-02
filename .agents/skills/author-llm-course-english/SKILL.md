@@ -38,7 +38,8 @@ receipt, or verification checks.
    surface roles, role requirements, reading order, isolation groups, or
    extracted values. Exit this workflow only for Rust-only, CSS-only, or
    test-only work that leaves all six unchanged. A CSS change may still require
-   affected rendered review under the repository rules.
+   affected automated Firefox layout checks under the repository rules, not
+   routine image review.
 4. Classify each intended claim by its real evidence:
    - directly observed Rust behavior, test, output, or trace;
    - a mathematical derivation with stated assumptions;
@@ -386,16 +387,21 @@ private preaudits, judgment contexts, routes, receipts, mapping, and evaluator.
 
 ## Validate rendering and hand off
 
-Build the exact reviewed candidate and inspect every affected English route in
-Firefox with JavaScript enabled at the required desktop and narrow widths.
-Inspect changed figures inline and in desktop full view, plus forced-color and
-direction-sensitive cases when relevant. Check formulas, code, headings,
+Build the exact reviewed candidate and run automated assertions for every affected
+English route in Firefox with JavaScript enabled at the required desktop and
+narrow widths. Cover changed figures inline and in desktop full view, plus
+forced-color and direction-sensitive cases when relevant. Check formulas, code, headings,
 controls, keyboard order, focus, page overflow, and text or formula ink against
 the nearest bounded box. Never hide, clip, truncate, overlap, or shrink text to
 make a defect disappear.
 
-Use the user-selected model for affected rendered-image judgment. It does not replace either
-English review or either adjudication. Run `scripts/english-review.mjs verify`
+Do not require or perform a routine image check or screenshot review. A human
+adjudicator reports visual artifacts; only then may the user-selected model use
+browser screenshots when needed to diagnose that reported issue. Keep the report,
+route/state/viewport and any diagnostic evidence separate from language judgments.
+There is no image-pass or human visual-approval publication gate. Automated
+Firefox assertions remain required, and optional diagnostics replace neither
+English review nor either adjudication. Run `scripts/english-review.mjs verify`
 immediately before publication or localization. Proceed only when both review
 verdicts are `pass` and both role-specific adjudication verdicts are `pass`, every
 required surface is covered exactly once for its frozen role, no blocker remains,
@@ -407,7 +413,8 @@ receipts, and both same-role upstream-receipt links to match current bytes.
 
 Record the English revision and hashes, evidence boundary, reviewer and
 adjudicator roles and contexts, findings, affected routes and viewports,
-rendered review, verification result, and completion reference in
+automated Firefox results, any human-reported issue and optional screenshot
+diagnostics, verification result, and completion reference in
 `BUILD_STATE.yaml`. Invoke
 `localize-llm-course` only from this exact independently reviewed English
 revision.

@@ -650,9 +650,9 @@ at most 134,217,728 bytes; model acquisition authority is zero. Profile download
 ceilings grant no new acquisition. Successful content contexts are exactly eight,
 at most 16 attempts, user-selected model. Per context: 2,097,152 input
 bytes/200,000 input tokens and 1,048,576 output bytes/40,000 output tokens;
-aggregate input/output 33,554,432/16,777,216 bytes, wall 28,800 seconds. Rendered
-review allows at most one context, user-selected model, 16,777,216 input bytes,
-262,144 output bytes and 900 seconds. These are future limits, not evidence of
+aggregate input/output 33,554,432/16,777,216 bytes, wall 28,800 seconds. No routine
+image review; optional screenshots after a human report follow the README's
+conditional diagnostic policy and limits. These are future limits, not evidence of
 execution or formal review in this planning run.
 
 Implementation readiness requires:

@@ -19,7 +19,7 @@ deterministic tooling honest about what it can establish.
 
 ## 1. Roles and independence
 
-Use seven roles when their work is needed:
+Use six roles when their work is needed:
 
 | Role | Responsibility | Context boundary |
 | --- | --- | --- |
@@ -29,7 +29,6 @@ Use seven roles when their work is needed:
 | Technical adjudicator | Judge the soundness and completeness of the technical review | Third fresh judgment context |
 | Isolated adjudicator | Judge the isolated review's soundness without sibling-role leakage | Fourth fresh judgment context |
 | Packager | Extract, hash, route, and verify evidence | No content judgment |
-| Rendered-image reviewer | Inspect affected rendered surfaces | No substitution for English review or adjudication |
 
 Use the user-selected model for every role. Inherit that selection without a
 model-name, tier or reasoning-preset override; freeze the actual configured
@@ -56,7 +55,7 @@ optional nonempty `sharedContextNote`; every other extra field is rejected.
 
 Record the actual model and reasoning settings. The selected model may fill
 different judgment roles only through distinct fresh contexts. A packaging or
-image-review context cannot issue an English publication verdict.
+optional reported-issue diagnostic context cannot issue an English publication verdict.
 
 This protocol and the authoring skill govern the author, packager, and outer
 orchestrator. They are not judgment inputs. A frozen reviewer or adjudicator
@@ -243,8 +242,9 @@ Any English source, role requirement, or rendered-text edit invalidates both
 English reviews, both adjudications, and every dependent localization review. A
 CSS-only change may retain unchanged language reviews only when it changes no
 English content, surface role, role requirement, reading order, isolation
-grouping, or extracted value; it still invalidates affected rendered-image
-evidence.
+grouping, or extracted value; it still invalidates affected automated layout
+evidence and any prior issue-specific screenshot evidence. This does not trigger
+a routine image review.
 
 The executable defines four exact canonical prompts: the
 `canonicalReviewPrompt(role)` output and `canonicalAdjudicationPrompt(role)`
@@ -427,11 +427,15 @@ manifest before adjudication. Each manifest hashes the actual context manifest,
 prompt, role-specific bundle, and output schema. Keep routing authority outside
 the model-authored record and reject drift in either direction.
 
-### Rendered-image bundle
+### Optional human-reported visual-issue diagnostics
 
-Include only affected screenshots or contact sheets, route and viewport identity,
-and geometry evidence. Do not ask the image reviewer to establish technical
-correctness, prose quality, pedagogy, or accessibility semantics.
+Do not create a routine image-review bundle or require an image-pass verdict.
+A human adjudicator reports visual artifacts. Only after a report may the
+user-selected model use browser screenshots when needed to investigate the
+reported issue. Include its report, affected route/state/viewport, relevant
+screenshots if needed and geometry evidence. These diagnostics do not establish
+technical correctness, prose quality, pedagogy or accessibility semantics, and
+they add no human visual-approval publication checkpoint.
 
 ## 6. Reviewer tasks
 
@@ -987,16 +991,17 @@ automated language scores for either judgment.
 ## 9. Rendering and localization handoff
 
 After both English review verdicts are `pass` and both role-specific adjudication
-verdicts are `pass`, build their exact candidate and inspect only the affected
-routes in Firefox with JavaScript enabled. Check desktop and narrow views, every
+verdicts are `pass`, build their exact candidate and run automated assertions on
+the affected routes in Firefox with JavaScript enabled. Check desktop and narrow views, every
 changed figure inline and in desktop full view, formulas, code, headings,
 controls, keyboard order, focus, page overflow, and nearest-box text and formula
 containment. Include forced-color and direction-sensitive cases when relevant.
 
-Use the user-selected model for affected rendered-image judgment. A rendered pass does not
-replace either English review or either adjudication. Record screenshot or trace
-identity and invalidate that evidence after any content or relevant presentation
-change.
+No routine image review is performed or required. Optional screenshots are used
+only when needed to investigate a visual artifact reported by a human adjudicator,
+as described above. Record automated browser results and any issue-specific
+diagnostic identity; relevant changes invalidate their reuse. Neither a screenshot
+diagnosis nor a human visual report replaces either English review or adjudication.
 
 Run deterministic verification immediately before publication or localization.
 Only the exact independently reviewed English revision may become the semantic

@@ -18,7 +18,7 @@ honest about what it can establish.
 
 ## 1. Roles and independence
 
-Use five roles when their work is needed:
+Use four roles when their work is needed:
 
 | Role | Responsibility | Context boundary |
 | --- | --- | --- |
@@ -26,7 +26,6 @@ Use five roles when their work is needed:
 | Bilingual reviewer | Judge semantic parity, technical accuracy, terminology, and isolated meaning | Fresh context |
 | Target-only reviewer | Judge native technical prose, coherence, explicit referents, and isolated copy without English | Different fresh context |
 | Packager | Extract, hash, route, and verify evidence | No language judgment |
-| Rendered-image reviewer | Inspect affected rendered surfaces | No substitution for language review |
 
 Use the user-selected model for every role. Inherit that selection without a
 model-name, tier or reasoning-preset override; freeze the actual configured
@@ -40,7 +39,7 @@ candidate cannot certify a successor candidate.
 
 Record the actual model and reasoning settings. The selected model may fill
 different judgment roles, but each role requires a separate fresh context. A
-packaging or image-review context cannot issue a language verdict.
+packaging or optional reported-issue diagnostic context cannot issue a language verdict.
 
 The two reviewer declarations must retain the same selected model identity.
 Their reasoning fields record actual configured settings without a required
@@ -131,7 +130,9 @@ published target bytes = reviewed candidate bytes
 Any bound content or rendered-text change invalidates both language reviews. A
 CSS-only change may retain them only when it changes neither canonical English
 nor target content, surface role, reading order, isolation, or extracted value;
-it still invalidates affected rendered-image evidence. Any canonical-English
+it still invalidates affected automated layout evidence and any prior
+issue-specific screenshot evidence, without triggering routine image review.
+Any canonical-English
 meaning or presentation change invalidates the translation and both reviews.
 
 ## 4. Bundle boundaries
@@ -161,11 +162,14 @@ translation notes, author reasoning, prior findings, and suspected corrections.
 Detect leakage by closed manifest membership and file provenance, not by an
 English-word scanner. Code and identifiers can legitimately contain English.
 
-### Rendered-image bundle
+### Optional human-reported visual-issue diagnostics
 
-Include only affected screenshots or contact sheets, route and viewport identity,
-and geometry evidence. Do not ask this reviewer to establish semantic parity or
-native-language quality.
+Do not create a routine image-review bundle or require an image-pass verdict.
+A human adjudicator reports visual artifacts. Only after a report may the
+user-selected model use browser screenshots when needed to investigate that
+issue. Include its report, affected route/state/viewport, relevant screenshots
+if needed and geometry evidence. These diagnostics do not establish semantic
+parity or native-language quality and add no human visual-approval checkpoint.
 
 ## 5. Reviewer tasks
 

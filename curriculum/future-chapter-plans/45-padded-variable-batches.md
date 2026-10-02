@@ -467,8 +467,8 @@ execution is not authorized by this chapter's G0 cost.
 Content/review ceilings: 8 successful contexts, at most16 attempts; per context
 2,097,152 input bytes/200,000 tokens and 1,048,576 output bytes/40,000 tokens;
 aggregate input33,554,432 bytes, output16,777,216 bytes, wall28,800 seconds.
-One image review context using the user-selected model: input16,777,216 bytes,
-output262,144 bytes, wall900 seconds. Independent strong course-content contexts
+No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. Independent strong course-content contexts
 are externally provisioned.
 
 Readiness owners: tokenizer execution supplies actual bound arrays; Chapter45

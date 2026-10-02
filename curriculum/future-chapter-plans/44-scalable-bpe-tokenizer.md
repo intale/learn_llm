@@ -565,8 +565,8 @@ Honor narrower tokenizer bounds inside the larger runner envelope.
 Common content/review limits: 8 successful contexts, at most 16 attempts;
 2,097,152 input bytes / 200,000 input tokens and 1,048,576 output bytes /
 40,000 output tokens per context; aggregate input 33,554,432 bytes, output
-16,777,216 bytes, wall 28,800 seconds. One image review context using the user-selected model,
-16,777,216 input bytes, 262,144 output bytes, 900 seconds. Strong independent
+16,777,216 bytes, wall 28,800 seconds. No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. Strong independent
 course-content contexts are externally provisioned.
 
 Readiness owners: foundation/execution spec resolves the main/reference payload

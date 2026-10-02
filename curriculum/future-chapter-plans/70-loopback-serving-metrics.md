@@ -781,8 +781,8 @@ work has exactly eight successful contexts, at most sixteen attempts, user-selec
 translator, bilingual reviewer and target-only reviewer. Each input is at most
 2,097,152 bytes/200,000 tokens and each output at most 1,048,576 bytes/40,000
 tokens; aggregate input/output caps are 33,554,432/16,777,216 bytes and wall cap
-28,800 seconds. Rendered work allows at most one context using the user-selected model,
-16,777,216 input bytes, 262,144 output bytes and 900 seconds. Ordinary operation
+28,800 seconds. No routine image review; optional screenshots after a human
+report follow the README's conditional diagnostic policy and limits. Ordinary operation
 and evidence collection route using the user-selected model. These are bounds, not a
 requirement to spend them or authority to run the work in this planning step.
 

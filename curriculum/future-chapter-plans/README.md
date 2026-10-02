@@ -18,13 +18,29 @@ user, not a claim about a model's general capabilities. Detail must reduce recon
 and ambiguity without pretending that an unimplemented interface or unmeasured
 result exists.
 
-Use the user-selected model for authoring, external review, rendered review and
+Use the user-selected model for authoring, external language review and
 operational work, with the actual configured reasoning settings. No named model,
 tier ceiling or reasoning preset is required. The model-policy-only successor
 binding supersedes earlier routing rules in the extension plan without changing
 its curriculum, resource limits or execution hold. Recorded baseline hashes and
 historical model identities remain evidence of their original runs, not live
 model-selection requirements.
+
+Routine image checks, screenshot review and model rendered-image approval are
+excluded from development for every packet. A human adjudicator reports visual
+artifacts; only then may the model use browser screenshots when needed to
+investigate that reported issue. Retain automated static-content/math/link and
+Firefox behavior/accessibility/layout assertions without image interpretation.
+Optional diagnostics neither replace independent language judgments nor create
+a human visual-approval publication pause. The visual-policy-only successor
+binding supersedes earlier routine image-review requirements and makes their
+existing diagnostic limits conditional on a human report.
+
+If such diagnostics are needed, their existing ceiling is one context using the
+user-selected model: 16,777,216 image-input bytes / 65,536 input tokens,
+262,144 output bytes / 8,192 output tokens and 900 seconds. These are optional
+limits after a report, not a required context, reserved development effort or
+permission to capture screenshots proactively.
 
 Repairs and implementation are held pending. Planning completion never releases
 that hold. Before execution, obtain the user's explicit instruction to resume,

@@ -522,8 +522,8 @@ Profile `8gb-gpu-core` is consumed, not GPU execution permission.
 Content/review caps: 8 successful contexts, at most 16 attempts; per-context
 2,097,152 input bytes / 200,000 tokens, 1,048,576 output bytes / 40,000 tokens;
 aggregate input 33,554,432 bytes, output 16,777,216 bytes, wall 28,800 seconds.
-One rendered-image context using the user-selected model: 16,777,216 input bytes,
-262,144 output bytes and 900 seconds. Strong course-content contexts and
+No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. Strong course-content contexts and
 independent external handoffs remain required.
 
 Capability estimate for the approved ≤30M-token core corpus: at most 6 GiB

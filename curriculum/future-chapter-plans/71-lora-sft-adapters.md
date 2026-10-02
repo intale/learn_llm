@@ -974,7 +974,8 @@ accessibility and source-blind Russian-only naturalness/anti-calque/accessibilit
 reviews plus affected Russian Firefox rendered evidence. English meaning,
 surface role, reading order, grouping or extracted-value changes invalidate both
 English reviews/adjudications and dependent locale evidence. Pure geometry
-changes still invalidate affected rendered-image checks. No publication while
+changes still invalidate affected automated Firefox layout evidence and any
+prior reported-issue screenshot evidence; they do not trigger routine image review. No publication while
 any required gate is missing, stale or failed.
 
 ### Present planning checks only
@@ -1055,9 +1056,8 @@ Preserve the frozen future content budget: eight successful learner-content
 contexts, at most 16 attempts, user-selected model; per
 context at most 2,097,152 input bytes / 200,000 input tokens and 1,048,576 output
 bytes / 40,000 output tokens; aggregate at most 33,554,432 input bytes,
-16,777,216 output bytes and 28,800 seconds. Affected rendered-image review has
-at most one context, user-selected model, 16,777,216 input bytes,
-262,144 output bytes and 900 seconds. These are future execution budget limits,
+16,777,216 output bytes and 28,800 seconds. No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. These are future execution budget limits,
 not permission to skip an independent gate or call a paid service now.
 
 Current planning cost is medium: bounded source inspection, mathematics and

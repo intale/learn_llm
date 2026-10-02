@@ -25505,3 +25505,42 @@ predecessor/lifecycle gate is not repaired, waived or represented as passing.
 Canonical role prompts, judgment schemas, historical evidence, and all learner
 content/Rust/formula bytes remain unchanged. The new human-reported visual-issue
 request will be handled in its own policy step before Chapter 17 resumes.
+
+## 2026-10-02 — Exclude routine image checks; diagnose human-reported artifacts only
+
+The user removed image checking from the development process. There is no
+mandatory model image reviewer, screenshot pass, or human visual-approval
+checkpoint. A human adjudicator reports visual artifacts; only then may the
+user-selected model use browser screenshots when needed to investigate that
+reported issue. Record the report, affected route/state and diagnostic evidence
+without presenting a screenshot judgment as an independent language verdict.
+
+`human-reported-visual-diagnostics-20261002` updates repository instructions,
+both language skills/protocols, existing future packets and the functional
+visual-review policy/projections. It supersedes the routine image-review
+requirement and makes its existing diagnostic ceiling conditional rather than
+creating a ninth mandatory content context. Preserve all eight independent
+content roles, their context/receipt rules and budgets, static HTML/math/link
+checks and automated Firefox behavior, accessibility and geometry assertions.
+Those programmatic checks do not require screenshot interpretation. No routine
+image check is hidden under the name "rendered review".
+
+This expressly authorized visual-policy-only successor binding changes no
+curriculum concept, formula, Rust, queue, workload/resource budget, source,
+browser engine or substantive execution gate. Old run fingerprints and review
+artifacts remain immutable history. The separately held execution-checker
+compatibility gate remains pending; Chapter17 and Chapter72–85 planning are not
+started, and no repair/implementation/acquisition hold is released. The skill
+update keeps this conditional workflow explicit without adding a discretionary
+human approval pause before publication.
+
+**Completion:** All 112 staged and published policy/review-integrity tests,
+both skill validators and the pinned ordinary course-plan checker passed. Exact
+structural comparison preserved non-visual design/checker logic, language
+judgment executables/prompts, historical runs and all other packet values. The
+scoped updates cover 22 existing packets and their shared guide, with 47 live
+pending cost records; the unselected PostgreSQL publication remains a template.
+All 34 publication identities were verified. No chapter, Rust, formula, browser
+configuration, screenshot or image inspection changed. The rebound functional
+checker retains its already-known immutable revision-78 predecessor diagnostic;
+that separately held compatibility gate is not repaired or represented as passing.

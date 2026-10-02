@@ -34,7 +34,7 @@ test('model selection preserves the frozen review roles and non-model resource l
   const generation = plan.resource_projection.execution_boundaries.content_generation;
   assert.equal(generation.model_policy, 'user-selected-model');
   assert.equal(generation.deterministic_packaging_model_policy, 'user-selected-model');
-  assert.equal(generation.affected_rendered_image_review.model_policy, 'user-selected-model');
+  assert.equal(generation.human_reported_visual_diagnostics.model_policy, 'user-selected-model');
   assert.equal(generation.successful_contexts_exact, 8);
   assert.deepEqual(generation.successful_context_roles, [
     'canonical-English-author', 'English-technical-pedagogical-reviewer',

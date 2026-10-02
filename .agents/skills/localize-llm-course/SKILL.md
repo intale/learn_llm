@@ -118,9 +118,9 @@ identity. Human-quality model judgments supply the language conclusions.
 
 ## Validate rendering and publish
 
-Build the exact reviewed candidate, then inspect each affected target route in
-Firefox with JavaScript enabled at desktop and narrow widths. Do not infer target
-fit from English. Inspect every changed figure inline and, on desktop, in full
+Build the exact reviewed candidate, then run automated assertions for each affected
+target route in Firefox with JavaScript enabled at desktop and narrow widths.
+Do not infer target fit from English. Cover every changed figure inline and, on desktop, in full
 view; include direction-sensitive and forced-color checks when relevant.
 
 - Reject unintended page-level horizontal overflow.
@@ -133,15 +133,21 @@ view; include direction-sensitive and forced-color checks when relevant.
 - Change shared geometry only when the shared design is the cause, then validate
   every affected locale rather than unrelated chapters.
 
-Use the user-selected model for rendered-image judgment. It does not replace either language
-review. Run `scripts/localization-review.mjs verify` immediately before publication
+Do not require or perform routine image checks or screenshot review. A human
+adjudicator reports visual artifacts; only then may the user-selected model use
+browser screenshots when needed to diagnose that reported issue. Record the
+report, route/state/viewport and any diagnostic evidence separately. There is no
+image-pass or human visual-approval publication gate. Automated Firefox assertions
+remain required; optional diagnostics replace neither language review.
+Run `scripts/localization-review.mjs verify` immediately before publication
 to rehash source, candidate, inventory, rubrics, bundles, contexts, review records,
 and publication paths. Publish only when both reviewer verdicts pass, every required
 surface ID is covered exactly once, no blocker remains, and published target bytes
 equal the reviewed candidate.
 
 Record the locale, revision, English source revision, exact hashes, reviewer roles
-and contexts, affected routes and viewports, findings, rendered review, verification
+and contexts, affected routes and viewports, findings, automated Firefox results,
+any human-reported issue and optional screenshot diagnostics, verification
 result, and completion reference in `BUILD_STATE.yaml`. Do not add a
 pre-publication human-approval pause; the user reviews the completed localization
 after delivery.

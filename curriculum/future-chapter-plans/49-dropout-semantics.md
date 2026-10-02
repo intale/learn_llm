@@ -820,8 +820,8 @@ or executed by this chapter's G0 step.
 Content budget: eight successful contexts, at most sixteen attempts; per context
 input2,097,152 bytes/200,000 tokens and output1,048,576 bytes/40,000 tokens;
 aggregate input33,554,432 bytes, output16,777,216 bytes and wall28,800 seconds.
-One rendered-image context using the user-selected model permits input16,777,216 bytes,
-output262,144 bytes and wall900 seconds. Operations use the user-selected model for routing.
+No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. Operations use the user-selected model for routing.
 The executor's lack of sub-agents does not remove external review gates.
 
 Readiness owners: Chapter48 supplies actual core/admission/config binding;

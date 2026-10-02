@@ -1109,8 +1109,8 @@ This packet reports no measured throughput, model quality or device availability
 Content budget: eight successful contexts, at most sixteen attempts; per
 context input 2,097,152 bytes/200,000 tokens and output 1,048,576 bytes/40,000
 tokens; aggregate input 33,554,432 bytes, output 16,777,216 bytes and wall
-28,800 seconds. One rendered-image context using the user-selected model permits input
-16,777,216 bytes, output 262,144 bytes and wall 900 seconds. Operational
+28,800 seconds. No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. Operational
 routing uses the user-selected model. These budgets do not waive external independence.
 
 Readiness ownership and decision rules:

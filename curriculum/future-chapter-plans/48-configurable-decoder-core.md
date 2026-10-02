@@ -1049,8 +1049,8 @@ No plan-ready packet is an implementation or review receipt.
 Content budget: eight successful contexts, at most sixteen attempts; per context
 input2,097,152bytes/200,000tokens and output1,048,576bytes/40,000tokens;
 aggregate input33,554,432bytes, output16,777,216bytes and wall28,800seconds.
-One rendered-image context using the user-selected model permits input16,777,216bytes,
-output262,144bytes and wall900seconds. Ordinary operations use selected-model
+No routine image review; optional screenshots after a human report follow the
+README's conditional diagnostic policy and limits. Ordinary operations use selected-model
 routing. The single executor does not spawn agents; external review contexts
 remain separately supplied. No budget expands action authority.
 

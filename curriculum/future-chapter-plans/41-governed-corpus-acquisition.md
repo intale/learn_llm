@@ -783,9 +783,9 @@ service, zero new artifact-download authority. Its N1 set is exactly Datasheets
 and ROOTS, maximum source-evidence download 134,217,728 bytes. Per learner-content
 context: at most 2,097,152 input bytes / 200,000 input tokens and 1,048,576 output
 bytes / 40,000 output tokens; at most 16 attempts, aggregates 33,554,432 input
-bytes / 16,777,216 output bytes and 28,800 seconds. At most one affected rendered
-image context using the user-selected model, 16,777,216 input bytes, 262,144 output bytes,
-900 seconds. Use the user-selected model for language
+bytes / 16,777,216 output bytes and 28,800 seconds. No routine image review;
+optional screenshots after a human report follow the README's conditional
+diagnostic policy and limits. Use the user-selected model for language
 authoring/judgments, with external review provisioning as above.
 
 The full lifecycle consumes the frozen `8gb-gpu-core` profile but acquisition
