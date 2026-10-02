@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-02T07:43:32Z"
+updated_at: "2026-10-02T11:47:29Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -51204,3 +51204,76 @@ builds:
                 status: passed
                 notes: "No learner content, formula, Rust, site/browser configuration or historical audit changes; ledger is valid and source diff is whitespace-clean. No screenshot or image inspection occurred."
             notes: "Succeeded for the scoped visual-policy acceptance. Routine image/screenshot review is excluded; optional user-selected-model screenshots require a human-reported visual artifact and need, with no human approval pause. All eight independent content roles and automatic Firefox/static checks are preserved. Input copying's sandbox child-Git failure was recovered by exact-copy verification before binding. Chapter17 stays pending; future planning is restored without starting a chapter, repair or implementation."
+
+  - build_id: serial-task-scheduling-rule-20261002
+    objective: "Record serial scheduling as the required fallback when tasks cannot execute concurrently."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: 1
+      spent: 1
+      notes: "Small local policy edit and read-only validation; no content work, agents, build, browser, network or paid service."
+    completion_criteria:
+      - "AGENTS.md explicitly requires serial planning/execution when concurrent execution is infeasible, preserving dependencies, checkpoints and fresh independent contexts."
+      - "Existing staged Chapter 17 work, historical runs and all implementation/repair holds remain unchanged."
+    notes: "User-authorized orchestration-only amendment takes priority without resuming any course work. Outputs are only AGENTS.md and this build's serialized shared ledger/decision additions; the active planning pointer and all existing builds remain unchanged."
+    steps:
+      - id: serial-task-scheduling-rule-20261002
+        objective: "Persist the general serial scheduling rule without changing course content or review requirements."
+        depends_on: []
+        status: completed
+        inputs:
+          - "User instruction: in cases some tasks cannot execute concurrently, plan them serially."
+          - AGENTS.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+        outputs: [AGENTS.md, BUILD_STATE.yaml, DECISIONS.md]
+        acceptance:
+          - "When concurrent execution is infeasible, plan tasks serially and record their order/dependencies and checkpoints."
+          - "Fresh-context separation, review independence, output ownership and publication gates remain intact; serial scheduling is not a capacity bypass."
+          - "No existing ledger build, historical decision, staged chapter artifact or course implementation changes."
+        validate:
+          - "python3 read-only YAML, existing-build invariance and policy-only scope checks against the run's baseline copies."
+          - "git diff --check"
+          - "python3 .build/runs/20261002T114402Z-serial-task-scheduling-rule-01/stage-policy.py"
+        cost:
+          class: small
+          notes: "Local policy documentation and bounded orchestration checks only; no agents, network, installation, build, browser, image review, acquisition or training."
+        runs:
+          - run_id: 20261002T114402Z-serial-task-scheduling-rule-01
+            started_at: "2026-10-02T11:44:02Z"
+            finished_at: "2026-10-02T11:47:29Z"
+            status: succeeded
+            input_fingerprint:
+              git: "26dbb8b9b3e0fd81b38c0694a4442f53c0c1a7dd"
+              files:
+                AGENTS.md: "sha256:f06e31ab874ef1f1fb88670705340b73edb8d3afc8d8c7ba7306ca767e9a4b83"
+                BUILD_STATE.yaml: "sha256:7e369238f236dcad0bbd46bc90705f96ea5a709169133c1503e5a397458c745f"
+                DECISIONS.md: "sha256:28a6247d22ecbf2a1dd3c43ef6e5109492108f507e47b3ed87642b230814ac72"
+              tools: "Git 2.53.0; Python 3.13.1/PyYAML 6.0.3; Docker 25.0.2; no product tooling invoked."
+            staging_dir: ".build/runs/20261002T114402Z-serial-task-scheduling-rule-01/"
+            commands:
+              - "git status --short; inspect repository instructions, decisions, whole-ledger YAML and blocked Chapter17 handoff."
+              - "sha256sum AGENTS.md BUILD_STATE.yaml DECISIONS.md; preserve exact baseline copies and write preflight.md."
+              - "python3 .build/runs/20261002T114402Z-serial-task-scheduling-rule-01/validate-policy.py"
+              - "python3 .build/runs/20261002T114402Z-serial-task-scheduling-rule-01/stage-policy.py"
+              - "git diff --check"
+            artifacts:
+              - path: ".build/runs/20261002T114402Z-serial-task-scheduling-rule-01/preflight.md"
+                sha256: "70c7de4c0841fa62aa3ebbe4c08e6724414c359f3dc50bcc092ab65d17023cfc"
+              - path: ".build/runs/20261002T114402Z-serial-task-scheduling-rule-01/validate-policy.py"
+                sha256: "a7daffc43ea9fe086e3cb62fb7cdbbca018b3df005b7407d84c31feb88261043"
+              - path: ".build/runs/20261002T114402Z-serial-task-scheduling-rule-01/stage-policy.py"
+                sha256: "4c26a216ee98213f4d0ddbacf27f70c8125a643e6591ce60b43d9ec54df4c150"
+              - path: "AGENTS.md"
+                sha256: "3d19c12203f598753779281f55a81a45f7d91e1a34f60c7fcbf629b51c509ba9"
+            validation:
+              - command: "python3 .build/runs/20261002T114402Z-serial-task-scheduling-rule-01/validate-policy.py"
+                status: passed
+                notes: "Valid YAML, exact six-line rule, append-only decision and every existing build/history/hold unchanged against the preserved dirty-worktree baseline. Only three declared tracked paths differ."
+              - command: "python3 .build/runs/20261002T114402Z-serial-task-scheduling-rule-01/stage-policy.py"
+                status: passed
+                notes: "Read-only dedicated-commit projection preserves every existing HEAD build and excludes older uncommitted Chapter17 ledger/decision work."
+              - command: "git diff --check"
+                status: passed
+            notes: "Completed only the requested general rule. Serial fallback preserves fresh-context independence and publication acceptance; no capacity resolution is claimed. Chapter17 stays blocked, its staged artifacts and interrupted runs remain untouched, and future implementation/repair holds remain unchanged. Preserve prior dirty ledger/decision changes outside this rule's dedicated commit."

@@ -25544,3 +25544,32 @@ All 34 publication identities were verified. No chapter, Rust, formula, browser
 configuration, screenshot or image inspection changed. The rebound functional
 checker retains its already-known immutable revision-78 predecessor diagnostic;
 that separately held compatibility gate is not repaired or represented as passing.
+
+## 2026-10-02 — Serial scheduling when concurrent execution is infeasible
+
+The user requires a general orchestration rule: if tasks cannot execute
+concurrently, plan them serially. Add the rule to AGENTS.md's orchestration
+principles, covering agent-thread limits, shared output ownership, dependencies
+and resource constraints. Record task order and dependencies; checkpoint each
+task's outcome before advancing to the next eligible task. Lack of parallel
+capacity is not itself a blocker when serial execution is feasible.
+
+Serial execution changes scheduling, not acceptance. Preserve required fresh
+contexts, role separation, evidence boundaries, output ownership and publication
+gates; never reuse a judgment context or waive review to reduce concurrency.
+Serialization cannot create a missing fresh-thread slot: if even one required
+task cannot start, preserve its actual provisioning blocker and staged evidence.
+This amendment does not assert that finishing a turn closes its thread or that
+the earlier Chapter 17 capacity issue has been resolved.
+
+Affected step: `serial-task-scheduling-rule-20261002`. This is a small policy-only
+change with no network, sub-agents, content, browser, image check or paid service.
+Chapter 17 and its interrupted runs/artifacts remain unchanged; this request does
+not resume authoring, reviews, localization or any held future work. Preserve
+pre-existing uncommitted ledger/decision changes outside the dedicated rule commit.
+
+Validation passed: exact six-line rule, YAML syntax, all existing build/history/
+hold invariance against the preserved worktree baseline, append-only decisions,
+policy-only tracked paths, whitespace and a dedicated-commit projection that
+excludes prior incomplete work. No course rebuild or browser check is necessary
+for this internal scheduling rule.

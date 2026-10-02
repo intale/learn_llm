@@ -394,6 +394,12 @@ alone; the repository state is authoritative.
   repository in a coherent state. A step should normally fit in one agent session.
 - Give every step stable acceptance criteria, declared dependencies, inputs,
   outputs, validation commands, and a rough cost class before starting it.
+- When tasks cannot execute concurrently because of agent-thread limits, shared
+  output ownership, dependencies or resource constraints, plan and execute them
+  serially. Record their order and dependencies, and checkpoint each task's outcome
+  before starting the next eligible task. Preserve required fresh contexts, review
+  independence, ownership and acceptance gates. Lack of parallel capacity is not
+  itself a blocker when serial execution is feasible.
 - Prefer deterministic, local, cached operations. Network access and expensive
   generation must be explicit step inputs, not hidden side effects.
 - Do not mutate the output of a completed run. If inputs or implementation change,
