@@ -26191,3 +26191,29 @@ dispatch. Namespace closure cannot make old keys reusable. Revalidate host
 authority after durable reservation and before dispatch/disclosure. The broader
 host argument schema is not Chapter 77's finite generation language; the one
 47-byte calculator fixture fits its 49-state trie without changing that boundary.
+
+### 2026-10-03 — Chapter 79 bounded safety and privacy evidence planning
+
+Prepare only the internal Chapter 79 packet. Freeze scenario identities,
+baselines, thresholds and uncertainty before results; report each failure and
+unmeasured region rather than treating a model card as a safety certificate.
+Preserve dependence and coverage limits when explaining rates and intervals.
+
+Separate telemetry canaries from bounded extraction probes and from training
+data. No canary training, new data acquisition or universal privacy claim is
+introduced. Keep content-off defaults, explicit retention/deletion authority
+and Chapter 78's synthetic-only durable replay boundary. Advanced smoke changes
+only wall time; all inherited resource caps and implementation/repair holds stay.
+
+The 1,000 extraction trials comprise 500 runtime-isolation, 250 governed actual
+training-member and 250 matched nonmember probes, plus 150 separate controls.
+Keep lane-specific rates and unknown bounds; no pooled privacy score. Nonempty
+withheld targets must be absent from the entire prompt, with explicit copy
+controls the exception. Missing exposure provenance blocks execution.
+
+Propose exact five-seed block enumeration (3,125 ordered resamples) and label its
+interval conditional sensitivity, not population confidence. Default private
+prefix caching is disabled; explicit public/synthetic reuse preserves existing
+resource pins. Debug expiry covers primary old/staging roots and held readers,
+while archival backups exclude debug content. The 41,240-unit work estimate
+requires owner reconciliation with calibration and the unchanged shared caps.
