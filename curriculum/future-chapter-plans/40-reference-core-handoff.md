@@ -1,7 +1,9 @@
 # Chapter 40 — detailed implementation packet
 
 Status: planning-ready after internal planning validation, not implemented or
-publication-approved. Execution is held by the user's 2026-09-15 instruction.
+publication-approved. The 2026-10-03 request releases Chapter 40 and its required
+setup after the separately recorded execution compatibility gate; repairs and
+Chapter 41+ remain held until the user explicitly requests them.
 Read [the packet guide](README.md) before using this document.
 
 ## 1. Scope and boundary
@@ -13,7 +15,9 @@ Read [the packet guide](README.md) before using this document.
 - Future implementation step: `implement-ch40-reference-core-handoff`.
 - Required implementation predecessor:
   `establish-functional-successor-static-integration`. All of its transitive
-  infrastructure and repair dependencies must be completed, not bypassed.
+  infrastructure dependencies must be completed, not bypassed. The user's
+  2026-10-03 scheduling decision explicitly decouples the still-pending repairs;
+  those repairs are neither execution prerequisites nor implicitly authorized.
 - Owned capability: `CAP-AUDIT-POSITION-01`; finding `F01`; claim boundaries
   `CLAIM-00` and `CLAIM-39`.
 - Outcome: identify Chapters 0–39 as the exact scalar reference core and locate
@@ -451,7 +455,8 @@ infer Russian fit from English.
 These are future actions, not authorized tasks for this planning run.
 
 1. Read current state/decisions and confirm explicit execution authorization,
-   completed repair/infrastructure prerequisites and reconciled checker lifecycle.
+   completed infrastructure prerequisites and reconciled checker lifecycle.
+   Keep the separately deferred repair step pending and unclaimed.
    Verify source-registry correction and accepted historical evidence binding.
 2. Inspect the foundation's exact module, artifact identity, trace, static
    integration and closed-runner interfaces. Resolve the proposed adapter names
@@ -574,7 +579,7 @@ Readiness and stop rules:
 
 | Dependency | Owner / exact rule |
 | --- | --- |
-| User execution hold | No repair/implementation until explicitly released; planning-ready never releases it. |
+| User execution hold | Chapter 40/setup explicitly released on 2026-10-03; repairs and Chapter 41+ stay held. Planning-ready never releases execution. |
 | Frozen execution checker lifecycle | Separate authorized compatibility run, preserving substantive checks and historical runs, before execution resumes. |
 | Mislabelled `SRC-DTH-EVAL-01` | Pending source-registry/binding correction; retain the URL and verified Dodge et al. title unless a separately recorded scope decision changes the source. |
 | Shared identity/trace/static runners | Completed foundation and static-integration steps; bind their exact APIs/schema/test vectors, or return a gap to the prerequisite owner. |

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "compatibility_id": "functional-ch40-execution-compatibility-v1",
+  "authority": "2026-10-03: implement Chapter 40; keep repairs held and decouple their scheduling; postpone repairs until explicitly requested",
+  "approved_predecessor": {
+    "path": "curriculum/course-plan.md",
+    "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868",
+    "plan_revision": 78,
+    "chapter_count": 40
+  },
+  "historical_design": {
+    "run_id": "20260915T081118Z-design-functional-laptop-llm-curriculum-extension-05",
+    "plan_sha256": "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1",
+    "checker_sha256": "2e19a4829f53b5f4d87ad15571acb808c5963c20ab76d206362015f2a78a2ec7"
+  },
+  "approved_policy_binding": {
+    "plan_sha256": "be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d",
+    "checker_sha256_before_compatibility": "fe9e10f19f344b30cd398b74f8dc013aa475ad63ee3d67bbaf414671d8183b34"
+  },
+  "historical_budget_reconciliation": [
+    {"build_id":"foundation-and-chapter-01","frozen_spent":9,"current_spent":10},
+    {"build_id":"activate-ch14-russian-localization","frozen_spent":0,"current_spent":1}
+  ],
+  "intervening_builds": [
+    {
+      "build_id": "detail-future-chapter-execution-plans-20260915",
+      "projection_sha256": "16bec59a947767b51578b5f5f301d8480166aa4317a9ca1ed46f621199a903e8"
+    },
+    {
+      "build_id": "replace-thread-local-no-grad-with-autograd-context-20260918",
+      "projection_sha256": "caa662a690e36cd4fd7e951f8b09e5abd2b178ba9d094eae53bcc6e4962b5863"
+    },
+    {
+      "build_id": "rewrite-ch17-problem-first-content-20261002",
+      "projection_sha256": "76bebbbd5296ddd7193e5a0df21c6cce6ec458c3e9c072c420fc8df53ff2e7d2"
+    },
+    {
+      "build_id": "user-selected-model-policy-20261002",
+      "projection_sha256": "7b81afff2130d46fdf8c8e0a357b87603e48bbfdbc9eee8fb107b4b7bc2fba0c"
+    },
+    {
+      "build_id": "human-reported-visual-diagnostics-20261002",
+      "projection_sha256": "bc96def5ddeea9784844c70c6b93bc5b25731d632fb89ad35ee3832227b77379"
+    },
+    {
+      "build_id": "serial-task-scheduling-rule-20261002",
+      "projection_sha256": "2e225aa8734ac6ee3619e67d53c178b28970888b5bcd88bf02526285be4e6619"
+    },
+    {
+      "build_id": "localization-author-serial-fallback-20261003",
+      "projection_sha256": "6f76d1512fb48b720f47ad2abdbfc5ddc37421c6240c9b75efe14b0137b821da"
+    }
+  ],
+  "compatibility_build": {
+    "build_id": "reconcile-ch40-execution-prerequisites-20261003",
+    "spec_sha256": "80103986eca844a27f6ba06cf49529bb35f490522c54620d992ee6ff79a0b833",
+    "step_id": "reconcile-ch40-execution-lifecycle"
+  },
+  "held_maintenance": {
+    "step_id": "repair-ch06-symbol-table-and-ch08-ch10-learning-surfaces",
+    "immutable_spec_sha256": "0db8fadca6c706cbe1f59683b5afacc44154e46f16e8fa65b5689f38d24ded2d",
+    "status": "pending",
+    "runs": []
+  },
+  "released_steps": [
+    "establish-functional-offline-workspace-execution-boundary",
+    "establish-functional-firefox-execution-boundary",
+    "reframe-functional-reference-core-surfaces",
+    "establish-functional-successor-static-integration",
+    "implement-ch40-reference-core-handoff"
+  ],
+  "release_terminal_step": "implement-ch40-reference-core-handoff",
+  "learner_sequence": [
+    "problem-definition",
+    "solution",
+    "history",
+    "visualization-and-optional-practice"
+  ],
+  "learner_prediction_prompts": false
+}

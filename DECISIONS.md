@@ -26361,3 +26361,80 @@ ordering without rerunning accepted measurements or sealing provisional content.
 Missing restart-safe phase support is an explicit execution compatibility gate.
 All 46 Chapter 40–85 packets are now planning-ready; completing this planning
 build neither activates an implementation build nor releases the user's hold.
+
+### 2026-10-03 — Chapter 40 release with independently deferred repairs
+
+The user explicitly requested implementation of Chapter 40. When the frozen
+checker revealed that pending maintenance categorically blocks all successor
+steps, the user selected "Keep repairs held; decouple their scheduling" and
+confirmed: "Postpone repairs until I explicitly request them". This releases
+Chapter 40 and its necessary setup, not Chapters 41–85, acquisition, broad
+training, or the separate Chapter 6/8–10 repairs. Keep those repair specifications,
+pending status and empty run history unchanged; do not mark them skipped or
+complete, or use repair activity to satisfy implementation prerequisites.
+
+The new compatibility step reconciles exact current approved predecessor/policy
+lineage, completed intervening builds, problem-first/no-prediction authoring,
+user-selected model and the excluded routine image gate. Preserve the original
+design and all policy-run artifacts. Do not rewrite the completed design run to
+claim it emitted current bytes. All substantive curriculum, resource, network,
+ownership, canonical publication and independent-review gates remain required.
+After its dedicated commit, implement prerequisite setup steps serially in the
+existing functional build before claiming Chapter 40. This is no authority to
+publish a partial chapter or to replace the closed runners with an ad-hoc harness.
+
+Initial read-only evidence: the pinned live checker exits 1 with "extension does
+not bind immutable final revision-78 course plan". The four prerequisite setup
+steps are pending; offline/Firefox runners, the successor locale manifest, Rust
+registry integration and history-extractor receipt are absent. The host artifact
+audit also reports an existing `target` directory; preserve it until its origin
+and any required recoverable cleanup are resolved. No chapter material, Rust
+algorithm, source registry or repair output is changed by this claim.
+
+**Compatibility completion:** All 21 final offline checks pass, including exact
+source invariance for 50 existing validator/helper functions and rejection tests
+for held repairs, later chapters, prerequisite/ownership/resource drift and
+historical/artifact substitution. The actual live functional and ordinary course
+plan checkers pass. Embedded plan/constants/schema/queue/chapter records remain
+byte-identical. Original design bindings are verified as historical identities;
+the new compatibility run separately binds current checker and policy bytes.
+Two pre-existing historical spent counters are reconciled in a comparison copy
+only, then the original complete historical projection hash is enforced.
+
+The functional build is now active for the exact five-step release. No repair,
+chapter, model or corpus was implemented in this compatibility step. The existing
+reference `pipeline.rs` differs from the old packet observation after the already
+completed explicit-autograd-context refactor; later Chapter40 execution must
+regenerate its bounded regression evidence rather than assuming the old hash.
+Operational files were edited canonically before their named publication snapshot;
+this procedural deviation exposed no course route. Freeze/compare that snapshot
+and rerun the canonical gate before the dedicated commit; chapter delivery still
+uses the required staged-overlay publication workflow.
+
+**Completion-checkpoint correction:** The preceding compatibility completion
+paragraph described validated candidate results, but its attempted checkpoint
+was rejected by canonical YAML parsing because the generated build lacked its
+list marker. No completion commit or prerequisite execution occurred. Correct
+the valid ledger, record that current attempt failed, and use a fresh acceptance
+run; preserve its publication snapshot and evidence. The new run must repeat
+the canonical acceptance and verify a valid completed checkpoint before commit.
+
+**Alias-free acceptance:** The second checkpoint was also rejected before commit:
+the closed YAML parser forbids aliases that the serializer emitted for a shared
+command-array object. Preserve that failed run. The third acceptance repeats all
+21 tests with alias-free list serialization and requires both actual canonical
+checkers on the completed ledger. These corrections change no learner content,
+held repair, substantive validator or old run artifact.
+
+**Hashing direction:** The user explicitly requires an existing hashing library,
+not a handwritten SHA-256 implementation. A separate necessary setup amendment
+must assign the shared identity helper, versioned framing and test vectors to an
+owner and admit only its minimal locked, licensed supporting graph before use.
+No library, dependency, helper format or download is admitted by this lifecycle
+checkpoint alone. Hashing remains artifact plumbing, not an LLM algorithm.
+
+The third run's actual completed-state functional and ordinary plan checks pass;
+the ledger parses without aliases and `git diff --check` passes. The dedicated
+commit contains only this seven-path compatibility step. The four necessary
+setup steps and Chapter 40 remain pending; the functional build is active solely
+for their bounded release, and the separate repairs remain pending with no runs.

@@ -48,6 +48,16 @@ then reconcile the frozen execution checker's prior lifecycle assertions in a
 new compatibility run. Preserve all historical runs and all substantive
 curriculum/resource/queue checks. That reconciliation is also pending now.
 
+On 2026-10-03 the user released implementation of Chapter 40 and its necessary
+setup only, and explicitly directed that repairs remain postponed until a separate
+request. `reconcile-ch40-execution-lifecycle` owns the compatibility binding that
+decouples the pending Chapter 6/8–10 maintenance from that execution prefix.
+The original repair step is not skipped, completed or claimed. All four declared
+setup predecessors still require their own acceptance and dedicated commits;
+this scheduling release cannot substitute for their missing outputs. Chapter 41
+and later implementation/acquisition remain held. Original run artifacts and
+the frozen extension plan remain historical evidence, not rewritten records.
+
 ## Inventory and this checkpoint
 
 ### Current learner-facing authoring policy (2026-10-02)

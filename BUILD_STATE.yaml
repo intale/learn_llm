@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T14:03:55Z"
+updated_at: "2026-10-03T15:07:08Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -14,7 +14,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images. Host Python 3.13.1 with user-provided PyYAML 6.0.3 is used only for read-only ledger validation; host Rust, Node, and npm remain outside product validation."
 
-active_build: null
+active_build: extend-course-to-functional-laptop-llm-20260810
 
 builds:
   - build_id: bootstrap-course
@@ -41856,7 +41856,7 @@ builds:
 
   - build_id: extend-course-to-functional-laptop-llm-20260810
     objective: "Extend the from-scratch reference core with a production-shaped, laptop-feasible path whose final Rust system can prepare realistic data, train and fully resume, evaluate, adapt, generate, and serve a functional decoder-only autoregressive text LLM without implying validated production scale or state-of-the-art quality."
-    status: pending
+    status: active
     budget:
       unit: agent-session
       limit: null
@@ -53215,3 +53215,222 @@ builds:
                 status: passed
                 notes: "Four intended paths only; original HEAD ledger/decisions plus this completed policy record, excluding older incomplete Chapter17 work."
             notes: "Succeeded for skill-only correction. Existing authoring/orchestration context may translate without a new thread or false freshness; both independent fresh reviews remain mandatory and may run serially. Missing review capacity still holds publication. Chapter17 remains blocked/unpublished, with no authoring/review activation or future work. Prior dirty ledger/decision work and untracked audit are preserved outside this policy commit."
+
+  - build_id: reconcile-ch40-execution-prerequisites-20261003
+    objective: Reconcile the live Chapter 40 execution gate with approved policy history and explicitly deferred repairs, preserving substantive curriculum and execution checks.
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 3
+      notes: User authorized Chapter 40 implementation and explicitly decoupled previously held repairs. Bounded local compatibility work; no acquisition, GPU, training expansion or paid service.
+    completion_criteria:
+      - The live checker accepts the exact approved predecessor and policy lineage, completed intervening builds and a separate repair hold without weakening Chapter 40 prerequisites.
+      - Regression tests retain exact curriculum, resource, source, output ownership, dependency, run-fingerprint and independent-review checks.
+      - Existing chapter repairs remain pending with unchanged specifications and histories; only Chapter 40 and its necessary setup are released.
+    steps:
+      - id: reconcile-ch40-execution-lifecycle
+        objective: Publish and test an explicit compatibility binding for Chapter 40 while preserving all historical run bytes and the separate repair hold.
+        depends_on:
+          - detail-ch85-persistence-scale-decision
+        status: completed
+        inputs:
+          - User request to implement Chapter 40; explicit instruction to keep repairs held and decouple their scheduling.
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+          - curriculum/course-plan.md
+          - curriculum/functional-laptop-llm-extension-plan.md
+          - curriculum/future-chapter-plans/40-reference-core-handoff.md
+          - scripts/check-functional-laptop-llm-plan.mjs
+          - Completed authoring, model-selection, visual-policy, Chapter 17 and planning records.
+        outputs:
+          - scripts/check-functional-laptop-llm-plan.mjs
+          - scripts/tests/check-functional-execution-compatibility.test.mjs
+          - configs/functional-execution-compatibility-v1.json
+          - curriculum/future-chapter-plans/README.md
+          - curriculum/future-chapter-plans/40-reference-core-handoff.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+        acceptance:
+          - Original embedded design records and substantive validators remain exact; only explicit authorized lifecycle and predecessor compatibility branches change.
+          - Chapter 6/8–10 repairs remain pending, unclaimed and unchanged until the user explicitly requests them.
+          - The current approved predecessor and historical design/policy identities are exact-bound, not accepted through an arbitrary hash override.
+          - Only four prerequisite setup steps and Chapter 40 may advance; Chapter 41 and all later execution/acquisition steps remain held.
+          - Positive and adversarial tests plus the actual live checker pass in the existing pinned offline container.
+        validate:
+          - node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+          - node scripts/check-functional-laptop-llm-plan.mjs
+          - node scripts/check-course-plan.mjs
+          - git diff --check
+        cost: medium; bounded local deterministic compatibility checks in the cached pinned container, no network, dependency install, GPU, acquisition or paid service.
+        runs:
+          - run_id: 20261003T141732Z-reconcile-ch40-execution-lifecycle-01
+            started_at: 2026-10-03T14:17:32Z
+            status: failed
+            input_fingerprint:
+              commit: 40f4ac9ef1a9c57de00d6a2ca2a525f59120b99f
+              state_sha256_before_claim: 0a44b810842931fdb6da91430d8ff9d9361724fdbd3b54daff016b263c182880
+              predecessor_sha256: d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              checker_sha256_before_claim: fe9e10f19f344b30cd398b74f8dc013aa475ad63ee3d67bbaf414671d8183b34
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T141732Z-reconcile-ch40-execution-lifecycle-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-functional-laptop-llm-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs
+              - git diff --check
+            artifacts:
+              - path: scripts/check-functional-laptop-llm-plan.mjs
+                sha256: 2e2672c9e73762558e887a8a955b086eed7e1b7d25f6a67e6be6b87c45b55d80
+                bytes: 3530181
+              - path: scripts/tests/check-functional-execution-compatibility.test.mjs
+                sha256: 603dc4da86d34e06a04155527d8a707234f5a005cb73f45fac402da76f9bc8cb
+                bytes: 6632
+              - path: configs/functional-execution-compatibility-v1.json
+                sha256: 514b675a06e73c52e3c75dd69c855ab4de541382c6770eca771fe65f71ea4fbc
+                bytes: 3436
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: 9dc1bd8846db4fa3465d3b1da411a0a886d5f997edd826cad7a7ac619834a9e8
+                bytes: 20802
+              - path: curriculum/future-chapter-plans/40-reference-core-handoff.md
+                sha256: c110b4de0175866ed2b88587e6666cbe9420932595a38ae5e193650dbf9b0372
+                bytes: 34993
+              - path: .build/runs/20261003T141732Z-reconcile-ch40-execution-lifecycle-01/preflight.md
+                sha256: 24d393b463d3fb6b19edff065db90183d6ff77f5d577e0b239e6d90a11262900
+                bytes: 1581
+              - path: .build/runs/20261003T141732Z-reconcile-ch40-execution-lifecycle-01/validation-attempt-01.md
+                sha256: 739456496ff14d799e286df2fd5bb7ad43694703148bc450629bbcd5b4e7335d
+                bytes: 1285
+              - path: .build/runs/20261003T141732Z-reconcile-ch40-execution-lifecycle-01/validation-final.md
+                sha256: ac4932bd56ffd319775af332fc05f2eb91b38f3e49234210369867617669e49b
+                bytes: 1651
+            validation:
+              - command: node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+                status: passed
+                notes: 21/21 final checks passed; earlier failing attempt preserved separately.
+              - command: node scripts/check-functional-laptop-llm-plan.mjs
+                status: passed
+                notes: Actual live gate and completed-compatibility fixture passed; no chapter execution claimed.
+              - command: node scripts/check-course-plan.mjs
+                status: passed
+                notes: 40 implemented chapters; all original plan projections preserved.
+              - command: git diff --check
+                status: passed
+                notes: No whitespace errors.
+              - command: Canonical completion checkpoint YAML parse and live validation
+                status: failed
+                notes: The completion edit lacked a YAML list marker; rejected before commit. Valid syntax restored. No chapter or prerequisite execution occurred.
+            notes: Candidate checks passed 21/21, but its proposed completion checkpoint failed YAML syntax and canonical validation. This current attempt is failed, not completed; preserved publication snapshot and logs remain unchanged. No completed-step commit exists.
+            finished_at: 2026-10-03T14:47:49Z
+          - run_id: 20261003T144749Z-reconcile-ch40-execution-lifecycle-02
+            started_at: 2026-10-03T14:47:49Z
+            status: failed
+            input_fingerprint:
+              commit: 40f4ac9ef1a9c57de00d6a2ca2a525f59120b99f
+              state_sha256_before_claim: 5d3db9b360b09979bc9b7e47c0043ad147970bf3005e8cb106110612b41d0fb0
+              predecessor_sha256: d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              checker_sha256_before_claim: fe9e10f19f344b30cd398b74f8dc013aa475ad63ee3d67bbaf414671d8183b34
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+              verified_candidate_checker_sha256: 2e2672c9e73762558e887a8a955b086eed7e1b7d25f6a67e6be6b87c45b55d80
+            staging_dir: .build/runs/20261003T144749Z-reconcile-ch40-execution-lifecycle-02/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-functional-laptop-llm-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs
+              - git diff --check
+            artifacts:
+              - path: scripts/check-functional-laptop-llm-plan.mjs
+                sha256: 2e2672c9e73762558e887a8a955b086eed7e1b7d25f6a67e6be6b87c45b55d80
+                bytes: 3530181
+              - path: scripts/tests/check-functional-execution-compatibility.test.mjs
+                sha256: 603dc4da86d34e06a04155527d8a707234f5a005cb73f45fac402da76f9bc8cb
+                bytes: 6632
+              - path: configs/functional-execution-compatibility-v1.json
+                sha256: 514b675a06e73c52e3c75dd69c855ab4de541382c6770eca771fe65f71ea4fbc
+                bytes: 3436
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: 9dc1bd8846db4fa3465d3b1da411a0a886d5f997edd826cad7a7ac619834a9e8
+                bytes: 20802
+              - path: curriculum/future-chapter-plans/40-reference-core-handoff.md
+                sha256: c110b4de0175866ed2b88587e6666cbe9420932595a38ae5e193650dbf9b0372
+                bytes: 34993
+              - path: .build/runs/20261003T144749Z-reconcile-ch40-execution-lifecycle-02/preflight.md
+                sha256: 12f407b371c5c21fdf9e02794840aa836b54c12326a8f3cc40eae76b3ae3fd45
+                bytes: 865
+              - path: .build/runs/20261003T144749Z-reconcile-ch40-execution-lifecycle-02/validation.md
+                sha256: 73592d8d0b10d9c5266cf9093068591e1bf49065be74ba179b6c93d9780ab74c
+                bytes: 967
+            validation:
+              - command: node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+                status: passed
+                notes: 21/21 fresh acceptance checks pass; earlier failed checkpoint remains separate evidence.
+              - command: node scripts/check-functional-laptop-llm-plan.mjs
+                status: passed
+                notes: Live running state and completed-compatibility fixture pass; actual completed state rechecked before commit.
+              - command: node scripts/check-course-plan.mjs
+                status: passed
+                notes: All 40 implemented chapters and ordinary schedule projection pass.
+              - command: git diff --check
+                status: passed
+                notes: No whitespace errors.
+              - command: Completed checkpoint canonical YAML parse
+                status: failed
+                notes: The canonical parser rejects YAML aliases; duplicate command-array serialization was rejected before commit.
+            notes: Compatibility only. Five staged operational outputs match their canonical publication bytes and all candidate gates pass. Valid YAML completion uses an array-preserving edit; verify actual completed state before committing. Repairs and Chapter41+ remain held; Chapter40 itself is not claimed. No earlier run artifact was overwritten. Completed-state validation refused generated YAML aliases. No completion commit or product execution occurred.
+            finished_at: 2026-10-03T15:06:15Z
+          - run_id: 20261003T150615Z-reconcile-ch40-execution-lifecycle-03
+            started_at: 2026-10-03T15:06:15Z
+            status: succeeded
+            input_fingerprint:
+              commit: 40f4ac9ef1a9c57de00d6a2ca2a525f59120b99f
+              state_sha256_before_claim: 5d3db9b360b09979bc9b7e47c0043ad147970bf3005e8cb106110612b41d0fb0
+              predecessor_sha256: d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              checker_sha256_before_claim: fe9e10f19f344b30cd398b74f8dc013aa475ad63ee3d67bbaf414671d8183b34
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+              verified_candidate_checker_sha256: 2e2672c9e73762558e887a8a955b086eed7e1b7d25f6a67e6be6b87c45b55d80
+            staging_dir: .build/runs/20261003T150615Z-reconcile-ch40-execution-lifecycle-03/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-functional-laptop-llm-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs
+              - git diff --check
+            artifacts:
+              - path: scripts/check-functional-laptop-llm-plan.mjs
+                sha256: 2e2672c9e73762558e887a8a955b086eed7e1b7d25f6a67e6be6b87c45b55d80
+                bytes: 3530181
+              - path: scripts/tests/check-functional-execution-compatibility.test.mjs
+                sha256: 603dc4da86d34e06a04155527d8a707234f5a005cb73f45fac402da76f9bc8cb
+                bytes: 6632
+              - path: configs/functional-execution-compatibility-v1.json
+                sha256: 514b675a06e73c52e3c75dd69c855ab4de541382c6770eca771fe65f71ea4fbc
+                bytes: 3436
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: 9dc1bd8846db4fa3465d3b1da411a0a886d5f997edd826cad7a7ac619834a9e8
+                bytes: 20802
+              - path: curriculum/future-chapter-plans/40-reference-core-handoff.md
+                sha256: c110b4de0175866ed2b88587e6666cbe9420932595a38ae5e193650dbf9b0372
+                bytes: 34993
+              - path: .build/runs/20261003T150615Z-reconcile-ch40-execution-lifecycle-03/preflight.md
+                sha256: 31b195574fe5292576f159c444c9f411492d02a999db28452f67104fc64b3521
+                bytes: 661
+              - path: .build/runs/20261003T150615Z-reconcile-ch40-execution-lifecycle-03/validation.md
+                sha256: 31aca6d74e59f156b2238b762d4efc60730c4a40fd0b8ccc521b99fe5b5a2016
+                bytes: 827
+            validation:
+              - command: node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+                status: passed
+                notes: Fresh 21/21 pass; actual completed-state gates required before commit.
+              - command: node scripts/check-functional-laptop-llm-plan.mjs
+                status: passed
+                notes: Canonical completion acceptance rechecked before commit.
+              - command: node scripts/check-course-plan.mjs
+                status: passed
+                notes: Canonical completion acceptance rechecked before commit.
+              - command: git diff --check
+                status: passed
+                notes: Canonical completion acceptance rechecked before commit.
+            notes: Compatibility only. Fresh 21/21 acceptance tests pass; five hash-verified run02 publication snapshots are reused byte-identically without overwriting earlier runs. Array-preserving alias-free completion is parsed before apply and canonical completed state is checked before commit. Repairs and all chapter implementation remain unclaimed.
+            finished_at: 2026-10-03T15:07:08Z
