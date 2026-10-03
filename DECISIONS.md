@@ -26240,3 +26240,25 @@ producer source/build hashes and require relevant compatibility edges instead
 of pretending later chapter additions leave the entire source tree unchanged.
 Missing selected quantization, cleared resume comparisons or feasible mounting
 must be reconciled by their owners before execution, not hidden in smoke success.
+
+### 2026-10-03 — Chapter 81 imported successor identity planning
+
+Prepare only the imported/adapted endpoint packet. Preserve purpose-specific
+typed receipts and separate capability envelopes in their exact evaluation,
+31-prerequisite matrix and terminal ordering. The selected base, SFT parent and
+DPO successor must form one immutable lineage with actual nonzero updates;
+unrelated passing artifacts and old same-name files cannot substitute.
+
+Keep base quantization, runtime adapters and any merged quantized successor as
+distinct representations. Require actual loaded identity and conversion evidence,
+with no double adapter application or invented byte equality. Fixed attempt and
+token fields, stop semantics and all selected-capability work require one honest
+pre-execution accounting contract. No new acquisition/training or release of
+implementation/repair holds is authorized by this planning checkpoint.
+
+Common selected-chain identity is separate from each cell's actual attachment.
+Output-dependent safety/application evidence must cover the final merged and
+quantized representation; numerical error bounds alone do not transfer a pass.
+Preserve the exact 960 comparison attempts and 31 direct prerequisite IDs, with
+prefix/context late roles separate. Missing feasible coverage or ambiguous frozen
+token-count scope is an explicit owner gate, not a manufactured measurement.
