@@ -26283,3 +26283,22 @@ one-step trials and is not a live-generation call-efficiency result. Bound fairn
 only within a fixed admitted cohort, not unbounded arrivals or stalled devices.
 Cancellation tests retain actual hook-reached evidence and preserve asynchronous
 buffer ownership; simulated lifecycle coverage cannot stand in for device parity.
+
+### 2026-10-03 — Chapter 83 local distributed-oracle planning
+
+Prepare only the local distributed-schedule packet. DTH owns partition,
+collective, gradient/update and state-continuation arithmetic; ISA consumes
+that immutable trace for placement and lifecycle without redefining the oracle.
+
+Use global raw sums/counts for uneven rank batches and name reduction order,
+payload direction and pipeline-slot assumptions. Production-scale payloads
+remain checked descriptors under the256MiB/64MiB/30-second CPU envelope.
+Real distributed training/serving remains unvalidated; no network/device
+runtime, measured speedup or implementation-hold release is introduced.
+
+Collective events validate sender-snapshot payloads and phase-specific add/copy
+results before committing a step. World one retains identity continuation with
+zero communication. Serving reserves complete shard groups atomically, separates
+affinity/capacity/queue refusals, and uses episode-qualified lifecycle identities.
+Permitted local clocks/filesystem operations do not authorize network, accelerator
+or process-launch paths. External publication reviews remain future handoffs.

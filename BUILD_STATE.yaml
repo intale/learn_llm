@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T12:45:02Z"
+updated_at: "2026-10-03T13:19:48Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 43
+      spent: 44
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -51544,7 +51544,7 @@ builds:
       - id: detail-ch83-distributed-schedule-simulation
         objective: "Make Chapter 83 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch82-advanced-decoding-serving"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -51560,7 +51560,143 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20261003T124512Z-detail-ch83-distributed-schedule-simulation-01
+            started_at: 2026-10-03T12:45:15Z
+            finished_at: 2026-10-03T13:00:48Z
+            status: interrupted
+            input_fingerprint:
+              commit: 7da3bf65fd046ee4a4522d657f16e8bcdb307d07
+              inputs_sha256: 176f6d792988ad99220b17bc2ef6ab732095fb076637c51c67a92e96cba46718
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T124512Z-detail-ch83-distributed-schedule-simulation-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                claim 83
+                .build/runs/20261003T124512Z-detail-ch83-distributed-schedule-simulation-01
+            artifacts:
+              - path: .build/runs/20261003T124512Z-detail-ch83-distributed-schedule-simulation-01/inputs.json
+                sha256: 176f6d792988ad99220b17bc2ef6ab732095fb076637c51c67a92e96cba46718
+                bytes: 57445
+              - path: .build/runs/20261003T124512Z-detail-ch83-distributed-schedule-simulation-01/preflight.md
+                sha256: e54cf5f8f526c9942c51d0e6a00cb4c991f3cbcf5b37ed4dba1a8896ed59cd7d
+                bytes: 1594
+              - path: .build/runs/20261003T124512Z-detail-ch83-distributed-schedule-simulation-01/83-distributed-schedule-simulation.md
+                sha256: ae0ca0360da73af4a5bc064dc6ff2b47ed8f59dc0d240f48e52180c857ee8213
+              - path: .build/runs/20261003T124512Z-detail-ch83-distributed-schedule-simulation-01/planning-evidence.md
+                sha256: 97312cfb5293105d1b4a5cc21b8f469c0a323c20614eba87a365dc2b0323d2a9
+              - path: .build/runs/20261003T124512Z-detail-ch83-distributed-schedule-simulation-01/decision-entry.md
+                sha256: 7c4090f9bc74f11456a834b61a2c2c1df3cb4d1841ac1d9aa83765f896be66ba
+            validation: []
+            notes: Interrupted after session continuation ended the prior author and peer
+              contexts; agent inventory confirms no prior worker remains. Sections 1–2 and
+              root preflight notes are preserved with verified hashes. No canonical
+              Chapter 83 packet or passing acceptance exists; fresh run required.
+              Implementation and repair holds remain unchanged.
+          - run_id: 20261003T130048Z-detail-ch83-distributed-schedule-simulation-02
+            started_at: 2026-10-03T13:01:36Z
+            status: succeeded
+            input_fingerprint:
+              commit: 7da3bf65fd046ee4a4522d657f16e8bcdb307d07
+              inputs_sha256: 7065edfb73aa549994902444d6ca663e73410fbb2b188043dbd1a11c0637ff1b
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/packet-tools.mjs
+                claim 83
+                .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/packet-tools.mjs
+                publish 83
+                .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02
+              - test -s
+                curriculum/future-chapter-plans/83-distributed-schedule-simulation.md
+              - git diff --check
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node scripts/check-course-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/packet-tools.mjs
+                finish 83
+                .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02
+            artifacts:
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/packet-tools.mjs
+                sha256: dea330e1ffa70c3b3b7c884fa845b43755748eed50f297480520b9993f674022
+                bytes: 20708
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/inputs.json
+                sha256: 7065edfb73aa549994902444d6ca663e73410fbb2b188043dbd1a11c0637ff1b
+                bytes: 60345
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/preflight.md
+                sha256: d8bc25ecdf74e8e354beed38cc0eacaa75d06ec3831a1c0b389b4c4f4534875d
+                bytes: 1594
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/83-distributed-schedule-simulation.md
+                sha256: 2ff2daa76f64b8fe7ea9b6f140619f22e12913ad9796f4638f082f388841ca36
+                bytes: 56600
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/planning-evidence.md
+                sha256: 18adfb1a4a0632298ef779b4c08644edf8a4028670c736f5a4c9cd22f3df7f41
+                bytes: 4564
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/validation.txt
+                sha256: 4932149b7667698447fbcbddceea9ff2b7de45bf188c206b162d1fc143201930
+                bytes: 507
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/validation.json
+                sha256: 54363f8ae2553262f18b139008999aa31ce1df2419eb58fe03c505fad1fa9f8e
+                bytes: 905
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/decision-entry.md
+                sha256: 005878e19977cd711800dcf5ab097ef90e4bb2ec6409e1657a5aecbdb542b946
+                bytes: 1149
+              - path: curriculum/future-chapter-plans/83-distributed-schedule-simulation.md
+                sha256: 2ff2daa76f64b8fe7ea9b6f140619f22e12913ad9796f4638f082f388841ca36
+                bytes: 56600
+              - path: curriculum/future-chapter-plans/index.json
+                sha256: 453c55580a52395fb44369e21232e2619c21207f811ad61e6bb42310d16b00a0
+                bytes: 10862
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: e83a045aa9757a77c527a8d867ac13503aa111355bd1fe50703d07480eb2933d
+                bytes: 19871
+              - path: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/tool-guard-tests.json
+                sha256: 7566fdc5fb63906994ee617327aab9bae21a25a0edb9e826c9ec18c1efdfb4b8
+                bytes: 1615
+            validation:
+              - command: Exact metadata/output/command/section/link/inventory and unchanged
+                  other-build/step/prior-packet checks
+                status: passed
+              - command: Internal mathematical/interface planning audit
+                status: passed
+                evidence: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/planning-evidence.md
+              - command: git diff --check; ordinary course-plan checker in pinned offline image
+                status: passed
+                evidence: .build/runs/20261003T130048Z-detail-ch83-distributed-schedule-simulation-02/validation.txt
+            notes: Planning packet only; no implementation or publication judgment. Current
+              problem-first/no-prediction and user-selected-model policies govern. All
+              execution/repair holds and other build/step objects preserved.
+            finished_at: 2026-10-03T13:19:48Z
       - id: detail-ch84-moe-routing-simulation
         objective: "Make Chapter 84 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch83-distributed-schedule-simulation"]
