@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T15:07:08Z"
+updated_at: "2026-10-03T15:29:19Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -43192,60 +43192,75 @@ builds:
         runs: []
 
       - id: establish-functional-offline-workspace-execution-boundary
-        objective: "Establish one closed, lock-bound, source-fingerprinted workspace runner and a separate bounded history-source evidence runner before any N0 or chapter validation can execute."
+        objective: Establish one closed, lock-bound, source-fingerprinted workspace runner and a separate bounded history-source evidence runner before any N0 or chapter validation can execute.
         depends_on:
-          - "design-functional-laptop-llm-curriculum-extension"
-        status: "pending"
+          - design-functional-laptop-llm-curriculum-extension
         inputs:
-          - "current Cargo.lock, Cargo.toml, site/package-lock.json, site/package.json and pinned base image digests"
-          - "accepted 104-source register and exact 46 earlier/later history mappings"
-          - "current workspace image sha256:aa971e0f72bc0c6aed4a8ddb65020f8a583b4633b13955a47d41f786952adde3"
-          - "AGENTS.md explicit network, run-record, supporting-library and static validation policy"
+          - current Cargo.lock, Cargo.toml, site/package-lock.json, site/package.json and pinned base image digests
+          - accepted 104-source register and exact 46 earlier/later history mappings
+          - current workspace image sha256:aa971e0f72bc0c6aed4a8ddb65020f8a583b4633b13955a47d41f786952adde3
+          - AGENTS.md explicit network, run-record, supporting-library and static validation policy
+          - "2026-10-03 user instruction: use existing hashing libraries, do not implement SHA-256; shared artifact identity setup ownership and locked minimal graph before Chapter40"
+          - RustCrypto sha2 =0.10.9, default-features=false, features=[]; existing serde_json syntax plumbing. Bounded official crate index/archive/license/advisory metadata only under the existing N2 budget; no model, corpus or other supporting roots.
         outputs:
-          - "Dockerfile.functional-offline"
-          - "configs/functional-offline-targets.json"
-          - "configs/functional-history-source-allowlist.json"
-          - "scripts/run-functional-offline.sh"
-          - "scripts/check-functional-offline-receipt.mjs"
-          - "scripts/run-functional-history-source-evidence.sh"
-          - "scripts/check-functional-history-source-evidence.mjs"
-          - "scripts/tests/run-functional-offline.test.mjs"
-          - "scripts/tests/check-functional-offline-receipt.test.mjs"
-          - "scripts/tests/run-functional-history-source-evidence.test.mjs"
-          - "scripts/tests/check-functional-history-source-evidence.test.mjs"
-          - "audits/functional-laptop/execution-boundaries/offline-workspace-v1.json"
-          - "audits/functional-laptop/execution-boundaries/history-source-evidence-v1.json"
-          - "artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json"
-          - "scripts/check-functional-gpt2-tokenizer-oracle-runtime.py"
-          - "scripts/tests/check-functional-gpt2-tokenizer-oracle-runtime.test.mjs"
-          - "artifacts/functional-laptop/execution-boundaries/offline-workspace/gpt2-tokenizer-oracle-runtime-receipt.json"
-          - "configs/functional-gpt2-tokenizer-oracle-runtime-v1.json"
-          - "scripts/build-functional-gpt2-tokenizer-oracle-runtime.sh"
-          - "artifacts/functional-laptop/step-output-inventories/establish-functional-offline-workspace-execution-boundary.json"
-          - "scripts/extract-functional-history-source.mjs"
-          - "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
-          - "BUILD_STATE.yaml"
-          - "DECISIONS.md"
+          - Dockerfile.functional-offline
+          - configs/functional-offline-targets.json
+          - configs/functional-history-source-allowlist.json
+          - scripts/run-functional-offline.sh
+          - scripts/check-functional-offline-receipt.mjs
+          - scripts/run-functional-history-source-evidence.sh
+          - scripts/check-functional-history-source-evidence.mjs
+          - scripts/tests/run-functional-offline.test.mjs
+          - scripts/tests/check-functional-offline-receipt.test.mjs
+          - scripts/tests/run-functional-history-source-evidence.test.mjs
+          - scripts/tests/check-functional-history-source-evidence.test.mjs
+          - audits/functional-laptop/execution-boundaries/offline-workspace-v1.json
+          - audits/functional-laptop/execution-boundaries/history-source-evidence-v1.json
+          - artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json
+          - scripts/check-functional-gpt2-tokenizer-oracle-runtime.py
+          - scripts/tests/check-functional-gpt2-tokenizer-oracle-runtime.test.mjs
+          - artifacts/functional-laptop/execution-boundaries/offline-workspace/gpt2-tokenizer-oracle-runtime-receipt.json
+          - configs/functional-gpt2-tokenizer-oracle-runtime-v1.json
+          - scripts/build-functional-gpt2-tokenizer-oracle-runtime.sh
+          - artifacts/functional-laptop/step-output-inventories/establish-functional-offline-workspace-execution-boundary.json
+          - scripts/extract-functional-history-source.mjs
+          - artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+          - rust/crates/llm-from-scratch/src/artifact_identity.rs
+          - rust/crates/llm-from-scratch/tests/artifact_identity.rs
+          - rust/crates/llm-from-scratch/src/lib.rs
+          - rust/crates/llm-from-scratch/Cargo.toml
+          - Cargo.lock
+          - scripts/check-rust-dependencies.sh
+          - configs/functional-artifact-identity-v1.json
+          - audits/functional-laptop/dependencies/artifact-identity-allowlist-v1.json
         acceptance:
-          - "Build one immutable dependency/toolchain image from the exact Cargo and npm locks under this step's sole N2 authority, inventory every acquired byte and license, and bind the resolved image ID, locks, toolchains and source-independent layers."
-          - "Every ordinary future target is selected from configs/functional-offline-targets.json; current source is fingerprinted and built with --network none and --pull=false, the repository and caches are read-only, and writes are confined to bounded container overlay/tmpfs paths with no writable host source or cache mount."
-          - "The runner rejects arbitrary argv, mutable tags, stale locks, stale image or source hashes, missing cache entries, network-enabled execution, unexpected writes and unregistered targets. No later N0 validation invokes ./course run or ./course check."
-          - "The distinct history runner derives exactly two ordered accepted source IDs from the chapter mapping, permits no caller URL/search argument, freezes allowlisted final URL/revision/media/title/year/locator and bounded redirects, and records a copyright-safe extract plus response and extraction hashes."
-          - "History evidence uses only .build/history-source-cache/v1/sha256/<digest>, never the later dataset/model cache; per source it permits one request and at most three allowlisted redirects, 64 MiB downloaded and 256 MiB expanded, and per chapter 128 MiB/512 MiB and 900 seconds. Cache reuse is read-only and network-free."
-          - "Under this step's exact N2 authority, derive the validation-only oracle image from the digest-pinned Node/bookworm base plus the eight exact Debian Python 3.11.2/python3-regex packages, resolve the complete snapshot package closure, retain the exact Apache-2.0/PSF copyright bytes, and freeze every installed byte, license and derived image ID. It may drive only the frozen official GPT-2 tokenizer oracle; it is never a learner/product implementation or a neural encoder/decoder path."
+          - Build one immutable dependency/toolchain image from the exact Cargo and npm locks under this step's sole N2 authority, inventory every acquired byte and license, and bind the resolved image ID, locks, toolchains and source-independent layers.
+          - Every ordinary future target is selected from configs/functional-offline-targets.json; current source is fingerprinted and built with --network none and --pull=false, the repository and caches are read-only, and writes are confined to bounded container overlay/tmpfs paths with no writable host source or cache mount.
+          - The runner rejects arbitrary argv, mutable tags, stale locks, stale image or source hashes, missing cache entries, network-enabled execution, unexpected writes and unregistered targets. No later N0 validation invokes ./course run or ./course check.
+          - The distinct history runner derives exactly two ordered accepted source IDs from the chapter mapping, permits no caller URL/search argument, freezes allowlisted final URL/revision/media/title/year/locator and bounded redirects, and records a copyright-safe extract plus response and extraction hashes.
+          - History evidence uses only .build/history-source-cache/v1/sha256/<digest>, never the later dataset/model cache; per source it permits one request and at most three allowlisted redirects, 64 MiB downloaded and 256 MiB expanded, and per chapter 128 MiB/512 MiB and 900 seconds. Cache reuse is read-only and network-free.
+          - Under this step's exact N2 authority, derive the validation-only oracle image from the digest-pinned Node/bookworm base plus the eight exact Debian Python 3.11.2/python3-regex packages, resolve the complete snapshot package closure, retain the exact Apache-2.0/PSF copyright bytes, and freeze every installed byte, license and derived image ID. It may drive only the frozen official GPT-2 tokenizer oracle; it is never a learner/product implementation or a neural encoder/decoder path.
+          - Supply the shared artifact-identity v1 helper and its fixed unambiguous encoding/test vectors in the existing Rust crate. Use RustCrypto sha2 =0.10.9 with no default or optional features for SHA-256; never handwrite the hashing algorithm. serde_json handles JSON syntax; course Rust validates identity fields, schema version, ordering and bounds.
+          - Resolve, lock, license/advisory-check and allowlist the complete minimal hashing graph before fetching it under the existing N2 ceiling. Retain the original Cargo.lock identity as historical input, bind the resulting lock and graph in the workspace/identity receipts, and admit no tensor, tokenizer, model, training or later dependency roots.
+          - The helper belongs to this foundation, not Chapter40. Preserve all scalar algorithm bytes. Export only the shared helper through the necessary lib.rs integration, register its exact infrastructure source ownership, and require downstream integration to preserve it without duplicate chapter registration.
+          - The original 24 foundation outputs and all existing bootstrap, history/oracle, isolation, resource, source, license and refusal requirements remain mandatory. The additional helper self-test runs only in the closed network-none runner, comparing actual Rust digests with Node built-in SHA-256 on exactly the same serialized bytes.
         validate:
-          - "scripts/run-functional-offline.sh bootstrap --step establish-functional-offline-workspace-execution-boundary --target lock-bound-workspace-v1"
-          - "scripts/run-functional-offline.sh bootstrap-oracle --step establish-functional-offline-workspace-execution-boundary --target gpt2-tokenizer-oracle-runtime-v1"
-          - "scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/gpt2-tokenizer-oracle-runtime-receipt.json"
-          - "scripts/run-functional-offline.sh --step establish-functional-offline-workspace-execution-boundary --target offline-boundary-self-test-v1"
-          - "scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json"
-          - "scripts/run-functional-offline.sh bootstrap --step establish-functional-offline-workspace-execution-boundary --target history-source-extractors-v1"
-          - "scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
-          - "git diff --check"
-          - "./course audit-host"
+          - scripts/run-functional-offline.sh bootstrap --step establish-functional-offline-workspace-execution-boundary --target lock-bound-workspace-v1
+          - scripts/run-functional-offline.sh bootstrap-oracle --step establish-functional-offline-workspace-execution-boundary --target gpt2-tokenizer-oracle-runtime-v1
+          - scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/gpt2-tokenizer-oracle-runtime-receipt.json
+          - scripts/run-functional-offline.sh --step establish-functional-offline-workspace-execution-boundary --target offline-boundary-self-test-v1
+          - scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json
+          - scripts/run-functional-offline.sh bootstrap --step establish-functional-offline-workspace-execution-boundary --target history-source-extractors-v1
+          - scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json
+          - scripts/run-functional-offline.sh --step establish-functional-offline-workspace-execution-boundary --target artifact-identity-self-test-v1
+          - git diff --check
+          - ./course audit-host
         cost:
-          class: "large"
-          notes: "cpu=C3;gpu=G0;network=N2;paid=none;execution=lock-bound-toolchain-and-dependency-cache-acquisition;wall_seconds_max=7200;host_bytes_max=8589934592;disk_bytes_max=20000000000;download_bytes_max=5000000000"
+          class: large
+          notes: cpu=C3;gpu=G0;network=N2;paid=none;execution=lock-bound-toolchain-and-dependency-cache-acquisition;wall_seconds_max=7200;host_bytes_max=8589934592;disk_bytes_max=20000000000;download_bytes_max=5000000000
+        status: pending
         runs: []
 
       - id: establish-functional-firefox-execution-boundary
@@ -53434,3 +53449,103 @@ builds:
                 notes: Canonical completion acceptance rechecked before commit.
             notes: Compatibility only. Fresh 21/21 acceptance tests pass; five hash-verified run02 publication snapshots are reused byte-identically without overwriting earlier runs. Array-preserving alias-free completion is parsed before apply and canonical completed state is checked before commit. Repairs and all chapter implementation remain unclaimed.
             finished_at: 2026-10-03T15:07:08Z
+
+  - build_id: amend-ch40-foundation-artifact-identity-20261003
+    objective: Bind the user-required existing hashing library and missing shared identity owner to Chapter40 prerequisite setup, preserving repairs and the accepted curriculum.
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: Narrow necessary Chapter40 setup amendment only. Actual library acquisition/implementation remains owned by the foundation N2 step and its existing budget.
+    completion_criteria:
+      - One exact-bound successor setup contract assigns canonical identity plumbing, Rust ownership, minimal dependency admission and closed self-tests to the foundation.
+      - Chapter40 and four prerequisite setup steps retain their release; repairs and Chapter41+ remain held; no chapter or dependency is implemented by this amendment.
+    steps:
+      - id: amend-ch40-foundation-artifact-identity
+        objective: Assign and validate early shared artifact-identity/hash-library setup ownership without implementing a chapter or weakening the frozen execution boundaries.
+        depends_on:
+          - reconcile-ch40-execution-lifecycle
+        status: completed
+        inputs:
+          - "2026-10-03 user instruction: existing hashing libraries only; Chapter40 and necessary setup released, repairs held."
+          - configs/functional-execution-compatibility-v1.json
+          - curriculum/future-chapter-plans/40-reference-core-handoff.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+          - scripts/check-functional-laptop-llm-plan.mjs
+          - Read-only exact RustCrypto sha2 0.10.9 official documentation; no package or model acquisition during this amendment.
+        outputs:
+          - configs/functional-execution-compatibility-v2.json
+          - scripts/check-functional-laptop-llm-plan.mjs
+          - scripts/tests/check-functional-execution-compatibility.test.mjs
+          - curriculum/future-chapter-plans/README.md
+          - curriculum/future-chapter-plans/40-reference-core-handoff.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+        acceptance:
+          - Preserve the v1 contract, completed compatibility build, all historical runs and all substantive embedded plan/queue/schema/resource checks.
+          - Amend only the first foundation ownership/input/acceptance/validation record for shared SHA-256 plumbing and its locked minimal graph; no other functional step specification changes.
+          - Use an existing hashing library; Chapter40 consumes the one foundation identity boundary, not a chapter-private encoding or SHA-256 implementation.
+          - The closed added target and necessary lib/Cargo handoff are exact-bound; helpers cannot hide any taught LLM operation, accept arbitrary argv, expand network/resource authority or activate later steps.
+          - Live actual-state, adversarial compatibility, selected-model, visual-policy and ordinary plan checks pass in the existing pinned offline container; repairs remain pending with empty runs.
+        validate:
+          - node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+          - node scripts/check-functional-laptop-llm-plan.mjs
+          - node scripts/check-course-plan.mjs
+          - git diff --check
+        cost: medium; internal setup contract and bounded offline validation plus exact primary-source documentation lookup, no package acquisition, course build, GPU or paid service.
+        runs:
+          - run_id: 20261003T151925Z-amend-ch40-foundation-artifact-identity-01
+            started_at: 2026-10-03T15:19:25Z
+            status: succeeded
+            input_fingerprint:
+              commit: 9d0d75bc39143ccfd3a629ec972a6adba4b87aa7
+              state_sha256_before_claim: bfc792945250f1993e110fe1d83980b792b482f1d7a3f7fb9d62f8e86e5a01a9
+              v1_contract_sha256: 514b675a06e73c52e3c75dd69c855ab4de541382c6770eca771fe65f71ea4fbc
+              checker_sha256_before_claim: 2e2672c9e73762558e887a8a955b086eed7e1b7d25f6a67e6be6b87c45b55d80
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T151925Z-amend-ch40-foundation-artifact-identity-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-functional-laptop-llm-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs
+              - git diff --check
+            artifacts:
+              - path: configs/functional-execution-compatibility-v2.json
+                sha256: e2e1c1c821361bd4bb6e73775e2dc726333268dd348dd5ff595af69117aa732f
+                bytes: 14744
+              - path: scripts/check-functional-laptop-llm-plan.mjs
+                sha256: b899a723982ec38a5e3801734a2fc84b3b4fa85dcc8d914cb016275f33c43d9a
+                bytes: 3531563
+              - path: scripts/tests/check-functional-execution-compatibility.test.mjs
+                sha256: bad60ac23843c2d2cba1fce0095548d3b876f8d513c70033e28c6a59bb756ece
+                bytes: 9055
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: 180f9317cfc8dfaa3f63ab8ce4d6a67975a037d7a80311f6d2ca6dded799f072
+                bytes: 21592
+              - path: curriculum/future-chapter-plans/40-reference-core-handoff.md
+                sha256: 7b3c91835d74ae3b768d080fc11b28b2a5b73aa5af830c6caaeb198ca9e636ee
+                bytes: 35460
+              - path: .build/runs/20261003T151925Z-amend-ch40-foundation-artifact-identity-01/preflight.md
+                sha256: 2d5836f37f09194ebd337fe46a572a6e842d0339e1f6786142b64048af3331e3
+                bytes: 1452
+              - path: .build/runs/20261003T151925Z-amend-ch40-foundation-artifact-identity-01/validation.md
+                sha256: df474cc78f597ea88424de1c2f94d3d5ab2b974611b203b18b935fb73d559505
+                bytes: 1070
+            validation:
+              - command: node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+                status: passed
+                notes: 24/24 passed; exact base invariance and negative ownership/historical/policy checks.
+              - command: node scripts/check-functional-laptop-llm-plan.mjs
+                status: passed
+                notes: Actual canonical gate passed; completed-state gates are repeated before commit.
+              - command: node scripts/check-course-plan.mjs
+                status: passed
+                notes: Actual canonical gate passed; completed-state gates are repeated before commit.
+              - command: git diff --check
+                status: passed
+                notes: Actual canonical gate passed; completed-state gates are repeated before commit.
+            notes: Internal setup amendment only; original requirement prefixes retained, eight helper plumbing outputs and one closed self-test assigned to the first foundation. sha2 existing-library root pinned, but no graph, package or implementation acquired. All five operational files match their staged hashes. Canonical aliases disabled and completed-state actual check required before commit. v1/old compatibility build, frozen plan and all other functional specs unchanged; repairs and Chapter41+ held.
+            finished_at: 2026-10-03T15:29:19Z

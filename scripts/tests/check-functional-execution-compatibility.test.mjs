@@ -12,7 +12,7 @@ const { parse, stringify } = require('yaml');
 const read = (path) => readFileSync(new URL('../../' + path, import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const state = parse(read('BUILD_STATE.yaml').toString());
-const contract = JSON.parse(read('configs/functional-execution-compatibility-v1.json'));
+const contract = JSON.parse(read('configs/functional-execution-compatibility-v2.json'));
 const checker = read('scripts/check-functional-laptop-llm-plan.mjs').toString();
 const embedded = (name) => JSON.parse(checker.match(new RegExp(`^const ${name} = /\\*[^\\n]*?\\*/ (.*);$`, 'm'))[1]);
 const constants = embedded('EMBEDDED_CONSTANTS');
@@ -29,7 +29,7 @@ function ready() {
   run.status = 'succeeded'; run.finished_at = '2026-10-03T15:00:00Z';
   run.commands = [...step.validate];
   run.validation = step.validate.map((command) => ({ command, status: 'passed' }));
-  run.artifacts = ['scripts/check-functional-laptop-llm-plan.mjs','configs/functional-execution-compatibility-v1.json'].map((path) => ({ path, sha256: sha(read(path)) }));
+  run.artifacts = ['scripts/check-functional-laptop-llm-plan.mjs','configs/functional-execution-compatibility-v2.json'].map((path) => ({ path, sha256: sha(read(path)) }));
   const terminal = functional(doc).steps.find(s => s.id === contract.release_terminal_step).status === 'completed';
   functional(doc).status = terminal ? 'pending' : 'active';
   doc.active_build = terminal ? null : functional(doc).build_id;
@@ -96,4 +96,33 @@ test('current execution cannot relabel initial publication or omit setup', () =>
   assert.throws(() => validateState(stringify(state), queue, constants, { root, initialPublication: true }), /cannot relabel/);
   const doc = ready(); functional(doc).steps.splice(4,1);
   assert.throws(() => checkState(doc), /BUILD_STATE missing establish-functional-offline/);
+});
+
+test('hashing amendment preserves every original requirement and all other step specifications', () => {
+  const original = queue.steps[0], amended = contract.setup_amendment.step_spec;
+  for (const field of ['id','objective','depends_on','cost']) assert.deepEqual(amended[field], original[field]);
+  for (const field of ['inputs','outputs','acceptance']) assert.deepEqual(amended[field].slice(0,original[field].length), original[field]);
+  assert.deepEqual(amended.validate.filter(command => !command.includes('artifact-identity-self-test-v1')), original.validate);
+  assert.equal(amended.outputs.length, original.outputs.length + 8);
+  for (const originalStep of queue.steps.slice(1)) {
+    const actual = functional(state).steps.find(s => s.id === originalStep.id);
+    for (const field of ['id','objective','depends_on','inputs','outputs','acceptance','validate','cost']) assert.deepEqual(actual[field], originalStep[field]);
+  }
+});
+test('hashing ownership cannot be omitted, moved into Chapter40 or silently expanded', () => {
+  for (const change of [s => {s.outputs.pop();},s => {s.outputs.push('undeclared-hashing-module.rs');},s => {s.acceptance.pop();},s => {s.validate.pop();}]) {
+    const doc=ready();change(functional(doc).steps[4]);
+    assert.throws(() => checkState(doc), /BUILD_STATE immutable establish-functional-offline/);
+  }
+  assert.equal(contract.setup_amendment.rust_infrastructure_source,'rust/crates/llm-from-scratch/src/artifact_identity.rs');
+  assert.ok(contract.setup_amendment.step_spec.acceptance.some(s => s.includes('never handwrite the hashing algorithm')));
+  assert.ok(contract.setup_amendment.step_spec.inputs.some(s => s.includes('sha2 =0.10.9, default-features=false, features=[]')));
+});
+test('upstream compatibility is frozen historical evidence, not relabeled current publication', () => {
+  const old = JSON.parse(read('configs/functional-execution-compatibility-v1.json'));
+  assert.equal(sha(read(contract.upstream_compatibility.path)),contract.upstream_compatibility.sha256);
+  const doc=ready();const upstream=doc.builds.find(b=>b.build_id===old.compatibility_build.build_id);
+  assert.equal(upstream.steps[0].runs.at(-1).artifacts.find(a=>a.path==='scripts/check-functional-laptop-llm-plan.mjs').sha256,contract.upstream_compatibility.checker_sha256);
+  upstream.steps[0].runs.at(-1).status='failed';
+  assert.throws(() => checkState(doc),/intervening build drift/);
 });

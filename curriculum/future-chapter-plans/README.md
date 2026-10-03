@@ -58,6 +58,17 @@ this scheduling release cannot substitute for their missing outputs. Chapter 41
 and later implementation/acquisition remain held. Original run artifacts and
 the frozen extension plan remain historical evidence, not rewritten records.
 
+The user's existing-library hashing instruction is bound by the separate
+`amend-ch40-foundation-artifact-identity` setup amendment and its v2 compatibility
+contract. The first offline foundation owns the shared Rust identity helper,
+versioned canonical framing, cross-checked vectors and minimal locked hashing
+graph before Chapter40 consumes it. SHA-256 comes from RustCrypto sha2, not a
+handwritten implementation. This is supporting plumbing only; all learner-facing
+LLM decisions remain course-owned Rust. The original foundation outputs/gates,
+resource/network ceilings and other steps stay unchanged. Keep lib/Cargo handoff
+bound to the foundation's incoming output inventory, and retain v1/old runs as
+historical evidence. This internal amendment publishes no lesson or dependency.
+
 ## Inventory and this checkpoint
 
 ### Current learner-facing authoring policy (2026-10-02)

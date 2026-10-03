@@ -143,6 +143,14 @@ Do not introduce a Chapter 40-specific serializer or fingerprint format. At
 execution preflight, bind the completed foundation's canonical artifact-identity
 helper, its format/version and its test vectors. Require these three logical
 inputs to be included; include both fixture files in the fixture identity.
+
+The 2026-10-03 existing-library directive is owned by the separate
+`amend-ch40-foundation-artifact-identity` setup amendment. Its effective first
+foundation owns `src/artifact_identity.rs`, the exact v1 format and vectors,
+minimal locked/licensed RustCrypto sha2 graph and closed network-none self-test.
+Use that accepted helper; do not implement SHA-256 or move dependency admission
+into this chapter. serde_json handles standard JSON syntax, not identity policy.
+
 If the helper cannot express them without ambiguity, stop and return the gap to
 the prerequisite owner in a new recorded step rather than inventing a local
 format. A raw Git revision alone does not bind dirty source bytes: use the

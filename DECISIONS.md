@@ -26438,3 +26438,33 @@ the ledger parses without aliases and `git diff --check` passes. The dedicated
 commit contains only this seven-path compatibility step. The four necessary
 setup steps and Chapter 40 remain pending; the functional build is active solely
 for their bounded release, and the separate repairs remain pending with no runs.
+
+### 2026-10-03 — Existing-library shared identity assigned before Chapter40
+
+The user requires an existing hashing library and rejects implementing SHA-256.
+Chapter40 already requires a shared foundation identity helper, but its owner,
+format and vectors were absent and the broad supporting-dependency admission
+occurs only after Chapter50. Add a narrowly hash-bound setup amendment assigning
+that shared plumbing to the first offline foundation. Use RustCrypto sha2
+`=0.10.9`, no default or optional features, and existing serde_json syntax support.
+Resolve and admit the complete minimal licensed/advisory-checked graph and lock
+it before acquisition/use under that foundation's existing N2/resource ceilings.
+No other later dependency root, LLM algorithm or chapter-private format is added.
+
+Preserve v1, its completed build and all old runs as immutable upstream evidence.
+The v2 contract separately binds the necessary extra outputs and closed helper
+self-test, plus lib/Cargo incoming-inventory transitions. All original foundation
+outputs, bootstrap/history/oracle, isolation, resource and publication gates are
+retained. Other functional step specifications and held repairs remain exact.
+The current cached image lacks Cargo registry entries; the original declared
+clean-host pinned bootstrap fallback, not an opportunistic replacement image,
+is the permitted recovery for the missing fast-path image. No package download,
+library implementation, learner-facing content or repair happens in this step.
+
+Acceptance: 24/24 pinned offline tests pass, including original requirement and
+50-validator byte invariance, all other step specs, v1/historical integrity and
+negative ownership/policy cases. Both actual live plan checkers and diff check
+pass. Verify actual completed-state gates and the five byte-identical publication
+snapshots before the dedicated amendment commit. Canonical operational edits
+preceded the internal planning snapshot; no learner route was exposed. Foundation
+implementation remains pending, and Chapter40 is neither implemented nor reviewed.
