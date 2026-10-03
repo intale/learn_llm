@@ -26021,3 +26021,30 @@ regressions, and distinguish raw policy preference from reference-relative margi
 The six historical RLHF stages remain explicitly bounded conceptual/arithmetic
 evidence. No useful reward-model/PPO implementation or broad alignment claim is
 introduced. Internal planning review is not an English publication judgment.
+
+### 2026-10-03 — Chapter 73 quantized-base LoRA planning
+
+Prepare the internal Chapter 73 packet only. Retain all implementation, repair,
+acquisition and training holds. Its executed future profile is advanced smoke:
+inherit the ordinary smoke's model/context/token/memory limits and apply only
+the explicit 7,200-second wall override. The old 0.5–1.5B/context-1,024 estimate
+does not authorize a larger acquired base or enlarge the consumed adapter profile.
+
+Compose Chapter 61's accepted course quantization path and Chapter 71's LoRA
+path. Distinguish the conditional pinned Q4_0 wire format from the adjacent-nibble
+diagnostic and from QLoRA's historical NF4, double quantization and paged optimizers.
+Do not introduce another quantizer, hidden dense fallback or paging system.
+
+Freeze packed base codes/scales and every nonadapter parameter while preserving
+the input gradient through frozen matrix multiplication. Compare the quantized
+path with the identical decoded dense weights for implementation parity; compare
+with original dense weights for quantization deltas. Real loss-derived gradients
+may differ in the latter comparison. No parity or quality conclusion follows
+from an artificially fixed upstream gradient alone.
+
+Charge all dequantization, graph, gradient, optimizer and comparison overlap
+memory. Bind both arms to predeclared starting factors, objective, data, precision,
+schedule and stopping policy. Unsupported quantized backward refuses explicitly.
+Reuse fixed-window loss scaling and complete-state resume; preserve quantized
+merge refusal and immutable identities for Chapter 74. Internal planning review
+does not satisfy future English or Russian publication judgments.

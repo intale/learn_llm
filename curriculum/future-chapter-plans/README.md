@@ -136,8 +136,9 @@ Completed planning checkpoints:
 - [Chapter 70: loopback serving and metrics](70-loopback-serving-metrics.md).
 - [Chapter 71: LoRA and response-masked SFT adapters](71-lora-sft-adapters.md).
 - [Chapter 72: direct preference optimization](72-direct-preference-optimization.md).
+- [Chapter 73: the QLoRA boundary](73-qlora-boundary.md).
 
-Chapters 73–85 remain separate pending planning steps. Do not substitute this
+Chapters 74–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

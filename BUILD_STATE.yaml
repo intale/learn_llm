@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T09:27:06Z"
+updated_at: "2026-10-03T09:41:42Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 33
+      spent: 34
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -50393,7 +50393,7 @@ builds:
       - id: detail-ch73-qlora-boundary
         objective: "Make Chapter 73 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch72-direct-preference-optimization"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -50409,7 +50409,97 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20261003T092741Z-detail-ch73-qlora-boundary-01
+            started_at: 2026-10-03T09:27:45Z
+            status: succeeded
+            input_fingerprint:
+              commit: f29896c301cfbb107f672b98c353ab6835682f7f
+              inputs_sha256: 8915d25a26f93acde3193680a7494ab23e039ad2eefe37fe9fb6ecf05e595deb
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                claim 73 .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                publish 73 .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01
+              - test -s curriculum/future-chapter-plans/73-qlora-boundary.md
+              - git diff --check
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node scripts/check-course-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                finish 73 .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01
+            artifacts:
+              - path: .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                sha256: 72e757c066b11806a4a6b13aaeb4faf1df764cc782f6942e2d319fc1d7b2f67d
+                bytes: 20389
+              - path: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/inputs.json
+                sha256: 8915d25a26f93acde3193680a7494ab23e039ad2eefe37fe9fb6ecf05e595deb
+                bytes: 60985
+              - path: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/preflight.md
+                sha256: 9c03b754b241cfc8010e015483e19f00ed829f93d924bc3bf39bc2030026730b
+                bytes: 1560
+              - path: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/73-qlora-boundary.md
+                sha256: a4987f4e0b63ca3ede5fdd7fb9fe8111e6a4e2e9a1bed5139a4a57fc89c41918
+                bytes: 48160
+              - path: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/planning-evidence.md
+                sha256: 49dc91dce0c3dd914a8b657c425e4ad9d7f3e782dfdf9934038b50e6de89bcfa
+                bytes: 4689
+              - path: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/validation.txt
+                sha256: 4932149b7667698447fbcbddceea9ff2b7de45bf188c206b162d1fc143201930
+                bytes: 507
+              - path: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/validation.json
+                sha256: 389b8417a1ec1cb110369b5df75d64352d8af5e9a830a62c7fcb250ad2e0f762
+                bytes: 905
+              - path: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/decision-entry.md
+                sha256: 14bd94375536f84f8371d0b87a0b2e2161bf892caf40d31060d31f630cf218bc
+                bytes: 1704
+              - path: curriculum/future-chapter-plans/73-qlora-boundary.md
+                sha256: a4987f4e0b63ca3ede5fdd7fb9fe8111e6a4e2e9a1bed5139a4a57fc89c41918
+                bytes: 48160
+              - path: curriculum/future-chapter-plans/index.json
+                sha256: 2aae6d446ffb4ab3928848540303a6d38155136181718d0d4ae429fe1f3ac441
+                bytes: 10792
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: aac9e867ee2ad3a8cacb77e008bfc4820a44d178f298394172ee1105e70b6a38
+                bytes: 18533
+            validation:
+              - command: Exact metadata/output/command/section/link/inventory and unchanged
+                  other-build/step/prior-packet checks
+                status: passed
+              - command: Internal mathematical/interface planning audit
+                status: passed
+                evidence: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/planning-evidence.md
+              - command: git diff --check; ordinary course-plan checker in pinned offline image
+                status: passed
+                evidence: .build/runs/20261003T092741Z-detail-ch73-qlora-boundary-01/validation.txt
+            notes: Planning packet only; no implementation or publication judgment. Current
+              problem-first/no-prediction and user-selected-model policies govern. All
+              execution/repair holds and other build/step objects preserved.
+            finished_at: 2026-10-03T09:41:42Z
       - id: detail-ch74-prefix-cache-reuse
         objective: "Make Chapter 74 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch73-qlora-boundary"]

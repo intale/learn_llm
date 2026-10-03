@@ -245,7 +245,7 @@
       "id": "73-qlora-boundary",
       "planning_step": "detail-ch73-qlora-boundary",
       "planned_packet": "73-qlora-boundary.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 74,
