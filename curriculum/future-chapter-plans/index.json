@@ -252,7 +252,7 @@
       "id": "74-prefix-cache-reuse",
       "planning_step": "detail-ch74-prefix-cache-reuse",
       "planned_packet": "74-prefix-cache-reuse.md",
-      "status": "pending"
+      "status": "planning-ready"
     },
     {
       "number": 75,

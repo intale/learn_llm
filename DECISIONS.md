@@ -26048,3 +26048,44 @@ schedule and stopping policy. Unsupported quantized backward refuses explicitly.
 Reuse fixed-window loss scaling and complete-state resume; preserve quantized
 merge refusal and immutable identities for Chapter 74. Internal planning review
 does not satisfy future English or Russian publication judgments.
+
+### 2026-10-03 — Chapter 74 authorized prefix-reuse planning
+
+Prepare only the Chapter 74 internal packet; implementation and repair holds
+remain intact. Reuse Chapter 65's one physical KV pool and Chapters 68–70's
+request, scheduling and cancellation boundaries. A prefix cache is an additional
+immutable-reference owner, not a second allocator or persistent artifact store.
+
+Authorize before lookup and compare complete semantic identity after a digest
+hit. Canonically frame all fields; token equality alone does not bind positions,
+model/config/tokenizer/template/adapter/context/precision or authorization scope.
+Keep per-request sampling, penalties, stop state, counters and RNG independent.
+KV alone does not supply last-prefix logits: the chosen continuation policy must
+explicitly retain sufficient state or replay from before that token's KV position.
+
+Preserve the frozen shared-tail copy-on-write gate. Allocating a new block after
+a shared full block is not itself COW. Shared partial-tail append needs reserved
+private storage, valid-row copying, complete prepare/commit and safe rollback.
+Entry references, request leases and in-flight device pins have different
+lifetimes; eviction or cancellation cannot free a still-live share.
+
+Count physical memory once, including retiring/reserved blocks, and enforce the
+cache's 64-block/256-MiB ceilings inside the admitted global pool. Deterministic
+eviction may drop eligible cache references; it must not shorten live request
+context or claim free allocator bytes while another owner still holds the block.
+Keep the required 1,000-trace and cold/reused semantic comparisons. No approximate
+matching, cross-tenant cache, process-restart persistence or promised speedup is
+introduced by this plan.
+
+The selected continuation payload includes bound raw last-position logits;
+request RNG, penalties, stopping and Unicode state remain private. Entry, key,
+logit and host-metadata caps supplement physical-block limits. Real decoder
+parity and exact discrete decisions remain separate from the synthetic storage
+trace and its exact byte arithmetic. PagedAttention's primary text explicitly
+describes reference counts; the frozen summary's contrary wording needs a later
+compatibility correction, not silent mutation now.
+
+Multi-token suffix prefill preserves Chapter 65's whole-call atomicity. Reserve
+all candidate storage and prepare all suffix rows and final logits privately;
+failure retains the original committed prefix and charges attempted work until
+safe cleanup. No implicit partial-progress API is introduced.
