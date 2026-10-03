@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "compatibility_id": "functional-ch40-execution-compatibility-v3",
+  "authority": "2026-10-03: implement Chapter 40; keep repairs held and decouple their scheduling; postpone repairs until explicitly requested; shared hashing uses an existing library with explicit foundation ownership",
+  "approved_predecessor": {
+    "path": "curriculum/course-plan.md",
+    "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868",
+    "plan_revision": 78,
+    "chapter_count": 40
+  },
+  "historical_design": {
+    "run_id": "20260915T081118Z-design-functional-laptop-llm-curriculum-extension-05",
+    "plan_sha256": "84d8ab860a3282dd5d373ca285a3815b04836d9abb7a1d2267e163143091bea1",
+    "checker_sha256": "2e19a4829f53b5f4d87ad15571acb808c5963c20ab76d206362015f2a78a2ec7"
+  },
+  "approved_policy_binding": {
+    "plan_sha256": "be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d",
+    "checker_sha256_before_compatibility": "fe9e10f19f344b30cd398b74f8dc013aa475ad63ee3d67bbaf414671d8183b34"
+  },
+  "historical_budget_reconciliation": [
+    {
+      "build_id": "foundation-and-chapter-01",
+      "frozen_spent": 9,
+      "current_spent": 10
+    },
+    {
+      "build_id": "activate-ch14-russian-localization",
+      "frozen_spent": 0,
+      "current_spent": 1
+    }
+  ],
+  "intervening_builds": [
+    {
+      "build_id": "detail-future-chapter-execution-plans-20260915",
+      "projection_sha256": "16bec59a947767b51578b5f5f301d8480166aa4317a9ca1ed46f621199a903e8"
+    },
+    {
+      "build_id": "replace-thread-local-no-grad-with-autograd-context-20260918",
+      "projection_sha256": "caa662a690e36cd4fd7e951f8b09e5abd2b178ba9d094eae53bcc6e4962b5863"
+    },
+    {
+      "build_id": "rewrite-ch17-problem-first-content-20261002",
+      "projection_sha256": "76bebbbd5296ddd7193e5a0df21c6cce6ec458c3e9c072c420fc8df53ff2e7d2"
+    },
+    {
+      "build_id": "user-selected-model-policy-20261002",
+      "projection_sha256": "7b81afff2130d46fdf8c8e0a357b87603e48bbfdbc9eee8fb107b4b7bc2fba0c"
+    },
+    {
+      "build_id": "human-reported-visual-diagnostics-20261002",
+      "projection_sha256": "bc96def5ddeea9784844c70c6b93bc5b25731d632fb89ad35ee3832227b77379"
+    },
+    {
+      "build_id": "serial-task-scheduling-rule-20261002",
+      "projection_sha256": "2e225aa8734ac6ee3619e67d53c178b28970888b5bcd88bf02526285be4e6619"
+    },
+    {
+      "build_id": "localization-author-serial-fallback-20261003",
+      "projection_sha256": "6f76d1512fb48b720f47ad2abdbfc5ddc37421c6240c9b75efe14b0137b821da"
+    },
+    {
+      "build_id": "reconcile-ch40-execution-prerequisites-20261003",
+      "projection_sha256": "954d20d946b43235926e5b7682281c847fc3e7fee8d2e6783b219fec3f5bc018"
+    },
+    {
+      "build_id": "amend-ch40-foundation-artifact-identity-20261003",
+      "projection_sha256": "a119426781c56994bfbe8a747d3800cd28a22bd09f5d98d4c932e280e9f36684"
+    }
+  ],
+  "compatibility_build": {
+    "build_id": "reconcile-functional-bootstrap-output-fingerprints-20261003",
+    "spec_sha256": "fd08e6b0e12e9beb1da60734feb7f9632668ef5483d5459980cc2b3e8f6081b8",
+    "step_id": "reconcile-functional-bootstrap-output-fingerprints"
+  },
+  "held_maintenance": {
+    "step_id": "repair-ch06-symbol-table-and-ch08-ch10-learning-surfaces",
+    "immutable_spec_sha256": "0db8fadca6c706cbe1f59683b5afacc44154e46f16e8fa65b5689f38d24ded2d",
+    "status": "pending",
+    "runs": []
+  },
+  "released_steps": [
+    "establish-functional-offline-workspace-execution-boundary",
+    "establish-functional-firefox-execution-boundary",
+    "reframe-functional-reference-core-surfaces",
+    "establish-functional-successor-static-integration",
+    "implement-ch40-reference-core-handoff"
+  ],
+  "release_terminal_step": "implement-ch40-reference-core-handoff",
+  "learner_sequence": [
+    "problem-definition",
+    "solution",
+    "history",
+    "visualization-and-optional-practice"
+  ],
+  "learner_prediction_prompts": false,
+  "upstream_compatibility": {
+    "path": "configs/functional-execution-compatibility-v2.json",
+    "sha256": "e2e1c1c821361bd4bb6e73775e2dc726333268dd348dd5ff595af69117aa732f",
+    "checker_sha256": "b899a723982ec38a5e3801734a2fc84b3b4fa85dcc8d914cb016275f33c43d9a"
+  },
+  "setup_amendment": {
+    "original_step_spec_sha256": "f74f0321ab05055df0c299fef56b1630d3b957e2123d3078314e754a68f22beb",
+    "step_spec": {
+      "id": "establish-functional-offline-workspace-execution-boundary",
+      "objective": "Establish one closed, lock-bound, source-fingerprinted workspace runner and a separate bounded history-source evidence runner before any N0 or chapter validation can execute.",
+      "depends_on": [
+        "design-functional-laptop-llm-curriculum-extension"
+      ],
+      "inputs": [
+        "current Cargo.lock, Cargo.toml, site/package-lock.json, site/package.json and pinned base image digests",
+        "accepted 104-source register and exact 46 earlier/later history mappings",
+        "current workspace image sha256:aa971e0f72bc0c6aed4a8ddb65020f8a583b4633b13955a47d41f786952adde3",
+        "AGENTS.md explicit network, run-record, supporting-library and static validation policy",
+        "2026-10-03 user instruction: use existing hashing libraries, do not implement SHA-256; shared artifact identity setup ownership and locked minimal graph before Chapter40",
+        "RustCrypto sha2 =0.10.9, default-features=false, features=[]; existing serde_json syntax plumbing. Bounded official crate index/archive/license/advisory metadata only under the existing N2 budget; no model, corpus or other supporting roots."
+      ],
+      "outputs": [
+        "Dockerfile.functional-offline",
+        "configs/functional-offline-targets.json",
+        "configs/functional-history-source-allowlist.json",
+        "scripts/run-functional-offline.sh",
+        "scripts/check-functional-offline-receipt.mjs",
+        "scripts/run-functional-history-source-evidence.sh",
+        "scripts/check-functional-history-source-evidence.mjs",
+        "scripts/tests/run-functional-offline.test.mjs",
+        "scripts/tests/check-functional-offline-receipt.test.mjs",
+        "scripts/tests/run-functional-history-source-evidence.test.mjs",
+        "scripts/tests/check-functional-history-source-evidence.test.mjs",
+        "audits/functional-laptop/execution-boundaries/offline-workspace-v1.json",
+        "audits/functional-laptop/execution-boundaries/history-source-evidence-v1.json",
+        "artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json",
+        "scripts/check-functional-gpt2-tokenizer-oracle-runtime.py",
+        "scripts/tests/check-functional-gpt2-tokenizer-oracle-runtime.test.mjs",
+        "artifacts/functional-laptop/execution-boundaries/offline-workspace/gpt2-tokenizer-oracle-runtime-receipt.json",
+        "configs/functional-gpt2-tokenizer-oracle-runtime-v1.json",
+        "scripts/build-functional-gpt2-tokenizer-oracle-runtime.sh",
+        "artifacts/functional-laptop/step-output-inventories/establish-functional-offline-workspace-execution-boundary.json",
+        "scripts/extract-functional-history-source.mjs",
+        "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json",
+        "BUILD_STATE.yaml",
+        "DECISIONS.md",
+        "rust/crates/llm-from-scratch/src/artifact_identity.rs",
+        "rust/crates/llm-from-scratch/tests/artifact_identity.rs",
+        "rust/crates/llm-from-scratch/src/lib.rs",
+        "rust/crates/llm-from-scratch/Cargo.toml",
+        "Cargo.lock",
+        "scripts/check-rust-dependencies.sh",
+        "configs/functional-artifact-identity-v1.json",
+        "audits/functional-laptop/dependencies/artifact-identity-allowlist-v1.json"
+      ],
+      "acceptance": [
+        "Build one immutable dependency/toolchain image from the exact Cargo and npm locks under this step's sole N2 authority, inventory every acquired byte and license, and bind the resolved image ID, locks, toolchains and source-independent layers.",
+        "Every ordinary future target is selected from configs/functional-offline-targets.json; current source is fingerprinted and built with --network none and --pull=false, the repository and caches are read-only, and writes are confined to bounded container overlay/tmpfs paths with no writable host source or cache mount.",
+        "The runner rejects arbitrary argv, mutable tags, stale locks, stale image or source hashes, missing cache entries, network-enabled execution, unexpected writes and unregistered targets. No later N0 validation invokes ./course run or ./course check.",
+        "The distinct history runner derives exactly two ordered accepted source IDs from the chapter mapping, permits no caller URL/search argument, freezes allowlisted final URL/revision/media/title/year/locator and bounded redirects, and records a copyright-safe extract plus response and extraction hashes.",
+        "History evidence uses only .build/history-source-cache/v1/sha256/<digest>, never the later dataset/model cache; per source it permits one request and at most three allowlisted redirects, 64 MiB downloaded and 256 MiB expanded, and per chapter 128 MiB/512 MiB and 900 seconds. Cache reuse is read-only and network-free.",
+        "Under this step's exact N2 authority, derive the validation-only oracle image from the digest-pinned Node/bookworm base plus the eight exact Debian Python 3.11.2/python3-regex packages, resolve the complete snapshot package closure, retain the exact Apache-2.0/PSF copyright bytes, and freeze every installed byte, license and derived image ID. It may drive only the frozen official GPT-2 tokenizer oracle; it is never a learner/product implementation or a neural encoder/decoder path.",
+        "Supply the shared artifact-identity v1 helper and its fixed unambiguous encoding/test vectors in the existing Rust crate. Use RustCrypto sha2 =0.10.9 with no default or optional features for SHA-256; never handwrite the hashing algorithm. serde_json handles JSON syntax; course Rust validates identity fields, schema version, ordering and bounds.",
+        "Resolve, lock, license/advisory-check and allowlist the complete minimal hashing graph before fetching it under the existing N2 ceiling. Retain the original Cargo.lock identity as historical input, bind the resulting lock and graph in the workspace/identity receipts, and admit no tensor, tokenizer, model, training or later dependency roots.",
+        "The helper belongs to this foundation, not Chapter40. Preserve all scalar algorithm bytes. Export only the shared helper through the necessary lib.rs integration, register its exact infrastructure source ownership, and require downstream integration to preserve it without duplicate chapter registration.",
+        "The original 24 foundation outputs and all existing bootstrap, history/oracle, isolation, resource, source, license and refusal requirements remain mandatory. The additional helper self-test runs only in the closed network-none runner, comparing actual Rust digests with Node built-in SHA-256 on exactly the same serialized bytes."
+      ],
+      "validate": [
+        "scripts/run-functional-offline.sh bootstrap --step establish-functional-offline-workspace-execution-boundary --target lock-bound-workspace-v1",
+        "scripts/run-functional-offline.sh bootstrap-oracle --step establish-functional-offline-workspace-execution-boundary --target gpt2-tokenizer-oracle-runtime-v1",
+        "scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/gpt2-tokenizer-oracle-runtime-receipt.json",
+        "scripts/run-functional-offline.sh --step establish-functional-offline-workspace-execution-boundary --target offline-boundary-self-test-v1",
+        "scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json",
+        "scripts/run-functional-offline.sh bootstrap --step establish-functional-offline-workspace-execution-boundary --target history-source-extractors-v1",
+        "scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json",
+        "scripts/run-functional-offline.sh --step establish-functional-offline-workspace-execution-boundary --target artifact-identity-self-test-v1",
+        "git diff --check",
+        "./course audit-host"
+      ],
+      "cost": {
+        "class": "large",
+        "notes": "cpu=C3;gpu=G0;network=N2;paid=none;execution=lock-bound-toolchain-and-dependency-cache-acquisition;wall_seconds_max=7200;host_bytes_max=8589934592;disk_bytes_max=20000000000;download_bytes_max=5000000000"
+      }
+    },
+    "additional_target_record": {
+      "step_id": "establish-functional-offline-workspace-execution-boundary",
+      "target_id": "artifact-identity-self-test-v1",
+      "bootstrap_runtime_identity": "exact accepted workspace produced by this owner, locked minimal hashing graph and actual current source snapshot; validate its publication receipt before dispatch, not as a preflight cache input",
+      "commands": [
+        "cargo fmt --all -- --check",
+        "cargo test --locked --offline -p llm-from-scratch --test artifact_identity",
+        "node scripts/check-functional-offline-receipt.mjs --step establish-functional-offline-workspace-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json"
+      ]
+    },
+    "rust_infrastructure_source": "rust/crates/llm-from-scratch/src/artifact_identity.rs",
+    "output_transitions": {
+      "rust/crates/llm-from-scratch/src/lib.rs": {
+        "from_step": "establish-functional-offline-workspace-execution-boundary",
+        "to_step": "establish-functional-successor-static-integration",
+        "requires_incoming_inventory": "artifacts/functional-laptop/step-output-inventories/establish-functional-offline-workspace-execution-boundary.json"
+      },
+      "Cargo.lock": {
+        "from_step": "establish-functional-offline-workspace-execution-boundary",
+        "to_step": "admit-functional-supporting-dependency-graph",
+        "requires_incoming_inventory": "artifacts/functional-laptop/step-output-inventories/establish-functional-offline-workspace-execution-boundary.json"
+      },
+      "rust/crates/llm-from-scratch/Cargo.toml": {
+        "from_step": "establish-functional-offline-workspace-execution-boundary",
+        "to_step": "admit-functional-supporting-dependency-graph",
+        "requires_incoming_inventory": "artifacts/functional-laptop/step-output-inventories/establish-functional-offline-workspace-execution-boundary.json"
+      }
+    }
+  },
+  "bootstrap_owned_runtime_selector": {
+    "step_id": "establish-functional-offline-workspace-execution-boundary",
+    "target_id": "history-source-extractors-v1",
+    "expected_input_selector": {
+      "receipt": "artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json",
+      "role": "exact base workspace with admitted parse5/npm and Poppler package graph"
+    },
+    "output_selector_field": "owner_produced_runtime_image_selector",
+    "requirement": "Before dispatch, validate the exact owner-produced workspace receipt, locks, source snapshot and admitted image. It is not an input to the run that creates it."
+  }
+}

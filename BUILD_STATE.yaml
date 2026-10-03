@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T15:29:19Z"
+updated_at: "2026-10-03T15:58:54Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -53549,3 +53549,95 @@ builds:
                 notes: Actual canonical gate passed; completed-state gates are repeated before commit.
             notes: Internal setup amendment only; original requirement prefixes retained, eight helper plumbing outputs and one closed self-test assigned to the first foundation. sha2 existing-library root pinned, but no graph, package or implementation acquired. All five operational files match their staged hashes. Canonical aliases disabled and completed-state actual check required before commit. v1/old compatibility build, frozen plan and all other functional specs unchanged; repairs and Chapter41+ held.
             finished_at: 2026-10-03T15:29:19Z
+
+  - build_id: reconcile-functional-bootstrap-output-fingerprints-20261003
+    objective: Remove one self-produced-receipt cold-start dependency from foundation input fingerprinting while retaining exact runtime admission and all other gates.
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: Necessary cold-start correction within the released Chapter40 setup, no product execution.
+    completion_criteria:
+      - The sole foundation-owned runtime selector is a produced output, not a preflight input; downstream/cross-owner receipt checks remain unchanged.
+      - All existing specifications and required gate evidence are preserved and compatibility tests pass.
+    steps:
+      - id: reconcile-functional-bootstrap-output-fingerprints
+        objective: Make cold foundation preflight fingerprint only its actual inputs, retaining produced-runtime validation before closed extractor dispatch.
+        depends_on:
+          - amend-ch40-foundation-artifact-identity
+        status: completed
+        inputs:
+          - Chapter40 continuation and existing setup authority; all course repairs stay held.
+          - configs/functional-execution-compatibility-v2.json
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+          - scripts/check-functional-laptop-llm-plan.mjs
+          - The exact first foundation history-source-extractors-v1 runtime selector names a current-owner receipt that is absent before bootstrap.
+        outputs:
+          - configs/functional-execution-compatibility-v3.json
+          - scripts/check-functional-laptop-llm-plan.mjs
+          - scripts/tests/check-functional-execution-compatibility.test.mjs
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+        acceptance:
+          - Only the exact current-owner bootstrap runtime selector changes input/output classification; its receipt must remain owned and validated before dispatch.
+          - Preserve v1/v2 contracts, old completed builds/runs, frozen plan/queue/schema/constants, all 50 substantive validators and every functional step specification.
+          - Cross-owner selectors remain required preflight inputs, including missing/mismatched selector refusal; no receipt is fabricated or treated as optional runtime evidence.
+          - Actual live state and positive/adversarial regressions pass offline; Chapter40/setup alone retain release and repairs remain pending with empty runs.
+        validate:
+          - node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+          - node scripts/check-functional-laptop-llm-plan.mjs
+          - node scripts/check-course-plan.mjs
+          - git diff --check
+        cost: small; bounded deterministic offline fingerprint classification and validation; no network, dependency install, product build, GPU, repair or paid service.
+        runs:
+          - run_id: 20261003T154024Z-reconcile-functional-bootstrap-output-fingerprints-01
+            started_at: 2026-10-03T15:40:24Z
+            status: succeeded
+            input_fingerprint:
+              commit: c5faac2a3d8b3e48f859bb1e57d2fe6929ab8c56
+              state_sha256_before_claim: 209c3c4d9f9887edde2a4d14e378a812c4518b34bfdef3fa467d8094c15fa918
+              v2_sha256: e2e1c1c821361bd4bb6e73775e2dc726333268dd348dd5ff595af69117aa732f
+              checker_sha256_before_claim: b899a723982ec38a5e3801734a2fc84b3b4fa85dcc8d914cb016275f33c43d9a
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T154024Z-reconcile-functional-bootstrap-output-fingerprints-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env GIT_CONFIG_VALUE_0=/workspace --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env GIT_CONFIG_VALUE_0=/workspace --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-functional-laptop-llm-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env GIT_CONFIG_VALUE_0=/workspace --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs
+              - git diff --check
+            artifacts:
+              - path: configs/functional-execution-compatibility-v3.json
+                sha256: f03d20ef10ddf02bcea69b11ea478a7015cbf556e6c36fa8b3ac6f53912cdd44
+                bytes: 15592
+              - path: scripts/check-functional-laptop-llm-plan.mjs
+                sha256: 54ef22e4e6bd62a9eb8cfcd380826811ace0f81f76f90f264b898500da8c9cde
+                bytes: 3537907
+              - path: scripts/tests/check-functional-execution-compatibility.test.mjs
+                sha256: e8a4afc585a082d2b32d19db8ad1767a0306e6ce2878e2046a1bed4bacb7b952
+                bytes: 12441
+              - path: .build/runs/20261003T154024Z-reconcile-functional-bootstrap-output-fingerprints-01/preflight.md
+                sha256: 20b91522e57e89f5bd3f831e40edc48b8632e5a92c44f2304912db76df76d3c7
+                bytes: 1092
+              - path: .build/runs/20261003T154024Z-reconcile-functional-bootstrap-output-fingerprints-01/validation-attempt-01.md
+                sha256: d22a3f6a55fbd942e06468c2d9bffb261bebec93a7c688ef2a3df90593b0f3ce
+                bytes: 710
+              - path: .build/runs/20261003T154024Z-reconcile-functional-bootstrap-output-fingerprints-01/validation-final.md
+                sha256: b6dcd11915c4cb6029a0d18321048aef8932cd5e6d7a08cb4be69cf108cacab6
+                bytes: 906
+            validation:
+              - command: node --test scripts/tests/check-functional-execution-compatibility.test.mjs scripts/tests/check-functional-model-policy.test.mjs scripts/tests/check-functional-visual-diagnostics.test.mjs
+                status: passed
+                notes: 27/27 final checks pass, including full cold-claim fingerprint validation; initial ownership failure preserved separately.
+              - command: node scripts/check-functional-laptop-llm-plan.mjs
+                status: passed
+                notes: Actual canonical gate and diff accepted; completed state rechecked before commit.
+              - command: node scripts/check-course-plan.mjs
+                status: passed
+                notes: Actual canonical gate and diff accepted; completed state rechecked before commit.
+              - command: git diff --check
+                status: passed
+                notes: Actual canonical gate and diff accepted; completed state rechecked before commit.
+            notes: One exact owner-produced bootstrap receipt classified as an output, with runtime validation still mandatory before dispatch. All functional specs, 50 substantive validators, v1/v2 and historical runs preserved. Deterministic narrowly scoped bootstrap fingerprint factory passes the original strict validator. Three canonical outputs match staged hashes. Initial Git-owner failure remains immutable evidence; successful fixture uses only ephemeral exact-mount trust. Foundation/chapter/repairs remain unclaimed.
+            finished_at: 2026-10-03T15:58:54Z

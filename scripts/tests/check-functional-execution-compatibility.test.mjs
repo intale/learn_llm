@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { validateState, validateExecutionCompatibilityState } from '../check-functional-laptop-llm-plan.mjs';
+import { validateState, validateExecutionCompatibilityState, effectiveExecutionConstants, inputReceiptPaths, buildBootstrapInputFingerprint } from '../check-functional-laptop-llm-plan.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const require = createRequire(new URL('../../site/package.json', import.meta.url));
@@ -12,7 +12,7 @@ const { parse, stringify } = require('yaml');
 const read = (path) => readFileSync(new URL('../../' + path, import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const state = parse(read('BUILD_STATE.yaml').toString());
-const contract = JSON.parse(read('configs/functional-execution-compatibility-v2.json'));
+const contract = JSON.parse(read('configs/functional-execution-compatibility-v3.json'));
 const checker = read('scripts/check-functional-laptop-llm-plan.mjs').toString();
 const embedded = (name) => JSON.parse(checker.match(new RegExp(`^const ${name} = /\\*[^\\n]*?\\*/ (.*);$`, 'm'))[1]);
 const constants = embedded('EMBEDDED_CONSTANTS');
@@ -29,7 +29,7 @@ function ready() {
   run.status = 'succeeded'; run.finished_at = '2026-10-03T15:00:00Z';
   run.commands = [...step.validate];
   run.validation = step.validate.map((command) => ({ command, status: 'passed' }));
-  run.artifacts = ['scripts/check-functional-laptop-llm-plan.mjs','configs/functional-execution-compatibility-v2.json'].map((path) => ({ path, sha256: sha(read(path)) }));
+  run.artifacts = ['scripts/check-functional-laptop-llm-plan.mjs','configs/functional-execution-compatibility-v3.json'].map((path) => ({ path, sha256: sha(read(path)) }));
   const terminal = functional(doc).steps.find(s => s.id === contract.release_terminal_step).status === 'completed';
   functional(doc).status = terminal ? 'pending' : 'active';
   doc.active_build = terminal ? null : functional(doc).build_id;
@@ -52,7 +52,7 @@ test('preparation cannot advance any functional step', () => {
 });
 test('only lifecycle, predecessor reconciliation and main routing changed', () => {
   const matches = [...checker.matchAll(/^(?:function ([A-Za-z0-9_]+)\(|const authoritative|export \{)/gm)];
-  const allowed = ['validateState','validatePlan','main','readExecutionCompatibility','validateExecutionCompatibilityState'];
+  const allowed = ['validateState','validatePlan','main','readExecutionCompatibility','validateExecutionCompatibilityState','effectiveExecutionConstants','buildBootstrapInputFingerprint'];
   const unchanged = matches.filter(m => m[1] && !allowed.includes(m[1])).map(m => [m[1],checker.slice(m.index,matches.find(n => n.index > m.index)?.index || checker.length).trim()]);
   assert.equal(unchanged.length, 50);
   assert.equal(sha(JSON.stringify(unchanged)), '553fcbe6e0831a2b227163052a29643c3d87eee9441e342fd9cdcd4c375aad96');
@@ -119,10 +119,48 @@ test('hashing ownership cannot be omitted, moved into Chapter40 or silently expa
   assert.ok(contract.setup_amendment.step_spec.inputs.some(s => s.includes('sha2 =0.10.9, default-features=false, features=[]')));
 });
 test('upstream compatibility is frozen historical evidence, not relabeled current publication', () => {
-  const old = JSON.parse(read('configs/functional-execution-compatibility-v1.json'));
+  const old = JSON.parse(read('configs/functional-execution-compatibility-v2.json'));
   assert.equal(sha(read(contract.upstream_compatibility.path)),contract.upstream_compatibility.sha256);
   const doc=ready();const upstream=doc.builds.find(b=>b.build_id===old.compatibility_build.build_id);
   assert.equal(upstream.steps[0].runs.at(-1).artifacts.find(a=>a.path==='scripts/check-functional-laptop-llm-plan.mjs').sha256,contract.upstream_compatibility.checker_sha256);
   upstream.steps[0].runs.at(-1).status='failed';
   assert.throws(() => checkState(doc),/intervening build drift/);
+});
+
+test('cold bootstrap excludes only its exact owner-produced receipt from preflight inputs', () => {
+  const effective=effectiveExecutionConstants(constants,contract);
+  const registry=effective.execution_boundary_records.offline_workspace.target_registry;
+  const first=registry.filter(t=>t.step_id===contract.setup_amendment.step_spec.id);
+  assert.deepEqual(inputReceiptPaths(first),[]);
+  const target=first.find(t=>t.target_id==='history-source-extractors-v1');
+  assert.equal(target.runtime_image_selector,undefined);
+  assert.equal(target.owner_produced_runtime_image_selector.receipt,contract.bootstrap_owned_runtime_selector.expected_input_selector.receipt);
+  assert.ok(target.owner_produced_runtime_image_selector.requirement.includes('Before dispatch, validate'));
+  const original=constants.execution_boundary_records.offline_workspace.target_registry.find(t=>t.target_id==='history-source-extractors-v1');
+  assert.ok(original.runtime_image_selector);
+  assert.equal(original.owner_produced_runtime_image_selector,undefined);
+  for(const before of constants.execution_boundary_records.offline_workspace.target_registry.filter(t=>t.step_id!==target.step_id)) {
+    assert.deepEqual(registry.find(t=>t.step_id===before.step_id&&t.target_id===before.target_id&&t.phase===before.phase),before);
+  }
+});
+test('output classification rejects cross-owner, changed-selector and undeclared-output substitutions', () => {
+  for(const change of [
+    c=>{c.bootstrap_owned_runtime_selector.step_id='implement-ch40-reference-core-handoff';},
+    c=>{c.bootstrap_owned_runtime_selector.target_id='implement-ch40-reference-core-handoff-v1';},
+    c=>{c.bootstrap_owned_runtime_selector.expected_input_selector.receipt='invented-receipt.json';},
+    c=>{c.setup_amendment.step_spec.outputs=c.setup_amendment.step_spec.outputs.filter(p=>p!==c.bootstrap_owned_runtime_selector.expected_input_selector.receipt);},
+  ]) {
+    const candidate=structuredClone(contract);change(candidate);
+    assert.throws(()=>effectiveExecutionConstants(constants,candidate),/bootstrap/);
+  }
+  const successor=effectiveExecutionConstants(constants,contract).execution_boundary_records.offline_workspace.target_registry.filter(t=>t.step_id==='establish-functional-successor-static-integration');
+  assert.ok(inputReceiptPaths(successor).includes('artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json'));
+});
+test('a real cold foundation claim satisfies the entire strict fingerprint validator', () => {
+  const doc=ready(),step=functional(doc).steps[4];
+  step.status='running';
+  step.runs.push({run_id:'20261003T154600Z-establish-functional-offline-workspace-execution-boundary-01',started_at:'2026-10-03T15:46:00Z',status:'running',input_fingerprint:buildBootstrapInputFingerprint(root),staging_dir:'.build/runs/20261003T154600Z-establish-functional-offline-workspace-execution-boundary-01/',commands:[],artifacts:[],validation:[],notes:'Synthetic scheduler claim only; no runtime receipt or implementation exists.'});
+  assert.doesNotThrow(()=>checkState(doc));
+  step.runs[0].input_fingerprint.runner_identity.target_registry_sha256='0'.repeat(64);
+  assert.throws(()=>checkState(doc),/closed target-registry fingerprint drift/);
 });

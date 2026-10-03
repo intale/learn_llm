@@ -26468,3 +26468,27 @@ pass. Verify actual completed-state gates and the five byte-identical publicatio
 snapshots before the dedicated amendment commit. Canonical operational edits
 preceded the internal planning snapshot; no learner route was exposed. Foundation
 implementation remains pending, and Chapter40 is neither implemented nor reviewed.
+
+### 2026-10-03 — Cold bootstrap distinguishes produced runtime from input
+
+Chapter40 continuation exposed a first-run fingerprint self-dependency: the
+foundation's history-source-extractors target names its own workspace receipt as
+a preflight runtime input, but the foundation must create that receipt. Classify
+only this exact owner-produced selector as an output. Require original selector
+equality, output ownership and full receipt/lock/source/image verification before
+dispatch. Cross-owner input selectors are unchanged and still fail if absent.
+
+A new narrow compatibility step/contract binds this correction without mutating
+v1/v2, completed run evidence, functional step specifications or the embedded
+frozen plan/queue/constants. No substantive validator is replaced, no receipt
+is invented, and no runtime validation becomes optional. Repairs stay held.
+
+Acceptance: 27/27 checks pass, including an actual-shaped cold foundation claim
+against the full strict validator. Its first trial hit container/host Git owner
+mismatch; preserve that failed trial. The passing fixture trusts only the exact
+read-only /workspace mount with ephemeral Git configuration, never a wildcard
+or changed host/global settings. The versioned factory computes actual source,
+input inventories and closed-target fingerprints; it grants no execution
+authority. Source invariance retains all 50 substantive validators. Verify both
+actual completed-state checkers and three byte-identical publication snapshots
+before this dedicated commit. No course route or foundation output is published.
