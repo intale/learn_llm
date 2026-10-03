@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T10:14:25Z"
+updated_at: "2026-10-03T11:09:03Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 36
+      spent: 37
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -50724,7 +50724,7 @@ builds:
       - id: detail-ch76-retrieval-provenance
         objective: "Make Chapter 76 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch75-rope-context-scaling"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -50740,7 +50740,132 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20261003T101503Z-detail-ch76-retrieval-provenance-01
+            started_at: 2026-10-03T10:15:10Z
+            finished_at: 2026-10-03T10:52:19Z
+            status: interrupted
+            input_fingerprint:
+              commit: 3a6012b58099eee36cf2bfda2fd76b7073a16818
+              inputs_sha256: ec947b6499564635b7980ecf07b6f756a3c55aa51ea48382119b5b9b490fcd48
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T101503Z-detail-ch76-retrieval-provenance-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                claim 76 .build/runs/20261003T101503Z-detail-ch76-retrieval-provenance-01
+            artifacts:
+              - path: .build/runs/20261003T101503Z-detail-ch76-retrieval-provenance-01/inputs.json
+                sha256: ec947b6499564635b7980ecf07b6f756a3c55aa51ea48382119b5b9b490fcd48
+                bytes: 57097
+              - path: .build/runs/20261003T101503Z-detail-ch76-retrieval-provenance-01/preflight.md
+                sha256: 40eaa3cd73d0403a7bae7c1ecf1959c46823fb0c389ffff07a6797911b811735
+                bytes: 1572
+            validation: []
+            notes: Interrupted before a packet draft was written. On user continuation, the
+              agent registry contains only the root and the prior author is no longer
+              active. Preserve inputs, preflight and run-local audit/decision notes;
+              revalidate in a new run. No canonical Chapter 76 files changed.
+          - run_id: 20261003T105219Z-detail-ch76-retrieval-provenance-02
+            started_at: 2026-10-03T10:53:57Z
+            status: succeeded
+            input_fingerprint:
+              commit: 3a6012b58099eee36cf2bfda2fd76b7073a16818
+              inputs_sha256: 1de3f25a8b624c36930cbf9e66be26830da9a3b02517894407d5e1bffbb96ac5
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                claim 76 .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                publish 76
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02
+              - test -s curriculum/future-chapter-plans/76-retrieval-provenance.md
+              - git diff --check
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node scripts/check-course-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                finish 76 .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02
+            artifacts:
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                sha256: 4b2e7d88d2c73009562a05a45948a0b64aa26e18b865194d75e9e6a41aa87c5b
+                bytes: 20697
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/inputs.json
+                sha256: 1de3f25a8b624c36930cbf9e66be26830da9a3b02517894407d5e1bffbb96ac5
+                bytes: 59157
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/preflight.md
+                sha256: 087a1f5f0b7c3fb1def3e923e8ab0a0235cfc1af38a2823281d3758d0d8ae839
+                bytes: 1572
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/76-retrieval-provenance.md
+                sha256: faad88ff071db1a185ba84b22a1defd71145cee3e269bc0ad7cadee93e4700b1
+                bytes: 50548
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/planning-evidence.md
+                sha256: 47680b14e3c35395ac61a31453056b70700cd76fb4df7f2c6874436b01989707
+                bytes: 5108
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/validation.txt
+                sha256: 4932149b7667698447fbcbddceea9ff2b7de45bf188c206b162d1fc143201930
+                bytes: 507
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/validation.json
+                sha256: 72cf0bfdd720a610a8c54d930f46b834ded6f114774c48a21e96e7911a0214e9
+                bytes: 905
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/decision-entry.md
+                sha256: b53ac14b38a452073550290ed99cc0846b72778e3d08664b91bccec0337a89ee
+                bytes: 2078
+              - path: curriculum/future-chapter-plans/76-retrieval-provenance.md
+                sha256: faad88ff071db1a185ba84b22a1defd71145cee3e269bc0ad7cadee93e4700b1
+                bytes: 50548
+              - path: curriculum/future-chapter-plans/index.json
+                sha256: 76b4299fe17c172ba6f87163e75c3ee9c4d7c2ad7b150ab809f991e167ca18c6
+                bytes: 10813
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: 1dbb2cf8d26312cb2c63dfffb7efaa30e5a79afded71aac68d072c0375caa479
+                bytes: 19276
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/tool-guard-tests.json
+                sha256: 4eb88c9f47ffb9fe89b9416cf81780c0a968039878ff4e61554a68255d315a31
+                bytes: 4339
+            validation:
+              - command: Exact metadata/output/command/section/link/inventory and unchanged
+                  other-build/step/prior-packet checks
+                status: passed
+              - command: Internal mathematical/interface planning audit
+                status: passed
+                evidence: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/planning-evidence.md
+              - command: git diff --check; ordinary course-plan checker in pinned offline image
+                status: passed
+                evidence: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/validation.txt
+            notes: Planning packet only; no implementation or publication judgment. Current
+              problem-first/no-prediction and user-selected-model policies govern. All
+              execution/repair holds and other build/step objects preserved.
+            finished_at: 2026-10-03T11:09:03Z
       - id: detail-ch77-constrained-json-decoding
         objective: "Make Chapter 77 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch76-retrieval-provenance"]

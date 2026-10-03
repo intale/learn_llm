@@ -139,8 +139,9 @@ Completed planning checkpoints:
 - [Chapter 73: the QLoRA boundary](73-qlora-boundary.md).
 - [Chapter 74: exact prefix-cache reuse](74-prefix-cache-reuse.md).
 - [Chapter 75: partial RoPE and context scaling](75-rope-context-scaling.md).
+- [Chapter 76: authorized retrieval with visible provenance](76-retrieval-provenance.md).
 
-Chapters 76–85 remain separate pending planning steps. Do not substitute this
+Chapters 77–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
@@ -198,6 +199,14 @@ has not yet fixed that boundary, specify the required interface behavior,
 ownership and preflight reconciliation rule rather than inventing a competing
 format, runner, backend or architecture. A missing substantive design choice
 without such a rule means the packet is not planning-ready.
+
+Execution-target locators copied from an input snapshot, such as
+`$.offline_workspace.target_registry.49`, are relative to
+`resource_projection.execution_boundaries` in the checked-in functional
+extension plan's JSON frontmatter. Resolve that root and match the stable step
+and target IDs before using an array index. The checked-in plan remains the
+recoverable command/profile authority; private `.build` snapshots are provenance
+evidence, not a prerequisite for reconstructing an implementation handoff.
 
 ## Evidence and teaching rules
 

@@ -26111,3 +26111,38 @@ negative-zero bits. All nonlegacy positive-width cases, including full-width
 linear scaling, use the proposed scaled/partial primitive; the old identity
 path remains exact. CPU position-8,191 arithmetic probes do not raise ordinary
 GPU context 128 or its 900-second phase limit.
+
+### 2026-10-03 — Chapter 76 authorized exact retrieval planning
+
+Prepare only the internal retrieval packet. Reuse Chapter 57's canonical
+memory/file snapshot and idempotency boundary; resolve split-module ownership
+before implementation without another persistence architecture.
+
+Host authorization removes ineligible records before vector normalization,
+scoring and top-k. Freeze ordered f64 arithmetic, zero-vector behavior and
+stable numeric ties, preserving exact adapter/restart score bits. Bind query,
+record, vector, provenance and authorization identities, then separately bind
+the actual context included after complete tokenization and output reservation.
+Citation membership is not evidence of truth or entailment.
+
+The inherited 256-MiB/120-second conformance envelope remains stricter than the
+generic retrieval estimate. Chapter 76 runs bounded CPU retrieval evidence only;
+it neither generates embeddings nor launches a model under its plan/consume
+profile mode. Database selection and all implementation remain held.
+
+Clarify the shared packet guide's target locators: snapshot paths are relative
+to resource_projection.execution_boundaries in the checked-in plan, and stable
+step/target IDs are checked alongside indices. Private run snapshots are
+provenance, not the sole recoverable source of future execution commands.
+
+Use a bounded typed cited-answer envelope and validate every declared citation
+against evidence actually included, under current authorization. Plain model
+prose is not a verified citation link. The default modulo-five authorization
+fixture and replacing modulo-ten trace variants retain distinct policy IDs and
+eligible counts. Zero-result requests still validate the query but do not access
+or score record vectors.
+
+The interrupted pre-draft attempt is preserved. A new hash-bound local planning
+helper preserves prior run history and admits only that exact recovery exception;
+completed helpers and run artifacts remain unchanged. Fail-closed duplicate-claim
+and wrong-owner checks were exercised before this packet's publication.
