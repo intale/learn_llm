@@ -26302,3 +26302,25 @@ zero communication. Serving reserves complete shard groups atomically, separates
 affinity/capacity/queue refusals, and uses episode-qualified lifecycle identities.
 Permitted local clocks/filesystem operations do not authorize network, accelerator
 or process-launch paths. External publication reviews remain future handoffs.
+
+### 2026-10-03 — Chapter 84 sparse routing and serving-simulation boundary
+
+Prepare only the Chapter 84 implementation packet. Course-owned DTH arithmetic
+owns routes, capacity, drops, combines, auxiliary loss and gradients; ISA consumes
+the same immutable trace for expert queues without recomputing or redirecting
+router decisions. Distinguish token terminals from individual expert assignments
+and stored parameters from per-token and batch-active parameters.
+
+The stricter production-plan-only CPU envelope governs all tiny simulation
+fixtures. No model, expert-parallel runtime, all-to-all traffic, sparse-kernel
+speedup or training result is introduced. Real parallel validation stays false
+and distributed speedup stays null. Implementation and repair holds remain.
+
+Propose exact positive-rational capacity, stable token-ID admission, selected-set
+weights before capacity and no survivor renormalization. Auxiliary load uses
+pre-capacity assignment fractions and full probabilities with discrete decisions
+held fixed. Separate smooth finite differences from tied fixed-branch checks;
+assert the comparison result, not only successful API return. Forced pending,
+partial-completion and expert-loss hooks prevent vacuous lifecycle coverage.
+Refused-before-enqueue assignments have no allocation to release. Step-based
+batching delays are not wall-time improvements or hardware speedup evidence.
