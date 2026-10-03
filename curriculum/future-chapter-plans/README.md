@@ -148,9 +148,10 @@ Completed planning checkpoints:
 - [Chapter 82: bounded decoding and serving comparisons](82-advanced-decoding-serving.md).
 - [Chapter 83: distributed arithmetic and schedule simulation](83-distributed-schedule-simulation.md).
 - [Chapter 84: sparse-expert routing and queue simulation](84-moe-routing-simulation.md).
+- [Chapter 85: evidence-gated persistence selection](85-persistence-scale-decision.md).
 
-Chapters 85–85 remain separate pending planning steps. Do not substitute this
-guide for those individual packets.
+All 46 Chapter 40–85 packets are planning-ready. The execution and repair hold
+remains in effect; packet completion does not authorize implementation.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
 

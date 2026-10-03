@@ -26324,3 +26324,40 @@ assert the comparison result, not only successful API return. Forced pending,
 partial-completion and expert-loss hooks prevent vacuous lifecycle coverage.
 Refused-before-enqueue assignments have no allocation to release. Step-based
 batching delays are not wall-time improvements or hardware speedup evidence.
+
+### 2026-10-03 — Chapter 85 measured persistence decision and execution gates
+
+Prepare only the final internal chapter packet. A single need is frozen before
+results; only its own strict numeric threshold in at least two of three trials,
+or its separately declared atomic-writer requirement with truthful evidence,
+can select the optional PostgreSQL branch. Planning selects nothing and leaves
+all implementation/repair/acquisition steps held.
+
+Record two existing checker compatibility gates without repairing them. Its
+environment fields equal policy templates, not observed machine evidence, and
+its writer-mismatch evidence is required unconditionally even for numeric and
+no-selection branches. The checker hardcodes atomic_vector_write:false; this is
+not independent proof that a guarded file adapter cannot satisfy atomicity.
+Preserve Chapter 57's invariants and require persistence/checker/lifecycle owner
+reconciliation before real execution if the actual adapter cannot truthfully
+produce the frozen trace. No deliberately weakened adapter or invented failure.
+
+Exact course-owned ranking and authorization remain the oracle for any later
+database adapter. A selected receipt activates four ordered optional steps and
+closure waits for conformance, recovery and reviewed measured-content publication.
+The default adds no database artifact or runtime dependency; project scheduling
+continues in text files and static course delivery remains database-independent.
+
+Freeze the proposed per-cell query scope, nearest-rank percentile and maximum
+across selectivities before results. Guard/coordinator waits remain in query
+latency; result validation is declared between-request think time and still
+charged to the complete phase. Clean restart uses query-0000 at full eligibility;
+crash diagnostics cannot replace that metric after results. Shared vector memory,
+RSS observation scope and all warmup/oracle/compilation/validation work remain
+bounded, with no unbudgeted pilot or preflight performance guarantee.
+
+The runner must support truthful measurement-to-authoring/review-to-final-inventory
+ordering without rerunning accepted measurements or sealing provisional content.
+Missing restart-safe phase support is an explicit execution compatibility gate.
+All 46 Chapter 40–85 packets are now planning-ready; completing this planning
+build neither activates an implementation build nor releases the user's hold.
