@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T11:59:44Z"
+updated_at: "2026-10-03T12:14:40Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 40
+      spent: 41
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -51205,7 +51205,7 @@ builds:
       - id: detail-ch80-from-scratch-laptop-capstone
         objective: "Make Chapter 80 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch79-safety-privacy-model-card"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -51221,7 +51221,100 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01
+            started_at: 2026-10-03T12:00:13Z
+            status: succeeded
+            input_fingerprint:
+              commit: fb326b9ade2de786e1e86faefa68672c46fff478
+              inputs_sha256: c694ca59a73806b5ce584bbb06d79f55d0f89d48db8986ed68fd09b7f1ffbe2d
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                claim 80
+                .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                publish 80
+                .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01
+              - test -s curriculum/future-chapter-plans/80-from-scratch-laptop-capstone.md
+              - git diff --check
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node scripts/check-course-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                finish 80
+                .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01
+            artifacts:
+              - path: .build/runs/20261003T105219Z-detail-ch76-retrieval-provenance-02/packet-tools.mjs
+                sha256: 4b2e7d88d2c73009562a05a45948a0b64aa26e18b865194d75e9e6a41aa87c5b
+                bytes: 20697
+              - path: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/inputs.json
+                sha256: c694ca59a73806b5ce584bbb06d79f55d0f89d48db8986ed68fd09b7f1ffbe2d
+                bytes: 69454
+              - path: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/preflight.md
+                sha256: 6c3be32293ae06d41b2784a46c287dc7fd55a6d926c7b5cb7c9d1fbd18b4f7ee
+                bytes: 1589
+              - path: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/80-from-scratch-laptop-capstone.md
+                sha256: ec7ba7b5625ec43907785db22d74e4eb006ba314dab20242ae8c21accef66dfb
+                bytes: 54504
+              - path: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/planning-evidence.md
+                sha256: 5bef0d9b5bdeff73ecd17725030848a79e3179da37b3764dbe84411f0870381d
+                bytes: 4083
+              - path: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/validation.txt
+                sha256: 4932149b7667698447fbcbddceea9ff2b7de45bf188c206b162d1fc143201930
+                bytes: 507
+              - path: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/validation.json
+                sha256: 91b0f9c737ace5f50edcd908c5fdde4a662067fb226121bce251b4fa44c682db
+                bytes: 905
+              - path: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/decision-entry.md
+                sha256: 2dd07e06fe2291ee4e76af19c605237e775e0580746fefaffb237fb948101170
+                bytes: 1449
+              - path: curriculum/future-chapter-plans/80-from-scratch-laptop-capstone.md
+                sha256: ec7ba7b5625ec43907785db22d74e4eb006ba314dab20242ae8c21accef66dfb
+                bytes: 54504
+              - path: curriculum/future-chapter-plans/index.json
+                sha256: ea7a9c7247fd147dc3112663a97555e586d0bf161904920b45f60b444e9a9aa2
+                bytes: 10841
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: 99ee84f55cb0785ac955df68d2cc3daf8171ab2f52d2bfcd04a3cce4b3f7638b
+                bytes: 19587
+            validation:
+              - command: Exact metadata/output/command/section/link/inventory and unchanged
+                  other-build/step/prior-packet checks
+                status: passed
+              - command: Internal mathematical/interface planning audit
+                status: passed
+                evidence: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/planning-evidence.md
+              - command: git diff --check; ordinary course-plan checker in pinned offline image
+                status: passed
+                evidence: .build/runs/20261003T120006Z-detail-ch80-from-scratch-laptop-capstone-01/validation.txt
+            notes: Planning packet only; no implementation or publication judgment. Current
+              problem-first/no-prediction and user-selected-model policies govern. All
+              execution/repair holds and other build/step objects preserved.
+            finished_at: 2026-10-03T12:14:40Z
       - id: detail-ch81-import-adapt-serve-capstone
         objective: "Make Chapter 81 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch80-from-scratch-laptop-capstone"]

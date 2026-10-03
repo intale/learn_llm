@@ -26217,3 +26217,26 @@ prefix caching is disabled; explicit public/synthetic reuse preserves existing
 resource pins. Debug expiry covers primary old/staging roots and held readers,
 while archival backups exclude debug content. The 41,240-unit work estimate
 requires owner reconciliation with calibration and the unchanged shared caps.
+
+### 2026-10-03 — Chapter 80 from-scratch evidence composition planning
+
+Prepare only the internal capstone packet. Compose the five evidence families
+from the governed core and role-specific sensitivity runs; do not rerun long
+training inside the chapter's ordinary bounded smoke phase. Preserve exact
+artifact/config/tokenizer/corpus lineage, post-change calibration, resume and
+predeclared quality evidence. Different sensitivity and core roles must not be
+misrepresented as one identical parameter/seed/profile tuple.
+
+Define the final logical endpoint identity with unambiguous framing over an
+acyclic inventory, separate from operational UTC run IDs and the earlier frozen
+experiment identity. Prior receipts remain immutable. Later external-model
+selection/adaptation cannot become a hidden prerequisite of this endpoint.
+All implementation, acquisition and repair holds remain unchanged.
+
+Bind four exact diagnostic prompts and seeds 801–804 before the bounded smoke.
+Publish smoke-only evidence first, then family records and the terminal seal;
+never rewrite a GPU bundle to include its future descendant. Retain actual
+producer source/build hashes and require relevant compatibility edges instead
+of pretending later chapter additions leave the entire source tree unchanged.
+Missing selected quantization, cleared resume comparisons or feasible mounting
+must be reconciled by their owners before execution, not hidden in smoke success.
