@@ -145,8 +145,9 @@ Completed planning checkpoints:
 - [Chapter 79: safety, privacy and the model card](79-safety-privacy-model-card.md).
 - [Chapter 80: the from-scratch laptop capstone](80-from-scratch-laptop-capstone.md).
 - [Chapter 81: import, adapt and serve one successor](81-import-adapt-serve-capstone.md).
+- [Chapter 82: bounded decoding and serving comparisons](82-advanced-decoding-serving.md).
 
-Chapters 82–85 remain separate pending planning steps. Do not substitute this
+Chapters 83–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

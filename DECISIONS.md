@@ -26262,3 +26262,24 @@ quantized representation; numerical error bounds alone do not transfer a pass.
 Preserve the exact 960 comparison attempts and 31 direct prerequisite IDs, with
 prefix/context late roles separate. Missing feasible coverage or ambiguous frozen
 token-count scope is an explicit owner gate, not a manufactured measurement.
+
+### 2026-10-03 — Chapter 82 single-decoder optional strategy planning
+
+Prepare only the optional decoding/serving packet. Speculative proposals remain
+typed data, never a second model, head or forward path. Distribution preservation
+requires genuine conditional proposal draws and independent acceptance/correction
+randomness; a fixed hand trace proves arithmetic only. Beam comparison does not
+claim global optimality outside its declared exhaustive fixture scope.
+
+Keep the advanced smoke profile's wall-only extension and inherited smaller
+resource/token/context ceilings. Parallel-row admission, selected artifact and
+empty runner input/seed bindings are explicit owner compatibility gates, not
+permission to borrow Chapter81's larger adapter envelope. Planning does not
+release implementation, repair or acquisition holds.
+
+Distinguish intended processed target law p from the genuine proposal law q;
+their supports may differ. The frozen statistical diagnostic uses independent
+one-step trials and is not a live-generation call-efficiency result. Bound fairness
+only within a fixed admitted cohort, not unbounded arrivals or stalled devices.
+Cancellation tests retain actual hook-reached evidence and preserve asynchronous
+buffer ownership; simulated lifecycle coverage cannot stand in for device parity.
