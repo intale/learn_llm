@@ -26170,3 +26170,24 @@ later append or final-validation failure does not rewind the consumed decision.
 The finite-language design returns an explicit incomplete failure at a budget
 cap rather than claiming all live prefixes finish. The mutable GBNF guide needs
 a source-owner revision pin before lesson authoring; no revision is invented.
+
+### 2026-10-03 — Chapter 78 host-authorized local tool planning
+
+Prepare only the internal Chapter 78 packet. Valid structured model output is
+untrusted data, not authority. Keep the local registry to a deterministic pure
+calculator and read-only provided-record lookup; host policy owns identity,
+allowlisting, record authorization, confirmation and all resource limits.
+
+Make idempotency key scope, conflict/replay, concurrent reservation and uncertain
+crash outcomes explicit. Current authorization still gates replay disclosure.
+Bounded timeout must stop and reclaim work rather than abandon a live worker.
+No arbitrary path, network, shell, subprocess or write capability is introduced.
+Retain no-new-model-execution modes and all implementation/repair holds.
+
+Exact durable replay tests use only host-bound synthetic fixture data with
+declared retention, one namespace and 256 entries. Real/private invocation needs
+an accepted privacy/build-owner retention policy and otherwise refuses before
+dispatch. Namespace closure cannot make old keys reusable. Revalidate host
+authority after durable reservation and before dispatch/disclosure. The broader
+host argument schema is not Chapter 77's finite generation language; the one
+47-byte calculator fixture fits its 49-state trie without changing that boundary.

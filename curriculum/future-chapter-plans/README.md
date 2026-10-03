@@ -141,8 +141,9 @@ Completed planning checkpoints:
 - [Chapter 75: partial RoPE and context scaling](75-rope-context-scaling.md).
 - [Chapter 76: authorized retrieval with visible provenance](76-retrieval-provenance.md).
 - [Chapter 77: constrained JSON decoding](77-constrained-json-decoding.md).
+- [Chapter 78: authorized local tools](78-authorized-tools.md).
 
-Chapters 78–85 remain separate pending planning steps. Do not substitute this
+Chapters 79–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
