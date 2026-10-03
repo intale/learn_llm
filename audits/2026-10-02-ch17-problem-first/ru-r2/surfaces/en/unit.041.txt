@@ -1,0 +1,1 @@
+Inspect the selected seed-18 tensor comparison with seed 17 for shape [2,2], fan-in 2, and fan-out 2; explain why the observed stored-weight difference does not establish uniqueness for every possible seed.

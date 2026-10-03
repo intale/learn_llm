@@ -1,0 +1,1 @@
+Parameter initialization Assigning the trainable values from which later optimization starts.

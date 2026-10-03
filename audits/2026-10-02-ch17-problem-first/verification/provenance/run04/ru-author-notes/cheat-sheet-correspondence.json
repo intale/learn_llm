@@ -1,0 +1,12 @@
+[
+  {"englishTerm":"Parameter initialization","russianTerm":"Инициализация параметров"},
+  {"englishTerm":"Hidden-unit symmetry","russianTerm":"Симметрия скрытых нейронов"},
+  {"englishTerm":"Fan-in","russianTerm":"Входная ширина"},
+  {"englishTerm":"Fan-out","russianTerm":"Выходная ширина"},
+  {"englishTerm":"Xavier-style initialization","russianTerm":"Инициализация по схеме Ксавье"},
+  {"englishTerm":"Target variance","russianTerm":"Целевая дисперсия"},
+  {"englishTerm":"Uniform bound","russianTerm":"Граница равномерного распределения"},
+  {"englishTerm":"Seed","russianTerm":"Начальное значение генератора"},
+  {"englishTerm":"Reproducibility","russianTerm":"Воспроизводимость"},
+  {"englishTerm":"Pseudorandom generator","russianTerm":"Генератор псевдослучайных чисел"}
+]

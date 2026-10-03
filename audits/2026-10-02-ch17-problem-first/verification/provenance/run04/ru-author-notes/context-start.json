@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "contextId": "ch17_ru_root_author_20261003",
+  "runtimeContext": "/root",
+  "newAgentContext": false,
+  "role": "translation-author",
+  "model": "gpt-6.1-sol",
+  "reasoning": "xhigh",
+  "startedAt": "2026-10-03T06:31:00Z",
+  "sourceCandidate": "ch17.en.r5.20261002.r6",
+  "sourceBindingSha256": "253b1f5886453cbf7c0fbc63ea5c783c41e2676851fdd0399bf1881365c17048",
+  "scope": "Root authoring owns the direct complete Russian translation under the corrected localization skill. No new author context or independent review is claimed."
+}

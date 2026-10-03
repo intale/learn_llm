@@ -1,0 +1,1 @@
+Start trainable weights at a reproducible scale Explain hidden-unit symmetry, choose a width-aware starting scale, and reproduce named trainable weights while separating sampled spread from expected linear variance. Content revision: 5

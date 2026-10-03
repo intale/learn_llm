@@ -1,0 +1,1 @@
+Starting scale changes weight spread and linear variance

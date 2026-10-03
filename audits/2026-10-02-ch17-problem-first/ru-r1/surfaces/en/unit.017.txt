@@ -1,0 +1,1 @@
+Use explicit state and a high-53-bit mapping to reproduce each binary64 unit draw rust/crates/llm-from-scratch/src/nn/init.rs#deterministic-prng

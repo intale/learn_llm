@@ -1,0 +1,1 @@
+Перечислить проекцию запросов до таблицы токенов и отличить общий узел от равных значений rust/demos/ch17-parameter-initialization/src/lib.rs#named-parameter-enumeration

@@ -1,0 +1,1 @@
+Weight interval [-0.05,0.05); 469 weights; 11.450195312500% of the matrix

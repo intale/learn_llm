@@ -1,0 +1,1 @@
+Zero weights Seed No sampling Uniform bound 0.0000 Minimum weight 0.0000 Maximum weight 0.0000 Measured mean 0.0000 Measured variance 0.0000

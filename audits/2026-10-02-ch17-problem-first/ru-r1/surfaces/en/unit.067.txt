@@ -1,0 +1,1 @@
+Finite-sample histograms show zero weights and uniform weights with the Xavier bound or twice it. Expected signal variance uses target weight variances for independent linear layers with equal input/output widths, mutually independent zero-mean weights of common variance independent of inputs, and initially independent zero-mean input features of unit variance.

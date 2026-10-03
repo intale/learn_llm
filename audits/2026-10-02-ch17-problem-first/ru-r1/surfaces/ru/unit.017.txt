@@ -1,0 +1,1 @@
+Воспроизводить каждую единичную дробь binary64 через явное состояние и старшие 53 бита rust/crates/llm-from-scratch/src/nn/init.rs#deterministic-prng

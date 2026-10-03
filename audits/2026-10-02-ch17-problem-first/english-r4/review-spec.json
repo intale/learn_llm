@@ -1,0 +1,2155 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "ch17.en.r5.20261002.r4",
+  "scopeId": "ch17.en.20261002.r4",
+  "authorContext": {
+    "path": "audits/2026-10-02-ch17-problem-first/english-r4/contexts/author.json",
+    "sha256": "5707c09ebd115e8bb62b8ac67a56ccaa47cd10b3b79b23b82d94a1268fe1f1e4"
+  },
+  "requiredAuthor": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "max"
+  },
+  "requiredReviewers": {
+    "technicalPedagogical": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "xhigh"
+    },
+    "isolatedSurface": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "xhigh"
+    }
+  },
+  "requiredAdjudicators": {
+    "technicalPedagogical": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "xhigh"
+    },
+    "isolatedSurface": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "xhigh"
+    }
+  },
+  "evidence": [
+    {
+      "id": "built-navigation-16-model-autodiff-ops",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-built-navigation-16-model-autodiff-ops.txt",
+      "sha256": "8680eca3ab52bcdec0ba86a6f4832cfbba9c428a9b7207936fdd079a12233d37"
+    },
+    {
+      "id": "built-navigation-18-token-embeddings",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-built-navigation-18-token-embeddings.txt",
+      "sha256": "06953128e36fa89fbacf5f6104be0ddcbd1a5c47c7d9c6e98142227607208b1e"
+    },
+    {
+      "id": "built-navigation-catalog",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-built-navigation-catalog.txt",
+      "sha256": "105af5da6c6a586ea9619a02f0f6b213f67192aae3fbc3b35fb27f85726cfdfa"
+    },
+    {
+      "id": "exact-demo-output",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-exact-demo-output.txt",
+      "sha256": "3995d60db6119e21a4afbef8530b8c2f7a72d72fae1e7e46f0c890975b02c1e5"
+    },
+    {
+      "id": "exact-diagram-trace",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-exact-diagram-trace.txt",
+      "sha256": "094f6429605483879980e93edee5df507a9a47461ae9e4931f5d06fbccf950ed"
+    },
+    {
+      "id": "extraction-provenance",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-extraction-provenance.json",
+      "sha256": "de7164176dd67c30f6057fa2aff2dc79fa4b301b1168ed57000eddfa3fa472db"
+    },
+    {
+      "id": "extractor-source",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-extractor-source.mjs",
+      "sha256": "3788f3fa115b13becc678598e5956d0578fd643828e8bb548498f8c0a3cb3e66"
+    },
+    {
+      "id": "figure-parser",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-figure-parser.txt",
+      "sha256": "fcb54f4c54d98b9c1f7cda7d9ea825d5bc7c562c34cd454395774406c0ef07bb"
+    },
+    {
+      "id": "figure-renderer",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-figure-renderer.txt",
+      "sha256": "47d583dde7a004cad384326b3246124a6b5938679b08927b7e38e8b1d4e3e893"
+    },
+    {
+      "id": "handoff-contract",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-handoff-contract.txt",
+      "sha256": "3aa7bc0e9f91c7bee03e91d70ab6b1f6f26bbbefb23958a6b57d520f42de5db8"
+    },
+    {
+      "id": "historical-primary-sources",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-historical-primary-sources.json",
+      "sha256": "9da8a3da93ac0ad9de8fb0d9e3d69e0c1df95bd349d11f5046c2b53b056d421e"
+    },
+    {
+      "id": "mathematical-derivation",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-mathematical-derivation.txt",
+      "sha256": "c7a54f55605ddb5aa1686e964beae7b1ec9e5477ba9ab71fe2b3d8dbb124080a"
+    },
+    {
+      "id": "prerequisite-contract",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-prerequisite-contract.txt",
+      "sha256": "a587a05b01d10f281c8bc522b05f4fe27e7c5d44d538e9346b991e671cc57349"
+    },
+    {
+      "id": "rust-demo-lib",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-rust-demo-lib.rs",
+      "sha256": "9740564b0c5f1b5d1b4455bda44a2eef9754e4e0a05edc229d3ca9ec73c302d5"
+    },
+    {
+      "id": "rust-demo-main",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-rust-demo-main.rs",
+      "sha256": "367fbc19303172ca7b1820ba6b0858e05ad28e1ceca3ad7e63cd889e244f779a"
+    },
+    {
+      "id": "rust-diagram-source",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-rust-diagram-source.rs",
+      "sha256": "715745e21791537971141572eb9a391ed67823dbb13b1fb7a4fcec7a341f63b6"
+    },
+    {
+      "id": "rust-initializer",
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/frozen-rust-initializer.rs",
+      "sha256": "1b1ae0524d285cc18a6cb48a75c7adbe18478cf258779bf7fdbb8f99c1b33725"
+    }
+  ],
+  "commitmentMap": {
+    "path": "audits/2026-10-02-ch17-problem-first/english-r4/evidence/commitment-map.json",
+    "sha256": "1ea459efd7bd08f80b67194d893b18ae46aba90dfc4819b0fb313b3d580d8cca"
+  },
+  "reviewSchema": {
+    "path": ".agents/skills/author-llm-course-english/references/review-record.schema.json",
+    "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177"
+  },
+  "adjudicationSchema": {
+    "path": ".agents/skills/author-llm-course-english/references/adjudication-record.schema.json",
+    "sha256": "6463982e2e84c5cea564699242abc5e681d13364e3b7457961d62f9b3c26ca69"
+  },
+  "receiptSchema": {
+    "path": ".agents/skills/author-llm-course-english/references/evidence-receipt.schema.json",
+    "sha256": "fd3a1d8ce1230959551456015b642044fd2d60acae11bbf8ef2b5a0efbddeb87"
+  },
+  "sourceDocuments": [
+    {
+      "id": "source.contract-en",
+      "kind": "complete-source",
+      "roleRequirement": "Explain why trainable dense weights need nonidentical reproducible starts and width-aware scales; work through the exact seed-17 matrix and variance/bound, state dense near-linear independence assumptions and finite-sample limits, preserve SplitMix64/f64 semantics, transactional validation and stable-name versus leaf identity, bounded paper claims and parameter-kind policies, distinguish measured histograms from expected linear propagation, give optional nonprediction practice with checked results, and hand off token-table lookup semantics without claiming its shape convention follows from dense variance. Preserve the English-only contract projection and unchanged mathematical/code literals; later Russian fields are outside this projection.",
+      "file": {
+        "path": "audits/2026-10-02-ch17-problem-first/english-r4/frozen/contract.en.md",
+        "sha256": "46ee8fd9b58edd16c8fcacc9735035e80210b1ea9f03aa9e4c124554a0176d0e"
+      },
+      "publicationPath": "audits/2026-10-02-ch17-problem-first/english-r4/publication/contract.en.md"
+    },
+    {
+      "id": "source.lesson",
+      "kind": "complete-source",
+      "roleRequirement": "Explain why trainable dense weights need nonidentical reproducible starts and width-aware scales; work through the exact seed-17 matrix and variance/bound, state dense near-linear independence assumptions and finite-sample limits, preserve SplitMix64/f64 semantics, transactional validation and stable-name versus leaf identity, bounded paper claims and parameter-kind policies, distinguish measured histograms from expected linear propagation, give optional nonprediction practice with checked results, and hand off token-table lookup semantics without claiming its shape convention follows from dense variance.",
+      "file": {
+        "path": "audits/2026-10-02-ch17-problem-first/english-r4/frozen/lesson.en.mdx",
+        "sha256": "9c0e9630845bf6e5eb17adf8fd51f20af4637db1d8c7cf832f63f85492bb3334"
+      },
+      "publicationPath": "site/src/content/chapters/en/17-parameter-initialization.mdx"
+    },
+    {
+      "id": "source.sheet",
+      "kind": "complete-source",
+      "roleRequirement": "Define only Chapter17 initialization concepts concisely and accurately, retaining conditions for symmetry, reproduction, target variance and width-aware scale without turning the reference into a second lesson.",
+      "file": {
+        "path": "audits/2026-10-02-ch17-problem-first/english-r4/frozen/sheet.en.json",
+        "sha256": "8f3d002a034a853773378423856a8bf9e46fd25eeaa6129343ca4233d6411d0f"
+      },
+      "publicationPath": "site/src/content/cheat-sheets/en/17-parameter-initialization.json"
+    }
+  ],
+  "builtDocuments": [
+    {
+      "id": "built.isolation",
+      "kind": "complete-built-html",
+      "roleRequirement": "The audit-only extraction view must preserve exact accessible values and legitimate rendered isolation groups from the frozen course HTML; it adds no context or teaching content and must match extraction provenance.",
+      "file": {
+        "path": "audits/2026-10-02-ch17-problem-first/english-r4/frozen/isolated.en.html",
+        "sha256": "86a9bf4b37aa300a794ce89fed0b6b78bd32e7fcf095e91f4dbc7bb1d7835174"
+      },
+      "route": "/review-inventory/ch17/en/",
+      "publicationPath": "audits/2026-10-02-ch17-problem-first/english-r4/publication/isolated.en.html"
+    },
+    {
+      "id": "built.lesson",
+      "kind": "complete-built-html",
+      "roleRequirement": "Explain why trainable dense weights need nonidentical reproducible starts and width-aware scales; work through the exact seed-17 matrix and variance/bound, state dense near-linear independence assumptions and finite-sample limits, preserve SplitMix64/f64 semantics, transactional validation and stable-name versus leaf identity, bounded paper claims and parameter-kind policies, distinguish measured histograms from expected linear propagation, give optional nonprediction practice with checked results, and hand off token-table lookup semantics without claiming its shape convention follows from dense variance. Render all affected math, source excerpts, diagram/accessibility and reference surfaces coherently without losing learner atoms.",
+      "file": {
+        "path": "audits/2026-10-02-ch17-problem-first/english-r4/frozen/lesson.en.html",
+        "sha256": "67ef60d18c322db06629a408fe72d5a704a7c033b08cbab07672bae0cd61070f"
+      },
+      "route": "/en/course/17-parameter-initialization/",
+      "publicationPath": ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/final-build/dist/en/course/17-parameter-initialization/index.html"
+    }
+  ],
+  "readingSurfaces": [
+    {
+      "id": "reading.main",
+      "kind": "reading-main",
+      "roleRequirement": "Explain why trainable dense weights need nonidentical reproducible starts and width-aware scales; work through the exact seed-17 matrix and variance/bound, state dense near-linear independence assumptions and finite-sample limits, preserve SplitMix64/f64 semantics, transactional validation and stable-name versus leaf identity, bounded paper claims and parameter-kind policies, distinguish measured histograms from expected linear propagation, give optional nonprediction practice with checked results, and hand off token-table lookup semantics without claiming its shape convention follows from dense variance.",
+      "documentId": "built.lesson",
+      "order": 1,
+      "locator": {
+        "tag": "main",
+        "id": "main-content"
+      },
+      "value": {
+        "type": "text"
+      }
+    }
+  ],
+  "isolatedSurfaces": [
+    {
+      "id": "unit.001",
+      "kind": "page-title",
+      "roleRequirement": "Identify reproducible trainable-weight initialization as the chapter topic, with no learner prediction request.",
+      "documentId": "built.isolation",
+      "order": 1,
+      "locator": {
+        "tag": "div",
+        "id": "unit.001"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.002",
+      "kind": "page-description",
+      "roleRequirement": "State the initialization problem and bounded solution in standalone course/SEO copy without claiming measured decoder stability.",
+      "documentId": "built.isolation",
+      "order": 2,
+      "locator": {
+        "tag": "div",
+        "id": "unit.002"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.003",
+      "kind": "seo-description",
+      "roleRequirement": "Describe the chapter problem and initialization solution accurately when read independently from the page.",
+      "documentId": "built.isolation",
+      "order": 3,
+      "locator": {
+        "tag": "div",
+        "id": "unit.003"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.004",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to the concrete starting-weight problem and explained worked solution in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 4,
+      "locator": {
+        "tag": "div",
+        "id": "unit.004"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.005",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to the distribution variance rule and its assumptions in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 5,
+      "locator": {
+        "tag": "div",
+        "id": "unit.005"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.006",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to the meanings of the matrix coordinates and widths, with their Rust connections in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 6,
+      "locator": {
+        "tag": "div",
+        "id": "unit.006"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.007",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to the bounded neural-language-model and initialization history in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 7,
+      "locator": {
+        "tag": "div",
+        "id": "unit.007"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.008",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to the related Rust evidence and safe parameter-construction boundary in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 8,
+      "locator": {
+        "tag": "div",
+        "id": "unit.008"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.009",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to measured distributions versus theoretical linear propagation in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 9,
+      "locator": {
+        "tag": "div",
+        "id": "unit.009"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.010",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to optional reproduction, inspection and explanation practice in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 10,
+      "locator": {
+        "tag": "div",
+        "id": "unit.010"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.011",
+      "kind": "contextual-heading",
+      "roleRequirement": "Orient the learner to the token-table handoff and its initialization convention in its associated section; this contextual navigation heading need not restate the whole page concept and must not request an outcome prediction.",
+      "documentId": "built.isolation",
+      "order": 11,
+      "locator": {
+        "tag": "div",
+        "id": "unit.011"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.012",
+      "kind": "contextual-subheading",
+      "roleRequirement": "Identify the associated initialization subtopic in the chapter reading order without imposing a prediction activity.",
+      "documentId": "built.isolation",
+      "order": 12,
+      "locator": {
+        "tag": "div",
+        "id": "unit.012"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.013",
+      "kind": "contextual-subheading",
+      "roleRequirement": "Identify the associated initialization subtopic in the chapter reading order without imposing a prediction activity.",
+      "documentId": "built.isolation",
+      "order": 13,
+      "locator": {
+        "tag": "div",
+        "id": "unit.013"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.014",
+      "kind": "contextual-subheading",
+      "roleRequirement": "Identify the associated initialization subtopic in the chapter reading order without imposing a prediction activity.",
+      "documentId": "built.isolation",
+      "order": 14,
+      "locator": {
+        "tag": "div",
+        "id": "unit.014"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.015",
+      "kind": "contextual-subheading",
+      "roleRequirement": "Identify the associated initialization subtopic in the chapter reading order without imposing a prediction activity.",
+      "documentId": "built.isolation",
+      "order": 15,
+      "locator": {
+        "tag": "div",
+        "id": "unit.015"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.016",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 16,
+      "locator": {
+        "tag": "div",
+        "id": "unit.016"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.017",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 17,
+      "locator": {
+        "tag": "div",
+        "id": "unit.017"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.018",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 18,
+      "locator": {
+        "tag": "div",
+        "id": "unit.018"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.019",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 19,
+      "locator": {
+        "tag": "div",
+        "id": "unit.019"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.020",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 20,
+      "locator": {
+        "tag": "div",
+        "id": "unit.020"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.021",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 21,
+      "locator": {
+        "tag": "div",
+        "id": "unit.021"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.022",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 22,
+      "locator": {
+        "tag": "div",
+        "id": "unit.022"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.023",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 23,
+      "locator": {
+        "tag": "div",
+        "id": "unit.023"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.024",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 24,
+      "locator": {
+        "tag": "div",
+        "id": "unit.024"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.025",
+      "kind": "rust-source-caption",
+      "roleRequirement": "Identify the operation or executable evidence shown by this Rust source card, preserving its exact source path/region and avoiding unsupported algorithm claims.",
+      "documentId": "built.isolation",
+      "order": 25,
+      "locator": {
+        "tag": "div",
+        "id": "unit.025"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.026",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 26,
+      "locator": {
+        "tag": "div",
+        "id": "unit.026"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.027",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 27,
+      "locator": {
+        "tag": "div",
+        "id": "unit.027"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.028",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 28,
+      "locator": {
+        "tag": "div",
+        "id": "unit.028"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.029",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 29,
+      "locator": {
+        "tag": "div",
+        "id": "unit.029"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.030",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 30,
+      "locator": {
+        "tag": "div",
+        "id": "unit.030"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.031",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 31,
+      "locator": {
+        "tag": "div",
+        "id": "unit.031"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.032",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 32,
+      "locator": {
+        "tag": "div",
+        "id": "unit.032"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.033",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 33,
+      "locator": {
+        "tag": "div",
+        "id": "unit.033"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.034",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 34,
+      "locator": {
+        "tag": "div",
+        "id": "unit.034"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.035",
+      "kind": "rust-accessible-name",
+      "roleRequirement": "Name the displayed Rust operation or evidence so the code panel has a meaningful accessible purpose.",
+      "documentId": "built.isolation",
+      "order": 35,
+      "locator": {
+        "tag": "div",
+        "id": "unit.035"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.036",
+      "kind": "answer-summary",
+      "roleRequirement": "Identify the checked-answer disclosure for optional initialization practice without asking the learner to guess an unseen result.",
+      "documentId": "built.isolation",
+      "order": 36,
+      "locator": {
+        "tag": "div",
+        "id": "unit.036"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.037",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about fan-in 2/fan-out 2 target variance, standard deviation and bound in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 37,
+      "locator": {
+        "tag": "div",
+        "id": "unit.037"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.038",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about fan-in 4/fan-out 2 target variance, standard deviation and bound in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 38,
+      "locator": {
+        "tag": "div",
+        "id": "unit.038"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.039",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about zero-SiLU input-weight gradient equality under equal treatment in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 39,
+      "locator": {
+        "tag": "div",
+        "id": "unit.039"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.040",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about same-seed/request/order reproduction in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 40,
+      "locator": {
+        "tag": "div",
+        "id": "unit.040"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.041",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about the observed seed-18 difference without universal seed uniqueness in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 41,
+      "locator": {
+        "tag": "div",
+        "id": "unit.041"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.042",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about finite-sample variance versus the target distribution in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 42,
+      "locator": {
+        "tag": "div",
+        "id": "unit.042"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.043",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about declaration-order enumeration of the two named parameters in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 43,
+      "locator": {
+        "tag": "div",
+        "id": "unit.043"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.044",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about invalid requests, generator-state rollback and first duplicate in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 44,
+      "locator": {
+        "tag": "div",
+        "id": "unit.044"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.045",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about the original Transformer paper not prescribing this initializer in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 45,
+      "locator": {
+        "tag": "div",
+        "id": "unit.045"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.046",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about the near-linear independence limits and no exact decoder-variance guarantee in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 46,
+      "locator": {
+        "tag": "div",
+        "id": "unit.046"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.047",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about fan-in 2/fan-out 2 target variance, standard deviation and bound in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 47,
+      "locator": {
+        "tag": "div",
+        "id": "unit.047"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.048",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about fan-in 4/fan-out 2 target variance, standard deviation and bound in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 48,
+      "locator": {
+        "tag": "div",
+        "id": "unit.048"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.049",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about zero-SiLU input-weight gradient equality under equal treatment in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 49,
+      "locator": {
+        "tag": "div",
+        "id": "unit.049"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.050",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about same-seed/request/order reproduction in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 50,
+      "locator": {
+        "tag": "div",
+        "id": "unit.050"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.051",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about the observed seed-18 difference without universal seed uniqueness in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 51,
+      "locator": {
+        "tag": "div",
+        "id": "unit.051"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.052",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about finite-sample variance versus the target distribution in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 52,
+      "locator": {
+        "tag": "div",
+        "id": "unit.052"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.053",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about declaration-order enumeration of the two named parameters in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 53,
+      "locator": {
+        "tag": "div",
+        "id": "unit.053"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.054",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about invalid requests, generator-state rollback and first duplicate in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 54,
+      "locator": {
+        "tag": "div",
+        "id": "unit.054"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.055",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about the original Transformer paper not prescribing this initializer in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 55,
+      "locator": {
+        "tag": "div",
+        "id": "unit.055"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.056",
+      "kind": "practice-or-checked-answer",
+      "roleRequirement": "Preserve the complete task or checked result about the near-linear independence limits and no exact decoder-variance guarantee in its actual optional-practice/answer role, with local conditions and no learner outcome-prediction request.",
+      "documentId": "built.isolation",
+      "order": 56,
+      "locator": {
+        "tag": "div",
+        "id": "unit.056"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.057",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 57,
+      "locator": {
+        "tag": "div",
+        "id": "unit.057"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.058",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 58,
+      "locator": {
+        "tag": "div",
+        "id": "unit.058"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.059",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 59,
+      "locator": {
+        "tag": "div",
+        "id": "unit.059"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.060",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 60,
+      "locator": {
+        "tag": "div",
+        "id": "unit.060"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.061",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 61,
+      "locator": {
+        "tag": "div",
+        "id": "unit.061"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.062",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 62,
+      "locator": {
+        "tag": "div",
+        "id": "unit.062"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.063",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 63,
+      "locator": {
+        "tag": "div",
+        "id": "unit.063"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.064",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 64,
+      "locator": {
+        "tag": "div",
+        "id": "unit.064"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.065",
+      "kind": "table-row",
+      "roleRequirement": "Preserve this complete header or value-definition row in its displayed initialization table role, distinguishing indices, widths, target variance and finite samples as applicable.",
+      "documentId": "built.isolation",
+      "order": 65,
+      "locator": {
+        "tag": "div",
+        "id": "unit.065"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.066",
+      "kind": "figure-caption",
+      "roleRequirement": "Identify the zero/oversized/Xavier comparison and distinguish measured finite-sample distributions from expected propagation through independent linear layers with equal input and output widths.",
+      "documentId": "built.isolation",
+      "order": 66,
+      "locator": {
+        "tag": "div",
+        "id": "unit.066"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.067",
+      "kind": "figure-accessible-description",
+      "roleRequirement": "Describe the compared starting rules, the measured-distribution versus theoretical-variance distinction and the stated equal-width independent-linear-layer boundary for nonvisual reading.",
+      "documentId": "built.isolation",
+      "order": 67,
+      "locator": {
+        "tag": "div",
+        "id": "unit.067"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.068",
+      "kind": "figure-contextual-heading",
+      "roleRequirement": "Orient the learner within the initializer comparison figure without implying that an expected linear-model value is a measured decoder result.",
+      "documentId": "built.isolation",
+      "order": 68,
+      "locator": {
+        "tag": "div",
+        "id": "unit.068"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.069",
+      "kind": "figure-contextual-heading",
+      "roleRequirement": "Orient the learner within the initializer comparison figure without implying that an expected linear-model value is a measured decoder result.",
+      "documentId": "built.isolation",
+      "order": 69,
+      "locator": {
+        "tag": "div",
+        "id": "unit.069"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.070",
+      "kind": "figure-contextual-heading",
+      "roleRequirement": "Orient the learner within the initializer comparison figure without implying that an expected linear-model value is a measured decoder result.",
+      "documentId": "built.isolation",
+      "order": 70,
+      "locator": {
+        "tag": "div",
+        "id": "unit.070"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.071",
+      "kind": "figure-contextual-heading",
+      "roleRequirement": "Orient the learner within the initializer comparison figure without implying that an expected linear-model value is a measured decoder result.",
+      "documentId": "built.isolation",
+      "order": 71,
+      "locator": {
+        "tag": "div",
+        "id": "unit.071"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.072",
+      "kind": "distribution-card",
+      "roleRequirement": "Identify the selected starting rule and its fixed-seed finite-sample statistics, with quantities and values paired in the actual standalone comparison card.",
+      "documentId": "built.isolation",
+      "order": 72,
+      "locator": {
+        "tag": "div",
+        "id": "unit.072"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.073",
+      "kind": "distribution-card",
+      "roleRequirement": "Identify the selected starting rule and its fixed-seed finite-sample statistics, with quantities and values paired in the actual standalone comparison card.",
+      "documentId": "built.isolation",
+      "order": 73,
+      "locator": {
+        "tag": "div",
+        "id": "unit.073"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.074",
+      "kind": "distribution-card",
+      "roleRequirement": "Identify the selected starting rule and its fixed-seed finite-sample statistics, with quantities and values paired in the actual standalone comparison card.",
+      "documentId": "built.isolation",
+      "order": 74,
+      "locator": {
+        "tag": "div",
+        "id": "unit.074"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.075",
+      "kind": "controlled-comparison-card",
+      "roleRequirement": "Explain that the two uniform strategies share base draws and differ by their uniform bound, separating scale effects from a different draw stream.",
+      "documentId": "built.isolation",
+      "order": 75,
+      "locator": {
+        "tag": "div",
+        "id": "unit.075"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.076",
+      "kind": "reproducibility-card",
+      "roleRequirement": "State the actual same-request equality or selected-alternate-seed difference with the seed and exact scope; do not assert universal seed uniqueness.",
+      "documentId": "built.isolation",
+      "order": 76,
+      "locator": {
+        "tag": "div",
+        "id": "unit.076"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.077",
+      "kind": "reproducibility-card",
+      "roleRequirement": "State the actual same-request equality or selected-alternate-seed difference with the seed and exact scope; do not assert universal seed uniqueness.",
+      "documentId": "built.isolation",
+      "order": 77,
+      "locator": {
+        "tag": "div",
+        "id": "unit.077"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.078",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 78,
+      "locator": {
+        "tag": "div",
+        "id": "unit.078"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.079",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 79,
+      "locator": {
+        "tag": "div",
+        "id": "unit.079"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.080",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 80,
+      "locator": {
+        "tag": "div",
+        "id": "unit.080"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.081",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 81,
+      "locator": {
+        "tag": "div",
+        "id": "unit.081"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.082",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 82,
+      "locator": {
+        "tag": "div",
+        "id": "unit.082"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.083",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 83,
+      "locator": {
+        "tag": "div",
+        "id": "unit.083"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.084",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 84,
+      "locator": {
+        "tag": "div",
+        "id": "unit.084"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.085",
+      "kind": "figure-label-value",
+      "roleRequirement": "Preserve the paired quantity label and fixed fixture value in its contextual figure-summary role; identify the measured or assumed quantity accurately.",
+      "documentId": "built.isolation",
+      "order": 85,
+      "locator": {
+        "tag": "div",
+        "id": "unit.085"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.086",
+      "kind": "figure-note",
+      "roleRequirement": "Explain the local histogram-bin, independent-linear propagation or finite-sample boundary without presenting theory as a measured decoder guarantee.",
+      "documentId": "built.isolation",
+      "order": 86,
+      "locator": {
+        "tag": "div",
+        "id": "unit.086"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.087",
+      "kind": "figure-note",
+      "roleRequirement": "Explain the local histogram-bin, independent-linear propagation or finite-sample boundary without presenting theory as a measured decoder guarantee.",
+      "documentId": "built.isolation",
+      "order": 87,
+      "locator": {
+        "tag": "div",
+        "id": "unit.087"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.088",
+      "kind": "contextual-table-header",
+      "roleRequirement": "Name the displayed strategy, bin interval or layer-depth coordinate in this figure table-header role; unchanged numeric intervals are literal evidence, not prose.",
+      "documentId": "built.isolation",
+      "order": 88,
+      "locator": {
+        "tag": "div",
+        "id": "unit.088"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.089",
+      "kind": "contextual-table-header",
+      "roleRequirement": "Name the displayed strategy, bin interval or layer-depth coordinate in this figure table-header role; unchanged numeric intervals are literal evidence, not prose.",
+      "documentId": "built.isolation",
+      "order": 89,
+      "locator": {
+        "tag": "div",
+        "id": "unit.089"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.090",
+      "kind": "contextual-table-header",
+      "roleRequirement": "Name the displayed strategy, bin interval or layer-depth coordinate in this figure table-header role; unchanged numeric intervals are literal evidence, not prose.",
+      "documentId": "built.isolation",
+      "order": 90,
+      "locator": {
+        "tag": "div",
+        "id": "unit.090"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.091",
+      "kind": "contextual-table-header",
+      "roleRequirement": "Name the displayed strategy, bin interval or layer-depth coordinate in this figure table-header role; unchanged numeric intervals are literal evidence, not prose.",
+      "documentId": "built.isolation",
+      "order": 91,
+      "locator": {
+        "tag": "div",
+        "id": "unit.091"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.092",
+      "kind": "contextual-table-header",
+      "roleRequirement": "Name the displayed strategy, bin interval or layer-depth coordinate in this figure table-header role; unchanged numeric intervals are literal evidence, not prose.",
+      "documentId": "built.isolation",
+      "order": 92,
+      "locator": {
+        "tag": "div",
+        "id": "unit.092"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.093",
+      "kind": "contextual-table-header",
+      "roleRequirement": "Name the displayed strategy, bin interval or layer-depth coordinate in this figure table-header role; unchanged numeric intervals are literal evidence, not prose.",
+      "documentId": "built.isolation",
+      "order": 93,
+      "locator": {
+        "tag": "div",
+        "id": "unit.093"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.094",
+      "kind": "contextual-table-header",
+      "roleRequirement": "Name the displayed strategy, bin interval or layer-depth coordinate in this figure table-header role; unchanged numeric intervals are literal evidence, not prose.",
+      "documentId": "built.isolation",
+      "order": 94,
+      "locator": {
+        "tag": "div",
+        "id": "unit.094"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.095",
+      "kind": "scroll-region-accessible-name",
+      "roleRequirement": "Name the contained comparison table and distinguish measured histograms from expected linear-layer variance for keyboard/nonvisual navigation.",
+      "documentId": "built.isolation",
+      "order": 95,
+      "locator": {
+        "tag": "div",
+        "id": "unit.095"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.096",
+      "kind": "scroll-region-accessible-name",
+      "roleRequirement": "Name the contained comparison table and distinguish measured histograms from expected linear-layer variance for keyboard/nonvisual navigation.",
+      "documentId": "built.isolation",
+      "order": 96,
+      "locator": {
+        "tag": "div",
+        "id": "unit.096"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.097",
+      "kind": "histogram-cell-accessible-name",
+      "roleRequirement": "State the weight interval, exact finite-sample count and percentage for the bin; this contextual cell label must not imply a probability-density or decoder-quality measurement.",
+      "documentId": "built.isolation",
+      "order": 97,
+      "locator": {
+        "tag": "div",
+        "id": "unit.097"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.098",
+      "kind": "cheat-sheet-heading-description",
+      "roleRequirement": "Identify the quick reference for the chapter-specific initialization concepts accurately in its modal/contextual role.",
+      "documentId": "built.isolation",
+      "order": 98,
+      "locator": {
+        "tag": "div",
+        "id": "unit.098"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.099",
+      "kind": "cheat-sheet-heading-description",
+      "roleRequirement": "Identify the quick reference for the chapter-specific initialization concepts accurately in its modal/contextual role.",
+      "documentId": "built.isolation",
+      "order": 99,
+      "locator": {
+        "tag": "div",
+        "id": "unit.099"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.100",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 100,
+      "locator": {
+        "tag": "div",
+        "id": "unit.100"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.101",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 101,
+      "locator": {
+        "tag": "div",
+        "id": "unit.101"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.102",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 102,
+      "locator": {
+        "tag": "div",
+        "id": "unit.102"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.103",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 103,
+      "locator": {
+        "tag": "div",
+        "id": "unit.103"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.104",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 104,
+      "locator": {
+        "tag": "div",
+        "id": "unit.104"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.105",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 105,
+      "locator": {
+        "tag": "div",
+        "id": "unit.105"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.106",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 106,
+      "locator": {
+        "tag": "div",
+        "id": "unit.106"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.107",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 107,
+      "locator": {
+        "tag": "div",
+        "id": "unit.107"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.108",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 108,
+      "locator": {
+        "tag": "div",
+        "id": "unit.108"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.109",
+      "kind": "cheat-sheet-term-definition",
+      "roleRequirement": "Define the named initialization concept concisely in this chapter context; preserve conditions and distinguish the distribution target, measured sample, seed and named-parameter role where relevant.",
+      "documentId": "built.isolation",
+      "order": 109,
+      "locator": {
+        "tag": "div",
+        "id": "unit.109"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.110",
+      "kind": "chapter-navigation-destination",
+      "roleRequirement": "Identify Chapter17 initialization as the previous/next navigation destination with the correct direction and matching current lesson title.",
+      "documentId": "built.isolation",
+      "order": 110,
+      "locator": {
+        "tag": "div",
+        "id": "unit.110"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.111",
+      "kind": "chapter-navigation-destination",
+      "roleRequirement": "Identify Chapter17 initialization as the previous/next navigation destination with the correct direction and matching current lesson title.",
+      "documentId": "built.isolation",
+      "order": 111,
+      "locator": {
+        "tag": "div",
+        "id": "unit.111"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.112",
+      "kind": "course-catalog-card",
+      "roleRequirement": "Identify Chapter17 and describe its current initialization problem/solution accurately in its standalone catalog-card role, with matching title and revision.",
+      "documentId": "built.isolation",
+      "order": 112,
+      "locator": {
+        "tag": "div",
+        "id": "unit.112"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.113",
+      "kind": "learning-objective",
+      "roleRequirement": "State the chapter-specific initialization capabilities and parameter-kind policies in the grouped learning-objective role, with bounded symmetry, scale and reproducibility claims.",
+      "documentId": "built.isolation",
+      "order": 113,
+      "locator": {
+        "tag": "div",
+        "id": "unit.113"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.114",
+      "kind": "histogram-row-accessible-name",
+      "roleRequirement": "Identify the starting-weight rule whose finite-sample bin counts and percentages occupy this histogram row; make the nonvisual row-navigation purpose explicit.",
+      "documentId": "built.isolation",
+      "order": 114,
+      "locator": {
+        "tag": "div",
+        "id": "unit.114"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.115",
+      "kind": "histogram-row-accessible-name",
+      "roleRequirement": "Identify the starting-weight rule whose finite-sample bin counts and percentages occupy this histogram row; make the nonvisual row-navigation purpose explicit.",
+      "documentId": "built.isolation",
+      "order": 115,
+      "locator": {
+        "tag": "div",
+        "id": "unit.115"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.116",
+      "kind": "histogram-row-accessible-name",
+      "roleRequirement": "Identify the starting-weight rule whose finite-sample bin counts and percentages occupy this histogram row; make the nonvisual row-navigation purpose explicit.",
+      "documentId": "built.isolation",
+      "order": 116,
+      "locator": {
+        "tag": "div",
+        "id": "unit.116"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.117",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 117,
+      "locator": {
+        "tag": "div",
+        "id": "unit.117"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.118",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 118,
+      "locator": {
+        "tag": "div",
+        "id": "unit.118"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.119",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 119,
+      "locator": {
+        "tag": "div",
+        "id": "unit.119"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.120",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 120,
+      "locator": {
+        "tag": "div",
+        "id": "unit.120"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.121",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 121,
+      "locator": {
+        "tag": "div",
+        "id": "unit.121"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.122",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 122,
+      "locator": {
+        "tag": "div",
+        "id": "unit.122"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.123",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 123,
+      "locator": {
+        "tag": "div",
+        "id": "unit.123"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.124",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 124,
+      "locator": {
+        "tag": "div",
+        "id": "unit.124"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.125",
+      "kind": "contextual-bin-interval-name",
+      "roleRequirement": "Identify the exact weight interval and endpoint closure for this contextual histogram-bin column; its numeric literal is interpreted under the named histogram table.",
+      "documentId": "built.isolation",
+      "order": 125,
+      "locator": {
+        "tag": "div",
+        "id": "unit.125"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.126",
+      "kind": "strategy-axis-accessible-name",
+      "roleRequirement": "Identify the zero, doubled-Xavier-bound or Xavier initialization rule represented by this contextual table-axis header, without relying on its hidden visual symbol.",
+      "documentId": "built.isolation",
+      "order": 126,
+      "locator": {
+        "tag": "div",
+        "id": "unit.126"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.127",
+      "kind": "strategy-axis-accessible-name",
+      "roleRequirement": "Identify the zero, doubled-Xavier-bound or Xavier initialization rule represented by this contextual table-axis header, without relying on its hidden visual symbol.",
+      "documentId": "built.isolation",
+      "order": 127,
+      "locator": {
+        "tag": "div",
+        "id": "unit.127"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.128",
+      "kind": "strategy-axis-accessible-name",
+      "roleRequirement": "Identify the zero, doubled-Xavier-bound or Xavier initialization rule represented by this contextual table-axis header, without relying on its hidden visual symbol.",
+      "documentId": "built.isolation",
+      "order": 128,
+      "locator": {
+        "tag": "div",
+        "id": "unit.128"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    },
+    {
+      "id": "unit.129",
+      "kind": "browser-seo-title",
+      "roleRequirement": "Identify the initialization lesson and its course in the independent browser/search-title role without claiming a trained-model result.",
+      "documentId": "built.isolation",
+      "order": 129,
+      "locator": {
+        "tag": "div",
+        "id": "unit.129"
+      },
+      "value": {
+        "type": "text"
+      },
+      "literals": []
+    }
+  ],
+  "rubrics": {
+    "technicalPedagogical": {
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/rubrics/technical.txt",
+      "sha256": "4fc1d54d0001d3fa80509dcf9d49b6cd4afd05ce6685f041f17f210078402d3a"
+    },
+    "isolatedSurface": {
+      "path": "audits/2026-10-02-ch17-problem-first/english-r4/rubrics/isolated.txt",
+      "sha256": "699f27d818c6d16327787449fb03dcd55f1b4e546ebbbb07a2b7717c1822372f"
+    }
+  }
+}

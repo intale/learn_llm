@@ -1,0 +1,1 @@
+Print the scale, weights, symmetry, names, leaf comparisons, and unchanged-state result rust/demos/ch17-parameter-initialization/src/main.rs#learner-parameter-initialization-output

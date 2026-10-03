@@ -1,0 +1,1 @@
+Создать разобранную проекцию с начальным значением 17, повторить её и сравнить с запросом для 18 rust/demos/ch17-parameter-initialization/src/lib.rs#fixed-seed-parameter

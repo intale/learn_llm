@@ -1014,7 +1014,7 @@ describe("curriculum and catalog contracts", () => {
       }>;
     };
     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
-      "bb150c85c12016c505e316d7cc79c1f39d78692ba04379de5ca06a7b58d9e1ee",
+      "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868",
     );
     expect(createHash("sha256").update(projectionSource).digest("hex")).toBe(
       "565880ee28fefc47178e8c9da788cca6150cfbaa06b22603df1453bb4b7dfd93",
@@ -1077,7 +1077,7 @@ describe("curriculum and catalog contracts", () => {
       ["07-language-model-metrics", 7, 7],
       ["18-token-embeddings", 18, 8],
       ["22-adamw", 22, 8],
-      ["33-training-selection", 33, 11],
+      ["33-training-selection", 33, 12],
       ["34-final-evaluation", 34, 7],
       ["35-checkpoints", 35, 5],
       ["36-temperature-top-k", 36, 6],

@@ -1,0 +1,616 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import InlineMath from '../InlineMath.astro';
+
+import {
+  parameterInitializationDiagramId,
+  parseParameterInitializationTrace,
+  validateParameterInitializationLabels,
+  type InitializationKind,
+  type ParameterInitializationDiagramLabels,
+} from '../../lib/parameter-initialization-diagram';
+
+interface Props {
+  labels: ParameterInitializationDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+validateParameterInitializationLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Parameter-initialization diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch17-parameter-initialization/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseParameterInitializationTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = parameterInitializationDiagramId + '-' + instanceId + '-title';
+const descriptionId = parameterInitializationDiagramId + '-' + instanceId + '-description';
+const propagationId = parameterInitializationDiagramId + '-' + instanceId + '-propagation';
+const histogramId = parameterInitializationDiagramId + '-' + instanceId + '-histograms';
+const kinds: readonly InitializationKind[] = ['zero', 'oversized', 'xavier'];
+const propagationByKind = new Map(
+  trace.propagations.map((propagation) => [propagation.kind, propagation]),
+);
+const distributionByKind = new Map(
+  trace.distributions.map((distribution) => [distribution.kind, distribution]),
+);
+const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
+const rangeText = (index: number) =>
+  '[' +
+  trace.binning.displayEdges[index] +
+  ',' +
+  trace.binning.displayEdges[index + 1] +
+  (index + 1 === trace.binning.displayEdges.length - 1 ? ']' : ')');
+const rangeLowerLatex = (index: number) => '[' + trace.binning.displayEdges[index] + ',';
+const rangeUpperLatex = (index: number) =>
+  trace.binning.displayEdges[index + 1] +
+  (index + 1 === trace.binning.displayEdges.length - 1 ? ']' : ')');
+const binLabel = (range: string, count: string, share: string) =>
+  labels.accessibility.binTemplate
+    .replaceAll('{range}', range)
+    .replaceAll('{count}', count)
+    .replaceAll('{share}', share);
+---
+
+<figure
+  class="course-diagram parameter-initialization-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id={parameterInitializationDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <dl
+    class="summary-grid"
+    data-seed={trace.fixture.seed.lexeme}
+    data-shape={trace.fixture.shape}
+    data-samples={trace.fixture.samples.lexeme}
+    data-fan-in={trace.fixture.fanIn.lexeme}
+    data-fan-out={trace.fixture.fanOut.lexeme}
+    data-input-variance={trace.fixture.inputVariance.lexeme}
+    data-generator={trace.fixture.generator}
+    data-statistic={trace.fixture.statistic}
+  >
+    <div data-diagram-box>
+      <dt>{labels.summary.seed}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.seed.lexeme}</bdi></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.width}</dt>
+      <dd><code dir="ltr">{trace.fixture.shape}</code></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.samples}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.samples.lexeme}</bdi></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.fanIn}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.fanIn.lexeme}</bdi></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.fanOut}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.fanOut.lexeme}</bdi></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.inputVariance}</dt>
+      <dd><InlineMath latex={trace.fixture.displayInputVariance} /></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.generator}</dt>
+      <dd><code dir="ltr">{trace.fixture.generator} / {trace.fixture.mapping}</code></dd>
+    </div>
+    <div data-diagram-box>
+      <dt>{labels.summary.statistic}</dt>
+      <dd>{labels.summary.assumption}</dd>
+    </div>
+  </dl>
+
+  <section
+    data-diagram-box
+    class="distribution-section"
+    aria-labelledby={titleId + '-distributions'}
+  >
+    <h4 id={titleId + '-distributions'}>{labels.sections.distributions}</h4>
+    <p class="bin-note">
+      {labels.binClosure}
+      <InlineMath latex={'\\Delta=' + trace.binning.displayWidth} />
+    </p>
+
+    <div class="distribution-grid course-diagram__grid">
+      {trace.distributions.map((distribution) => (
+        <article
+          data-diagram-card
+          data-diagram-box
+          class:list={[
+            'distribution-card',
+            'course-diagram__card-stack',
+            'distribution-' + distribution.kind,
+          ]}
+          data-initialization-kind={distribution.kind}
+          data-seed={distribution.seed?.lexeme ?? 'none'}
+          data-limit={distribution.limit.lexeme}
+          data-minimum={distribution.minimum.lexeme}
+          data-maximum={distribution.maximum.lexeme}
+          data-mean={distribution.mean.lexeme}
+          data-variance={distribution.variance.lexeme}
+          data-counts={distribution.bins.map((bin) => bin.count.lexeme).join(',')}
+          data-bar-percent={distribution.bins.map((bin) => bin.barPercent.lexeme).join(',')}
+        >
+          <p class="course-diagram__card-heading">
+            <span class="state-symbol" aria-hidden="true">{strategySymbol(distribution.kind)}</span>
+            <strong>{labels.strategies[distribution.kind]}</strong>
+          </p>
+          <dl class="distribution-statistics">
+            <div>
+              <dt>{labels.fields.seed}</dt>
+              <dd>
+                {distribution.seed === null ? (
+                  labels.states.noSeed
+                ) : (
+                  <bdi dir="ltr">{distribution.seed.lexeme}</bdi>
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>{labels.fields.limit}</dt>
+              <dd><bdi dir="ltr">{distribution.display.limit}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.minimum}</dt>
+              <dd><bdi dir="ltr">{distribution.display.minimum}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.maximum}</dt>
+              <dd><bdi dir="ltr">{distribution.display.maximum}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.mean}</dt>
+              <dd><bdi dir="ltr">{distribution.display.mean}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.variance}</dt>
+              <dd><bdi dir="ltr">{distribution.display.variance}</bdi></dd>
+            </div>
+          </dl>
+        </article>
+      ))}
+    </div>
+
+    <article
+      data-diagram-card
+      data-diagram-box
+      class="pairing-note course-diagram__card-stack"
+      data-pairing-seed={trace.pairing.seed.lexeme}
+      data-base-draws-equal={trace.pairing.baseDrawsEqual}
+      data-limit-ratio={trace.pairing.oversizedToXavierLimit.lexeme}
+    >
+      <p class="course-diagram__card-heading">
+        <span class="state-symbol" aria-hidden="true">{labels.symbols.same}</span>
+        <strong>{labels.pairing}</strong>
+      </p>
+      <p>{labels.states.sameStream}</p>
+      <dl class="pairing-values">
+        <div>
+          <dt>{labels.fields.seed}</dt>
+          <dd><bdi dir="ltr">{trace.pairing.seed.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.fields.limitRatio}</dt>
+          <dd><bdi dir="ltr">{trace.pairing.oversizedToXavierLimit.lexeme}</bdi></dd>
+        </div>
+      </dl>
+    </article>
+
+    <div
+      class="histogram-scroll course-diagram__scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.accessibility.histogramTable}
+      data-diagram-scroll
+    >
+      <table id={histogramId} class="histogram-table" data-diagram-table>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.strategy}</th>
+            {trace.binning.displayEdges.slice(0, -1).map((_edge, index) => (
+              <th scope="col" aria-label={rangeText(index)}>
+                <span class="histogram-range" aria-hidden="true">
+                  <InlineMath latex={rangeLowerLatex(index)} />
+                  <InlineMath latex={rangeUpperLatex(index)} />
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {kinds.map((kind) => {
+            const distribution = distributionByKind.get(kind);
+            if (distribution === undefined) {
+              throw new Error('Missing parameter-initialization distribution ' + kind);
+            }
+            return (
+              <tr aria-label={labels.accessibility.histograms[kind]}>
+                <th scope="row" aria-label={labels.strategies[kind]}>
+                  <span class="state-symbol" aria-hidden="true">{strategySymbol(kind)}</span>
+                </th>
+                {distribution.bins.map((bin, index) => (
+                  <td
+                    data-bin-index={index}
+                    data-lower={bin.lower.lexeme}
+                    data-upper={bin.upper.lexeme}
+                    data-count={bin.count.lexeme}
+                    data-bar-percent={bin.barPercent.lexeme}
+                    aria-label={binLabel(
+                      rangeText(index),
+                      bin.count.lexeme,
+                      bin.barPercent.lexeme + '%',
+                    )}
+                  >
+                    <span class="bin-evidence">
+                      <bdi dir="ltr">{bin.count.lexeme}</bdi>
+                      <bdi dir="ltr">{bin.displayBarPercent}%</bdi>
+                      <span class="bin-bar" aria-hidden="true">
+                        <span
+                          class="bin-bar-fill"
+                          style={'--bar-percent: ' + bin.barPercent.lexeme + '%'}
+                        ></span>
+                      </span>
+                    </span>
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section
+    data-diagram-box
+    class="propagation-section"
+    aria-labelledby={propagationId}
+  >
+    <h4 id={propagationId}>{labels.sections.propagation}</h4>
+    <p>{labels.propagationAssumption}</p>
+    <div
+      class="table-scroll course-diagram__scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.accessibility.propagationTable}
+      data-diagram-scroll
+    >
+      <table class="propagation-table" data-diagram-table>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.layer}</th>
+            {kinds.map((kind) => (
+              <th scope="col" aria-label={labels.strategies[kind]}>
+                <span class="state-symbol" aria-hidden="true">{strategySymbol(kind)}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {trace.fixture.layers.map((layer, layerIndex) => (
+            <tr data-layer={layer.lexeme}>
+              <th scope="row"><bdi dir="ltr">{layer.lexeme}</bdi></th>
+              {kinds.map((kind) => {
+                const variance = propagationByKind.get(kind)?.variances[layerIndex];
+                if (variance === undefined) {
+                  throw new Error('Missing parameter-initialization variance ' + kind);
+                }
+                return (
+                  <td data-kind={kind} data-variance={variance.lexeme}>
+                    <InlineMath latex={propagationByKind.get(kind)!.displayVariances[layerIndex]!} />
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section
+    data-diagram-box
+    class="reproducibility-section"
+    aria-labelledby={titleId + '-reproducibility'}
+  >
+    <h4 id={titleId + '-reproducibility'}>{labels.sections.reproducibility}</h4>
+    <div class="reproducibility-grid course-diagram__grid">
+      <article
+        data-diagram-card
+        data-diagram-box
+        class="reproducibility-card reproduction-same course-diagram__card-stack"
+        data-reproducibility="same-seed"
+        data-seed={trace.reproducibility.seed.lexeme}
+        data-result={trace.reproducibility.sameSeedEqual}
+      >
+        <p class="course-diagram__card-heading">
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.same}</span>
+          <strong>{labels.states.sameSeedEqual}</strong>
+        </p>
+        <dl>
+          <div>
+            <dt>{labels.fields.seed}</dt>
+            <dd><bdi dir="ltr">{trace.reproducibility.seed.lexeme}</bdi></dd>
+          </div>
+        </dl>
+      </article>
+      <article
+        data-diagram-card
+        data-diagram-box
+        class="reproducibility-card reproduction-different course-diagram__card-stack"
+        data-reproducibility="alternate-seed"
+        data-seed={trace.reproducibility.alternateSeed.lexeme}
+        data-result={trace.reproducibility.alternateSeedDifferent}
+      >
+        <p class="course-diagram__card-heading">
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.different}</span>
+          <strong>{labels.states.alternateSeedDifferent}</strong>
+        </p>
+        <dl>
+          <div>
+            <dt>{labels.fields.seed}</dt>
+            <dd><bdi dir="ltr">{trace.reproducibility.alternateSeed.lexeme}</bdi></dd>
+          </div>
+        </dl>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .parameter-initialization-diagram {
+    --diagram-summary-min: 9rem;
+  }
+
+  .distribution-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    align-items: start;
+  }
+
+  .distribution-card > dl,
+  .pairing-note > dl,
+  .reproducibility-card > dl {
+    margin: 0;
+  }
+
+  .distribution-statistics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.75rem;
+  }
+
+  .distribution-zero {
+    border-style: dotted;
+  }
+
+  .distribution-oversized,
+  .reproduction-different {
+    border-style: dashed;
+  }
+
+  .distribution-xavier,
+  .reproduction-same {
+    border-style: double;
+    border-width: 3px;
+  }
+
+  .pairing-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1rem;
+  }
+
+  .histogram-scroll,
+  .table-scroll {
+    --diagram-scroll-inline-size: 100%;
+  }
+
+  .histogram-table {
+    inline-size: 100%;
+    min-inline-size: 48rem;
+    table-layout: fixed;
+  }
+
+  .histogram-table th:first-child {
+    inline-size: 10rem;
+  }
+
+  .histogram-table :is(th, td):not(:first-child) {
+    text-align: center;
+  }
+
+  .histogram-table tbody th {
+    vertical-align: middle;
+  }
+
+  .histogram-range {
+    display: grid;
+    justify-items: center;
+  }
+
+  .bin-evidence {
+    display: grid;
+    min-inline-size: 0;
+    gap: 0.2rem;
+  }
+
+  .bin-bar {
+    display: block;
+    min-block-size: 0.55rem;
+    padding: 1px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+  }
+
+  .bin-bar-fill {
+    display: block;
+    inline-size: var(--bar-percent);
+    min-block-size: 0.35rem;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .propagation-table {
+    inline-size: 100%;
+    min-inline-size: 36rem;
+  }
+
+  .reproducibility-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    align-items: start;
+  }
+
+  @container course-diagram (max-width: 38rem) {
+    .distribution-statistics {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .parameter-initialization-diagram:fullscreen {
+      grid-template-columns: minmax(0, 2fr) minmax(24rem, 1fr);
+      grid-template-areas:
+        "caption actions"
+        "summary summary"
+        "distributions propagation"
+        "distributions reproducibility";
+      align-content: start;
+      align-items: start;
+    }
+
+    figure.parameter-initialization-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+      row-gap: 0.1rem;
+    }
+
+    .parameter-initialization-diagram:fullscreen > figcaption {
+      grid-area: caption;
+    }
+
+    .parameter-initialization-diagram:fullscreen > :global(.diagram-full-view-actions) {
+      grid-area: actions;
+      align-self: start;
+    }
+
+    .parameter-initialization-diagram:fullscreen > .summary-grid {
+      grid-area: summary;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+    }
+
+    .parameter-initialization-diagram:fullscreen > .summary-grid > :nth-last-child(-n + 2) {
+      grid-column: span 2;
+    }
+
+    .parameter-initialization-diagram:fullscreen > .distribution-section {
+      grid-area: distributions;
+    }
+
+    .parameter-initialization-diagram:fullscreen > .propagation-section {
+      grid-area: propagation;
+    }
+
+    .parameter-initialization-diagram:fullscreen > .reproducibility-section {
+      grid-area: reproducibility;
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-statistics {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-section {
+      display: grid;
+      grid-template-columns: minmax(17rem, 0.6fr) minmax(0, 1fr);
+      grid-template-areas:
+        "heading heading"
+        "note pairing"
+        "cards cards"
+        "histogram histogram";
+      align-items: start;
+      column-gap: var(--diagram-gap);
+      row-gap: 0.3rem;
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-section > h4 {
+      grid-area: heading;
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-section > .bin-note {
+      grid-area: note;
+      margin: 0;
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-section > .distribution-grid {
+      grid-area: cards;
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-section > .pairing-note {
+      grid-area: pairing;
+      grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.75fr);
+      grid-template-areas:
+        "pairing-heading pairing-values"
+        "pairing-copy pairing-values";
+      align-items: start;
+    }
+
+    .parameter-initialization-diagram:fullscreen .pairing-note > .course-diagram__card-heading {
+      grid-area: pairing-heading;
+    }
+
+    .parameter-initialization-diagram:fullscreen .pairing-note > p:not(.course-diagram__card-heading) {
+      grid-area: pairing-copy;
+    }
+
+    .parameter-initialization-diagram:fullscreen .pairing-note > .pairing-values {
+      display: grid;
+      grid-area: pairing-values;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .parameter-initialization-diagram:fullscreen .distribution-section > .histogram-scroll {
+      grid-area: histogram;
+    }
+
+    .parameter-initialization-diagram:fullscreen .histogram-table {
+      min-inline-size: 41rem;
+    }
+
+    .parameter-initialization-diagram:fullscreen .histogram-table th:first-child {
+      inline-size: 8.5rem;
+    }
+
+    .parameter-initialization-diagram:fullscreen .bin-evidence {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: center;
+    }
+
+    .parameter-initialization-diagram:fullscreen .bin-bar {
+      grid-column: 1 / -1;
+    }
+
+    .parameter-initialization-diagram:fullscreen .propagation-table {
+      min-inline-size: 0;
+    }
+
+    .parameter-initialization-diagram:fullscreen .reproducibility-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

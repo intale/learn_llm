@@ -1,0 +1,1 @@
+\operatorname{Var}(W_{ij}) | The distribution’s target spread in squared weight units, not a finite matrix’s measured variance.

@@ -1,0 +1,116 @@
+{
+  "localizedFields": [
+    {
+      "path": "objective",
+      "value": "Initialize named trainable matrices reproducibly at width-aware scales, distinguish hidden-unit symmetry from signal-scale drift, and explain the starting policies for biases, normalization gains, and token tables."
+    },
+    {
+      "path": "worked_inputs",
+      "value": "Explain why bias-free hidden units receiving the same input through the same activation stay identical when their weight columns, downstream treatment, and updates match. Work through the seed-17 [2,2] projection with fan-in 2 and fan-out 2: target variance 1/2, standard deviation 1/sqrt(2), uniform bound sqrt(3/2), and the four sampled weights. Explain its unequal columns, exact replay of the same request, and the selected seed-18 tensor difference with the matrix request unchanged. Then inspect the zero 2-to-2 SiLU path whose equal output weights produce equal input-weight gradient columns."
+    },
+    {
+      "path": "formula.symbols.0",
+      "value": "the matrix of connection weights being initialized before training"
+    },
+    {
+      "path": "formula.symbols.1",
+      "value": "the input coordinate selected by the weight's row"
+    },
+    {
+      "path": "formula.symbols.2",
+      "value": "the output coordinate selected by the weight's column"
+    },
+    {
+      "path": "formula.symbols.3",
+      "value": "the sampled coefficient that carries input coordinate i into output coordinate j"
+    },
+    {
+      "path": "formula.symbols.4",
+      "value": "the initialization distribution's target spread in squared weight units, not a finite matrix's measured variance"
+    },
+    {
+      "path": "formula.symbols.5",
+      "value": "the count of input coordinates whose weighted contributions are summed into each output"
+    },
+    {
+      "path": "formula.symbols.6",
+      "value": "the count of output coordinates to which each input contributes"
+    },
+    {
+      "path": "formula.symbols.7",
+      "value": "the numerator that balances the forward fan-in and backward fan-out variance conditions"
+    },
+    {
+      "path": "history.llm_evolution.limitation",
+      "value": "Random word features gave early neural language models trainable starting values, but randomness alone does not choose a scale for each matrix width. Bengio et al. do not specify a dimension-aware reproducible initialization rule; repeated transformations make that missing scale choice more consequential."
+    },
+    {
+      "path": "history.llm_evolution.later_advance",
+      "value": "Glorot and Bengio connect starting weight variance to both forward and backward matrix widths under near-linear and independence assumptions. Transformers later combine learned embeddings with repeated attention and feed-forward projections, so many separately shaped trainable matrices need starting values."
+    },
+    {
+      "path": "history.llm_evolution.modern_llm_role",
+      "value": "Our decoder uses reproducible Xavier-style uniform matrix samples, stable parameter names, zero optional biases, and RMSNorm gains of one. Its token table reuses the sampler by matrix shape. These are explicit construction policies: the Transformer paper does not prescribe them, and they do not guarantee exact variance preservation through SiLU, normalization, or residual paths."
+    },
+    {
+      "path": "history.llm_evolution.sources.0.claim",
+      "value": "Bengio et al. jointly train a word-feature matrix and neural matrices for next-word prediction. They report initializing the word features randomly, as for neural-network weights."
+    },
+    {
+      "path": "history.llm_evolution.sources.1.claim",
+      "value": "Glorot and Bengio derive a compromise between fan-in and fan-out variance conditions under simplifying assumptions: target weight variance is 2 divided by the sum of the widths, implemented with a normalized zero-centered uniform distribution."
+    },
+    {
+      "path": "history.llm_evolution.sources.2.claim",
+      "value": "Vaswani et al. use learned embeddings and repeat query, key, value, attention-output, and two feed-forward projections in Transformer layers. Their paper does not prescribe a parameter initializer."
+    },
+    {
+      "path": "history.approach",
+      "value": "Random neural word features, variance-aware deep networks, and repeated Transformer projections"
+    },
+    {
+      "path": "history.summary",
+      "value": "Random initialization supplied learned word features with starting values; width-aware variance analysis addressed how matrix scale compounds through depth. Repeated Transformer projections make those choices relevant to many language-model parameters. The Rust contrast demonstrates equal gradients in one zero-weight SiLU path and replay of selected sampled matrices, without attributing the generator, naming, validation, or decoder-wide policy to the papers."
+    },
+    {
+      "path": "visualization.rationale",
+      "value": "Paired histograms isolate the effect of doubling the Xavier uniform bound without changing the base draws. A separate expected-variance table for independent linear layers with equal input and output widths shows how that scale compounds through depth, while keeping measured finite populations distinct from an assumption-bound model."
+    },
+    {
+      "path": "decoder_connection",
+      "value": "Initialization now supplies named trainable matrices with reproducible values and a declared starting scale. Chapter 18 turns a vocabulary-by-feature matrix into an embedding table: token IDs select rows, repeated occurrences of an ID reuse its row, and their gradients scatter-add. Passing vocabulary size and feature width to this sampler is our table-construction convention, not a variance derivation for row lookup."
+    },
+    {
+      "path": "terminology.0",
+      "value": "named trainable parameter"
+    },
+    {
+      "path": "terminology.1",
+      "value": "generator seed"
+    },
+    {
+      "path": "terminology.2",
+      "value": "pseudorandom number generator"
+    },
+    {
+      "path": "terminology.3",
+      "value": "fan-in"
+    },
+    {
+      "path": "terminology.4",
+      "value": "fan-out"
+    },
+    {
+      "path": "terminology.5",
+      "value": "Xavier-style uniform initialization"
+    },
+    {
+      "path": "terminology.6",
+      "value": "hidden-unit symmetry under equal treatment"
+    },
+    {
+      "path": "terminology.7",
+      "value": "target weight-distribution variance"
+    }
+  ]
+}

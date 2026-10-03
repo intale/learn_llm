@@ -1,0 +1,1 @@
+Xavier-style initialization Zero-centered sampling that balances forward and backward width effects under independence and near-linear assumptions.

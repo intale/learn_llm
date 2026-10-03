@@ -1,0 +1,1 @@
+Create the named trainable leaf before committing draws, and keep collection order unambiguous rust/crates/llm-from-scratch/src/nn/init.rs#named-parameters

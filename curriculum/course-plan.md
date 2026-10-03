@@ -1260,7 +1260,7 @@ with JavaScript enabled.
 
 - **Chapter ID:** `17-parameter-initialization`
 - **Implementation step:** `implement-ch17-parameter-initialization`
-- **Revision status:** Content revision 3 scopes Xavier to dense matrices, separates bias, gain, and token-table policies, fixes reproducibility and learner-facing evidence claims, adopts the shared diagram system, and activates the direct Russian localization; revision 2's formula rendering repair remains recorded by `repair-formula-rendering-ch14-ch19`.
+- **Revision status:** Content revision 5 rewrites the complete English lesson and directly refreshed Russian material as problem definition, explained solution with formula/Rust connections, bounded history, visualization, and optional checked reproduction/inspection practice. It preserves all prior formula, Rust, numerical evidence and parameter-kind boundaries; revisions 3–4 and the revision-2 formula repair remain recorded in their historical checkpoints.
 - **Depends on:** `16-model-autodiff-ops`.
 - **Outcome:** Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths.
 - **Scope boundary:** Teach deterministic PRNG state, seeds, zero-symmetry failure, Xavier-style variance, and parameter identity; defer optimizer state.
@@ -1268,7 +1268,7 @@ with JavaScript enabled.
 - **Historical contrast:** All-zero weights preserve symmetry, while arbitrary random scales can shrink or explode signals through depth; connect early neural-language-model random initialization to variance-aware parameter scales used to keep a deeper decoder trainable.
 - **Rust contribution:** Add a dependency-free deterministic PRNG, Xavier-style matrix initialization, and stable named-parameter construction reused by later layers under explicit parameter-kind policies.
 - **Visualization:** Useful — compare fixed-seed histograms and propagated variance for zero, oversized, and Xavier-initialized weights.
-- **Practice:** Predict why equal zero weights stay equal and how doubling fan-in changes the target standard deviation.
+- **Practice:** Optionally reproduce the explained width-aware scales and inspect equal-unit gradients, exact replay, parameter order/identity, returned-error state preservation, historical scope, and finite-sample limits with checked answers.
 - **Integration evidence:** Same-request seed reproducibility, the selected seed-17/seed-18 difference, shape/fan validation, rounded distribution statistics, and parameter enumeration pass.
 - **Handoff:** Chapter 18 uses those parameters as a trainable token table.
 

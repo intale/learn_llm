@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "contextId": "ch17_v5_ru_r2_bilingual",
+  "role": "bilingual",
+  "freshContext": true,
+  "model": "gpt-6.1-sol",
+  "reasoning": "xhigh",
+  "createdAt": "2026-10-03T08:10:20.495Z",
+  "accessBoundary": [
+    "audits/2026-10-02-ch17-problem-first/ru-r2/contexts/bilingual.json",
+    "audits/2026-10-02-ch17-problem-first/ru-r2/prompts/bilingual.txt",
+    "audits/2026-10-02-ch17-problem-first/ru-r2/bundle/bilingual/review-bundle.json",
+    ".agents/skills/localize-llm-course/references/review-record.schema.json"
+  ]
+}

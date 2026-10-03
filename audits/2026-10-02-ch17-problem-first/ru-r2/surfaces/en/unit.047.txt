@@ -1,0 +1,1 @@
+For fan-in 2 and fan-out 2, target variance is 0.5, standard deviation is 0.707106781187, and uniform bound is 1.224744871392. Standard deviation measures distribution spread; the bound marks its endpoint.

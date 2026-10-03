@@ -1,0 +1,1 @@
+\operatorname{fan}_{in} | The count of input coordinates whose weighted contributions are summed into each output.

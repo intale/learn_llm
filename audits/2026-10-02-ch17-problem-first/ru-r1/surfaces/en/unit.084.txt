@@ -1,0 +1,1 @@
+Generator and mapping splitmix64 / top53-affine

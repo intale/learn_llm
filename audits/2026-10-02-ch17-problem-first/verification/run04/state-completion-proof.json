@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "result": "completion-ledger-verified",
+  "buildId": "rewrite-ch17-problem-first-content-20261002",
+  "runId": "20261003T063100Z-rewrite-ch17-problem-first-content-04",
+  "unrelatedBuilds": 80,
+  "historicalRunsUnchanged": 3,
+  "artifactsChecked": 34,
+  "stateSha256": "4d86c0628dd1363fcb9e70e7219886247b4a1a944b438ee9b7933da97db021eb",
+  "decisionsSha256": "b282fb05cfde549bfd02cc7e101810b21f3439f1e5cec365125023481a46e147",
+  "limits": "Ledger/provenance/scope consistency only; publication quality comes from the independent exact verified records."
+}

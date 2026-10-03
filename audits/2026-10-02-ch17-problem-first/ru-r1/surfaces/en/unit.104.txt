@@ -1,0 +1,1 @@
+Pseudorandom generator A state-driven deterministic algorithm that supplies random-like draws, not cryptographic security.

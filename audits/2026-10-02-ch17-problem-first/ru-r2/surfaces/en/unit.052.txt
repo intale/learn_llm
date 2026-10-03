@@ -1,0 +1,1 @@
+The target weight variance is a property of the sampling distribution. A finite matrix can have a nonzero measured mean and a different measured variance without violating the rule.

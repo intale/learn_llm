@@ -1,0 +1,1 @@
+Construct the explained seed-17 projection, replay it, and compare the seed-18 request rust/demos/ch17-parameter-initialization/src/lib.rs#fixed-seed-parameter

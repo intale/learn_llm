@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "result": "exact-restricted-diffs",
+  "tests": [
+    {
+      "path": "site/tests/17-parameter-initialization-diagram.test.ts",
+      "baselineSha256": "a7911666e7dc3c63ce7b7c7f9d2f5fbf98ff9375eac680983e3a63e39eb11fd8",
+      "stagedSha256": "4d2ed090964d2529e2c8e7059d2cfdd7eb70be33446ed28ebb022030173bdca5"
+    },
+    {
+      "path": "site/tests/e2e/ch17-parameter-initialization.spec.ts",
+      "baselineSha256": "1578aa38d30ebd5042fe4b1527593eb974af7fa77185d724da7c12a235d4f39c",
+      "stagedSha256": "d3e870e23c48e6ec3f945a4733ffa994e64a3a6b8cfff8150300519a065814ce"
+    },
+    {
+      "path": "site/tests/content-contract.test.ts",
+      "baselineSha256": "b0963b495e66cb49d8e4d52f83bb5c09fdc34004b07a43c9c6652d6c87d25a81",
+      "stagedSha256": "9e0ac383da26ea4928bde8f8549fe4ae62449c0f4ff83243e4aca2b118ea9eba"
+    },
+    {
+      "path": "site/tests/e2e/cheat-sheets.spec.ts",
+      "baselineSha256": "cc2eca3a98710fc25a61155142cdd460628d307d59a55cc4ecb7c9f77f9f4a68",
+      "stagedSha256": "9cf4ae64e4d1c5eef005b731d267c4837ee831f462618dbbb8b277f567c57b88"
+    }
+  ],
+  "cacheReceiptSha256": "81a2d3c5c64fb9be21407c258fb3c05e5f9e41b74d2f90e13b78abadd3fc2cf6",
+  "limits": "Copy/revision/identity data only; no numerical, behavior, geometry, accessibility assertion or protected implementation changed."
+}

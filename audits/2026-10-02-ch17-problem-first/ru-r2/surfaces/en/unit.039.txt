@@ -1,0 +1,1 @@
+Inspect the zero-weight SiLU graph and derive the two input-weight gradient columns from the equal output weights and input signs.

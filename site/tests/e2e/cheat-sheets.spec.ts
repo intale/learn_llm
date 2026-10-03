@@ -291,7 +291,7 @@ const englishSheets = [
   {
     chapter: 17,
     chapterId: "17-parameter-initialization",
-    title: "Initialize trainable weights reproducibly",
+    title: "Start trainable weights at a reproducible scale",
     terms: [
       "Parameter initialization",
       "Hidden-unit symmetry",

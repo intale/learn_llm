@@ -107,9 +107,9 @@ const labels: ParameterInitializationDiagramLabels = {
 };
 
 describe('Chapter 17 Rust trace parser', () => {
-  it('projects canonical content revision 4 into both active lessons', () => {
+  it('projects canonical content revision 5 into both active lessons', () => {
     for (const source of [chapter17Contract, chapter17English, chapter17Russian]) {
-      expect(source).toContain('"content_revision": 4');
+      expect(source).toContain('"content_revision": 5');
     }
   });
 

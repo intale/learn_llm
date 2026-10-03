@@ -1,0 +1,1 @@
+Rust source for transactional named parameters and duplicate-checked enumeration

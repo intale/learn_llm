@@ -1,0 +1,1 @@
+Vaswani et al. do not prescribe a parameter initializer. Attention-score and embedding scaling are operations in the forward model, not initial-value selection.

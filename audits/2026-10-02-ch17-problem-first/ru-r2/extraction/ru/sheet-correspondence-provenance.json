@@ -1,0 +1,560 @@
+{
+  "schemaVersion": 1,
+  "correspondence": {
+    "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/cheat-sheet-correspondence.json",
+    "sha256": "ccfe79c98614b35393503bbd39c499d8b314d9c24e29f82a6d1edd5c89fbaf76"
+  },
+  "ledger": [
+    {
+      "surfaceId": "unit.100",
+      "englishTerm": "Fan-in",
+      "russianTerm": "Входная ширина",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          1
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          2
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.101",
+      "targetRenderedExtractionOrder": 101
+    },
+    {
+      "surfaceId": "unit.101",
+      "englishTerm": "Fan-out",
+      "russianTerm": "Выходная ширина",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          2
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          3
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.102",
+      "targetRenderedExtractionOrder": 102
+    },
+    {
+      "surfaceId": "unit.102",
+      "englishTerm": "Hidden-unit symmetry",
+      "russianTerm": "Симметрия скрытых нейронов",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          3
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          9
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.108",
+      "targetRenderedExtractionOrder": 108
+    },
+    {
+      "surfaceId": "unit.103",
+      "englishTerm": "Parameter initialization",
+      "russianTerm": "Инициализация параметров",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          4
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          6
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.105",
+      "targetRenderedExtractionOrder": 105
+    },
+    {
+      "surfaceId": "unit.104",
+      "englishTerm": "Pseudorandom generator",
+      "russianTerm": "Генератор псевдослучайных чисел",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          5
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          4
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.103",
+      "targetRenderedExtractionOrder": 103
+    },
+    {
+      "surfaceId": "unit.105",
+      "englishTerm": "Reproducibility",
+      "russianTerm": "Воспроизводимость",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          6
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          1
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.100",
+      "targetRenderedExtractionOrder": 100
+    },
+    {
+      "surfaceId": "unit.106",
+      "englishTerm": "Seed",
+      "russianTerm": "Начальное значение генератора",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          7
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          8
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.107",
+      "targetRenderedExtractionOrder": 107
+    },
+    {
+      "surfaceId": "unit.107",
+      "englishTerm": "Target variance",
+      "russianTerm": "Целевая дисперсия",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          8
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          10
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.109",
+      "targetRenderedExtractionOrder": 109
+    },
+    {
+      "surfaceId": "unit.108",
+      "englishTerm": "Uniform bound",
+      "russianTerm": "Граница равномерного распределения",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          9
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          5
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.104",
+      "targetRenderedExtractionOrder": 104
+    },
+    {
+      "surfaceId": "unit.109",
+      "englishTerm": "Xavier-style initialization",
+      "russianTerm": "Инициализация по схеме Ксавье",
+      "sourceOrigin": {
+        "documentSha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          10
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetOrigin": {
+        "documentSha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5,
+          1,
+          7
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-term",
+          "data-astro-cid-ws375rge": ""
+        },
+        "valueType": "text",
+        "attribute": null
+      },
+      "targetRenderedInventoryId": "unit.106",
+      "targetRenderedExtractionOrder": 106
+    }
+  ],
+  "limits": "Explicit author-owned semantic pairs, exact rendered values and original DOM paths/order. Deterministic checks do not certify translation semantics."
+}

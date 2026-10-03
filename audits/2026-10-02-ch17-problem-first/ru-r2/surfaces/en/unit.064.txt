@@ -1,0 +1,1 @@
+\operatorname{fan}_{out} | The count of output coordinates to which each input contributes.

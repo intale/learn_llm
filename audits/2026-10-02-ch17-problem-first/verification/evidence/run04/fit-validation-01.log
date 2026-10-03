@@ -1,0 +1,13 @@
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox --workers=2 --grep @chapter:17-parameter-initialization|@cheat-sheet:.*:17-parameter-initialization
+
+
+[WebServer] [preview] The output directory /tmp/ch17-work/site/dist/ does not exist. Did you run `astro build`?
+[WebServer]   Location:
+[WebServer]     /tmp/ch17-work/site/node_modules/astro/dist/core/preview/index.js:38:13
+[WebServer]   Stack trace:
+[WebServer]     at preview (file:///tmp/ch17-work/site/node_modules/astro/dist/core/preview/index.js:38:13)
+[WebServer]     at async runCommand (file:///tmp/ch17-work/site/node_modules/astro/dist/cli/index.js:197:22)
+Error: Process from config.webServer was not able to start. Exit code: 1
+

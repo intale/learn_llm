@@ -1,0 +1,1 @@
+Expected signal variance after independent linear layers with equal input and output widths for zero weights, weights with twice the Xavier bound, and Xavier-scale weights

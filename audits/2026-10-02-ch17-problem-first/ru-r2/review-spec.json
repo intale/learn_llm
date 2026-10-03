@@ -1,0 +1,2034 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "ch17.ru.r5.20261002.r2",
+  "scopeId": "ch17.ru.20261002.r2",
+  "referenceLocale": "en",
+  "targetLocale": "ru",
+  "authorContext": {
+    "id": "ch17_ru_root_author_20261003",
+    "sha256": "41e04ad4b73320bcb19cb8d3900cea6e7a306f638529058f5f5c104a1a39d33f"
+  },
+  "requiredReviewers": {
+    "bilingual": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "xhigh"
+    },
+    "targetOnly": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "xhigh"
+    }
+  },
+  "requiredSurfaceIds": [
+    "doc.contract",
+    "doc.lesson",
+    "doc.rendered",
+    "doc.sheet",
+    "unit.001",
+    "unit.002",
+    "unit.003",
+    "unit.004",
+    "unit.005",
+    "unit.006",
+    "unit.007",
+    "unit.008",
+    "unit.009",
+    "unit.010",
+    "unit.011",
+    "unit.012",
+    "unit.013",
+    "unit.014",
+    "unit.015",
+    "unit.016",
+    "unit.017",
+    "unit.018",
+    "unit.019",
+    "unit.020",
+    "unit.021",
+    "unit.022",
+    "unit.023",
+    "unit.024",
+    "unit.025",
+    "unit.026",
+    "unit.027",
+    "unit.028",
+    "unit.029",
+    "unit.030",
+    "unit.031",
+    "unit.032",
+    "unit.033",
+    "unit.034",
+    "unit.035",
+    "unit.036",
+    "unit.037",
+    "unit.038",
+    "unit.039",
+    "unit.040",
+    "unit.041",
+    "unit.042",
+    "unit.043",
+    "unit.044",
+    "unit.045",
+    "unit.046",
+    "unit.047",
+    "unit.048",
+    "unit.049",
+    "unit.050",
+    "unit.051",
+    "unit.052",
+    "unit.053",
+    "unit.054",
+    "unit.055",
+    "unit.056",
+    "unit.057",
+    "unit.058",
+    "unit.059",
+    "unit.060",
+    "unit.061",
+    "unit.062",
+    "unit.063",
+    "unit.064",
+    "unit.065",
+    "unit.066",
+    "unit.067",
+    "unit.068",
+    "unit.069",
+    "unit.070",
+    "unit.071",
+    "unit.072",
+    "unit.073",
+    "unit.074",
+    "unit.075",
+    "unit.076",
+    "unit.077",
+    "unit.078",
+    "unit.079",
+    "unit.080",
+    "unit.081",
+    "unit.082",
+    "unit.083",
+    "unit.084",
+    "unit.085",
+    "unit.086",
+    "unit.087",
+    "unit.088",
+    "unit.089",
+    "unit.090",
+    "unit.091",
+    "unit.092",
+    "unit.093",
+    "unit.094",
+    "unit.095",
+    "unit.096",
+    "unit.097",
+    "unit.098",
+    "unit.099",
+    "unit.100",
+    "unit.101",
+    "unit.102",
+    "unit.103",
+    "unit.104",
+    "unit.105",
+    "unit.106",
+    "unit.107",
+    "unit.108",
+    "unit.109",
+    "unit.110",
+    "unit.111",
+    "unit.112",
+    "unit.113",
+    "unit.114",
+    "unit.115",
+    "unit.116",
+    "unit.117",
+    "unit.118",
+    "unit.119",
+    "unit.120",
+    "unit.121",
+    "unit.122",
+    "unit.123",
+    "unit.124",
+    "unit.125",
+    "unit.126",
+    "unit.127",
+    "unit.128",
+    "unit.129"
+  ],
+  "rubrics": {
+    "bilingual": {
+      "path": "audits/2026-10-02-ch17-problem-first/ru-r2/rubrics/bilingual.txt",
+      "sha256": "e77c92885b64cf2a4621ddc5d9be1e1380cc5b3c6b2e0f834d9265538d1657dd"
+    },
+    "targetOnly": {
+      "path": "audits/2026-10-02-ch17-problem-first/ru-r2/rubrics/target-only.txt",
+      "sha256": "3cee59c92d8d9102d3a55c280cf4c05f07db16f053d4a45d97ab2173bc7ef777"
+    }
+  },
+  "surfaces": [
+    {
+      "id": "doc.contract",
+      "kind": "complete-document",
+      "order": 4,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/contract.en.json",
+        "sha256": "fe396affbd821eb69cd345665d2d2774eb48330092403a267c3d203421b37c4f"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/contract.ru.json",
+        "sha256": "2ee4e7e165f3e6007ae4013468142229a88bce40e5b65044c7d2fc69ac00da14"
+      },
+      "publicationPath": "audits/2026-10-02-ch17-problem-first/ru-r2/publication/contract.ru.json"
+    },
+    {
+      "id": "doc.lesson",
+      "kind": "complete-document",
+      "order": 1,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/lesson.en.mdx",
+        "sha256": "c93bb0af9bb3a9a0e44521807c63f6c4dede7e7fe7cba478d3486508c5c88927"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/lesson.ru.mdx",
+        "sha256": "6ebafa2e750f48982d70a0ebc27f45aa9c81c0785c667b701974dd0832b64bba"
+      },
+      "publicationPath": "site/src/content/chapters/ru/17-parameter-initialization.mdx"
+    },
+    {
+      "id": "doc.rendered",
+      "kind": "complete-document",
+      "order": 3,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/lesson.en.html",
+        "sha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/lesson.ru.html",
+        "sha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37"
+      },
+      "publicationPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/final-build/dist/ru/course/17-parameter-initialization/index.html"
+    },
+    {
+      "id": "doc.sheet",
+      "kind": "complete-document",
+      "order": 2,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/sheet.en.json",
+        "sha256": "8f3d002a034a853773378423856a8bf9e46fd25eeaa6129343ca4233d6411d0f"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/sheet.ru.json",
+        "sha256": "d112018b9e91b868241c5f5f5e39aebbcba61c780637e747d1b8ae251c4efcef"
+      },
+      "publicationPath": "site/src/content/cheat-sheets/ru/17-parameter-initialization.json"
+    },
+    {
+      "id": "unit.001",
+      "kind": "page-title",
+      "order": 5,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.001.txt",
+        "sha256": "45a87542ea6a7f5ad1fa7173dfbd94b15c016f3085cfdd660329ee663efc72ad"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.001.txt",
+        "sha256": "9e6a5712a5cbafb49e2ff25cb214a63908ded0ed94368e524ddf29aa71d492a2"
+      }
+    },
+    {
+      "id": "unit.002",
+      "kind": "page-description",
+      "order": 6,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.002.txt",
+        "sha256": "e49bd60731b85e939f883eb9a6bfb4753213274c5881095353dd2a944df36975"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.002.txt",
+        "sha256": "412b2f8b83534297eded26f4cdac6770ef2496d88d09bdb30114885e7ef42e57"
+      }
+    },
+    {
+      "id": "unit.003",
+      "kind": "seo-description",
+      "order": 7,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.003.txt",
+        "sha256": "e49bd60731b85e939f883eb9a6bfb4753213274c5881095353dd2a944df36975"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.003.txt",
+        "sha256": "412b2f8b83534297eded26f4cdac6770ef2496d88d09bdb30114885e7ef42e57"
+      }
+    },
+    {
+      "id": "unit.004",
+      "kind": "contextual-heading",
+      "order": 8,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.004.txt",
+        "sha256": "9b0d3aabe91a32a44d515dfc8fa6ad8a3e0b9f7828c0d4491aed80fb44928a68"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.004.txt",
+        "sha256": "187e019715662fc0d04b42ffe7c3c4f7a1d28a9dea9ef45072341c31fbb5f375"
+      }
+    },
+    {
+      "id": "unit.005",
+      "kind": "contextual-heading",
+      "order": 9,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.005.txt",
+        "sha256": "5bbc5073eecfd7f7a5c8ceee2727392babd01b1dc4da78cea83ac2d51c54b8a9"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.005.txt",
+        "sha256": "9d2cf34c4b023c860198227723159795f63632da0542a024900128cd4a00e690"
+      }
+    },
+    {
+      "id": "unit.006",
+      "kind": "contextual-heading",
+      "order": 10,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.006.txt",
+        "sha256": "63f7d67fbae24d3d0b5107d77f74dc82a2f68d59bc99f7da3cab928f5d277782"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.006.txt",
+        "sha256": "7f4d2ccea70c4d7da5f0f14b5ef492b3e571dc9681e6984e70a91726ff2b3e8b"
+      }
+    },
+    {
+      "id": "unit.007",
+      "kind": "contextual-heading",
+      "order": 11,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.007.txt",
+        "sha256": "3693ad53c89c000593b14e07e45d4a399705319e1e94d4c2c3dbe2ac1fdaa3e6"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.007.txt",
+        "sha256": "2db0f11ed4ec3186eaf2b88340c570d9b5f5c06b0b9da8e3e59773e1f0f0a9f8"
+      }
+    },
+    {
+      "id": "unit.008",
+      "kind": "contextual-heading",
+      "order": 12,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.008.txt",
+        "sha256": "c413fd51db9ee55265ab4966dd5aa26b955cbca04807c4aed3a129ce9fc1a6c6"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.008.txt",
+        "sha256": "304acaa6026dfae5d463ddc3535af50016d58ca49e5af7fc568d6321ee10a3ec"
+      }
+    },
+    {
+      "id": "unit.009",
+      "kind": "contextual-heading",
+      "order": 13,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.009.txt",
+        "sha256": "c41bea4d67122b9ce6c468e0c81b25a9c031834226fd86a1e250900a694b0364"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.009.txt",
+        "sha256": "a1cdd86d699c24b7a9e29d41fd4e04b2f08486997339dd50f1e4e11c02a7baaf"
+      }
+    },
+    {
+      "id": "unit.010",
+      "kind": "contextual-heading",
+      "order": 14,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.010.txt",
+        "sha256": "5a9412c24e9a2efec636496e630482f103cf025a6f4e4b07dcc5938366aeac30"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.010.txt",
+        "sha256": "2aebc887378a9646be6aff3fb0a1b5bb098676a42ab478b152882c5d589af2c8"
+      }
+    },
+    {
+      "id": "unit.011",
+      "kind": "contextual-heading",
+      "order": 15,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.011.txt",
+        "sha256": "8c8d759c2d187048d11c369881e6d86a42012fcbc434e1bc4747917ca5a7bda4"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.011.txt",
+        "sha256": "0689eea2ba069ee81e74593bfa67cc0edb656223ca8319cddad23171df3b9943"
+      }
+    },
+    {
+      "id": "unit.012",
+      "kind": "contextual-subheading",
+      "order": 16,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.012.txt",
+        "sha256": "02b8a2eae0e716405e411d8804c2013ee8df22706a9c6f5470566ce8a8049c05"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.012.txt",
+        "sha256": "19cae5715c83d28d24b93ee69b5c38bee2bc72e311d21ce6f014214dc3bd657e"
+      }
+    },
+    {
+      "id": "unit.013",
+      "kind": "contextual-subheading",
+      "order": 17,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.013.txt",
+        "sha256": "8c8a834a06993cb8377158e4cd2d0cd0a9b4ded04d82143157a9d4c63eddddb7"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.013.txt",
+        "sha256": "45a99c89ee385490d6dcf6ffc94b4970e9ae33090da2b9d2a5f75e2db4dbea97"
+      }
+    },
+    {
+      "id": "unit.014",
+      "kind": "contextual-subheading",
+      "order": 18,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.014.txt",
+        "sha256": "a53434417fdea51ebe2f504bcaa88065582a0b1e6d3f39b22202971535bf8bdf"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.014.txt",
+        "sha256": "69016953ea3c63aaacca471b1eec2dfcb3e2f3243d7b23bf4121e97517b5a683"
+      }
+    },
+    {
+      "id": "unit.015",
+      "kind": "contextual-subheading",
+      "order": 19,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.015.txt",
+        "sha256": "fd8cfa236072dd6e82a6d2847febc387f9ab652fd8cd4b9c28634d131110c6ba"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.015.txt",
+        "sha256": "46245e307325d515514457d759b1fead2403d847bc2c67cc23b965c55e527acd"
+      }
+    },
+    {
+      "id": "unit.016",
+      "kind": "rust-source-caption",
+      "order": 20,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.016.txt",
+        "sha256": "71a1150195b190166a4d0826dc2eed9a170cbbda895941219534936bd85a89e9"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.016.txt",
+        "sha256": "adce755125a2b2c138baaa185f0e80fb33e629dc67987f2a1d028d6191d08a12"
+      }
+    },
+    {
+      "id": "unit.017",
+      "kind": "rust-source-caption",
+      "order": 21,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.017.txt",
+        "sha256": "6119ef2a9ae7de7f5ed8a6db7cc7ea2a047a17b95a84d47329e86ff01302283e"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.017.txt",
+        "sha256": "beafe3958f9f85da858302a04e9b18d560ea38a92936fbe90a649fa3dfcc3d93"
+      }
+    },
+    {
+      "id": "unit.018",
+      "kind": "rust-source-caption",
+      "order": 22,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.018.txt",
+        "sha256": "8f25e7a1fb3439c67cc3dd4a826656c55a3fb2e5722a0dcd6b90c52c856e8c3c"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.018.txt",
+        "sha256": "b386456da85f44b340384724f0a2cb8704047a3c7bab05b8c0ce5e9a53ac3f00"
+      }
+    },
+    {
+      "id": "unit.019",
+      "kind": "rust-source-caption",
+      "order": 23,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.019.txt",
+        "sha256": "ed9fdf2dfed63ca2d5462f37b57455890a6ad4f76439350f98648aa4228dc68d"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.019.txt",
+        "sha256": "f79fef439a229dba0973019d4b38258704b97286ada5e45c5edfd4a74c9a5d92"
+      }
+    },
+    {
+      "id": "unit.020",
+      "kind": "rust-source-caption",
+      "order": 24,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.020.txt",
+        "sha256": "e486b69234a7120218bbc0b13fb32962f34bc4873e36b96e54aa93dee9f26e98"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.020.txt",
+        "sha256": "b0ee25529db4a157458d84dff82d77ce0fd67d91f3630178cbc44ffeb2167177"
+      }
+    },
+    {
+      "id": "unit.021",
+      "kind": "rust-source-caption",
+      "order": 25,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.021.txt",
+        "sha256": "fd2510bb4c8d6ab8ff010867a974341e79050cd537abc5caed58ba283a592b49"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.021.txt",
+        "sha256": "096f53855b9ee724d03d2827a36f7e3c395b626fd6ee490f40b1a3c55182ff82"
+      }
+    },
+    {
+      "id": "unit.022",
+      "kind": "rust-source-caption",
+      "order": 26,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.022.txt",
+        "sha256": "d738f532d555acacbe6c09d7786f5fe6c187e422aafd6c9a95826b4f5b95ef01"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.022.txt",
+        "sha256": "c2dd4b48f924a7b140ba14e165a32fb31092f1f28f60c6e44e6a243de12c7480"
+      }
+    },
+    {
+      "id": "unit.023",
+      "kind": "rust-source-caption",
+      "order": 27,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.023.txt",
+        "sha256": "8e8e3c1cec6b57969eb756a0764c29342a522bed4a3b3dabf63bb1128235b3e3"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.023.txt",
+        "sha256": "74e9eed43f3f7c5fc3d4324d49bed90550739635d511169caaa1e16edd6027be"
+      }
+    },
+    {
+      "id": "unit.024",
+      "kind": "rust-source-caption",
+      "order": 28,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.024.txt",
+        "sha256": "4c81fce48ef0653a819667ccc9cb7cf5b9bd8a49f6feaa5ca9a30bc01180e92a"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.024.txt",
+        "sha256": "0d4ea9686de7fc9d4abd198ebbe07d10f78faa415f5bd9bdf1b60635a4c28955"
+      }
+    },
+    {
+      "id": "unit.025",
+      "kind": "rust-source-caption",
+      "order": 29,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.025.txt",
+        "sha256": "5959afd6084ca1fbf2dba27d8657ac002d574b85c9d30fda0cae4284dff4e2f7"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.025.txt",
+        "sha256": "98ee8ce54c699712a6c9dd77a6f469b1c2e628885c697da34d7dc9ac25543d1b"
+      }
+    },
+    {
+      "id": "unit.026",
+      "kind": "rust-accessible-name",
+      "order": 30,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.026.txt",
+        "sha256": "c9a1670e63c8dfb0d465ac49e1984d25ab1917e94a7540f152541e7c00b09b1e"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.026.txt",
+        "sha256": "64c0d833038e5456331a293eb874d5806989240610bdca4aecf927b7fef08d2c"
+      }
+    },
+    {
+      "id": "unit.027",
+      "kind": "rust-accessible-name",
+      "order": 31,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.027.txt",
+        "sha256": "9c502324b04957599a554d8b1423eb53b4642d0739ca46edfe27d8b431e861de"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.027.txt",
+        "sha256": "dd40bd0572fd095a5dff81e92214de621e5c3c760c57168b7106451ca53fd2d6"
+      }
+    },
+    {
+      "id": "unit.028",
+      "kind": "rust-accessible-name",
+      "order": 32,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.028.txt",
+        "sha256": "cbf2e676443856accb64f7ed8b22c765e1eb69f2b1df1d8374d0f1323fba6882"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.028.txt",
+        "sha256": "07ba9c67283d3a7cc852e33b3c1e0cd3d3e43675e8c5aaa08e635dfd8ecf6f92"
+      }
+    },
+    {
+      "id": "unit.029",
+      "kind": "rust-accessible-name",
+      "order": 33,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.029.txt",
+        "sha256": "f780b00252911965a1bc10c62446c8c89d4d985d91bf2f0897a2315e76f3d10d"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.029.txt",
+        "sha256": "824cc4a6daaa717ecdf70c5b8f25e351240349459ce8570c7a9c10fe8f67b953"
+      }
+    },
+    {
+      "id": "unit.030",
+      "kind": "rust-accessible-name",
+      "order": 34,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.030.txt",
+        "sha256": "60bc5995721f441683c209d378114f6cac2ab2d1ce0a8b2e895ec61fa69caef3"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.030.txt",
+        "sha256": "2bd956bb6705f5e601a7fb91c5d06dc00d5ef057c6e663455fb1289b3797fcda"
+      }
+    },
+    {
+      "id": "unit.031",
+      "kind": "rust-accessible-name",
+      "order": 35,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.031.txt",
+        "sha256": "835b00c90d59d9732cc779bebb28ae99ecface478e7683d6259b63d00f3966cb"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.031.txt",
+        "sha256": "8a056f8b76a3c66f27e83954bd5142c68f2cbe2c6c703030cc5ed79f14bd388a"
+      }
+    },
+    {
+      "id": "unit.032",
+      "kind": "rust-accessible-name",
+      "order": 36,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.032.txt",
+        "sha256": "610a236cd5e52d2c331ad5f44da6887b7d56bd9eba45e6bc8df8c39a824e6bd8"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.032.txt",
+        "sha256": "22e2c97a920a599d31115ad304e8ed30d3f59f0ee7bd92a18e2b9760cb56e947"
+      }
+    },
+    {
+      "id": "unit.033",
+      "kind": "rust-accessible-name",
+      "order": 37,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.033.txt",
+        "sha256": "5000d3729f0d35665dcafc156d437ed9f3a3d93c75e9b57fc70333d343634aab"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.033.txt",
+        "sha256": "b8cb80dec95d9a047db0075b7f9b1e972347b44d1bec8f9a18cec54c6c4f0a63"
+      }
+    },
+    {
+      "id": "unit.034",
+      "kind": "rust-accessible-name",
+      "order": 38,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.034.txt",
+        "sha256": "ff30ef059cf07a9b9988d90b7d16336777871785b76f46d530555385ae575e9a"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.034.txt",
+        "sha256": "bcf9641fb527ef23354aeb59826127ed67b8f30fd7722bd1feef8ddd689688cc"
+      }
+    },
+    {
+      "id": "unit.035",
+      "kind": "rust-accessible-name",
+      "order": 39,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.035.txt",
+        "sha256": "b2ebfd10c36e239bee35b12d31cb3a37c168b33b6cdd9749c813dab39070273a"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.035.txt",
+        "sha256": "5e86ccf0e1695afbe4b6e23192a634c30d9d99564b72350bd6a65858cf9c48b7"
+      }
+    },
+    {
+      "id": "unit.036",
+      "kind": "answer-summary",
+      "order": 40,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.036.txt",
+        "sha256": "df7c6ddd5bb56365978e986518f2bae82afcd0a212ba5ff5359ac18663829d35"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.036.txt",
+        "sha256": "92a1e561e60b59b1eafa3c5b9c7fd8f3f3edd94ff91d795753a4ca021140d6db"
+      }
+    },
+    {
+      "id": "unit.037",
+      "kind": "practice-or-checked-answer",
+      "order": 41,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.037.txt",
+        "sha256": "3cd5b113b88abcb46a47ab1cdc08c5b7eec96ee76cf0de0059173199795b4d7a"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.037.txt",
+        "sha256": "b190c936b61c96df2a9332cfdea06d5100e7d95de9fb72915c29a02a19f37967"
+      }
+    },
+    {
+      "id": "unit.038",
+      "kind": "practice-or-checked-answer",
+      "order": 42,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.038.txt",
+        "sha256": "bb4770ea7f8a16a6a78b6486427d1e282f5a5a989febdfdb29c4f477772a1e20"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.038.txt",
+        "sha256": "784e9bfde27e4b98fd70d8e19423d825ec6d6d4e9e8fe1a35b3b7bb9007c05d7"
+      }
+    },
+    {
+      "id": "unit.039",
+      "kind": "practice-or-checked-answer",
+      "order": 43,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.039.txt",
+        "sha256": "8294362d857a6257dd5b5c89a126d16e724dd010588ea2e003ce4cc56729bfbd"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.039.txt",
+        "sha256": "98fbd6e9dcf5a1b635edd11a2b96875d74fe238b69218534dea1a3d556a37595"
+      }
+    },
+    {
+      "id": "unit.040",
+      "kind": "practice-or-checked-answer",
+      "order": 44,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.040.txt",
+        "sha256": "3dadf7077d1c40f996b816a1831d9006af8891e6751e46258f46f80ce52fe108"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.040.txt",
+        "sha256": "1ccb88e67b5d2ce4ed10d15546d852a9fe2317da374512001645a4a080eb0093"
+      }
+    },
+    {
+      "id": "unit.041",
+      "kind": "practice-or-checked-answer",
+      "order": 45,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.041.txt",
+        "sha256": "0e6c6f3eb40e086fc5d6a5ba54653407e3e56ae31d509b98b75c58c7e5c8c9ac"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.041.txt",
+        "sha256": "c9a643e2e26c62200d6f7321fd37aa4cd55dfeda6252d59524a95dbfb2e8323c"
+      }
+    },
+    {
+      "id": "unit.042",
+      "kind": "practice-or-checked-answer",
+      "order": 46,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.042.txt",
+        "sha256": "a152d3d4d38828dda2189003f92ab4708daf9f8bee530de64df30552ef08f0f2"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.042.txt",
+        "sha256": "80106dfe9e378994b8ecaa35c872c72b335a339e3db514f3cd32de43537e6c1c"
+      }
+    },
+    {
+      "id": "unit.043",
+      "kind": "practice-or-checked-answer",
+      "order": 47,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.043.txt",
+        "sha256": "3051ce04bb4a977597853c387131155d51beb0f7617afcada82ff2579255a831"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.043.txt",
+        "sha256": "eae1232408ee910cef293586dde6cb063f0d2feade9088abd0fe6aa73d822e95"
+      }
+    },
+    {
+      "id": "unit.044",
+      "kind": "practice-or-checked-answer",
+      "order": 48,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.044.txt",
+        "sha256": "44f137f75ede8d5bbac7e3b2f8263ddd87d891d1af333ad88e43c77a085a502b"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.044.txt",
+        "sha256": "2d2203d839f5e6f29469f0fb74543453e0820625a52b682a42079981352bfbc4"
+      }
+    },
+    {
+      "id": "unit.045",
+      "kind": "practice-or-checked-answer",
+      "order": 49,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.045.txt",
+        "sha256": "03d2e985a515ee835b6f6b528c320a6fc9e962a9f0d6c7b635e78aeef3c2d3e6"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.045.txt",
+        "sha256": "8c304bf75d82687c5c94faf6f3e744bcd2084afcaecb04f040b90f65a5871024"
+      }
+    },
+    {
+      "id": "unit.046",
+      "kind": "practice-or-checked-answer",
+      "order": 50,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.046.txt",
+        "sha256": "622ebee98f01729a674c43e186b4543aa359656d6e439e68e9bcab3bf1126ef4"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.046.txt",
+        "sha256": "5df8cd8fced706a531a00e13c3d120c0d77a8cacac64bb46e5fbab9ee09daf75"
+      }
+    },
+    {
+      "id": "unit.047",
+      "kind": "practice-or-checked-answer",
+      "order": 51,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.047.txt",
+        "sha256": "0100acc0e041e58342b7dc2e9ef6c850add3c7c817d90bac2c7236a9c707f5bf"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.047.txt",
+        "sha256": "9366591689059637e72236e3ffbbe7e103b5b8002a352525720921035de1bd8c"
+      }
+    },
+    {
+      "id": "unit.048",
+      "kind": "practice-or-checked-answer",
+      "order": 52,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.048.txt",
+        "sha256": "c1964dcca1e3b0a2775060e9c13645a31e1f05fd40a834c5997eeb40ae9d8fbb"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.048.txt",
+        "sha256": "284a7d22124004deb43a33b6d94bfe3c45729a2cdb6d6890b303c2eba050d157"
+      }
+    },
+    {
+      "id": "unit.049",
+      "kind": "practice-or-checked-answer",
+      "order": 53,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.049.txt",
+        "sha256": "2018302824fabf6f1ad3d4b34bed3132486faa342ba3442d1cd796eb00de9f86"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.049.txt",
+        "sha256": "29ee94adb6792263b7cd3f2af588ecf5a0d129271f85f4444150417c9fedae8a"
+      }
+    },
+    {
+      "id": "unit.050",
+      "kind": "practice-or-checked-answer",
+      "order": 54,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.050.txt",
+        "sha256": "1736860c75d70f6b59eb044c078e0052ff88f2bcc452b06647b4961c846de220"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.050.txt",
+        "sha256": "a225dff0af158185de3f910b184fa6d0f97aae83abc5d12713ff379d55a0c66a"
+      }
+    },
+    {
+      "id": "unit.051",
+      "kind": "practice-or-checked-answer",
+      "order": 55,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.051.txt",
+        "sha256": "f523f22ff11ea0c5c57dfa76be1ee4ffb053f809c243c6bc28b3c901d76f56a0"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.051.txt",
+        "sha256": "096e0b3d0199da93a7a196fdae6e1e0f8a0ae833e691697d06d2c71dc165aaa4"
+      }
+    },
+    {
+      "id": "unit.052",
+      "kind": "practice-or-checked-answer",
+      "order": 56,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.052.txt",
+        "sha256": "6cbc6fe6d274c29c27df3b72251e61df0e9d06be864038891fe4f27412912599"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.052.txt",
+        "sha256": "21be2c499e0de0eaf66df4aef6601909a3a4abae9059e526c003831c6df0e633"
+      }
+    },
+    {
+      "id": "unit.053",
+      "kind": "practice-or-checked-answer",
+      "order": 57,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.053.txt",
+        "sha256": "444547d3194aa9c440e0d5ecdfdf78a6791e4e2ae62bfde1fa280f379942296c"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.053.txt",
+        "sha256": "75cfd28901ef231c46686ef8eea0c722ef1067b29e0fc44970953559b80a94ab"
+      }
+    },
+    {
+      "id": "unit.054",
+      "kind": "practice-or-checked-answer",
+      "order": 58,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.054.txt",
+        "sha256": "c40c9754d2e2c74e5600f7805bdef45def30af7ad6b4b4e9d03f4c7f5bb94691"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.054.txt",
+        "sha256": "3156a1479fcfb7ec67dbd6dc499b49677013869c5e2b3634f213756b4e48be02"
+      }
+    },
+    {
+      "id": "unit.055",
+      "kind": "practice-or-checked-answer",
+      "order": 59,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.055.txt",
+        "sha256": "8ec58f3fa125fd5b11ecd005a48becc0992ad4456e4966159b367b6751b94c97"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.055.txt",
+        "sha256": "08e23578444c5e07605a1668113a76e9a769ecfa3c17cd9ed8ce7b08cba21897"
+      }
+    },
+    {
+      "id": "unit.056",
+      "kind": "practice-or-checked-answer",
+      "order": 60,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.056.txt",
+        "sha256": "afef594162faab3331068e26ec63da41e11f1a1384669b72704f422145a90c22"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.056.txt",
+        "sha256": "37cae3f2ec628be077f5a8a4e144e1fe4d1870688f2dadc415474af2850e4b95"
+      }
+    },
+    {
+      "id": "unit.057",
+      "kind": "table-row",
+      "order": 61,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.057.txt",
+        "sha256": "df544d6a6b084fb6178df538bd0479b1b25272b94b70cb29168df32346144c47"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.057.txt",
+        "sha256": "a3281c235fc375e9851a1712fdf50c1fd19377f1a8fb7f970d2d71fe38fb4144"
+      }
+    },
+    {
+      "id": "unit.058",
+      "kind": "table-row",
+      "order": 62,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.058.txt",
+        "sha256": "18498428e223bb8489f176b7fdfe60a6f5fdfb9dc24200fae75c197afa27dd2d"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.058.txt",
+        "sha256": "7009a455f64cba10a94fcbdb3664aafed6bf8dfe38b8f99fae4f574a0ef662e7"
+      }
+    },
+    {
+      "id": "unit.059",
+      "kind": "table-row",
+      "order": 63,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.059.txt",
+        "sha256": "513ec624bfd78fdf68a99e0a154f6ad4e21645835ebb183733a6c116c0ff8718"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.059.txt",
+        "sha256": "568d8024fca1f0b9a227072791626fdcea6f286ecdb3587c76d1ae3f21542ba1"
+      }
+    },
+    {
+      "id": "unit.060",
+      "kind": "table-row",
+      "order": 64,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.060.txt",
+        "sha256": "fd080a473ec05f1859ed1d41b437ba42a93318cc2d2f6aff373b7deedda851b4"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.060.txt",
+        "sha256": "e3e5bf1509f08d8a2f9936e44708342fa21c431942660e1477ced435a45aaf8e"
+      }
+    },
+    {
+      "id": "unit.061",
+      "kind": "table-row",
+      "order": 65,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.061.txt",
+        "sha256": "d0f14b7d7a9939101e8a9ee1814a018b209c878843f39eadc58297f24ba88983"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.061.txt",
+        "sha256": "80b91a7ab3ae3406140ce0a3e0a5e763454432d7ac83251ce756d4b7de638f2c"
+      }
+    },
+    {
+      "id": "unit.062",
+      "kind": "table-row",
+      "order": 66,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.062.txt",
+        "sha256": "600a4019414b154412cf6ee2189a5dc11a835f20071e079675811f76eb6bfe33"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.062.txt",
+        "sha256": "f5c2ecb7c785966d379716ef0f9b21cc08cacc38e06708c48b87cd15145395bd"
+      }
+    },
+    {
+      "id": "unit.063",
+      "kind": "table-row",
+      "order": 67,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.063.txt",
+        "sha256": "6b75be7431d0becd760dbcbbf155daaed07303e43cda4dd652e38827e6dffe02"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.063.txt",
+        "sha256": "3768fd1919f4194d5371860085f8c2cf90dde5ada2ec4699c4db85bf6b578933"
+      }
+    },
+    {
+      "id": "unit.064",
+      "kind": "table-row",
+      "order": 68,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.064.txt",
+        "sha256": "072e3d96dd88eababddfaa4b5ce433e0d043073fead75dfbafabc95021731de3"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.064.txt",
+        "sha256": "b2a40a366ccd837344c5bb8d7c37c2ee8a69ed2e88fe1e1a62ca1168ddb17971"
+      }
+    },
+    {
+      "id": "unit.065",
+      "kind": "table-row",
+      "order": 69,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.065.txt",
+        "sha256": "2e3b7203effd377e90b664d9fb85ae3564376e443584cda430e8c1c4d6a32874"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.065.txt",
+        "sha256": "20fff35ee1713dd4b6f4619183d5afa7de99f4a371604122ef2627c1947bf4b3"
+      }
+    },
+    {
+      "id": "unit.066",
+      "kind": "figure-caption",
+      "order": 70,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.066.txt",
+        "sha256": "d3149e08b6728ea1003aa63524170831b6aeaefa2d756567023b0214679ed2e8"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.066.txt",
+        "sha256": "c4088bbab75bfe8dee4d55a8b2257490ed7a39d217a0b8b3f744bdadc8aa0bfb"
+      }
+    },
+    {
+      "id": "unit.067",
+      "kind": "figure-accessible-description",
+      "order": 71,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.067.txt",
+        "sha256": "f1e38223e9d6292033e758feeac7e5d71f1b49320f332fbc6fea62954fd0cbd6"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.067.txt",
+        "sha256": "d07b0499f50357233b61de2aa4fdc48e19a3c81de683325702b02441cbab8380"
+      }
+    },
+    {
+      "id": "unit.068",
+      "kind": "figure-contextual-heading",
+      "order": 72,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.068.txt",
+        "sha256": "96cc6480b36b0d40034714aea08877760f50e40e7c5fceb82863f9619627c057"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.068.txt",
+        "sha256": "918f3b24d74f1b931229706e43d693eb53a5d00abb2a13ac5942a6b6949fb0e5"
+      }
+    },
+    {
+      "id": "unit.069",
+      "kind": "figure-contextual-heading",
+      "order": 73,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.069.txt",
+        "sha256": "d3312b33bd72d4885037656dcc6e91780507d498ea176dedfb8e6fd838c65bdc"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.069.txt",
+        "sha256": "6d3a44ef9292f837f18ba159ab17200861dafba380539820657fcda3f6b2e729"
+      }
+    },
+    {
+      "id": "unit.070",
+      "kind": "figure-contextual-heading",
+      "order": 74,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.070.txt",
+        "sha256": "f53ed7d613f7f6927feca93c9907df5a824b761af4989bf1ff8959625f038776"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.070.txt",
+        "sha256": "ec773d1847db06a72d66bc2254794780d0965250dc06504aec1c9c51ad192a5c"
+      }
+    },
+    {
+      "id": "unit.071",
+      "kind": "figure-contextual-heading",
+      "order": 75,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.071.txt",
+        "sha256": "d0cb14ef80b1150c04601f2a9cd768511cd816edf5213d8341bcd105ad5f3a75"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.071.txt",
+        "sha256": "18ac9325c293031355bd3a41875bf8314d5bed869fed7b9ac61a9e35c127a486"
+      }
+    },
+    {
+      "id": "unit.072",
+      "kind": "distribution-card",
+      "order": 76,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.072.txt",
+        "sha256": "ea63aa60268972c9868456ab52a613fd0d219268c11ff620d1324e8594151f4c"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.072.txt",
+        "sha256": "dd86fbdefab95343974f6849fa672ae55c07c55c3f846e64f308f86bcd4e2596"
+      }
+    },
+    {
+      "id": "unit.073",
+      "kind": "distribution-card",
+      "order": 77,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.073.txt",
+        "sha256": "11617aad77607a7b7a71955506c18f683cca5110ed197a0e1c3fad0d9e8dcf2d"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.073.txt",
+        "sha256": "15fac03c657df575df3ee97e52b28affa080b74d598277ba791cfd81e39f2f11"
+      }
+    },
+    {
+      "id": "unit.074",
+      "kind": "distribution-card",
+      "order": 78,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.074.txt",
+        "sha256": "4031d65baddad83039baed18e1f4e4a7bf3b4261120faba9476b1b47189d71f3"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.074.txt",
+        "sha256": "5662a7d5dde445a45a1124fb65ab4966ad7a1b3b051915b7e0c534fd61fbe5a1"
+      }
+    },
+    {
+      "id": "unit.075",
+      "kind": "controlled-comparison-card",
+      "order": 79,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.075.txt",
+        "sha256": "49524074acddf36cfab7673b5757bddc2366b04ff12671eb8629110c8422c142"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.075.txt",
+        "sha256": "1a8d7d8ec2b80e5402f2ebd22bcaeb1959fdc75a52c752ef8dfbfd19b68fef0a"
+      }
+    },
+    {
+      "id": "unit.076",
+      "kind": "reproducibility-card",
+      "order": 80,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.076.txt",
+        "sha256": "b1b2cbfb95b079d416f4a97dc3c2ce299a74139e1496e91127742a54cbe737d9"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.076.txt",
+        "sha256": "01d625f2260881a9ac1392802c7e93e80c275cccdfef9a0b18bb381c30b3a1f2"
+      }
+    },
+    {
+      "id": "unit.077",
+      "kind": "reproducibility-card",
+      "order": 81,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.077.txt",
+        "sha256": "5f67a5532adfcae0b3324118a13e8108177a1d90eeae950b5954a8e11d76ad22"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.077.txt",
+        "sha256": "67d7edd052c6243924ef090fdc1db38cef910bab5c4a7b8e7118ca899a20d267"
+      }
+    },
+    {
+      "id": "unit.078",
+      "kind": "figure-label-value",
+      "order": 82,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.078.txt",
+        "sha256": "773a40903e821d6ccd2e018f00c7cdc9e230598fde7df285c713e421d89983fd"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.078.txt",
+        "sha256": "1f82fd361d48194c13adb841b13634ac3e43452462c1710e6830fcd09ee9a5b0"
+      }
+    },
+    {
+      "id": "unit.079",
+      "kind": "figure-label-value",
+      "order": 83,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.079.txt",
+        "sha256": "7a39ff0789cf1c371bd3304cc951b5312b58a42c6b40a2cabbce8ef2ea097b39"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.079.txt",
+        "sha256": "2c8b6b99532f7ef19a841cf10aea7f89be73cd772b0ce7c6754707024d070f3b"
+      }
+    },
+    {
+      "id": "unit.080",
+      "kind": "figure-label-value",
+      "order": 84,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.080.txt",
+        "sha256": "0d603849a34f6219e5825a655cb747bfa868805e362a8a552168f39d1fd35a62"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.080.txt",
+        "sha256": "873ea70ff5d20572be65e9f6db4d21e959257e09144bf8aa301698f5a0b4e4c4"
+      }
+    },
+    {
+      "id": "unit.081",
+      "kind": "figure-label-value",
+      "order": 85,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.081.txt",
+        "sha256": "8adf1e9b9f7fb76c23967c478e0a7166f879e12c6311286124f560632be2486b"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.081.txt",
+        "sha256": "731ac2c1ccaf1546c7190d312e84321de0fe5c815d74929c2f2f069465ea414e"
+      }
+    },
+    {
+      "id": "unit.082",
+      "kind": "figure-label-value",
+      "order": 86,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.082.txt",
+        "sha256": "29d97207ad9543e225640bbb074d5248223ba109b00cd7ec6bb14b43265d63e6"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.082.txt",
+        "sha256": "6e07433b91efacc81f3e5778ed50ad8cb95fb78e989ef123ed255245461e7395"
+      }
+    },
+    {
+      "id": "unit.083",
+      "kind": "figure-label-value",
+      "order": 87,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.083.txt",
+        "sha256": "58d488c5ec2af5621d577ce502bad924aa0cd0f9bd48bf58135949cf8a69fc24"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.083.txt",
+        "sha256": "816b50011018c0a534a4ba05a7d0dd557bd32e595a90b08c6ddb91b7d985a3b5"
+      }
+    },
+    {
+      "id": "unit.084",
+      "kind": "figure-label-value",
+      "order": 88,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.084.txt",
+        "sha256": "876be8284f8447f378138d5a9a0aa271ac065922e1d9737ff47969242f3779b3"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.084.txt",
+        "sha256": "486c9d1ddb69e9cfc8af3bc676c225ccf8c93ac545e2c956f6192b43275ec125"
+      }
+    },
+    {
+      "id": "unit.085",
+      "kind": "figure-label-value",
+      "order": 89,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.085.txt",
+        "sha256": "0bcc0fb4ce0d6ec5c5a9df0f3eda72de5bdc37cb6a460d5a660126c8b0694c01"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.085.txt",
+        "sha256": "6d5870ebb1b847ae5e4d607884b3284b7feb043ddab9db96f2daa95e44ccc3d6"
+      }
+    },
+    {
+      "id": "unit.086",
+      "kind": "figure-note",
+      "order": 90,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.086.txt",
+        "sha256": "dc6b92f167306973c6a67d224312f88d8fca4833b70e7bb1326a5cdc85c6d4d2"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.086.txt",
+        "sha256": "a261c934392f3e8352f698885e642b3bbec00f746debd9e7991f10e838cf9ee5"
+      }
+    },
+    {
+      "id": "unit.087",
+      "kind": "figure-note",
+      "order": 91,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.087.txt",
+        "sha256": "631775f92cf12f5206fdd724e9f7dfcf094b6f6aa98dc445f0b97e64352feb59"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.087.txt",
+        "sha256": "9beb87dbfc05bebb493004fc76a39eb470c64839b14eda8a9e60b2722c16e8f8"
+      }
+    },
+    {
+      "id": "unit.088",
+      "kind": "contextual-table-header",
+      "order": 92,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.088.txt",
+        "sha256": "54bf43bd06f6291be2227bdfc10aba9b5b46ed91eb5bf9dff1cc20bd366fb6eb"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.088.txt",
+        "sha256": "8121262b7070f43ed0639485124e6a65a9b91282ebbaaf49e4d3a3612e4dbd0f"
+      }
+    },
+    {
+      "id": "unit.089",
+      "kind": "contextual-table-header",
+      "order": 93,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.089.txt",
+        "sha256": "8a896b4347f2dcb7ceb113025818f40711bec0c7a82e3aecc19d6133ddfe4b5f"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.089.txt",
+        "sha256": "38285b12359ecce985386966c73b1b22f9a74933e85bd631deb461a8dfbbbb5c"
+      }
+    },
+    {
+      "id": "unit.090",
+      "kind": "contextual-table-header",
+      "order": 94,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.090.txt",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.090.txt",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "id": "unit.091",
+      "kind": "contextual-table-header",
+      "order": 95,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.091.txt",
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.091.txt",
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      }
+    },
+    {
+      "id": "unit.092",
+      "kind": "contextual-table-header",
+      "order": 96,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.092.txt",
+        "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.092.txt",
+        "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+      }
+    },
+    {
+      "id": "unit.093",
+      "kind": "contextual-table-header",
+      "order": 97,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.093.txt",
+        "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.093.txt",
+        "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+      }
+    },
+    {
+      "id": "unit.094",
+      "kind": "contextual-table-header",
+      "order": 98,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.094.txt",
+        "sha256": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.094.txt",
+        "sha256": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d"
+      }
+    },
+    {
+      "id": "unit.095",
+      "kind": "scroll-region-accessible-name",
+      "order": 99,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.095.txt",
+        "sha256": "c5b4b909a4e62f3e665d33a51cb441131a25e0afeadcc9ef450cf661cec110ad"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.095.txt",
+        "sha256": "fe48774b5555f8aeead5a248bab4148f3dbfaf61192490f79c84350943428cc0"
+      }
+    },
+    {
+      "id": "unit.096",
+      "kind": "scroll-region-accessible-name",
+      "order": 100,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.096.txt",
+        "sha256": "8c83f6240e63b6e7f896f1a3f6c152a03dcf668248369ab1cb26c8c539754da2"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.096.txt",
+        "sha256": "c4d0aa386f83a52e38296e6d4088a0202731dcfd680721f2011799475362290e"
+      }
+    },
+    {
+      "id": "unit.097",
+      "kind": "histogram-cell-accessible-name",
+      "order": 101,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.097.txt",
+        "sha256": "9208c2ecb559e018f21b67c7b5cd8f2cba84b0b0cd5281a8f430d9746901b3cd"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.097.txt",
+        "sha256": "b124fc4af0b24b7e26cba91309f637c20e3c454d197e27511e69e936508a4178"
+      }
+    },
+    {
+      "id": "unit.098",
+      "kind": "cheat-sheet-heading-description",
+      "order": 102,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.098.txt",
+        "sha256": "45a87542ea6a7f5ad1fa7173dfbd94b15c016f3085cfdd660329ee663efc72ad"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.098.txt",
+        "sha256": "9e6a5712a5cbafb49e2ff25cb214a63908ded0ed94368e524ddf29aa71d492a2"
+      }
+    },
+    {
+      "id": "unit.099",
+      "kind": "cheat-sheet-heading-description",
+      "order": 103,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.099.txt",
+        "sha256": "ccf7b341a637e7313cd2a49761063aaa321da9ed4821d585057dba6966fcdc3c"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.099.txt",
+        "sha256": "fcd0ae76999eb1f588e4cf23f61eb2bf53ba744e8dcc31bfeb06445e0231604e"
+      }
+    },
+    {
+      "id": "unit.100",
+      "kind": "cheat-sheet-term-definition",
+      "order": 104,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.100.txt",
+        "sha256": "a42cdd424e69cfd1e49d7ecff31f74267d87677f92e6a6561c24c3c852e4decf"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.100.txt",
+        "sha256": "243a5cc28c938fd179302aea57b4204ad2762ab830df39d6974f78af451bf577"
+      }
+    },
+    {
+      "id": "unit.101",
+      "kind": "cheat-sheet-term-definition",
+      "order": 105,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.101.txt",
+        "sha256": "c362c2cd85d731233204059df057af2f9dcc100a67175b62df2fa9ff48119255"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.101.txt",
+        "sha256": "0b60989935cf24178222e70573f59dcdc7021c034bb5cf566eea16568b2e542e"
+      }
+    },
+    {
+      "id": "unit.102",
+      "kind": "cheat-sheet-term-definition",
+      "order": 106,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.102.txt",
+        "sha256": "c9a1eff1491dee2c710923b96d944ed0cbeb8229aa051e0e8ba89d5dd7bdacf2"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.102.txt",
+        "sha256": "9b8c3f478dbbfe9817eb3c5bbdaeda9e343e6131a786c8cc23883e1465f0222f"
+      }
+    },
+    {
+      "id": "unit.103",
+      "kind": "cheat-sheet-term-definition",
+      "order": 107,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.103.txt",
+        "sha256": "c368204b10493a736c13379806d051fc0994a167a6c32a4a8f6b70f8fb1c4b08"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.103.txt",
+        "sha256": "fd0ba814533b65423a564c5994c5ebd991b453a2c59f63c5cec14c3ef5e3c453"
+      }
+    },
+    {
+      "id": "unit.104",
+      "kind": "cheat-sheet-term-definition",
+      "order": 108,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.104.txt",
+        "sha256": "c100357fe3f4d53f764cfd02eab4f8f6c50464efc7087cfb7d97981adc4a1541"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.104.txt",
+        "sha256": "e7dd210eb9b25953e8cfde87172f9b6f99b740a090a9e25e829f7e8d4d8af6a3"
+      }
+    },
+    {
+      "id": "unit.105",
+      "kind": "cheat-sheet-term-definition",
+      "order": 109,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.105.txt",
+        "sha256": "47ae77b4927e699ac56df69f9678b00ec559fbe702290d0a70a28b2658e15701"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.105.txt",
+        "sha256": "9e95ab1699a6ee51274991296df0e7320f79638a92c831ef4df2416cf1dae62a"
+      }
+    },
+    {
+      "id": "unit.106",
+      "kind": "cheat-sheet-term-definition",
+      "order": 110,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.106.txt",
+        "sha256": "bc9371fcc854dd0dfb79797827b14eb440601b0bbc72087342824c35039e2fc9"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.106.txt",
+        "sha256": "1cff416e437a9b47e085afaf93a05d1256413ff203bb69f8ae7d23444f71bc5b"
+      }
+    },
+    {
+      "id": "unit.107",
+      "kind": "cheat-sheet-term-definition",
+      "order": 111,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.107.txt",
+        "sha256": "accd30de33908d4a7ffd0738b8a90a53b1e301e1f351a3fa9c17048385827384"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.107.txt",
+        "sha256": "1090e76610ebf5cfd428d9ec47b596947da1d0d31f383d951e948d00e6369b2e"
+      }
+    },
+    {
+      "id": "unit.108",
+      "kind": "cheat-sheet-term-definition",
+      "order": 112,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.108.txt",
+        "sha256": "beeae83e9abd5cb4baa0cc22bfe11f139e415e8d821ebef66db1a5a58cb99d91"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.108.txt",
+        "sha256": "2bd3d2b0385d73c51c8c504bb832bbee93f937de9faa7e98ccd98ae8f9306aee"
+      }
+    },
+    {
+      "id": "unit.109",
+      "kind": "cheat-sheet-term-definition",
+      "order": 113,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.109.txt",
+        "sha256": "118cf67dc0a18a70fbc2cf8939f9527c91b2454c592c304dce1768c4709016a6"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.109.txt",
+        "sha256": "3b26c12c8fc98729ee105b7006b9ffc1d1d4f289ee3eee6be71e7f4b74e0ba03"
+      }
+    },
+    {
+      "id": "unit.110",
+      "kind": "chapter-navigation-destination",
+      "order": 114,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.110.txt",
+        "sha256": "02d3404abc9a66699ee6312c4536edd966aa1993cc65351a3f402b14d53bda80"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.110.txt",
+        "sha256": "ef94a7953ab9fcbfa782073ea47a51cceee4b2a3fe771712de704938191c4b5a"
+      }
+    },
+    {
+      "id": "unit.111",
+      "kind": "chapter-navigation-destination",
+      "order": 115,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.111.txt",
+        "sha256": "64b7c0389666f25218c0efca404bb1d7ce3a9ee796e0a45cf92b84a5f6ef5fea"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.111.txt",
+        "sha256": "7f297eea2d22ee86aa807bba51bb914acac892743edda5e38b4ae9843b94595c"
+      }
+    },
+    {
+      "id": "unit.112",
+      "kind": "course-catalog-card",
+      "order": 116,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.112.txt",
+        "sha256": "28e88a7b93b0b9ddc84dd711a8a7b97a492097d0c0e7341d4e8a0d21351f579d"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.112.txt",
+        "sha256": "7df7eddff89d122b654a128ad97d7350a0190eaa44b06a8ab61f8556a02cacc2"
+      }
+    },
+    {
+      "id": "unit.113",
+      "kind": "learning-objective",
+      "order": 117,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.113.txt",
+        "sha256": "ae5507bc90fd8baf82287bcf92eae12dec478defd73ffcabea232863be539f52"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.113.txt",
+        "sha256": "c2709cc6dd05aa48abab7a342cfd1c37014468707dcbc11204e33143f2aa133d"
+      }
+    },
+    {
+      "id": "unit.114",
+      "kind": "histogram-row-accessible-name",
+      "order": 118,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.114.txt",
+        "sha256": "067f1105e4fe5397854bc40c537aafa1c834c8d222a56782d8a1304871126a15"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.114.txt",
+        "sha256": "3e4233ac547e4adc822ea3293a985f259b322f6bbdcd1f24ece9f84814c907e7"
+      }
+    },
+    {
+      "id": "unit.115",
+      "kind": "histogram-row-accessible-name",
+      "order": 119,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.115.txt",
+        "sha256": "e311d460de3777e18260fd219e65067de16e651297809c5ce6091b79ba2bd3a8"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.115.txt",
+        "sha256": "d62deb11bde0694fc97d8e34458e0a10e238c295b8799e73b82cfecdfa181d15"
+      }
+    },
+    {
+      "id": "unit.116",
+      "kind": "histogram-row-accessible-name",
+      "order": 120,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.116.txt",
+        "sha256": "7598b1317f05cd726d07a7661cdd47cbfc1c6d3d43fa7b01c555e94391aeaf50"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.116.txt",
+        "sha256": "ee46b462e37b9f0773595cf5b7c1bd5077fe45ff7c884ecc7157dc65f93b5891"
+      }
+    },
+    {
+      "id": "unit.117",
+      "kind": "contextual-bin-interval-name",
+      "order": 121,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.117.txt",
+        "sha256": "81ad51e975e88da25b2ea0a7acd98be181619ee8f1980e1abfb5b49d45b1231d"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.117.txt",
+        "sha256": "81ad51e975e88da25b2ea0a7acd98be181619ee8f1980e1abfb5b49d45b1231d"
+      }
+    },
+    {
+      "id": "unit.118",
+      "kind": "contextual-bin-interval-name",
+      "order": 122,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.118.txt",
+        "sha256": "38b672fe41d4e0856c4b120a1414761119d68c555368ce9a496109aa59ef64cf"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.118.txt",
+        "sha256": "38b672fe41d4e0856c4b120a1414761119d68c555368ce9a496109aa59ef64cf"
+      }
+    },
+    {
+      "id": "unit.119",
+      "kind": "contextual-bin-interval-name",
+      "order": 123,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.119.txt",
+        "sha256": "a1bb98668486c01479d67dc3019de10802380e2e188dd61d31c85ad6fe571892"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.119.txt",
+        "sha256": "a1bb98668486c01479d67dc3019de10802380e2e188dd61d31c85ad6fe571892"
+      }
+    },
+    {
+      "id": "unit.120",
+      "kind": "contextual-bin-interval-name",
+      "order": 124,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.120.txt",
+        "sha256": "71808185113f043367d58e7ff56361fb4908bada59e17166f511af043be16360"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.120.txt",
+        "sha256": "71808185113f043367d58e7ff56361fb4908bada59e17166f511af043be16360"
+      }
+    },
+    {
+      "id": "unit.121",
+      "kind": "contextual-bin-interval-name",
+      "order": 125,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.121.txt",
+        "sha256": "e4172f3535c2f61e5426bf5c34a41f7c1d18312d825f5ff564781e08012235a3"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.121.txt",
+        "sha256": "e4172f3535c2f61e5426bf5c34a41f7c1d18312d825f5ff564781e08012235a3"
+      }
+    },
+    {
+      "id": "unit.122",
+      "kind": "contextual-bin-interval-name",
+      "order": 126,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.122.txt",
+        "sha256": "aff0dc33dd1903ae495d6a3abfa10ef8a3a85766990659e29f1cad4a3983e603"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.122.txt",
+        "sha256": "aff0dc33dd1903ae495d6a3abfa10ef8a3a85766990659e29f1cad4a3983e603"
+      }
+    },
+    {
+      "id": "unit.123",
+      "kind": "contextual-bin-interval-name",
+      "order": 127,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.123.txt",
+        "sha256": "80024e926fa90c13b6d9592980ade79daca2b8aa208d71adbccb3d6d76be4651"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.123.txt",
+        "sha256": "80024e926fa90c13b6d9592980ade79daca2b8aa208d71adbccb3d6d76be4651"
+      }
+    },
+    {
+      "id": "unit.124",
+      "kind": "contextual-bin-interval-name",
+      "order": 128,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.124.txt",
+        "sha256": "c596e0457d155084b1a72242311aa70fcc68e838428fedde2c67f0cca7fde32f"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.124.txt",
+        "sha256": "c596e0457d155084b1a72242311aa70fcc68e838428fedde2c67f0cca7fde32f"
+      }
+    },
+    {
+      "id": "unit.125",
+      "kind": "contextual-bin-interval-name",
+      "order": 129,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.125.txt",
+        "sha256": "a8b5f34c792fe9d5fafdfb1126fa89296bde30e98077b8e886bbfb7801a294a0"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.125.txt",
+        "sha256": "a8b5f34c792fe9d5fafdfb1126fa89296bde30e98077b8e886bbfb7801a294a0"
+      }
+    },
+    {
+      "id": "unit.126",
+      "kind": "strategy-axis-accessible-name",
+      "order": 130,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.126.txt",
+        "sha256": "45a11cd7c76e9df10d9d60361a2cf5cadc9376ec901af1de8b9a37aad19778ae"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.126.txt",
+        "sha256": "bcd5aed2bd7584e496410517ec9c3f2e0a85a6093276a4356d13c82439e8a097"
+      }
+    },
+    {
+      "id": "unit.127",
+      "kind": "strategy-axis-accessible-name",
+      "order": 131,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.127.txt",
+        "sha256": "c362f0d2dcc07faae0e426a105e6ad61035081b504dca8b6a61b805ef14c3da7"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.127.txt",
+        "sha256": "93097e37ba75a13a300f4e4c4e68e8ce22b5e8b016baac9f6aa9749228961e9a"
+      }
+    },
+    {
+      "id": "unit.128",
+      "kind": "strategy-axis-accessible-name",
+      "order": 132,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.128.txt",
+        "sha256": "bbe8804efb221f43a40c2be8d1082be6d39c820909edd13919bac015e367fda7"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.128.txt",
+        "sha256": "8354c1bdcaa1afb2dfcf807dc91cd522e6d43ccb9c236bb069edcd55e4974ee4"
+      }
+    },
+    {
+      "id": "unit.129",
+      "kind": "browser-seo-title",
+      "order": 133,
+      "localization": "translate",
+      "source": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/en/unit.129.txt",
+        "sha256": "919f3e0485489093e9dfdce3e8952c07f8fa1cc6bfd6ae9d9aa14a0df6f168c4"
+      },
+      "target": {
+        "path": "audits/2026-10-02-ch17-problem-first/ru-r2/surfaces/ru/unit.129.txt",
+        "sha256": "5a70f42ed5e2dc5a47e39348fab250e12e3b42b6a372502dd3e98854fe123eeb"
+      }
+    }
+  ]
+}

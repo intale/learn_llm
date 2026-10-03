@@ -1,0 +1,1 @@
+j | The output coordinate selected by a weight’s column.

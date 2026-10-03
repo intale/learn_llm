@@ -1,0 +1,1 @@
+Target variance The chosen spread of a weight distribution in squared weight units, not a finite matrix's measured spread.

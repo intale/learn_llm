@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T06:19:31Z"
+updated_at: "2026-10-03T08:35:09Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -50843,12 +50843,12 @@ builds:
 
   - build_id: rewrite-ch17-problem-first-content-20261002
     objective: "Rewrite Chapter 17 learner-facing content with a problem-first explained-solution sequence while preserving the topic, formula, Rust implementation, and exact evidence."
-    status: active
+    status: completed
     budget:
       unit: agent-session
-      limit: 1
-      spent: 0
-      notes: "Large bounded content/review work; no paid service, installation, model acquisition, training, hardware probe, or network input. Use the user-selected model and actual configured reasoning settings; the interrupted run retains its historical identity."
+      limit: 4
+      spent: 4
+      notes: "Four bounded units consumed. October3 completion reuses approved English r6, records root-owned Russian authorship and fresh serial locale judgments, preserves failed r1 and publishes passing r2. Cached offline validation only; no paid service, acquisition, installation, training, probe or image review."
     completion_criteria:
       - "The English and directly refreshed Russian Chapter 17 content open with a concrete problem and cause, explain the worked solution before history and visualization, and contain no learner prediction prompts."
       - "The exact Chapter 17 formula, topic, source claims, checked answers, Rust evidence, identifiers, diagram ID, and protected implementation remain coherent and unchanged where declared immutable."
@@ -50857,12 +50857,13 @@ builds:
     notes:
       - "Independent user-authorized content build; the active future planning build remains active and its implementation/repair holds remain untouched."
       - "The legacy predict-first contract/checker wording is an authoring-policy diagnostic only; reproduction, inspection, explanation tasks with numbered checked answers remain compatible with existing structural gates."
-      - "No canonical learner content has been written in the running claim yet; the author input manifest is staged under the immutable run directory."
+      - "Fresh whole-chapter authoring is staged in the .02 run after the explicit release; .01 remains interrupted history. No canonical learner content is published before review and validation."
+      - "Revision5 is now coherently published in both locales under approved English r6 and Russian r2; post-publication checks and exact hashes pass. All prior attempts and unrelated future/repair holds are preserved."
     steps:
       - id: rewrite-ch17-problem-first-content-20261002
-        objective: "Produce a reviewed, coherent English/Russian Chapter 17 content revision with a problem-first opening and no learner prediction prompts."
+        objective: "Rewrite the complete English/Russian Chapter 17 material using problem-first causal teaching, with no learner prediction prompts and unchanged formulas/Rust."
         depends_on: []
-        status: pending
+        status: completed
         inputs:
           - AGENTS.md
           - BUILD_STATE.yaml
@@ -50887,13 +50888,19 @@ builds:
           - site/src/content/chapters/ru/17-parameter-initialization.mdx
           - site/src/content/cheat-sheets/en/17-parameter-initialization.json
           - site/src/content/cheat-sheets/ru/17-parameter-initialization.json
+          - curriculum/course-plan.md
+          - site/tests/17-parameter-initialization-diagram.test.ts
+          - site/tests/e2e/ch17-parameter-initialization.spec.ts
+          - site/tests/content-contract.test.ts
+          - site/tests/e2e/cheat-sheets.spec.ts
+          - audits/2026-10-02-ch17-problem-first/
           - BUILD_STATE.yaml
           - DECISIONS.md
         acceptance:
           - "The opening defines the concrete initialization problem and its cause, then explains the seed-17 worked result, formula, and Rust connection before history, visualization, and optional reproduction/inspection/explanation practice."
           - "No learner-directed prediction, rhetorical question, or unseen-outcome prompt remains in the English or Russian content; technical next-token prediction history terminology remains valid."
           - "The exact formula, mathematical expressions, topic, source URLs/claims, diagram ID, Rust source paths/region IDs, exact outputs, checked answers, and Chapter 18 handoff remain preserved unless a bound content revision requires synchronized wording only."
-          - "Rust implementation, Cargo.lock, trace fixture, diagram parser/geometry, and tests are byte-identical to the baseline hashes in the author-input manifest."
+          - "Rust implementation, Cargo.lock, trace fixture and diagram parser/geometry are byte-identical to baseline. Tests may update revision/copy expectations only, preserving all numerical, behavior, geometry and accessibility assertions."
           - "Fresh English review/adjudication and direct Russian localization/review gates are complete; pinned offline static/content/link checks and sole-Firefox rendered checks pass."
         validate:
           - "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/int/rust/learn_llm/.agents/skills/author-llm-course-english"
@@ -50904,13 +50911,13 @@ builds:
           - "npm --prefix site run check:parity -- --chapter 17-parameter-initialization"
           - "npm --prefix site run check:content && npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
           - "npm --prefix site run test -- --run tests/17-parameter-initialization-diagram.test.ts tests/content-contract.test.ts"
-          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:17-parameter-initialization|@formula-rendering|@cheat-sheet:.*:17-parameter-initialization'"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:17-parameter-initialization|@formula-rendering|@cheat-sheet:.*:17-parameter-initialization' (package script selects sole Firefox project)"
           - "cargo run --quiet --locked -p ch17-parameter-initialization | diff -u rust/demos/ch17-parameter-initialization/expected.txt -"
           - "cargo run --quiet --locked -p ch17-parameter-initialization --example ch17-parameter-initialization-trace | diff -u rust/demos/ch17-parameter-initialization/diagram-trace.txt -"
           - "git diff --check"
         cost:
           class: large
-          notes: "Content generation and four English judgment contexts plus two Russian review contexts; cached pinned Docker build/browser only, network N0, paid none, GPU none, no installation or acquisition."
+          notes: "Whole-chapter English/Russian authors and four English/two Russian judgment contexts; cached pinned Docker build/Firefox only; bounded primary-source lookup N1, paid/GPU none, no installation/acquisition/training."
         runs:
           - run_id: 20261002T055344Z-rewrite-ch17-problem-first-content-01
             started_at: "2026-10-02T05:53:44Z"
@@ -50947,6 +50954,472 @@ builds:
                 status: passed
                 notes: "Clean baseline, BUILD_STATE/DECISIONS parsed, Chapter17 files and historical gates inventoried; no canonical content or implementation changed."
             notes: "Interrupted at explicit user hold before authoring or review setup. The author confirmed no canonical content or publish-overlay files were written; only the pre-existing author-input manifest remains in staging. Preserve this input manifest and run record as immutable interrupted evidence. A future user-selected-model scope must use a new run and must not mutate this record."
+
+          - run_id: 20261002T081053Z-rewrite-ch17-problem-first-content-02
+            started_at: "2026-10-02T08:10:53Z"
+            finished_at: "2026-10-02T11:07:17Z"
+            status: interrupted
+            input_fingerprint:
+              git: "26dbb8b9b3e0fd81b38c0694a4442f53c0c1a7dd"
+              manifest: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/author-inputs.json"
+              manifest_sha256: "ef2ad7827235579d2c454e84594a6ea3a746b251bdf36631ec7ddedd2e45f034"
+              selected_configuration: "Inherited user-selected configuration: gpt-6.1-sol / max; provenance only."
+              workspace_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+            staging_dir: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/"
+            commands:
+              - "git status --short; read complete current skills/protocols and freeze protected input hashes"
+              - "Read-only web open/find of the three named primary papers; retain bounded claims/locators and derivation separately"
+              - "Route fresh /root/ch17_whole_english_author_v5 with inherited user-selected configuration and disjoint staged output ownership"
+              - "Offline pinned build-stage.sh english as UID/GID 1000; npm build and test:links"
+              - "Offline English review tool prepare and prepare-routing; freeze 112 isolated units, source, HTML, role requirements and evidence"
+              - "Reject noncanonical initial isolated prompt delivery; retire both unused contexts and prepare-routing with two fresh replacement contexts"
+              - "Offline prepare-cargo-cache.mjs: verify eleven Cargo.lock archive checksums and freeze bounded existing index records"
+              - "Offline English seal-reviews --technical-raw-response/--isolated-raw-response; prepare-adjudication; prepare-routing --stage adjudication for two fresh same-role contexts"
+              - "Offline English seal-adjudications preserving both exact raw responses; retain failed r1 chain and route author-only corrections for r2"
+              - "Dedicated author r2 correction/self-audit; offline pinned build-stage.sh english-r2, build/link checks, immutable package and canonical fresh review routing"
+              - "Offline r2 seal-reviews and prepare-adjudication/prepare-routing with fresh role IDs; route author-only r3 correction after the equal-width-condition finding"
+              - "Dedicated author r3 correction/self-audit; offline pinned build-stage.sh english-r3; prepare-english.mjs r3 english-r3-build; English prepare and canonical prepare-routing"
+              - "After author completion releases capacity, route fresh ch17_v5_r2_adj_technical through its exact canonical prompt and four frozen artifacts"
+            artifacts:
+              - path: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/author-inputs.json"
+                sha256: "ef2ad7827235579d2c454e84594a6ea3a746b251bdf36631ec7ddedd2e45f034"
+              - path: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/evidence/historical-sources.json"
+                sha256: "9da8a3da93ac0ad9de8fb0d9e3d69e0c1df95bd349d11f5046c2b53b056d421e"
+              - path: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/evidence/mathematical-boundary.md"
+                sha256: "c7a54f55605ddb5aa1686e964beae7b1ec9e5477ba9ab71fe2b3d8dbb124080a"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/frozen/lesson.en.mdx"
+                sha256: "2b55238fa78d5d7b180c305a2545889912abbc0cc777c9f59d8101df9eee1c6d"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/frozen/sheet.en.json"
+                sha256: "8f3d002a034a853773378423856a8bf9e46fd25eeaa6129343ca4233d6411d0f"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/bundle/bindings.json"
+                sha256: "84b320c2be53a9ac445e0095bae14ada77e9794bdff86ce5c6d65206e14da12b"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/review-routing-2/review-routing.json"
+                sha256: "6b5d325909d62cb710573d4145f00c69eb2aa9043ff68cdbdcf6d6364a5bd613"
+              - path: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/cargo-cache-manifest.json"
+                sha256: "0deac6fb819384708727fa90ebc5473111ff1015c01916da70446abfb6dcec5c"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/raw/technical-pedagogical.json"
+                sha256: "149c58986662b8d52e12ba5013341fd1418c3129e3c82b1df2c34772b5595832"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/raw/isolated-surface.json"
+                sha256: "8c612b31f3cb9a656a51143980053c98258a681f3f812cba0e74dd2551beaf5f"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/adjudication-routing/adjudication-routing.json"
+                sha256: "50ca5f0058e1a06a8c83f49e8ff10066e48b17c5138c21c1f8b89142ba22c500"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/raw/adjudication-technical-pedagogical.json"
+                sha256: "85da190ae8c1d415f161f9bff4768a686e8ff2bea37262c51e97a3ec67d6b45e"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r1/raw/adjudication-isolated-surface.json"
+                sha256: "a4ad8af89feb7aad9fdb79bf1d172bf2dd6a74fba97b6b03e41d7ad1d8f8380e"
+              - path: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/author-notes/context-complete-r2.json"
+                sha256: "eabe6e2d4f7722739a1802429257f40d374513a6455f8c59a6bdfa3da0abb3b0"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r2/frozen/lesson.en.mdx"
+                sha256: "2cd57a42711b0267251a1d1f86684df7513938f984707b687336df7f3bb5a07f"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r2/frozen/lesson.en.html"
+                sha256: "f6feb5c818d5818e5e4df80cac35f862cea1b2502c0f33bd2de4ee4d6d6ef871"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r2/review-routing/review-routing.json"
+                sha256: "836da50448c775dbed87566ce2389386dacfc59eec877313857acb3f1aa2cbf3"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r2/raw/isolated-surface.json"
+                sha256: "2f4a3bd4c7114165885e6539839223a12d34ef6831b0709627775ca4e01c38f8"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r2/raw/technical-pedagogical.json"
+                sha256: "e4e8a33e49c4946fdb1a7c3c7992fc6561cfd7a9c54b72c0f1abcf0a89382888"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r2/adjudication-routing/adjudication-routing.json"
+                sha256: "162b87e917f597e54a01b8cc4c1efd9d726302f47460455601bf5ea39aa80d4d"
+              - path: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/author-notes/context-complete-r3.json"
+                sha256: "4c018b160d7e5c2e15d277c3d3f3d3fb1ec57e8fbe3fbb54bc76b4743279a2a8"
+              - path: ".build/runs/20261002T081053Z-rewrite-ch17-problem-first-content-02/evidence/english-r3-build.log"
+                sha256: "21c26c2fda4a36a41eca9e8375269e17716c26fbf61ed0c5a9a1d3f5873a753f"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r3/frozen/lesson.en.mdx"
+                sha256: "9c0e9630845bf6e5eb17adf8fd51f20af4637db1d8c7cf832f63f85492bb3334"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r3/frozen/lesson.en.html"
+                sha256: "67ef60d18c322db06629a408fe72d5a704a7c033b08cbab07672bae0cd61070f"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r3/review-routing/review-routing.json"
+                sha256: "54c3ab953eb372ba1052462d72be7b2bf051d54f882b792e54b07c3b22120519"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r2/raw/adjudication-technical-pedagogical.json"
+                sha256: "d4cbc89f6c85b0fd518709c80cc5ea3a8a3987095914be7ff866e82c948fe04d"
+            validation:
+              - command: "Read-only startup, corrected scope/output ownership and YAML parse; git diff --check"
+                status: passed
+              - command: "Offline pinned build-stage.sh english: npm --prefix site run build; npm --prefix site run test:links"
+                status: passed
+                notes: "85 production pages; 2939 link references and 169 artifacts checked. Only an ephemeral renderer fixture advances old Russian revision metadata; no Russian translation or canonical chapter is published."
+              - command: "Offline English review prepare; prepare-routing --stage review with fresh replacement contexts"
+                status: passed
+                notes: "Exact English source/HTML, author context, evidence, commitments, requirements and 112 isolated units frozen. Operational failed preparations/delivery preserved in audit notes; no semantic review has yet been sealed."
+              - command: "Initial pinned offline cargo test/run attempt"
+                status: failed
+                notes: "Dependency-resolution cache miss for serde_json before compilation; no source assertion or exact-output comparison ran. No network fallback."
+              - command: "Offline prepare-cargo-cache.mjs against existing read-only local registry"
+                status: passed
+                notes: "All eleven unchanged Cargo.lock archive checksums match; 23 bounded archive/index/config entries recorded for offline container-only reuse."
+              - command: "Pinned offline cargo fmt --all -- --check; cargo test -p ch17-parameter-initialization; two cargo run/diff controls (locked, ephemeral target/cache)"
+                status: passed
+                notes: "Five Chapter17 tests pass. Stdout SHA3995d60d and trace SHA094f6429 match the protected fixtures byte for byte. No host Rust execution or target write."
+              - command: "Author skill quick_validate.py; git diff --check"
+                status: passed
+              - command: "./course audit-host (diagnostic only, existing host workspace)"
+                status: failed
+                notes: "Unrelated pre-existing ignored target directory dated September21/27 remains untouched; its rustc metadata predates this run. All task Rust builds used /tmp inside offline containers. Do not delete or relocate user-owned cache to hide this diagnostic."
+              - command: "Exact-byte English review sealing and same-role adjudication preparation/routing"
+                status: passed
+                notes: "Both immutable review records structurally valid and sealed without transformation. Their candidate verdicts are fail: technical inventory omissions and isolated local-referent/theoretical-evidence blockers; no publication approval. Two fresh same-role adjudications running."
+              - command: "Exact-byte English r1 adjudication sealing"
+                status: passed
+                notes: "Technical adjudication passes the sound blocking inventory review. Isolated adjudication fails its review for an overlooked answer-10 assumption boundary; all existing candidate findings remain supported. This chain does not approve publication. Both raw responses and receipts preserved untouched."
+              - command: "Offline pinned English r2 production build, links and immutable review preparation/routing"
+                status: passed
+                notes: "85 pages; 2939 references and 169 artifacts checked. All 44 baseline English math occurrences remain represented unchanged. Actual rendered-role inventory has 129 isolated units including nine literal interval names; candidate semantic binding d9b8bb6c. Two fresh reviewers routed through exact canonical prompts, with no earlier findings. Pre-routing packaging attempts retained separately."
+              - command: "Read-only exact-byte check of persisted r2 isolated response"
+                status: passed
+                notes: "129 assessments; exact canonical response bytes preserved. Candidate verdict fail: standalone figure descriptions omit equal input/output widths for the stated variance multipliers. No publication approval."
+              - command: "Exact-byte r2 review sealing, adjudication preparation and fresh canonical role routing"
+                status: passed
+                notes: "Technical review passes with 135 assessments and no findings; isolated review fails with one blocking finding across two surfaces. Both exact raw responses are sealed untouched. Adjudication bundles/routes are ready, but fresh-context spawning currently reports a thread-capacity limit; no judgment has been reused or self-certified. Dedicated author r3 correction has resumed."
+              - command: "Offline pinned English r3 production build, links, immutable package and canonical review routing"
+                status: passed
+                notes: "85 pages; 2939 references and 169 artifacts checked. Whole-chapter source, HTML and 129 isolated roles are frozen under binding 83f7df84. Equal-width conditions are explicit in the corrected copy and neutral figure requirements. Both root and dedicated-author spawn attempts initially hit capacity; after author completion a fresh r2 technical adjudicator starts. No context reuse or external API workaround."
+              - command: "Read-only canonical-byte validation and hashing of r2 technical adjudication; YAML and unchanged-held-build comparison"
+                status: passed
+                notes: "Untouched 32098-byte response has 135 assessments, verdict pass and one nonblocking advisory about review wording. Aggregate schema/receipt sealing waits for the separate isolated adjudication. All other builds, active future-planning pointer, environment and interrupted .01 run are unchanged."
+              - command: "Repeated normal fresh-context provisioning after all current roles completed, child provisioning and completed-role cleanup"
+                status: failed
+                notes: "Platform repeatedly returns collab spawn failed: agent thread limit reached. No isolated r2 adjudicator or r3 reviewer was created. Existing contexts are not reused for judgments and no external API/CLI workaround is authorized. This unresolved runtime capacity is the exact block; preserved staging and audits need no repeated authoring/build."
+            notes: "Interrupted safely after all current roles completed: fresh judgment capacity remains unavailable despite normal root/child provisioning and completed-role checks. R1 is a complete immutable failed chain. R2 reviews are sealed and its technical adjudication raw bytes retained; its separate isolated adjudication and aggregate seal remain pending. Corrected r3 whole-chapter English source/HTML and 129-role canonical review routes are ready, with no r3 review record. No canonical chapter publication, Russian authoring or completed-step commit occurred. Resume from audits/2026-10-02-ch17-problem-first/HANDOFF.md only after fresh capacity is available, rechecking fingerprints and remaining resource allowance. Future holds and protected implementation remain unchanged."
+
+          - run_id: 20261002T142126Z-rewrite-ch17-problem-first-content-03
+            started_at: "2026-10-02T14:21:26Z"
+            finished_at: "2026-10-02T17:50:39Z"
+            status: interrupted
+            input_fingerprint:
+              git: "8857aacd3b65467af2aa85c8d6821ed05cc8aaba"
+              manifest: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/author-inputs.json"
+              manifest_sha256: "32bbaf8da7c9ec9fe67e528d42e7992d65473329c1c31d040101ec85cfb60f8c"
+              reused_candidate: "audits/2026-10-02-ch17-problem-first/english-r3/review-spec.json"
+              reused_binding_sha256: "83f7df8438774f026d6bcc357be2e84e0a142f016f1f7f156f262dba0d5eb628"
+              workspace_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+              selected_configuration: "Inherited current user-selected gpt-6.1-sol/xhigh; original author max remains truthful historical provenance."
+            staging_dir: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/"
+            commands:
+              - "git status; read both skills and review protocols, ledger/decisions and interrupted handoff; inspect current runtime capacity."
+              - "Verify cached pinned Docker image; copy existing helpers and publish overlay into new staging without modifying old artifacts."
+            artifacts:
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/author-inputs.json"
+                sha256: "32bbaf8da7c9ec9fe67e528d42e7992d65473329c1c31d040101ec85cfb60f8c"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/preflight.md"
+                sha256: "509228b9eb23e789014cb85f5c57a6333023acc86d2c8c785eb8b4c59ee41ba1"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-build-02.log"
+                sha256: "2705957a52f9e4d0d5bd973e1ed58e70a080691d1de0f18b931d17dcfc5f00b5"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r4/bundle/bindings.json"
+                sha256: "10911ceed291fd5e466b9b53a099064ee038b3e073de6202e3b556a63f9bd2a6"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r4/review-routing/review-routing.json"
+                sha256: "e009cb1ae279dab77310035486c48ace43bde43ae0875ae405304e119a16d4c5"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-cache-receipt.json"
+                sha256: "81a2d3c5c64fb9be21407c258fb3c05e5f9e41b74d2f90e13b78abadd3fc2cf6"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r4/raw/technical-pedagogical.json"
+                sha256: "30c9176b62120f404a2406d9215ef538f33ea43ee64f79485a13a595bb5e2a53"
+                bytes: 68928
+              - path: "audits/2026-10-02-ch17-problem-first/english-r4/raw/isolated-surface.json"
+                sha256: "f85979f98fbdd205385dd83ed67ea2608bb29ed70986d40a9fe5685ed3a95392"
+                bytes: 53016
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-01.log"
+                sha256: "009781c9247bff9df0cb2fbe1dcf858df7269f32cb95ad2b52d216518869959c"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-02.log"
+                sha256: "df42ea6e38dade2d4cb4b9312893a77fe5db28cbd03c80063383b4b6534585d1"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-03.log"
+                sha256: "6e443b412206f591c77ad84b2642ef157cc0b36e0ebcae92febbb9daba79dc00"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-04.log"
+                sha256: "01c1cf7314a14d96baa119244ea2da0ea7cf3798b607dd6efe3ee689a3f59554"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-05.log"
+                sha256: "19d33b71e3873d6251a24acdbdeb7302d6fe719338c979cf5179f1dfd7f47234"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-06.log"
+                sha256: "a07171400d864d1bcb8e2dcf055c80938af363f1ce09e960e5f62b618360b56f"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-07.log"
+                sha256: "2aad9cdff6aa1b4c376eea0cb434fa62537e9c7ec905c516d752095557e11b83"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/author-notes/context-complete-r5.json"
+                sha256: "91fb37b3ca6f84c2c5043ea1c2d843750f93d1f29e4a76ceb860614c545989cc"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r5/review-spec.json"
+                sha256: "c4170a07cb64548dbae1b2632416902559f389feda251afd8816c091c2504a42"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r5/review-routing/review-routing.json"
+                sha256: "1cfc42db12c87bb5fa6935567c291d8e8f19a339ae6a4edf0ea16e7251d20ff3"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r5/raw/technical-pedagogical.json"
+                sha256: "0226619e3897aea372af877f02e258cef1325bc35af1fd27a2d7ae0c1b447963"
+                bytes: 62592
+              - path: "audits/2026-10-02-ch17-problem-first/english-r5/raw/isolated-surface.json"
+                sha256: "9ff7f7cc5ec2efae8a0d1acaac8e0aca481ba52f996551a1de812500e49ab425"
+                bytes: 53955
+              - path: "audits/2026-10-02-ch17-problem-first/english-r5/adjudication-routing/adjudication-routing.json"
+                sha256: "da0a493577d2d12e1109ee3c3ac875b3a11398a573dd3359f798b0a3d17c5b30"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r5/raw/adjudication-technical-pedagogical.json"
+                sha256: "cad577370bf6c1a5b6035dd5cc8479474ffed3d68ef27434bbe426fff83c9d4a"
+                bytes: 36604
+              - path: "audits/2026-10-02-ch17-problem-first/english-r5/raw/adjudication-isolated-surface.json"
+                sha256: "3023b1dfcef81c8859d8b191edcbba1fe916797dab9d2ff7d368ba7ddfea323b"
+                bytes: 33071
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-08.log"
+                sha256: "84ebb6dbca58da9a133360c94282e8fc9c457cb62bed3a9940536259f11156fc"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/layout-correction-r6/context-complete.json"
+                sha256: "9e13915000aabcc3720848de9f9032d1d9d0f76f9ff7b22532a3853a73e25a42"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/evidence/english-reviewed-validation-09.log"
+                sha256: "2a803f088c7f138eeb4be99922520fa499083ab533436ab0d102929f88945f03"
+              - path: ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/author-notes/context-complete-r6.json"
+                sha256: "abdf3ed1af353fff140bf365b19129b4be75f7aa50d0bdd6134d3a9495255035"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/review-spec.json"
+                sha256: "7099a6d3cac3b052e0e34ce79c9dcc08dd0b7a78ad48c8e053e85eda3af8c1a5"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/review-routing/review-routing.json"
+                sha256: "01a37c1f249fb1f274f9ca647fce10c205111374913c80dc7701cb3edae6bf6a"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/raw/technical-pedagogical.json"
+                sha256: "adde1436512a9fd83e0900c9184def75d483fd4598ebc1f9ed4791775edf85c5"
+                bytes: 69852
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/raw/isolated-surface.json"
+                sha256: "fc433f456d958819d61ec23704b392278421bf1f1839fa0bb3a0ab2987524465"
+                bytes: 54525
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/adjudication-routing/adjudication-routing.json"
+                sha256: "a63f9cec3731d57295e11f0182811e9b6fb554e0c8a085fdef5ff0511fc0f8d5"
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/raw/adjudication-technical-pedagogical.json"
+                sha256: "0b7aa957f263506643721d4399ddc19725d10d60319f63f414715ea7efd8c4ca"
+                bytes: 32765
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/raw/adjudication-isolated-surface.json"
+                sha256: "b446c96f84317d7ce9ba1863457276efbde1ef05cd12194f3169a7edbe771096"
+                bytes: 36035
+              - path: "audits/2026-10-02-ch17-problem-first/english-r6/staged-verification/report.json"
+                sha256: "d90a539f21fbb0eb36360d6fcfa8d0503e86e1751fb5d20d402403c8b0a8528c"
+              - path: "audits/2026-10-02-ch17-problem-first/HANDOFF-RUN03.md"
+                sha256: "c3a556b6432862c127997b2b039a3a33a037a0543250d24574ef8d993e21ea3d"
+            validation:
+              - command: "Initial actual configured-reasoning equality against the reused manifest"
+                status: failed
+                notes: "Selected reasoning is now xhigh, not old author max; no role was routed. Preserve old bindings and repackage unchanged English as r4 with truthful historical author and current judgment settings."
+              - command: "Reconciled exact input/configuration preflight and cached Docker image identity"
+                status: passed
+                notes: "All 21 input hashes match; model selection remains unchanged, current reasoning xhigh; no pull/download."
+              - command: "Initial offline English build in tmpfs without explicit exec"
+                status: failed
+                notes: "cross-env permission denied before build because the ephemeral tool directory is non-executable. Rerun with explicit exec on /tmp; no source or dependency change."
+              - command: "Offline English production build and link checks with explicit executable tmpfs"
+                status: passed
+                notes: "85 pages; 2939 local references and 169 artifacts. Rebuilt source and HTML are byte-identical to r3; no English redrafting."
+              - command: "Initial r4 deterministic bundle preparation"
+                status: failed
+                notes: "Refused before write because the declared final staging HTML ancestor was absent. Created only that staging directory; no candidate or binding repair."
+              - command: "Offline English r4 preparation and exact canonical review routing"
+                status: passed
+                notes: "135 technical units, 129 isolated roles; binding66b618f9. Original author actual max provenance preserved, fresh judgments inherit current xhigh. Technical role routed first; isolated role waits serially."
+              - command: "Read-only protected source/hash and actual route preparation checks"
+                status: passed
+                notes: "Rebuilt full English MDX SHA9c0e9630 and HTML SHA67ef60d1 remain exact; original Rust/trace/figure implementation inputs unchanged."
+              - command: "Cached offline browser/runtime preflight and pinned supporting-tool reuse"
+                status: passed
+                notes: "Workspace contains no browser; cached official1.61.1 image contains Firefox1532 but its default Node24.17.0 is not used. Mounted cached workspace Node22.12.0/npm10.9.0 and modules match exact pins. No installation, network or port publication."
+              - command: "Fresh serial English r4 technical/pedagogical judgment through the exact canonical prompt"
+                status: passed
+                notes: "Untouched 68928-byte raw record: pass,135 assessments,0 findings. Actual inherited model/reasoning recorded. Independent raw-byte validation and review seal remain required; isolated role routed next."
+              - command: "sh .build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-validation.sh english-reviewed 01"
+                status: failed
+                notes: "Build/links passed; all6 Firefox fixtures failed before assertions with launch timeout, read-only home/dconf/font caches and namespace warning. Preserve attempt01 log/build. Retry only the temporary runtime with writable tmpfs home/cache and2 workers; same Firefox/assertions, no screenshots or content edits."
+              - command: "sh .build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-validation.sh english-reviewed 02"
+                status: failed
+                notes: "Runtime corrected without security relaxation;4/6 Firefox checks pass. English complete desktop/narrow lesson passes, but full-view block debt462 exceeds192. Shorten meaning-preserving diagram prose in a dedicated author context, retain geometry/thresholds and freeze a new fully reviewed candidate. Other failure is old RU fixture Rust order, pending direct localization. Rebuilt English SHA67ef60d1 exactly matches frozen r4."
+              - command: "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/int/rust/learn_llm/.agents/skills/author-llm-course-english"
+                status: passed
+                notes: "Current authoring skill remains structurally valid; this check supplies no language verdict."
+              - command: "Fresh English r4 isolated-surface record; offline english-review.mjs seal-reviews with both exact raw records"
+                status: passed
+                notes: "129 isolated assessments,0 findings,pass; both response byte contracts and routes validate. Exact raw records sealed unchanged. R4 remains layout-failing and unadjudicated, never approved for localization/publication."
+              - command: "sh .build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-validation.sh english-reviewed 03"
+                status: failed
+                notes: "Narrow-author first unfrozen copy trial reduces English full-view debt462→315px, still above192;4/5 scoped checks pass. Old RU lesson order excluded only from this English fixture, not final bilingual gates. Continue same author's fit correction before any successor freeze; all thresholds/geometry unchanged."
+              - command: "sh .build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-validation.sh english-reviewed 04"
+                status: failed
+                notes: "Debt315→272px, unchanged192px budget;4/5 scoped checks pass. Caption180px and summary71px now compact; right-column propagation494px/replay249px need another meaning-preserving copy pass. Permit at most two additional bounded prefreeze trials within current allowance; no review freeze or geometry/threshold change."
+              - command: "sh .build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-validation.sh english-reviewed 05"
+                status: failed
+                notes: "Debt272→224px;4/5 scoped checks pass. Need32px less: caption180, summary71, distribution672, propagation470, replay225. Existing caption/description requirements mandate measured-versus-expected and explicit equal-width independent-linear scope, not duplicated nonlinear/replay caveats. Preserve actual scope while compacting; last bounded trial06 remains before freeze."
+              - command: "sh .build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-validation.sh english-reviewed 06"
+                status: failed
+                notes: "Debt remains224px;4/5 checks pass. Preserve caeb0e1d pre-exposure copy. Author later reports list_agents status output unexpectedly disclosed an old review; no subsequent learner edit is allowed in that context. Fresh unexposed author and at most2 additional copy-fit trials are separately costed before proceeding. No screenshot, geometry or assertion change."
+              - command: "Fresh unexposed final-copy author; browser-validation.sh english-reviewed 07"
+                status: failed
+                notes: "English full-view assertion now passes, as do complete English desktop/narrow content and shared behavior checks. Overall4/5 because old Russian full-view debt198 exceeds192 by6px. Freeze English r5 from this exact validated build; Russian copy remains pending and the full bilingual command is mandatory before publication. Source051b2c21; only2 label values changed by final author. No geometry, typography, threshold or image check."
+              - command: "Offline prepare-english.mjs r5; canonical English prepare and prepare-routing"
+                status: passed
+                notes: "135 technical/129 isolated units, binding2bde0aba; exact trial07 source and actual rendered HTML frozen. Actual dedicated final-author context/selection and historical whole-author provenance retained. Technical review routed first; no English approval inferred from packaging."
+              - command: "Pinned offline verify-locale-routing.test.mjs"
+                status: passed
+                notes: "6/6 narrowly scoped synthetic tests: exact routes, unchanged raw bytes, immutable reports, byte/hash drift, context reuse, selection drift, nonpass and LF refusal. No semantic judgment fabricated; no actual Russian candidate exists yet."
+              - command: "Fresh serial English r5 technical/pedagogical review"
+                status: passed
+                notes: "Exact62592-byte model-authored record: pass,135 assessments,0 findings. Canonical raw-byte comparison passes without host rewrite. After persistence the duplicate completion transport was interrupted and closed with a file reference; semantic bytes remain untouched. Independent structural seal remains pending; isolated role runs next."
+              - command: "Fresh serial English r5 isolated-surface review"
+                status: failed
+                notes: "Exact53955-byte record covers129 units; blocking isolated.001 on unit.066/.067 because doubled-bound uniform does not explicitly identify Xavier as the reference bound. Preserve all bytes; correction belongs to author context and invalidates both reviews for a successor."
+              - command: "Offline seal-reviews; prepare-adjudication and canonical adjudication routing for r5"
+                status: passed
+                notes: "Both raw records validate structurally and seal unchanged, including failing isolated verdict. Fresh same-role adjudicators run serially; their approval judges review soundness, never converts the candidate's blocking severity to pass. No Russian authoring/publication."
+              - command: "Fresh serial r5 technical/pedagogical same-role adjudication"
+                status: passed
+                notes: "Exact36604-byte record: pass,135 supported assessment echoes,0 findings. This approves the same-role review, not the failed candidate's publication. Raw seal remains pending isolated adjudication."
+              - command: "Fresh serial r5 isolated same-role adjudication and offline seal-adjudications"
+                status: passed
+                notes: "Exact33071-byte record: pass,129 supported assessment echoes and supported isolated.001,0 review-defect findings. Both exact raw adjudications seal without transformation. Candidate remains failed because its isolated review is blocking; author revision and four new successor roles are required."
+              - command: "Same author r6 draft revision; browser-validation.sh english-reviewed 08"
+                status: failed
+                notes: "Onlydescription first sentence changes, sourcedd9aee2e; reference to twice the Xavier bound is explicit, all conditions/otherbytes preserved. New caption line makes English debt200px vs192px;4/5 checks pass. One additional bounded trial09 is recorded before further work. R6 is unfrozen with no judgment context; compact only description, preserve all old notes/builds and fixed geometry/assertions."
+              - command: "Same author r6 compacting revision; browser-validation.sh english-reviewed 09"
+                status: failed
+                notes: "Sourcec93bb0af, description363 chars; explicit Xavier-bound reference and all conditions retained, otherbytes exact. English full-view and complete desktop/narrow assertions pass. Combined4/5 still fails only baseline Russian debt198px vs192px. Freeze English from this actual build; full bilingual checks still required after direct Russian authoring."
+              - command: "Offline prepare-english.mjs r6, prepare and exact canonical review routing"
+                status: passed
+                notes: "135 technical/129 isolated units, binding253b1f58. Same originally dedicated author context's true start/latest revision completion are frozen; no new author context is claimed, four successor judgment contexts are fresh and pairwise distinct. Technical review routed first; no Russian authoring or publication approval yet."
+              - command: "Fresh serial English r6 technical/pedagogical review"
+                status: passed
+                notes: "Exact69852-byte record: pass,135 assessments,0 findings. File transport completed without duplicate semantic response; untouched byte/structure seal awaits isolated record. No publication or Russian authoring yet."
+              - command: "Fresh serial English r6 isolated review; offline seal-reviews, prepare-adjudication and prepare-routing"
+                status: passed
+                notes: "Exact54525-byte isolated record: pass,129 assessments,0 findings. Both untouched raw reviews validate and seal under binding253b1f58. Two fresh same-role adjudications run serially; their completion and exact verification still gate Russian authoring/publication."
+              - command: "Fresh serial English r6 technical/pedagogical same-role adjudication"
+                status: passed
+                notes: "Exact32765-byte raw record: pass,135 supported assessment echoes,0 findings. Preserve untouched bytes; structural seal awaits separate isolated adjudication. Only the four routed artifacts were read."
+              - command: "Fresh serial r6 isolated same-role adjudication; offline seal-adjudications and verify-english-stage-r6.sh"
+                status: passed
+                notes: "Exact36035-byte raw record: pass,129 supported assessment echoes,0 findings. All four exact judgments/seals and candidate source/HTML verify under binding253b1f58, status adjudication-verified. This releases direct Russian authoring only; bilingual validation and two independent locale judgments still gate canonical publication."
+              - command: "Normal serial Russian-author provisioning, completed-author follow-up/provisioning, completed-role cleanup and second root spawn"
+                status: failed
+                notes: "Repeated agent thread limit reached after all current English roles completed. No Russian author context created; no existing judge repurposed or external model/API/CLI used. Runtime inventory has no live r6 roles; app metadata does not expose their child IDs for selective archival. Unrelated tasks/root not altered."
+              - command: "Final read-only input/canonical hashes, YAML and unrelated-build invariance"
+                status: passed
+                notes: "All21 input files and eight canonical products remain baseline-identical. All unrelated builds, environment, active pointer and held work unchanged; updated_at intentionally changes. No Russian candidate, publication or completed-step commit."
+            notes: "Interrupted safely for exhausted normal fresh-context provisioning. English r6 is fully approved and exact verified; earlier chains/runs remain immutable. Russian authoring/two independent reviews and complete bilingual validation/publication are still pending. Resume from audits/2026-10-02-ch17-problem-first/HANDOFF-RUN03.md in a new preflighted run only after capacity and resource allowance are reconciled. Budget spent3/limit3. No canonical learner, Rust, geometry or future-work changes, no waiver and no completed-step commit."
+
+          - run_id: 20261003T063100Z-rewrite-ch17-problem-first-content-04
+            started_at: "2026-10-03T06:31:00Z"
+            finished_at: "2026-10-03T08:35:09Z"
+            status: succeeded
+            input_fingerprint:
+              git: "27a479c1b2bce0779d686dcc864af7d4e1e6265a"
+              manifest: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/author-inputs.json"
+              manifest_sha256: "5b272061bb8c66418a4bdf491d32d18ba33a4c2c33a02297ef03ddebffd7f698"
+              tools: "Cached pinned Node22.12/npm10.9, workspace b225a2a, Playwright1.61.1/sole Firefox; inherited gpt-6.1-sol/xhigh."
+            staging_dir: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/"
+            commands:
+              - "Read-only startup, approved-English identity and scope preflight"
+              - "Root-owned complete direct Russian authoring; assemble-russian.mjs and expectation-only integration"
+              - "browser-validation.sh final 01/02/03; initial two stale fixture-data failures, then bilingual build plus166 Firefox cases"
+              - "browser-validation.sh fit 01–09; programmatic sole-Firefox diagnostic geometry and equivalent model-authored Russian copy-fit corrections"
+              - "browser-validation.sh final 04; complete unchanged bilingual validation suite"
+              - "verify-candidates.mjs staged en; complete-author.mjs; prepare-localization.mjs r6; localization-review.mjs prepare; prepare-locale-routing.mjs"
+              - "Serial fresh bilingual reviewer ch17_v5_ru_r1_bilingual; exclusive output ru-r1/raw/bilingual.json, followed only after checkpoint by fresh target-only reviewer"
+              - "Preserve failed r1; correct Russian lookup/unit-interval wording and explicit ten-concept sheet alignment; align-localized-sheet.test.mjs7/7; browser-validation.sh final 05"
+              - "Freeze Russian r2 under binding9e8e886b; fresh bilingual ch17_v5_ru_r2_bilingual exclusively owns ru-r2/raw/bilingual.json, then checkpoint before fresh source-blind target-only role"
+              - "Bilingual r2 exact checkpoint passes; serial fresh ch17_v5_ru_r2_target_only exclusively owns ru-r2/raw/target-only.json with Russian-only four-artifact inputs"
+              - "Target-only r2 checkpoint and both staged exact-route/current-byte verifications; publish-chapter.mjs publish r2 after all language and validation gates pass"
+              - "browser-validation.sh published 01; verify-protected.mjs published r2; actual published English/Russian candidate and routing verification"
+              - "archive-run-evidence.mjs; complete YAML/history/hold/artifact verification; git diff --check; dedicated completed-step commit"
+            artifacts:
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/author-inputs.json"
+                sha256: "5b272061bb8c66418a4bdf491d32d18ba33a4c2c33a02297ef03ddebffd7f698"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/preflight.md"
+                sha256: "9a4f51f747ca847e05fed46793ca94126226d4ea44e2879d875b98e63f6d1885"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-01.log"
+                sha256: "b1fac39a9a101e1643a245caecf059bae218a4cf16f64a53dabe0b9e0eb5c7b8"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-02.log"
+                sha256: "1318cb85638787cde6c34d2b0287ed7bcdd8a35c545e1bb1cca3965b16e1b284"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-03.log"
+                sha256: "7a4154f5bdf50ed367856c858181d51418a4b798f95577ab4cda4d384af91e36"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/copy-fit-evidence-index.json"
+                sha256: "583a118b721a63b9b642e66d767917e7208c61d5b2f5cbc7a50f37af92416ef5"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-04.log"
+                sha256: "408f9407e8b378f43245319e959b72aa8a26b15891eb5732733ef14f816f441b"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/integration-assertion-proof-final.json"
+                sha256: "497ff467a0709b538b695b29c6ceb9e6ffbbe3cec10edef00a26f5ef3d89529e"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/staged-protected.json"
+                sha256: "6fcaa2ddbea4bcbbd059158822872f57c40a7570b8ecb03a1669e71f85d32e08"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/en-staged-verification/report.json"
+                sha256: "d90a539f21fbb0eb36360d6fcfa8d0503e86e1751fb5d20d402403c8b0a8528c"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r1/review-spec.json"
+                sha256: "60449df27be688304b021c419b71c4126cc5ed2d485ff1f30507c9140205a685"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r1/routing.json"
+                sha256: "c28742e519f11ccf16e5133ee60ad8a579c0a50267dd9a8b02979026139cd6bb"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r1/frozen/author-context.json"
+                sha256: "2bac8cc3a5878ec1cdca512d1921265c58e87f6efeef62476fbac738fabd3a9f"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r1/raw/bilingual.json"
+                sha256: "89a0b3f9078be7a0e45dd7ca7fa19f43e9d9963c949dadfa3b309bb6b07df7ac"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r1/record-checkpoints/bilingual.json"
+                sha256: "b2fbc757c149a0e2d4c613997d50e7cf58528cc3ebf63240eba986b164448351"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-05.log"
+                sha256: "55a9c930f906dccfbd4ff732721a14d830c6bf8837402e06472629ee54b6dfe3"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/review-spec.json"
+                sha256: "eb1c247ac5dab10578b530861871e6da2fbb9a99ee28883c68f17543df893501"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/routing.json"
+                sha256: "0013b65f2a8bd02792a124534b5f749f9ea75f59b5b7c12c7b5c1e56d99c5dc1"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/author-context.json"
+                sha256: "41e04ad4b73320bcb19cb8d3900cea6e7a306f638529058f5f5c104a1a39d33f"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/raw/bilingual.json"
+                sha256: "447f1f8482374b66bbabd61c28fd5f9ce20875bc29baaa7f21035f593180055f"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/record-checkpoints/bilingual.json"
+                sha256: "09925714a215537f4d2a1d093de3a7c561d9382151c11ff504f192f6b7043c89"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/raw/target-only.json"
+                sha256: "ad4ff92fce633b7f7bc276a0e7b75d4891e179238d52a04ed81c589e8140dbb4"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/record-checkpoints/target-only.json"
+                sha256: "73b1fb660f6df57738df2b49804b408986241af70c72646a72fbc205e7c1551f"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/staged-verification/routing-report.json"
+                sha256: "c8dd8f6e3cfc71d0bca6a8161b656eb1d6b549d9653fb58e9f472d2cf4a6a354"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/ru-r2-staged-verification/report.json"
+                sha256: "398153c15ce395b0f0ef9b1cef193e82e7bd7a85490fe2f579f4b1482c918626"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/publication-manifest-r2.json"
+                sha256: "d882b2794aa6b32391ff4d212f3997df517a1f4c3a1f8bdca9e1621d07889d0a"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/publication-r2.json"
+                sha256: "8b6ed11e1960d4be169b3ee8d681f3708b0a100df13f2f4ec659abed908e02e6"
+              - path: ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/published-validation-01.log"
+                sha256: "d99f3468b08891e5cc7fdc6f0e1219c643ef32ba240cd6cd5540ef5ed0905664"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/published-protected-r2.json"
+                sha256: "03a715598bfdd218b20a9dd2e83b9a55da6d66e43872e2152f97520b1418ad9e"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/en-published-verification/report.json"
+                sha256: "d90a539f21fbb0eb36360d6fcfa8d0503e86e1751fb5d20d402403c8b0a8528c"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/ru-r2-published-verification/report.json"
+                sha256: "398153c15ce395b0f0ef9b1cef193e82e7bd7a85490fe2f579f4b1482c918626"
+              - path: "audits/2026-10-02-ch17-problem-first/ru-r2/published-verification/routing-report.json"
+                sha256: "8499bcdd5b46843b8b94fecc91a11a92d69d5bed41d8b3b79f808a8606a3b4cb"
+              - path: "audits/2026-10-02-ch17-problem-first/verification/run04/archive-index.json"
+                sha256: "884f23ab98ee17d615f9159a88c09f7a3528ed7b1ef4b2c64e16f343b8e8efcb"
+              - path: "audits/2026-10-02-ch17-problem-first/COMPLETION-RUN04.md"
+                sha256: "61a5d692659bc212c0ef96c65953f30dfe73191eccd998843a594aead031547e"
+            validation:
+              - command: "verify-protected.mjs staged"
+                status: passed
+                notes: "13 protected fingerprints unchanged; all44 baseline math occurrences per locale retained,59 current occurrences each; exact main formula/figure ID unchanged."
+              - command: "browser-validation.sh final 01/02"
+                status: failed
+                notes: "Two pre-existing stale test expectation values exposed serially: plan hash and Chapter33 revision. Minimal necessary test-data corrections recorded; no other chapter bytes or assertions changed."
+              - command: "browser-validation.sh final 03"
+                status: failed
+                notes: "91/91 unit tests, content/parity/types/static build/links pass.163/166 Firefox cases pass; failures are unfrozen Russian copy-fit and old Chapter17 English sheet-title expectation. No routine image checks; full unchanged gate remains required after correction."
+              - command: "browser-validation.sh fit 09"
+                status: passed
+                notes: "10/10 focused sole-Firefox cases pass, including complete English/Russian desktop/narrow, unchanged full-view travel bound, forced colors/direction and both cheat-sheet behaviors. Prior bounded failed trials/diagnostics preserved in hash-bound index. No screenshots, geometry changes or weakened assertions; full validation and independent language judgments remain required."
+              - command: "browser-validation.sh final 04; validate-integration.mjs final; verify-protected.mjs staged"
+                status: passed
+                notes: "Full plan/contract/both lessons/parity/content/types,91/91 unit tests, production build/85-route links and166/166 sole-Firefox checks pass. All baseline mathematical occurrences and13 protected fingerprints remain unchanged; four test files differ only in approved copy/revision/identity data. Complete Russian drafting is ready to freeze for fresh independent judgments; no canonical publication yet."
+              - command: "Actual staged English verification and Russian candidate/route packaging"
+                status: passed
+                notes: "English r6 exact four-role chain remains adjudication-verified under binding253b1f58. New Russian r1 binds133 complete/isolated units and28 localized contract fields, bindingfabcdc29. Root author context is truthfully non-new and frozen, separate from both planned fresh judgment contexts. Packaging is not a language verdict; bilingual review starts first, with no canonical publication."
+              - command: "Fresh bilingual r1 review; checkpoint-locale-record.mjs ru-r1 bilingual"
+                status: failed
+                notes: "Untouched record89a0b3f9 fails: independently alphabetized sheet entries were paired by position rather than semantic identity, and the Russian closing handoff said token selection rather than embedding lookup. One advisory also identifies unit-fraction terminology. Preserve r1 and obtain fresh reviews after correction; no target-only r1 review or publication."
+              - command: "align-localized-sheet.test.mjs; browser-validation.sh final 05; integration/protected checks r2; fresh candidate/routing packaging"
+                status: passed
+                notes: "Seven alignment regressions pass;91/91 unit tests and166/166 Firefox checks pass with corrected copy. Exact math/Rust/diagram assertions remain unchanged.133 review units are frozen with ten semantic sheet correspondences and retained actual DOM/order provenance; English r6 still byte-identical. Russian r2 has no language verdict or canonical publication yet."
+              - command: "Fresh bilingual r2 review; checkpoint-locale-record.mjs ru-r2 bilingual"
+                status: passed
+                notes: "Untouched2549-byte record447f1f84: pass,133 covered units,0 findings; exact context/prompt/bundle and repository structural validator checks pass. The distinct fresh source-blind target-only role is scheduled next; no canonical publication or self-certification."
+              - command: "Fresh source-blind target-only r2 review, checkpoint and staged routing/current-byte verification"
+                status: passed
+                notes: "Untouched3888-byte recordad4ff92f: pass,133 covered units,1 advisory and0 blocking findings. Both independent locale records verify under binding9e8e886b; three actual contexts are distinct with inherited settings and exact four-artifact hashes. English r6 remains approved/unchanged. Coherent publication is now eligible; post-publication checks and completion commit remain required."
+              - command: "Actual canonical production build/content/links/units and sole-Firefox published validation"
+                status: passed
+                notes: "91/91 unit tests and166/166 Firefox assertions pass, with full plan/contract/bilingual/parity/content/types/static-link gates. No numerical, geometry, behavior or accessibility assertion weakened; no routine image checks or screenshots."
+              - command: "Published protected/current-byte English/Russian candidate and actual-route verification"
+                status: passed
+                notes: "All13 protected fingerprints and44 baseline math occurrences per locale retained. Actual canonical source/contract projections and new production HTML equal their approved candidates. English four-role chain and both Russian records/routes remain exact and passing; one Russian advisory is preserved at its actual severity."
+              - command: "archive-run-evidence.mjs; validate-final-state.mjs prepublish; git diff --check"
+                status: passed
+                notes: "56 byte-identical tools/provenance/attempt records intentionally promoted with external hash index. Complete YAML is valid; every unrelated build/hold, prior run and decision prefix is preserved, and all recorded current artifact hashes match. Ten canonical paths only plus audit/state/decisions; no future work started."
+            notes: "Succeeded: whole English/Russian Chapter17 revision5 is coherently published under English r6/Russian r2, with actual post-publication tests and exact verification passing. Root translation provenance and serial fresh judgment independence are preserved. One nonblocking Russian caption advisory remains recorded; failed r1 and all older runs remain immutable history. Budget4/4 consumed; no Rust/math/diagram geometry, future implementation/planning or repair scope change. Completion checkpoint precedes its dedicated commit."
 
   - build_id: user-selected-model-policy-20261002
     objective: "Remove fixed authoring/review/operational model requirements and use the user-selected model without weakening independent evidence gates."

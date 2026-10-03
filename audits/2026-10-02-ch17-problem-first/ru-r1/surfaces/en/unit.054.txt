@@ -1,0 +1,1 @@
+The invalid name is rejected before widths or draws; zero fan-in is rejected before sampling. The caller receives trial state only on success. In the two-clone collection, the first occurrence is index 0 and the repeated occurrence index 1.

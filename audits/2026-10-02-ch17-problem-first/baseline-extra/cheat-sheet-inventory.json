@@ -1,0 +1,7 @@
+[
+  {
+    "path": "site/tests/e2e/cheat-sheets.spec.ts",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline-extra/cheat-sheets.spec.ts",
+    "sha256": "cc2eca3a98710fc25a61155142cdd460628d307d59a55cc4ecb7c9f77f9f4a68"
+  }
+]

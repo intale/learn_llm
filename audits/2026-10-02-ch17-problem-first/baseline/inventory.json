@@ -1,0 +1,42 @@
+[
+  {
+    "path": "curriculum/chapters/17-parameter-initialization.md",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/curriculum/chapters/17-parameter-initialization.md",
+    "sha256": "91deb3dab7b089c60c7348554fa76193f8901d5dc88c7f4e89970e69a854ab06"
+  },
+  {
+    "path": "site/src/content/chapters/en/17-parameter-initialization.mdx",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/site/src/content/chapters/en/17-parameter-initialization.mdx",
+    "sha256": "0044af21f3299ed1b952bfeee545f83ad3c0bbe6ffa1582781693d3bc41270d4"
+  },
+  {
+    "path": "site/src/content/chapters/ru/17-parameter-initialization.mdx",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/site/src/content/chapters/ru/17-parameter-initialization.mdx",
+    "sha256": "901a421343fe9d76060f928464c10e7c41c0442cd2360261e5b4bb509da95fc4"
+  },
+  {
+    "path": "site/src/content/cheat-sheets/en/17-parameter-initialization.json",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/site/src/content/cheat-sheets/en/17-parameter-initialization.json",
+    "sha256": "c3bfdd6b594ea408737a32be9b885c2505bdb91636022de1243fc0b59666ddae"
+  },
+  {
+    "path": "site/src/content/cheat-sheets/ru/17-parameter-initialization.json",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/site/src/content/cheat-sheets/ru/17-parameter-initialization.json",
+    "sha256": "dd6799ca8b2fb319d8516425182d7f9a3bd911e35432b0cf9209e7a3acbab09f"
+  },
+  {
+    "path": "site/tests/17-parameter-initialization-diagram.test.ts",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/site/tests/17-parameter-initialization-diagram.test.ts",
+    "sha256": "a7911666e7dc3c63ce7b7c7f9d2f5fbf98ff9375eac680983e3a63e39eb11fd8"
+  },
+  {
+    "path": "site/tests/e2e/ch17-parameter-initialization.spec.ts",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/site/tests/e2e/ch17-parameter-initialization.spec.ts",
+    "sha256": "1578aa38d30ebd5042fe4b1527593eb974af7fa77185d724da7c12a235d4f39c"
+  },
+  {
+    "path": "curriculum/course-plan.md",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline/curriculum/course-plan.md",
+    "sha256": "f594b3a989ab2a409782842308c9ca255624b3d1a1163d8be0a8eb7ad02c578a"
+  }
+]

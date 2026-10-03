@@ -25544,6 +25544,90 @@ All 34 publication identities were verified. No chapter, Rust, formula, browser
 configuration, screenshot or image inspection changed. The rebound functional
 checker retains its already-known immutable revision-78 predecessor diagnostic;
 that separately held compatibility gate is not repaired or represented as passing.
+# 2026-10-02 — Full Chapter 17 rewrite scope and resource preflight
+
+The user clarified that the entire chapter, not only its opening, must demonstrate
+the new problem-first authoring skill. Resume the independent Chapter 17 step in
+a fresh `.02` run after the model-selection and image-check policy commits;
+preserve the interrupted `.01` attempt and its input manifest unchanged.
+
+Rewrite all English explanations, worked evidence, historical connection, Rust
+commentary, diagram copy, optional practice/answers, handoff and cheat sheet; then
+refresh Russian directly from independently approved English. Preserve the topic,
+mathematical formulas, Rust, lockfile, numerical stdout/trace and diagram geometry.
+Legacy section IDs are compatibility metadata, not permission to keep prediction
+activities or obscure the problem → explained solution → history progression.
+
+Declare necessary shared outputs before execution: Chapter 17's revision/copy test
+expectations, its course-plan revision/practice summary, and a new immutable audit
+directory. Numerical, behavior, geometry and accessibility assertions remain in
+force. No other chapter, held repair, extension, acquisition or training is released.
+
+Resource decision: bounded large content work, two dedicated authors, four fresh
+English judgments and two fresh Russian judgments, serial deterministic packaging,
+and cached offline pinned Docker build/Firefox validation. Only read-only lookup
+of the three already-declared primary papers is authorized; no installation, paid
+service, model/corpus download, GPU or probe. Inherit the user-selected model and
+freeze actual configuration as provenance, not a model requirement. No routine
+image check or screenshots; no human-reported artifact is present.
+
+Affected step: `rewrite-ch17-problem-first-content-20261002`.
+
+The cached planning image contains the pinned Rust toolchain but no registry
+archive/index cache. The first deliberately offline Rust attempt therefore
+stopped at dependency resolution, before compilation or evidence comparison.
+Reuse only the existing local registry's eleven Cargo.lock-selected archives
+after verifying every lock checksum; copy their bounded index records into the
+run and record all hashes. Mount the existing registry read-only, execute Rust
+only inside the pinned offline container, and keep new build/cache outputs
+ephemeral. This is cache reuse, not an installation or network authorization.
+The sole-Firefox command uses the package script's project selection, without
+Playwright's incompatible browser override. These operational corrections do
+not change product acceptance or protected implementation bytes.
+
+The first standalone English review reports blocking local-referent and
+measured-versus-expected distinctions in a few checked answers and figure labels.
+Keep the candidate and untouched response as failed evidence. Freeze both role
+reviews and obtain their same-role adjudications; those adjudications judge the
+reviews, not whether the chapter may bypass its blockers. A correction candidate
+must use a new immutable package and four fresh judgment contexts. The same
+dedicated author may revise its own draft without certifying it. This adds bounded
+content/review work within the current session budget, without additional network,
+paid service, acquisition, implementation or image authority. All numerical and
+formula literals remain protected; corrections name existing quantities and
+conditions rather than changing results.
+
+The r2 isolated review identifies a further substantive local condition: the
+figure caption and nonvisual description must state the equal-input/output-width
+comparison before asserting unchanged Xavier signal variance or fourfold
+oversized variance per layer. Independence alone does not establish those
+multipliers for arbitrary unequal-width layers. Preserve r2 as immutable evidence
+and finish its same-role review adjudications; correct this condition only in
+the dedicated author context, then use a third frozen candidate and four fresh
+judgments. Additional bounded content/review work remains within this session's
+scope and budget; no new network, paid service, acquisition, implementation or
+image authority is introduced. Russian still waits for a fully passing English
+chain. Routine judgment-capacity waits do not waive independence or count as an
+external blocker.
+
+**Capacity checkpoint, 11:07 UTC:** The dedicated author's whole-chapter r3
+correction is complete; its offline production build and static links pass,
+and exact source/HTML with 129 isolated roles and neutral requirements is frozen.
+After that author finished, one fresh r2 technical adjudication context became
+available and produced an untouched record. Further normal root and child
+spawns repeatedly return `collab spawn failed: agent thread limit reached`,
+including after every current role completed and a completed-role cleanup check.
+This is now an exhausted runtime-provisioning condition, not an ordinary wait
+for a running reviewer. Stop the attempt safely and leave the step blocked;
+do not reuse a judgment context, self-certify, invoke an undeclared external
+model API/CLI, waive review, or publish the failed/unreviewed candidate.
+
+The separate r2 isolated adjudication and all four r3 judgments remain pending.
+Russian still waits for passing English. Preserve exact artifacts and the
+interrupted `.02` history for verified reuse; a later attempt must preflight
+actual capacity, input compatibility and additional resource allowance before
+continuing. No completed-step commit is made for staged work. Canonical chapter,
+Rust, formulas, diagrams and future implementation/repair holds remain unchanged.
 
 ## 2026-10-02 — Serial scheduling when concurrent execution is infeasible
 
@@ -25573,6 +25657,187 @@ hold invariance against the preserved worktree baseline, append-only decisions,
 policy-only tracked paths, whitespace and a dedicated-commit projection that
 excludes prior incomplete work. No course rebuild or browser check is necessary
 for this internal scheduling rule.
+
+## 2026-10-02 — Chapter 17 serial continuation after capacity recovery
+
+The user explicitly requests completion. Current runtime inventory contains only
+the root, so attempt the remaining independent roles serially under the newly
+recorded scheduling rule. Preserve all .01/.02 attempts and frozen artifacts;
+start `20261002T142126Z-rewrite-ch17-problem-first-content-03` with new staging,
+current input hashes and verified reuse. No English redrafting is required merely
+because the orchestration rule changed; its candidate/bundle bytes remain fixed.
+
+Resource decision: allow one additional bounded large continuation session
+(build limit two, spent one before execution), including the pending r2 isolated
+adjudication, four r3 English judgments, dedicated Russian author and two Russian
+reviews, cached offline build and sole-Firefox programmatic validation. Run one
+role at a time with checkpointed outcomes. This is not permission to recycle a
+judgment context, change the selected model, weaken review, acquire dependencies
+or use an external model API/CLI. No paid service, GPU, training, model/corpus
+download or routine image/screenshot review is authorized. Reuse already-verified
+bounded historical evidence and Cargo cache rather than repeating acquisition.
+
+Freeze new Russian candidate/review evidence only after all four English gates
+pass. Publish the whole bilingual chapter, not only its opening, with original
+topic, formula, Rust and traces preserved. Shared copy/revision tests may change
+only their declared expectations. Existing future planning and all held repairs/
+implementation remain unchanged. A lack of parallel capacity causes serial
+scheduling; inability to provision even one required fresh role remains a real
+blocker and does not license self-certification.
+
+Affected step: `rewrite-ch17-problem-first-content-20261002`.
+
+The exact-setting preflight found the configured reasoning changed from max to
+xhigh while the selected model remains unchanged. Its assertion failed before
+any judgment. Keep old r2/r3 bindings and records immutable, retain the pending
+r2 adjudication as incomplete failed-candidate history, and repackage the exact
+r3 English bytes under r4. Preserve the actual historical author/context/max
+provenance; all fresh reviewers and adjudicators inherit the current xhigh
+configuration without an override. This reconciliation edits no English meaning,
+formulas, requirements or numerical evidence. The successor's four fresh gates,
+not completion of an obsolete failed chain, determine publication readiness.
+
+Browser preflight confirms the cached workspace image has no Firefox executable.
+Use the already-cached official Playwright1.61.1 image at digest5b8f294a, with
+Firefox1532, for browser checks. Its bundled Node24.17.0 does not match the course
+pin. Copy only existing Node22.12.0/npm10.9.0 and site modules from the pinned
+workspace image into run staging, mount those caches read-only in the Firefox
+container and put that Node on its executable search path. Preserve the actual
+versions and cache-source identities; no runtime version drift, dependency
+installation or browser download is authorized. Browser work stays offline,
+uses the sole Firefox project and publishes no automated preview port.
+
+### 2026-10-02 — Chapter 17 measured full-view prose correction
+
+The offline Firefox attempt first failed before chapter assertions because the
+read-only browser home/cache could not be written. Writable ephemeral tmpfs
+home/cache directories and two workers resolve launch without changing browser
+engine, assertions, container capabilities or network isolation. Preserve both
+attempt logs. Do not assign or repurpose the host home variable.
+
+The second attempt proves an English copy-fit defect: full-view block debt462px
+exceeds the unchanged192px budget. Its complete English desktop/narrow check and
+three other checks pass. The old Russian fixture also has the prior Rust region
+order; that is not evidence against an as-yet unauthored localization.
+
+Use one dedicated fresh author to compact only English diagram copy while
+preserving its relationships, assumptions and evidence. Keep the figure geometry,
+font size, numerical literals and every assertion unchanged. Finish and preserve
+the already-routed r4 review, but do not spend adjudication work on that superseded
+layout-failing candidate or represent it as approved. Freeze a successor only
+after the same programmatic full-view assertion passes, then require all four
+fresh English judgments before direct Russian authoring. No screenshot, human
+visual gate, clipping, smaller typography or widened threshold is introduced.
+
+This bounded author/correction and replacement-review sequence remains inside
+the remaining continuation-session allowance (build limit2, spent1); no new
+paid, network, acquisition or implementation authority is requested or inferred.
+Affected step: `rewrite-ch17-problem-first-content-20261002`.
+
+The next English-only rendering fixture selects all Chapter17 Firefox checks
+except the complete old-Russian-lesson reading-order check. It still checks
+English content at desktop/narrow widths and both locales' index, full view,
+forced-color and direction behavior. This is a staged English prefreeze check,
+not bilingual acceptance. Final and post-publication commands retain the full
+English/Russian lesson, formula and cheat-sheet coverage without this exclusion.
+
+### 2026-10-02 — Chapter 17 final-copy context and resource reconciliation
+
+The six preserved prefreeze Firefox attempts resolve launch and reduce measured
+overflow462→224px, but do not meet192px. The latest author reports an unexpected
+completed-review payload in a status-only list_agents call after its caeb0e1d
+source had been authored and checked. Preserve that pre-exposure source and the
+honest late-access record; do not let that context revise learner-facing content
+afterward or claim a pristine exclusion boundary.
+
+Provision one fresh unexposed author for only the remaining diagram-copy fit,
+using the actual unchanged role requirements and mathematical/executable
+evidence, not any reviewer conclusions. Allow at most two further prefreeze
+trials. A passing successor still needs all four fresh English judgments,
+direct Russian authoring/two reviews, and complete bilingual validation. No
+geometry, font, threshold, source algorithm or publication gate is relaxed.
+
+Resource decision: increase this content build's bounded allowance from2 to3
+agent-session units for the extra author/correction and replacement chain;
+spent remains1 until the continuation checkpoint. This is local content work
+inside the user's completion request, with no paid service, installation,
+network expansion, acquisition, GPU or training. Cost alone introduces no
+human-approval pause. Future builds and held repairs remain unchanged.
+
+Affected step: `rewrite-ch17-problem-first-content-20261002`.
+
+The fresh final author changes only two diagram label values (source051b2c21).
+Attempt07 passes the unchanged English full-view assertion and complete English
+desktop/narrow content. Its sole residual failure is baseline Russian full-view
+debt198px versus192px. Freeze English r5 from that exact build, without claiming
+the combined fixture passed. Russian remains unauthored/pending; full bilingual
+and formula/cheat-sheet checks must pass before publication. Four fresh English
+judgments cover the whole successor, not only the two changed labels.
+
+The fresh r5 isolated review finds a concrete missing referent in its standalone
+caption/description: “doubled-bound uniform” does not state whose bound is doubled.
+Preserve both model-authored records and exact seals; complete the two same-role
+adjudications of that failed chain, then correct the referent in the author
+context and freeze a successor with four new judgment contexts. This is a
+candidate clarity correction, not permission to alter geometry, algorithms,
+math, thresholds, sources, role requirements or the user's selected model.
+Russian authoring still waits for a complete passing English chain. The existing
+bounded continuation/correction allowance covers the same Chapter17 scope;
+no paid service, acquisition or execution hold is broadened.
+
+The unfrozen r6 description makes the Xavier baseline explicit but attempt08
+adds one caption line: English block debt200px exceeds192px by8px. Four other
+scoped checks pass. Permit one additional bounded prefreeze trial09 after a
+description-only compacting revision, keeping explicit baseline and every
+mathematical condition. Preserve attempt08 and all prior notes; no successor
+judgment has started, so this is an author draft revision, not a patched review.
+The current local continuation/correction allowance is unchanged; no geometry,
+font, threshold, model, network, paid-service or implementation authority changes.
+
+Attempt09's sourcec93bb0af makes the Xavier reference explicit and passes the
+English full-view/desktop/narrow assertions. Its residual combined failure is
+only the unchanged Russian fixture. Freeze English r6 and require all four new
+judgment contexts. The author may revise its own draft in the same originally
+dedicated context: retain original context start and latest revision completion,
+and explicitly state that this is not a newly provisioned author for each draft.
+The external author's freshness field records original dedicated creation and
+separation from all four new judges, not a false per-revision creation claim.
+Keep its untouched notes, including its honest no-new-context declaration.
+
+### 2026-10-02 — Chapter 17 English approval and localization capacity checkpoint
+
+English r6 completes both fresh reviews and both fresh same-role adjudications:
+135 technical and129 isolated assessments, all passing, no findings. Exact raw
+records seal unchanged and staged source/HTML/routes/receipts verify under
+binding253b1f58, status `adjudication-verified`. Reuse that approved candidate
+after checksum/provenance checks; prior failed or superseded chains remain
+immutable history, not localization authority.
+
+The next normal serial fresh Russian-author spawn fails with `agent thread limit
+reached`. An ordinary completed-author follow-up/provisioning attempt, current
+completed-role cleanup and a second root spawn also fail. No current r6 role is
+live. App metadata does not provide their child IDs for selective archival;
+unrelated tasks and the root are not archived. No external model/API/CLI,
+alternate model, reused judge or self-certification workaround is authorized.
+
+Stop this continuation safely: Russian authoring, two independent locale
+judgments, complete bilingual validation and coherent publication remain
+unperformed. All21 input files/eight canonical products still match baseline;
+future builds, implementation/repair holds and protected Rust/trace/geometry are
+unchanged. Mark run03 interrupted and the step blocked for actual fresh-context
+provisioning. Do not make a completed-step commit for staged/unpublished work.
+
+Charge the two bounded continuation/correction allowances used by this attempt:
+build budget spent3/limit3, with no paid service, installation, acquisition,
+training or network expansion. A later continuation must preflight actual
+capacity and record any new resource decision before costly work. Preserve the
+approved English and exact local artifacts so authorship/reviews/build need not
+be repeated without an explicit invalidation reason.
+
+Durable resumption order is `audits/2026-10-02-ch17-problem-first/HANDOFF-RUN03.md`.
+Serial scheduling remains mandatory; it does not create a missing fresh context
+or waive the localization skill's dedicated-author/two-independent-review gates.
+Affected step: `rewrite-ch17-problem-first-content-20261002`.
 
 ## 2026-10-03 — Localization authorship without a mandatory new thread
 
@@ -25607,3 +25872,118 @@ byte-exactly; every prior build/history/hold and decision prefix is unchanged.
 The four-file dedicated commit projection includes only this policy's skill and
 matching protocol plus new state/decision entries, excluding the earlier
 incomplete Chapter17 work. No chapter build, agent or screenshot ran.
+
+## 2026-10-03 — Resume Chapter17 with owned translation and serial judgments
+
+The user explicitly requests completion. Reuse approved English r6 without
+reauthoring or repeating its passing judgments. The corrected localization skill
+permits this root authoring context to translate the complete Russian material;
+record its actual inherited identity/settings, never a fictitious fresh author.
+Two genuinely fresh independent locale reviewers still run serially. Missing
+review capacity holds publication, not bounded drafting and validation.
+
+Add one bounded completion allowance (limit4/spent3 at preflight) for translation,
+cached offline bilingual/build/sole-Firefox assertions, two judgments and coherent
+publication. No network, install, model substitution, paid service, acquisition,
+training, screenshot or other chapter work. Preserve every mathematical literal,
+Rust/Cargo/stdout/trace and diagram parser/geometry byte. Existing English receipts
+are reused only after actual new publication bytes match their frozen candidate.
+Old runs stay immutable; the new run owns only the existing eight outputs plus
+its audit/state/decision evidence. All unrelated builds and holds remain unchanged.
+
+Affected step: `rewrite-ch17-problem-first-content-20261002`; run04 preflight in
+`.build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/`.
+
+Run04 initial checks pass course-plan, contract, both lessons, parity, whole-site
+content/types and55 Chapter17 tests. The broader contract suite fails its exact
+course-plan hash pin: baseline plan f594b3a9 already differs from expected
+bb150c85. This is a pre-existing stale expectation, not a Chapter18 prose defect.
+Declare `site/tests/content-contract.test.ts` as one necessary shared integration
+output. Change only its single plan-hash literal to the actual revised plan hash;
+retain every Chapter18 and other structural assertion unchanged. Freeze the
+extra baseline separately rather than altering the prior eight-file inventory.
+Do not skip the failing test or repair any other chapter. Preserve failed log01.
+
+After that pin is current, log02 exposes a second stale datum in the same
+projection test: Chapter33 expects revision11 although its unchanged canonical
+contract, English and Russian are all revision12 and the plan records12. A
+read-only comparison of all eleven listed revision triples finds only this
+mismatch. Update that one expected revision to12 as a baseline-fixture correction;
+no Chapter33 bytes or behavior change. This supersedes the one-literal-only
+integration estimate, not the scope hold. Both exact identity/revision assertions
+remain enforced, as do all substantive checks; no test is skipped or weakened.
+
+Log03 reaches the full91-test pass, static build/links and166 sole-Firefox cases.
+The unfrozen Russian figure copy exceeds the unchanged full-view travel budget;
+compact its wording naturally before any review freeze, retaining all scope and
+assumptions. Shared cheat-sheet cases also retain Chapter17's old English dialog
+title. Declare their file as necessary integration output and change only that
+Chapter17 title datum to the approved sheet title. No behavior/layout assertions,
+threshold, geometry or unrelated title changes; preserve log03 and its build.
+
+The ninth bounded copy-fit trial passes all10 focused Firefox cases. Model-authored
+Russian wording retains the independent-weight/input conditions, target versus
+sampled variance distinction, equal-width restriction and nonlinear-decoder
+limitation. The paired comparison still names shared draws and doubled Xavier
+bound/weights. Only localized copy changed; no formula, geometry or threshold
+changed. Programmatic DOM measurements, not screenshots or image judgments,
+guided reflow. Earlier trial builds/logs remain failed or diagnostic evidence.
+Freeze only after the full unchanged suite succeeds; independent bilingual and
+source-blind Russian reviews still decide language acceptance.
+
+The fresh bilingual r1 reviewer rejects the candidate and exposes a packaging
+defect: cheat-sheet entries sort independently in each locale, so positional
+pairing binds unrelated concepts despite correct complete sheets. Bind each
+rendered term/definition by an explicit author-owned English/Russian concept
+correspondence, retaining both actual DOM origins and reading-order provenance;
+do not reorder the published sheets to make the old inventory pass. This changes
+only localization packaging, never approved English units or learner content.
+
+Correct the Russian closing operation to embedding-row lookup for an existing
+token ID, not token selection. Also replace the misleading mathematical term
+“единичная дробь” with an explicit binary64 value in the unit interval. Preserve
+all mathematical/code literals and geometry. Retain r1's exact failed raw record,
+candidate and routing. Its unstarted target-only role is not a judgment. New r2
+source/HTML and both fresh serial judgments are required; no self-certification
+or amendment of a prior semantic record.
+
+The r2 alignment helper passes seven scoped regressions, including independently
+sorted concepts, original DOM/order retention, complete one-to-one coverage and
+refusal of wrong definitions or changed nonsheet roles. Full bilingual validation
+passes again (91 unit/166 Firefox). English r6 bytes and all immutable math/Rust/
+diagram evidence remain exact. The necessary correction and fresh successor
+judgments stay within the current bounded completion allowance; no network,
+service, model substitution or other output authority is added.
+
+Russian r2 passes both fresh serial reviews over133 units: bilingual has no
+findings; source-blind target-only records one advisory on unit.016's comparison
+caption and no blocking finding. Preserve that advisory at its actual severity
+and the unchanged approved candidate. Its complete explanation and accessible
+code-block name identify the compared tensors; the reviewer explicitly regards
+the caption refinement as nonblocking. Do not edit after freeze or conceal the
+finding. A later wording refinement would require new locale judgments.
+
+Actual four-artifact routes, raw bytes, author/reviewer separation, inherited
+settings, inventory/bundles and staged publication bytes verify exactly under
+Russian binding9e8e886b and unchanged English binding253b1f58. These deterministic
+checks do not supply the language verdicts. Publish the coherent ten-path set
+only now, then repeat the complete canonical build/Firefox gates and exact
+candidate verification before completion. No human visual gate or screenshot
+approval is added.
+
+Completion: coherently published Chapter17 revision5 in both locales, both
+reference sheets and necessary contract/plan/test-copy integrations. Canonical
+production validation passes91/91 unit and166/166 sole-Firefox cases plus full
+content/types/build/links. Actual current source, localized contract projections
+and built HTML equal the reviewed candidates; English four-role receipts and
+both Russian routes/records reverify after publication. All baseline mathematical
+literals and13 protected fingerprints, including Rust and diagram geometry,
+remain unchanged. The target-only advisory remains recorded, not silently fixed.
+
+Promote56 narrowly scoped tool/provenance/attempt files byte-identically into the
+audit with a hash index; retain every failed/interrupted history and older handoff.
+The current completion report supersedes earlier blocked status without rewriting
+it. Budget4/4 is consumed. Complete YAML and current artifact checks preserve all
+unrelated builds, active planning pointer, future implementation and repair holds.
+Persist only this completed step's ten canonical paths, audit and ledger/decision
+updates in its dedicated Git commit; do not start another chapter.

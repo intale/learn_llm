@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "phase": "staged",
+  "locale": "ru",
+  "candidate": "audits/2026-10-02-ch17-problem-first/ru-r2",
+  "facts": [
+    {
+      "actual": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/chapters/ru/17-parameter-initialization.mdx",
+      "logical": "site/src/content/chapters/ru/17-parameter-initialization.mdx",
+      "frozen": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/lesson.ru.mdx",
+      "sha256": "6ebafa2e750f48982d70a0ebc27f45aa9c81c0785c667b701974dd0832b64bba",
+      "bytes": 66275
+    },
+    {
+      "actual": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/cheat-sheets/ru/17-parameter-initialization.json",
+      "logical": "site/src/content/cheat-sheets/ru/17-parameter-initialization.json",
+      "frozen": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/sheet.ru.json",
+      "sha256": "d112018b9e91b868241c5f5f5e39aebbcba61c780637e747d1b8ae251c4efcef",
+      "bytes": 3153
+    },
+    {
+      "actual": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/curriculum/chapters/17-parameter-initialization.md",
+      "projection": "Every Russian localized field; author notes excluded",
+      "logical": "audits/2026-10-02-ch17-problem-first/ru-r2/publication/contract.ru.json",
+      "sha256": "2ee4e7e165f3e6007ae4013468142229a88bce40e5b65044c7d2fc69ac00da14"
+    },
+    {
+      "actual": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/final-build/dist/ru/course/17-parameter-initialization/index.html",
+      "logical": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/final-build/dist/ru/course/17-parameter-initialization/index.html",
+      "frozen": "audits/2026-10-02-ch17-problem-first/ru-r2/frozen/lesson.ru.html",
+      "sha256": "d56385da17681044ac6d5ac9cb7f7ec565522ca687fcf71916a0ca312d053e37",
+      "bytes": 336710
+    }
+  ],
+  "limitations": "Hash-bound actual publication adapter only; no semantic record changed, no prior run artifact overwritten, no new language verdict."
+}

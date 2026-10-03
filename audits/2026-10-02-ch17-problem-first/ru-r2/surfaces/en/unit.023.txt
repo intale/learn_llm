@@ -1,0 +1,1 @@
+Inspect the invalid-name, zero-fan, and repeated-name calls alongside unchanged generator state rust/demos/ch17-parameter-initialization/src/lib.rs#initialization-errors-example

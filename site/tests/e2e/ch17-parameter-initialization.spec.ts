@@ -48,7 +48,7 @@ interface LocalizedCopy {
 }
 
 const chapterId = '17-parameter-initialization';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex =
   '\\operatorname{Var}(W_{ij})=\\frac{2}{\\operatorname{fan}_{in}+\\operatorname{fan}_{out}}';
 const repositoryRoot = resolve(process.cwd(), '..');
@@ -59,165 +59,155 @@ const historySources = [
 ] as const;
 
 const copy: Record<ChapterLocale, LocalizedCopy> = {
-  en: {
-    revisionLabel: 'Content revision',
-    title: 'Initialize trainable weights reproducibly',
-    description:
-      'Initialize model weight matrices reproducibly, compare zero, oversized, and Xavier scales, and track expected variance through stacked linear layers.',
-    headings: [
-      'Predict one seed, scale, and symmetry failure',
-      'Target a distribution, not one exact finite sample',
-      'Name the weight and both widths',
-      'From neural word features to width-aware decoder parameters',
-      'Generate and name parameters transactionally',
-      'Compare fixed-seed distributions and expected variance',
-      'Predict before running Rust',
-      'Give initialization meaning as a token table',
+  "en": {
+    "revisionLabel": "Content revision",
+    "title": "Start trainable weights at a reproducible scale",
+    "description": "Explain hidden-unit symmetry, choose a width-aware starting scale, and reproduce named trainable weights while separating sampled spread from expected linear variance.",
+    "headings": [
+      "A correct gradient still needs a useful starting point",
+      "Let both matrix widths determine the starting spread",
+      "Read the widths as counts of connections",
+      "From random word features to width-aware repeated projections",
+      "Inspect equal gradients and construction guarantees",
+      "Separate measured weights from expected linear variance",
+      "Optional practice: reproduce and inspect the explained results",
+      "Give the initialized matrix token-lookup meaning"
     ],
-    historyHeading: 'From neural word features to width-aware decoder parameters',
-    historyFragments: [
-      'does not specify a dimension-aware scale, exact distribution, seed, generator, stable names, or validation order',
-      'Those assumptions motivate the scale; they do not exactly describe a SiLU, RMSNorm, and residual decoder',
-      'the paper does not prescribe a parameter initializer',
-      'attention-score and embedding scaling are forward computations',
-      'zero optional biases, unit RMSNorm gains, and a shape-based token-table convention',
+    "historyHeading": "From random word features to width-aware repeated projections",
+    "historyFragments": [
+      "Random word features gave early neural language models trainable starting values, but randomness alone does not choose a scale for each matrix width. Bengio et al. do not specify a dimension-aware reproducible initialization rule; repeated transformations make that missing scale choice more consequential.",
+      "Glorot and Bengio connect starting weight variance to both forward and backward matrix widths under near-linear and independence assumptions. Transformers later combine learned embeddings with repeated attention and feed-forward projections, so many separately shaped trainable matrices need starting values.",
+      "Glorot and Bengio derive a compromise between fan-in and fan-out variance conditions under simplifying assumptions: target weight variance is 2 divided by the sum of the widths, implemented with a normalized zero-centered uniform distribution.",
+      "Vaswani et al. use learned embeddings and repeat query, key, value, attention-output, and two feed-forward projections in Transformer layers. Their paper does not prescribe a parameter initializer.",
+      "Our decoder uses reproducible Xavier-style uniform matrix samples, stable parameter names, zero optional biases, and RMSNorm gains of one. Its token table reuses the sampler by matrix shape. These are explicit construction policies: the Transformer paper does not prescribe them, and they do not guarantee exact variance preservation through SiLU, normalization, or residual paths."
     ],
-    diagramTitle: 'Compare zero weights with two paired scales',
-    diagramDescription:
-      'Compare measured finite-sample histograms for zero, oversized, and Xavier-style weights, then follow theoretical variance through four independent linear layers under the stated assumptions.',
-    diagramSections: [
-      'Compare fixed-seed weight distributions',
-      'Follow expected linear variance through depth',
-      'Check what the seed does and does not fix',
+    "diagramTitle": "Starting scale changes weight spread and linear variance",
+    "diagramDescription": "Finite-sample histograms show zero weights and uniform weights with the Xavier bound or twice it. Expected signal variance uses target weight variances for independent linear layers with equal input/output widths, mutually independent zero-mean weights of common variance independent of inputs, and initially independent zero-mean input features of unit variance.",
+    "diagramSections": [
+      "Measured weights at three starting scales",
+      "Expected linear variance",
+      "Replay and one alternate seed"
     ],
-    summaryLabels: [
-      'Shared seed',
-      'Matrix shape',
-      'Weight samples',
-      'Fan-in',
-      'Fan-out',
-      'Input variance',
-      'Generator and mapping',
-      'Statistic',
+    "summaryLabels": [
+      "Uniform seed",
+      "Matrix shape",
+      "Weights/matrix",
+      "Input width",
+      "Output width",
+      "Input variance",
+      "Generator and mapping",
+      "Measured spread"
     ],
-    diagramTerms: [
-      'Population variance from a two-pass calculation',
-      'Starting rule',
-      'Seed',
-      'Uniform limit',
-      'Observed minimum',
-      'Observed maximum',
-      'Observed mean',
-      'Observed population variance',
-      'Layer depth',
-      'Oversized/Xavier bound ratio',
-      'Controlled comparison',
+    "diagramTerms": [
+      "Population variance; two-pass",
+      "Weight rule",
+      "Seed",
+      "Uniform bound",
+      "Minimum weight",
+      "Maximum weight",
+      "Measured mean",
+      "Measured variance",
+      "Layers applied",
+      "Bound ratio to Xavier",
+      "Shared draws"
     ],
-    strategies: {
-      zero: 'All-zero weights',
-      oversized: 'Double-width uniform weights',
-      xavier: 'Xavier-style uniform weights',
+    "strategies": {
+      "zero": "Zero weights",
+      "oversized": "Uniform: twice the Xavier bound",
+      "xavier": "Xavier uniform weights"
     },
-    noSeed: 'No draws',
-    sameStream: 'The two uniform samples use the same base draws.',
-    sameSeedEqual: 'Same seed and request reproduce exactly',
-    alternateSeedDifferent: 'The selected alternate seed differs',
-    histogramTable: 'Measured finite-sample histograms for all three starting rules',
-    histogramRows: {
-      zero: 'Histogram row for all-zero weights',
-      oversized: 'Histogram row for weights with a doubled uniform bound',
-      xavier: 'Histogram row for Xavier-style uniform weights',
+    "noSeed": "No sampling",
+    "sameStream": "Shared draws make each doubled-bound weight twice its Xavier partner.",
+    "sameSeedEqual": "Same Xavier request, seed 17: same weights",
+    "alternateSeedDifferent": "Same Xavier request, seeds 17 and 18: weights differ",
+    "histogramTable": "Measured weight counts and percentages in shared intervals for three initialization rules",
+    "histogramRows": {
+      "zero": "Weight counts and percentages for the all-zero matrix",
+      "oversized": "Weight counts and percentages for uniform samples with twice the Xavier bound",
+      "xavier": "Weight counts and percentages for Xavier-scale uniform samples"
     },
-    representativeBinName:
-      'Range [-0.15,-0.05); count 962; share 23.486328125000%',
-    propagationTable: 'Theoretical expected variance by linear-layer depth',
+    "representativeBinName": "Weight interval [-0.15,-0.05); 962 weights; 23.486328125000% of the matrix",
+    "propagationTable": "Expected signal variance after independent linear layers with equal input and output widths for zero weights, weights with twice the Xavier bound, and Xavier-scale weights"
   },
-  ru: {
-    revisionLabel: 'Версия материала',
-    title: 'Воспроизводимо инициализируйте обучаемые веса',
-    description:
-      'Воспроизводимо инициализируйте матрицы весов с учётом ширины, сравните нулевую инициализацию, равномерную выборку с удвоенной границей и масштаб по схеме Ксавье, а затем проследите ожидаемую дисперсию по глубине.',
-    headings: [
-      'Предскажите масштаб при заданном начальном значении и проявление симметрии',
-      'Задайте целевое распределение, а не точную статистику одной выборки',
-      'Обозначьте вес и обе ширины',
-      'От признаков слов в нейросетевой модели к параметрам декодера с учётом ширины',
-      'Создавайте и именуйте параметры без частичного изменения состояния',
-      'Сопоставьте распределения при общем начальном значении и ожидаемую дисперсию',
-      'Предскажите результат до запуска Rust',
-      'Придайте инициализированной матрице смысл таблицы токенов',
+  "ru": {
+    "revisionLabel": "Версия материала",
+    "title": "Начальные веса: воспроизводимые значения и обоснованный масштаб",
+    "description": "Разберите симметрию скрытых нейронов, выберите начальный масштаб с учётом ширины матрицы и воспроизведите именованные обучаемые веса, различая измеренный разброс и ожидаемую дисперсию линейного сигнала.",
+    "headings": [
+      "Верному градиенту всё ещё нужны начальные веса",
+      "Обе ширины матрицы определяют начальный разброс",
+      "Ширины — это количества связей",
+      "От случайных признаков слов к масштабу повторяющихся проекций",
+      "Разберите равные градиенты и гарантии создания параметров",
+      "Измеренные веса и ожидаемая линейная дисперсия — разные свидетельства",
+      "Необязательная практика: воспроизведите и разберите объяснённые результаты",
+      "Придайте матрице смысл выбора строки по токену"
     ],
-    historyHeading:
-      'От признаков слов в нейросетевой модели к параметрам декодера с учётом ширины',
-    historyFragments: [
-      'не задаёт масштаб с учётом размерностей, точное распределение, начальное значение генератора',
-      'Эти допущения обосновывают выбор масштаба, но не описывают точно декодер',
-      'не предписывает инициализатор параметров',
-      'Масштабирование оценок внимания и эмбеддингов относится к прямому вычислению',
-      'необязательные смещения — нулями, коэффициенты RMSNorm — единицами',
+    "historyHeading": "От случайных признаков слов к масштабу повторяющихся проекций",
+    "historyFragments": [
+      "Случайные признаки слов давали ранним нейросетевым языковым моделям обучаемые начальные значения, но сама случайность не определяет масштаб для каждой ширины матрицы. Bengio и соавторы не задают воспроизводимого правила инициализации с учётом размерностей; повторение преобразований усиливает последствия этого неопределённого выбора масштаба.",
+      "Glorot и Bengio связывают дисперсию начальных весов с обеими ширинами — для прямого и обратного проходов — при допущениях о почти линейном режиме и независимости. Позже Transformer объединяет обучаемые эмбеддинги с повторяющимися проекциями внимания и сети прямого распространения, поэтому начальные значения нужны многим обучаемым матрицам разных форм.",
+      "Glorot и Bengio при упрощающих допущениях выводят компромисс между условиями по дисперсии для входной и выходной ширины: целевая дисперсия весов равна 2, делённой на сумму ширин. Его реализует нормированное равномерное распределение, симметричное относительно нуля.",
+      "Vaswani и соавторы используют обучаемые эмбеддинги и повторяют в слоях Transformer проекции запросов, ключей, значений, выхода внимания и две проекции сети прямого распространения. Работа не предписывает инициализатор параметров.",
+      "В нашем декодере матрицы получают воспроизводимые равномерные выборки по схеме Ксавье и стабильные имена, необязательные смещения — нули, а коэффициенты RMSNorm — единицы. Таблица токенов использует тот же генератор выборки с учётом формы матрицы. Это явно принятые правила создания параметров: работа о Transformer их не предписывает, и они не гарантируют точного сохранения дисперсии при SiLU, нормализации или остаточных связях."
     ],
-    diagramTitle: 'Сопоставьте нулевые веса с двумя связанными масштабами',
-    diagramDescription:
-      'Сравните конечные выборки нулевой инициализации, равномерной инициализации с удвоенной границей и схемы Ксавье; затем проследите теоретическую дисперсию через четыре независимых линейных слоя.',
-    diagramSections: [
-      'Сопоставьте распределения весов',
-      'Проследите ожидаемую дисперсию по глубине',
-      'Проверьте границы воспроизводимости',
+    "diagramTitle": "Начальный масштаб весов и линейная дисперсия",
+    "diagramDescription": "Гистограммы конечных выборок: нули и равномерные веса с границей Ксавье или двойной. Ожидаемая дисперсия сигнала — по целевым дисперсиям весов независимых линейных слоёв равной ширины входа/выхода. Веса независимы между собой и от входов; исходные входы независимы. Средние нулевые; дисперсия весов общая, входов единичная.",
+    "diagramSections": [
+      "Измеренные веса при трёх масштабах",
+      "Ожидаемая линейная дисперсия",
+      "Повтор и смена начального значения"
     ],
-    summaryLabels: [
-      'Общее начальное значение',
-      'Форма матрицы',
-      'Число весов',
-      'Входная ширина',
-      'Выходная ширина',
-      'Дисперсия входа',
-      'Генератор и отображение',
-      'Статистика',
+    "summaryLabels": [
+      "Нач. значение",
+      "Матрица",
+      "Весов/матр.",
+      "Входов",
+      "Выходов",
+      "Дисп. входа",
+      "Генератор и отображение",
+      "Дисперсия"
     ],
-    diagramTerms: [
-      'Дисперсия совокупности, рассчитанная в два прохода',
-      'Правило',
-      'Начальное значение',
-      'Граница распределения',
-      'Минимум выборки',
-      'Максимум выборки',
-      'Среднее выборки',
-      'Дисперсия совокупности',
-      'Глубина',
-      'Отношение границ',
-      'Сравнение на общей выборке',
+    "diagramTerms": [
+      "Все веса; два прохода",
+      "Правило весов",
+      "Нач. значение",
+      "Граница выборки",
+      "Минимум весов",
+      "Максимум весов",
+      "Среднее",
+      "Дисперсия",
+      "Слоёв",
+      "Отношение границ",
+      "Общие числа"
     ],
-    strategies: {
-      zero: 'Нулевые веса',
-      oversized: 'Равномерные веса с удвоенной границей',
-      xavier: 'Равномерные веса по схеме Ксавье',
+    "strategies": {
+      "zero": "Нулевые веса",
+      "oversized": "Граница Ксавье удвоена; равномерно",
+      "xavier": "Равномерные веса Ксавье"
     },
-    noSeed: 'Без выборки',
-    sameStream: 'Общие исходные значения.',
-    sameSeedEqual: 'Тот же запрос при том же начальном значении даёт точное совпадение',
-    alternateSeedDifferent: 'Другое выбранное начальное значение даёт иной результат',
-    histogramTable:
-      'Измеренные гистограммы конечных выборок для трёх правил начальных значений',
-    histogramRows: {
-      zero: 'Строка гистограммы для нулевых весов',
-      oversized:
-        'Строка гистограммы для весов с удвоенной границей равномерного распределения',
-      xavier:
-        'Строка гистограммы для равномерно инициализированных по схеме Ксавье весов',
+    "noSeed": "Без выборки",
+    "sameStream": "Общие числа; граница и каждый вес Ксавье удвоены.",
+    "sameSeedEqual": "Ксавье: запрос тот же, веса те же",
+    "alternateSeedDifferent": "Тот же запрос Ксавье: разные веса для 17 и 18",
+    "histogramTable": "Измеренные количества и проценты весов в общих интервалах для трёх правил инициализации",
+    "histogramRows": {
+      "zero": "Количества и проценты весов нулевой матрицы",
+      "oversized": "Количества и проценты равномерных весов с двойной границей Ксавье",
+      "xavier": "Количества и проценты равномерных весов с масштабом Ксавье"
     },
-    representativeBinName:
-      'Интервал [-0.15,-0.05); количество 962; доля 23.486328125000%',
-    propagationTable: 'Теоретическая ожидаемая дисперсия по глубине линейных слоёв',
-  },
+    "representativeBinName": "Интервал весов [-0.15,-0.05); весов: 962; доля матрицы: 23.486328125000%",
+    "propagationTable": "Ожидаемая дисперсия сигнала после независимых линейных слоёв равной входной и выходной ширины: нулевые веса, веса с двойной границей Ксавье и веса с масштабом Ксавье"
+  }
 };
 
 const expectedRustRegions = [
-  ['rust/demos/ch17-parameter-initialization/src/lib.rs', 'zero-symmetry-probe'],
-  ['rust/crates/llm-from-scratch/src/nn/init.rs', 'parameter-init-errors'],
+  ['rust/demos/ch17-parameter-initialization/src/lib.rs', 'fixed-seed-parameter'],
   ['rust/crates/llm-from-scratch/src/nn/init.rs', 'deterministic-prng'],
   ['rust/crates/llm-from-scratch/src/nn/init.rs', 'xavier-initialization'],
   ['rust/crates/llm-from-scratch/src/nn/init.rs', 'named-parameters'],
-  ['rust/demos/ch17-parameter-initialization/src/lib.rs', 'fixed-seed-parameter'],
+  ['rust/demos/ch17-parameter-initialization/src/lib.rs', 'zero-symmetry-probe'],
+  ['rust/crates/llm-from-scratch/src/nn/init.rs', 'parameter-init-errors'],
   [
     'rust/demos/ch17-parameter-initialization/src/lib.rs',
     'named-parameter-enumeration',

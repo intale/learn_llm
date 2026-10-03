@@ -1,0 +1,1 @@
+In the zero-weight SiLU graph, input x=[1,-1], equal output weights [1,1], and scalar backward seed one give both input-weight gradient columns [0.5,-0.5]^\top. SiLU is evaluated at zero, where its derivative is 1/2. The equal output weights give both units the same upstream factor; multiplying by the two input coordinates supplies the opposite signs.

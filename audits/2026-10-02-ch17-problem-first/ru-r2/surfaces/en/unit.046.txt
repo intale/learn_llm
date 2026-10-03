@@ -1,0 +1,1 @@
+Explain how the near-linear and independence assumptions limit the variance argument, distinguishing a target weight-distribution variance from a guarantee that every decoder signal retains its variance.

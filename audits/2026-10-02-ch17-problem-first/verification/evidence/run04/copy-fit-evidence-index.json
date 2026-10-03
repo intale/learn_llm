@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-01.log",
+      "bytes": 10608,
+      "sha256": "798843518de67bf2afd1c8da9149dc965150e3abd93163e46130a4d14583649c"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-02.log",
+      "bytes": 11710,
+      "sha256": "306a793038f982aa580b9670f577c6f9cd514bdc981eb83cdac22247e06ec553"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-03.log",
+      "bytes": 12448,
+      "sha256": "ac16ce81909f560660fa86a124153231ffd4008b8f1be4c9c639c6e6ef3de28d"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-04.log",
+      "bytes": 13531,
+      "sha256": "fc6ad51d667b8c6ded768ffd99ccb952b5b56bea502af1e4c080818cb8af8846"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/diagnose-validation-01.log",
+      "bytes": 13745,
+      "sha256": "ed8432198ad2129cc7056b2475dc384dad911eab6eca3d74912cf6c972e76091"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-01.log",
+      "bytes": 713,
+      "sha256": "6933528c97f75c39e17bdd7640b74f91ac4a4637e0e74bfd80c66fadf01f66bd"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-02.log",
+      "bytes": 11253,
+      "sha256": "89e09ab0a5976115938d7ec5146ac1e678fe2d6e088208d8110f9ae22254825f"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-03.log",
+      "bytes": 11259,
+      "sha256": "b3a1490c9f47287c0d987cdd9ed71b50d1fb50c51ab490593f725b6369ab69af"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-04.log",
+      "bytes": 11279,
+      "sha256": "88f2bc2cd5ef2614f0a5fdf447cd1674d95b198ee9f8c6c629f295d220cb9cea"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-05.log",
+      "bytes": 11280,
+      "sha256": "e63480a00a766b901357e526fe3e5ab15441594b71fe9770375c6a87aebd69d6"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-06.log",
+      "bytes": 11250,
+      "sha256": "3af0ee2385a7a13709d864a7edd273c633699850e10f0182ff55d1db141798e4"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-07.log",
+      "bytes": 11250,
+      "sha256": "685468fde307c92239db68493f02dc618e233c48fd2ad534953ae57e08e21f77"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-08.log",
+      "bytes": 11280,
+      "sha256": "76f33312ad09e9cc5e560008a0c17b477a6761f6ac20c5410d85d916f18fee25"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-09.log",
+      "bytes": 9325,
+      "sha256": "b64e61e77be81fa3d4a86a9c2116162a80d605156b378239047d21689ee94bdf"
+    }
+  ],
+  "acceptance": {
+    "command": "browser-validation.sh fit 09",
+    "status": "passed",
+    "firefoxTests": 10
+  },
+  "limits": "Earlier trials preserved as failed or diagnostic evidence. Only model-authored wording changed. No screenshot, geometry or assertion changes; full validation and independent locale review remain required."
+}

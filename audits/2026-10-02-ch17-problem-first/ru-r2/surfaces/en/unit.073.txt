@@ -1,0 +1,1 @@
+Uniform: twice the Xavier bound Seed 17 Uniform bound 0.4330 Minimum weight -0.4330 Maximum weight 0.4326 Measured mean -0.0067 Measured variance 0.0632

@@ -1,0 +1,1 @@
+Записать связанные совокупности весов и отдельные последовательности ожидаемой линейной дисперсии rust/demos/ch17-parameter-initialization/src/diagram_trace.rs#parameter-initialization-trace

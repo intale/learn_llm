@@ -1,0 +1,1 @@
+Воспроизводить каждое значение binary64 на единичном интервале через явное состояние и старшие 53 бита rust/crates/llm-from-scratch/src/nn/init.rs#deterministic-prng

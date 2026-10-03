@@ -1,0 +1,1 @@
+Вывести масштаб, веса, симметрию, имена, сравнения узлов и результат проверки неизменного состояния rust/demos/ch17-parameter-initialization/src/main.rs#learner-parameter-initialization-output

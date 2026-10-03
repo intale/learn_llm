@@ -1,0 +1,441 @@
+Updated reviewed copy expectations; all following assertions preserved.
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+14:57:37 [content] Syncing content
+14:57:37 [content] Synced content
+14:57:37 [types] Generated 430ms
+14:57:37 [build] output: "static"
+14:57:37 [build] mode: "static"
+14:57:37 [build] directory: /tmp/ch17-work/site/dist/
+14:57:37 [build] Collecting build info...
+14:57:37 [build] ✓ Completed in 439ms.
+14:57:37 [build] Building static entrypoints...
+14:57:44 [vite] ✓ built in 6.65s
+14:57:44 [vite] ✓ built in 10ms
+14:57:44 [build] Rearranging server assets...
+
+ generating static routes 
+14:57:44   ├─ /sitemap.xml (+9ms) 
+14:57:44   ├─ /en/course/index.html (+8ms) 
+14:57:44   ├─ /ru/course/index.html (+5ms) 
+14:57:44   ├─ /en/course/00-llm-parts/index.html (+11ms) 
+14:57:44   ├─ /ru/course/00-llm-parts/index.html (+8ms) 
+14:57:44   ├─ /en/course/01-text-units/index.html (+26ms) 
+14:57:44   ├─ /ru/course/01-text-units/index.html (+13ms) 
+14:57:44   ├─ /en/course/02-corpus-partitions/index.html (+28ms) 
+14:57:44   ├─ /ru/course/02-corpus-partitions/index.html (+23ms) 
+14:57:44   ├─ /en/course/03-learn-bpe-merges/index.html (+18ms) 
+14:57:44   ├─ /ru/course/03-learn-bpe-merges/index.html (+20ms) 
+14:57:44   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+25ms) 
+14:57:44   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+24ms) 
+14:57:44   ├─ /en/course/05-autoregressive-examples/index.html (+28ms) 
+14:57:44   ├─ /ru/course/05-autoregressive-examples/index.html (+25ms) 
+14:57:44   ├─ /en/course/06-bigram-baseline/index.html (+29ms) 
+14:57:44   ├─ /ru/course/06-bigram-baseline/index.html (+27ms) 
+14:57:44   ├─ /en/course/07-language-model-metrics/index.html (+25ms) 
+14:57:44   ├─ /ru/course/07-language-model-metrics/index.html (+27ms) 
+14:57:44   ├─ /en/course/08-tensor-storage/index.html (+24ms) 
+14:57:44   ├─ /ru/course/08-tensor-storage/index.html (+22ms) 
+14:57:44   ├─ /en/course/09-tensor-views/index.html (+30ms) 
+14:57:45   ├─ /ru/course/09-tensor-views/index.html (+25ms) 
+14:57:45   ├─ /en/course/10-broadcasting-reductions/index.html (+26ms) 
+14:57:45   ├─ /ru/course/10-broadcasting-reductions/index.html (+24ms) 
+14:57:45   ├─ /en/course/11-matrix-multiplication/index.html (+29ms) 
+14:57:45   ├─ /ru/course/11-matrix-multiplication/index.html (+28ms) 
+14:57:45   ├─ /en/course/12-stable-softmax/index.html (+40ms) 
+14:57:45   ├─ /ru/course/12-stable-softmax/index.html (+34ms) 
+14:57:45   ├─ /en/course/13-gradient-checking/index.html (+58ms) 
+14:57:45   ├─ /ru/course/13-gradient-checking/index.html (+54ms) 
+14:57:45   ├─ /en/course/14-scalar-autodiff/index.html (+33ms) 
+14:57:45   ├─ /ru/course/14-scalar-autodiff/index.html (+31ms) 
+14:57:45   ├─ /en/course/15-tensor-autodiff-core/index.html (+69ms) 
+14:57:45   ├─ /ru/course/15-tensor-autodiff-core/index.html (+70ms) 
+14:57:45   ├─ /en/course/16-model-autodiff-ops/index.html (+51ms) 
+14:57:45   ├─ /ru/course/16-model-autodiff-ops/index.html (+48ms) 
+14:57:45   ├─ /en/course/17-parameter-initialization/index.html (+33ms) 
+14:57:45   ├─ /ru/course/17-parameter-initialization/index.html (+29ms) 
+14:57:45   ├─ /en/course/18-token-embeddings/index.html (+36ms) 
+14:57:45   ├─ /ru/course/18-token-embeddings/index.html (+35ms) 
+14:57:45   ├─ /en/course/19-linear-layers/index.html (+38ms) 
+14:57:45   ├─ /ru/course/19-linear-layers/index.html (+36ms) 
+14:57:45   ├─ /en/course/20-swiglu-feed-forward/index.html (+51ms) 
+14:57:45   ├─ /ru/course/20-swiglu-feed-forward/index.html (+51ms) 
+14:57:45   ├─ /en/course/21-mini-batches/index.html (+49ms) 
+14:57:46   ├─ /ru/course/21-mini-batches/index.html (+49ms) 
+14:57:46   ├─ /en/course/22-adamw/index.html (+79ms) 
+14:57:46   ├─ /ru/course/22-adamw/index.html (+85ms) 
+14:57:46   ├─ /en/course/23-neural-ngram/index.html (+51ms) 
+14:57:46   ├─ /ru/course/23-neural-ngram/index.html (+55ms) 
+14:57:46   ├─ /en/course/24-residual-connections/index.html (+61ms) 
+14:57:46   ├─ /ru/course/24-residual-connections/index.html (+26ms) 
+14:57:46   ├─ /en/course/25-rmsnorm/index.html (+33ms) 
+14:57:46   ├─ /ru/course/25-rmsnorm/index.html (+32ms) 
+14:57:46   ├─ /en/course/26-qkv-projections/index.html (+40ms) 
+14:57:46   ├─ /ru/course/26-qkv-projections/index.html (+41ms) 
+14:57:46   ├─ /en/course/27-self-attention/index.html (+48ms) 
+14:57:46   ├─ /ru/course/27-self-attention/index.html (+43ms) 
+14:57:46   ├─ /en/course/28-causal-masking/index.html (+34ms) 
+14:57:46   ├─ /ru/course/28-causal-masking/index.html (+36ms) 
+14:57:46   ├─ /en/course/29-rope/index.html (+40ms) 
+14:57:46   ├─ /ru/course/29-rope/index.html (+39ms) 
+14:57:46   ├─ /en/course/30-multi-head-attention/index.html (+83ms) 
+14:57:46   ├─ /ru/course/30-multi-head-attention/index.html (+83ms) 
+14:57:46   ├─ /en/course/31-decoder-block/index.html (+43ms) 
+14:57:47   ├─ /ru/course/31-decoder-block/index.html (+40ms) 
+14:57:47   ├─ /en/course/32-decoder-model/index.html (+69ms) 
+14:57:47   ├─ /ru/course/32-decoder-model/index.html (+67ms) 
+14:57:47   ├─ /en/course/33-training-selection/index.html (+67ms) 
+14:57:47   ├─ /ru/course/33-training-selection/index.html (+61ms) 
+14:57:47   ├─ /en/course/34-final-evaluation/index.html (+41ms) 
+14:57:47   ├─ /ru/course/34-final-evaluation/index.html (+37ms) 
+14:57:47   ├─ /en/course/35-checkpoints/index.html (+40ms) 
+14:57:47   ├─ /ru/course/35-checkpoints/index.html (+42ms) 
+14:57:47   ├─ /en/course/36-temperature-top-k/index.html (+59ms) 
+14:57:47   ├─ /ru/course/36-temperature-top-k/index.html (+61ms) 
+14:57:47   ├─ /en/course/37-incremental-attention/index.html (+67ms) 
+14:57:47   ├─ /ru/course/37-incremental-attention/index.html (+63ms) 
+14:57:47   ├─ /en/course/38-cached-generation/index.html (+84ms) 
+14:57:47   ├─ /ru/course/38-cached-generation/index.html (+85ms) 
+14:57:47   ├─ /en/course/39-end-to-end-llm/index.html (+31ms) 
+14:57:47   ├─ /ru/course/39-end-to-end-llm/index.html (+28ms) 
+14:57:47   ├─ /en/index.html (+1ms) 
+14:57:47   ├─ /ru/index.html (+0ms) 
+14:57:47   ├─ /index.html (+1ms) 
+14:57:47 ✓ Completed in 3.44s.
+
+14:57:47 [build] ✓ Completed in 10.19s.
+14:57:47 [build] 85 page(s) built in 10.62s
+14:57:47 [build] Complete!
+
+> learn-llm-site@0.1.0 test:links
+> node ../scripts/check-static-links.mjs
+
+Static link check passed: 85 HTML file(s), 2939 local reference(s), 85 SEO route(s), 85 sitemap URL(s), 85 analytics route(s), 169 total artifact(s).
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox --workers=2 --grep @chapter:17-parameter-initialization
+
+
+Running 6 tests using 2 workers
+
+[1/6] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:732:5 › chapter 17 localized parameter-initialization vertical slice › the complete en Rust-backed lesson renders at desktop and narrow widths @chapter:17-parameter-initialization
+[2/6] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:672:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 is seventeenth on both indexes with direct equivalent locale routes @chapter:17-parameter-initialization
+[3/6] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:732:5 › chapter 17 localized parameter-initialization vertical slice › the complete ru Rust-backed lesson renders at desktop and narrow widths @chapter:17-parameter-initialization
+[4/6] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:749:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 full view fits both locales without substantial travel @chapter:17-parameter-initialization
+  1) [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:732:5 › chapter 17 localized parameter-initialization vertical slice › the complete ru Rust-backed lesson renders at desktop and narrow widths @chapter:17-parameter-initialization 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 123
+    + Received  + 123
+
+    @@ -1,15 +1,122 @@
+      Array [
+    -   "    let scale = xavier_scale(2, 2)?;
+    -     let mut rng = SplitMix64::from_seed(FIXTURE_SEED);
+    -     let projection = projection_parameter(&mut rng)?;
+    -     let weights = projection.tensor().value_snapshot();
+    +   "pub fn zero_symmetry_probe() -> Result<SymmetryProbe, Box<dyn Error>> {
+    +     let input = TensorValue::constant(tensor(&[1, 2], &[1.0, -1.0])?)?;
+    +     let input_weights = TensorValue::parameter(tensor(&[2, 2], &[0.0; 4])?)?;
+    +     let output_weights = TensorValue::constant(tensor(&[2, 1], &[1.0, 1.0])?)?;
+    +
+    +     let hidden = input.matmul(&input_weights)?.silu()?;
+    +     let output = hidden.matmul(&output_weights)?;
+    +     let seed = tensor(&[1, 1], &[1.0])?;
+    +     output.backward_with_seed(&seed.view(), GraphRetention::Retain)?;
+    +
+    +     let output_value = output.value().as_slice()[0];
+    +     let gradient = input_weights
+    +         .gradient_snapshot()
+    +         .expect(\"the input weights are a trainable leaf\");
+    +     let columns_equal = gradient.as_slice()[0] == gradient.as_slice()[1]
+    +         && gradient.as_slice()[2] == gradient.as_slice()[3];
+    +     Ok(SymmetryProbe {
+    +         output: output_value,
+    +         gradient,
+    +         columns_equal,
+    +     })
+    + }",
+    +   "/// A deterministic rejection while constructing or collecting a parameter.
+    + #[derive(Clone, Debug, PartialEq)]
+    + pub enum InitializationError {
+    +     EmptyName,
+    +     EmptyNameSegment {
+    +         index: usize,
+    +     },
+    +     InvalidNameCharacter {
+    +         index: usize,
+    +         byte: u8,
+    +     },
+    +     ZeroFanIn,
+    +     ZeroFanOut,
+    +     FanSumOverflow {
+    +         fan_in: usize,
+    +         fan_out: usize,
+    +     },
+    +     ShapeProductOverflow {
+    +         fan_in: usize,
+    +         fan_out: usize,
+    +     },
+    +     AllocationFailed {
+    +         elements: usize,
+    +     },
+    +     DuplicateName {
+    +         name: String,
+    +         first: usize,
+    +         repeated: usize,
+    +     },
+    +     Tensor(TensorError),
+    +     Autodiff(TensorAutodiffError),
+    + }
+    +
+    + impl fmt::Display for InitializationError {
+    +     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    +         match self {
+    +             Self::EmptyName => formatter.write_str(\"parameter name must not be empty\"),
+    +             Self::EmptyNameSegment { index } => write!(
+    +                 formatter,
+    +                 \"parameter name has an empty dot-separated segment at byte {index}\"
+    +             ),
+    +             Self::InvalidNameCharacter { index, byte } => write!(
+    +                 formatter,
+    +                 \"parameter name byte {index} must be lowercase ASCII, a digit, underscore, or dot; got 0x{byte:02x}\"
+    +             ),
+    +             Self::ZeroFanIn => formatter.write_str(\"fan-in must be greater than zero\"),
+    +             Self::ZeroFanOut => formatter.write_str(\"fan-out must be greater than zero\"),
+    +             Self::FanSumOverflow { fan_in, fan_out } => write!(
+    +                 formatter,
+    +                 \"fan-in {fan_in} plus fan-out {fan_out} does not fit usize\"
+    +             ),
+    +             Self::ShapeProductOverflow { fan_in, fan_out } => write!(
+    +                 formatter,
+    +                 \"matrix shape [{fan_in},{fan_out}] does not fit usize\"
+    +             ),
+    +             Self::AllocationFailed { elements } => write!(
+    +                 formatter,
+    +                 \"could not reserve storage for {elements} initialized values\"
+    +             ),
+    +             Self::DuplicateName {
+    +                 name,
+    +                 first,
+    +                 repeated,
+    +             } => write!(
+    +                 formatter,
+    +                 \"parameter name {name:?} first appears at index {first} and repeats at index {repeated}\"
+    +             ),
+    +             Self::Tensor(error) => error.fmt(formatter),
+    +             Self::Autodiff(error) => error.fmt(formatter),
+    +         }
+    +     }
+    + }
+
+    -     let mut matching_rng = SplitMix64::from_seed(FIXTURE_SEED);
+    -     let matching = projection_parameter(&mut matching_rng)?;
+    -     let mut alternate_rng = SplitMix64::from_seed(ALTERNATE_SEED);
+    -     let alternate = projection_parameter(&mut alternate_rng)?;",
+    + impl Error for InitializationError {
+    +     fn source(&self) -> Option<&(dyn Error + 'static)> {
+    +         match self {
+    +             Self::Tensor(error) => Some(error),
+    +             Self::Autodiff(error) => Some(error),
+    +             _ => None,
+    +         }
+    +     }
+    + }
+    +
+    + impl From<TensorError> for InitializationError {
+    +     fn from(error: TensorError) -> Self {
+    +         Self::Tensor(error)
+    +     }
+    + }
+    +
+    + impl From<TensorAutodiffError> for InitializationError {
+    +     fn from(error: TensorAutodiffError) -> Self {
+    +         Self::Autodiff(error)
+    +     }
+    + }",
+        "/// A small deterministic generator with an explicit resumable 64-bit state.
+      ///
+      /// This generator is suitable for reproducible teaching fixtures. It is not a
+      /// cryptographically secure random-number generator.
+      #[derive(Clone, Debug, PartialEq, Eq)]
+    @@ -246,127 +353,20 @@
+          pub fn get(&self, name: &str) -> Option<&NamedParameter> {
+              self.parameters
+                  .iter()
+                  .find(|parameter| parameter.name() == name)
+          }
+    - }",
+    -   "pub fn zero_symmetry_probe() -> Result<SymmetryProbe, Box<dyn Error>> {
+    -     let input = TensorValue::constant(tensor(&[1, 2], &[1.0, -1.0])?)?;
+    -     let input_weights = TensorValue::parameter(tensor(&[2, 2], &[0.0; 4])?)?;
+    -     let output_weights = TensorValue::constant(tensor(&[2, 1], &[1.0, 1.0])?)?;
+    -
+    -     let hidden = input.matmul(&input_weights)?.silu()?;
+    -     let output = hidden.matmul(&output_weights)?;
+    -     let seed = tensor(&[1, 1], &[1.0])?;
+    -     output.backward_with_seed(&seed.view(), GraphRetention::Retain)?;
+    -
+    -     let output_value = output.value().as_slice()[0];
+    -     let gradient = input_weights
+    -         .gradient_snapshot()
+    -         .expect(\"the input weights are a trainable leaf\");
+    -     let columns_equal = gradient.as_slice()[0] == gradient.as_slice()[1]
+    -         && gradient.as_slice()[2] == gradient.as_slice()[3];
+    -     Ok(SymmetryProbe {
+    -         output: output_value,
+    -         gradient,
+    -         columns_equal,
+    -     })
+      }",
+    -   "/// A deterministic rejection while constructing or collecting a parameter.
+    - #[derive(Clone, Debug, PartialEq)]
+    - pub enum InitializationError {
+    -     EmptyName,
+    -     EmptyNameSegment {
+    -         index: usize,
+    -     },
+    -     InvalidNameCharacter {
+    -         index: usize,
+    -         byte: u8,
+    -     },
+    -     ZeroFanIn,
+    -     ZeroFanOut,
+    -     FanSumOverflow {
+    -         fan_in: usize,
+    -         fan_out: usize,
+    -     },
+    -     ShapeProductOverflow {
+    -         fan_in: usize,
+    -         fan_out: usize,
+    -     },
+    -     AllocationFailed {
+    -         elements: usize,
+    -     },
+    -     DuplicateName {
+    -         name: String,
+    -         first: usize,
+    -         repeated: usize,
+    -     },
+    -     Tensor(TensorError),
+    -     Autodiff(TensorAutodiffError),
+    - }
+    +   "    let scale = xavier_scale(2, 2)?;
+    +     let mut rng = SplitMix64::from_seed(FIXTURE_SEED);
+    +     let projection = projection_parameter(&mut rng)?;
+    +     let weights = projection.tensor().value_snapshot();
+
+    - impl fmt::Display for InitializationError {
+    -     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    -         match self {
+    -             Self::EmptyName => formatter.write_str(\"parameter name must not be empty\"),
+    -             Self::EmptyNameSegment { index } => write!(
+    -                 formatter,
+    -                 \"parameter name has an empty dot-separated segment at byte {index}\"
+    -             ),
+    -             Self::InvalidNameCharacter { index, byte } => write!(
+    -                 formatter,
+    -                 \"parameter name byte {index} must be lowercase ASCII, a digit, underscore, or dot; got 0x{byte:02x}\"
+    -             ),
+    -             Self::ZeroFanIn => formatter.write_str(\"fan-in must be greater than zero\"),
+    -             Self::ZeroFanOut => formatter.write_str(\"fan-out must be greater than zero\"),
+    -             Self::FanSumOverflow { fan_in, fan_out } => write!(
+    -                 formatter,
+    -                 \"fan-in {fan_in} plus fan-out {fan_out} does not fit usize\"
+    -             ),
+    -             Self::ShapeProductOverflow { fan_in, fan_out } => write!(
+    -                 formatter,
+    -                 \"matrix shape [{fan_in},{fan_out}] does not fit usize\"
+    -             ),
+    -             Self::AllocationFailed { elements } => write!(
+    -                 formatter,
+    -                 \"could not reserve storage for {elements} initialized values\"
+    -             ),
+    -             Self::DuplicateName {
+    -                 name,
+    -                 first,
+    -                 repeated,
+    -             } => write!(
+    -                 formatter,
+    -                 \"parameter name {name:?} first appears at index {first} and repeats at index {repeated}\"
+    -             ),
+    -             Self::Tensor(error) => error.fmt(formatter),
+    -             Self::Autodiff(error) => error.fmt(formatter),
+    -         }
+    -     }
+    - }
+    -
+    - impl Error for InitializationError {
+    -     fn source(&self) -> Option<&(dyn Error + 'static)> {
+    -         match self {
+    -             Self::Tensor(error) => Some(error),
+    -             Self::Autodiff(error) => Some(error),
+    -             _ => None,
+    -         }
+    -     }
+    - }
+    -
+    - impl From<TensorError> for InitializationError {
+    -     fn from(error: TensorError) -> Self {
+    -         Self::Tensor(error)
+    -     }
+    - }
+    -
+    - impl From<TensorAutodiffError> for InitializationError {
+    -     fn from(error: TensorAutodiffError) -> Self {
+    -         Self::Autodiff(error)
+    -     }
+    - }",
+    +     let mut matching_rng = SplitMix64::from_seed(FIXTURE_SEED);
+    +     let matching = projection_parameter(&mut matching_rng)?;
+    +     let mut alternate_rng = SplitMix64::from_seed(ALTERNATE_SEED);
+    +     let alternate = projection_parameter(&mut alternate_rng)?;",
+        "    let token_table = NamedParameter::xavier_uniform(\"token_embedding.weight\", 4, 2, &mut rng)?;
+          let parameters = NamedParameters::try_new(vec![projection.clone(), token_table])?;
+
+          let projection_clone = projection.clone();
+          let clone_same_node = projection.tensor().is_same_node(projection_clone.tensor());
+
+      327 |       .locator('code')
+      328 |       .evaluateAll((blocks) => blocks.map((block) => block.textContent)),
+    > 329 |   ).toEqual(expectedRustSources);
+          |     ^
+      330 |   expect(
+      331 |     await rustSources.evaluateAll((sources) =>
+      332 |       sources.map((source) => source.getAttribute('data-source-region')),
+        at expectChapterContent (/tmp/ch17-work/site/tests/e2e/ch17-parameter-initialization.spec.ts:329:5)
+        at /tmp/ch17-work/site/tests/e2e/ch17-parameter-initialization.spec.ts:740:9
+
+    Error Context: test-results/ch17-parameter-initializat-d05bf-t-desktop-and-narrow-widths-firefox/error-context.md
+
+
+[5/6] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:858:3 › chapter 17 localized parameter-initialization vertical slice › zero, oversized, and Xavier states survive forced colors in both locales @chapter:17-parameter-initialization
+  2) [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:749:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 full view fits both locales without substantial travel @chapter:17-parameter-initialization 
+
+    Error: en/parameter-initialization full-view block debt: {"parts":[{"name":"course-diagram__caption","height":252},{"name":"diagram-full-view-actions","height":52},{"name":"summary-grid","height":92},{"name":"distribution-section","height":724},{"name":"propagation-section","height":518},{"name":"reproducibility-section","height":321}],"distributionParts":[{"name":"","height":21},{"name":"bin-note","height":99},{"name":"distribution-grid course-diagram__grid","height":252},{"name":"pairing-note course-diagram__card-stack","height":129},{"name":"histogram-scroll course-diagram__scroll","height":279}],"histogramRows":[{"text":"Initialization rule   [−","height":64},{"text":"0    0 0.0%       0 0.0%","height":69},{"text":"2×    409 10.0%       49","height":69},{"text":"X    0 0.0%       0 0.0%","height":69}],"rowGap":"1.6px"}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 192
+    Received:    462
+
+      833 |             rowGap: geometry.rowGap,
+      834 |           }),
+    > 835 |       ).toBeLessThanOrEqual(geometry.blockBudget);
+          |         ^
+      836 |       expect(
+      837 |         geometry.inlineDebt,
+      838 |         geometryLabel + ' full-view inline debt',
+        at /tmp/ch17-work/site/tests/e2e/ch17-parameter-initialization.spec.ts:835:9
+
+    Error Context: test-results/ch17-parameter-initializat-e45b5--without-substantial-travel-firefox/error-context.md
+
+
+[6/6] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:892:3 › chapter 17 localized parameter-initialization vertical slice › localized diagram prose follows direction while technical evidence remains left-to-right @chapter:17-parameter-initialization
+  2 failed
+    [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:732:5 › chapter 17 localized parameter-initialization vertical slice › the complete ru Rust-backed lesson renders at desktop and narrow widths @chapter:17-parameter-initialization 
+    [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:749:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 full view fits both locales without substantial travel @chapter:17-parameter-initialization 
+  4 passed (9.6s)

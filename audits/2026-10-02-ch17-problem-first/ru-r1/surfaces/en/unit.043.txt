@@ -1,0 +1,1 @@
+Inspect the query-projection/token-table collection; identify its declaration order and distinguish a clone from an equal reconstruction.

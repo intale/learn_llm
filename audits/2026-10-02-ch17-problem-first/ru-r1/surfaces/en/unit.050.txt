@@ -1,0 +1,1 @@
+The same implementation, starting generator state, shape, fan values, and construction order reproduce all tensor bits. The twelve-decimal display rounds those values and is not the strongest equality check.

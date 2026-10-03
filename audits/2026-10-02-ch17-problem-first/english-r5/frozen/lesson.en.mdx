@@ -1,0 +1,633 @@
+---
+{
+  "chapter_id": "17-parameter-initialization",
+  "locale": "en",
+  "content_revision": 5,
+  "order": 17,
+  "concept_id": "parameter-initialization",
+  "title": "Start trainable weights at a reproducible scale",
+  "description": "Explain hidden-unit symmetry, choose a width-aware starting scale, and reproduce named trainable weights while separating sampled spread from expected linear variance.",
+  "objective": "Initialize named trainable matrices reproducibly at width-aware scales, distinguish hidden-unit symmetry from signal-scale drift, and explain the starting policies for biases, normalization gains, and token tables.",
+  "worked_inputs": "Explain why bias-free hidden units receiving the same input through the same activation stay identical when their weight columns, downstream treatment, and updates match. Work through the seed-17 [2,2] projection with fan-in 2 and fan-out 2: target variance 1/2, standard deviation 1/sqrt(2), uniform bound sqrt(3/2), and the four sampled weights. Explain its unequal columns, exact replay of the same request, and the selected seed-18 tensor difference with the matrix request unchanged. Then inspect the zero 2-to-2 SiLU path whose equal output weights produce equal input-weight gradient columns.",
+  "formula": {
+    "latex": "\\operatorname{Var}(W_{ij})=\\frac{2}{\\operatorname{fan}_{in}+\\operatorname{fan}_{out}}",
+    "symbols": [
+      {
+        "symbol": "W",
+        "meaning": "the matrix of connection weights being initialized before training"
+      },
+      {
+        "symbol": "i",
+        "meaning": "the input coordinate selected by the weight's row"
+      },
+      {
+        "symbol": "j",
+        "meaning": "the output coordinate selected by the weight's column"
+      },
+      {
+        "symbol": "W_{ij}",
+        "meaning": "the sampled coefficient that carries input coordinate i into output coordinate j"
+      },
+      {
+        "symbol": "\\operatorname{Var}(W_{ij})",
+        "meaning": "the initialization distribution's target spread in squared weight units, not a finite matrix's measured variance"
+      },
+      {
+        "symbol": "\\operatorname{fan}_{in}",
+        "meaning": "the count of input coordinates whose weighted contributions are summed into each output"
+      },
+      {
+        "symbol": "\\operatorname{fan}_{out}",
+        "meaning": "the count of output coordinates to which each input contributes"
+      },
+      {
+        "symbol": "2",
+        "meaning": "the numerator that balances the forward fan-in and backward fan-out variance conditions"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": "Random word features gave early neural language models trainable starting values, but randomness alone does not choose a scale for each matrix width. Bengio et al. do not specify a dimension-aware reproducible initialization rule; repeated transformations make that missing scale choice more consequential.",
+      "later_advance": "Glorot and Bengio connect starting weight variance to both forward and backward matrix widths under near-linear and independence assumptions. Transformers later combine learned embeddings with repeated attention and feed-forward projections, so many separately shaped trainable matrices need starting values.",
+      "modern_llm_role": "Our decoder uses reproducible Xavier-style uniform matrix samples, stable parameter names, zero optional biases, and RMSNorm gains of one. Its token table reuses the sampler by matrix shape. These are explicit construction policies: the Transformer paper does not prescribe them, and they do not guarantee exact variance preservation through SiLU, normalization, or residual paths.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. jointly train a word-feature matrix and neural matrices for next-word prediction. They report initializing the word features randomly, as for neural-network weights."
+        },
+        {
+          "role": "later",
+          "year": 2010,
+          "name": "Glorot and Bengio, Understanding the difficulty of training deep feedforward neural networks",
+          "source_url": "https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf",
+          "claim": "Glorot and Bengio derive a compromise between fan-in and fan-out variance conditions under simplifying assumptions: target weight variance is 2 divided by the sum of the widths, implemented with a normalized zero-centered uniform distribution."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. use learned embeddings and repeat query, key, value, attention-output, and two feed-forward projections in Transformer layers. Their paper does not prescribe a parameter initializer."
+        }
+      ]
+    },
+    "approach": "Random neural word features, variance-aware deep networks, and repeated Transformer projections",
+    "summary": "Random initialization supplied learned word features with starting values; width-aware variance analysis addressed how matrix scale compounds through depth. Repeated Transformer projections make those choices relevant to many language-model parameters. The Rust contrast demonstrates equal gradients in one zero-weight SiLU path and replay of selected sampled matrices, without attributing the generator, naming, validation, or decoder-wide policy to the papers.",
+    "rust_source": "rust/demos/ch17-parameter-initialization/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "zero-symmetry-probe",
+      "purpose": "Differentiate equally treated zero-weight hidden units and expose their identical nonzero gradient columns."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "parameter-init-errors",
+      "purpose": "Identify the returned failures that reject an invalid parameter or an ambiguous collection."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "deterministic-prng",
+      "purpose": "Make the raw seed, wrapping state transition, and high-53-bit binary64 draw reproducible."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "xavier-initialization",
+      "purpose": "Connect matrix width to target variance, standard deviation, bound, and row-major sampling."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "named-parameters",
+      "purpose": "Create a named trainable leaf without consuming caller draws on a returned error; preserve collection order."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "fixed-seed-parameter",
+      "purpose": "Reproduce the explained seed-17 projection and inspect the selected seed-18 comparison."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "named-parameter-enumeration",
+      "purpose": "Keep query and token-table declaration order while separating names from shared tape-leaf identity."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "initialization-errors-example",
+      "purpose": "Observe invalid-name and zero-fan rejection, duplicate indices, and unchanged caller state."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/main.rs",
+      "region": "learner-parameter-initialization-output",
+      "purpose": "Print the exact starting-scale, sampled-weight, symmetry, identity, and rejected-request evidence."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/diagram_trace.rs",
+      "region": "parameter-initialization-trace",
+      "purpose": "Record paired finite weight populations separately from expected independent-linear variance."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "parameter-initialization",
+    "rationale": "Paired histograms isolate the effect of doubling the Xavier uniform bound without changing the base draws. A separate expected-variance table for independent linear layers with equal input and output widths shows how that scale compounds through depth, while keeping measured finite populations distinct from an assumption-bound model."
+  },
+  "decoder_connection": "Initialization now supplies named trainable matrices with reproducible values and a declared starting scale. Chapter 18 turns a vocabulary-by-feature matrix into an embedding table: token IDs select rows, repeated occurrences of an ID reuse its row, and their gradients scatter-add. Passing vocabulary size and feature width to this sampler is our table-construction convention, not a variance derivation for row lookup."
+}
+---
+
+import ParameterInitializationDiagram from '../../../components/chapters/ParameterInitializationDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Starting scale changes weight spread and linear variance',
+  description:
+    'Histograms measure finite-matrix spread for zero, doubled-bound uniform, and Xavier uniform weights. Expected signal variance uses target weight variances for independent linear layers with equal input/output widths, mutually independent zero-mean weights of common variance independent of inputs, and initially independent zero-mean input features of unit variance.',
+  summary: {
+    seed: 'Uniform seed',
+    width: 'Matrix shape',
+    samples: 'Weights/matrix',
+    fanIn: 'Input width',
+    fanOut: 'Output width',
+    inputVariance: 'Input variance',
+    generator: 'Generator and mapping',
+    statistic: 'Measured spread',
+    assumption: 'Population variance; two-pass',
+  },
+  sections: {
+    distributions: 'Measured weights at three starting scales',
+    propagation: 'Expected linear variance',
+    reproducibility: 'Replay and one alternate seed',
+  },
+  fields: {
+    range: 'Weight interval',
+    count: 'Weights in interval',
+    share: 'Fraction of all weights',
+    strategy: 'Weight rule',
+    seed: 'Seed',
+    limit: 'Uniform bound',
+    minimum: 'Minimum weight',
+    maximum: 'Maximum weight',
+    mean: 'Measured mean',
+    variance: 'Measured variance',
+    layer: 'Layers applied',
+    limitRatio: 'Bound ratio to Xavier',
+  },
+  strategies: {
+    zero: 'Zero weights',
+    oversized: 'Uniform: twice the Xavier bound',
+    xavier: 'Xavier uniform weights',
+  },
+  states: {
+    noSeed: 'No sampling',
+    sameStream: 'Shared draws make each doubled-bound weight twice its Xavier partner.',
+    sameSeedEqual: 'Same Xavier request, seed 17: same weights',
+    alternateSeedDifferent: 'Same Xavier request, seeds 17 and 18: weights differ',
+  },
+  symbols: {
+    zero: '0',
+    oversized: '2×',
+    xavier: 'X',
+    same: '=',
+    different: '≠',
+  },
+  binClosure:
+    'Shared equal-width bins include their left endpoint; only the last includes its right endpoint.',
+  propagationAssumption:
+    'Expected, not measured, signal variance uses target weight variances. Initially independent zero-mean inputs: common unit variance. Independent linear layers: equal input/output widths; independent zero-mean weights, common variance, independent of inputs. No nonlinear residual-decoder guarantee.',
+  pairing: 'Shared draws',
+  accessibility: {
+    histogramTable: 'Measured weight counts and percentages in shared intervals for three initialization rules',
+    histograms: {
+      zero: 'Weight counts and percentages for the all-zero matrix',
+      oversized: 'Weight counts and percentages for uniform samples with twice the Xavier bound',
+      xavier: 'Weight counts and percentages for Xavier-scale uniform samples',
+    },
+    binTemplate: 'Weight interval {range}; {count} weights; {share} of the matrix',
+    propagationTable: 'Expected signal variance after independent linear layers with equal input and output widths for zero weights, weights with twice the Xavier bound, and Xavier-scale weights',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## A correct gradient still needs a useful starting point
+
+Chapter 16 can differentiate a matrix transformation, but the backward pass
+cannot choose its initial weights. In a bias-free layer, two hidden units
+receiving the same input through the same activation compute the same feature
+when their incoming weight columns match. If the downstream calculation treats
+them equally, both receive the same gradient column. Applying equal updates
+then keeps the units identical: training has not given them separate features.
+
+Weight scale is a second problem. Each matrix output adds contributions from
+several inputs, so changing the number of contributions can change the spread
+of the resulting signal. Repeating matrix transformations can compound that
+scale change. We need starting weights that distinguish the selected hidden
+units, account for matrix width, and can be reproduced while comparing changes
+to the model.
+
+### Work through one sampled projection
+
+Use a projection of shape `[2,2]`: its two rows correspond to input coordinates
+and its two columns to output coordinates. Start the generator at seed `17`.
+With fan-in $2$ and fan-out $2$, the Xavier-style rule targets variance $1/2$.
+Its standard deviation is $1/\sqrt{2}$, and its zero-centered uniform bound is
+$\sqrt{3/2}$. The four weights appear in row-major order, rounded to twelve
+decimal places:
+
+~~~text
+ 0.004950883736  -0.265932089217
+-0.420504358848  -0.676313443233
+~~~
+
+The two columns are unequal in this sampled matrix, so they do not begin with
+the identical-column condition described above. That fact is a starting-point
+comparison, not evidence that the model has already learned useful features.
+
+Restarting the same construction from seed `17` reproduces the stored tensor
+bit for bit. The same selected request from seed `18` produces a different
+tensor. Exact replay needs the same generator state, shape, fan values, and
+construction order, not just a remembered seed after other parameters have
+already consumed draws. The seed-`18` result is one observed comparison, not a
+promise that every pair of seeds yields different tensors.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="fixed-seed-parameter"
+  caption="Construct the explained seed-17 projection, replay it, and compare the seed-18 request"
+  label="Rust source for the sampled projection and its two seed comparisons"
+/>
+
+{/* chapter-section:formula */}
+
+## Let both matrix widths determine the starting spread
+
+For the stored matrix $W$, weight $W_{ij}$ connects input coordinate $i$ to
+output coordinate $j$. Fan-in counts the weighted inputs summed into each
+output; fan-out counts the outputs receiving each input.
+
+We estimate scale in a simplified setting: independent zero-centered dense
+weights with a common variance, independent zero-centered input features with
+a common variance,
+weight/input independence, and a symmetric activation near a unit-slope linear
+regime. The analogous backward estimate uses zero-centered arriving gradients
+with a common variance, independent of the weights.
+
+Under these assumptions, the forward signal's variance is multiplied by fan-in
+and weight variance. The backward gradient's variance instead involves fan-out
+and weight variance. Keeping either multiplier at one asks for the reciprocal
+of its width; unequal widths ask for different scales.
+
+Glorot/Xavier initialization uses this compromise:
+
+$$
+\operatorname{Var}(W_{ij})=\frac{2}{\operatorname{fan}_{in}+\operatorname{fan}_{out}}
+$$
+
+The left side describes the target variance of the weight distribution, in
+squared weight units. It does not require the four displayed weights to have
+exactly that measured variance. The numerator balances the forward and backward
+requests; when both widths match, the same scale meets both idealized conditions.
+
+To obtain weights of both signs at that spread, sample a zero-centered uniform
+distribution over $[-a,a)$. Its variance is $a^2/3$, so matching the target gives
+$a=\sqrt{6/(\operatorname{fan}_{in}+\operatorname{fan}_{out})}$.
+The standard deviation is the square root of the target variance. Standard
+deviation and bound are both in weight units, but the bound marks the interval
+endpoint rather than the typical spread around the mean.
+
+SiLU does not exactly meet the
+activation assumption. Normalization, residual paths, data, and optimization
+also matter in the eventual decoder; the formula is not a decoder-wide
+variance-preservation theorem.
+
+### Turn the distribution into repeatable Rust samples
+
+A bound alone does not choose individual weights. `SplitMix64` supplies the
+repeatable draws. Its seed is the raw `u64` state before the first increment,
+so seed zero is valid. Wrapping integer operations advance and mix that state.
+Dividing the integer in the high 53 mixed bits by the number of possible
+53-bit values gives a binary64 fraction in $[0,1)$. A fixed state gives the same
+continuation. This is deterministic pseudorandom sampling, not
+cryptographic randomness or ideal continuous sampling.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="deterministic-prng"
+  caption="Use explicit state and a high-53-bit mapping to reproduce each binary64 unit draw"
+  label="Rust source for the SplitMix64 state transition and unit-draw mapping"
+/>
+
+`xavier_scale` first rejects zero widths and an overflowing integer fan sum.
+It then stores the formula's variance in `target_variance`, its square root in
+`standard_deviation`, and the sampling bound in `uniform_limit`. The sampler
+doubles a unit draw, subtracts one to center it, and multiplies by
+`uniform_limit`. One draw supplies each weight in row-major order, so the
+matrix shape fixes how many draws construction consumes.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="xavier-initialization"
+  caption="Choose the width-aware scale before mapping one draw to each row-major weight"
+  label="Rust source connecting fan widths, Xavier scale fields, and sampled weights"
+/>
+
+The scale calculations and weights use `f64`. Integer checks happen before
+conversion, but a sufficiently large valid `usize` count can round when cast
+to `f64`. Division, square roots, and multiplication also use represented
+arithmetic. The generator's finite grid and the stored values therefore differ
+from an ideal continuous distribution; printing twelve decimals rounds the
+stored value again. Bit-for-bit replay is an implementation result, not a claim
+that a finite matrix's variance must equal the mathematical target. These small
+examples do not exercise floating-point underflow or overflow; the checked
+overflow errors concern integer dimensions.
+
+{/* chapter-section:symbol-glossary */}
+
+## Read the widths as counts of connections
+
+The formula uses input rows and output columns, matching the projection's stored
+shape. These local meanings distinguish the two widths:
+
+| Symbol | Meaning in this initialization rule |
+| :--- | :--- |
+| $W$ | The matrix of connection weights being initialized before training. |
+| $i$ | The input coordinate selected by a weight's row. |
+| $j$ | The output coordinate selected by a weight's column. |
+| $W_{ij}$ | The sampled coefficient carrying input coordinate $i$ into output coordinate $j$. |
+| $\operatorname{Var}(W_{ij})$ | The distribution's target spread in squared weight units, not a finite matrix's measured variance. |
+| $\operatorname{fan}_{in}$ | The count of input coordinates whose weighted contributions are summed into each output. |
+| $\operatorname{fan}_{out}$ | The count of output coordinates to which each input contributes. |
+| $2$ | The numerator balancing forward fan-in and backward fan-out variance conditions. |
+
+For fan-in $2$ and fan-out $2$, standard deviation is $0.707106781187$ and
+uniform bound is $1.224744871392$. Increase fan-in to $4$ while keeping fan-out
+$2$: the target variance becomes $1/3$, standard deviation $0.577350269190$,
+and bound $1.000000000000$. More input contributions require a smaller starting
+spread under the compromise. Width must therefore be known before sampling.
+
+### Keep parameter construction replayable
+
+A sampled matrix must become a trainable `TensorValue` leaf so later backward
+passes can accumulate its gradients. `NamedParameter` also gives that leaf a
+stable external name, such as `decoder.block.0.attention.query.weight`.
+The name identifies the parameter's role across reconstruction; it is not the
+runtime node itself. Cloning a parameter shares its tape leaf, while constructing
+a new leaf with equal values does not.
+
+Names need a fixed grammar and collections need duplicate rejection so name
+lookup cannot silently select an ambiguous parameter. Declaration order stays
+deliberate: on one shared generator stream, each successful construction
+consumes the draws that precede the next parameter. Inserting an earlier matrix
+changes the later samples.
+
+A rejected request must not shift that stream. Name and width checks reject
+invalid requests before drawing, and checked dimension arithmetic prevents a
+wrapped storage count. Sampling uses a cloned trial generator; the caller's
+state is committed only after tensor and trainable-leaf construction succeed.
+Every returned sampler error therefore leaves the caller's state unchanged.
+Correcting a failed request can reuse its intended starting state.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="named-parameters"
+  caption="Create the named trainable leaf before committing draws, and keep collection order unambiguous"
+  label="Rust source for transactional named parameters and duplicate-checked enumeration"
+/>
+
+The parameter kinds need not share one starting value. Our later decoder uses
+Xavier-style uniform matrix weights, optional zero biases, and RMSNorm gains
+of one. Zero biases add no initial offset, and unit gains apply no additional
+feature scaling after normalization. The token table reuses the sampler with
+vocabulary size and feature width as its shape inputs; that convention does not
+follow from a variance calculation for selecting a row.
+
+{/* chapter-section:history */}
+
+## From random word features to width-aware repeated projections
+
+The earlier language-model example is
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
+Bengio et al. jointly train a word-feature matrix and neural matrices for next-word prediction. They report initializing the word features randomly, as for neural-network weights.
+
+Random word features gave early neural language models trainable starting values, but randomness alone does not choose a scale for each matrix width. Bengio et al. do not specify a dimension-aware reproducible initialization rule; repeated transformations make that missing scale choice more consequential.
+
+Glorot and Bengio connect starting weight variance to both forward and backward matrix widths under near-linear and independence assumptions. Transformers later combine learned embeddings with repeated attention and feed-forward projections, so many separately shaped trainable matrices need starting values.
+
+The variance-aware analysis is
+[Glorot and Bengio, *Understanding the difficulty of training deep feedforward neural networks*](https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf).
+Glorot and Bengio derive a compromise between fan-in and fan-out variance conditions under simplifying assumptions: target weight variance is 2 divided by the sum of the widths, implemented with a normalized zero-centered uniform distribution.
+
+The later architecture is
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf).
+Vaswani et al. use learned embeddings and repeat query, key, value, attention-output, and two feed-forward projections in Transformer layers. Their paper does not prescribe a parameter initializer.
+
+Our decoder uses reproducible Xavier-style uniform matrix samples, stable parameter names, zero optional biases, and RMSNorm gains of one. Its token table reuses the sampler by matrix shape. These are explicit construction policies: the Transformer paper does not prescribe them, and they do not guarantee exact variance preservation through SiLU, normalization, or residual paths.
+
+The Transformer's attention-score and embedding scaling act during forward
+computation; they are not instructions for choosing initial weights. Likewise,
+the papers do not define our raw-seed mapping, name grammar, construction order,
+or error policy. The Rust contrast below isolates an initialization failure
+condition without claiming to reproduce the historical models.
+
+{/* chapter-section:rust-implementation */}
+
+## Inspect equal gradients and construction guarantees
+
+The sampled projection avoids identical columns in the selected request.
+The zero-weight contrast shows why that distinction matters. Set
+$x=[1,-1]$, use a zero `[2,2]` input matrix, apply SiLU, and combine the two
+hidden values with equal output weights `[1,1]`. Both hidden values and the
+scalar output are zero.
+
+The reverse pass is seeded with one at that scalar output. Equal output weights
+give both hidden units the same upstream factor. SiLU's derivative at zero is
+$1/2$, and each input weight multiplies that factor by its input coordinate.
+Both gradient columns are therefore $[0.5,-0.5]^\top$, stored row-major as
+`[0.5,0.5,-0.5,-0.5]`. The backward pass produces a nonzero gradient, yet
+equal updates keep the two columns equal.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="zero-symmetry-probe"
+  caption="Trace the zero-weight SiLU path from equal output treatment to equal nonzero gradient columns"
+  label="Rust source for the conditional hidden-unit symmetry demonstration"
+/>
+
+The condition is equal treatment, not simply the presence of a zero.
+Different downstream treatment would remove this particular equality argument.
+Zero optional biases and unit normalization gains are separate choices; they do
+not make unequal sampled feature columns identical.
+
+### Reject an invalid request without changing later draws
+
+Valid names contain nonempty dot-separated segments of lowercase ASCII letters,
+digits, and underscores. The constructor checks the name first, then zero
+fan-in, zero fan-out, fan-sum overflow, shape-product overflow, storage
+reservation, tensor construction, and trainable-leaf construction. This order
+makes the first returned error stable when several inputs are invalid.
+The guarantee concerns returned errors; it does not promise recovery from
+every possible process allocation abort.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="parameter-init-errors"
+  caption="Distinguish invalid requests, storage failures, invalid leaves, and duplicate collection names"
+  label="Rust source for the typed parameter-construction and collection errors"
+/>
+
+`NamedParameter::from_tensor` offers the same named trainable-leaf boundary
+for manually supplied finite values, checking the name before the leaf.
+`NamedParameters::try_new` scans declaration order and reports the earliest
+repeated name together with its first index; it does not sort or silently merge
+parameters.
+
+The example constructs the query projection first and then the `[4,2]` token
+table on the continuing generator stream. A clone of the projection shares the
+original leaf. The independently replayed equal projection has the same values
+but a different runtime leaf.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="named-parameter-enumeration"
+  caption="Enumerate the query projection before the token table and distinguish leaf sharing from equal values"
+  label="Rust source for declaration order and parameter-node identity comparisons"
+/>
+
+`Decoder.weight` is rejected because its uppercase byte violates the name
+grammar. The valid name `decoder.invalid.weight` with zero fan-in instead
+returns `ZeroFanIn`. Collecting two projection clones repeats their name;
+duplicate rejection is a collection operation and consumes no draws. The
+example confirms that the rejected sampler calls leave the continuing
+generator state unchanged.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="initialization-errors-example"
+  caption="Inspect the invalid-name, zero-fan, and repeated-name calls alongside unchanged generator state"
+  label="Rust source for the selected rejection and generator-state evidence"
+/>
+
+Run the complete example from the repository root:
+
+~~~sh
+./course run cargo run --quiet --locked -p ch17-parameter-initialization
+~~~
+
+Its output reports the same scale and four sampled weights explained above,
+then the zero-symmetry result, names, leaf identities, and rejected-request
+evidence. The decimal weight display is rounded; the replay comparison uses
+stored tensor values.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/main.rs"
+  region="learner-parameter-initialization-output"
+  caption="Print the scale, weights, symmetry, names, leaf comparisons, and unchanged-state result"
+  label="Rust source for the complete parameter-initialization example output"
+/>
+
+{/* chapter-section:visualization */}
+
+## Separate measured weights from expected linear variance
+
+Four weights make replay and unequal columns easy to inspect, but they do not
+show a distribution's spread clearly. The figure uses three `[64,64]`
+matrices with $4096$ weights each. The zero matrix uses no draws. The oversized
+matrix doubles every seed-`17` Xavier weight, so the two uniform matrices
+have the same base draws and differ only in scale. Their different histograms
+therefore isolate the effect of the doubled bound.
+
+All three populations use common equal-width bins. Each cell reports a count
+and its percentage of the complete matrix. The measured mean and population
+variance come from those finite weights: the calculation finds the mean first,
+then divides the sum of squared deviations by the weight count. A sampled mean
+need not be exactly zero, and the measured variance need not equal the target.
+
+The depth table uses a different kind of evidence. It starts with independent
+zero-centered input features of common unit variance before any layer and follows
+expected signal variance through four independent linear layers using the target
+weight variances. Each layer has equal input and output widths and assumes
+independent zero-centered weights with a common variance, independent of its
+inputs. Doubling the Xavier bound gives four
+times the weight variance, so each such layer multiplies expected signal
+variance by four. Zero collapses the signal variance; equal-width Xavier keeps
+the expected variance at one. These entries are not measurements from a forward
+pass through the sampled matrices or guarantees for the nonlinear residual
+decoder.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/diagram_trace.rs"
+  region="parameter-initialization-trace"
+  caption="Record the paired weight populations and the separate expected-linear variance sequences"
+  label="Rust source for the measured distributions and theoretical propagation comparison"
+/>
+
+<ParameterInitializationDiagram labels={diagramLabels} />
+
+Read the histogram as measured spread in one finite population and the depth
+table as an assumption-bound scale argument. Pairing the draws makes the scale
+comparison controlled; keeping the two kinds of variance separate prevents the
+picture from implying a decoder-wide theorem.
+
+{/* chapter-section:exercises */}
+
+## Optional practice: reproduce and inspect the explained results
+
+These tasks revisit results already explained in the lesson. They are optional;
+the worked solution and its limits do not depend on completing them.
+
+1. Reproduce the target variance, standard deviation, and uniform bound for fan-in $2$ and fan-out $2$.
+2. Recalculate the target variance, standard deviation, and uniform bound for fan-in $4$ and fan-out $2$, and explain the reduced starting scale.
+3. Inspect the zero-weight SiLU graph and derive the two input-weight gradient columns from the equal output weights and input signs.
+4. Reproduce the same seed, shape, fan values, and construction order; compare the stored tensor values rather than only printed decimals.
+5. Inspect the selected seed-`18` tensor comparison with seed `17` for shape `[2,2]`, fan-in $2$, and fan-out $2$; explain why the observed stored-weight difference does not establish uniqueness for every possible seed.
+6. Explain why one finite `[2,2]` tensor need not have measured variance exactly $1/2$.
+7. Inspect the query-projection/token-table collection; identify its declaration order and distinguish a clone from an equal reconstruction.
+8. Inspect the invalid-name, zero-fan, and duplicate calls; explain why caller state is unchanged and identify the duplicate indices.
+9. Check the Transformer paper's initializer boundary and distinguish it from attention-score or embedding forward scaling.
+10. Explain how the near-linear and independence assumptions limit the variance argument, distinguishing a target weight-distribution variance from a guarantee that every decoder signal retains its variance.
+
+<details>
+  <summary>Checked answers for the initialization practice</summary>
+
+  1. For fan-in $2$ and fan-out $2$, target variance is $0.5$, standard deviation is $0.707106781187$, and uniform bound is $1.224744871392$. Standard deviation measures distribution spread; the bound marks its endpoint.
+  2. For fan-in $4$ and fan-out $2$, target variance is $1/3$, standard deviation is $0.577350269190$, and uniform bound is $1.000000000000$. Increasing the number of summed inputs reduces the requested weight spread under the compromise.
+  3. In the zero-weight SiLU graph, input $x=[1,-1]$, equal output weights `[1,1]`, and scalar backward seed one give both input-weight gradient columns $[0.5,-0.5]^\top$. SiLU is evaluated at zero, where its derivative is $1/2$. The equal output weights give both units the same upstream factor; multiplying by the two input coordinates supplies the opposite signs.
+  4. The same implementation, starting generator state, shape, fan values, and construction order reproduce all tensor bits. The twelve-decimal display rounds those values and is not the strongest equality check.
+  5. With shape `[2,2]`, fan-in $2$, fan-out $2$, and construction order unchanged, the selected seed-`18` tensor values differ from those from seed `17`. This one comparison does not prove that all possible seed/request pairs produce unique tensors.
+  6. The target weight variance is a property of the sampling distribution. A finite matrix can have a nonzero measured mean and a different measured variance without violating the rule.
+  7. `decoder.block.0.attention.query.weight` appears first, then `token_embedding.weight`. A clone shares the original tape leaf; an independently reconstructed equal tensor has another leaf.
+  8. The invalid name is rejected before widths or draws; zero fan-in is rejected before sampling. The caller receives trial state only on success. In the two-clone collection, the first occurrence is index `0` and the repeated occurrence index `1`.
+  9. Vaswani et al. do not prescribe a parameter initializer. Attention-score and embedding scaling are operations in the forward model, not initial-value selection.
+  10. The forward/backward scale argument assumes independent zero-centered weights, independent zero-centered input features, and zero-centered arriving gradients, each group with its own common variance. Weights must be independent of the inputs and arriving gradients, and the activation is assumed symmetric and near-linear with unit slope. The target belongs to the sampling distribution; finite samples need not match it exactly. Nonlinearities, normalization, residual paths, depth, data, and optimization affect actual decoder signals, so no exact decoder-signal variance is guaranteed.
+</details>
+
+The important misconception is equating a chosen starting distribution with one
+matrix's exact measured variance, or with a promise that activations can never
+vanish or grow. The sampler provides an explicit reproducible baseline; those
+stronger claims need separate evidence.
+
+{/* chapter-section:decoder-connection */}
+
+## Give the initialized matrix token-lookup meaning
+
+Initialization now supplies named trainable matrices with reproducible values
+and a declared starting scale. Chapter 18 turns a vocabulary-by-feature matrix
+into an embedding table: token IDs select rows, repeated occurrences of an ID
+reuse its row, and their gradients scatter-add. Passing vocabulary size and
+feature width to this sampler is our table-construction convention, not a
+variance derivation for row lookup.
+
+One table is reused across batch items and sequence positions. That shared
+parameter identity is separate from the row selected by an individual token ID:
+different IDs select different rows, while repeated IDs share a row.
+
+Keep construction order deliberate when several parameters share the
+initialization stream. Chapter 21 gives data shuffling a separately owned stream,
+Chapter 22 introduces optimizer state, and Chapter 35 persists parameter values
+and training provenance. The capability added here is reproducible construction
+of trainable leaves; token lookup and parameter updates are later operations.

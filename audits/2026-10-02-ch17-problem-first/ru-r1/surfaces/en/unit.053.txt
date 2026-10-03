@@ -1,0 +1,1 @@
+decoder.block.0.attention.query.weight appears first, then token_embedding.weight. A clone shares the original tape leaf; an independently reconstructed equal tensor has another leaf.

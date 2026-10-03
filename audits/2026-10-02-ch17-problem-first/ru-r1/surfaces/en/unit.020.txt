@@ -1,0 +1,1 @@
+Trace the zero-weight SiLU path from equal output treatment to equal nonzero gradient columns rust/demos/ch17-parameter-initialization/src/lib.rs#zero-symmetry-probe

@@ -1,0 +1,343 @@
+Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm.
+
+> learn-llm-site@0.1.0 check:contract
+> node ../scripts/check-chapter-contract.mjs ../curriculum/chapters/17-parameter-initialization.md
+
+Chapter contract check passed: 1 integrated file(s).
+
+> learn-llm-site@0.1.0 check:chapter
+> node ../scripts/check-site-content.mjs chapter --locale en --chapter 17-parameter-initialization
+
+Content check passed: 1 localized source(s), 0 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check:chapter
+> node ../scripts/check-site-content.mjs chapter --locale ru --chapter 17-parameter-initialization
+
+Content check passed: 1 localized source(s), 0 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check:parity
+> node ../scripts/check-site-content.mjs parity --chapter 17-parameter-initialization
+
+Content check passed: 2 localized source(s), 1 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check:content
+> node ../scripts/check-site-content.mjs
+
+Content check passed: 80 localized source(s), 40 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro check
+
+07:44:49 [content] Syncing content
+07:44:49 [content] Synced content
+07:44:49 [types] Generated 954ms
+07:44:49 [check] Getting diagnostics for Astro files in /tmp/ch17-work/site...
+Result (220 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+
+> learn-llm-site@0.1.0 test
+> vitest --run tests/17-parameter-initialization-diagram.test.ts tests/content-contract.test.ts
+
+
+ RUN  v3.2.7 /tmp/ch17-work/site
+
+ ✓ tests/17-parameter-initialization-diagram.test.ts (55 tests) 26ms
+ ✓ tests/content-contract.test.ts (36 tests) 941ms
+   ✓ curriculum and catalog contracts > rejects plan-body, ledger, and implemented-prefix drift  467ms
+
+ Test Files  2 passed (2)
+      Tests  91 passed (91)
+   Start at  07:45:08
+   Duration  1.68s (transform 319ms, setup 0ms, collect 557ms, tests 967ms, environment 0ms, prepare 230ms)
+
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+07:45:11 [content] Syncing content
+07:45:11 [content] Synced content
+07:45:11 [types] Generated 714ms
+07:45:11 [build] output: "static"
+07:45:11 [build] mode: "static"
+07:45:11 [build] directory: /tmp/ch17-work/site/dist/
+07:45:11 [build] Collecting build info...
+07:45:11 [build] ✓ Completed in 731ms.
+07:45:11 [build] Building static entrypoints...
+07:45:26 [vite] ✓ built in 14.19s
+07:45:26 [vite] ✓ built in 21ms
+07:45:26 [build] Rearranging server assets...
+
+ generating static routes 
+07:45:26   ├─ /sitemap.xml (+21ms) 
+07:45:26   ├─ /en/course/index.html (+18ms) 
+07:45:26   ├─ /ru/course/index.html (+12ms) 
+07:45:26   ├─ /en/course/00-llm-parts/index.html (+26ms) 
+07:45:26   ├─ /ru/course/00-llm-parts/index.html (+17ms) 
+07:45:26   ├─ /en/course/01-text-units/index.html (+50ms) 
+07:45:26   ├─ /ru/course/01-text-units/index.html (+27ms) 
+07:45:26   ├─ /en/course/02-corpus-partitions/index.html (+52ms) 
+07:45:26   ├─ /ru/course/02-corpus-partitions/index.html (+53ms) 
+07:45:26   ├─ /en/course/03-learn-bpe-merges/index.html (+40ms) 
+07:45:26   ├─ /ru/course/03-learn-bpe-merges/index.html (+44ms) 
+07:45:26   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+57ms) 
+07:45:26   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+46ms) 
+07:45:26   ├─ /en/course/05-autoregressive-examples/index.html (+61ms) 
+07:45:26   ├─ /ru/course/05-autoregressive-examples/index.html (+52ms) 
+07:45:27   ├─ /en/course/06-bigram-baseline/index.html (+60ms) 
+07:45:27   ├─ /ru/course/06-bigram-baseline/index.html (+55ms) 
+07:45:27   ├─ /en/course/07-language-model-metrics/index.html (+63ms) 
+07:45:27   ├─ /ru/course/07-language-model-metrics/index.html (+53ms) 
+07:45:27   ├─ /en/course/08-tensor-storage/index.html (+51ms) 
+07:45:27   ├─ /ru/course/08-tensor-storage/index.html (+49ms) 
+07:45:27   ├─ /en/course/09-tensor-views/index.html (+61ms) 
+07:45:27   ├─ /ru/course/09-tensor-views/index.html (+116ms) 
+07:45:27   ├─ /en/course/10-broadcasting-reductions/index.html (+57ms) 
+07:45:27   ├─ /ru/course/10-broadcasting-reductions/index.html (+49ms) 
+07:45:27   ├─ /en/course/11-matrix-multiplication/index.html (+62ms) 
+07:45:27   ├─ /ru/course/11-matrix-multiplication/index.html (+59ms) 
+07:45:27   ├─ /en/course/12-stable-softmax/index.html (+85ms) 
+07:45:27   ├─ /ru/course/12-stable-softmax/index.html (+78ms) 
+07:45:27   ├─ /en/course/13-gradient-checking/index.html (+127ms) 
+07:45:28   ├─ /ru/course/13-gradient-checking/index.html (+121ms) 
+07:45:28   ├─ /en/course/14-scalar-autodiff/index.html (+73ms) 
+07:45:28   ├─ /ru/course/14-scalar-autodiff/index.html (+71ms) 
+07:45:28   ├─ /en/course/15-tensor-autodiff-core/index.html (+160ms) 
+07:45:28   ├─ /ru/course/15-tensor-autodiff-core/index.html (+156ms) 
+07:45:28   ├─ /en/course/16-model-autodiff-ops/index.html (+104ms) 
+07:45:28   ├─ /ru/course/16-model-autodiff-ops/index.html (+101ms) 
+07:45:28   ├─ /en/course/17-parameter-initialization/index.html (+70ms) 
+07:45:28   ├─ /ru/course/17-parameter-initialization/index.html (+63ms) 
+07:45:28   ├─ /en/course/18-token-embeddings/index.html (+78ms) 
+07:45:29   ├─ /ru/course/18-token-embeddings/index.html (+69ms) 
+07:45:29   ├─ /en/course/19-linear-layers/index.html (+79ms) 
+07:45:29   ├─ /ru/course/19-linear-layers/index.html (+72ms) 
+07:45:29   ├─ /en/course/20-swiglu-feed-forward/index.html (+107ms) 
+07:45:29   ├─ /ru/course/20-swiglu-feed-forward/index.html (+107ms) 
+07:45:29   ├─ /en/course/21-mini-batches/index.html (+94ms) 
+07:45:29   ├─ /ru/course/21-mini-batches/index.html (+89ms) 
+07:45:29   ├─ /en/course/22-adamw/index.html (+145ms) 
+07:45:29   ├─ /ru/course/22-adamw/index.html (+140ms) 
+07:45:29   ├─ /en/course/23-neural-ngram/index.html (+84ms) 
+07:45:30   ├─ /ru/course/23-neural-ngram/index.html (+69ms) 
+07:45:30   ├─ /en/course/24-residual-connections/index.html (+57ms) 
+07:45:30   ├─ /ru/course/24-residual-connections/index.html (+47ms) 
+07:45:30   ├─ /en/course/25-rmsnorm/index.html (+60ms) 
+07:45:30   ├─ /ru/course/25-rmsnorm/index.html (+50ms) 
+07:45:30   ├─ /en/course/26-qkv-projections/index.html (+65ms) 
+07:45:30   ├─ /ru/course/26-qkv-projections/index.html (+61ms) 
+07:45:30   ├─ /en/course/27-self-attention/index.html (+69ms) 
+07:45:30   ├─ /ru/course/27-self-attention/index.html (+73ms) 
+07:45:30   ├─ /en/course/28-causal-masking/index.html (+59ms) 
+07:45:30   ├─ /ru/course/28-causal-masking/index.html (+59ms) 
+07:45:30   ├─ /en/course/29-rope/index.html (+66ms) 
+07:45:30   ├─ /ru/course/29-rope/index.html (+64ms) 
+07:45:30   ├─ /en/course/30-multi-head-attention/index.html (+125ms) 
+07:45:30   ├─ /ru/course/30-multi-head-attention/index.html (+118ms) 
+07:45:31   ├─ /en/course/31-decoder-block/index.html (+63ms) 
+07:45:31   ├─ /ru/course/31-decoder-block/index.html (+59ms) 
+07:45:31   ├─ /en/course/32-decoder-model/index.html (+96ms) 
+07:45:31   ├─ /ru/course/32-decoder-model/index.html (+94ms) 
+07:45:31   ├─ /en/course/33-training-selection/index.html (+94ms) 
+07:45:31   ├─ /ru/course/33-training-selection/index.html (+92ms) 
+07:45:31   ├─ /en/course/34-final-evaluation/index.html (+58ms) 
+07:45:31   ├─ /ru/course/34-final-evaluation/index.html (+54ms) 
+07:45:31   ├─ /en/course/35-checkpoints/index.html (+59ms) 
+07:45:31   ├─ /ru/course/35-checkpoints/index.html (+56ms) 
+07:45:31   ├─ /en/course/36-temperature-top-k/index.html (+75ms) 
+07:45:31   ├─ /ru/course/36-temperature-top-k/index.html (+74ms) 
+07:45:31   ├─ /en/course/37-incremental-attention/index.html (+89ms) 
+07:45:32   ├─ /ru/course/37-incremental-attention/index.html (+83ms) 
+07:45:32   ├─ /en/course/38-cached-generation/index.html (+114ms) 
+07:45:32   ├─ /ru/course/38-cached-generation/index.html (+121ms) 
+07:45:32   ├─ /en/course/39-end-to-end-llm/index.html (+45ms) 
+07:45:32   ├─ /ru/course/39-end-to-end-llm/index.html (+37ms) 
+07:45:32   ├─ /en/index.html (+1ms) 
+07:45:32   ├─ /ru/index.html (+1ms) 
+07:45:32   ├─ /index.html (+1ms) 
+07:45:32 ✓ Completed in 6.14s.
+
+07:45:32 [build] ✓ Completed in 20.52s.
+07:45:32 [build] 85 page(s) built in 21.25s
+07:45:32 [build] Complete!
+
+> learn-llm-site@0.1.0 test:links
+> node ../scripts/check-static-links.mjs
+
+Static link check passed: 85 HTML file(s), 2939 local reference(s), 85 SEO route(s), 85 sitemap URL(s), 85 analytics route(s), 169 total artifact(s).
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox --workers=2 --grep @chapter:17-parameter-initialization|@formula-rendering|@cheat-sheet:.*:17-parameter-initialization
+
+
+Running 166 tests using 2 workers
+
+[1/166] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:732:5 › chapter 17 localized parameter-initialization vertical slice › the complete en Rust-backed lesson renders at desktop and narrow widths @chapter:17-parameter-initialization
+[2/166] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:672:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 is seventeenth on both indexes with direct equivalent locale routes @chapter:17-parameter-initialization
+[3/166] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:732:5 › chapter 17 localized parameter-initialization vertical slice › the complete ru Rust-backed lesson renders at desktop and narrow widths @chapter:17-parameter-initialization
+[4/166] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:749:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 full view fits both locales without substantial travel @chapter:17-parameter-initialization
+[5/166] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:858:3 › chapter 17 localized parameter-initialization vertical slice › zero, oversized, and Xavier states survive forced colors in both locales @chapter:17-parameter-initialization
+[6/166] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:892:3 › chapter 17 localized parameter-initialization vertical slice › localized diagram prose follows direction while technical evidence remains left-to-right @chapter:17-parameter-initialization
+[7/166] [firefox] › tests/e2e/cheat-sheets.spec.ts:1535:5 › EN Chapter 17 cheat sheet @cheat-sheet:en:17-parameter-initialization › presents sorted page slices with accessible controls and restores focus
+[8/166] [firefox] › tests/e2e/cheat-sheets.spec.ts:1907:5 › EN Chapter 17 cheat sheet @cheat-sheet:en:17-parameter-initialization › contains every modal page at narrow width and keeps it reachable at short height
+[9/166] [firefox] › tests/e2e/cheat-sheets.spec.ts:1535:5 › RU Chapter 17 cheat sheet @cheat-sheet:ru:17-parameter-initialization › presents sorted page slices with accessible controls and restores focus
+[10/166] [firefox] › tests/e2e/cheat-sheets.spec.ts:1907:5 › RU Chapter 17 cheat sheet @cheat-sheet:ru:17-parameter-initialization › contains every modal page at narrow width and keeps it reachable at short height
+[11/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop en/01-text-units exposes readable server-rendered math
+[12/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop en/02-corpus-partitions exposes readable server-rendered math
+[13/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop en/03-learn-bpe-merges exposes readable server-rendered math
+[14/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop en/04-apply-bpe-tokenizer exposes readable server-rendered math
+[15/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop en/05-autoregressive-examples exposes readable server-rendered math
+[16/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop en/06-bigram-baseline exposes readable server-rendered math
+[17/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop en/07-language-model-metrics exposes readable server-rendered math
+[18/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop ru/01-text-units exposes readable server-rendered math
+[19/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop ru/02-corpus-partitions exposes readable server-rendered math
+[20/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop ru/03-learn-bpe-merges exposes readable server-rendered math
+[21/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop ru/04-apply-bpe-tokenizer exposes readable server-rendered math
+[22/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop ru/05-autoregressive-examples exposes readable server-rendered math
+[23/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop ru/06-bigram-baseline exposes readable server-rendered math
+[24/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › desktop ru/07-language-model-metrics exposes readable server-rendered math
+[25/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow en/01-text-units exposes readable server-rendered math
+[26/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow en/02-corpus-partitions exposes readable server-rendered math
+[27/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow en/03-learn-bpe-merges exposes readable server-rendered math
+[28/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow en/04-apply-bpe-tokenizer exposes readable server-rendered math
+[29/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow en/05-autoregressive-examples exposes readable server-rendered math
+[30/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow en/06-bigram-baseline exposes readable server-rendered math
+[31/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow en/07-language-model-metrics exposes readable server-rendered math
+[32/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow ru/01-text-units exposes readable server-rendered math
+[33/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow ru/02-corpus-partitions exposes readable server-rendered math
+[34/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow ru/03-learn-bpe-merges exposes readable server-rendered math
+[35/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow ru/04-apply-bpe-tokenizer exposes readable server-rendered math
+[36/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow ru/05-autoregressive-examples exposes readable server-rendered math
+[37/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow ru/06-bigram-baseline exposes readable server-rendered math
+[38/166] [firefox] › tests/e2e/formula-rendering.spec.ts:698:9 › @formula-rendering:ch01-ch07 rendered formula contract › narrow ru/07-language-model-metrics exposes readable server-rendered math
+[39/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop en/08-tensor-storage exposes readable server-rendered math
+[40/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop ru/08-tensor-storage exposes readable server-rendered math
+[41/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop en/09-tensor-views exposes readable server-rendered math
+[42/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop ru/09-tensor-views exposes readable server-rendered math
+[43/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop en/10-broadcasting-reductions exposes readable server-rendered math
+[44/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop ru/10-broadcasting-reductions exposes readable server-rendered math
+[45/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop en/11-matrix-multiplication exposes readable server-rendered math
+[46/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop ru/11-matrix-multiplication exposes readable server-rendered math
+[47/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop en/12-stable-softmax exposes readable server-rendered math
+[48/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop ru/12-stable-softmax exposes readable server-rendered math
+[49/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop en/13-gradient-checking exposes readable server-rendered math
+[50/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › desktop ru/13-gradient-checking exposes readable server-rendered math
+[51/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow en/08-tensor-storage exposes readable server-rendered math
+[52/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow ru/08-tensor-storage exposes readable server-rendered math
+[53/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow en/09-tensor-views exposes readable server-rendered math
+[54/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow ru/09-tensor-views exposes readable server-rendered math
+[55/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow en/10-broadcasting-reductions exposes readable server-rendered math
+[56/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow ru/10-broadcasting-reductions exposes readable server-rendered math
+[57/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow en/11-matrix-multiplication exposes readable server-rendered math
+[58/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow ru/11-matrix-multiplication exposes readable server-rendered math
+[59/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow en/12-stable-softmax exposes readable server-rendered math
+[60/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow ru/12-stable-softmax exposes readable server-rendered math
+[61/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow en/13-gradient-checking exposes readable server-rendered math
+[62/166] [firefox] › tests/e2e/formula-rendering.spec.ts:800:7 › @formula-rendering:ch08-ch13 rendered formula contract › narrow ru/13-gradient-checking exposes readable server-rendered math
+[63/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/14-scalar-autodiff exposes readable server-rendered math
+[64/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/14-scalar-autodiff exposes readable server-rendered math
+[65/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/15-tensor-autodiff-core exposes readable server-rendered math
+[66/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/15-tensor-autodiff-core exposes readable server-rendered math
+[67/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/16-model-autodiff-ops exposes readable server-rendered math
+[68/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/16-model-autodiff-ops exposes readable server-rendered math
+[69/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/17-parameter-initialization exposes readable server-rendered math
+[70/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/17-parameter-initialization exposes readable server-rendered math
+[71/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/18-token-embeddings exposes readable server-rendered math
+[72/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/18-token-embeddings exposes readable server-rendered math
+[73/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/19-linear-layers exposes readable server-rendered math
+[74/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/19-linear-layers exposes readable server-rendered math
+[75/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/20-swiglu-feed-forward exposes readable server-rendered math
+[76/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/20-swiglu-feed-forward exposes readable server-rendered math
+[77/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/21-mini-batches exposes readable server-rendered math
+[78/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/21-mini-batches exposes readable server-rendered math
+[79/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/22-adamw exposes readable server-rendered math
+[80/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/22-adamw exposes readable server-rendered math
+[81/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/23-neural-ngram exposes readable server-rendered math
+[82/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/23-neural-ngram exposes readable server-rendered math
+[83/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/24-residual-connections exposes readable server-rendered math
+[84/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/24-residual-connections exposes readable server-rendered math
+[85/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/25-rmsnorm exposes readable server-rendered math
+[86/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/25-rmsnorm exposes readable server-rendered math
+[87/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/26-qkv-projections exposes readable server-rendered math
+[88/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/26-qkv-projections exposes readable server-rendered math
+[89/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/27-self-attention exposes readable server-rendered math
+[90/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/27-self-attention exposes readable server-rendered math
+[91/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/28-causal-masking exposes readable server-rendered math
+[92/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/28-causal-masking exposes readable server-rendered math
+[93/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/29-rope exposes readable server-rendered math
+[94/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/29-rope exposes readable server-rendered math
+[95/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/30-multi-head-attention exposes readable server-rendered math
+[96/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/30-multi-head-attention exposes readable server-rendered math
+[97/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/31-decoder-block exposes readable server-rendered math
+[98/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/31-decoder-block exposes readable server-rendered math
+[99/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/32-decoder-model exposes readable server-rendered math
+[100/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/32-decoder-model exposes readable server-rendered math
+[101/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/33-training-selection exposes readable server-rendered math
+[102/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/33-training-selection exposes readable server-rendered math
+[103/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/34-final-evaluation exposes readable server-rendered math
+[104/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/34-final-evaluation exposes readable server-rendered math
+[105/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/35-checkpoints exposes readable server-rendered math
+[106/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/35-checkpoints exposes readable server-rendered math
+[107/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/36-temperature-top-k exposes readable server-rendered math
+[108/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/36-temperature-top-k exposes readable server-rendered math
+[109/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/37-incremental-attention exposes readable server-rendered math
+[110/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/37-incremental-attention exposes readable server-rendered math
+[111/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/38-cached-generation exposes readable server-rendered math
+[112/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/38-cached-generation exposes readable server-rendered math
+[113/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop en/39-end-to-end-llm exposes readable server-rendered math
+[114/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › desktop ru/39-end-to-end-llm exposes readable server-rendered math
+[115/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/14-scalar-autodiff exposes readable server-rendered math
+[116/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/14-scalar-autodiff exposes readable server-rendered math
+[117/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/15-tensor-autodiff-core exposes readable server-rendered math
+[118/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/15-tensor-autodiff-core exposes readable server-rendered math
+[119/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/16-model-autodiff-ops exposes readable server-rendered math
+[120/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/16-model-autodiff-ops exposes readable server-rendered math
+[121/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/17-parameter-initialization exposes readable server-rendered math
+[122/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/17-parameter-initialization exposes readable server-rendered math
+[123/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/18-token-embeddings exposes readable server-rendered math
+[124/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/18-token-embeddings exposes readable server-rendered math
+[125/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/19-linear-layers exposes readable server-rendered math
+[126/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/19-linear-layers exposes readable server-rendered math
+[127/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/20-swiglu-feed-forward exposes readable server-rendered math
+[128/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/20-swiglu-feed-forward exposes readable server-rendered math
+[129/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/21-mini-batches exposes readable server-rendered math
+[130/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/21-mini-batches exposes readable server-rendered math
+[131/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/22-adamw exposes readable server-rendered math
+[132/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/22-adamw exposes readable server-rendered math
+[133/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/23-neural-ngram exposes readable server-rendered math
+[134/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/23-neural-ngram exposes readable server-rendered math
+[135/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/24-residual-connections exposes readable server-rendered math
+[136/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/24-residual-connections exposes readable server-rendered math
+[137/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/25-rmsnorm exposes readable server-rendered math
+[138/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/25-rmsnorm exposes readable server-rendered math
+[139/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/26-qkv-projections exposes readable server-rendered math
+[140/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/26-qkv-projections exposes readable server-rendered math
+[141/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/27-self-attention exposes readable server-rendered math
+[142/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/27-self-attention exposes readable server-rendered math
+[143/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/28-causal-masking exposes readable server-rendered math
+[144/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/28-causal-masking exposes readable server-rendered math
+[145/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/29-rope exposes readable server-rendered math
+[146/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/29-rope exposes readable server-rendered math
+[147/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/30-multi-head-attention exposes readable server-rendered math
+[148/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/30-multi-head-attention exposes readable server-rendered math
+[149/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/31-decoder-block exposes readable server-rendered math
+[150/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/31-decoder-block exposes readable server-rendered math
+[151/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/32-decoder-model exposes readable server-rendered math
+[152/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/32-decoder-model exposes readable server-rendered math
+[153/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/33-training-selection exposes readable server-rendered math
+[154/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/33-training-selection exposes readable server-rendered math
+[155/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/34-final-evaluation exposes readable server-rendered math
+[156/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/34-final-evaluation exposes readable server-rendered math
+[157/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/35-checkpoints exposes readable server-rendered math
+[158/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/35-checkpoints exposes readable server-rendered math
+[159/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/36-temperature-top-k exposes readable server-rendered math
+[160/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/36-temperature-top-k exposes readable server-rendered math
+[161/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/37-incremental-attention exposes readable server-rendered math
+[162/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/37-incremental-attention exposes readable server-rendered math
+[163/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/38-cached-generation exposes readable server-rendered math
+[164/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/38-cached-generation exposes readable server-rendered math
+[165/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow en/39-end-to-end-llm exposes readable server-rendered math
+[166/166] [firefox] › tests/e2e/formula-rendering.spec.ts:916:7 › @formula-rendering:Chapter 14-39 active-locale rendered formula contract › narrow ru/39-end-to-end-llm exposes readable server-rendered math
+  166 passed (2.1m)

@@ -1,0 +1,1 @@
+Reproduce the target variance, standard deviation, and uniform bound for fan-in 2 and fan-out 2.

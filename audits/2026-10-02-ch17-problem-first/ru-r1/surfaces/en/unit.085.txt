@@ -1,0 +1,1 @@
+Measured spread Population variance; two-pass

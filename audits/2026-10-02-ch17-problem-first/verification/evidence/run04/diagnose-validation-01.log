@@ -1,0 +1,126 @@
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+07:00:16 [content] Syncing content
+07:00:17 [content] Synced content
+07:00:17 [types] Generated 943ms
+07:00:17 [build] output: "static"
+07:00:17 [build] mode: "static"
+07:00:17 [build] directory: /tmp/ch17-work/site/dist/
+07:00:17 [build] Collecting build info...
+07:00:17 [build] ✓ Completed in 969ms.
+07:00:17 [build] Building static entrypoints...
+07:00:31 [vite] ✓ built in 14.49s
+07:00:31 [vite] ✓ built in 22ms
+07:00:31 [build] Rearranging server assets...
+
+ generating static routes 
+07:00:32   ├─ /sitemap.xml (+23ms) 
+07:00:32   ├─ /en/course/index.html (+17ms) 
+07:00:32   ├─ /ru/course/index.html (+12ms) 
+07:00:32   ├─ /en/course/00-llm-parts/index.html (+25ms) 
+07:00:32   ├─ /ru/course/00-llm-parts/index.html (+16ms) 
+07:00:32   ├─ /en/course/01-text-units/index.html (+55ms) 
+07:00:32   ├─ /ru/course/01-text-units/index.html (+30ms) 
+07:00:32   ├─ /en/course/02-corpus-partitions/index.html (+58ms) 
+07:00:32   ├─ /ru/course/02-corpus-partitions/index.html (+55ms) 
+07:00:32   ├─ /en/course/03-learn-bpe-merges/index.html (+38ms) 
+07:00:32   ├─ /ru/course/03-learn-bpe-merges/index.html (+41ms) 
+07:00:32   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+56ms) 
+07:00:32   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+52ms) 
+07:00:32   ├─ /en/course/05-autoregressive-examples/index.html (+66ms) 
+07:00:32   ├─ /ru/course/05-autoregressive-examples/index.html (+52ms) 
+07:00:32   ├─ /en/course/06-bigram-baseline/index.html (+60ms) 
+07:00:32   ├─ /ru/course/06-bigram-baseline/index.html (+55ms) 
+07:00:32   ├─ /en/course/07-language-model-metrics/index.html (+60ms) 
+07:00:32   ├─ /ru/course/07-language-model-metrics/index.html (+54ms) 
+07:00:32   ├─ /en/course/08-tensor-storage/index.html (+55ms) 
+07:00:32   ├─ /ru/course/08-tensor-storage/index.html (+46ms) 
+07:00:32   ├─ /en/course/09-tensor-views/index.html (+61ms) 
+07:00:33   ├─ /ru/course/09-tensor-views/index.html (+55ms) 
+07:00:33   ├─ /en/course/10-broadcasting-reductions/index.html (+60ms) 
+07:00:33   ├─ /ru/course/10-broadcasting-reductions/index.html (+54ms) 
+07:00:33   ├─ /en/course/11-matrix-multiplication/index.html (+65ms) 
+07:00:33   ├─ /ru/course/11-matrix-multiplication/index.html (+71ms) 
+07:00:33   ├─ /en/course/12-stable-softmax/index.html (+89ms) 
+07:00:33   ├─ /ru/course/12-stable-softmax/index.html (+90ms) 
+07:00:33   ├─ /en/course/13-gradient-checking/index.html (+136ms) 
+07:00:33   ├─ /ru/course/13-gradient-checking/index.html (+129ms) 
+07:00:33   ├─ /en/course/14-scalar-autodiff/index.html (+80ms) 
+07:00:33   ├─ /ru/course/14-scalar-autodiff/index.html (+74ms) 
+07:00:33   ├─ /en/course/15-tensor-autodiff-core/index.html (+168ms) 
+07:00:34   ├─ /ru/course/15-tensor-autodiff-core/index.html (+156ms) 
+07:00:34   ├─ /en/course/16-model-autodiff-ops/index.html (+112ms) 
+07:00:34   ├─ /ru/course/16-model-autodiff-ops/index.html (+120ms) 
+07:00:34   ├─ /en/course/17-parameter-initialization/index.html (+75ms) 
+07:00:34   ├─ /ru/course/17-parameter-initialization/index.html (+72ms) 
+07:00:34   ├─ /en/course/18-token-embeddings/index.html (+85ms) 
+07:00:34   ├─ /ru/course/18-token-embeddings/index.html (+74ms) 
+07:00:34   ├─ /en/course/19-linear-layers/index.html (+86ms) 
+07:00:34   ├─ /ru/course/19-linear-layers/index.html (+82ms) 
+07:00:34   ├─ /en/course/20-swiglu-feed-forward/index.html (+118ms) 
+07:00:35   ├─ /ru/course/20-swiglu-feed-forward/index.html (+110ms) 
+07:00:35   ├─ /en/course/21-mini-batches/index.html (+118ms) 
+07:00:35   ├─ /ru/course/21-mini-batches/index.html (+109ms) 
+07:00:35   ├─ /en/course/22-adamw/index.html (+182ms) 
+07:00:35   ├─ /ru/course/22-adamw/index.html (+173ms) 
+07:00:35   ├─ /en/course/23-neural-ngram/index.html (+86ms) 
+07:00:35   ├─ /ru/course/23-neural-ngram/index.html (+83ms) 
+07:00:35   ├─ /en/course/24-residual-connections/index.html (+68ms) 
+07:00:35   ├─ /ru/course/24-residual-connections/index.html (+61ms) 
+07:00:36   ├─ /en/course/25-rmsnorm/index.html (+70ms) 
+07:00:36   ├─ /ru/course/25-rmsnorm/index.html (+69ms) 
+07:00:36   ├─ /en/course/26-qkv-projections/index.html (+80ms) 
+07:00:36   ├─ /ru/course/26-qkv-projections/index.html (+77ms) 
+07:00:36   ├─ /en/course/27-self-attention/index.html (+99ms) 
+07:00:36   ├─ /ru/course/27-self-attention/index.html (+93ms) 
+07:00:36   ├─ /en/course/28-causal-masking/index.html (+80ms) 
+07:00:36   ├─ /ru/course/28-causal-masking/index.html (+77ms) 
+07:00:36   ├─ /en/course/29-rope/index.html (+85ms) 
+07:00:36   ├─ /ru/course/29-rope/index.html (+81ms) 
+07:00:36   ├─ /en/course/30-multi-head-attention/index.html (+182ms) 
+07:00:37   ├─ /ru/course/30-multi-head-attention/index.html (+183ms) 
+07:00:37   ├─ /en/course/31-decoder-block/index.html (+97ms) 
+07:00:37   ├─ /ru/course/31-decoder-block/index.html (+93ms) 
+07:00:37   ├─ /en/course/32-decoder-model/index.html (+156ms) 
+07:00:37   ├─ /ru/course/32-decoder-model/index.html (+227ms) 
+07:00:37   ├─ /en/course/33-training-selection/index.html (+136ms) 
+07:00:37   ├─ /ru/course/33-training-selection/index.html (+139ms) 
+07:00:38   ├─ /en/course/34-final-evaluation/index.html (+91ms) 
+07:00:38   ├─ /ru/course/34-final-evaluation/index.html (+84ms) 
+07:00:38   ├─ /en/course/35-checkpoints/index.html (+99ms) 
+07:00:38   ├─ /ru/course/35-checkpoints/index.html (+99ms) 
+07:00:38   ├─ /en/course/36-temperature-top-k/index.html (+141ms) 
+07:00:38   ├─ /ru/course/36-temperature-top-k/index.html (+145ms) 
+07:00:38   ├─ /en/course/37-incremental-attention/index.html (+155ms) 
+07:00:38   ├─ /ru/course/37-incremental-attention/index.html (+146ms) 
+07:00:39   ├─ /en/course/38-cached-generation/index.html (+205ms) 
+07:00:39   ├─ /ru/course/38-cached-generation/index.html (+189ms) 
+07:00:39   ├─ /en/course/39-end-to-end-llm/index.html (+75ms) 
+07:00:39   ├─ /ru/course/39-end-to-end-llm/index.html (+61ms) 
+07:00:39   ├─ /en/index.html (+2ms) 
+07:00:39   ├─ /ru/index.html (+1ms) 
+07:00:39   ├─ /index.html (+3ms) 
+07:00:39 ✓ Completed in 7.69s.
+
+07:00:39 [build] ✓ Completed in 22.37s.
+07:00:39 [build] 85 page(s) built in 23.34s
+07:00:39 [build] Complete!
+
+> learn-llm-site@0.1.0 test:links
+> node ../scripts/check-static-links.mjs
+
+Static link check passed: 85 HTML file(s), 2939 local reference(s), 85 SEO route(s), 85 sitemap URL(s), 85 analytics route(s), 169 total artifact(s).
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox tests/e2e/ch17-run04-layout-diagnostic.spec.ts --workers=1
+
+
+Running 1 test using 1 worker
+
+[1/1] [firefox] › tests/e2e/ch17-run04-layout-diagnostic.spec.ts:2:1 › read-only Chapter17 full-view text geometry
+[firefox] › tests/e2e/ch17-run04-layout-diagnostic.spec.ts:2:1 › read-only Chapter17 full-view text geometry
+{"summary":[{"text":"Нач. значение 17","width":123.03334045410156,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Нач. значение","width":98.63333129882812,"height":18.20001220703125},{"text":"17","width":98.63333129882812,"height":24}]},{"text":"Форма матрицы 64x64","width":123.0333251953125,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Форма матрицы","width":98.63333129882812,"height":36.40000915527344},{"text":"64x64","width":98.63333129882812,"height":24}]},{"text":"Весов в матрице 4096","width":123.0333251953125,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Весов в матрице","width":98.63333129882812,"height":36.40000915527344},{"text":"4096","width":98.63333129882812,"height":24}]},{"text":"Входная ширина 64","width":123.0333251953125,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Входная ширина","width":98.63333129882812,"height":36.40000915527344},{"text":"64","width":98.63333129882812,"height":24}]},{"text":"Выходная ширина 64","width":123.0333251953125,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Выходная ширина","width":98.63333129882812,"height":36.40000915527344},{"text":"64","width":98.63333129882812,"height":24}]},{"text":"Дисперсия входа 111","width":123.0333251953125,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Дисперсия входа","width":98.63333129882812,"height":36.40000915527344},{"text":"111","width":98.63333129882812,"height":26.850006103515625}]},{"text":"Генератор и отображение splitmix64 / top53-affine","width":256.4666748046875,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Генератор и отображение","width":232.06666564941406,"height":18.20001220703125},{"text":"splitmix64 / top53-affine","width":232.06666564941406,"height":24}]},{"text":"Дисперсия Все веса; два прохода","width":256.4666748046875,"height":89.25,"font":"16px","line":"24px","children":[{"text":"Дисперсия","width":232.06666564941406,"height":18.20001220703125},{"text":"Все веса; два прохода","width":232.06666564941406,"height":24}]}],"caption":[{"text":"Начальный масштаб весов и линейная дисперсия","width":875.7333374023438,"height":30.366668701171875,"font":"26.4px","line":"30.3667px","children":[]},{"text":"Гистограммы конечных выборок: нули и равномерные веса с границей Ксавье или удвоенной. Ожидаемая дисперсия сигнала — по целевым дисперсиям весов независимых линейных слоёв равной ширины входа/выхода. Веса независимы между собой и от входов: нулевое среднее, общая дисперсия. Исходные входы независимы: нулевое среднее, единичная дисперсия.","width":691.2000122070312,"height":120,"font":"16px","line":"24px","children":[]}],"pairing":[{"text":"= Общие числа","width":281.933349609375,"height":27.199996948242188,"font":"16px","line":"24px","children":[{"text":"=","width":27.199996948242188,"height":27.199996948242188},{"text":"Общие числа","width":101.91667175292969,"height":24}]},{"text":"Вес с двойной границей вдвое больше парного веса Ксавье.","width":281.933349609375,"height":48,"font":"16px","line":"24px","children":[]},{"text":"Нач. значение 17   Отношение к границе Ксавье 2.000000000000","width":211.4499969482422,"height":105.80000305175781,"font":"16px","line":"24px","children":[{"text":"Нач. значение 17","width":97.73333740234375,"height":105.80000305175781},{"text":"Отношение к границе Ксавье 2.000000000000","width":97.73333740234375,"height":105.80000305175781}]}],"propagation":[{"text":"Ожидаемая линейная дисперсия","width":415.066650390625,"height":21,"font":"16.8px","line":"21px","children":[]},{"text":"Ожидаемая дисперсия сигнала по целевым дисперсиям весов, не измерение. Независимые линейные слои, равные ширины входа/выхода. Веса независимы между собой и от входов: нулевое среднее, общая дисперсия. Исходные входы независимы: нулевое среднее, единичная дисперсия. Не гарантия для нелинейного остаточного декодера.","width":415.066650390625,"height":168,"font":"16px","line":"24px","children":[]},{"text":"Применено слоёв  0  2×  X      0  111  111  111   1  000  444  111   2  000  161616  111   3  000  646464  111   4  000  256256256  111","width":415.066650390625,"height":259.6500244140625,"font":"16px","line":"24px","children":[{"text":"Применено слоёв  0  2×  X      0  111  111  111   1  000  444  111   2  000  161616  111   3  000  646464  111   4  000  256256256  111","width":415.066650390625,"height":254.0500030517578}]}],"replay":[{"text":"= Тот же запрос Ксавье: те же веса","width":176.3333282470703,"height":72,"font":"16px","line":"24px","children":[{"text":"=","width":27.199996948242188,"height":27.199996948242188},{"text":"Тот же запрос Ксавье: те же веса","width":140.3333282470703,"height":72}]},{"text":"Нач. значение 17","width":176.3333282470703,"height":45.399993896484375,"font":"16px","line":"24px","children":[{"text":"Нач. значение 17","width":176.3333282470703,"height":45.399993896484375}]},{"text":"≠ Тот же запрос Ксавье: разные веса для 17 и 18","width":176.33334350585938,"height":72,"font":"16px","line":"24px","children":[{"text":"≠","width":27.199996948242188,"height":27.199996948242188},{"text":"Тот же запрос Ксавье: разные веса для 17 и 18","width":140.33334350585938,"height":72}]},{"text":"Нач. значение 18","width":176.33334350585938,"height":45.399993896484375,"font":"16px","line":"24px","children":[{"text":"Нач. значение 18","width":176.33334350585938,"height":45.399993896484375}]}]}
+
+  1 passed (5.3s)

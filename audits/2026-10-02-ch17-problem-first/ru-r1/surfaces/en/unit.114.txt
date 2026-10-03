@@ -1,0 +1,1 @@
+Weight counts and percentages for the all-zero matrix

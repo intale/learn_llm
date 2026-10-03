@@ -1,0 +1,1 @@
+Разобрать недопустимое имя, нулевую ширину и повтор имени вместе с неизменным состоянием генератора rust/demos/ch17-parameter-initialization/src/lib.rs#initialization-errors-example

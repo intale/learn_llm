@@ -1,0 +1,1 @@
+Проследить путь SiLU с нулевыми весами от одинаковой выходной обработки до равных ненулевых столбцов градиента rust/demos/ch17-parameter-initialization/src/lib.rs#zero-symmetry-probe

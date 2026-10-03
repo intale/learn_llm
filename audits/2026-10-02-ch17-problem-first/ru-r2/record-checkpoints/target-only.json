@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "status": "structurally-valid-pass",
+  "role": "target-only",
+  "contextId": "ch17_v5_ru_r2_target_only",
+  "rawPath": "audits/2026-10-02-ch17-problem-first/ru-r2/raw/target-only.json",
+  "rawSha256": "ad4ff92fce633b7f7bc276a0e7b75d4891e179238d52a04ed81c589e8140dbb4",
+  "rawBytes": 3888,
+  "coveredSurfaces": 133,
+  "findings": 1,
+  "structuralValidatorSha256": "ffeaa2ae47ddf319b2b43344e93f4e17641f93d6add4d398cc48c66446ffe5d6",
+  "limits": "Untouched raw bytes. A failed semantic judgment remains failed and cannot authorize publication."
+}

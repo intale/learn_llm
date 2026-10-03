@@ -1,0 +1,1 @@
+Record the paired weight populations and the separate expected-linear variance sequences rust/demos/ch17-parameter-initialization/src/diagram_trace.rs#parameter-initialization-trace

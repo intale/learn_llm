@@ -1,0 +1,1 @@
+W | The matrix of connection weights being initialized before training.

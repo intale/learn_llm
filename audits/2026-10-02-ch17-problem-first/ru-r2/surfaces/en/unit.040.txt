@@ -1,0 +1,1 @@
+Reproduce the same seed, shape, fan values, and construction order; compare the stored tensor values rather than only printed decimals.

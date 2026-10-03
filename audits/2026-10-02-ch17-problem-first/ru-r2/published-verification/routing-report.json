@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "status": "exact-route-verified",
+  "phase": "published",
+  "roles": {
+    "bilingual": {
+      "contextId": "ch17_v5_ru_r2_bilingual",
+      "recordSha256": "447f1f8482374b66bbabd61c28fd5f9ce20875bc29baaa7f21035f593180055f",
+      "recordBytes": 2549,
+      "contextSha256": "c474ee6822527f8cc0624a90d9ebf4f273be00b06fa1fa91869d4f7c305141e7",
+      "promptSha256": "dc30f2241e499b5715b0e0d99cb225145d0966ec51036110db4720775957768d",
+      "bundleSha256": "65696007b254503ac5aff162eff4fcf5ac30b095d8da86a267e02794911f1e14"
+    },
+    "target-only": {
+      "contextId": "ch17_v5_ru_r2_target_only",
+      "recordSha256": "ad4ff92fce633b7f7bc276a0e7b75d4891e179238d52a04ed81c589e8140dbb4",
+      "recordBytes": 3888,
+      "contextSha256": "4cb39e80c1c996b038d5091ddaf4547abb7389961b329f5c281eb6dec27af183",
+      "promptSha256": "41d18229916e685a80ed1b064274578d1159e7199caf786c1fb9b9ff1548effe",
+      "bundleSha256": "cdb5b76f43b0fc417338101ea2931ee18bfd2d1392d38db2149473db3bdd0159"
+    }
+  },
+  "limitations": "Checks bytes, routing and context/model identity only; language quality comes from independent judgments."
+}

@@ -1,0 +1,1 @@
+Expected, not measured, signal variance uses target weight variances. Initially independent zero-mean inputs: common unit variance. Independent linear layers: equal input/output widths; independent zero-mean weights, common variance, independent of inputs. No nonlinear residual-decoder guarantee.

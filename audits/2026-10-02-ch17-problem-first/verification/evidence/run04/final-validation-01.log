@@ -1,0 +1,110 @@
+Course plan valid: 40 chapters, 111 scheduled steps, 40 implemented contract(s) through 39-end-to-end-llm.
+
+> learn-llm-site@0.1.0 check:contract
+> node ../scripts/check-chapter-contract.mjs ../curriculum/chapters/17-parameter-initialization.md
+
+Chapter contract check passed: 1 integrated file(s).
+
+> learn-llm-site@0.1.0 check:chapter
+> node ../scripts/check-site-content.mjs chapter --locale en --chapter 17-parameter-initialization
+
+Content check passed: 1 localized source(s), 0 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check:chapter
+> node ../scripts/check-site-content.mjs chapter --locale ru --chapter 17-parameter-initialization
+
+Content check passed: 1 localized source(s), 0 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check:parity
+> node ../scripts/check-site-content.mjs parity --chapter 17-parameter-initialization
+
+Content check passed: 2 localized source(s), 1 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check:content
+> node ../scripts/check-site-content.mjs
+
+Content check passed: 80 localized source(s), 40 publishable locale set(s), 33 catalog key(s), 44 shared-full-view diagram component(s).
+
+> learn-llm-site@0.1.0 check
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro check
+
+06:39:33 [content] Syncing content
+06:39:33 [content] Synced content
+06:39:33 [types] Generated 547ms
+06:39:33 [check] Getting diagnostics for Astro files in /tmp/ch17-work/site...
+Result (220 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+
+> learn-llm-site@0.1.0 test
+> vitest --run tests/17-parameter-initialization-diagram.test.ts tests/content-contract.test.ts
+
+
+ RUN  v3.2.7 /tmp/ch17-work/site
+
+ ✓ tests/17-parameter-initialization-diagram.test.ts (55 tests) 21ms
+ ❯ tests/content-contract.test.ts (36 tests | 1 failed) 778ms
+   ✓ localized chapter documents > accepts the complete ordered contract and declared Rust source reference 5ms
+   ✓ localized chapter documents > keeps the corrected trace boundaries independent of frontend tooling and language-as-actor claims 8ms
+   ✓ localized chapter documents > rejects build and presentation-contract vocabulary in learner prose 4ms
+   ✓ localized chapter documents > rejects control characters introduced by malformed formula escapes 1ms
+   ✓ localized chapter documents > rejects missing sections and Rust paths outside the allowlist 2ms
+   ✓ localized chapter documents > rejects empty teaching shells and misplaced section evidence 8ms
+   ✓ localized chapter documents > publishes only complete, same-revision configured locale sets 2ms
+   ✓ localized chapter documents > requires exactly one translation for every locale in a synthetic three-locale set 2ms
+   ✓ localized chapter documents > allows intentionally shared technical titles and worked inputs 3ms
+   ✓ localized chapter documents > detects drift in locale-neutral formula metadata 1ms
+   ✓ LLM-evolution history contract > requires the structured road-to-LLMs record for corrected 8-9 and Chapter 10+ 4ms
+   ✓ LLM-evolution history contract > rejects incomplete, programming-centric, or weakly sourced records 3ms
+   ✓ LLM-evolution history contract > requires rendered source links and locale-neutral source identity 3ms
+   ✓ LLM-evolution history contract > rejects links without the visible structured LLM narrative 0ms
+   ✓ LLM-evolution history contract > compares rendered inline math before punctuation as visible history prose 1ms
+   ✓ LLM-evolution history contract > keeps localized LLM-history claims aligned with the chapter contract 9ms
+   × curriculum and catalog contracts > projects the Chapter 18 clarification and functional successor handoff in plan revision 78 with exact bilingual chapter revisions 12ms
+     → expected 'd9bd8273e3a3c834d093b2d1113b683acc729…' to be 'bb150c85c12016c505e316d7cc79c1f39d786…' // Object.is equality
+   ✓ curriculum and catalog contracts > keeps the course handoffs and holdout claims local and evidence-scoped 15ms
+   ✓ curriculum and catalog contracts > keeps the checked-in chapter template structurally valid 1ms
+   ✓ curriculum and catalog contracts > keeps localization review mandatory without a pre-publication approval pause 6ms
+   ✓ curriculum and catalog contracts > keeps the Chapter 0 orientation exception narrow and non-assessed 18ms
+   ✓ curriculum and catalog contracts > requires learner-facing equations to use rendered math instead of code styling 0ms
+   ✓ curriculum and catalog contracts > requires every localized contract field for a synthetic third locale 1ms
+   ✓ curriculum and catalog contracts > keeps every configured message catalog in exact key parity 1ms
+   ✓ curriculum and catalog contracts > fails closed when a newly configured locale lacks a complete catalog 2ms
+   ✓ curriculum and catalog contracts > rejects plan-body, ledger, and implemented-prefix drift  377ms
+   ✓ curriculum and catalog contracts > aggregates scheduled lesson activation without rewriting implementation history 222ms
+   ✓ curriculum and catalog contracts > keeps repeated localized terminology mappings stable across contracts 3ms
+   ✓ curriculum and catalog contracts > ties each contract to every lesson, its useful diagram, and exact stdout 12ms
+   ✓ curriculum and catalog contracts > keeps the Chapter 1 scalar vocabulary local while carrying the mapping boundary into BPE 10ms
+   ✓ published order and chapter navigation > orders shuffled chapters and returns first, middle, and last neighbors 1ms
+   ✓ published order and chapter navigation > rejects ambiguous navigation and noncontiguous publication data 20ms
+   ✓ static link and locale audit > audits selective chapter equivalents and a deferred-locale fallback 10ms
+   ✓ static link and locale audit > audits a complete synthetic three-locale route and alternate matrix 5ms
+   ✓ static link and locale audit > requires localized course entry links and rejects a missing local asset 3ms
+   ✓ static link and locale audit > audits a project-site base and rejects root references that escape it 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/content-contract.test.ts > curriculum and catalog contracts > projects the Chapter 18 clarification and functional successor handoff in plan revision 78 with exact bilingual chapter revisions
+AssertionError: expected 'd9bd8273e3a3c834d093b2d1113b683acc729…' to be 'bb150c85c12016c505e316d7cc79c1f39d786…' // Object.is equality
+
+Expected: [32m"bb150c85c12016c505e316d7cc79c1f39d78692ba04379de5ca06a7b58d9e1ee"[39m
+Received: [31m"d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"[39m
+
+ ❯ tests/content-contract.test.ts:1016:67
+    1014|       }>;
+    1015|     };
+    1016|     expect(createHash("sha256").update(planSource).digest("hex")).toBe(
+       |                                                                   ^
+    1017|       "bb150c85c12016c505e316d7cc79c1f39d78692ba04379de5ca06a7b58d9e1e…
+    1018|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 90 passed (91)
+   Start at  06:39:46
+   Duration  1.38s (transform 246ms, setup 0ms, collect 434ms, tests 799ms, environment 0ms, prepare 157ms)
+

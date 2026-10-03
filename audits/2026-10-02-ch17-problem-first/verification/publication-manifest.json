@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "path": "curriculum/chapters/17-parameter-initialization.md",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/curriculum/chapters/17-parameter-initialization.md",
+      "baselineSha256": "91deb3dab7b089c60c7348554fa76193f8901d5dc88c7f4e89970e69a854ab06",
+      "sha256": "8e9d1b28280648b142967ae85c1d82bf98534f6cb780bd36ad3392d546207290"
+    },
+    {
+      "path": "site/src/content/chapters/en/17-parameter-initialization.mdx",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/chapters/en/17-parameter-initialization.mdx",
+      "baselineSha256": "0044af21f3299ed1b952bfeee545f83ad3c0bbe6ffa1582781693d3bc41270d4",
+      "sha256": "c93bb0af9bb3a9a0e44521807c63f6c4dede7e7fe7cba478d3486508c5c88927"
+    },
+    {
+      "path": "site/src/content/chapters/ru/17-parameter-initialization.mdx",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/chapters/ru/17-parameter-initialization.mdx",
+      "baselineSha256": "901a421343fe9d76060f928464c10e7c41c0442cd2360261e5b4bb509da95fc4",
+      "sha256": "62e9dce038b6feb419504c2a8f9cea25c9709cbf585f4c2ba0c1edaeda644b9f"
+    },
+    {
+      "path": "site/src/content/cheat-sheets/en/17-parameter-initialization.json",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/cheat-sheets/en/17-parameter-initialization.json",
+      "baselineSha256": "c3bfdd6b594ea408737a32be9b885c2505bdb91636022de1243fc0b59666ddae",
+      "sha256": "8f3d002a034a853773378423856a8bf9e46fd25eeaa6129343ca4233d6411d0f"
+    },
+    {
+      "path": "site/src/content/cheat-sheets/ru/17-parameter-initialization.json",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/cheat-sheets/ru/17-parameter-initialization.json",
+      "baselineSha256": "dd6799ca8b2fb319d8516425182d7f9a3bd911e35432b0cf9209e7a3acbab09f",
+      "sha256": "d112018b9e91b868241c5f5f5e39aebbcba61c780637e747d1b8ae251c4efcef"
+    },
+    {
+      "path": "site/tests/17-parameter-initialization-diagram.test.ts",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/tests/17-parameter-initialization-diagram.test.ts",
+      "baselineSha256": "a7911666e7dc3c63ce7b7c7f9d2f5fbf98ff9375eac680983e3a63e39eb11fd8",
+      "sha256": "4d2ed090964d2529e2c8e7059d2cfdd7eb70be33446ed28ebb022030173bdca5"
+    },
+    {
+      "path": "site/tests/e2e/ch17-parameter-initialization.spec.ts",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/tests/e2e/ch17-parameter-initialization.spec.ts",
+      "baselineSha256": "1578aa38d30ebd5042fe4b1527593eb974af7fa77185d724da7c12a235d4f39c",
+      "sha256": "8e1ced0182419235fc69c30684f5e3d8554138b61a753242d2cfe74f71fdba88"
+    },
+    {
+      "path": "curriculum/course-plan.md",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/curriculum/course-plan.md",
+      "baselineSha256": "f594b3a989ab2a409782842308c9ca255624b3d1a1163d8be0a8eb7ad02c578a",
+      "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+    },
+    {
+      "path": "site/tests/content-contract.test.ts",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/tests/content-contract.test.ts",
+      "baselineSha256": "b0963b495e66cb49d8e4d52f83bb5c09fdc34004b07a43c9c6652d6c87d25a81",
+      "sha256": "9e0ac383da26ea4928bde8f8549fe4ae62449c0f4ff83243e4aca2b118ea9eba"
+    },
+    {
+      "path": "site/tests/e2e/cheat-sheets.spec.ts",
+      "stagedPath": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/tests/e2e/cheat-sheets.spec.ts",
+      "baselineSha256": "cc2eca3a98710fc25a61155142cdd460628d307d59a55cc4ecb7c9f77f9f4a68",
+      "sha256": "9cf4ae64e4d1c5eef005b731d267c4837ee831f462618dbbb8b277f567c57b88"
+    }
+  ]
+}

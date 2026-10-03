@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "phase": "published",
+  "locale": "en",
+  "candidate": "audits/2026-10-02-ch17-problem-first/english-r6",
+  "facts": [
+    {
+      "actual": "site/src/content/chapters/en/17-parameter-initialization.mdx",
+      "logical": "site/src/content/chapters/en/17-parameter-initialization.mdx",
+      "frozen": "audits/2026-10-02-ch17-problem-first/english-r6/frozen/lesson.en.mdx",
+      "sha256": "c93bb0af9bb3a9a0e44521807c63f6c4dede7e7fe7cba478d3486508c5c88927",
+      "bytes": 37915
+    },
+    {
+      "actual": "site/src/content/cheat-sheets/en/17-parameter-initialization.json",
+      "logical": "site/src/content/cheat-sheets/en/17-parameter-initialization.json",
+      "frozen": "audits/2026-10-02-ch17-problem-first/english-r6/frozen/sheet.en.json",
+      "sha256": "8f3d002a034a853773378423856a8bf9e46fd25eeaa6129343ca4233d6411d0f",
+      "bytes": 1723
+    },
+    {
+      "actual": "curriculum/chapters/17-parameter-initialization.md",
+      "projection": "English/shared metadata and unchanged body, excluding Russian/translation_notes",
+      "logical": "audits/2026-10-02-ch17-problem-first/english-r6/publication/contract.en.md",
+      "sha256": "46ee8fd9b58edd16c8fcacc9735035e80210b1ea9f03aa9e4c124554a0176d0e"
+    },
+    {
+      "actual": "audits/2026-10-02-ch17-problem-first/english-r6/frozen/isolated.en.html",
+      "logical": "audits/2026-10-02-ch17-problem-first/english-r6/publication/isolated.en.html",
+      "frozen": "audits/2026-10-02-ch17-problem-first/english-r6/frozen/isolated.en.html",
+      "sha256": "f07d7c6dc2648ef5d50faa57c34331751fe9b4ff398765ca31d40c684eaa10ae",
+      "bytes": 16257
+    },
+    {
+      "actual": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/published-build/dist/en/course/17-parameter-initialization/index.html",
+      "logical": ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/final-build/dist/en/course/17-parameter-initialization/index.html",
+      "frozen": "audits/2026-10-02-ch17-problem-first/english-r6/frozen/lesson.en.html",
+      "sha256": "ba438d01c535c6a5c7cd0d0a0d699f8e1089d5de659466a728cd17bb547af472",
+      "bytes": 309870
+    }
+  ],
+  "limitations": "Hash-bound actual publication adapter only; no semantic record changed, no prior run artifact overwritten, no new language verdict."
+}

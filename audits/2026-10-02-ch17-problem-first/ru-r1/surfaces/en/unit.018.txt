@@ -1,0 +1,1 @@
+Choose the width-aware scale before mapping one draw to each row-major weight rust/crates/llm-from-scratch/src/nn/init.rs#xavier-initialization

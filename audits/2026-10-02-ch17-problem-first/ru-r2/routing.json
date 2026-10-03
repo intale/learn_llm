@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "candidate": "audits/2026-10-02-ch17-problem-first/ru-r2",
+  "roles": {
+    "bilingual": {
+      "contextId": "ch17_v5_ru_r2_bilingual",
+      "contextPath": "audits/2026-10-02-ch17-problem-first/ru-r2/contexts/bilingual.json",
+      "promptPath": "audits/2026-10-02-ch17-problem-first/ru-r2/prompts/bilingual.txt",
+      "bundlePath": "audits/2026-10-02-ch17-problem-first/ru-r2/bundle/bilingual/review-bundle.json",
+      "schemaPath": ".agents/skills/localize-llm-course/references/review-record.schema.json",
+      "responsePath": "audits/2026-10-02-ch17-problem-first/ru-r2/raw/bilingual.json",
+      "artifacts": {
+        "audits/2026-10-02-ch17-problem-first/ru-r2/contexts/bilingual.json": {
+          "sha256": "c474ee6822527f8cc0624a90d9ebf4f273be00b06fa1fa91869d4f7c305141e7",
+          "bytes": 544
+        },
+        "audits/2026-10-02-ch17-problem-first/ru-r2/prompts/bilingual.txt": {
+          "sha256": "dc30f2241e499b5715b0e0d99cb225145d0966ec51036110db4720775957768d",
+          "bytes": 1395
+        },
+        "audits/2026-10-02-ch17-problem-first/ru-r2/bundle/bilingual/review-bundle.json": {
+          "sha256": "65696007b254503ac5aff162eff4fcf5ac30b095d8da86a267e02794911f1e14",
+          "bytes": 855566
+        },
+        ".agents/skills/localize-llm-course/references/review-record.schema.json": {
+          "sha256": "34996de163025aa6411e19ff72a00fc75e88bbfecd8953672a50d790c4d2b41b",
+          "bytes": 4170
+        }
+      }
+    },
+    "target-only": {
+      "contextId": "ch17_v5_ru_r2_target_only",
+      "contextPath": "audits/2026-10-02-ch17-problem-first/ru-r2/contexts/target-only.json",
+      "promptPath": "audits/2026-10-02-ch17-problem-first/ru-r2/prompts/target-only.txt",
+      "bundlePath": "audits/2026-10-02-ch17-problem-first/ru-r2/bundle/target-only/review-bundle.json",
+      "schemaPath": ".agents/skills/localize-llm-course/references/review-record.schema.json",
+      "responsePath": "audits/2026-10-02-ch17-problem-first/ru-r2/raw/target-only.json",
+      "artifacts": {
+        "audits/2026-10-02-ch17-problem-first/ru-r2/contexts/target-only.json": {
+          "sha256": "4cb39e80c1c996b038d5091ddaf4547abb7389961b329f5c281eb6dec27af183",
+          "bytes": 554
+        },
+        "audits/2026-10-02-ch17-problem-first/ru-r2/prompts/target-only.txt": {
+          "sha256": "41d18229916e685a80ed1b064274578d1159e7199caf786c1fb9b9ff1548effe",
+          "bytes": 2679
+        },
+        "audits/2026-10-02-ch17-problem-first/ru-r2/bundle/target-only/review-bundle.json": {
+          "sha256": "cdb5b76f43b0fc417338101ea2931ee18bfd2d1392d38db2149473db3bdd0159",
+          "bytes": 471540
+        },
+        ".agents/skills/localize-llm-course/references/review-record.schema.json": {
+          "sha256": "34996de163025aa6411e19ff72a00fc75e88bbfecd8953672a50d790c4d2b41b",
+          "bytes": 4170
+        }
+      }
+    }
+  }
+}

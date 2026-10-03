@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "run": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04",
+  "items": [
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/add-integration-pin.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/add-integration-pin.mjs",
+      "bytes": 1405,
+      "sha256": "9b4f8bc5aeb495b90a895f58185c9caaa82f3d115403fc05b0294de8988937b9"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/align-localized-sheet.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/align-localized-sheet.mjs",
+      "bytes": 2248,
+      "sha256": "438d9e3d8e5ae3860cd300b737bba88c36baa8f1c9792d30282fadb71689eb27"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/align-localized-sheet.test.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/align-localized-sheet.test.mjs",
+      "bytes": 2549,
+      "sha256": "2beae6630720cd3661d233d9588ff81efab73c41d06a6f0d14323fb58387236f"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/archive-run-evidence.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/archive-run-evidence.mjs",
+      "bytes": 1825,
+      "sha256": "ad713309fbb73af0c57da6590fdf179fdbc851182703a131795a385c6ffd4923"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/assemble-russian.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/assemble-russian.mjs",
+      "bytes": 3308,
+      "sha256": "9baa9c8c8e56b31d945730e50c9c0a928d70ba8af020c8ca3e0c81dd6eabeedc"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/bootstrap.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/bootstrap.mjs",
+      "bytes": 2188,
+      "sha256": "de9c6fca7c28314cfa76ab87d33835e89aad16da3acf4ccaf62ea04e0d87d82b"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/browser-validation.sh",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/browser-validation.sh",
+      "bytes": 1707,
+      "sha256": "247b32490fb0c8463d816888459da2944fe19c38851cf8f8e05553cb397b3276"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/build-stage.sh",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/build-stage.sh",
+      "bytes": 3620,
+      "sha256": "d9aa738cf6dfa049e3570a23bb9a240f83f84560e2d3ab600c5630666400c654"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/checkpoint-fit.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/checkpoint-fit.mjs",
+      "bytes": 949,
+      "sha256": "5e98071b22b1f3727e87ae9da514a05b567936c2878c16b425e04324f87b466b"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/checkpoint-locale-record.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/checkpoint-locale-record.mjs",
+      "bytes": 2692,
+      "sha256": "090fcf119aad8ab8711009084191691914d1b966b1c67d01e29f1dade9bbc4d7"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/complete-author.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/complete-author.mjs",
+      "bytes": 1778,
+      "sha256": "76de4cb139a1d3bb95539558208e14f5050472cb5532d1e66a0b2bcd22d33ae9"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/layout-diagnostic.spec.ts",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/layout-diagnostic.spec.ts",
+      "bytes": 8356,
+      "sha256": "21e819e40533ad32d8ce7bcd2ebd3b86a5d6c589870776a6b155c4e5906dbcf2"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/offline-node.sh",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/offline-node.sh",
+      "bytes": 422,
+      "sha256": "968d37c1f2b9a8f51934e7b3140a81645455f7eaeba5fd6d1a3d7908dec7882d"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/prepare-english.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/prepare-english.mjs",
+      "bytes": 31564,
+      "sha256": "6d1972a80daceba5f58a2668889132a3d0127f147c87b45126d72233fe2f3b2b"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/prepare-locale-routing.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/prepare-locale-routing.mjs",
+      "bytes": 6102,
+      "sha256": "00a0b135e049e088bea2979703dbeaa0909d1eef72ff6a99c3edcfebb75c30f1"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/prepare-localization.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/prepare-localization.mjs",
+      "bytes": 10743,
+      "sha256": "d36ed626346cdb1d0b7e30674ccc06e44228b9bc4b11bc53f8c68d1d7ec911e2"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish-chapter.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/publish-chapter.mjs",
+      "bytes": 3743,
+      "sha256": "2b104e9e1bc9cae81bec5f4bdc0d29c540fac48db3903871dcfaef2b9dd77d07"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/review-tool.sh",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/review-tool.sh",
+      "bytes": 577,
+      "sha256": "da302bce223a8537189dd9080dbe7882f9811cb67d85223a8d7bba5f04cfbd7c"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/update-cheat-sheet-test.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/update-cheat-sheet-test.mjs",
+      "bytes": 1112,
+      "sha256": "3f555baf6450f8cac88ca7dec1f1fab8335ad780accd529cad02386dff571f66"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/update-test-copy.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/update-test-copy.mjs",
+      "bytes": 2903,
+      "sha256": "8ab1891c852270bb50b970ab4a6d5ca847e6c89f4ab388449bfefa2106cbcb34"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/validate-final-state.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/validate-final-state.mjs",
+      "bytes": 2700,
+      "sha256": "729f15b3c564a3f1d93ca27b8379f4de10f87199dacda79b1006e592aa0bfcfc"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/validate-integration.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/validate-integration.mjs",
+      "bytes": 2910,
+      "sha256": "0297794c060bd7bdd07d74afef682f093a551daa6df9de69a8900f3bfecd4674"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/verify-candidates.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/verify-candidates.mjs",
+      "bytes": 6233,
+      "sha256": "0a5c5a1c99bb8dbe3354fbad42e4a9c64163c6e86b894c0c24363c177f0ff120"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/verify-locale-routing.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/verify-locale-routing.mjs",
+      "bytes": 2958,
+      "sha256": "19a21b348603b7fa96a416e12f89b0182001d623bf76cc862e79bfe2344b73e0"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/verify-locale-routing.test.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/verify-locale-routing.test.mjs",
+      "bytes": 3571,
+      "sha256": "c222fd001ed22c96d5b825e2d2abf95343cf471bac7b071bdfc8a988730fd2f5"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/verify-locale-stage.sh",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/verify-locale-stage.sh",
+      "bytes": 1647,
+      "sha256": "2925fbff9411f6b97ef3177b594677dc1bf249e70a65259252fc273bf732bd92"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/verify-protected.mjs",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/tools/run04/verify-protected.mjs",
+      "bytes": 3937,
+      "sha256": "c041c1f9033cc52f2581784f792806c8e03244cb1c590609a77bd97baed30182"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-01.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/cached-diagnose-validation-01.log",
+      "bytes": 10608,
+      "sha256": "798843518de67bf2afd1c8da9149dc965150e3abd93163e46130a4d14583649c"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-02.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/cached-diagnose-validation-02.log",
+      "bytes": 11710,
+      "sha256": "306a793038f982aa580b9670f577c6f9cd514bdc981eb83cdac22247e06ec553"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-03.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/cached-diagnose-validation-03.log",
+      "bytes": 12448,
+      "sha256": "ac16ce81909f560660fa86a124153231ffd4008b8f1be4c9c639c6e6ef3de28d"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/cached-diagnose-validation-04.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/cached-diagnose-validation-04.log",
+      "bytes": 13531,
+      "sha256": "fc6ad51d667b8c6ded768ffd99ccb952b5b56bea502af1e4c080818cb8af8846"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/copy-fit-evidence-index.json",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/copy-fit-evidence-index.json",
+      "bytes": 3693,
+      "sha256": "583a118b721a63b9b642e66d767917e7208c61d5b2f5cbc7a50f37af92416ef5"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/diagnose-validation-01.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/diagnose-validation-01.log",
+      "bytes": 13745,
+      "sha256": "ed8432198ad2129cc7056b2475dc384dad911eab6eca3d74912cf6c972e76091"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-01.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/final-validation-01.log",
+      "bytes": 7438,
+      "sha256": "b1fac39a9a101e1643a245caecf059bae218a4cf16f64a53dabe0b9e0eb5c7b8"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-02.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/final-validation-02.log",
+      "bytes": 7207,
+      "sha256": "1318cb85638787cde6c34d2b0287ed7bcdd8a35c545e1bb1cca3965b16e1b284"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-03.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/final-validation-03.log",
+      "bytes": 49405,
+      "sha256": "7a4154f5bdf50ed367856c858181d51418a4b798f95577ab4cda4d384af91e36"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-04.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/final-validation-04.log",
+      "bytes": 44110,
+      "sha256": "408f9407e8b378f43245319e959b72aa8a26b15891eb5732733ef14f816f441b"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/final-validation-05.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/final-validation-05.log",
+      "bytes": 44106,
+      "sha256": "55a9c930f906dccfbd4ff732721a14d830c6bf8837402e06472629ee54b6dfe3"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-01.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-01.log",
+      "bytes": 713,
+      "sha256": "6933528c97f75c39e17bdd7640b74f91ac4a4637e0e74bfd80c66fadf01f66bd"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-02.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-02.log",
+      "bytes": 11253,
+      "sha256": "89e09ab0a5976115938d7ec5146ac1e678fe2d6e088208d8110f9ae22254825f"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-03.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-03.log",
+      "bytes": 11259,
+      "sha256": "b3a1490c9f47287c0d987cdd9ed71b50d1fb50c51ab490593f725b6369ab69af"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-04.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-04.log",
+      "bytes": 11279,
+      "sha256": "88f2bc2cd5ef2614f0a5fdf447cd1674d95b198ee9f8c6c629f295d220cb9cea"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-05.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-05.log",
+      "bytes": 11280,
+      "sha256": "e63480a00a766b901357e526fe3e5ab15441594b71fe9770375c6a87aebd69d6"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-06.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-06.log",
+      "bytes": 11250,
+      "sha256": "3af0ee2385a7a13709d864a7edd273c633699850e10f0182ff55d1db141798e4"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-07.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-07.log",
+      "bytes": 11250,
+      "sha256": "685468fde307c92239db68493f02dc618e233c48fd2ad534953ae57e08e21f77"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-08.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-08.log",
+      "bytes": 11280,
+      "sha256": "76f33312ad09e9cc5e560008a0c17b477a6761f6ac20c5410d85d916f18fee25"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/fit-validation-09.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/fit-validation-09.log",
+      "bytes": 9325,
+      "sha256": "b64e61e77be81fa3d4a86a9c2116162a80d605156b378239047d21689ee94bdf"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/evidence/published-validation-01.log",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/evidence/run04/published-validation-01.log",
+      "bytes": 43986,
+      "sha256": "d99f3468b08891e5cc7fdc6f0e1219c643ef32ba240cd6cd5540ef5ed0905664"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/author-inputs.json",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/author-inputs.json",
+      "bytes": 4684,
+      "sha256": "5b272061bb8c66418a4bdf491d32d18ba33a4c2c33a02297ef03ddebffd7f698"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/preflight.md",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/preflight.md",
+      "bytes": 1387,
+      "sha256": "9a4f51f747ca847e05fed46793ca94126226d4ea44e2879d875b98e63f6d1885"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/ru-author-notes/cheat-sheet-correspondence.json",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/ru-author-notes/cheat-sheet-correspondence.json",
+      "bytes": 1003,
+      "sha256": "ccfe79c98614b35393503bbd39c499d8b314d9c24e29f82a6d1edd5c89fbaf76"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/ru-author-notes/context-complete-r2.json",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/ru-author-notes/context-complete-r2.json",
+      "bytes": 2323,
+      "sha256": "41e04ad4b73320bcb19cb8d3900cea6e7a306f638529058f5f5c104a1a39d33f"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/ru-author-notes/context-complete.json",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/ru-author-notes/context-complete.json",
+      "bytes": 1826,
+      "sha256": "2bac8cc3a5878ec1cdca512d1921265c58e87f6efeef62476fbac738fabd3a9f"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/ru-author-notes/context-start.json",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/ru-author-notes/context-start.json",
+      "bytes": 560,
+      "sha256": "25e886eaca9bd125007dea5ed5c728ad3d1ff30ea1ce830a7682905f62bbf6e6"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/ru-author-notes/meaning-lock.md",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/ru-author-notes/meaning-lock.md",
+      "bytes": 1474,
+      "sha256": "11a3b67bc76de262a1fb81704a5e3ef9a80214da21d69b6570007ecb03059bf4"
+    },
+    {
+      "source": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/ru-author-notes/revision-r2.md",
+      "path": "audits/2026-10-02-ch17-problem-first/verification/provenance/run04/ru-author-notes/revision-r2.md",
+      "bytes": 1107,
+      "sha256": "d6dfd0377a03973cceb136112431cec0aa8d950cde89b8248635c34d93e5c77f"
+    }
+  ],
+  "limitations": "Byte-identical promotion of narrowly scoped tools, recorded attempts and provenance. Failed trials remain failed; this archive supplies no new semantic verdict."
+}

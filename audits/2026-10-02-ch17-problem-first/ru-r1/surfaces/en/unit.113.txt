@@ -1,0 +1,1 @@
+In this chapter Initialize named trainable matrices reproducibly at width-aware scales, distinguish hidden-unit symmetry from signal-scale drift, and explain the starting policies for biases, normalization gains, and token tables.

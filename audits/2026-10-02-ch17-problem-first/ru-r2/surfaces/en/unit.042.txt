@@ -1,0 +1,1 @@
+Explain why one finite [2,2] tensor need not have measured variance exactly 1/2.

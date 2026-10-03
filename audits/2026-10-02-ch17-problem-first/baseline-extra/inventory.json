@@ -1,0 +1,7 @@
+[
+  {
+    "path": "site/tests/content-contract.test.ts",
+    "frozen": "audits/2026-10-02-ch17-problem-first/baseline-extra/content-contract.test.ts",
+    "sha256": "b0963b495e66cb49d8e4d52f83bb5c09fdc34004b07a43c9c6652d6c87d25a81"
+  }
+]

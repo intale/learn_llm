@@ -1,0 +1,151 @@
+Updated reviewed copy expectations; all following assertions preserved.
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+15:12:51 [content] Syncing content
+15:12:51 [content] Synced content
+15:12:51 [types] Generated 429ms
+15:12:51 [build] output: "static"
+15:12:51 [build] mode: "static"
+15:12:51 [build] directory: /tmp/ch17-work/site/dist/
+15:12:51 [build] Collecting build info...
+15:12:51 [build] ✓ Completed in 438ms.
+15:12:51 [build] Building static entrypoints...
+15:12:57 [vite] ✓ built in 6.42s
+15:12:57 [vite] ✓ built in 10ms
+15:12:57 [build] Rearranging server assets...
+
+ generating static routes 
+15:12:57   ├─ /sitemap.xml (+9ms) 
+15:12:57   ├─ /en/course/index.html (+8ms) 
+15:12:57   ├─ /ru/course/index.html (+5ms) 
+15:12:57   ├─ /en/course/00-llm-parts/index.html (+11ms) 
+15:12:57   ├─ /ru/course/00-llm-parts/index.html (+7ms) 
+15:12:57   ├─ /en/course/01-text-units/index.html (+24ms) 
+15:12:57   ├─ /ru/course/01-text-units/index.html (+12ms) 
+15:12:57   ├─ /en/course/02-corpus-partitions/index.html (+30ms) 
+15:12:57   ├─ /ru/course/02-corpus-partitions/index.html (+22ms) 
+15:12:57   ├─ /en/course/03-learn-bpe-merges/index.html (+18ms) 
+15:12:57   ├─ /ru/course/03-learn-bpe-merges/index.html (+18ms) 
+15:12:57   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+25ms) 
+15:12:57   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+22ms) 
+15:12:57   ├─ /en/course/05-autoregressive-examples/index.html (+27ms) 
+15:12:57   ├─ /ru/course/05-autoregressive-examples/index.html (+23ms) 
+15:12:57   ├─ /en/course/06-bigram-baseline/index.html (+30ms) 
+15:12:57   ├─ /ru/course/06-bigram-baseline/index.html (+26ms) 
+15:12:58   ├─ /en/course/07-language-model-metrics/index.html (+26ms) 
+15:12:58   ├─ /ru/course/07-language-model-metrics/index.html (+25ms) 
+15:12:58   ├─ /en/course/08-tensor-storage/index.html (+21ms) 
+15:12:58   ├─ /ru/course/08-tensor-storage/index.html (+20ms) 
+15:12:58   ├─ /en/course/09-tensor-views/index.html (+25ms) 
+15:12:58   ├─ /ru/course/09-tensor-views/index.html (+25ms) 
+15:12:58   ├─ /en/course/10-broadcasting-reductions/index.html (+24ms) 
+15:12:58   ├─ /ru/course/10-broadcasting-reductions/index.html (+23ms) 
+15:12:58   ├─ /en/course/11-matrix-multiplication/index.html (+28ms) 
+15:12:58   ├─ /ru/course/11-matrix-multiplication/index.html (+29ms) 
+15:12:58   ├─ /en/course/12-stable-softmax/index.html (+36ms) 
+15:12:58   ├─ /ru/course/12-stable-softmax/index.html (+38ms) 
+15:12:58   ├─ /en/course/13-gradient-checking/index.html (+58ms) 
+15:12:58   ├─ /ru/course/13-gradient-checking/index.html (+53ms) 
+15:12:58   ├─ /en/course/14-scalar-autodiff/index.html (+33ms) 
+15:12:58   ├─ /ru/course/14-scalar-autodiff/index.html (+32ms) 
+15:12:58   ├─ /en/course/15-tensor-autodiff-core/index.html (+68ms) 
+15:12:58   ├─ /ru/course/15-tensor-autodiff-core/index.html (+67ms) 
+15:12:58   ├─ /en/course/16-model-autodiff-ops/index.html (+51ms) 
+15:12:58   ├─ /ru/course/16-model-autodiff-ops/index.html (+46ms) 
+15:12:58   ├─ /en/course/17-parameter-initialization/index.html (+33ms) 
+15:12:58   ├─ /ru/course/17-parameter-initialization/index.html (+28ms) 
+15:12:58   ├─ /en/course/18-token-embeddings/index.html (+36ms) 
+15:12:58   ├─ /ru/course/18-token-embeddings/index.html (+33ms) 
+15:12:58   ├─ /en/course/19-linear-layers/index.html (+37ms) 
+15:12:58   ├─ /ru/course/19-linear-layers/index.html (+36ms) 
+15:12:58   ├─ /en/course/20-swiglu-feed-forward/index.html (+48ms) 
+15:12:59   ├─ /ru/course/20-swiglu-feed-forward/index.html (+48ms) 
+15:12:59   ├─ /en/course/21-mini-batches/index.html (+47ms) 
+15:12:59   ├─ /ru/course/21-mini-batches/index.html (+47ms) 
+15:12:59   ├─ /en/course/22-adamw/index.html (+75ms) 
+15:12:59   ├─ /ru/course/22-adamw/index.html (+74ms) 
+15:12:59   ├─ /en/course/23-neural-ngram/index.html (+41ms) 
+15:12:59   ├─ /ru/course/23-neural-ngram/index.html (+40ms) 
+15:12:59   ├─ /en/course/24-residual-connections/index.html (+28ms) 
+15:12:59   ├─ /ru/course/24-residual-connections/index.html (+30ms) 
+15:12:59   ├─ /en/course/25-rmsnorm/index.html (+33ms) 
+15:12:59   ├─ /ru/course/25-rmsnorm/index.html (+30ms) 
+15:12:59   ├─ /en/course/26-qkv-projections/index.html (+38ms) 
+15:12:59   ├─ /ru/course/26-qkv-projections/index.html (+35ms) 
+15:12:59   ├─ /en/course/27-self-attention/index.html (+43ms) 
+15:12:59   ├─ /ru/course/27-self-attention/index.html (+43ms) 
+15:12:59   ├─ /en/course/28-causal-masking/index.html (+34ms) 
+15:12:59   ├─ /ru/course/28-causal-masking/index.html (+33ms) 
+15:12:59   ├─ /en/course/29-rope/index.html (+41ms) 
+15:12:59   ├─ /ru/course/29-rope/index.html (+38ms) 
+15:12:59   ├─ /en/course/30-multi-head-attention/index.html (+81ms) 
+15:12:59   ├─ /ru/course/30-multi-head-attention/index.html (+123ms) 
+15:13:00   ├─ /en/course/31-decoder-block/index.html (+45ms) 
+15:13:00   ├─ /ru/course/31-decoder-block/index.html (+41ms) 
+15:13:00   ├─ /en/course/32-decoder-model/index.html (+71ms) 
+15:13:00   ├─ /ru/course/32-decoder-model/index.html (+67ms) 
+15:13:00   ├─ /en/course/33-training-selection/index.html (+61ms) 
+15:13:00   ├─ /ru/course/33-training-selection/index.html (+60ms) 
+15:13:00   ├─ /en/course/34-final-evaluation/index.html (+42ms) 
+15:13:00   ├─ /ru/course/34-final-evaluation/index.html (+41ms) 
+15:13:00   ├─ /en/course/35-checkpoints/index.html (+43ms) 
+15:13:00   ├─ /ru/course/35-checkpoints/index.html (+48ms) 
+15:13:00   ├─ /en/course/36-temperature-top-k/index.html (+64ms) 
+15:13:00   ├─ /ru/course/36-temperature-top-k/index.html (+63ms) 
+15:13:00   ├─ /en/course/37-incremental-attention/index.html (+75ms) 
+15:13:00   ├─ /ru/course/37-incremental-attention/index.html (+67ms) 
+15:13:00   ├─ /en/course/38-cached-generation/index.html (+90ms) 
+15:13:00   ├─ /ru/course/38-cached-generation/index.html (+92ms) 
+15:13:00   ├─ /en/course/39-end-to-end-llm/index.html (+35ms) 
+15:13:01   ├─ /ru/course/39-end-to-end-llm/index.html (+33ms) 
+15:13:01   ├─ /en/index.html (+1ms) 
+15:13:01   ├─ /ru/index.html (+1ms) 
+15:13:01   ├─ /index.html (+1ms) 
+15:13:01 ✓ Completed in 3.39s.
+
+15:13:01 [build] ✓ Completed in 9.90s.
+15:13:01 [build] 85 page(s) built in 10.34s
+15:13:01 [build] Complete!
+
+> learn-llm-site@0.1.0 test:links
+> node ../scripts/check-static-links.mjs
+
+Static link check passed: 85 HTML file(s), 2939 local reference(s), 85 SEO route(s), 85 sitemap URL(s), 85 analytics route(s), 169 total artifact(s).
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox --workers=2 --grep @chapter:17-parameter-initialization --grep-invert the complete ru Rust-backed lesson
+
+
+Running 5 tests using 2 workers
+
+[1/5] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:732:5 › chapter 17 localized parameter-initialization vertical slice › the complete en Rust-backed lesson renders at desktop and narrow widths @chapter:17-parameter-initialization
+[2/5] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:672:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 is seventeenth on both indexes with direct equivalent locale routes @chapter:17-parameter-initialization
+[3/5] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:749:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 full view fits both locales without substantial travel @chapter:17-parameter-initialization
+[4/5] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:858:3 › chapter 17 localized parameter-initialization vertical slice › zero, oversized, and Xavier states survive forced colors in both locales @chapter:17-parameter-initialization
+  1) [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:749:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 full view fits both locales without substantial travel @chapter:17-parameter-initialization 
+
+    Error: en/parameter-initialization full-view block debt: {"parts":[{"name":"course-diagram__caption","height":228},{"name":"diagram-full-view-actions","height":52},{"name":"summary-grid","height":89},{"name":"distribution-section","height":672},{"name":"propagation-section","height":494},{"name":"reproducibility-section","height":225}],"distributionParts":[{"name":"","height":21},{"name":"bin-note","height":75},{"name":"distribution-grid course-diagram__grid","height":216},{"name":"pairing-note course-diagram__card-stack","height":114},{"name":"histogram-scroll course-diagram__scroll","height":279}],"histogramRows":[{"text":"Weight rule   [−0.45,[-0","height":64},{"text":"0    0 0.0%       0 0.0%","height":69},{"text":"2×    409 10.0%       49","height":69},{"text":"X    0 0.0%       0 0.0%","height":69}],"rowGap":"1.6px"}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 192
+    Received:    315
+
+      833 |             rowGap: geometry.rowGap,
+      834 |           }),
+    > 835 |       ).toBeLessThanOrEqual(geometry.blockBudget);
+          |         ^
+      836 |       expect(
+      837 |         geometry.inlineDebt,
+      838 |         geometryLabel + ' full-view inline debt',
+        at /tmp/ch17-work/site/tests/e2e/ch17-parameter-initialization.spec.ts:835:9
+
+    Error Context: test-results/ch17-parameter-initializat-e45b5--without-substantial-travel-firefox/error-context.md
+
+
+[5/5] [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:892:3 › chapter 17 localized parameter-initialization vertical slice › localized diagram prose follows direction while technical evidence remains left-to-right @chapter:17-parameter-initialization
+  1 failed
+    [firefox] › tests/e2e/ch17-parameter-initialization.spec.ts:749:3 › chapter 17 localized parameter-initialization vertical slice › chapter 17 full view fits both locales without substantial travel @chapter:17-parameter-initialization 
+  4 passed (8.6s)

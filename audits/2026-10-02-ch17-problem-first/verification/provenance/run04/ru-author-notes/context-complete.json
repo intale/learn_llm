@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "contextId": "ch17_ru_root_author_20261003",
+  "runtimeContext": "/root",
+  "newAgentContext": false,
+  "role": "translation-author",
+  "model": "gpt-6.1-sol",
+  "reasoning": "xhigh",
+  "startedAt": "2026-10-03T06:31:00Z",
+  "sourceCandidate": "ch17.en.r5.20261002.r6",
+  "sourceBindingSha256": "253b1f5886453cbf7c0fbc63ea5c783c41e2676851fdd0399bf1881365c17048",
+  "scope": "Root authoring owns the direct complete Russian translation under the corrected localization skill. No new author context or independent review is claimed.",
+  "completedAt": "2026-10-03T07:48:45.731Z",
+  "outputs": [
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/curriculum/chapters/17-parameter-initialization.md",
+      "sha256": "8e9d1b28280648b142967ae85c1d82bf98534f6cb780bd36ad3392d546207290"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/chapters/ru/17-parameter-initialization.mdx",
+      "sha256": "62e9dce038b6feb419504c2a8f9cea25c9709cbf585f4c2ba0c1edaeda644b9f"
+    },
+    {
+      "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/publish/site/src/content/cheat-sheets/ru/17-parameter-initialization.json",
+      "sha256": "d112018b9e91b868241c5f5f5e39aebbcba61c780637e747d1b8ae251c4efcef"
+    }
+  ],
+  "meaningLock": {
+    "path": ".build/runs/20261003T063100Z-rewrite-ch17-problem-first-content-04/ru-author-notes/meaning-lock.md",
+    "sha256": "11a3b67bc76de262a1fb81704a5e3ef9a80214da21d69b6570007ecb03059bf4"
+  },
+  "selfAudit": "Complete direct translation preserves mathematical literals, eight section roles, ten optional explained-result tasks/answers and source ordering; no learner prediction prompts. Self-audit is not publication certification."
+}

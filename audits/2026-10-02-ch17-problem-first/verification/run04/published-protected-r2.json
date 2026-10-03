@@ -1,0 +1,73 @@
+{
+  "phase": "published",
+  "protectedRecords": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "sha256": "1b1ae0524d285cc18a6cb48a75c7adbe18478cf258779bf7fdbb8f99c1b33725"
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "sha256": "9740564b0c5f1b5d1b4455bda44a2eef9754e4e0a05edc229d3ca9ec73c302d5"
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/main.rs",
+      "sha256": "367fbc19303172ca7b1820ba6b0858e05ad28e1ceca3ad7e63cd889e244f779a"
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/diagram_trace.rs",
+      "sha256": "715745e21791537971141572eb9a391ed67823dbb13b1fb7a4fcec7a341f63b6"
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/expected.txt",
+      "sha256": "3995d60db6119e21a4afbef8530b8c2f7a72d72fae1e7e46f0c890975b02c1e5"
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/diagram-trace.txt",
+      "sha256": "094f6429605483879980e93edee5df507a9a47461ae9e4931f5d06fbccf950ed"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+    },
+    {
+      "path": "site/src/components/chapters/ParameterInitializationDiagram.astro",
+      "sha256": "47d583dde7a004cad384326b3246124a6b5938679b08927b7e38e8b1d4e3e893"
+    },
+    {
+      "path": "site/src/lib/parameter-initialization-diagram.ts",
+      "sha256": "fcb54f4c54d98b9c1f7cda7d9ea825d5bc7c562c34cd454395774406c0ef07bb"
+    },
+    {
+      "path": ".agents/skills/author-llm-course-english/SKILL.md",
+      "sha256": "3b9b8b8c7906b42667b4bb686a4ca193ba751cd2ec452ee601e9b9de701e4f3e"
+    },
+    {
+      "path": ".agents/skills/localize-llm-course/SKILL.md",
+      "sha256": "86ccebbf9bfb70b71f2a051426e60cd9e4d89ecbf0d3fb9a6876c5940ab7ff34"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "3d19c12203f598753779281f55a81a45f7d91e1a34f60c7fcbf629b51c509ba9"
+    },
+    {
+      "path": "SKILLS.md",
+      "sha256": "a34b1a7683924796c3922739ea24897f577c488d32a5daad80f73bbb90a0c19f"
+    }
+  ],
+  "mathRecords": [
+    {
+      "path": "site/src/content/chapters/en/17-parameter-initialization.mdx",
+      "baselineOccurrences": 44,
+      "currentOccurrences": 59,
+      "missing": []
+    },
+    {
+      "path": "site/src/content/chapters/ru/17-parameter-initialization.mdx",
+      "baselineOccurrences": 44,
+      "currentOccurrences": 59,
+      "missing": []
+    }
+  ],
+  "formula": "\\operatorname{Var}(W_{ij})=\\frac{2}{\\operatorname{fan}_{in}+\\operatorname{fan}_{out}}",
+  "figureId": "parameter-initialization"
+}

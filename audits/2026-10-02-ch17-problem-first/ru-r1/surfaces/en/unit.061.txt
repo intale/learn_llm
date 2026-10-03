@@ -1,0 +1,1 @@
+W_{ij} | The sampled coefficient carrying input coordinate i into output coordinate j.

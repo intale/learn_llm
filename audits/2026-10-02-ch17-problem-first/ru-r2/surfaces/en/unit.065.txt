@@ -1,0 +1,1 @@
+2 | The numerator balancing forward fan-in and backward fan-out variance conditions.

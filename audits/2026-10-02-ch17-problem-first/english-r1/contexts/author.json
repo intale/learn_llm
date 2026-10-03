@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "contextId": "ch17_whole_english_author_v5",
+  "candidateId": "ch17.en.r5.20261002.r1",
+  "scopeId": "ch17.en.20261002.r1",
+  "role": "english-author",
+  "freshContext": true,
+  "model": "gpt-6.1-sol",
+  "reasoning": "max",
+  "startedAt": "2026-10-02T08:13:35Z",
+  "completedAt": "2026-10-02T08:49:52Z",
+  "purpose": "Fresh dedicated whole-chapter authoring; routed /root/ch17_whole_english_author_v5 with inherited user selection, disjoint staged output ownership."
+}

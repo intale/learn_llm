@@ -1,0 +1,18 @@
+{
+  "chapter_id": "17-parameter-initialization",
+  "locale": "en",
+  "title": "Initialize trainable weights reproducibly",
+  "description": "A quick reference for the scale, symmetry, and reproducibility terms used here.",
+  "terms": [
+    {"term": "Parameter initialization", "definition": "Choosing trainable values before optimization begins updating the model."},
+    {"term": "Hidden-unit symmetry", "definition": "Equal units receiving equal gradients and remaining indistinguishable after updates."},
+    {"term": "Fan-in", "definition": "The number of input features accumulated into each output feature."},
+    {"term": "Fan-out", "definition": "The number of output features that receive each input feature."},
+    {"term": "Xavier-style initialization", "definition": "A zero-centered sampling rule balancing forward and backward width effects."},
+    {"term": "Target variance", "definition": "The intended variance of a sampling distribution, not one matrix's measurement."},
+    {"term": "Uniform bound", "definition": "The maximum absolute endpoint of a zero-centered uniform sampling interval."},
+    {"term": "Seed", "definition": "The initial deterministic generator state controlling a reproducible sample stream."},
+    {"term": "Reproducibility", "definition": "Producing identical parameter values from identical requests and construction order."},
+    {"term": "Pseudorandom generator", "definition": "A deterministic algorithm producing random-like values from an explicit state."}
+  ]
+}

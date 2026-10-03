@@ -1,0 +1,30 @@
+{
+  "evidenceKind": "Read-only primary-source inspection; bounded source claims, not a local complete-paper archive",
+  "inspectedAt": "2026-10-02T08:15:00Z",
+  "sources": [
+    {
+      "id": "history-bengio-2003",
+      "url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+      "title": "A Neural Probabilistic Language Model",
+      "locators": ["Section 1.1, jointly learning features and probability-function parameters", "Section 2, learned word-feature matrix C", "Section 4, page 1148, random feature initialization"],
+      "boundedClaim": "The model jointly learns word features and neural next-word parameters. It reports random word-feature initialization similar to neural-network weights. This is not evidence for this course's exact generator, seed, naming or dimension-aware policy.",
+      "shortExactExcerpt": "Random initialization of the word features was done (similarly to initialization of neural network weights)"
+    },
+    {
+      "id": "history-glorot-2010",
+      "url": "https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf",
+      "title": "Understanding the difficulty of training deep feedforward neural networks",
+      "locators": ["Section 4.2.1, equations 10-12", "Section 4.2.1, equation 16", "Section 4.3, limits of linearity/independence during learning"],
+      "boundedClaim": "Under simplifying independence and near-linear assumptions, forward fan-in and backward fan-out variance constraints motivate a compromise variance 2/(fan_in+fan_out) and a zero-centered uniform bound sqrt(6/(fan_in+fan_out)). This is not a universal nonlinear decoder stability theorem.",
+      "shortExactExcerpt": "As a compromise between these two constraints, we might want to have"
+    },
+    {
+      "id": "history-vaswani-2017",
+      "url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+      "title": "Attention Is All You Need",
+      "locators": ["Section 3.2.2, learned attention projections", "Section 3.3, two feed-forward linear transformations", "Section 3.4, learned embeddings and embedding forward scaling"],
+      "boundedClaim": "Transformer layers repeat learned attention and feed-forward projections and use learned token embeddings. Its attention and embedding forward scaling must not be confused with this course's initialization policy; the paper does not prescribe this initializer.",
+      "shortExactExcerpt": "consists of two linear transformations with a ReLU activation in between"
+    }
+  ]
+}

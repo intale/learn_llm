@@ -1,0 +1,14 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const run=process.argv[2],audit='audits/2026-10-02-ch17-problem-first',path='site/tests/content-contract.test.ts';
+const sha=b=>createHash('sha256').update(b).digest('hex');
+const source=readFileSync(path,'utf8'),old='bb150c85c12016c505e316d7cc79c1f39d78692ba04379de5ca06a7b58d9e1ee';
+if(source.split(old).length!==2)throw Error('Expected single old plan identity assertion');
+const value=sha(readFileSync(run+'/publish/curriculum/course-plan.md'));
+mkdirSync(run+'/publish/site/tests',{recursive:true});
+writeFileSync(run+'/publish/'+path,source.replace(old,value));
+mkdirSync(audit+'/baseline-extra',{recursive:true});
+writeFileSync(audit+'/baseline-extra/content-contract.test.ts',source,{flag:'wx'});
+writeFileSync(audit+'/baseline-extra/inventory.json',JSON.stringify([{path,frozen:audit+'/baseline-extra/content-contract.test.ts',sha256:sha(Buffer.from(source))}],null,2)+'\n',{flag:'wx'});
+writeFileSync(run+'/integration-pin-preflight.json',JSON.stringify({path,baselineSha256:sha(Buffer.from(source)),baselinePlanSha256:sha(readFileSync('curriculum/course-plan.md')),priorExpectedPlanSha256:old,newExpectedPlanSha256:value,change:'One exact course-plan hash literal only; all test logic and assertions unchanged.'},null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({path,expected:value}));

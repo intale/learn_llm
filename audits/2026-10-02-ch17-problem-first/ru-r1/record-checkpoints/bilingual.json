@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "status": "structurally-valid-fail",
+  "role": "bilingual",
+  "contextId": "ch17_v5_ru_r1_bilingual",
+  "rawPath": "audits/2026-10-02-ch17-problem-first/ru-r1/raw/bilingual.json",
+  "rawSha256": "89a0b3f9078be7a0e45dd7ca7fa19f43e9d9963c949dadfa3b309bb6b07df7ac",
+  "rawBytes": 7073,
+  "coveredSurfaces": 133,
+  "findings": 3,
+  "structuralValidatorSha256": "ffeaa2ae47ddf319b2b43344e93f4e17641f93d6add4d398cc48c66446ffe5d6",
+  "limits": "Untouched raw bytes. A failed semantic judgment remains failed and cannot authorize publication."
+}

@@ -1,0 +1,1 @@
+With shape [2,2], fan-in 2, fan-out 2, and construction order unchanged, the selected seed-18 tensor values differ from those from seed 17. This one comparison does not prove that all possible seed/request pairs produce unique tensors.

@@ -1,0 +1,74 @@
+{
+  "baseline_commit": "27a479c1b2bce0779d686dcc864af7d4e1e6265a",
+  "files": {
+    "curriculum/chapters/17-parameter-initialization.md": "sha256:91deb3dab7b089c60c7348554fa76193f8901d5dc88c7f4e89970e69a854ab06",
+    "site/src/content/chapters/en/17-parameter-initialization.mdx": "sha256:0044af21f3299ed1b952bfeee545f83ad3c0bbe6ffa1582781693d3bc41270d4",
+    "site/src/content/chapters/ru/17-parameter-initialization.mdx": "sha256:901a421343fe9d76060f928464c10e7c41c0442cd2360261e5b4bb509da95fc4",
+    "site/src/content/cheat-sheets/en/17-parameter-initialization.json": "sha256:c3bfdd6b594ea408737a32be9b885c2505bdb91636022de1243fc0b59666ddae",
+    "site/src/content/cheat-sheets/ru/17-parameter-initialization.json": "sha256:dd6799ca8b2fb319d8516425182d7f9a3bd911e35432b0cf9209e7a3acbab09f",
+    "rust/crates/llm-from-scratch/src/nn/init.rs": "sha256:1b1ae0524d285cc18a6cb48a75c7adbe18478cf258779bf7fdbb8f99c1b33725",
+    "rust/demos/ch17-parameter-initialization/src/lib.rs": "sha256:9740564b0c5f1b5d1b4455bda44a2eef9754e4e0a05edc229d3ca9ec73c302d5",
+    "rust/demos/ch17-parameter-initialization/src/main.rs": "sha256:367fbc19303172ca7b1820ba6b0858e05ad28e1ceca3ad7e63cd889e244f779a",
+    "rust/demos/ch17-parameter-initialization/src/diagram_trace.rs": "sha256:715745e21791537971141572eb9a391ed67823dbb13b1fb7a4fcec7a341f63b6",
+    "rust/demos/ch17-parameter-initialization/expected.txt": "sha256:3995d60db6119e21a4afbef8530b8c2f7a72d72fae1e7e46f0c890975b02c1e5",
+    "rust/demos/ch17-parameter-initialization/diagram-trace.txt": "sha256:094f6429605483879980e93edee5df507a9a47461ae9e4931f5d06fbccf950ed",
+    "Cargo.lock": "sha256:b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1",
+    "site/src/components/chapters/ParameterInitializationDiagram.astro": "sha256:47d583dde7a004cad384326b3246124a6b5938679b08927b7e38e8b1d4e3e893",
+    "site/src/lib/parameter-initialization-diagram.ts": "sha256:fcb54f4c54d98b9c1f7cda7d9ea825d5bc7c562c34cd454395774406c0ef07bb",
+    "site/tests/17-parameter-initialization-diagram.test.ts": "sha256:a7911666e7dc3c63ce7b7c7f9d2f5fbf98ff9375eac680983e3a63e39eb11fd8",
+    "site/tests/e2e/ch17-parameter-initialization.spec.ts": "sha256:1578aa38d30ebd5042fe4b1527593eb974af7fa77185d724da7c12a235d4f39c",
+    "curriculum/course-plan.md": "sha256:f594b3a989ab2a409782842308c9ca255624b3d1a1163d8be0a8eb7ad02c578a",
+    ".agents/skills/author-llm-course-english/SKILL.md": "sha256:3b9b8b8c7906b42667b4bb686a4ca193ba751cd2ec452ee601e9b9de701e4f3e",
+    ".agents/skills/localize-llm-course/SKILL.md": "sha256:86ccebbf9bfb70b71f2a051426e60cd9e4d89ecbf0d3fb9a6876c5940ab7ff34",
+    "AGENTS.md": "sha256:3d19c12203f598753779281f55a81a45f7d91e1a34f60c7fcbf629b51c509ba9",
+    "SKILLS.md": "sha256:a34b1a7683924796c3922739ea24897f577c488d32a5daad80f73bbb90a0c19f"
+  },
+  "protected_contracts": {
+    "formula_latex": "\\operatorname{Var}(W_{ij})=\\frac{2}{\\operatorname{fan}_{in}+\\operatorname{fan}_{out}}",
+    "diagram_id": "parameter-initialization",
+    "topic": "Glorot/Xavier width-aware parameter initialization",
+    "active_locales": [
+      "en",
+      "ru"
+    ]
+  },
+  "historical_sources_read_only": [
+    "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+    "https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf",
+    "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+  ],
+  "run_id": "20261003T063100Z-rewrite-ch17-problem-first-content-04",
+  "step_id": "rewrite-ch17-problem-first-content-20261002",
+  "selected_configuration_provenance": {
+    "path": "/home/int/.codex/config.toml",
+    "model": "gpt-6.1-sol",
+    "model_reasoning_effort": "xhigh",
+    "policy": "Inherited user selection; not a repository model requirement or provider attestation."
+  },
+  "scope": {
+    "whole_chapter": true,
+    "learner_prediction_prompts": false,
+    "routine_image_review": false,
+    "protected": [
+      "Rust implementation",
+      "Cargo.lock",
+      "trace fixtures",
+      "diagram parser and geometry"
+    ],
+    "allowed_test_changes": "revision and reviewed copy expectations only",
+    "staged_author_outputs": [
+      "Russian lesson",
+      "Russian cheat sheet",
+      "Russian contract fields"
+    ],
+    "network": "none in this continuation"
+  },
+  "reuse": {
+    "approvedEnglish": "audits/2026-10-02-ch17-problem-first/english-r6",
+    "previousRun": ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03",
+    "cacheReceipt": {
+      "path": ".build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-cache-receipt.json",
+      "sha256": "81a2d3c5c64fb9be21407c258fb3c05e5f9e41b74d2f90e13b78abadd3fc2cf6"
+    }
+  }
+}
