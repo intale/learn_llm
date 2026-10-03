@@ -26146,3 +26146,27 @@ The interrupted pre-draft attempt is preserved. A new hash-bound local planning
 helper preserves prior run history and admits only that exact recovery exception;
 completed helpers and run artifacts remain unchanged. Fail-closed duplicate-claim
 and wrong-owner checks were exercised before this packet's publication.
+
+### 2026-10-03 — Chapter 77 bounded JSON language planning
+
+Prepare only the internal constrained-decoding packet. Freeze a concrete finite
+schema subset and canonical byte language; do not imply complete JSON Schema.
+Course Rust owns incremental parser state, complete-piece admissibility and
+the support passed to the existing sampling pipeline. Standard parsing and
+independent final validation remain supporting roles, not hidden mask engines.
+
+Treat UTF-8 and escapes across token pieces explicitly. EOS requires a complete
+document; empty controls do not provide progress. Grammar liveness alone is
+not a guarantee of completion within token, byte or context limits. Failed or
+incomplete output must remain distinguishable from accepted JSON.
+
+Keep ordinary smoke caps and the separate CPU/API envelope. Valid structured
+output remains untrusted data; Chapter 78 still performs host authorization,
+confirmation and execution limits. All implementation and repair holds remain.
+
+Keep original vocabulary IDs and top-k bounds through eligible support. Sampling
+commits RNG/history/grammar before a subsequently needed nonterminal KV append;
+later append or final-validation failure does not rewind the consumed decision.
+The finite-language design returns an explicit incomplete failure at a budget
+cap rather than claiming all live prefixes finish. The mutable GBNF guide needs
+a source-owner revision pin before lesson authoring; no revision is invented.
