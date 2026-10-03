@@ -25987,3 +25987,37 @@ it. Budget4/4 is consumed. Complete YAML and current artifact checks preserve al
 unrelated builds, active planning pointer, future implementation and repair holds.
 Persist only this completed step's ten canonical paths, audit and ledger/decision
 updates in its dedicated Git commit; do not start another chapter.
+
+### 2026-10-03 — Chapter 72 preference-objective planning
+
+The user requests completion of all remaining internal chapter packets (72–85).
+Keep the existing serial dependencies and publish each validated packet in its
+own commit before claiming the next. The planning budget has no numeric limit;
+estimate one medium planning unit per packet. No course implementation, repairs,
+acquisition, dependency installation, training or execution-hold release follows.
+
+This checkpoint prepares Chapter 72 only under the current authoring policies:
+explain the problem and solution before optional practice, omit learner prediction
+prompts, inherit the user-selected model and exclude routine image reviews.
+The current policy-amended extension-plan hash, not its historical original
+hash, binds the input snapshot; preserve the original records and held checker.
+
+Keep the immutable SFT reference separate from both the trainable DPO successor
+and the adapter-disabled evaluation baseline. Sum response-target logprobs within
+each branch; average the objective over pairs, not response tokens. Policy equals
+reference gives neutral loss but generally nonzero gradients; identical branches
+cancel the objective gradient without guaranteeing an unchanged decayed optimizer.
+
+The exact later recipe is 512 pairs, 64 response targets in each branch,
+accumulation 32, 16 updates per seed and seeds 53/59/61. These fixed values govern
+that later phase rather than the older 100–500-update estimate. Freeze parent/seed
+mapping, beta, masks, pair reduction, reference-computation charges and sequential
+branch scheduling before results. Missing compatible shared hooks or honest
+calibration/work accounting is a named execution gate, not an invented exemption.
+
+Chapter 72 owns bounded algorithm fixtures; selected-base realization remains
+open until the later DPO integration receipt. Report all seed outcomes, including
+regressions, and distinguish raw policy preference from reference-relative margin.
+The six historical RLHF stages remain explicitly bounded conceptual/arithmetic
+evidence. No useful reward-model/PPO implementation or broad alignment claim is
+introduced. Internal planning review is not an English publication judgment.

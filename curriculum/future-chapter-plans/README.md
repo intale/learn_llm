@@ -52,8 +52,7 @@ curriculum/resource/queue checks. That reconciliation is also pending now.
 
 ### Current learner-facing authoring policy (2026-10-02)
 
-All future chapters, including the existing Chapter 40–71 packets and pending
-Chapter 72–85 packets, follow **problem definition → solution → history →
+All future Chapter 40–85 packets follow **problem definition → solution → history →
 visualization and small optional practice**. The opening explains the concrete
 problem, why it arises and why the chapter's capability is needed. It contains
 no questions for the student, including rhetorical questions or predictions.
@@ -136,8 +135,9 @@ Completed planning checkpoints:
 - [Chapter 69: cancellation, backpressure, and budgets](69-cancellation-backpressure-budgets.md).
 - [Chapter 70: loopback serving and metrics](70-loopback-serving-metrics.md).
 - [Chapter 71: LoRA and response-masked SFT adapters](71-lora-sft-adapters.md).
+- [Chapter 72: direct preference optimization](72-direct-preference-optimization.md).
 
-Chapters 72–85 remain separate pending planning steps. Do not substitute this
+Chapters 73–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.
@@ -217,6 +217,15 @@ examples from Rust traces. Do not author translated copy as part of an English
 packet, and do not let implementation notes leak into learner-facing prose.
 
 ## One executor and independent review
+
+Current localization authorship and context accounting: the current author or
+orchestrator may translate after English approval, using its actual recorded
+context identity. A separate author role does not require another agent thread.
+Never claim a fresh author context that was not provisioned; all required
+independent reviewer/adjudicator contexts remain fresh and separate. Reconcile
+the frozen cost records' eight-successful-context accounting with this permitted
+author-context reuse during the already-required execution compatibility run;
+do not silently change those records or invent an extra author-thread gate.
 
 The executor can author, implement, run deterministic validation and self-audit.
 It cannot approve its own English for publication. Its lack of sub-agents does
