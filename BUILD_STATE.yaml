@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-02T11:47:29Z"
+updated_at: "2026-10-03T06:19:31Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -51277,3 +51277,98 @@ builds:
               - command: "git diff --check"
                 status: passed
             notes: "Completed only the requested general rule. Serial fallback preserves fresh-context independence and publication acceptance; no capacity resolution is claimed. Chapter17 stays blocked, its staged artifacts and interrupted runs remain untouched, and future implementation/repair holds remain unchanged. Preserve prior dirty ledger/decision changes outside this rule's dedicated commit."
+
+  - build_id: localization-author-serial-fallback-20261003
+    objective: "Correct localization author scheduling without resuming chapter work or weakening independent review."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: 1
+      spent: 1
+      notes: "Small skill/protocol instruction correction and cached offline integrity tests; no agents, network, paid service, installation, chapter build, browser, image check, acquisition or training."
+    completion_criteria:
+      - "Author ownership does not mandate a new agent thread; existing authoring/orchestration contexts may draft with truthful provenance and no self-certification."
+      - "Reviews remain fresh and pairwise independent, run serially when necessary, and still gate publication."
+      - "No chapter, staged candidate, prior audit/run, existing build/hold or executable review contract changes."
+    notes: "User explicitly authorizes skill-only correction and will instruct subsequent work. This independent policy step owns only localization skill documents and serialized ledger/decision additions; it does not resume the blocked Chapter17 or future planning/implementation."
+    steps:
+      - id: localization-author-serial-fallback-20261003
+        objective: "Clarify author-context reuse and serial independent reviews in the localization skill."
+        depends_on: []
+        status: completed
+        inputs:
+          - "User: correct the skill only; further work awaits a later instruction."
+          - .agents/skills/localize-llm-course/SKILL.md
+          - .agents/skills/localize-llm-course/references/review-protocol.md
+          - "/home/int/.codex/skills/.system/skill-creator/SKILL.md"
+          - AGENTS.md
+          - SKILLS.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+        outputs:
+          - .agents/skills/localize-llm-course/SKILL.md
+          - .agents/skills/localize-llm-course/references/review-protocol.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+        acceptance:
+          - "Current authoring/orchestration context may translate; new author threads are optional, frozen judgment contexts cannot be repurposed, and provenance must not claim false freshness."
+          - "Both independent fresh localization reviewers and exact-byte/hash/coverage/publication gates remain mandatory; serial scheduling is not context reuse."
+          - "Instruction correction only; no chapter work, review activation, protocol/schema/executable change or modification of prior frozen evidence."
+          - "Existing dirty ledger/decision work and untracked Chapter17 audit remain outside the dedicated policy commit."
+        validate:
+          - "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/int/rust/learn_llm/.agents/skills/localize-llm-course"
+          - "Cached offline pinned node --test .agents/skills/localize-llm-course/scripts/localization-review.test.mjs"
+          - "python3 .build/runs/20261003T061214Z-localization-author-serial-fallback-01/validate-policy.py"
+          - "python3 .build/runs/20261003T061214Z-localization-author-serial-fallback-01/stage-policy.py"
+          - "git diff --check"
+        cost: "small; policy-only skill correction and existing deterministic tests; no agents, network, paid service, installation, build, browser/image check or chapter changes."
+        runs:
+          - run_id: 20261003T061214Z-localization-author-serial-fallback-01
+            started_at: "2026-10-03T06:12:14Z"
+            finished_at: "2026-10-03T06:19:31Z"
+            status: succeeded
+            input_fingerprint:
+              git: "8857aacd3b65467af2aa85c8d6821ed05cc8aaba"
+              files:
+                .agents/skills/localize-llm-course/SKILL.md: "sha256:6fc8ac5a3c159a70d6e2ec1521fc10dd65d647be0a0f1683cb0ad339d2cd3764"
+                .agents/skills/localize-llm-course/references/review-protocol.md: "sha256:50746d779127a82b5743e8fbabde9ee0c20fbfba1fe8c49c684af32bc057aeef"
+                BUILD_STATE.yaml: "sha256:a19e5655ad9135feee1f9528a5db99c3af261d1e44d5a2fc4405740bb84fb768"
+                DECISIONS.md: "sha256:cf1b64189a921a399b67ecdf224cf6c4643b1fc3882ff7732b16d9eaa679dd8b"
+              tools: "Git2.53.0; Docker25.0.2; cached pinned Node22.12.0/npm10.9.0; host Python/PyYAML orchestration."
+              workspace_image: "sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad"
+            staging_dir: ".build/runs/20261003T061214Z-localization-author-serial-fallback-01/"
+            commands:
+              - "git status; read skill-creator, localization skill/protocol, AGENTS/SKILLS, full YAML parse and latest decisions; preserve exact dirty-worktree baseline copies."
+              - "docker image inspect sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad --format '{{.Id}}'"
+              - "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/int/rust/learn_llm/.build/runs/20261003T061214Z-localization-author-serial-fallback-01/publish/.agents/skills/localize-llm-course"
+              - "docker run --rm --pull=never --network none --user 1000:1000 --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --tmpfs /tmp:rw,exec,nosuid,nodev,size=268435456 --mount type=bind,source=/home/int/rust/learn_llm,target=/repo,readonly --workdir /repo sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --test .agents/skills/localize-llm-course/scripts/localization-review.test.mjs"
+              - "python3 .build/runs/20261003T061214Z-localization-author-serial-fallback-01/validate-policy.py --staged"
+              - "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py /home/int/rust/learn_llm/.agents/skills/localize-llm-course"
+              - "python3 .build/runs/20261003T061214Z-localization-author-serial-fallback-01/validate-policy.py"
+              - "python3 .build/runs/20261003T061214Z-localization-author-serial-fallback-01/stage-policy.py"
+              - "cmp both staged/canonical skill documents; sha256sum; git diff --check"
+            artifacts:
+              - path: ".build/runs/20261003T061214Z-localization-author-serial-fallback-01/preflight.md"
+                sha256: "fbdfd975ebe53a25ac4bc958753cedcfd7f1f75449f7935f7951198c13026106"
+              - path: ".build/runs/20261003T061214Z-localization-author-serial-fallback-01/validate-policy.py"
+                sha256: "dc47e82df3fea328f6d39f772f6e0451d23c18a13f55c6a8d30e8ceac61434d0"
+              - path: ".build/runs/20261003T061214Z-localization-author-serial-fallback-01/stage-policy.py"
+                sha256: "752582c187a23906a456831c16d8cee5a2b1175e6de684251a6edb1049880fe9"
+              - path: ".agents/skills/localize-llm-course/SKILL.md"
+                sha256: "86ccebbf9bfb70b71f2a051426e60cd9e4d89ecbf0d3fb9a6876c5940ab7ff34"
+              - path: ".agents/skills/localize-llm-course/references/review-protocol.md"
+                sha256: "6098ac039128dfb6e138321e115b8d98e2655487a58a84528cd5f9070ea2b6dc"
+            validation:
+              - command: "Skill structural validator on staged and canonical localization skill"
+                status: passed
+                notes: "Both valid; this structural check supplies no learner-language verdict."
+              - command: "Cached offline pinned node --test .agents/skills/localize-llm-course/scripts/localization-review.test.mjs"
+                status: passed
+                notes: "19/19 pass, including pairwise author/reviewer context separation, source-blind target-only boundaries, exact bytes, hashes, coverage, selected settings and publication identity. Executable/schema bytes unchanged."
+              - command: "validate-policy.py --staged; validate-policy.py; staged/canonical byte comparison and git diff --check"
+                status: passed
+                notes: "Every prior build/history/hold and decision prefix is unchanged; non-scheduling skill/protocol sections remain exact. Both published skill documents equal validated staging. No chapter, prior candidate/audit, agent or visual check."
+              - command: "stage-policy.py dry-run dedicated commit projection"
+                status: passed
+                notes: "Four intended paths only; original HEAD ledger/decisions plus this completed policy record, excluding older incomplete Chapter17 work."
+            notes: "Succeeded for skill-only correction. Existing authoring/orchestration context may translate without a new thread or false freshness; both independent fresh reviews remain mandatory and may run serially. Missing review capacity still holds publication. Chapter17 remains blocked/unpublished, with no authoring/review activation or future work. Prior dirty ledger/decision work and untracked audit are preserved outside this policy commit."

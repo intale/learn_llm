@@ -25573,3 +25573,37 @@ hold invariance against the preserved worktree baseline, append-only decisions,
 policy-only tracked paths, whitespace and a dedicated-commit projection that
 excludes prior incomplete work. No course rebuild or browser check is necessary
 for this internal scheduling rule.
+
+## 2026-10-03 — Localization authorship without a mandatory new thread
+
+The user authorizes correcting the skill only and will instruct later chapter
+work. Clarify the localization skill's dedicated-author language: it describes
+owned authorship, not a compulsory new agent thread. The current authoring or
+orchestration context may translate directly from approved English, with its
+actual identity/settings and truthful provenance, without self-certification.
+Never repurpose a frozen reviewer/adjudicator context as an author.
+
+When concurrent reviewer capacity is unavailable, schedule the bilingual and
+target-only reviews serially, preserving fresh distinct contexts and source-blind
+target-only inputs. If a required fresh reviewer cannot start, preserve staged
+work and hold publication; authorized bounded drafting/validation can still
+proceed. This is not authority to reuse a judge, waive a review, fabricate
+freshness or use an external model workaround.
+
+Change only the localization skill and its matching role protocol, plus this
+step's required state/decision records. No English skill, executable prompt,
+schema, chapter, candidate, audit, old run or existing build/hold changes.
+Chapter17 remains blocked and unpublished under its prior checkpoint; neither
+its handoff nor implementation/future-planning authority is changed now.
+
+Affected step: `localization-author-serial-fallback-20261003`. Small independent
+policy work, budget1 session, cached offline deterministic tests only. No agents,
+network, paid service, install, chapter build, browser/image checks or acquisition.
+Preserve older dirty ledger/decision changes outside this completed step's commit.
+
+Validation: staged/canonical skills both structurally valid; cached offline
+localization integrity suite19/19 passes. Both published documents equal staging
+byte-exactly; every prior build/history/hold and decision prefix is unchanged.
+The four-file dedicated commit projection includes only this policy's skill and
+matching protocol plus new state/decision entries, excluding the earlier
+incomplete Chapter17 work. No chapter build, agent or screenshot ran.

@@ -50,12 +50,20 @@ mathematics through the course math pipeline. Localize a symbol's explanation,
 not the symbol. If the English source leaves an essential relationship ambiguous,
 stop and correct English first; do not guess or silently repair it in translation.
 
-## Author in a dedicated context
+## Keep authorship owned without requiring a new thread
 
 Use the user-selected model for translation, without a model-name, tier or
 reasoning-preset override. Give the
 translation author the frozen English source, contract, language-neutral evidence,
 approved terminology history, and relevant translation notes.
+
+A dedicated author role means explicit output ownership, not a mandatory new
+agent thread. The current authoring or orchestration context may perform the
+translation, including after authoring English. Record its actual context
+identity and settings; do not claim a newly created or fresh author context
+unless one was actually provisioned. Never repurpose a frozen reviewer or
+adjudicator judgment context for authorship. The author remains separate from
+both independent localization reviewers and cannot certify either review.
 
 - Choose established target-language technical and mathematical terms in their
   actual context. Do not force one English word to one target word.
@@ -86,7 +94,10 @@ or accessibility judgments.
 
 ## Require two independent language reviews
 
-Run both reviews against the same frozen candidate:
+Run both reviews against the same frozen candidate. When concurrent execution
+is unavailable, schedule the bilingual review followed by the target-only review
+serially, checkpointing each result before starting the next. Serial execution
+still requires two different fresh contexts, not two roles in one conversation:
 
 1. Start a fresh bilingual reviewer context, separate from the author. Give it the
    complete English and target bundles, commitment map, immutable literals,
@@ -109,6 +120,12 @@ Reviewers report findings and verdicts only; they do not edit the candidate. A
 blocking finding fails that candidate. Any target edit changes its hash and
 invalidates both reviews, so revise in the author context and rerun both reviews
 in new fresh contexts. Any English edit invalidates the translation as well.
+
+If a required fresh reviewer cannot be provisioned, keep publication held and
+record the missing gate. Lack of a separate author thread does not itself block
+authorized bounded drafting or deterministic validation in the current authoring
+context. Stay within the recorded budget and user scope; do not substitute
+self-review, reused judgment contexts or an unauthorized external model service.
 
 Do not accept a word blacklist, presumed-calque catalog, English-word ratio,
 readability score, structural-parity check, or automated language score as proof

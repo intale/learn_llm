@@ -22,7 +22,7 @@ Use four roles when their work is needed:
 
 | Role | Responsibility | Context boundary |
 | --- | --- | --- |
-| Translation author | Produce the target candidate from frozen English | Dedicated author context |
+| Translation author | Produce the target candidate from frozen English | Owned authoring context; a new thread is optional |
 | Bilingual reviewer | Judge semantic parity, technical accuracy, terminology, and isolated meaning | Fresh context |
 | Target-only reviewer | Judge native technical prose, coherence, explicit referents, and isolated copy without English | Different fresh context |
 | Packager | Extract, hash, route, and verify evidence | No language judgment |
@@ -31,11 +31,25 @@ Use the user-selected model for every role. Inherit that selection without a
 model-name, tier or reasoning-preset override; freeze the actual configured
 settings as provenance, not as a repository-owned model choice.
 
+Author ownership does not require spawning a separate agent. The current
+authoring or orchestration context may translate, including after English
+authorship, if its actual identity/settings are recorded and it never certifies
+either localization review. Do not claim new-context freshness without actual
+provisioning or repurpose a frozen judgment context for authoring.
+
 Require pairwise-distinct author, bilingual-reviewer, and target-only-reviewer
 context IDs and context hashes. Start both reviewers without inherited authoring
 conversation. Do not show either reviewer the other review, earlier findings,
 suspected defects, or expected corrections. A reviewer context used on one frozen
 candidate cannot certify a successor candidate.
+
+When concurrent execution is infeasible, run the bilingual and target-only
+reviews serially and checkpoint each outcome before the next. Preserve two
+fresh, distinct reviewer contexts and their input boundaries. If a required
+fresh reviewer cannot start, hold publication and record that missing gate;
+authorized bounded drafting and deterministic checks may still proceed within
+scope and budget. Serial scheduling is not permission to reuse a judge,
+self-certify or invoke an unauthorized external model service.
 
 Record the actual model and reasoning settings. The selected model may fill
 different judgment roles, but each role requires a separate fresh context. A
