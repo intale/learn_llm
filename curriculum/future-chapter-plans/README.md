@@ -138,8 +138,9 @@ Completed planning checkpoints:
 - [Chapter 72: direct preference optimization](72-direct-preference-optimization.md).
 - [Chapter 73: the QLoRA boundary](73-qlora-boundary.md).
 - [Chapter 74: exact prefix-cache reuse](74-prefix-cache-reuse.md).
+- [Chapter 75: partial RoPE and context scaling](75-rope-context-scaling.md).
 
-Chapters 75–85 remain separate pending planning steps. Do not substitute this
+Chapters 76–85 remain separate pending planning steps. Do not substitute this
 guide for those individual packets.
 Each subsequent packet must fill in the chapter-specific facts below, not repeat
 generic instructions or present placeholders as finished detail.

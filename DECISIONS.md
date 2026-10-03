@@ -26089,3 +26089,25 @@ Multi-token suffix prefill preserves Chapter 65's whole-call atomicity. Reserve
 all candidate storage and prepare all suffix rows and final logits privately;
 failure retains the original committed prefix and charges attempted work until
 safe cleanup. No implicit partial-progress API is introduced.
+
+### 2026-10-03 — Chapter 75 explicit rotary-policy planning
+
+Prepare only the internal Chapter 75 packet and preserve all execution and
+repair holds. Keep full-width/no-scaling on the prior exact RoPE oracle; a new
+partial policy explicitly binds rotary width, adjacent-pair layout, frequency
+denominator, base, position transform and numerical path. Rotate Q/K, preserve
+the suffix and its gradient, and leave V unchanged.
+
+Use absolute positions rather than physical cache slots, including fractional
+scaled positions. Cache/artifact/request identity carries the complete policy;
+changing frequencies or validated context cannot reuse old rotated keys.
+Trained context, validated context, table capacity and resource admission are
+different quantities. Simple interpolation is not YaRN and does not establish
+long-context quality. Preserve the short/long evaluation and Chapter 81
+same-external-artifact integration gates.
+
+An explicit zero-width identity preserves autograd connectivity and untouched
+negative-zero bits. All nonlegacy positive-width cases, including full-width
+linear scaling, use the proposed scaled/partial primitive; the old identity
+path remains exact. CPU position-8,191 arithmetic probes do not raise ordinary
+GPU context 128 or its 900-second phase limit.

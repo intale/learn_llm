@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T10:02:46Z"
+updated_at: "2026-10-03T10:14:25Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47188,7 +47188,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 35
+      spent: 36
     completion_criteria:
       - "All 46 chapter packets meet the detailed-plan guide, including concrete examples, proposed APIs, failure cases, evidence limits, exact validation and external independent-review handoffs."
       - "The packet inventory distinguishes planning-ready from pending; no packet is a publication approval or implementation checkpoint."
@@ -50613,7 +50613,7 @@ builds:
       - id: detail-ch75-rope-context-scaling
         objective: "Make Chapter 75 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch74-prefix-cache-reuse"]
-        status: pending
+        status: completed
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "curriculum/future-chapter-plans/README.md"
@@ -50629,7 +50629,98 @@ builds:
           - "git diff --check"
           - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env NODE_PATH=/workspace/site/node_modules --mount type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-course-plan.mjs"
         cost: "medium; content planning and bounded read-only primary-source web lookup only; no paid service, download acquisition, GPU, training, dependency install or course build required."
-        runs: []
+        runs:
+          - run_id: 20261003T100334Z-detail-ch75-rope-context-scaling-01
+            started_at: 2026-10-03T10:03:43Z
+            status: succeeded
+            input_fingerprint:
+              commit: b24b98de89c80ca5b430c73473609496e92597b0
+              inputs_sha256: 97374f127ea18c0327ec783b25b7e11dccbade336e2a9d6b56d08117033ec3fc
+              plan_sha256: be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d
+              validation_image: sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+            staging_dir: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/
+            commands:
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                claim 75 .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                publish 75
+                .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01
+              - test -s curriculum/future-chapter-plans/75-rope-context-scaling.md
+              - git diff --check
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node scripts/check-course-plan.mjs
+              - docker run --rm --pull=never --network none --read-only --cap-drop ALL
+                --security-opt no-new-privileges --env
+                NODE_PATH=/workspace/site/node_modules --mount
+                type=bind,source=${PWD},target=/workspace,readonly --workdir /workspace
+                sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad
+                node
+                .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                finish 75 .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01
+            artifacts:
+              - path: .build/runs/20261003T085000Z-detail-ch72-direct-preference-optimization-01/packet-tools.mjs
+                sha256: 72e757c066b11806a4a6b13aaeb4faf1df764cc782f6942e2d319fc1d7b2f67d
+                bytes: 20389
+              - path: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/inputs.json
+                sha256: 97374f127ea18c0327ec783b25b7e11dccbade336e2a9d6b56d08117033ec3fc
+                bytes: 62992
+              - path: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/preflight.md
+                sha256: c5bef7e7840553f20e9318b15150aab74a1dbae48e056407d9a8b9fe7f660d72
+                bytes: 1572
+              - path: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/75-rope-context-scaling.md
+                sha256: 8f86a5fa32cd86fae38677ef2638f5162130744723a42e6f099bbbd3159b8e6f
+                bytes: 36343
+              - path: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/planning-evidence.md
+                sha256: 302e072be34a9858536dd0bad1eab204c8dd90121006aede045922c08044f2d5
+                bytes: 3932
+              - path: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/validation.txt
+                sha256: 4932149b7667698447fbcbddceea9ff2b7de45bf188c206b162d1fc143201930
+                bytes: 507
+              - path: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/validation.json
+                sha256: c0ec76b6ae4838ec92e0fb5757420d5ffce797043b63283d82bb68a67e0a65e2
+                bytes: 905
+              - path: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/decision-entry.md
+                sha256: fff2cd0ce862635ad9aaf97cdf8997cf448416d4bb9d79e4fb80728cccfbc011
+                bytes: 1285
+              - path: curriculum/future-chapter-plans/75-rope-context-scaling.md
+                sha256: 8f86a5fa32cd86fae38677ef2638f5162130744723a42e6f099bbbd3159b8e6f
+                bytes: 36343
+              - path: curriculum/future-chapter-plans/index.json
+                sha256: 4ee3e3b70947118eef9e7e6ea6be27a1e6d7d174b41ae22446bbced77f982f3f
+                bytes: 10806
+              - path: curriculum/future-chapter-plans/README.md
+                sha256: 27fc58b780bdf24f0652022bc4cef8875dc2089e27a4739b6d7fa56658753f9a
+                bytes: 18679
+            validation:
+              - command: Exact metadata/output/command/section/link/inventory and unchanged
+                  other-build/step/prior-packet checks
+                status: passed
+              - command: Internal mathematical/interface planning audit
+                status: passed
+                evidence: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/planning-evidence.md
+              - command: git diff --check; ordinary course-plan checker in pinned offline image
+                status: passed
+                evidence: .build/runs/20261003T100334Z-detail-ch75-rope-context-scaling-01/validation.txt
+            notes: Planning packet only; no implementation or publication judgment. Current
+              problem-first/no-prediction and user-selected-model policies govern. All
+              execution/repair holds and other build/step objects preserved.
+            finished_at: 2026-10-03T10:14:25Z
       - id: detail-ch76-retrieval-provenance
         objective: "Make Chapter 76 executable from one explicit chapter packet, without implementing the chapter."
         depends_on: ["detail-ch75-rope-context-scaling"]
