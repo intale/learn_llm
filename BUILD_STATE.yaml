@@ -53877,7 +53877,35 @@ builds:
               - command: "Exact output-scope review of policy change"
                 status: passed
                 notes: "The policy change owns AGENTS.md, DECISIONS.md, and BUILD_STATE.yaml only; it introduces no setup lifecycle decision."
-            notes: "Completed the bounded user-requested governance rule. Environment-lifecycle work remains paused under unresolved questions."
+            notes: "Completed the bounded user-requested governance rule. Environment-lifecycle work remains paused under unresolved questions."          - run_id: 20261004T170000Z-record-pause-on-unresolved-policy-ambiguity-02
+            started_at: 2026-10-04T17:00:00Z
+            finished_at: 2026-10-04T17:00:36Z
+            status: succeeded
+            actual_model: gpt-6-luna
+            configured_reasoning_effort: not_asserted
+            input_fingerprint:
+              policy_commit: 3356108f986fe239b62ca2ca5f47b4425700d9e8
+              agents_sha256: 1e2955040eebc39ef8173eaca74ccb7b0304dd25ef3027aa7e50dabfd7804f2d
+            staging_dir: .build/runs/20261004T170000Z-record-pause-on-unresolved-policy-ambiguity-02/
+            commands:
+              - "Preserve run01 and verify the exact committed DECISIONS.md blob without interpreting its checksum as the mixed working-tree file."
+              - "Verify the policy decision from git show 3356108f986fe239b62ca2ca5f47b4425700d9e8:DECISIONS.md."
+            artifacts:
+              - path: AGENTS.md
+                bytes: 38910
+                sha256: 1e2955040eebc39ef8173eaca74ccb7b0304dd25ef3027aa7e50dabfd7804f2d
+                notes: "The exact policy text in the committed file is verified; run01 remains byte-preserved."
+            validation:
+              - command: "git show 3356108f986fe239b62ca2ca5f47b4425700d9e8:DECISIONS.md"
+                status: passed
+                notes: "The committed blob is 1,587,906 bytes with SHA-256 3abf1491746b733ea0ecfb8a8414710c311d47ca2c645172a56b880964bd0717. This identifies the Git blob only, not the larger mixed worktree DECISIONS.md."
+              - command: "Alias-free PyYAML parse of BUILD_STATE.yaml and git diff --check"
+                status: passed
+              - command: "git show --format= --name-only 3356108f986fe239b62ca2ca5f47b4425700d9e8"
+                status: passed
+                notes: "The policy commit paths are AGENTS.md, BUILD_STATE.yaml, and DECISIONS.md."
+            notes: "Append-only metadata correction: run01 and commit 3356108 are unchanged. The authoritative DECISIONS scope is the exact committed Git blob; no whole-working-tree DECISIONS checksum is claimed."
+
   - build_id: maintain-deterministic-tool-reuse-policy-20261004
     objective: Persist a selective policy for discovering, validating, reusing, and promoting deterministic development tools without weakening run-specific provenance or scope.
     status: completed
