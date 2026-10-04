@@ -11,6 +11,14 @@ functional decoder-only LLM.
 **Attention!** The course was generated using AI agent(codex 5.6-sol ultra), thus may contain inaccuracies. So treat it
 accordingly.
 
+## How to learn this course
+
+Because the course is generated using AI, you may face some machinery wording or implicit assumptions in some places.
+Should you face any ambiguity - ask your favorite AI to explain the chapter. For example:
+"Explain what problem this chapter solves https://intale.github.io/learn_llm/en/course/18-token-embeddings/"
+
+You are also very welcome to contribute to the quality of this project by submitting a pull request.
+
 ## Requirements
 
 The supported host is Linux with Bash 4 or newer, Git, `curl`, GNU
