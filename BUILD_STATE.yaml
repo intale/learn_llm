@@ -53876,7 +53876,6 @@ builds:
             staging_dir: .build/runs/20261004T120006Z-maintain-reusable-deterministic-machinery-policy-01/
             commands:
               - "Read-only search of existing canonical guidance, scripts, and recorded prior-run tool candidates"
-            artifacts: []
             validation:
               - command: "git diff --check"
                 status: passed
@@ -53899,3 +53898,130 @@ builds:
                 bytes: 1637063
                 sha256: 88706f2cd1c525e0c527a86a4466fbd85d78fec7f6e5fcbff501c9eaadfb5b24
             notes: "Policy-only maintenance completed. Reuse policy added; no script candidate was promoted because the only inventoried Chapter40 bounded-response helper remains run-local/unadmitted. This policy commit does not contain or alter the separate Chapter40 run06 checkpoint; the current working tree preserves that run as interrupted with its foundation step pending."
+
+  - build_id: promote-bounded-response-helper-20261004
+    objective: Promote the independently useful bounded-response byte-buffer helper with a small stable API, deterministic offline tests, and accurate operational documentation.
+    status: completed
+    budget:
+      unit: agent-session
+      limit: 1
+      spent: 1
+      notes: "Small deterministic utility promotion and pinned offline tests only; no networking or product/runtime commands."
+    completion_criteria:
+      - "The reusable helper preserves run04 semantics while exposing the exact documented API and staying independent of URLs, requests, redirects, retry, and total-budget policy."
+      - "Versioned tests cover status limits, crossing chunks, large-than-default success bodies, empty/null streams, zero/exact caps, invalid caps, cancel invocation and read failure."
+      - "A narrow maintained scripts README describes ownership boundaries and byte accounting; the original run04 helper and tests remain unchanged."
+      - "The general reuse policy accepts a stable module API as well as a CLI when importing the helper is the simpler appropriate interface."
+    steps:
+      - id: promote-bounded-response-byte-reader
+        objective: Publish the small bounded response reader under scripts/lib with tests and usage documentation.
+        depends_on: []
+        status: completed
+        inputs:
+          - "Run04 bounded-oracle-response-v2.mjs SHA-256 f2508c4c199d06e2888cdec005114efca27f9c70f0c7f35ae2e9c5953ca93727"
+          - "Run04 bounded-oracle-response-v2.test.mjs SHA-256 d97469e03fc2f6b8acf4cc41648de1ba410a548dc11be396f0f90fdf6da5044d"
+          - "Pinned offline Node 22.12.0 image sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3"
+          - AGENTS.md selective deterministic-tool reuse policy
+        outputs:
+          - scripts/lib/bounded-response.mjs
+          - scripts/tests/bounded-response.test.mjs
+          - scripts/README.md
+          - DECISIONS.md
+          - BUILD_STATE.yaml
+          - AGENTS.md
+        acceptance:
+          - "The module exports responseBodyLimit(status, successByteLimit) and readBoundedResponse(response, limit); returned bytes never exceed the cap, bytesReceived counts chunks delivered by the reader, and stream-read failures propagate."
+          - "This import-only helper's explicit module API satisfies the reuse policy; no wrapper CLI is added."
+          - "Tests cover success/redirect/error limits, crossing and over-64KiB chunks, absent/null body, zero and exact caps, invalid caps, overflow cancellation and reader failure."
+          - "Documentation states the caller owns URL selection, redirect and retry policy, timeouts, decompression, and total-response budgeting; the helper is for bounded byte responses, not huge corpus streams."
+          - "Only original run04 candidate bytes are reused as source evidence; the prior run files are not edited. No network, installs, or product target execution occurs."
+        validate:
+          - "node --check scripts/lib/bounded-response.mjs"
+          - "Pinned Node22.12.0 image, --network=none: node --test scripts/tests/bounded-response.test.mjs"
+          - "git diff --check"
+          - "Alias-free PyYAML parse of BUILD_STATE.yaml"
+        cost:
+          class: small
+          notes: "Local helper promotion with cached pinned runtime; no network/build/dependency changes."
+        runs:
+          - run_id: 20261004T120838Z-promote-bounded-response-byte-reader-01
+            started_at: 2026-10-04T12:08:38Z
+            finished_at: 2026-10-04T12:11:15Z
+            status: failed
+            actual_model: gpt-6-luna
+            configured_reasoning_effort: not_asserted
+            input_fingerprint:
+              commit: 35fe99654ee6f017bde6ff533e328a2b6c55a650
+              source_helper_sha256: f2508c4c199d06e2888cdec005114efca27f9c70f0c7f35ae2e9c5953ca93727
+              source_tests_sha256: d97469e03fc2f6b8acf4cc41648de1ba410a548dc11be396f0f90fdf6da5044d
+              pinned_test_image: sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3
+            staging_dir: .build/runs/20261004T120838Z-promote-bounded-response-byte-reader-01/
+            commands:
+              - "Verify recorded candidate hashes and inspect run04 helper/test API before copying; preserve run04 bytes."
+              - "docker run --rm --pull=never --network=none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 1073741824 --mount type=bind,src=/home/int/rust/learn_llm,dst=/workspace,readonly --tmpfs /tmp:rw,noexec,nosuid,size=67108864 --workdir /workspace --entrypoint node sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3 --check scripts/lib/bounded-response.mjs"
+              - "docker run --rm --pull=never --network=none --read-only --cap-drop ALL --security-opt no-new-privileges --pids-limit 64 --memory 1073741824 --mount type=bind,src=/home/int/rust/learn_llm,dst=/workspace,readonly --tmpfs /tmp:rw,noexec,nosuid,size=67108864 --workdir /workspace --entrypoint node sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3 --test scripts/tests/bounded-response.test.mjs"
+              - "git diff --check; alias-free PyYAML parse of BUILD_STATE.yaml"
+            artifacts:
+              - path: scripts/lib/bounded-response.mjs
+                bytes: 1370
+                sha256: 8d5b77e1d7977686eed9b4acac96870b15b29f614040a1c169d839253d0b954d
+              - path: scripts/tests/bounded-response.test.mjs
+                bytes: 3791
+                sha256: 54cdd21b9257a4fc4bb14799564d14661ca24c29462aaa7ef8f9e6bfe61ed1b0
+              - path: scripts/README.md
+                bytes: 2052
+                sha256: 8904d9a93406046bfd07460e056656dd6cca9523ac1ae2d8379020a565230fd7
+              - path: DECISIONS.md
+                bytes: 1638701
+                sha256: 6a069b293b7bab3afab72b6f5b7183391336cd0152d14c131299cc198bc6e130
+            validation:
+              - command: "Pinned Node22.12.0 module syntax check; exact run04 image, no network, source read-only"
+                status: passed
+              - command: "Pinned Node22.12.0 node --test scripts/tests/bounded-response.test.mjs; exact run04 image, no network, source read-only"
+                status: passed
+                notes: "8/8 tests passed: status limits, crossing chunk/accounting, cancel invocation, >64KiB success, missing/null body, zero/exact caps, invalid caps, and stream read error."
+              - command: "git diff --check and alias-free PyYAML parse of BUILD_STATE.yaml"
+                status: passed
+              - command: "Validate run01 input fingerprint against repository HEAD"
+                status: failed
+                notes: "Recorded commit 35fe99654ee6f017bde6ff533e328a2b6c55a650 is not actual HEAD 35fe996f482028c252aa3edd719650b6acd5e8bb. Preserve the original claim verbatim as failed input-validation evidence; corrected run02 binds exact HEAD."
+            notes: "Preserved run01's original fingerprint and artifacts as failed input-validation evidence after exact HEAD mismatch. Its fixture result remains diagnostic; corrected run02 below revalidates."
+          - run_id: 20261004T121522Z-promote-bounded-response-byte-reader-02
+            started_at: 2026-10-04T12:15:22Z
+            finished_at: 2026-10-04T12:19:13Z
+            status: succeeded
+            actual_model: gpt-6-luna
+            configured_reasoning_effort: not_asserted
+            input_fingerprint:
+              commit: 35fe996f482028c252aa3edd719650b6acd5e8bb
+              pinned_test_image: sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3
+              source_helper_sha256: f2508c4c199d06e2888cdec005114efca27f9c70f0c7f35ae2e9c5953ca93727
+              source_tests_sha256: d97469e03fc2f6b8acf4cc41648de1ba410a548dc11be396f0f90fdf6da5044d
+            staging_dir: .build/runs/20261004T121522Z-promote-bounded-response-byte-reader-02/
+            commands:
+              - "Rerun exact syntax and focused tests under pinned Node22.12.0, --network=none, read-only source after correcting run01's commit fingerprint."
+            artifacts:
+              - path: scripts/lib/bounded-response.mjs
+                bytes: 1370
+                sha256: 8d5b77e1d7977686eed9b4acac96870b15b29f614040a1c169d839253d0b954d
+              - path: scripts/tests/bounded-response.test.mjs
+                bytes: 3791
+                sha256: 54cdd21b9257a4fc4bb14799564d14661ca24c29462aaa7ef8f9e6bfe61ed1b0
+              - path: scripts/README.md
+                bytes: 2052
+                sha256: 8904d9a93406046bfd07460e056656dd6cca9523ac1ae2d8379020a565230fd7
+              - path: AGENTS.md
+                bytes: 38608
+                sha256: 6777012b0b77eb0a1dddf745af4ef2938bfd72509a7c5bc454536a66a2871117
+              - path: DECISIONS.md
+                bytes: 1639188
+                sha256: 6e9386e3babd86360ff6973d374c3c684d65fb89e98032c395fa2eeff59c6c09
+            validation:
+              - command: "Pinned Node22.12.0 module syntax check; image sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3, pull/network disabled, source read-only"
+                status: passed
+              - command: "Pinned Node22.12.0 node --test scripts/tests/bounded-response.test.mjs; image sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3, pull/network disabled, source read-only"
+                status: passed
+                notes: "8/8 tests passed, including delivered-chunk accounting, transient memory documentation, empty/null stream, zero/exact caps, cancellation, invalid cap, and stream error."
+              - command: "git diff --check; alias-free PyYAML parse; targeted duplicate-key check for promotion/policy run records"
+                status: passed
+            notes: "Corrective run binds exact repository commit 35fe996f482028c252aa3edd719650b6acd5e8bb and current policy/helper documentation. The earlier failed run's incorrect claim is preserved; duplicate empty artifacts placeholder was removed while all populated artifact records were retained. Original run04 helper/tests remain unchanged."

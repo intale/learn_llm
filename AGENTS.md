@@ -90,10 +90,10 @@ Before writing deterministic tooling, search maintained `scripts/` tools,
 their tests and usage docs, and prior run artifacts. Reuse a prior artifact only
 after verifying its recorded hash and provenance, its current bytes, and its
 fit to the present inputs and authority. Promote a repeated general-purpose
-operation into maintained `scripts/` only when a stable explicit CLI, closed
-inputs/outputs, bounded authority, deterministic validation, versioned tests,
-and usage documentation make it easier to maintain than another adapter. Keep
-run-coupled adapters, fixtures, and evidence in immutable run-specific staging
+operation into maintained `scripts/` only when a stable explicit CLI or module
+API, closed inputs/outputs, bounded authority, deterministic validation,
+versioned tests, and usage documentation make it easier to maintain than another
+adapter. Keep run-coupled adapters, fixtures, and evidence in immutable run-specific staging
 when extracting them would materially complicate the interface or weaken their
 provenance. Never mutate completed-run evidence, regenerate an equivalent
 validated utility needlessly, or promote a candidate whose owning acceptance

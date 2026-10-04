@@ -26565,3 +26565,40 @@ checkpoint; the current working tree preserves that run as interrupted with its
 foundation step pending.
 
 **Affected step:** `maintain-reusable-deterministic-machinery-policy`.
+
+### 2026-10-04 — Promote bounded response byte reader
+
+Promote the reviewed small run04 bounded-response helper into maintained
+`scripts/lib/bounded-response.mjs`, preserving the prior run-specific source and
+tests unchanged. The public interface consists of
+`responseBodyLimit(status, successByteLimit)` and
+`readBoundedResponse(response, limit)`. The reader returns a bounded `Buffer`,
+the sum of full chunk lengths delivered by the stream reader, and an overflow
+flag; this delivered-chunk count is not wire-byte, header, or transport
+read-ahead accounting. Reader errors propagate. Overflow cancellation is
+best-effort and does not authorize further reads.
+
+The helper has no URL, fetch, redirect, retry, timeout, decompression, or
+aggregate-budget policy. Callers retain authority over those concerns. Its
+65,536-byte non-success default is a local body-retention cap only; it is not
+request authority. Use it for a single bounded byte response, not a large
+corpus stream. The importable API is intentionally smaller than a generic HTTP
+client.
+
+The source run04 helper hash is
+`f2508c4c199d06e2888cdec005114efca27f9c70f0c7f35ae2e9c5953ca93727`; its
+three original fixture tests hash is
+`d97469e03fc2f6b8acf4cc41648de1ba410a548dc11be396f0f90fdf6da5044d`.
+Both old artifacts remain untouched. The promoted module and eight focused
+tests pass under the cached digest-pinned Node 22.12.0 image with networking
+disabled and source read-only. This utility promotion does not admit the
+Chapter40 runtime image, execute a product target, or change its 32 outputs or
+ten gates. The stable module API is accepted as the reuse interface; no CLI
+wrapper is required for an import-only helper. The policy-only commit's
+artifact list contained an empty placeholder key followed by the populated
+list; current BUILD_STATE removes only that empty duplicate while retaining
+every artifact record. The initial helper run also recorded an incorrect
+commit fingerprint and is preserved as failed input-validation evidence;
+run02 records the exact commit and reruns the tests.
+
+**Affected step:** `promote-bounded-response-byte-reader`.
