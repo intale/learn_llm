@@ -12,7 +12,7 @@ const { parse, stringify } = require('yaml');
 const read = (path) => readFileSync(new URL('../../' + path, import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const state = parse(read('BUILD_STATE.yaml').toString());
-const contract = JSON.parse(read('configs/functional-execution-compatibility-v4.json'));
+const contract = JSON.parse(read('configs/functional-execution-compatibility-v5.json'));
 const checker = read('scripts/check-functional-laptop-llm-plan.mjs').toString();
 const embedded = (name) => JSON.parse(checker.match(new RegExp(`^const ${name} = /\\*[^\\n]*?\\*/ (.*);$`, 'm'))[1]);
 const constants = embedded('EMBEDDED_CONSTANTS');
@@ -64,7 +64,7 @@ test('only lifecycle, predecessor reconciliation and main routing changed', () =
   const allowed = ['validateState','validatePlan','main','readExecutionCompatibility','validateExecutionCompatibilityState','effectiveExecutionConstants','buildBootstrapInputFingerprint','validateQueue','validateRunHistory'];
   const unchanged = matches.filter(m => m[1] && !allowed.includes(m[1])).map(m => [m[1],checker.slice(m.index,matches.find(n => n.index > m.index)?.index || checker.length).trim()]);
   assert.equal(unchanged.length, 48);
-  assert.equal(sha(JSON.stringify(unchanged)), 'e27122fa901d6959f650c81f4d9c7f1cb0776c62d5388ed1883b5abb29cbf563');
+  assert.equal(sha(JSON.stringify(unchanged)), 'aecccf8b896dcb514f93413b6daef4421fa3625470a6c327839cc9a2d0aa4fd4');
 });
 test('historical budget comparison permits only the two exact existing counters', () => {
   const doc = ready(); doc.builds.find(b => b.build_id === 'foundation-and-chapter-01').budget.spent += 1;
@@ -111,9 +111,9 @@ test('unrelated failed or interrupted strict runs still require full fingerprint
 test('checker drift is rejected for a non-owner interrupted strict run', () => {
   const doc = ready();
   const v2 = functional(doc).steps.find(item => item.id === contract.replacement_setup.step_spec.id);
-  const step = functional(doc).steps.find(item => item.id === 'establish-functional-firefox-execution-boundary');
+  const step = functional(doc).steps.find(item => item.id === 'establish-functional-successor-static-integration');
   const run = structuredClone(v2.runs.at(-1));
-  run.run_id = '20261004T190500Z-establish-functional-firefox-execution-boundary-02';
+  run.run_id = '20261004T190500Z-establish-functional-successor-static-integration-01';
   run.started_at = '2026-10-04T19:05:00Z'; run.finished_at = '2026-10-04T19:06:00Z'; run.status = 'interrupted';
   run.staging_dir = '.build/runs/' + run.run_id + '/';
   run.input_fingerprint.checker_sha256 = '78c8b59d24e0d57ca1afd5a59aea362623fc52024bea165b232225e179e58aca';
@@ -160,6 +160,10 @@ test('hashing amendment preserves every original requirement and all other step 
   for (const originalStep of queue.steps.slice(1)) {
     const actual = functional(state).steps.find(s => s.id === originalStep.id);
     const expected = structuredClone(originalStep);
+    if (expected.id === contract.firefox_setup_amendment.step_id) {
+      const lifecycle = { status: expected.status, runs: structuredClone(expected.runs) };
+      Object.assign(expected, structuredClone(contract.firefox_setup_amendment.step_spec), lifecycle);
+    }
     for (const override of contract.replacement_setup.successor_dependency_overrides.filter(item => item.step_id === expected.id)) expected.depends_on = [override.to];
     for (const override of contract.replacement_setup.successor_input_overrides.filter(item => item.step_id === expected.id)) expected.inputs[override.index] = override.to;
     const history = contract.replacement_setup.chapter40_history_policy_override;

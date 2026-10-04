@@ -10,6 +10,7 @@ COPY Cargo.toml Cargo.lock ./
 COPY rust/ rust/
 COPY site/package.json site/package-lock.json site/
 RUN npm --prefix site ci --ignore-scripts
+RUN cd site && ./node_modules/.bin/playwright install --with-deps firefox
 ARG SITE_BASE=/
 ARG SITE_URL=https://intale.github.io/learn_llm/
 ENV SITE_BASE=${SITE_BASE}

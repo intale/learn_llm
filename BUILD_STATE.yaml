@@ -45191,42 +45191,96 @@ builds:
                 notes: "Passed on the completed scoped working diff. Canonical checker passed in the retained pinned read-only image, and the focused compatibility suite passed 24/24; these supplementary checks are recorded as run commands below."
             notes: "Fresh claim after correcting the step output/input contract. Reused verified unchanged run01 Docker/Rust/network validations; generated a complete canonical output inventory. The current canonical plan checker passed and the focused compatibility suite passed 24/24. Heavy build/test work was not repeated."
       - id: establish-functional-firefox-execution-boundary
-        objective: "Establish the sole digest-pinned Playwright 1.61.1 Firefox execution boundary before the first browser-consuming successor step."
+        objective: "Provision the repository's locked Playwright Firefox in the existing course Dockerfile and validate the existing Chapter 39 browser baseline through ./course."
         depends_on:
           - establish-ch40-course-toolchain-v2
-        status: "pending"
+        status: "completed"
         inputs:
           - "completed establish-ch40-course-toolchain-v2 checkpoint"
-          - "site/package-lock.json and the repository sole Firefox project"
-          - "existing Chapter 39 @chapter:39-end-to-end-llm target"
-          - "one exact Playwright/Firefox image acquisition manifest"
+          - "course"
+          - ".dockerignore"
+          - "site/package.json"
+          - "site/package-lock.json; @playwright/test remains pinned at 1.61.1"
+          - "site/playwright.config.ts (sole firefox project; JavaScript enabled)"
+          - "site/tests/e2e/ch39-end-to-end-llm.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/src/i18n/locales.json"
+          - "existing tracked Node 22.12 Dockerfile and ./course workflow; ./course run supplies network:none at execution"
         outputs:
-          - "Dockerfile.functional-firefox"
-          - "configs/functional-firefox-execution-targets.json"
-          - "scripts/run-functional-firefox.sh"
-          - "scripts/check-functional-firefox-receipt.mjs"
-          - "scripts/tests/run-functional-firefox.test.mjs"
-          - "scripts/tests/check-functional-firefox-receipt.test.mjs"
-          - "audits/functional-laptop/execution-boundaries/firefox-v1.json"
-          - "artifacts/functional-laptop/execution-boundaries/firefox/receipt.json"
-          - "artifacts/functional-laptop/step-output-inventories/establish-functional-firefox-execution-boundary.json"
+          - Dockerfile
+          - scripts/check-functional-laptop-llm-plan.mjs
+          - scripts/tests/check-functional-execution-compatibility.test.mjs
+          - configs/functional-execution-compatibility-v5.json
+          - artifacts/functional-laptop/step-output-inventories/establish-functional-firefox-execution-boundary.json
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
-          - "Acquire exactly one checksum/digest-bound Node 22.12 plus Playwright 1.61.1 Firefox payload under N3, freeze the executable and image hashes, and leave all later browser runs N0."
-          - "The closed runner accepts only registered step/target pairs and the sole firefox project; runtime uses the immutable image ID with --pull=never, --network none, read-only root, nonroot UID, cap-drop ALL, no-new-privileges, private IPC and bounded /dev/shm tmpfs, without host port publication."
-          - "A single configuration binds loopback server, readiness URL, browser base URL and proxy. The runner starts and owns the exact fixture, rejects reused/unrelated servers and alternate engines, and writes only the run-owned output directory."
-          - "The positive self-test executes the already-existing @chapter:39-end-to-end-llm target and proves its current terminal navigation state; future-only @functional-shell is not used before static integration creates it."
+          - "The existing Node 22.12 Dockerfile installs site dependencies from the committed lockfile, then invokes the exact local ./node_modules/.bin/playwright install --with-deps firefox command; no separate browser image, host browser install, alternate engine or custom receipt/inventory is introduced."
+          - "./course check completes using the existing Dockerfile/workspace-image workflow, with official package and Playwright provisioning allowed during image build."
+          - "The exact command ./course run npm --prefix site run test:e2e -- tests/e2e/ch39-end-to-end-llm.spec.ts passes through the existing JavaScript-enabled Firefox-only Playwright configuration; ./course run keeps Rust/application test execution on network:none and the existing preview/proxy remain loopback-only."
+          - "The @playwright/test lock remains 1.61.1, the Chapter 39 @chapter:39-end-to-end-llm target and existing harness are unchanged, and no alternate browser or routine screenshot review is used."
+          - "The completed v2 setup outputs remain immutable historical evidence; Dockerfile and shared plan-checker changes are explicitly transferred to this successor through the v5 compatibility handoff and the incoming v2 output inventory."
         validate:
-          - "scripts/run-functional-firefox.sh acquire --step establish-functional-firefox-execution-boundary --target firefox-1.61.1-v1"
-          - "scripts/run-functional-firefox.sh test --step establish-functional-firefox-execution-boundary --target chapter-39-baseline-v1"
-          - "scripts/check-functional-firefox-receipt.mjs --step establish-functional-firefox-execution-boundary --receipt artifacts/functional-laptop/execution-boundaries/firefox/receipt.json"
+          - "./course check"
+          - "./course run npm --prefix site run test:e2e -- tests/e2e/ch39-end-to-end-llm.spec.ts"
           - "git diff --check"
           - "./course audit-host"
         cost:
           class: "large"
-          notes: "cpu=C3;gpu=G0;network=N3;paid=none;execution=one-checksum-bound-firefox-image-acquisition;playwright_version=1.61.1;wall_seconds_max=7200;host_bytes_max=8589934592;disk_bytes_max=20000000000;download_bytes_max=5000000000"
-        runs: []
+          notes: "cpu=C3;gpu=G0;network=N3 during the existing Dockerfile's official apt/Playwright provisioning only; subsequent ./course run is network:none;paid=none;one existing workspace-image rebuild;expected download below the existing 5000000000-byte ceiling;wall_seconds_max=7200;host_bytes_max=8589934592;disk_bytes_max=20000000000;download_bytes_max=5000000000"
+        runs:
+          - run_id: 20261004T193953Z-establish-functional-firefox-execution-boundary-01
+            started_at: 2026-10-04T19:39:53Z
+            finished_at: 2026-10-04T19:41:52Z
+            status: interrupted
+            actual_model: gpt-6-luna
+            configured_reasoning_effort: not_asserted
+            input_fingerprint: {"source_commit_sha1":"9e3a2b281fac2d7e10daf6755f939d7e7ed114f7","source_tree_sha1":"2806ddd2f62f47d7663a6fb948b5174bea020085","plan_sha256":"be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d","checker_sha256":"e8b6dc68e39a4597f5021fbb2c3d89e8acb36736e262fdfc3f9ad903c750615c","step_spec_sha256":"39fe6d0a67074b3dc6e3e48ab91650da2ae906fedf469a5dac3ae531cee7f068","input_hashes":{"declared_inputs_sha256":"68001ccfd7784ded4a4360a3d768dfaf48817f855b9fb087c1dcdd022139ed18","declared_input_path_inventory":[{"path":"site/package-lock.json","kind":"dependency-artifact","sha256":"e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"},{"path":"site/package.json","kind":"regular-file","files":[{"path":"site/package.json","bytes":1266,"sha256":"4bce2f43a18bf5802d57900ddfd7cdb802b1edef2a0864c70503ff9f25ba3aa8"}],"inventory_sha256":"c765b651b0b31c67621a40484fda033081ac1c593fea890343dc7b1f9215c7e6"},{"path":"site/playwright.config.ts","kind":"regular-file","files":[{"path":"site/playwright.config.ts","bytes":1130,"sha256":"69803e07f0d0cef567298cd1f2c89359a99e96bf0180f139e60aba1844293faa"}],"inventory_sha256":"5debcca52cbde37a4dc5fe4087a8e4f5f1ae7eebca3d5b8e6625a49c77b779f1"}],"dependency_artifact_inventory_sha256":"131dedf258cbb26fc581d04d07837561dc6208084dc029c7e9bc663677ade19b","transition_incoming_inventories":{"artifacts/functional-laptop/step-output-inventories/establish-ch40-course-toolchain-v2.json":"f69f6e9592148713e2399b8f497c1e35e8ee6c634e446797441ed8bf1392eef1"}},"lock_hashes":{"cargo_lock_sha256":"36cf6f4508b33365474d6f961577b7a38e00e446744a91f4d7a40e37d79dc7da","site_package_lock_sha256":"e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed","workspace_image_lock_sha256_or_absent":"absent"},"runner_identity":{"target_registry_sha256":"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570","runtime_selector_receipt_sha256_or_absent":"absent","closed_command_path_inventory":[]},"cache_receipts":[]}
+            staging_dir: .build/runs/20261004T193953Z-establish-functional-firefox-execution-boundary-01/
+            commands:
+              - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env GIT_CONFIG_VALUE_0=/workspace --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --input-type=module -e 'import {buildBootstrapInputFingerprint} from \"./scripts/check-functional-laptop-llm-plan.mjs\"; console.log(JSON.stringify(buildBootstrapInputFingerprint(process.cwd(),\"establish-functional-firefox-execution-boundary\")))'"
+            artifacts: []
+            validation:
+              - command: "buildBootstrapInputFingerprint for establish-functional-firefox-execution-boundary"
+                status: passed
+                notes: "Exact strict fingerprint emitted by the pinned read-only network-none builder, including the SHA-256 of the unchanged v2 output inventory as the explicit Dockerfile/checker incoming handoff. No build, package installation, browser launch or product test ran before the claim."
+            notes: "Interrupted before any build or browser operation after a read-only source-scope check showed that the initial pending contract named the course workflow and Chapter39 target descriptively but did not bind the exact `course` wrapper, `.dockerignore`, Chapter39 spec/helper, and locale manifest as inputs. These immutable bytes remain unchanged. The incomplete claim is preserved; a corrected contract and fresh strict claim follow."
+          - run_id: 20261004T194405Z-establish-functional-firefox-execution-boundary-02
+            started_at: 2026-10-04T19:44:05Z
+            finished_at: 2026-10-04T20:02:38Z
+            status: succeeded
+            actual_model: gpt-6-luna
+            configured_reasoning_effort: not_asserted
+            input_fingerprint: {"source_commit_sha1":"9e3a2b281fac2d7e10daf6755f939d7e7ed114f7","source_tree_sha1":"2806ddd2f62f47d7663a6fb948b5174bea020085","plan_sha256":"be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d","checker_sha256":"00cd229082dc02143a2c2b0b6e91175c731b83d3572d8effc8bb3e5200864194","step_spec_sha256":"7afc11e95007b38bf5c2eb36ececa78205a50e25f408c7b3914121927a0b0969","input_hashes":{"declared_inputs_sha256":"7781b85159e301810f43280b0560ede15a4da141ae52a77993be09a562ece665","declared_input_path_inventory":[{"path":".dockerignore","kind":"regular-file","files":[{"path":".dockerignore","bytes":115,"sha256":"90ed327c60d2373a9820eefa50c697055fa22da41db8da61306b58a80d2a0b82"}],"inventory_sha256":"4ec1e0f4ba0cd5f1e53714f9e55916504cba5b4e3cfea3ee742c97929a977036"},{"path":"course","kind":"dependency-artifact","sha256":"110beb279f5c7ec6efb1b40fa509fcdf4d940efa0a2def6ac6ba61189185a034"},{"path":"site/package-lock.json","kind":"dependency-artifact","sha256":"e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed"},{"path":"site/package.json","kind":"regular-file","files":[{"path":"site/package.json","bytes":1266,"sha256":"4bce2f43a18bf5802d57900ddfd7cdb802b1edef2a0864c70503ff9f25ba3aa8"}],"inventory_sha256":"c765b651b0b31c67621a40484fda033081ac1c593fea890343dc7b1f9215c7e6"},{"path":"site/playwright.config.ts","kind":"regular-file","files":[{"path":"site/playwright.config.ts","bytes":1130,"sha256":"69803e07f0d0cef567298cd1f2c89359a99e96bf0180f139e60aba1844293faa"}],"inventory_sha256":"5debcca52cbde37a4dc5fe4087a8e4f5f1ae7eebca3d5b8e6625a49c77b779f1"},{"path":"site/src/i18n/locales.json","kind":"regular-file","files":[{"path":"site/src/i18n/locales.json","bytes":258,"sha256":"9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"}],"inventory_sha256":"983e18ad967e10d164f98789120aace2b2228453862615f5127dae28cb739c8f"},{"path":"site/tests/e2e/ch39-end-to-end-llm.spec.ts","kind":"regular-file","files":[{"path":"site/tests/e2e/ch39-end-to-end-llm.spec.ts","bytes":84072,"sha256":"d2586bc521ce2de17daf18ab886ab4b8aee535781846734f68a8c960571183dc"}],"inventory_sha256":"81bce139d9bc7bb3781851bc4dfe59f6607cbfa02945aa8b40e9c29d1cb790d1"},{"path":"site/tests/e2e/chapter-helpers.ts","kind":"regular-file","files":[{"path":"site/tests/e2e/chapter-helpers.ts","bytes":21402,"sha256":"40c0b406f8f9401b367d22e0bf3d3a6decf53c0c5a4acbf3983297a084370eee"}],"inventory_sha256":"87433790f766add639f7b62b4d5b5d061ff800af9c7fe56f39092151b1747f3d"}],"dependency_artifact_inventory_sha256":"131dedf258cbb26fc581d04d07837561dc6208084dc029c7e9bc663677ade19b","transition_incoming_inventories":{"artifacts/functional-laptop/step-output-inventories/establish-ch40-course-toolchain-v2.json":"f69f6e9592148713e2399b8f497c1e35e8ee6c634e446797441ed8bf1392eef1"}},"lock_hashes":{"cargo_lock_sha256":"36cf6f4508b33365474d6f961577b7a38e00e446744a91f4d7a40e37d79dc7da","site_package_lock_sha256":"e83bc7b62a07bdde7db8adcc6dacc1bebdfecba21dd96d0051bd2e338b88d9ed","workspace_image_lock_sha256_or_absent":"absent"},"runner_identity":{"target_registry_sha256":"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570","runtime_selector_receipt_sha256_or_absent":"absent","closed_command_path_inventory":[]},"cache_receipts":[]}
+            staging_dir: .build/runs/20261004T194405Z-establish-functional-firefox-execution-boundary-02/
+            commands:
+              - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env GIT_CONFIG_VALUE_0=/workspace --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --input-type=module -e 'import {buildBootstrapInputFingerprint} from \"./scripts/check-functional-laptop-llm-plan.mjs\"; console.log(JSON.stringify(buildBootstrapInputFingerprint(process.cwd(),\"establish-functional-firefox-execution-boundary\")))'"
+              - "./course check"
+              - "./course run npm --prefix site run test:e2e -- tests/e2e/ch39-end-to-end-llm.spec.ts"
+              - "./course audit-host"
+              - "git diff --check"
+              - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env GIT_CONFIG_VALUE_0=/workspace --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node scripts/check-functional-laptop-llm-plan.mjs"
+              - "docker run --rm --pull=never --network none --read-only --cap-drop ALL --security-opt no-new-privileges --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env GIT_CONFIG_VALUE_0=/workspace --env NODE_PATH=/workspace/.build/runs/20261002T142126Z-rewrite-ch17-problem-first-content-03/browser-node_modules --mount type=bind,source=/home/int/rust/learn_llm,target=/workspace,readonly --workdir /workspace sha256:b225a2a2671c8cf95e37397c96150c9950304f7eb96b8d4f5e7e03f4bb87fcad node --test scripts/tests/check-functional-execution-compatibility.test.mjs"
+            artifacts:
+              - { path: Dockerfile, bytes: 1577, sha256: 53209ce53c3134e19cbf4ebdf7299ac5b36127d33ab65cf0e48640a2ec040ee6 }
+              - { path: configs/functional-execution-compatibility-v5.json, bytes: 32673, sha256: b31900ee1e361901cfbf082a839536848dda7b5e52bef46e03369307fbc96114 }
+              - { path: scripts/check-functional-laptop-llm-plan.mjs, bytes: 3553444, sha256: 792e53d5c699bc6f37aa5e17a65388c299deb5ce774ef863594b7a62ee5b22ca }
+              - { path: scripts/tests/check-functional-execution-compatibility.test.mjs, bytes: 17683, sha256: d40e52cbc5ea04c1ed1a17dd607d6c5761be8672a49b8e95ff4f71ee6cb7d44f }
+              - { path: artifacts/functional-laptop/step-output-inventories/establish-functional-firefox-execution-boundary.json, bytes: 851, sha256: f6fc0e77782cd7a3c19538d182ceac1fa9746bd7692d8acec858683a63d3cb87 }
+            validation:
+              - command: "./course check"
+                status: passed
+                notes: "Existing Node 22.12 course image rebuilt; Node/npm/Cargo base layers reused. Official apt and Playwright provisioning completed in the Dockerfile. Cargo fetch ran in the build layer; cargo test --workspace --locked ran in its network=none layer and passed (459 library tests plus 5 documentation tests). Astro diagnostics reported 0 errors/warnings/hints; content/parity, 85-page static build and 2,939-reference link/SEO/sitemap validation passed. Resulting local image ID: sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5."
+              - command: "./course run npm --prefix site run test:e2e -- tests/e2e/ch39-end-to-end-llm.spec.ts"
+                status: passed
+                notes: "Existing Firefox-only Playwright project, network=none runtime; 5/5 Chapter39 baseline tests passed."
+              - command: "git diff --check"
+                status: passed
+                notes: "No whitespace errors in the completed scoped diff."
+              - command: "./course audit-host"
+                status: passed
+                notes: "Initial check found only the pre-existing ignored generated Cargo target directory (276 MB, no active consumer); moved intact to .build/runs/20261004T194405Z-establish-functional-firefox-execution-boundary-02/preserved-host-target. Restore with: mv -- .build/runs/20261004T194405Z-establish-functional-firefox-execution-boundary-02/preserved-host-target target. Host audit then passed."
+            notes: "Fresh strict claim after preserving run01 as exact interrupted preflight evidence. Source snapshot included Dockerfile/course/build wrapper, .dockerignore, package manifest/lock, sole Firefox config, selected Chapter39 test and its helper/locales. The v2 Dockerfile, checker and compatibility-test bytes remain preserved by their exact incoming v2 output inventory and v5 successor handoffs. No course, Rust algorithm or learner-facing content bytes changed."
 
       - id: reframe-functional-reference-core-surfaces
         objective: "Reframe every accepted overbroad reference-core surface while preserving two controls and freezing the scalar-core versus laptop-track boundary."

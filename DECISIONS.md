@@ -27231,6 +27231,34 @@ receipt; this is not runtime admission.
 
 **Affected step:** `establish-functional-offline-workspace-execution-boundary`.
 
+### 2026-10-04 — Use the existing course Dockerfile for the sole Firefox harness
+
+The Chapter 40 setup remains the existing Node 22.12 Dockerfile and `./course`
+workflow. The pending Firefox prerequisite no longer acquires a separate browser
+image or creates a custom runtime receipt, package inventory, or browser runner.
+After lockfile-bound `npm ci`, the Dockerfile invokes the installed local
+`./node_modules/.bin/playwright install --with-deps firefox` command, allowing
+official package and Playwright sources during image provisioning. The existing
+`./course run` command remains the runtime boundary and launches the existing
+Playwright test with `--network none`; the sole Firefox project keeps JavaScript
+enabled and uses its existing loopback preview/proxy.
+
+The step reuses cached compatible Docker layers where available. It is a large,
+N3 provisioning operation bounded by the existing 7,200-second, 8-GiB host,
+20-GB disk, and 5-GB download limits; no paid service or separate image is
+authorized. The measured resource cost must remain within those caps. The
+completed setup's Dockerfile, plan-checker, and compatibility-test hashes remain
+preserved in its v2 inventory. Their exact successor ownership handoff and
+unchanged predecessor inventory are recorded in compatibility v5; v4 and the
+completed v2 run are not rewritten. The new workflow passed `./course check`
+and the exact Chapter39 Firefox baseline (5/5) via network-none `./course run`.
+The host audit found a pre-existing generated 276-MB `target/` cache with no
+active consumer; it was moved intact to the RUN02 staging directory for
+preservation, and the host audit passed afterward. Its recorded restore command
+is `mv -- .build/runs/20261004T194405Z-establish-functional-firefox-execution-boundary-02/preserved-host-target target`.
+
+**Affected step:** `establish-functional-firefox-execution-boundary`.
+
 ### 2026-10-04 — Resolve Chapter 40 setup bookkeeping and continuation authority
 
 The user confirmed that `remediate-rust-runtime-observation-20260804` has
