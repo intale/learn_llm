@@ -26602,3 +26602,20 @@ commit fingerprint and is preserved as failed input-validation evidence;
 run02 records the exact commit and reruns the tests.
 
 **Affected step:** `promote-bounded-response-byte-reader`.
+
+### 2026-10-04 — Pause on unresolved material ambiguity
+
+When existing instructions or evidence do not resolve a material choice, ask the
+user and stop work. Do not choose a default, infer approval, or continue execution
+in parallel while the choice is unresolved. Resume only after the user provides
+an answer or further instructions. Checkpoint and preserve existing work before
+pausing; this rule adds no pause when the current instructions already resolve
+the choice.
+
+This governance rule does not decide or implement the replacement Chapter40
+environment lifecycle. The superseded offline-provisioning foundation run and
+its interrupted support candidate remain preserved; any unresolved setup,
+history, or oracle scope question must be put to the user before resuming that
+affected work.
+
+**Affected step:** `record-pause-on-unresolved-policy-ambiguity`.

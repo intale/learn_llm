@@ -451,6 +451,10 @@ alone; the repository state is authoritative.
   generated output to canonical paths.
 - Never silently change scope, acceptance criteria, or a technical choice. Record
   the change in `DECISIONS.md` and update affected steps.
+- When a choice is ambiguous and the existing instructions or evidence do not
+  resolve it, ask the user and stop work. Do not choose a default, infer
+  approval, or continue execution in parallel while the choice is unresolved.
+  Resume only after the user provides an answer or further instructions.
 
 ### Bounded transient-network retries
 

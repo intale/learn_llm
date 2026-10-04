@@ -53820,6 +53820,64 @@ builds:
             validation: []
             notes: "Startup timing violation retained: the worker wrote two unvalidated draft files under run03 before the BUILD_STATE claim. They were copied byte-identically here before further work. Candidate implementation was held until the routing rule checkpoint; no tests, builds, APT installs, network calls or compilations occurred. Restart only in a fresh claimed staging directory."
 
+      - id: record-pause-on-unresolved-policy-ambiguity
+        objective: Add a durable orchestration rule requiring a concise user question and pause whenever instructions or evidence leave a material choice unresolved.
+        depends_on:
+          - record-bounded-concurrent-luna-machinery-routing
+        status: completed
+        inputs:
+          - AGENTS.md orchestration principles (SHA-256 6777012b0b77eb0a1dddf745af4ef2938bfd72509a7c5bc454536a66a2871117)
+          - DECISIONS.md current policy history (SHA-256 9c854ecee17f2b779f2471448684bf5caf120958950153c7cc12a63ff6e1a419)
+          - "User instruction: unresolved ambiguity requires asking and stopping the affected work, with no inferred default or parallel continuation."
+        outputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - BUILD_STATE.yaml
+        acceptance:
+          - "AGENTS.md states the strict unresolved-choice pause rule without overriding explicit user direction or requiring a pause when existing instructions resolve the choice."
+          - "DECISIONS.md records rationale and scope; this governance step selects or implements no replacement environment lifecycle."
+          - "Alias-free YAML parse, git diff --check, and exact output-scope review pass."
+        validate:
+          - "Alias-free PyYAML parse of BUILD_STATE.yaml"
+          - "git diff --check"
+          - "Review the scoped AGENTS.md, DECISIONS.md, and BUILD_STATE.yaml changes."
+        cost:
+          class: small
+          notes: "Governance wording and checkpoint only; no product execution, build, network, install, or publication."
+        runs:
+          - run_id: 20261004T164500Z-record-pause-on-unresolved-policy-ambiguity-01
+            started_at: 2026-10-04T16:45:00Z
+            finished_at: 2026-10-04T16:52:43Z
+            status: succeeded
+            actual_model: gpt-6-luna
+            configured_reasoning_effort: not_asserted
+            input_fingerprint:
+              commit: 5ae34e403ab7ccf3a31a4ddddb04e5af5ac613e3
+              agents_sha256: 6777012b0b77eb0a1dddf745af4ef2938bfd72509a7c5bc454536a66a2871117
+              decisions_sha256: 9c854ecee17f2b779f2471448684bf5caf120958950153c7cc12a63ff6e1a419
+            staging_dir: .build/runs/20261004T164500Z-record-pause-on-unresolved-policy-ambiguity-01/
+            commands:
+              - "Claim this governance-only step after preserving the superseded Chapter40 foundation run and interrupted bootstrap support attempt."
+              - "Apply the exact unresolved-ambiguity pause rule to AGENTS.md orchestration principles and append its rationale/scope to DECISIONS.md."
+              - "Validate alias-free BUILD_STATE.yaml parsing, git diff --check, and exact three-path output ownership."
+            artifacts:
+              - path: AGENTS.md
+                bytes: 38910
+                sha256: 1e2955040eebc39ef8173eaca74ccb7b0304dd25ef3027aa7e50dabfd7804f2d
+                notes: "Adds the user-directed strict ask-and-stop rule under Orchestration principles."
+              - path: DECISIONS.md
+                bytes: 1587906
+                sha256: 3abf1491746b733ea0ecfb8a8414710c311d47ca2c645172a56b880964bd0717
+                notes: "Scoped commit image of DECISIONS.md: HEAD plus this rule entry only; mixed foundation decisions remain uncommitted in the working tree."
+            validation:
+              - command: "Alias-free PyYAML parse of BUILD_STATE.yaml"
+                status: passed
+              - command: "git diff --check"
+                status: passed
+              - command: "Exact output-scope review of policy change"
+                status: passed
+                notes: "The policy change owns AGENTS.md, DECISIONS.md, and BUILD_STATE.yaml only; it introduces no setup lifecycle decision."
+            notes: "Completed the bounded user-requested governance rule. Environment-lifecycle work remains paused under unresolved questions."
   - build_id: maintain-deterministic-tool-reuse-policy-20261004
     objective: Persist a selective policy for discovering, validating, reusing, and promoting deterministic development tools without weakening run-specific provenance or scope.
     status: completed
