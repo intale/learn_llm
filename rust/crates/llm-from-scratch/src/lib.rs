@@ -4,6 +4,8 @@
 //! tested building block after its behavior has been established by a runnable
 //! demo.
 
+/// Versioned artifact identity plumbing; contains no model algorithm.
+pub mod artifact_identity;
 pub mod bigram;
 pub mod checkpoint;
 pub mod corpus;

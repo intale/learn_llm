@@ -7,7 +7,14 @@ readonly repository_root
 # Supporting crates must be listed explicitly after their rationale is recorded
 # in DECISIONS.md. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
+  block-buffer
+  cfg-if
+  cpufeatures
+  crypto-common
+  digest
+  generic-array
   itoa
+  libc
   memchr
   proc-macro2
   quote
@@ -15,8 +22,11 @@ readonly -a allowed_supporting_crates=(
   serde_core
   serde_derive
   serde_json
+  sha2
   syn
+  typenum
   unicode-ident
+  version_check
   zmij
 )
 
@@ -52,7 +62,7 @@ is_listed() {
 }
 
 dependency_tree=$(cd "$repository_root" && \
-  cargo tree --workspace --locked --edges normal,build,dev --prefix none --format '{p}')
+  cargo tree --workspace --locked --offline --edges normal,build,dev --prefix none --format '{p}')
 
 declare -a concept_violations=()
 declare -a undeclared_dependencies=()

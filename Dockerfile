@@ -15,10 +15,12 @@ ARG SITE_URL=https://intale.github.io/learn_llm/
 ENV SITE_BASE=${SITE_BASE}
 ENV SITE_URL=${SITE_URL}
 COPY . .
+RUN cargo fetch --locked
+
+RUN --network=none cargo test --workspace --locked
 
 FROM source AS workspace
 RUN cargo fmt --all -- --check \
- && cargo test --workspace --locked \
  && npm --prefix site run check \
  && npm --prefix site run check:content \
  && npm --prefix site run check:parity \

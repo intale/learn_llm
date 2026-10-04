@@ -26493,6 +26493,130 @@ authority. Source invariance retains all 50 substantive validators. Verify both
 actual completed-state checkers and three byte-identical publication snapshots
 before this dedicated commit. No course route or foundation output is published.
 
+### 2026-10-03 — Bounded offline foundation execution for Chapter40
+
+Claim only `establish-functional-offline-workspace-execution-boundary`, after the
+dedicated cold-bootstrap correction commit. Estimate large C3/G0/N2, no paid
+service, at most7200s,8GiB host memory,20,000,000,000 disk bytes and5,000,000,000
+download bytes, within the frozen contract; the active budget has no session cap.
+The missing old workspace image requires the original digest-pinned clean-host
+fallback, not admission of an unrelated cached operational image.
+
+Use RustCrypto sha2 exactly0.10.9 with defaults disabled and no optional features.
+Its only role is SHA-256 artifact plumbing, never an LLM algorithm. Existing
+serde_json owns syntax. Course Rust owns bounded versioned identity framing and
+validation. Resolve and freeze the full minimal graph, checksums, licenses and
+advisory evidence before payload acquisition; only then acquire under N2 and
+bind the resulting Cargo lock and graph in immutable setup receipts. No later
+dependency root, dataset, model, GPU workload or repair is authorized.
+
+Stage all32 declared outputs and preserve scalar algorithms. A staged helper or
+mock receipt is not a completed foundation or a published Chapter40. All original
+workspace/history/oracle gates remain mandatory. The existing ignored root target
+directory is preserved pending origin/recoverable-cleanup checks. Repairs and
+Chapter41+ remain held and unclaimed.
+
+**Metadata checkpoint:** Cargo1.93.1 resolved exactly ten additional packages:
+block-buffer0.10.4, cfg-if1.0.5, cpufeatures0.2.17, crypto-common0.1.7,
+digest0.10.7, generic-array0.14.7, libc0.2.190, sha2 0.10.9,
+typenum1.20.1 and version_check0.9.5. The existing eleven registry records are
+unchanged. These are digest buffering/type/target plumbing, not LLM concepts;
+libc is retained for cpufeatures' target-conditional full lock closure. Crates.io
+metadata confirms expected checksums, unyanked versions and MIT-compatible
+license expressions. Choose MIT where the expression offers MIT OR Apache-2.0.
+The exact frozen RustSec database reports the generic-array and sha2 historical
+advisories as unaffected at these versions. Preserve all request bytes/hashes.
+
+This admits only the exact metadata-resolved graph for checksum-bound payload
+acquisition within N2, not offline product use yet. Actual archive/license bytes,
+installed files, active features and the resulting lock must be verified and
+bound before use. No new LLM dependency root is allowed. The resolved lock is
+36cf6f4508b33365474d6f961577b7a38e00e446744a91f4d7a40e37d79dc7da;
+canonical Cargo.lock remains unchanged until complete foundation publication.
+
+**Development checkpoint:** Stage shared identity v1 as compact UTF-8 JSON,
+sorted root/field keys, string-valued fields, exactly one terminal LF and explicit
+byte/count bounds. serde_json serializes syntax; sha2 supplies SHA-256. Constructor
+and exact reparse reject duplicate/unknown/noncanonical values without mutation.
+The13 staged Rust tests include standard digest vectors and a Node built-in
+cross-check, but no Rust compilation/test result is claimed yet.
+
+All21 archives are checksum verified and42 license-file records retained. New
+archive acquisition is1,082,690 bytes. Offline Cargo metadata confirms sha2's
+empty feature set and20 linux/amd64 active external packages; target-conditional
+libc remains in the full21-package lock. Nine receipt-checker unit diagnostics
+pass in the exact frozen Node base. They are component development evidence, not
+the complete closed foundation target. Special oracle/history receipt paths
+deliberately refuse until their package/file/license and parent-runtime proofs
+are implemented; schema-shaped hashes cannot admit an unfinished runtime.
+
+Raw registry bytes verify the frozen Node base and its unique amd64 child after
+Docker's verbose manifest diagnostic failed. Pull reused all eight existing
+layers; no unrelated base is substituted. Signed snapshot metadata requires
+explicit libpoppler12622.12.0-2+deb12u2 to satisfy the frozen poppler-utils u2 root,
+rather than the default u3 candidate. The ten-package install/upgrade simulation
+passes. No Debian package payload or toolchain was installed. Preserve both
+simulations and all successful/failed diagnostic evidence.
+
+The foundation remains incomplete. Only ledger/decision records are canonical
+changes; all15 product-output candidates stay in the run's publish directory.
+No course chapter, scalar algorithm, repair or later implementation is changed.
+Complete all original32-output/ten-command gates before foundation publication
+and its dedicated commit; then proceed to the next released prerequisite.
+
+**Explicit stop:** The user requested "ok. record and stop". Preserve the
+foundation's named run and its15 staged candidates/evidence; record interrupted
+run/pending step, not completion. Do not start another operation or prerequisite.
+On a later explicit continuation, preflight a new run and verify the immutable
+stop-checkpoint inventory before reuse. Chapter40 remains unpublished, all
+repairs/later chapters stay held, and no incomplete-step commit is made.
+
+### 2026-10-04 — Chapter40 foundation continuation with verified reuse
+
+The user resumed Chapter40. Claim a new run of the same first foundation, not
+the interrupted run. All38 recorded artifact hashes and36 stop-inventory entries
+verify; strict material fingerprint and operational environment remain unchanged.
+Preserve the old run and all failed diagnostics. Copy verified staged candidates
+only; reuse original package/metadata evidence read-only with exact provenance.
+
+Estimate large C3/G0/N2, no paid service, at most7200 seconds,8GiB host memory,
+20GB disk and5GB downloads; the session budget has no limit and spent4. No
+additional dependency root, source/corpus/model acquisition, GPU, routine image
+review or repair is authorized. Finish the exact pinned clean-host fallback,
+full graph/file/license proofs and closed runner before any acceptance compile.
+All original32 outputs and ten declared gates remain mandatory. Repairs6/8–10
+retain pending status and empty runs; Chapter41+ remains held. Do not publish
+partial foundation or chapter content, or commit an incomplete step.
+
+**Checkpoint annotation correction:** The resumed live checker refused because
+five diagnostic entries in the interrupted run omitted required `notes` fields.
+Preserve the exact pre-annotation run projection in this new run, then add only
+factual explanations from its existing artifacts. Prior status, outcomes,
+timestamps, commands, hashes and every staging byte remain unchanged. This is
+an explicit additive ledger correction, not a rerun, relabeling, course repair
+or claim of acceptance. Preserve both refused checks as current-run evidence.
+
+**Mutable installer refusal:** The exact Rust1.93.1 channel manifest verifies
+at its frozen checksum, but the unversioned rustup-init URL returns SHA-256
+dda7234360b7f578ca8b0ddcb80145646fa61a67c1720a5abc7051b35c9fcb71,
+not the frozen4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10.
+Refuse it without execution or silent repinning. The rejected response was not
+retained by the first temporary tool; charge its full32MiB ceiling rather than
+invent a size or omit its network cost. A versioned same-byte installer requires
+verified primary-source identity and an explicit input-contract decision before
+use. Other exact channel-bound component metadata can be prepared independently.
+
+**Same-byte installer recovery:** Bounded official archive metadata identifies
+Rustup1.29.0 as exactly the original frozen4acc9acc SHA-256, unlike today's
+unversioned response. Rustup's official installation guide documents the
+versioned archive mechanism. Use only that exact digest from
+https://static.rust-lang.org/rustup/archive/1.29.0/x86_64-unknown-linux-gnu/rustup-init,
+recording both original selector and actual acquisition URL. This changes no
+selected installer bytes, compiler/channel/component pin, supporting graph,
+network ceiling or frozen plan/config. Verify actual payload equality before
+use; no newer installer or checksum replacement is admitted. Retain the failed
+unversioned observation and conservative rejected-byte charge independently.
+
 ### 2026-10-04 — Separate Luna machinery from selected-model course work
 
 The user explicitly assigned deterministic development machinery to a separate
@@ -26542,6 +26666,480 @@ The earlier routing amendments remained uncommitted in the shared worktree.
 This coherent routing-policy checkpoint persists their latest superseding form
 together with the four-worker rule; it does not claim separate historical
 commits or saved pre-rule snapshots.
+
+### 2026-10-04 — Fresh Chapter40 foundation claim and offline license-gap triage
+
+Claim a fresh run of only `establish-functional-offline-workspace-execution-boundary`.
+Both prior attempts remain interrupted and immutable; the current AGENTS input
+hash differs from their bound fingerprint. Recompute the exact step fingerprint
+before starting this run. Record actual host orchestration versions separately
+from the pinned product environment (Rust/Cargo 1.93.1, Node 22.12.0); host
+Rust/Cargo 1.98.1 and Node 23.7.0 do not replace product pins. The exact
+repository fingerprint builder was run successfully inside its cached pinned
+operational container after scoped Docker approval; its first unapproved Docker
+attempt and host Node child-process EPERM remain diagnostics, not acceptance.
+
+Retain the approved ArtifactIdentity v1 contract, bounds, and staged tests
+unchanged. Rust `String`/`BTreeMap` ordering is UTF-8 lexical ordering, and the
+accepted field identifiers are ASCII-only; serde_json owns syntax while the
+course helper owns exact canonical reparse and validation. Run its tests only
+through the admitted closed product boundary. No helper redesign is authorized.
+
+Phase 1 is local-only. First verify every artifact and stop-inventory entry in
+both previous foundation runs by exact path, byte count, and SHA-256. Copy only
+individually verified declared candidates/evidence into this run's staging; do
+not mutate either old run. Triage the 108 missing npm license bindings by
+joining the locked package path/version/SPDX expression, checksum-bound archive,
+and file inventory. A package.json license expression or registry metadata is
+not a copy of bundled license/notice bytes; a missing-license marker does not
+establish that the package is unlicensed. Do not waive or infer the required
+provenance, and do not download, install, or broaden the declared package set in
+this phase.
+
+The foundation's existing ceiling remains large C3/G0/N2, no paid service,
+7,200 seconds maximum, 8 GiB host memory, 20 GB disk, and 5 GB downloads. N2
+applies only to the declared exact bootstrap/package operations after the
+offline audit confirms the precise need, source, cost, integrity, licensing,
+and receipt fields; ordinary execution remains network-none with read-only
+caches and bounded writes. This phase does not execute any such acquisition,
+build, browser, or Rust test. The step remains incomplete until all 32 outputs
+and all ten declared gates pass. Repairs and Chapter41+ remain held.
+
+### 2026-10-04 — Bounded npm license-provenance metadata operation
+
+Selected-model decision authorizes a local exact-version metadata lookup for
+the already-locked 108-package npm graph only. This is N2 acquire/verify/derive
+work within the foundation's existing scope; it does not add a dependency root,
+alter frozen step inputs/outputs/acceptance, or authorize network during ordinary
+execution. The missing 108 bindings are filename/provider gaps, not a finding
+that any package is unlicensed. Registry metadata and SPDX expressions are not
+bundled license/notice bytes, and no legal-compliance or redistribution
+certification is claimed.
+
+Freeze the exact selectors in
+`.build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/npm-metadata-inputs-v1.json`
+(SHA-256 `92a601225d62bc995e431f63481a444e439068560aca9684450a207168d8bc98`,
+108 distinct package@version URLs). Input lock/archive/inventory identities are
+frozen in that file. Permitted operation is one unauthenticated HTTP GET per
+selector to `https://registry.npmjs.org/<encoded-locked-name>/<encoded-locked-version>`;
+maximum 108 unique requests, 262144 response-body bytes each, 33554432 total
+response-body bytes including failed responses, concurrency at most four, no
+redirects, no retries, no npm install/audit/scripts, and no GitHub or license
+file fetch. Preserve raw response bytes and HTTP observations; compare returned
+version, dist integrity, repository, and license with the exact locked/archive
+records and record publisher gitHead only when present. Do not infer a release
+tag or treat mutable branch source as release evidence.
+
+Prior known foundation download charges are 647512088 bytes (including the
+conservatively charged rejected Rust response, prior run's captured payloads,
+and one deduplicated 1082690-byte Chapter40 .01 cache acquisition); do not refund
+failed charges. The metadata pass reserves at most 33554432 additional bytes,
+keeping the existing total 5GB ceiling unchanged. Provider-package relationships
+found offline remain candidates for parent review only; any later license-file
+acquisition needs a separate bounded source/ref decision. Sharp's LGPL
+sharp-libvips packages remain distinct; sharp's Apache-2.0 expression is not
+their license evidence.
+
+Outcome: the permitted selector pass received 108/108 HTTP 200 responses with
+201365 aggregate body bytes and no redirect/retry; every returned version,
+dist.integrity, repository URL, and license expression matched its locked
+record. `npm-metadata-responses-v1.json` and its 108 raw body files preserve
+response status/selected headers, exact bytes, and SHA-256 per selector.
+`npm-metadata-audit-v1.json` groups metadata without treating it as license
+text. The local archive-only provider artifact identifies 81 evidence-supported
+candidates out of 84 parent/platform relationships: nine Astro compiler,
+nine satteri, 23 of 26 esbuild, 15 Rolldown, and 25 Rollup platform packages.
+The three esbuild exceptions are `@esbuild/android-arm`, `@esbuild/android-x64`,
+and `@esbuild/openharmony-arm64`; their own description/README did not meet the
+explicit platform-wrapper identification predicate. Each candidate record
+binds child and parent archive and package.json hashes, exact optional version,
+same MIT expression, same repository identity, child identification, and parent
+license path/size/hash. Registry publisher gitHead values were present for
+every child in those five families; observed immutable source identities are:
+`withastro/compiler-rs@f5a87e4bd41085f085267506cfc1d0d50ed388d5`
+(`crates/astro_napi`), `bruits/satteri@92d01ec4eee3a7284608f5a4974dca6d4aec836e`,
+`evanw/esbuild@bb9db84c02433fbe37b3509f53f9f3e3cc48725e`,
+`rolldown/rolldown@f09947ab017d6df74299f691853dcfc4f4f0f86e`
+(`packages/rolldown`), and
+`rollup/rollup@8faa18777374582bb813d54ce3623f4acf1f9e0b`.
+These registry metadata refs are observations, not independently verified
+source fetches. The 10 `@img/sharp-libvips-* @1.3.2` entries remain separately
+unresolved as LGPL-3.0-or-later at
+`lovell/sharp-libvips@4da6d14c0d59866adfb9d8cf52bcaa53846dc4f6` with per-package
+`npm/<platform>` metadata directories; no sharp Apache-2.0 substitution is
+allowed. The remaining 14 non-parent records are package-by-package in the
+metadata input/audit; six lacked publisher gitHead. No GitHub/source/license
+file request was made. A selected-model decision is required before any such
+file bytes are fetched or any candidate is promoted from provenance evidence to
+admitted license evidence.
+
+### 2026-10-04 — Frozen Phase3 npm license-text provider acquisition
+
+The selected model accepts all 84 exact parent/platform provider relationships
+under the previously recorded predicates, including `@esbuild/android-arm`,
+`@esbuild/android-x64`, and `@esbuild/openharmony-arm64`. Their archived child
+descriptions and READMEs explicitly identify each as a WebAssembly shim for
+esbuild on its named platform and link to the exact esbuild repository; the
+earlier lexical phrase-test rejection remains diagnostic evidence only. Keep
+each child SPDX/archive identity and the parent archive/license-byte binding.
+This is project-provider license evidence, not a fabricated child-bundled file
+or legal-compliance/redistribution certification. Twenty-four license-text
+provider gaps remain: ten LGPL sharp-libvips packages and fourteen other
+packages.
+
+Before network, freeze the exact candidate URLs and per-package relations in
+`.build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/npm-license-candidates-v2.json`
+(SHA-256 `bc462e842793aae9703a0f760dc407c24b743bf43f60c0209a0cf58b004e842b`;
+24 package bindings, 59 unique predeclared candidate URLs; v1 remains immutable
+and explicitly superseded before use). The permitted operation requests only
+LICENSE/NOTICE/COPYING candidate bytes for already-locked packages from
+`raw.githubusercontent.com` and the official GNU LGPL-3.0-or-later/GPL-3.0
+license text URLs. Exact package version, lock integrity, archive/package.json
+hash, repository, publisher gitHead or explicitly designated mutable branch
+snapshot, directory, README pointer/hash and source path rationale are bound in
+the input artifact. No API crawl, guessed tag, source archive/code, auth,
+install/script/audit, generic scraper, or ordinary-execution network is allowed.
+
+Bound the requests at 96 unique URLs, 1048576 body bytes per response,
+67108864 aggregate charged bytes including failed responses, concurrency four,
+zero redirects and zero retries. HTTP 404 advances only to the next URL already
+listed for that package; other statuses stop that package. A response without a
+gitHead is a URL/date/SHA-bound publisher snapshot only, never release-matched.
+Check declared SPDX consistency against actual text and preserve copyright and
+notice distinctions. For sharp-libvips, publisher root or per-directory text
+that differs from LGPL is not a substitute; GNU LGPL and GPL texts are
+separately classified standards-provider evidence bound to publisher SPDX,
+repository and README pointers. Preserve third-party/source-offer pointers,
+but do not infer completion of those obligations or promote unspecified
+third-party evidence. No installation or build is authorized in this phase.
+
+Prior charged foundation downloads including Phase2 total 647713453 bytes. The
+full Phase3 cap would leave total charges at most 714822317 bytes, below the
+unchanged 5000000000-byte foundation limit; never refund prior or failed charges.
+
+Before any request, use the refined Phase3 selector artifact
+`.build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/npm-license-candidates-v3.json`
+(SHA-256 `01894d13da9ec0d390de3260525f43d8e36b809e48c59c9f190b024c829b5776`). It
+retains all 59 URLs from v2 and the same 24 package bindings, but separates GNU
+standards-provider texts from publisher file candidates; GNU text must never
+be treated as a package-bundled file or publisher provider response.
+
+The first Phase3 acquisition is retained unmodified as diagnostic evidence:
+51 distinct URLs requested and 47475 response-body bytes charged, with 46 HTTP
+404 and five HTTP 200. The selector builder incorrectly left the terminal
+`.git` remote suffix before a fragment-derived publisher ref for five exact
+README-published lower-case `license` paths; those raw URLs were malformed and
+their 404s do not evidence absent source files. Sharp's first candidate build
+also misclassified its publisher paths, but no sharp publisher URL was sent;
+its top-level terms are instead accepted under the selected-model decision
+above using separately labelled GNU LGPL/GPL standards-provider evidence and
+retained package README third-party notices.
+
+The bounded correction freezes five exact URL corrections (same observed
+repositories, publisher gitHeads, lowercase `license` paths and raw origin) in
+`.build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/npm-license-candidates-v4.json`
+(SHA-256 `6b6bc2161df663e3a54f9adb5dd937b641a01312c2b517ac284620d1a90bc679`).
+No new source, tag, path, or origin is introduced. A pure normalizer regression
+test covers fragment-before-terminal-`.git` handling, supported GitHub URL
+forms, rejection of non-license file paths, and preservation of sharp standards
+and README evidence while keeping sharp out of publisher requests. Only after
+that frozen selector and test pass may the five corrected URLs be tried; prior
+51 requests remain charged under the original 96-URL/64-MiB Phase3 limits.
+
+The five corrected, README-linked package requests returned HTTP 200 (5,493
+response bytes; no redirects or retries). Together with the three earlier
+publisher responses, the selected model accepts these eight bodies as
+license-provider evidence at their recorded provenance levels: three root or
+branch-snapshot texts, and five pinned repository/license-path texts. Keep the
+three distinct package gitHeads for remark/retext even where exact license body
+hashes match. Preserve both MIT blocks in the napi-rs root LICENSE. The
+branch-based Microsoft and boolbase bodies remain snapshots, not
+release-matched package files. See the immutable response receipts and
+`.build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/phase3-license-provider-outcome.md`
+for each exact URL, date, hash, header and provider binding.
+
+Phase3 remains incomplete for six non-sharp packages: `@epic-web/invariant`,
+`@tybys/wasm-util`, `am-i-vibing`, `piccolore`, `process-ancestry`, and
+`stackback`. Their exact package versions, declarations, repositories, tested
+refs/paths and HTTP 404s are recorded in the run outcome artifact and raw
+response receipt; a 404 is not an unlicensed determination. Do not perform
+another license request until a separate exact selector and operation are
+frozen. The 84 project-provider relations and ten sharp standards-provider
+records remain distinct from archive-bundled license bytes; no legal-compliance
+or redistribution certification is claimed. No install, runtime build,
+compilation, browser test, or original acceptance gate ran in this checkpoint.
+
+The selected-model acceptance interpretation for the original npm gate is that
+the closed-image license inventory binds the complete locked graph, installed
+files, package SPDX declarations, exact archive bytes and roles, with recovered
+license/notice bytes and observed external pointers retained where available.
+The gate requires inventory of every acquired byte and license; it does not
+require a separately fetched publisher license body for every archive. For the
+six remaining non-sharp records, retain exact archive/package-manifest hashes,
+lock SPDX expression, any bundled notices and README/source pointers, and state
+explicitly that no external body was recovered. Do not invent a license body
+or copyright, call a package unlicensed, or claim legal compliance. This closes
+the license-inventory interpretation only; installed-file inventory and all
+runtime acceptance gates remain pending. The exact Debian/Python license and
+copyright-byte requirements are unchanged. No Epic main-branch snapshot or
+other additional license request is authorized or needed.
+
+### 2026-10-04 — Foundation Phase4 runtime assembly resource decision
+
+Proceed with the already-frozen foundation objective, original 32 outputs and
+original ten acceptance commands under the existing cost ceiling only: C3/G0,
+no paid service, at most 7,200 wall seconds for this run, 8 GiB host memory,
+20 GB staging/disk, and 5 GB cumulative download accounting without refunds.
+No additional network operations are authorized. Use verified existing
+run-specific caches and archives; build the closed dependency/toolchain image
+locally with `--pull=false` and ordinary product/acceptance execution with
+`--network none`. No host product compilation, image publication, canonical
+output publication before every original gate succeeds, commit, Chapter41+, or
+repair step is authorized. The Python 3.11.2 / regex 2022.10.31 oracle remains
+validation-only and separate from the product runtime. Build receipts must
+distinguish the historical 11-crate source lock from the approved 21-crate
+artifact-identity helper graph; do not silently rewrite the historical lock
+identity. Actual installed-file, license/role, image-ID and source inventories
+remain required acceptance evidence.
+
+Two machinery-only support tasks are assigned concurrently under
+`route-concurrent-luna-machinery-maintenance-20261004` as
+`prepare-functional-history-runner-machinery` and
+`prepare-functional-oracle-runner-machinery`, with disjoint roots
+`.build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/history/`
+and `.../machinery/oracle/` in BUILD_STATE. At the preceding handoff both
+support steps were pending and their recorded attempts were interrupted.
+Original pre-claim draft bytes remain
+unchanged under interrupted run03 as timing diagnostics; byte-verified copies
+are retained in the declared staging roots. They read the exact frozen source contracts and
+share no writable paths; both return candidates and local tests to the sole
+integrator. This is bounded machinery preparation only; no network, install,
+image build, compilation, or canonical publication is authorized by those
+workers. The root-selected model retains semantic/Rust judgment and this Luna
+thread alone writes shared state/decisions and integrates the closed runner.
+
+The two support steps were freshly claimed at 07:48:34Z as run
+`20261004T074834Z-route-concurrent-luna-machinery-maintenance-02`; the new
+attempts are `20261004T074834Z-prepare-functional-history-runner-machinery-02`
+and `20261004T074834Z-prepare-functional-oracle-runner-machinery-02`. They own
+only the disjoint `machinery/history/` and `machinery/oracle/` subtrees beneath
+that fresh run root, respectively. Each input is hash-bound in BUILD_STATE to
+the verified run03 contract/registry/config plus current policy commit. Prior
+maintenance-01 roots and interrupted drafts remain immutable; the new attempt
+is local no-network preparation only and has not authorized a base image build,
+APT operation, product compilation, or canonical publication.
+
+Handoff checkpoint: run03 ended interrupted at 07:14:26Z after 4,795 seconds
+from its 05:54:31Z start. Under the frozen 7,200-second per-run wall ceiling,
+2,405 seconds remain before accounting for other foundation/support execution.
+The two pending support attempts overlap for 406 seconds through 07:21:12Z;
+charging that whole interval once leaves at most 1,999 seconds. Pre-claim draft
+files under run03 have mtimes 07:11:14Z (history runner), 07:11:58Z (oracle
+builder/checker), and 07:12:22Z (history checker), all within run03's interval.
+Their exact write durations are unknown, but those writes are inside the
+4,795-second union interval and must not be subtracted twice. Other unrecorded
+work outside those intervals, if established, must still be charged. This
+remains an upper bound, not an exact aggregate remainder. Do not count
+post-interruption policy maintenance or idle time as run03 execution, and do not
+reset or refund prior work. The pre-Phase3
+download account is 647,713,453 bytes as recorded by the frozen decision and
+selector; Phase3 receipts add 52,968 bytes (47,475 first-attempt plus 5,493
+corrected response bytes), for a recorded basis of 647,766,421 bytes and at
+most 4,352,233,579 bytes below the 5,000,000,000-byte ceiling before any other
+unitemized charge. The pre-Phase3 total is carried forward, not independently
+reconstructed here; do not double-add Phase2's 201,365 metadata bytes. The exact
+basis, receipt references, pending staging roots, and limitations are in
+`.build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/foundation-handoff.md`.
+
+### 2026-10-04 — Run04 workspace image and installed package checkpoint
+
+The exact cached workspace image build completed with network disabled and no pull. The observed image config ID is `sha256:6bd08409adec602fd91b26270f2341de19028920484dcedb1a5b6d54506caf5f`, image size 2,557,623,688 bytes, and its first eight rootfs diff IDs match the separately pinned Node base lineage. The Dockerfile and image inspection JSON remain under `.build/runs/20261004T075611Z-establish-functional-offline-workspace-execution-boundary-04/` with BUILD_STATE hashes. Build output reported Node 22.12.0/npm 10.9.0 and Rust/cargo 1.93.1, rustfmt 1.8.0, clippy 0.1.93 from the exact local Rustup mirror. No Rust compilation or test ran. The user policy requires the actual suite only through the admitted closed execution boundary; a direct Docker test of this candidate image would bypass that rule, so ArtifactIdentity remains pending until the workspace receipt and closed runner pass exact admission.
+
+The npm cache was assembled from 563 exact verified archive tarballs using `npm cache add --offline --ignore-scripts`; it contains 1,128 files/467,866,322 bytes. A copied exact package/lock snapshot passed `npm ci --offline --ignore-scripts --no-audit --no-fund`, installing 456 platform-selected packages from 569 logical lock entries/563 unique archives. One valid install followed by a malformed diagnostic invocation remains recorded as a failed combined command; the corrected repeat passed. No npm network/lifecycle or product build occurred.
+
+Installed Debian inventory attempt01 failed before writes when the container root UID mapping could not write the host-owned evidence mount. Its exact script/diagnostics are preserved. Attempt02, run as UID 1000 in a fresh directory, produced 418 package/version/architecture/dependency rows and 418 copyright bindings, all copyright files present and package-owned. It records link path and resolved target separately; `binutils-x86-64-linux-gnu` points to `binutils-common`'s copyright file and records that file's actual bytes/hash. These are observed copyright bindings only, not a legal-compliance claim. Base image-carried packages remain bound to OCI image provenance, with no fabricated `.deb` hashes. The full installed-file hash census, workspace receipt, oracle derivation/receipt, registered closed runners, original ten gates, and canonical publication are pending. This candidate build implies no acceptance or foundation completion.
+
+### 2026-10-04 — Closed-target concurrency compatibility for concurrent machinery claims
+
+The selected model authorizes an additive, fail-closed compatibility rule in the offline runner's target selector. It must still admit exactly one running registered product-runtime owner for the selected closed target. It may additionally tolerate only the explicitly declared non-product machinery support claims `prepare-functional-history-runner-machinery` and `prepare-functional-oracle-runner-machinery` in the active `route-concurrent-luna-machinery-maintenance-20261004` build, and only while their declared run-scoped outputs remain pairwise disjoint from each other and all canonical product outputs, their observed outputs remain under their own `.build/runs/<run-id>/` staging roots, and the recorded aggregate/capacity policy authorizes the count. It must reject unknown/malformed claims, overlapping outputs, a second product runtime owner, any support claim under a different build, and a missing scope declaration. Existing dependency, fingerprint, source, output, budget and admission checks stay unchanged. This does not turn product targets into concurrent runners or create general all-running-step bypass. Required tests cover the exact accepted history+oracle pair and each listed refusal.
+
+For a later exact runner-candidate preparation, the selected model explicitly adds
+`prepare-functional-offline-runner-machinery` to the same bounded allowlist. The
+machine-readable scope is the single `concurrency_scope` object on the active
+maintenance build in BUILD_STATE; its exact three IDs, three disjoint staging
+roots, maximum count of three, and `no_product_runtime_ownership` flag must match
+the recorded decision. A product invocation may still tolerate only this exact
+triple while all declared output and ownership predicates hold. This extends no
+runtime, network, or canonical output authority.
+
+The selected model additionally authorizes one exact non-product support claim,
+`prepare-functional-offline-runner-machinery`, under the same active maintenance
+build. It owns only the disjoint run-scoped path
+`.build/runs/20261004T084605Z-route-concurrent-luna-machinery-maintenance-04/machinery/offline-runner/`.
+It may prepare and locally fixture-test the already-declared
+`run-functional-offline.sh` and its existing runner test output, but may not own
+the closed product target, touch canonical outputs/shared ledger, invoke Docker,
+install/build/compile, use network, or run a product command. The active product
+foundation remains the sole runtime owner. The claim is limited to the one
+explicitly named maintenance build and path; the exact two existing history and
+oracle claims remain disjoint. No additional concurrency, resource, or product
+authority is inferred.
+
+### 2026-10-04 — Allow bounded helper subsets and serial runner dispatch
+
+This clarifies the prior Chapter40 concurrency entries: during one registered
+product run, zero, one, two, or all three exact non-product helper claims may be
+present. The accepted machine-readable scope remains the exact versioned
+`concurrency_scope` recorded for
+`route-concurrent-luna-machinery-maintenance-20261004`, with the three existing
+helper IDs, their three disjoint run04 staging roots, maximum three, and
+`no_product_runtime_ownership: true`. The checker also pins that scope as its
+source-bound expected policy and requires exact equality; live state cannot
+select arbitrary output roots.
+
+When any helper claim is running, the maintenance build must be active and be
+the declared `active_build`; every running helper must belong to that build and
+its exact ID, `outputs`, latest running attempt, and `staging_dir` must match
+the corresponding pinned root. Claims must be a duplicate-free subset of the
+three allowed IDs, remain under the count cap, and be disjoint from each other
+and the single running product owner. Unknown/malformed IDs, a foreign build,
+scope/root drift, overlaps, or a second product owner fail closed.
+
+With zero running helpers, ordinary serial dispatch is valid when the selected
+product build and its one registered product step are active. The maintenance
+build need not remain active; if it is still active and idle, its scope must
+still exactly match the pinned policy. The selected `active_build` may then
+identify either the product build or that exact active idle maintenance build.
+The existing current three roots are a versioned policy boundary, not a
+permanent wildcard: future support IDs or roots require an explicit recorded
+scope/policy update and rerunning affected gates before dispatch. This changes
+no network, target, budget, resource, or publication authority.
+
+Run06 selector-registry encoding correction (superseding the mistaken source-
+projection suspicion retained in its failure diagnostic): the original
+`buildBootstrapInputFingerprint` hashes bytewise-key-sorted canonical JSON for
+the selected-step target records with exactly one final LF. The candidate
+closed-target checker must append that LF only when computing this registry
+fingerprint; its receipt-level `canonicalJson` contract remains unchanged.
+Run04's five selected-step target records and the original effective
+six-boundary projection are deeply equal, so no registry config, schema,
+projection, or authority broadening is needed. Preserve the earlier
+95be71c1... refusal artifact as a failed attempt that exposed the missing-LF
+encoding defect; do not rewrite it or treat it as a source-registry mismatch.
+
+For run06 host preflight only, preserve the exact pre-existing ignored root
+`target/` Cargo cache by moving that one validated directory, without deletion,
+to the previously absent
+`.build/runs/20261004T101834Z-establish-functional-offline-workspace-execution-boundary-06/preserved-host-target/`.
+
+Run06 source-projection producer fixture checkpoint (2026-10-04): the owned
+run-local checker now contains a bounded per-file producer and verifier for a
+current-worktree projection. It binds dirty tracked bytes and executable modes,
+requires exact declared overlay identities, emits an explicit per-path tree
+record set whose digest can be recomputed, and copies mutable ledgers/selected
+receipts as separate control inputs. It rejects missing/undeclared overlays,
+missing inputs, symlinks, traversal, control collisions, cache prefixes,
+and source mutation. Current exclusions are exact governance/generated receipt
+and step-inventory paths plus `.git`, `.build`, `target`, `node_modules`, and
+`.cache` path roots; `artifacts/` and `audits/` are not blanket-excluded.
+Focused pinned offline fixtures pass 20/20. Per-file memory/read ceiling is
+64 MiB, and no complete projection was materialized in this checkpoint.
+
+This is producer/verifier fixture evidence only, not source-projection
+integration or target execution: the staged runner still mounts the whole
+checkout read-only and does not call the new producer. The verifier requires
+the live producer result in-process and recomputes its inventories, digests,
+path sets and file hashes; an on-disk manifest alone cannot supply trusted
+expected paths. Runner integration, independent source-declaration binding,
+and fresh full-source verification before dispatch remain pending. The
+historical 32 outputs, ten gates, execution caps and existing receipt semantics
+are unchanged.
+
+Before run06's first actual projected-workspace materialization, the one-time
+resource estimate was: `.build/runs` 10,366,328,372 bytes, pinned offline image
+2,862,347,546 bytes, and current tracked worktree inputs 101,906,463 bytes
+(2,164 files). Their conservative sum is 13,330,582,381 bytes; the projected
+copy adds at most the measured tracked total plus declared overlays, remaining
+below the 20 GB cap without duplicating the existing 1.433 GB preserved target
+cache. The largest current tracked file is 7,222,029 bytes, below the declared
+64 MiB per-file bound. The aggregate estimate intentionally counts the complete
+image size even if Docker layer sharing reduces actual additional disk usage.
+This is authorized only after rechecking that `target/` is a real directory,
+the destination is absent, no Cargo/Rust/audit consumer is active, and the exact
+tree fingerprint has been recorded. Verify the full tree fingerprint after the
+move; retain every byte. The original `./course audit-host` gate then checks the
+host workspace. Restoration is permitted only if the root `target/` path is
+still absent; never overwrite a recreated path. This recoverable cache
+preservation grants no build, compilation, product execution, cleanup, or cache
+reuse authority.
+
+For the existing locked history extractor only, the selected model approves use
+of the applicable `jsonc-parser` 3.3.1 package already in `site/package-lock.json`
+as narrowly scoped JSON AST/byte-offset plumbing for mapping selected source
+values to original response bytes. Its lock integrity is
+`sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==`
+and its declared license is MIT. Native `JSON.parse` remains the strict JSON
+syntax authority; jsonc-parser must not relax strict syntax or duplicate-key
+refusal. The separate nested lock entry for 2.3.1 is not selected. Bind the
+3.3.1 installed package identity/integrity in the extractor inventory and
+receipt alongside parse5; do not switch extraction behavior solely because a
+global media list includes JSON. Each source's frozen media/extractor policy
+continues to control whether this parser is used. No dependency root, version,
+network, or installation authority is added.
+
+For the run04 locally built Docker workspace image, the selected model clarifies
+the frozen receipt's local-derived identity case. Docker exposes an immutable
+config `ImageID` and ordered rootfs diff IDs for this build but no registry
+manifest digest. The receipt must therefore use
+`image_manifest_kind: local-derived-no-registry-manifest` and
+`image_manifest_digest: null`; it must never relabel the config ID or pinned
+base digest as the derived OCI manifest. Add an exact image-provenance record
+binding the actual derived config ID, complete diff IDs, digest-pinned base
+registry index and amd64 manifest/config identities, inspected lineage/tool
+versions, Dockerfile SHA-256, and exact build-context inventory SHA-256. A
+registry-backed case still requires its genuine manifest digest. This reflects
+the original acceptance language, which requires immutable image ID, locks,
+toolchains and source-independent layers, not a registry manifest for a locally
+derived image.
+
+The workspace receipt becomes self-contained for its graph/license/installed
+file/cache-inventory evidence by embedding UTF-8 evidence artifact bytes under
+a strict `embedded_artifacts` map keyed by each referenced exact path, with byte
+count and SHA-256 recomputed by the checker. Do not embed `.deb`, npm tarball, or
+crate archive payloads; preserve their exact hashes, sizes, source receipt and
+provenance records. The canonical receipt must validate from a fresh repository
+checkout with private `.build` evidence absent. Any `.build` reference may
+remain original run provenance but is not a required replay dependency.
+Unknown, duplicate, extra, absent or mismatched embedded artifact entries fail
+closed. This adds fields/evidence within the existing receipt output; it creates
+no new canonical output path and waives no original acceptance.
+Embedded artifacts are inventory/manifests/license text only, not rustup,
+package archives, crates, npm tarballs, executables or other source payloads.
+Original acquisition receipts retain URL/size/hash; immutable image evidence
+and a later current-cache probe distinguish recorded acquisition from proof of
+presently available cache bytes. Static receipt verification must never imply
+that a missing private `.build` cache is available or that a hash alone recovers
+its payload.
+
+### 2026-10-04 — Oracle builder local parent-image tag binding
+
+The oracle builder may need a Dockerfile `FROM` reference for the already admitted exact workspace image. A bare Docker config ID in `FROM` is parsed as an external `docker.io/library/sha256:...` name and fails before the build; that failed selector and attempt are preserved. For a corrected attempt, first re-inspect the selected receipt-bound immutable image ID, derive a unique run-scoped local tag from the current run ID, refuse if that tag already resolves to any image, create the tag only after the collision check, and immediately verify the tag resolves back to the exact immutable ID. Build with `--pull=false --network=none`; record both tag and ID mapping. The tag is local build plumbing only, never a registry digest, receipt identity or substitute for the actual image-ID/ordered-layer checks. No tag may overwrite pre-existing image state.
+
+### 2026-10-04 — Foundation run04 wall-budget interpretation and frozen direct oracle acquisition
+
+The original foundation step records `wall_seconds_max=7200`; the Phase4 decision's exact phrase is “at most 7,200 wall seconds for this run.” The frozen foundation records do not set a cumulative wall/session cap across fresh run IDs (an earlier maintenance handoff's conservative 1,999-second aggregate interpretation is superseded). Fresh foundation run04 therefore has the original 7,200-second per-run ceiling, not an increased per-run cap. Preserve run03's 4,795 seconds and support activity as immutable actual history; do not erase, relabel, or refund any work. Continue to carry the explicit cumulative 5,000,000,000-byte download cap, 8 GiB memory/20 GB disk caps and cumulative charges. Known download basis before run04 is 647,766,421 bytes; every response, redirect body, failed response and partial body adds to that amount.
+
+The selected-model decision authorizes under the already-frozen foundation N2 step only the eight direct package archives and copyright bytes in the existing run03 oracle config; no version, dependency root, scope or cap changed. Exact initial selectors and integrity fields are frozen at `.build/runs/20261004T075611Z-establish-functional-offline-workspace-execution-boundary-04/oracle-direct-deb-selectors-v1.json` (source config SHA-256 `1f2062f4f1bd683ea03175b4bfb45cc9f8ae7059a41e5050ec7386f43c5766d3`). There are nine initial URLs: eight exact `snapshot.debian.org` package selectors and the exact configured `metadata.ftp-master.debian.org` copyright URL. No auth, install, lifecycle scripts, apt index fetch or transitive package fetch is included. One HTTP request per selector; no automatic retries. Each `.deb` success is capped at its exact frozen size and SHA-256; copyright body max 262144 bytes and must match its exact frozen SHA-256. Non-200/error and partial responses are preserved and charged, with max 65536 bytes per error body. For archive URLs only, the already-frozen selector allows at most three manual HTTPS redirects on the same `snapshot.debian.org` authority to `/file/<40 lowercase hex>/<exact frozen basename>`; record each status, Location, final URL, bounded redirect body and hash. Copyright redirects remain disallowed. The exact conservative total charge ceiling for this operation is 7,942,992 bytes (the frozen field in the selector artifact), counting all redirect and error bodies; retain all actual charges.
+
+Run01 (`20261003T160734Z-establish-functional-offline-workspace-execution-boundary-01`) contains the already-acquired Debian snapshot InRelease and Packages lists; use them read-only rather than fetching new package indexes. The pinned Node/bookworm base has no cached apt index, but the run01 lists and original source configuration are reused read-only. Main and security InRelease signatures verify with the cached Debian keyring; `bookworm-updates` had an unavailable additional signer in direct gpgv diagnostics and is not needed for the exact package plan. Network-none APT simulation against the exact source file, run01 lists and the digest-pinned base status database for all eight frozen pins reports four upgrades and one new package among the direct eight, zero removals, with the other three Python root pins already installed. It requires no additional closure package. This is only dependency-plan evidence; actual direct deb control fields will be verified offline after acquisition. If further exact missing closure packages emerge, enumerate source index Filename/Size/SHA-256 and submit a bounded selector before any transitive fetch.
+
+The same local check confirms the digest-pinned Node base already has `python3 3.11.2-1+b1` and `python3.11 3.11.2-6+deb12u4`; the frozen oracle uses 3.11.2-6+deb12u8. It has no `python3-regex`. No host runtime can substitute. This fresh run claim uses the original repository fingerprint builder with the committed policy HEAD and strict read-only source fingerprint. Its later bounded N2 package acquisition is authorized in the entries below. Original32 outputs, ten acceptance commands, installed-file/license/role inventory, closed execution and no canonical publication before all gates remain unchanged.
+
+The initial run04 direct-acquisition script attempt01 is failed diagnostic evidence, not an accepted response or reusable complete package. Its first three exact direct archives were received and SHA/size-verified (body sizes 26,300, 26,312, and 9,312 bytes). The fourth selector's initial URL redirected with HTTP302 to the captured same-snapshot URL `https://snapshot.debian.org/file/6a0097352b7ed13dcbe135e45f2ec30f5fca359a/python3.11_3.11.2-6%2Bdeb12u8_amd64.deb`; the final response was HTTP200 with 574,236-byte Content-Length and frozen ETag, but a caller bug passed the 65,536-byte redirect body limit to this final archive response. An 80,577-byte partial chunk was retained, not promoted. Eight responses charged 143,925 body bytes; no automatic retry or range continuation occurred. Receipt and exact invoked script bytes are immutable at run04 `debian-oracle-acquisition/receipt-v1.json` (SHA-256 `9bd037ea7195f5f7267091c68b9dd9706b17c28d53c51234d27e2203faa06aa4`) and `debian-oracle-acquisition/attempt-01/acquire-oracle-direct-debs-v1.mjs` (SHA-256 `346721ffb0ae9682ce06d50e363338787212fc26faa0bf0c3c16542c041c9f74`). The response receipt binds every raw redirect/direct body and selected headers. Retain the 143,925-byte charge; no refund.
+
+The selected-model authorizes one explicit replacement transport to the exact previously observed `snapshot.debian.org/file/.../python3.11...deb` URL with frozen 574,236-byte length and original SHA-256, plus only the four still-unrequested exact archives and the already-frozen copyright URL. The first three verified archives are reused without refetch. The new exact selector set is run04 `oracle-direct-deb-selectors-v2.json`, bound to receipt-v1 and v1 config. This is a new finite attempt after a diagnosed caller-limit defect, not automatic retry or transient-network retry. V2 must first test status-dependent body caps, a crossing chunk that retains no bytes beyond cap, and archive content >64 KiB. It makes no request until those tests and the actual-selector preflight pass. V2 charges at most 6,898,028 new body bytes and at most 7,041,953 combined with attempt01, preserving attempt01's 143,925 charges and remaining below the original cumulative ceiling. It authorizes no other selector, apt metadata, transitive fetch, install, or image build. Any further 3xx/error pauses without automatic retry. The exact receipt also preserves raw response headers, though the download-byte budget counts response body bytes under this operation.
+
+Run04 selected-model runtime-assembly checkpoint (supersedes only the final sentence above for operations after the successful v2 receipt): V2 succeeded against all six pre-frozen selector slots. Its raw receipt records ten HTTP response bodies (four same-authority redirect responses, five archive responses, and one copyright response), 5,526,514 body bytes newly received; with v1's separately retained 143,925 failed-attempt bytes, this operation charges 5,670,439 bytes. The five new archives and three reused exact-version archives cover the eight frozen oracle roots; the separately downloaded 3,240-byte copyright file matches the required SHA-256. Offline `dpkg-deb` control inspection matched the fetched package names, versions, amd64 architecture, and declared dependencies. A network-none APT simulation for the exact ten workspace packages against the cached verified signed run01 indexes and pinned Node base reports five upgrades, five new packages, zero removals, and no extra package/archive. The ten exact workspace package archives already exist in run02 with per-archive hashes and file/license evidence; the prior record deliberately did not claim they were installed or that the base graph/runtime had been admitted. The selected-model authorizes the ordinary frozen local installation/image-derivation and installed-file/license/role inventory steps using only the digest-pinned Node/bookworm base, these exact ten existing workspace archives, the exact eight oracle package records (five downloaded now, three image-carried/reused provenance retained separately), the run01 verified signed package indexes as read-only solver inputs, run02 verified Rust 1.93.1/rustup and Cargo/npm cache inputs, current source snapshot, and the existing course/runner candidates. No apt index update, archive refetch, new selectors, package-root changes, npm lifecycle scripts, network during image build/runtime, host product compilation, or source/model/corpus acquisition is authorized. Preserve the base image's own immutable manifest/config/layer and image-carried installed-package provenance distinctly from downloaded `.deb` archive hashes; do not fabricate base archive hashes. If a local package closure or frozen checker reports a missing exact input, stop and report precise evidence before any extra acquisition. Do not publish canonical outputs until the original ten gates pass.
 
 ### 2026-10-04 — Reuse proven deterministic development tools selectively
 
@@ -26603,6 +27201,112 @@ run02 records the exact commit and reruns the tests.
 
 **Affected step:** `promote-bounded-response-byte-reader`.
 
+### 2026-10-04 — Separate image-bootstrap source evidence from current execution source
+
+The workspace image/dependency receipt records the exact source/build-context
+inventory observed when the immutable image was produced. Its existing
+`source_snapshot_sha256` and embedded bootstrap `source_inventory` describe that
+build-time provenance; a fresh checkout must not be rejected merely because
+current source bytes or the declared foundation overlays have since changed.
+Receipt verification must validate the bootstrap inventory and digest from the
+self-contained embedded evidence, without claiming that recomputing the old
+manifest proves unavailable old source bytes.
+
+Each target dispatch independently derives and verifies a complete fresh
+read-only source projection from current git-index paths and current worktree
+bytes, plus only the exact hash-verified declared foundation overlays. This
+per-execution manifest binds current path, byte count, SHA-256, mode and
+provenance; it excludes mutable controls and generated/cache state, which are
+bound through their separate exact control snapshots. The runner must mount
+this fresh projection read-only and refuse missing, undeclared, changed,
+unsafe, or out-of-scope inputs. It must not compare a future checkout against
+the old image-bootstrap inventory or silently omit current source.
+
+This is an interpretation refinement within the existing offline workspace
+receipt and runner outputs. It creates no new canonical artifact path, changes
+no source/lock/output inventory, and waives none of the original acceptance
+criteria or ten validation commands. The current Chapter40 run already proved
+actual run-local source projection and stops closed at the missing workspace
+receipt; this is not runtime admission.
+
+**Affected step:** `establish-functional-offline-workspace-execution-boundary`.
+
+### 2026-10-04 — Resolve Chapter 40 setup bookkeeping and continuation authority
+
+The user confirmed that `remediate-rust-runtime-observation-20260804` has
+`budget.spent: 5`; a prior Codex agent made the 4-to-5 change. Preserve 5 and
+reconcile only that exact historical projection in compatibility-v4. Do not ask
+the user to choose routine maintenance of `BUILD_STATE.yaml`, `DECISIONS.md`, or
+`AGENTS.md`: agents make scoped, evidence-backed bookkeeping updates under
+declared ownership and retain prior run history. The ask-and-stop rule remains
+in force for unresolved product behavior, scope, or authority questions.
+
+After Chapter 40 is completed and published, work may continue through
+subsequent chapters in queue order without per-chapter permission. This does
+not release the held repairs, bypass actual prerequisites, resource/source
+limits, independent review or validation gates, or the ask-and-stop rule for a
+genuine unresolved choice. No later chapter may start before Chapter 40 is
+complete.
+
+**Affected step:** `establish-ch40-course-toolchain-v2`.
+
+### 2026-10-04 — Replace forensic offline setup with the ordinary course toolchain for Chapter 40
+
+The user supersedes the Chapter40 forensic offline-environment policy. Official
+OS/tool/dependency repositories may be used during ordinary setup and image
+build. The workflow does not require a complete Docker OS/transitive installed
+file, license, acquisition, cache, or custom image-provenance receipt inventory.
+Keep the ordinary Cargo/npm lockfiles, expected tool versions, dependency
+allowlist, supporting-library role boundary, and functional tests. Reuse the
+tracked `Dockerfile` and `./course` workflow and a compatible existing image;
+do not rebuild unnecessarily. Dependency provisioning may use the network,
+while execution of course Rust tests/commands must use `network:none`.
+
+The old `establish-functional-offline-workspace-execution-boundary` is
+invalidated, not passed or erased. Its completed/interrupted runs, images,
+receipts, measurements, and failed diagnostics remain immutable evidence of the
+superseded policy only. The replacement stable step is
+`establish-ch40-course-toolchain-v2`, directly after the old step and explicitly
+replacing it. Its approved narrow implementation splits locked Cargo fetching
+from a BuildKit `RUN --network=none cargo test --workspace --locked` and makes
+`./course run` invoke runtime containers with `--network none`; npm and system
+tool provisioning retain the existing Dockerfile path.
+
+Chapter40 is not a GPT-2 tokenizer chapter and does not invoke the GPT-2 oracle.
+Drop the oracle Debian-image/acquisition/receipt as a Chapter40 prerequisite;
+retain tokenizer parity and the expected upstream model/tokenizer versions as
+an explicit future Chapter44 prerequisite. Chapter40 historical context must
+use ordinary accurate primary-source citations and continue to observe normal
+copyright and quote-length limits; no dedicated history extractor image or
+environment receipt is required. The chapter's mathematical, algorithmic,
+review, localization, static-site, sole-Firefox, and safety objectives remain
+unchanged. The replacement does not authorize other chapter work or repairs.
+
+**Affected steps:** `establish-functional-offline-workspace-execution-boundary`,
+`establish-ch40-course-toolchain-v2`, and `implement-ch40-reference-core-handoff`.
+
+### 2026-10-04 — Restore Chapter 40 queue ownership and retire superseded forensic support
+
+The functional curriculum queue is owned by
+`extend-course-to-functional-laptop-llm-20260810`. Its 66 records after the
+separate deterministic-routing policy step were found nested under
+`route-deterministic-machinery-to-luna-20261004`; move those exact step records,
+unchanged and in frozen order, back to the functional build after its setup
+prefix. The routing build retains only its own completed routing-policy step.
+This restores the existing queue owner; it does not complete any moved step.
+
+Under the user's 2026-10-04 environment simplification, mark only
+`prepare-functional-history-runner-machinery` and
+`prepare-functional-offline-bootstrap-handler-machinery` skipped. Preserve all
+interrupted attempts and staged artifacts, and do not describe either helper as
+implemented or validated. Close the maintenance build with retained-completed
+and retired-skipped outcomes, and make the functional build the sole active
+owner. Historical runs and evidence remain unchanged.
+
+**Affected steps:** `prepare-functional-history-runner-machinery`,
+`prepare-functional-offline-bootstrap-handler-machinery`,
+`establish-ch40-course-toolchain-v2`, and the functional queue successors.
+
 ### 2026-10-04 — Pause on unresolved material ambiguity
 
 When existing instructions or evidence do not resolve a material choice, ask the
@@ -26619,3 +27323,127 @@ history, or oracle scope question must be put to the user before resuming that
 affected work.
 
 **Affected step:** `record-pause-on-unresolved-policy-ambiguity`.
+
+### 2026-10-04 — Bind exact image cache captures and verify the closed cache roots
+
+The workspace receipt's cache-inventory descriptor carries the exact six raw
+JSONL captures, their byte counts and SHA-256 values, the immutable image ID,
+and one path-sorted merged row set that preserves file, directory, and
+symlink distinctions. The six permitted roots are the selected Rust toolchain,
+Cargo executable shims, Cargo archive cache, Cargo registry index, npm cache,
+and the course Rust cache. The checker requires the exact root set, canonical
+absolute paths, unique closed membership, valid modes and row types, exact
+capture-to-merged-row equality, and literal symlink targets; it does not follow
+arbitrary symlinks or treat hashes as proof that a package graph is complete.
+
+Run07 generated a self-contained candidate from the six already retained
+capture files, then replayed a bounded validator against the same cached image
+with no network and a read-only filesystem. The validator enumerated the exact
+closed path set and streamed every captured regular file: 2,978 total rows,
+1,324 files, and 1,388,074,276 bytes. This verifies those cache observations
+against this image only; it is neither a complete workspace receipt nor a
+runtime-admission result. No cache acquisition, package installation, product
+dispatch, or frozen foundation gate occurred.
+
+**Affected step:** `establish-functional-offline-workspace-execution-boundary`.
+
+### 2026-10-04 — Oracle runner support scope notes
+
+The oracle machinery support task's three candidate scripts and manifest remain
+the only promotion candidates. A run-local `oracle-receipt-schema-addendum.json`
+is retained as a root-requested internal handoff artifact for the additive
+receipt fields; it is neither a canonical output nor a promoted shared helper.
+The test-generated Python `__pycache__` file is retained only as disposable
+run-local diagnostic output and is not part of the support candidate manifest.
+This narrow support-only allowance does not alter the foundation's frozen 32
+product outputs or acceptance commands, and does not admit an oracle runtime.
+
+**Affected step:** `prepare-functional-oracle-runner-machinery`.
+
+### 2026-10-04 — Add one fixed Cargo-graph support claim
+
+The bounded machinery maintenance build may additionally schedule the single
+fixed support step `prepare-functional-cargo-graph-binding-machinery` under
+`.build/runs/20261004T084605Z-route-concurrent-luna-machinery-maintenance-04/machinery/cargo-graph/`.
+The closed-target checker names this ID and root literally; the maximum of
+three concurrent support claims, one selected product runtime owner, and all
+existing disjoint-root checks remain unchanged. This helper only validates the
+preserved 21-crate payload evidence against the current complete 62-record
+Cargo.lock and verified cache inventory. The filtered 61-node Linux metadata
+is not complete-graph evidence. This grants no network, install, build, product
+dispatch, or admission authority and adds no canonical foundation output.
+
+**Affected step:** `prepare-functional-cargo-graph-binding-machinery`.
+
+### 2026-10-04 — Add one fixed host-bootstrap handler preparation claim
+
+The same bounded maintenance scope additionally permits the fixed support ID
+`prepare-functional-offline-bootstrap-handler-machinery` under
+`.build/runs/20261004T084605Z-route-concurrent-luna-machinery-maintenance-04/machinery/workspace-bootstrap/`.
+The closed-target checker allowlists that literal ID/root; the maximum of three
+running helper claims, one product-runtime owner, and disjoint-root validation
+are unchanged. This is candidate preparation only for the existing
+`scripts/run-functional-offline.sh` bootstrap/reuse boundary and frozen
+workspace receipt schema. It may not edit the shared checker or registry, run a
+Docker build, mount the daemon socket into a container, use the network, install
+dependencies, publish a receipt, or imply workspace admission. Existing
+network/acquisition and ten-gate contracts are preserved.
+
+**Affected step:** `prepare-functional-offline-bootstrap-handler-machinery`.
+
+### 2026-10-04 — Bind a complete installed Debian package graph to the workspace image
+
+The workspace receipt's Debian package graph is schema version 1,
+`debian-installed-graph-v1`, and binds the observed local image config ID plus
+the exact sorted package rows. Image-carried packages retain their observed
+version, architecture, raw Depends/Pre-Depends, role, complete installed-file
+and copyright evidence, and image provenance; archive fields are null because
+no archive is claimed for those inherited packages. Only genuinely acquired
+direct packages carry exact archive bytes/hash/URL and acquisition provenance.
+The final package-name set must equal the parent image package set plus the
+frozen acquired closure, with no unrecorded changes.
+
+The retained full installed-file census contains one path absent from this
+base-derived image: `/var/lib/apt/lists/partial`. Record it only as the exact
+`absent-package-list-entry` status with the retained base cleanup evidence;
+do not label it a dpkg diversion without diversion evidence, and do not
+generalize this exception to executables, libraries, licenses, or caches.
+Generated graph attempt02 and attempt03 are immutable failed diagnostics that
+misclassified this missing row; attempt04 corrects the representation and
+passes actual graph validation. The saved image-inspect evidence is reused
+provenance, not a fresh live inspect observation.
+
+The graph candidate and 25/25 pinned offline fixture result are partial
+machinery evidence only. They do not make descriptor-only workspace receipt
+fields sufficient, discharge cache/lock/toolchain validation, prove fsync or
+atomic rename, admit either special runtime, or pass any original acceptance
+gate. Preserve attempt histories and finish the whole self-contained receipt
+and unmodified gates before declaring the foundation complete.
+
+The staged 62-record Cargo lock was also queried with `cargo metadata
+--locked --offline` for all targets in the pinned image. The result contained
+62 package records and 62 resolve nodes with no missing or extra package
+identities. Do not compare raw metadata JSON hashes across mount paths, and
+normalize an absent lock `source` and metadata `source: null` as the same
+source-less local workspace representation. This identity-set check is only a
+partial diagnostic: package checksums, features, and dependency-edge
+equivalence still need an exact graph validator. The 61-node filtered Linux
+graph is not a substitute for all 62 lock entries.
+
+The user explicitly extended the wall-time limit for the currently active
+Chapter40 foundation run. The extension's duration was not specified; do not
+invent a numerical replacement or alter the independent memory, disk,
+download, network, acceptance, or output limits. This is a one-run exception,
+not a reusable budget change.
+
+**Affected step:** `establish-functional-offline-workspace-execution-boundary`.
+
+### 2026-10-04 — Do not backfill historical image build context; inventory any fresh rebuild
+
+The existing `sha256:1e23bf3c37dd21fb8a1bcba0b80386c0889c8908f3293aa07c0aad958758f8c3` image has no retained exact build-context inventory from its own build event. A context inventory captured later cannot be represented as retrospective proof for that image, and a metadata-only tag or derivation would not repair the missing event provenance. Preserve the old image/build evidence as-is.
+
+For a new workspace image, the exact retained v3 recipe and cached inputs were inventoried before execution. A fresh run07 build used the unique tag `learn-llm-functional-workspace:20261004t161603z-run07-context-v1`, `DOCKER_BUILDKIT=0`, `--pull=false --network=none --no-cache`, and the retained run04 context. Its local-only recipe installed copied `.deb` archives, used the local `file:///opt/learn-llm/cache/rust` distribution, and ran `npm ci --offline --ignore-scripts`; no network fallback or new download occurred. The image completed with ID `sha256:d284239fdb1a8fca0f43fd4af5b9765ff2d8a939d174e4e603bc539c955f1882`, and the full pre-build context inventory was rechecked unchanged after build. The image is a fresh candidate, not admitted runtime evidence; no old image was retagged or overwritten.
+
+The retained context inventory is 1,847 files / 625,345,584 file bytes (inventory SHA-256 `4fd686a64e463d54e58e024d41301453c4509e7b159dd2bea8c22db62623a42f`; entry digest `b24987c1acf19e339acc955dbfc33628387f6af54a5f50e54229134d30dddc86`). The exact Dockerfile SHA-256 is `eb885aad6c12de1f307ee4101fa16770368aaac9f44a013a02182e5f4c66ddf7`, and `.dockerignore` SHA-256 is `37a436409a6559399aafdc73aedac320711b9c205d5bb6437ced2a2106e46a45`. Required local COPY roots are present: workspace Debian archives (10 files), Rustup inputs (7), Cargo cache (695 files), npm cache (1,126 files), provenance (3 files), and exact package/lock files. Read-only Docker accounting before build found the prior v3 image size 2.86GB and builder cache 1.094GB; against the previously recorded aggregate basis of 12.53GB, the conservative additional 6.35GB allowance (new image, uncached intermediates, context) estimated 18.88GB under the 20GB ceiling. Docker 25.0.2's installed legacy builder was selected via `DOCKER_BUILDKIT=0`; command requested `--memory=6442450944 --memory-swap=6442450944`, intended as a 6GiB per-RUN cap with ~2GiB reserve. The exact RUN container was removed by `--force-rm` before its HostConfig could be captured. Preserve that limitation: there is no observed build-container memory configuration or aggregate peak measurement, despite the bounded invocation flags. A separate uniquely owned config probe on the fresh image did capture enforced 1GiB memory/swap, network-none, read-only rootfs, cap-drop ALL, no-new-privileges and expected tools; this does not prove the build RUN settings or workspace admission. This one-run operation did not alter general caps, grant network/download authority, or pass an original acceptance gate.
+
+**Affected step:** `establish-functional-offline-workspace-execution-boundary`.

@@ -540,7 +540,7 @@ case "$command" in
     shift
     (($# > 0)) || fail 'run requires a command'
     build_workspace_image >/dev/null
-    docker run --rm "$workspace_image" "$@"
+    docker run --rm --network none "$workspace_image" "$@"
     ;;
   check)
     (($# == 1)) || fail 'check takes no arguments'

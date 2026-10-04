@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "owner_step": "establish-functional-offline-workspace-execution-boundary",
+  "rust_source": "rust/crates/llm-from-scratch/src/artifact_identity.rs",
+  "rust_test": "rust/crates/llm-from-scratch/tests/artifact_identity.rs",
+  "role": "Shared artifact identity plumbing; no LLM algorithm, acquisition, execution or ledger authority.",
+  "sha256": {
+    "library": "sha2",
+    "version": "0.10.9",
+    "default_features": false,
+    "features": []
+  },
+  "encoding": {
+    "id": "artifact-identity-json-v1",
+    "charset": "UTF-8",
+    "object_key_order": "ascending UTF-8 bytes",
+    "root_keys": [
+      "domain",
+      "fields",
+      "schema_version"
+    ],
+    "field_value_type": "string",
+    "integer_or_float_field_values": false,
+    "domain_and_key_syntax": "[a-z][a-z0-9._-]*",
+    "normalization": "none",
+    "whitespace": "none outside strings, except exactly one terminal LF",
+    "duplicate_keys": "reject",
+    "unknown_root_fields": "reject",
+    "reparse": "accept only byte-identical reserialization"
+  },
+  "bounds": {
+    "domain_bytes": 64,
+    "key_bytes": 64,
+    "field_count_min": 1,
+    "field_count_max": 128,
+    "value_bytes": 65536,
+    "domain_keys_values_bytes": 262144,
+    "encoded_bytes": 2097152
+  },
+  "vectors": [
+    {
+      "name": "reference-framing",
+      "status": "Node built-in expected vector; Rust comparison pending",
+      "utf8": "{\"domain\":\"reference-core-v1\",\"fields\":{\"config\":\"1188\",\"fixture\":\"tiny\",\"source_revision\":\"abc\"},\"schema_version\":1}\n",
+      "bytes": 118,
+      "sha256": "77781c66da338919cccedadb03cb790fd66f84e018a1f8b3a31344cbcfc54544"
+    }
+  ],
+  "dependency_admission": "Exact full graph, lock, checksums, license and advisory evidence required before payload acquisition or offline use.",
+  "infrastructure_registration": {
+    "source": "rust/crates/llm-from-scratch/src/artifact_identity.rs",
+    "category": "foundation-infrastructure",
+    "chapter_module": false
+  }
+}

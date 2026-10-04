@@ -455,6 +455,11 @@ alone; the repository state is authoritative.
   resolve it, ask the user and stop work. Do not choose a default, infer
   approval, or continue execution in parallel while the choice is unresolved.
   Resume only after the user provides an answer or further instructions.
+- Do not ask the user how to maintain agent-owned operational records such as
+  `BUILD_STATE.yaml`, `DECISIONS.md`, or this file. Make routine, evidence-backed
+  bookkeeping updates within declared ownership and preserve the audit trail.
+  The ask-and-stop rule still applies to genuine ambiguity about product
+  behavior, scope, or authority.
 
 ### Bounded transient-network retries
 

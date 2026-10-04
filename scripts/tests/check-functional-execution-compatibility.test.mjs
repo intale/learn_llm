@@ -12,7 +12,7 @@ const { parse, stringify } = require('yaml');
 const read = (path) => readFileSync(new URL('../../' + path, import.meta.url));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const state = parse(read('BUILD_STATE.yaml').toString());
-const contract = JSON.parse(read('configs/functional-execution-compatibility-v3.json'));
+const contract = JSON.parse(read('configs/functional-execution-compatibility-v4.json'));
 const checker = read('scripts/check-functional-laptop-llm-plan.mjs').toString();
 const embedded = (name) => JSON.parse(checker.match(new RegExp(`^const ${name} = /\\*[^\\n]*?\\*/ (.*);$`, 'm'))[1]);
 const constants = embedded('EMBEDDED_CONSTANTS');
@@ -29,7 +29,10 @@ function ready() {
   run.status = 'succeeded'; run.finished_at = '2026-10-03T15:00:00Z';
   run.commands = [...step.validate];
   run.validation = step.validate.map((command) => ({ command, status: 'passed' }));
-  run.artifacts = ['scripts/check-functional-laptop-llm-plan.mjs','configs/functional-execution-compatibility-v3.json'].map((path) => ({ path, sha256: sha(read(path)) }));
+  run.artifacts = [
+    { path: 'scripts/check-functional-laptop-llm-plan.mjs', sha256: contract.compatibility_build.checker_sha256 },
+    { path: 'configs/functional-execution-compatibility-v3.json', sha256: sha(read('configs/functional-execution-compatibility-v3.json')) }
+  ];
   const terminal = functional(doc).steps.find(s => s.id === contract.release_terminal_step).status === 'completed';
   functional(doc).status = terminal ? 'pending' : 'active';
   doc.active_build = terminal ? null : functional(doc).build_id;
@@ -39,6 +42,12 @@ function ready() {
 test('actual live state passes the entire validator without a planning bypass', () => {
   assert.doesNotThrow(() => checkState(state));
 });
+test('state validation leaves the frozen queue unchanged across repeated calls', () => {
+  const before = JSON.stringify(queue);
+  assert.doesNotThrow(() => checkState(state));
+  assert.doesNotThrow(() => checkState(state));
+  assert.equal(JSON.stringify(queue), before);
+});
 test('completed compatibility permits setup with the original repairs held', () => {
   const doc = ready(); assert.doesNotThrow(() => checkState(doc));
   assert.equal(functional(doc).steps[3].status, 'pending');
@@ -46,16 +55,16 @@ test('completed compatibility permits setup with the original repairs held', () 
 });
 test('preparation cannot advance any functional step', () => {
   const doc = structuredClone(state);
-  const build = doc.builds.at(-1); build.status = 'active'; build.steps[0].status = 'running'; build.steps[0].runs.at(-1).status = 'running';
-  functional(doc).steps[4].status = 'running';
+  const build = doc.builds.find(entry => entry.build_id === contract.compatibility_build.build_id); build.status = 'active'; build.steps[0].status = 'running'; build.steps[0].runs.at(-1).status = 'running';
+  functional(doc).steps.find(step => step.id === 'implement-ch40-reference-core-handoff').status = 'running';
   assert.throws(() => checkState(doc), /unreleased step advanced/);
 });
 test('only lifecycle, predecessor reconciliation and main routing changed', () => {
   const matches = [...checker.matchAll(/^(?:function ([A-Za-z0-9_]+)\(|const authoritative|export \{)/gm)];
-  const allowed = ['validateState','validatePlan','main','readExecutionCompatibility','validateExecutionCompatibilityState','effectiveExecutionConstants','buildBootstrapInputFingerprint'];
+  const allowed = ['validateState','validatePlan','main','readExecutionCompatibility','validateExecutionCompatibilityState','effectiveExecutionConstants','buildBootstrapInputFingerprint','validateQueue','validateRunHistory'];
   const unchanged = matches.filter(m => m[1] && !allowed.includes(m[1])).map(m => [m[1],checker.slice(m.index,matches.find(n => n.index > m.index)?.index || checker.length).trim()]);
-  assert.equal(unchanged.length, 50);
-  assert.equal(sha(JSON.stringify(unchanged)), '553fcbe6e0831a2b227163052a29643c3d87eee9441e342fd9cdcd4c375aad96');
+  assert.equal(unchanged.length, 48);
+  assert.equal(sha(JSON.stringify(unchanged)), 'e27122fa901d6959f650c81f4d9c7f1cb0776c62d5388ed1883b5abb29cbf563');
 });
 test('historical budget comparison permits only the two exact existing counters', () => {
   const doc = ready(); doc.builds.find(b => b.build_id === 'foundation-and-chapter-01').budget.spent += 1;
@@ -72,10 +81,54 @@ test('repair status, history and specification cannot change', () => {
   }
 });
 test('completed intervening builds cannot be changed or discarded', () => {
-  for (const change of [d => { d.builds.at(-2).objective += ' changed'; }, d => { d.builds.splice(-2,1); }, d => { d.builds.at(-2).status = 'active'; }]) {
+  const targetId = contract.intervening_builds[0].build_id;
+  for (const change of [d => { d.builds.find(build => build.build_id === targetId).objective += ' changed'; }, d => { d.builds.splice(d.builds.findIndex(build => build.build_id === targetId),1); }, d => { d.builds.find(build => build.build_id === targetId).status = 'active'; }]) {
     const doc = ready(); change(doc);
     assert.throws(() => validateExecutionCompatibilityState(doc, contract), /intervening build/);
   }
+});
+test('preserved interrupted setup preflights are bound to exact run projections', () => {
+  const doc = structuredClone(state);
+  const step = functional(doc).steps.find(item => item.id === contract.replacement_setup.step_spec.id);
+  const run = step.runs.find(item => item.run_id === contract.replacement_setup.preserved_preflight_runs[0].run_id);
+  run.notes += ' tampered';
+  assert.throws(() => checkState(doc), /preserved replacement preflight projection drift/);
+});
+test('unrelated failed or interrupted strict runs still require full fingerprints', () => {
+  const doc = ready();
+  const step = functional(doc).steps.find(item => item.id === contract.replacement_setup.step_spec.id);
+  step.status = 'pending';
+  const prior = step.runs.at(-1);
+  prior.status = 'interrupted'; prior.finished_at = '2026-10-04T19:04:00Z';
+  const run = structuredClone(step.runs.at(-1));
+  run.run_id = '20261004T190500Z-establish-ch40-course-toolchain-v2-07';
+  run.started_at = '2026-10-04T19:05:00Z'; run.finished_at = '2026-10-04T19:06:00Z'; run.status = 'interrupted';
+  run.input_fingerprint = { commit: '184c77446e0d' };
+  run.staging_dir = '.build/runs/' + run.run_id + '/';
+  step.runs.push(run);
+  assert.throws(() => checkState(doc), /input_fingerprint fields/);
+});
+test('checker drift is rejected for a non-owner interrupted strict run', () => {
+  const doc = ready();
+  const v2 = functional(doc).steps.find(item => item.id === contract.replacement_setup.step_spec.id);
+  const step = functional(doc).steps.find(item => item.id === 'establish-functional-firefox-execution-boundary');
+  const run = structuredClone(v2.runs.at(-1));
+  run.run_id = '20261004T190500Z-establish-functional-firefox-execution-boundary-02';
+  run.started_at = '2026-10-04T19:05:00Z'; run.finished_at = '2026-10-04T19:06:00Z'; run.status = 'interrupted';
+  run.staging_dir = '.build/runs/' + run.run_id + '/';
+  run.input_fingerprint.checker_sha256 = '78c8b59d24e0d57ca1afd5a59aea362623fc52024bea165b232225e179e58aca';
+  step.runs.push(run);
+  assert.throws(() => checkState(doc), /run checker hash drift outside the step-owned checker output/);
+});
+test('succeeded checker-owning run must bind final output even when input hash matches', () => {
+  const doc = ready();
+  const step = functional(doc).steps.find(item => item.id === contract.replacement_setup.step_spec.id);
+  step.status = 'completed';
+  const run = step.runs.at(-1);
+  run.status = 'succeeded'; run.finished_at = '2026-10-04T19:06:00Z';
+  run.input_fingerprint.checker_sha256 = sha(read('scripts/check-functional-laptop-llm-plan.mjs'));
+  run.artifacts = [];
+  assert.throws(() => checkState(doc), /succeeded owner run lacks the final checker SHA-256/);
 });
 test('historical design run binds its original artifact, not the successor', () => {
   const doc = ready(); const step = functional(doc).steps.find(s => s.id === 'design-functional-laptop-llm-curriculum-extension');
@@ -83,7 +136,7 @@ test('historical design run binds its original artifact, not the successor', () 
   assert.throws(() => checkState(doc), /historical design plan binding drift/);
 });
 test('compatibility publication cannot bind a substituted checker', () => {
-  const doc = ready(); doc.builds.at(-1).steps[0].runs.at(-1).artifacts[0].sha256 = '0'.repeat(64);
+  const doc = ready(); doc.builds.find(build => build.build_id === contract.compatibility_build.build_id).steps[0].runs.at(-1).artifacts[0].sha256 = '0'.repeat(64);
   assert.throws(() => checkState(doc), /compatibility checker publication binding drift/);
 });
 test('future ownership, prerequisites, acceptance and resource costs remain exact', () => {
@@ -106,7 +159,19 @@ test('hashing amendment preserves every original requirement and all other step 
   assert.equal(amended.outputs.length, original.outputs.length + 8);
   for (const originalStep of queue.steps.slice(1)) {
     const actual = functional(state).steps.find(s => s.id === originalStep.id);
-    for (const field of ['id','objective','depends_on','inputs','outputs','acceptance','validate','cost']) assert.deepEqual(actual[field], originalStep[field]);
+    const expected = structuredClone(originalStep);
+    for (const override of contract.replacement_setup.successor_dependency_overrides.filter(item => item.step_id === expected.id)) expected.depends_on = [override.to];
+    for (const override of contract.replacement_setup.successor_input_overrides.filter(item => item.step_id === expected.id)) expected.inputs[override.index] = override.to;
+    const history = contract.replacement_setup.chapter40_history_policy_override;
+    if (expected.id === history.step_id) {
+      expected.inputs = expected.inputs.filter(item => !history.remove_inputs.includes(item));
+      expected.outputs = expected.outputs.filter(item => !history.remove_outputs.includes(item));
+      expected.acceptance = expected.acceptance.filter(item => !history.remove_acceptance.includes(item));
+      expected.acceptance.push(history.append_acceptance);
+      expected.validate = expected.validate.filter(item => !history.remove_validate.includes(item));
+      expected.validate.unshift(history.prepend_validate);
+    }
+    for (const field of ['id','objective','depends_on','inputs','outputs','acceptance','validate','cost']) assert.deepEqual(actual[field], expected[field]);
   }
 });
 test('hashing ownership cannot be omitted, moved into Chapter40 or silently expanded', () => {
@@ -157,10 +222,20 @@ test('output classification rejects cross-owner, changed-selector and undeclared
   assert.ok(inputReceiptPaths(successor).includes('artifacts/functional-laptop/execution-boundaries/offline-workspace/receipt.json'));
 });
 test('a real cold foundation claim satisfies the entire strict fingerprint validator', () => {
-  const doc=ready(),step=functional(doc).steps[4];
-  step.status='running';
-  step.runs.push({run_id:'20261003T154600Z-establish-functional-offline-workspace-execution-boundary-01',started_at:'2026-10-03T15:46:00Z',status:'running',input_fingerprint:buildBootstrapInputFingerprint(root),staging_dir:'.build/runs/20261003T154600Z-establish-functional-offline-workspace-execution-boundary-01/',commands:[],artifacts:[],validation:[],notes:'Synthetic scheduler claim only; no runtime receipt or implementation exists.'});
+  const doc=ready(),step=functional(doc).steps.find(item => item.id === contract.replacement_setup.step_spec.id);
   assert.doesNotThrow(()=>checkState(doc));
-  step.runs[0].input_fingerprint.runner_identity.target_registry_sha256='0'.repeat(64);
+  step.runs.at(-1).input_fingerprint.runner_identity.target_registry_sha256='0'.repeat(64);
   assert.throws(()=>checkState(doc),/closed target-registry fingerprint drift/);
+});
+
+test('the fixed Chapter 40 replacement setup receives the same complete strict run fingerprint', () => {
+  const fingerprint = buildBootstrapInputFingerprint(root, 'establish-ch40-course-toolchain-v2');
+  assert.deepEqual(Object.keys(fingerprint), [
+    'source_commit_sha1','source_tree_sha1','plan_sha256','checker_sha256','step_spec_sha256',
+    'input_hashes','lock_hashes','runner_identity','cache_receipts'
+  ]);
+  assert.equal(fingerprint.step_spec_sha256, sha(Buffer.from(JSON.stringify(
+    Object.fromEntries(['id','objective','depends_on','inputs','outputs','acceptance','validate','cost'].map((field) => [field,contract.replacement_setup.step_spec[field]]))
+  ))));
+  assert.equal(fingerprint.input_hashes.declared_inputs_sha256, sha(Buffer.from(JSON.stringify(contract.replacement_setup.step_spec.inputs))));
 });
