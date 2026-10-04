@@ -53877,7 +53877,8 @@ builds:
               - command: "Exact output-scope review of policy change"
                 status: passed
                 notes: "The policy change owns AGENTS.md, DECISIONS.md, and BUILD_STATE.yaml only; it introduces no setup lifecycle decision."
-            notes: "Completed the bounded user-requested governance rule. Environment-lifecycle work remains paused under unresolved questions."          - run_id: 20261004T170000Z-record-pause-on-unresolved-policy-ambiguity-02
+            notes: "Completed the bounded user-requested governance rule. Environment-lifecycle work remains paused under unresolved questions."
+          - run_id: 20261004T170000Z-record-pause-on-unresolved-policy-ambiguity-02
             started_at: 2026-10-04T17:00:00Z
             finished_at: 2026-10-04T17:00:36Z
             status: succeeded
