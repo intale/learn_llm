@@ -26542,3 +26542,26 @@ The earlier routing amendments remained uncommitted in the shared worktree.
 This coherent routing-policy checkpoint persists their latest superseding form
 together with the four-worker rule; it does not claim separate historical
 commits or saved pre-rule snapshots.
+
+### 2026-10-04 — Reuse proven deterministic development tools selectively
+
+Search maintained scripts, their tests and usage documentation, and prior
+run artifacts before creating equivalent deterministic machinery. Verify a
+candidate's recorded checksum, provenance and current bytes before reuse; fit
+to a new task's inputs or authority must also be checked. Promote a repeated
+general-purpose utility to maintained `scripts/` only when its explicit
+interface, bounded authority, deterministic validation, tests and documentation
+form a simpler stable contract than run-specific glue. Preserve run-specific
+adapters and fixtures when a real frozen-run dependency makes abstraction
+materially more complex or obscures provenance. Never mutate completed run
+evidence, regenerate an equivalent validated helper needlessly, or promote a
+candidate before its owning acceptance gates pass.
+
+The read-only script inventory found one plausible run-local bounded-response
+helper and fixture in Chapter40 run04, with no equivalent maintained `scripts/`
+tool. It remains an unadmitted candidate; this policy step promotes nothing.
+This policy commit does not contain or alter the separate Chapter40 run06
+checkpoint; the current working tree preserves that run as interrupted with its
+foundation step pending.
+
+**Affected step:** `maintain-reusable-deterministic-machinery-policy`.

@@ -103,6 +103,14 @@ complete or skipped and whose required inputs exist. Before product edits:
 6. compute the input fingerprint; and
 7. append a run, create its directory, and checkpoint the step as `running`.
 
+For deterministic tooling, search maintained `scripts/`, tests, usage guidance,
+and prior run artifacts before implementing an equivalent helper. Verify a
+candidate's recorded hash and provenance before reuse. Promote repeated general
+utilities only when their explicit inputs, outputs, authority, tests, and usage
+documentation form a simpler stable interface; otherwise retain a narrow
+run-specific adapter in immutable staging. Do not promote an unaccepted
+candidate or edit a completed run's evidence.
+
 Use a UTC run ID such as `20260719T090000Z-implement-ch05-...-01`. Use
 run-specific staging, and put draft publication files below:
 
