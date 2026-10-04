@@ -28,6 +28,20 @@ mathematics, code, visualization, exercises, and translations are reviewed in
 the same context. Read-only reviewers may audit independent concerns, but two
 agents must not edit overlapping outputs.
 
+Follow `AGENTS.md`'s model-routing boundary: the user-selected model and effort
+own course content, learner-facing Rust and semantic judgments; a separate
+`latest luna (or equivalent)` thread prepares and runs deterministic development
+machinery, including Docker/Bash tooling, validation commands and evidence packaging. The
+chapter owner may orchestrate Luna with content, context, specifications and
+acceptance criteria, but delegation does not transfer teaching or algorithm
+decisions. Up to four concurrent machinery worker threads may be used, or fewer
+when platform capacity is lower, for different independently schedulable tasks
+only when declared output paths/claims are disjoint and aggregate resource limits
+allow it. Serialize when capacity, dependencies or shared outputs require it;
+retain fresh independent contexts for all required language judgments.
+Concurrency does not expand network, paid-service, destructive-action,
+publication or output-scope authority.
+
 Do not split a chapter by file type, implementation phase, or language. First
 narrow an overfull learning objective into separate real chapters. A split is
 allowed only when preflight identifies an expensive or non-repeatable artifact

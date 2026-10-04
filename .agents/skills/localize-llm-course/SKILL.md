@@ -88,9 +88,20 @@ Use `scripts/localization-review.mjs prepare` as described in the review protoco
 Bind the source, candidate, surface inventory, rubrics, selected model and actual
 configured reasoning settings, and author context before assigning reviewers.
 
-Use the user-selected model for deterministic packaging, hashing, evidence routing and command
-execution. Do not use a routing context to make semantic, linguistic, pedagogical,
-or accessibility judgments.
+Delegate deterministic packaging, hashing, evidence routing and command execution
+to a separate `latest luna (or equivalent)` agent thread under `AGENTS.md`'s
+resource-routing rule. The orchestrating thread may use up to four concurrent
+machinery worker threads, or fewer when actual platform capacity or aggregate
+resource limits require it, only for different independently schedulable tasks
+with disjoint declared output paths/claims. Queue serially when dependencies,
+shared outputs, or capacity prevent safe concurrency. This does not transfer
+translation or language judgments, collapse independent reviewer contexts, or
+expand network, paid-service, destructive-action, publication, or output-scope
+authority.
+The user-selected model and effort retain translation and language judgments and
+may supply Luna the bounded context, specifications and acceptance criteria.
+Record each role's actual settings. Do not use a routing context to make semantic,
+linguistic, pedagogical, or accessibility judgments.
 
 ## Require two independent language reviews
 

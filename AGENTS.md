@@ -47,14 +47,38 @@ independent English or localization review or adjudication.
 
 ### Codex resource routing and deterministic tooling
 
-Use the user-selected model for content, review and
-operational work, including Bash execution and evidence collection. Inherit that
-selection in required fresh contexts; do not impose a named model, tier ceiling,
-strongest-model selector or reasoning preset. Record actual model and configured
-reasoning settings truthfully in frozen evidence. If the selected model is
-unavailable, report that constraint rather than silently substituting one.
-Model selection does not expand network, paid-service, destructive-action or
-output-scope authority.
+Use the user-selected model and effort for course content, including curriculum
+material, learner-facing Rust implementation, technical and pedagogical decisions,
+localization, and independent review/adjudication judgments. Inherit that selection
+in required fresh judgment contexts; do not impose another model or effort preset
+for those roles.
+
+Delegate machinery work to a separate agent thread using the
+`latest luna (or equivalent)` model. This includes preparing and maintaining
+deterministic development scripts, Docker/Bash tooling, running scripts and
+validation commands, and deterministic extraction, hashing, packaging and
+operational evidence collection. Classify work by its role, not its language: a
+taught Rust algorithm remains course content, while incidental development
+plumbing is machinery. Luna must not make or replace course-content, algorithm,
+pedagogical or language-review judgments.
+
+The user-selected model's thread may orchestrate Luna: prepare the content,
+context, specifications and acceptance criteria, assign bounded output ownership,
+and inspect returned artifacts and results. Up to four concurrent machinery
+worker threads may be used, or fewer when actual platform capacity is lower,
+only for different independently schedulable tasks with disjoint declared output
+paths/claims and within aggregate resource limits. Queue machinery serially when
+thread capacity, dependencies, or shared outputs prevent safe concurrency; do
+not silently execute it in the content thread or collapse required independent
+judgments. Concurrency does not expand any task's network, paid-service,
+destructive-action, publication, or output-scope authority. If the required
+model/thread is unavailable, report the constraint rather than silently
+substituting one.
+
+Record actual model and configured reasoning settings truthfully for each role
+in frozen evidence; the user's current selection is not a permanent repository
+model or effort pin. Routing does not expand network, paid-service,
+destructive-action or output-scope authority.
 
 Prefer or create deterministic host tools or pinned-container tools when they
 reduce lower-budget agent context, repetition, or error. Offload computation to
@@ -151,9 +175,10 @@ one judges the isolated-surface review without receiving the sibling role's
 private evidence. Every reviewer assessment must repeat its frozen role
 requirement exactly and receive substantive adjudicator approval before
 localization begins. The author, both reviewers, and both adjudicators must use
-pairwise-distinct contexts. Use the user-selected model for authoring, all
-four judgments and deterministic packaging. Packaging and optional reported-issue
-diagnostics do not replace the independent language judgments.
+pairwise-distinct contexts. Use the user-selected model and effort for authoring
+and all four judgments; delegate deterministic packaging and command execution
+to a separate Luna thread under the resource-routing rule above. Packaging and
+optional reported-issue diagnostics do not replace independent language judgments.
 
 An adjudicator judges the soundness and completeness of the same-role review,
 not the candidate directly. Its role verdict `pass` approves a sound review even

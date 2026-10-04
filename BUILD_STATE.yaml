@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-03T15:58:54Z"
+updated_at: "2026-10-04T07:21:12Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -14,7 +14,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images. Host Python 3.13.1 with user-provided PyYAML 6.0.3 is used only for read-only ledger validation; host Rust, Node, and npm remain outside product validation."
 
-active_build: extend-course-to-functional-laptop-llm-20260810
+active_build: route-concurrent-luna-machinery-maintenance-20261004
 
 builds:
   - build_id: bootstrap-course
@@ -53641,3 +53641,181 @@ builds:
                 notes: Actual canonical gate and diff accepted; completed state rechecked before commit.
             notes: One exact owner-produced bootstrap receipt classified as an output, with runtime validation still mandatory before dispatch. All functional specs, 50 substantive validators, v1/v2 and historical runs preserved. Deterministic narrowly scoped bootstrap fingerprint factory passes the original strict validator. Three canonical outputs match staged hashes. Initial Git-owner failure remains immutable evidence; successful fixture uses only ephemeral exact-mount trust. Foundation/chapter/repairs remain unclaimed.
             finished_at: 2026-10-03T15:58:54Z
+
+  - build_id: route-concurrent-luna-machinery-maintenance-20261004
+    objective: Add the user-approved bounded concurrent machinery routing rule and claim disjoint Luna support preparations without changing the frozen foundation implementation queue.
+    status: active
+    budget:
+      unit: agent-session
+      limit: 3
+      spent: 0
+      notes: "Small local policy instruction maintenance and two disjoint staging-only machinery preparations; no network, install, product build, compile, browser, or paid service."
+    completion_criteria:
+      - "The four policy entrypoints state the bounded four-thread concurrency rule while preserving selected-model semantic/judgment ownership and all existing authorization limits."
+      - "The policy skill entrypoints pass their own quick validators; state and routing checks pass."
+      - "The history and oracle support steps return locally validated candidates only under their unique disjoint run staging roots."
+      - "Chapter40 run03 remains preserved as interrupted preparatory evidence; a later foundation run recomputes the strict fingerprint after policy edits and carries forward prior resource charges."
+    steps:
+      - id: record-bounded-concurrent-luna-machinery-routing
+        objective: Record and validate the explicit user-approved cap and safe scheduling boundary for concurrent machinery threads.
+        depends_on: []
+        status: completed
+        inputs:
+          - "Explicit user request: allow up to four concurrent latest-Luna-or-equivalent machinery threads for different independently schedulable tasks with disjoint output claims, within actual platform capacity and aggregate limits."
+          - AGENTS.md
+          - SKILLS.md
+          - .agents/skills/author-llm-course-english/SKILL.md
+          - .agents/skills/localize-llm-course/SKILL.md
+          - DECISIONS.md
+          - BUILD_STATE.yaml
+          - "Skill-creator instructions for updating the two repository skill entrypoints."
+        outputs:
+          - AGENTS.md
+          - SKILLS.md
+          - .agents/skills/author-llm-course-english/SKILL.md
+          - .agents/skills/localize-llm-course/SKILL.md
+          - DECISIONS.md
+          - BUILD_STATE.yaml
+        acceptance:
+          - "All four policy entrypoints cap concurrency at four or actual platform capacity, whichever is lower, and require distinct independently schedulable tasks with disjoint declared outputs/claims."
+          - "Selected-model content, algorithm, pedagogical and review/judgment roles remain separate from deterministic Luna machinery; serial queueing applies when capacity, dependency, or shared outputs prevent safe concurrency."
+          - "No network, payment, destructive, publication, content, or review authority is expanded; no permanent model-version/effort pins are introduced."
+          - "Both skill quick validators, YAML parse, and git diff --check pass."
+        validate:
+          - "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/author-llm-course-english"
+          - "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/localize-llm-course"
+          - "python3 -c 'import yaml; yaml.safe_load(open(\"BUILD_STATE.yaml\", encoding=\"utf-8\"))'"
+          - git diff --check
+        cost:
+          class: small
+          notes: "Mechanical policy update only; no learner-facing content changes or product execution."
+        runs:
+          - run_id: 20261004T071426Z-record-bounded-concurrent-luna-machinery-routing-01
+            started_at: 2026-10-04T07:14:26Z
+            finished_at: 2026-10-04T07:21:12Z
+            status: succeeded
+            input_fingerprint:
+              commit: 7d7c00cad198be0cf5504c2cf10a102c1e87a748
+              initial_agents_sha256: dd4c179134d42ba078fb9b4fd52af49f07d9a4de3a7e967f139c01bdf27ddeb9
+              initial_skills_sha256: 52c5c02aa08ee7f9749ba140bd923ead08fd4620425535358f183472cf77098f
+              initial_english_skill_sha256: 77b0044213b4e634d479b9f9b1ab21126a2409cb89ddba8ac0b119a58104a053
+              initial_localization_skill_sha256: 94190305c7fa041406fbe5456d5b5246362c4c90382c1bf4fa1d3610d947f823
+            staging_dir: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/
+            commands:
+              - "Read complete skill-creator instructions before repository skill edits."
+              - "Record independent support-step output claims in BUILD_STATE before workers resume."
+            artifacts:
+              - path: AGENTS.md
+                bytes: 37720
+                sha256: 12f5f7e30b4436f1fc32bc403bad6ca80c4b0cf8a4e1e08a6094e1092d752a31
+              - path: SKILLS.md
+                bytes: 46198
+                sha256: 6c896ade99cdfed4bb363f0b0a9e68c02e6e12d65142a878c8ed7d12783582b4
+              - path: .agents/skills/author-llm-course-english/SKILL.md
+                bytes: 27524
+                sha256: dcc2b7242883da167addeac0d0f23b83c71e76d094dfac265a783cfd47e29373
+              - path: .agents/skills/localize-llm-course/SKILL.md
+                bytes: 10967
+                sha256: 5851eeb660b7087a8823c60f5887e884f5501ae14671221722bd999b0bb70e43
+              - path: DECISIONS.md
+                bytes: 1583541
+                sha256: 554f83a7e3794888b648250e5c8a49adff948108
+              - path: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/routing-rule-validation.md
+                bytes: 2093
+                sha256: 33b235564a60d158a1ea4537c299cffab94e28e94c21027eacfebaf2f38751e3
+              - path: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/phase4-support-claims.md
+                bytes: 2146
+                sha256: 8cbbaa32f09ed338ff14881cf8e7ddf6a2e3211dd206bd0e62cc9491320dfa1c
+            validation:
+              - command: "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/author-llm-course-english"
+                status: passed
+                notes: "Skill is valid!"
+              - command: "python3 /home/int/.codex/skills/.system/skill-creator/scripts/quick_validate.py .agents/skills/localize-llm-course"
+                status: passed
+                notes: "Skill is valid!"
+              - command: "python3 -c 'import yaml; yaml.safe_load(open(\"BUILD_STATE.yaml\", encoding=\"utf-8\"))'"
+                status: passed
+                notes: "BUILD_STATE.yaml parsed successfully."
+              - command: git diff --check
+                status: passed
+                notes: "No whitespace errors."
+            notes: "Four live routing paragraphs record the four-thread cap subject to actual capacity/aggregate limits, disjoint independently schedulable output claims, serial fallback for shared outputs/dependencies/capacity, selected-model ownership of all semantic/review judgments, and no authority expansion or permanent model/effort pin. Skill-creator was fully read. Foundation run03 is preserved interrupted after the required fresh-input boundary."
+      - id: prepare-functional-history-runner-machinery
+        objective: Prepare the history-source closed-runner candidates and local tests in their isolated run-specific staging root.
+        depends_on: []
+        status: pending
+        inputs:
+          - "Frozen history-source evidence contract and exact target registry from Chapter40 run03 publish/."
+          - "Accepted history-source allowlist and read-only earlier-run evidence."
+        outputs:
+          - .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/history/
+        acceptance:
+          - "Only the four named history runner/checker/test candidates and a manifest are written beneath machinery/history/."
+          - "Deterministic local syntax/unit tests pass; no source request, install, image build, compile, or canonical copy occurs."
+          - "Return exact file hashes and any contract blockers for sole-owner integration."
+        validate:
+          - "Run the two history-source test files against staged candidate paths using the pinned Node 22.12.0 container or document a precise missing interface."
+        cost:
+          class: medium
+          notes: "Machinery drafting and local checks only; no acquisition/build."
+        runs:
+          - run_id: 20261004T071426Z-prepare-functional-history-runner-machinery-01
+            started_at: 2026-10-04T07:14:26Z
+            finished_at: 2026-10-04T07:21:12Z
+            status: interrupted
+            input_fingerprint:
+              offline_contract: .build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/publish/audits/functional-laptop/execution-boundaries/history-source-evidence-v1.json
+              target_registry: .build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/publish/configs/functional-offline-targets.json
+              model: gpt-6-luna
+              reasoning_effort: medium
+            staging_dir: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/history/
+            commands: []
+            artifacts:
+              - path: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/history/scripts/run-functional-history-source-evidence.sh
+                bytes: 4784
+                sha256: 9d6a13594d553c40753000e9355c960018abd15d198d9cd348830da2a2751d6e
+              - path: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/history/scripts/check-functional-history-source-evidence.mjs
+                bytes: 11711
+                sha256: d8ba80209f50a7fba2c301cd6f796c49dc5c5fce40fb6885fd5de1e016528d83
+            validation: []
+            notes: "Startup timing violation retained: the worker wrote two unvalidated draft files under run03 before the BUILD_STATE claim. They were copied byte-identically here before further work. Candidate implementation was held until the routing rule checkpoint; no tests, builds, installs, network calls or compilations occurred. Restart only in a fresh claimed staging directory."
+      - id: prepare-functional-oracle-runner-machinery
+        objective: Prepare the validation-only GPT-2 tokenizer oracle builder/checker candidates and local tests in their isolated run-specific staging root.
+        depends_on: []
+        status: pending
+        inputs:
+          - "Frozen oracle-runtime contract/config and exact target registry from Chapter40 run03 publish/."
+          - "Verified Debian package/license provenance and read-only earlier-run receipts."
+        outputs:
+          - .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/oracle/
+        acceptance:
+          - "Only the three named oracle builder/checker/test candidates and a manifest are written beneath machinery/oracle/."
+          - "Identity distinguishes Debian Python 3.11.2, python3-regex package 0.1.20221031-1+b1, upstream regex 2022.10.31 and Unicode 15; no host Unicode substitution."
+          - "Local tests pass; no network, APT install, image build, compile or canonical copy occurs."
+          - "Return exact hashes and any package-closure/receipt construction blocker."
+        validate:
+          - "Run oracle checker tests against staged candidates using deterministic local fixtures; report missing closure evidence without attempting install/build."
+        cost:
+          class: medium
+          notes: "Validation-only tooling draft and local fixture checks; no acquisition/build."
+        runs:
+          - run_id: 20261004T071426Z-prepare-functional-oracle-runner-machinery-01
+            started_at: 2026-10-04T07:14:26Z
+            finished_at: 2026-10-04T07:21:12Z
+            status: interrupted
+            input_fingerprint:
+              oracle_contract: .build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/publish/configs/functional-gpt2-tokenizer-oracle-runtime-v1.json
+              target_registry: .build/runs/20261004T055431Z-establish-functional-offline-workspace-execution-boundary-03/publish/configs/functional-offline-targets.json
+              model: gpt-6-luna
+              reasoning_effort: medium
+            staging_dir: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/oracle/
+            commands: []
+            artifacts:
+              - path: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/oracle/scripts/build-functional-gpt2-tokenizer-oracle-runtime.sh
+                bytes: 3881
+                sha256: 1ec12f8ff9a9417e90479b743b43fbf8bb5ba607902eead120cf49e91d28f065
+              - path: .build/runs/20261004T071426Z-route-concurrent-luna-machinery-maintenance-01/machinery/oracle/scripts/check-functional-gpt2-tokenizer-oracle-runtime.py
+                bytes: 6842
+                sha256: 37689978ff7592b017f4fdfdaab40e3d10a9600ac9005b9693243f05932ec295
+            validation: []
+            notes: "Startup timing violation retained: the worker wrote two unvalidated draft files under run03 before the BUILD_STATE claim. They were copied byte-identically here before further work. Candidate implementation was held until the routing rule checkpoint; no tests, builds, APT installs, network calls or compilations occurred. Restart only in a fresh claimed staging directory."

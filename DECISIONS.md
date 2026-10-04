@@ -26492,3 +26492,53 @@ input inventories and closed-target fingerprints; it grants no execution
 authority. Source invariance retains all 50 substantive validators. Verify both
 actual completed-state checkers and three byte-identical publication snapshots
 before this dedicated commit. No course route or foundation output is published.
+
+### 2026-10-04 — Separate Luna machinery from selected-model course work
+
+The user explicitly assigned deterministic development machinery to a separate
+Luna agent thread. This supersedes the earlier selected-model-only operational
+routing rule, not the content-model choice or any acceptance gate.
+
+Use `gpt-6-luna` for development scripts, Docker/Bash tooling, script and
+validation execution, extraction, hashing, packaging and operational evidence.
+Use the user-selected model and effort for curriculum material, learner-facing
+Rust implementation, technical/pedagogical decisions, localization and required
+independent review/adjudication judgments. The current selected model/effort is
+a session choice, not a new permanent repository pin.
+
+The selected-model thread may orchestrate Luna by preparing content, context,
+specifications, owned outputs and acceptance criteria and inspecting results.
+Mixed work must preserve the semantic/plumbing boundary. Serialize machinery
+in a separate Luna thread when concurrency is unavailable; do not substitute
+the content thread or weaken judgment independence. Record actual per-role
+settings; report unavailable model/thread capacity without a silent fallback.
+
+Align AGENTS.md, the delivery playbook and both language-skill packaging
+instructions. Preserve frozen historical records, canonical role prompts,
+network/resource limits and review gates. This affects the remaining Chapter40
+foundation machinery and subsequent delivery; it does not implement a chapter,
+release postponed repairs, or declare the current foundation complete.
+
+### 2026-10-04 — Keep Luna routing label flexible
+
+The user requested replacing the explicit machinery-routing model label with
+`latest luna (or equivalent)`. Apply that wording to the four live routing
+instructions only. The preceding decision remains historical, and frozen run
+records retain their truthful actual-model provenance; this wording change does
+not alter the course-content model boundary or any review, resource, or output
+scope rules.
+
+The user now permits up to four concurrent `latest luna (or equivalent)`
+machinery worker threads, or fewer to fit actual platform capacity and aggregate
+resource ceilings. Concurrency is only for different independently schedulable
+tasks with disjoint declared outputs/claims. Keep the selected-model thread as
+orchestrator and owner of course content, pedagogy, algorithms, language work and
+independent judgments; queue serially whenever capacity, dependencies or shared
+outputs prevent concurrency. This changes no network, paid-service, destructive,
+review, publication, or output-scope authority and sets no model-version or
+reasoning-effort pin.
+
+The earlier routing amendments remained uncommitted in the shared worktree.
+This coherent routing-policy checkpoint persists their latest superseding form
+together with the four-worker rule; it does not claim separate historical
+commits or saved pre-rule snapshots.

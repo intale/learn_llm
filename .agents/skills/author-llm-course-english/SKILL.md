@@ -198,10 +198,21 @@ rubrics, the selected model and actual configured reasoning settings,
 author-context manifest, and
 publication-path bytes.
 
-Use `scripts/english-review.mjs prepare` as defined in the review protocol. Use
-the user-selected model for deterministic extraction, hashing, packaging,
-evidence routing and command execution. A packaging context must not judge technical correctness,
-pedagogy, prose quality, or accessibility.
+Use `scripts/english-review.mjs prepare` as defined in the review protocol.
+Delegate deterministic extraction, hashing, packaging, evidence routing and
+command execution to a separate `latest luna (or equivalent)` agent thread under
+`AGENTS.md`'s resource-routing rule. The user-selected model and effort retain content,
+commitment-map and role-requirement decisions and may supply Luna the bounded
+context, specifications and acceptance criteria. Up to four concurrent
+`latest luna (or equivalent)` machinery threads may be used, or fewer to fit
+actual platform capacity and aggregate resource limits, for different
+independently schedulable tasks with disjoint declared output paths/claims.
+Queue serially when dependencies, shared outputs, or capacity require it.
+Record each role's actual settings; packaging must not invent or alter semantic
+judgments. Parallel machinery does not merge required independent review
+contexts or expand network, paid-service, destructive-action, publication, or
+output-scope authority. A packaging context must not judge technical
+correctness, pedagogy, prose quality, or accessibility.
 
 Use `scripts/english-review.mjs prepare-routing` to create canonical role
 prompts, four-artifact context manifests, and the external routing manifest for
