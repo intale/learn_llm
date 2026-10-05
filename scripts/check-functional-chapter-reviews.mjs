@@ -3,7 +3,6 @@ import { spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { languageVerifierInvocations } from './check-functional-step-receipt.mjs';
 
 const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ENGLISH_VERIFIER = '.agents/skills/author-llm-course-english/scripts/english-review.mjs';
@@ -17,7 +16,8 @@ const REVIEW_ROOTS = Object.freeze({
 
 export function verifierInvocations(scope, root = REPOSITORY_ROOT) {
   if (!Object.hasOwn(REVIEW_ROOTS, scope)) throw new Error('scope must be reference-core, measured-postgresql-v1 or ch41-governed-corpus-acquisition');
-  if(scope==='ch41-governed-corpus-acquisition')return languageVerifierInvocations('41-governed-corpus-acquisition',['en'],root);
+  if(scope==='ch41-governed-corpus-acquisition')return [{executable:process.execPath,
+    args:[resolve(root,'scripts/check-functional-step-receipt.mjs'),'41-governed-corpus-acquisition']}];
   const reviewRoot = REVIEW_ROOTS[scope];
   const english = `${reviewRoot}/${scope === 'reference-core' ? 'english-candidate-01' : 'english'}`;
   const russian = `${reviewRoot}/${scope === 'reference-core' ? 'ru-candidate-01' : 'ru'}`;

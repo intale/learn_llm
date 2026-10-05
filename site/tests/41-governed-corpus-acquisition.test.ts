@@ -15,6 +15,30 @@ const golden = read(`rust/demos/ch${id}/expected.txt`);
 const report = JSON.parse(golden);
 
 describe('Chapter41 exact offline corpus evidence', () => {
+  it('gives an exact executable command for every named practice test', () => {
+    const practice = parsed.body.split('{/* chapter-section:exercises */}')[1]
+      .split('{/* chapter-section:decoder-connection */}')[0];
+    const commands = [...practice.matchAll(/```sh\n([\s\S]*?)\n\s*```/g)]
+      .map(match => match[1].replace(/\\\n\s*/g, ' ').trim().split(/\s+/));
+    const names = [
+      'size_digest_truncation_and_overrun_are_separate_failures',
+      'provenance_changes_identity_without_changing_raw_digests',
+      'actual_error_body_consumes_budget_without_retaining_payload',
+    ];
+    expect(commands).toHaveLength(names.length);
+    names.forEach((name, index) => {
+      expect(commands[index]).toEqual([
+        './course', 'run', 'cargo', 'test', '--offline', '--locked',
+        '-p', `ch${id}`, '--test', 'governed_acquisition', name, '--', '--exact',
+      ]);
+      expect(read(`rust/demos/ch${id}/tests/governed_acquisition.rs`))
+        .toContain(`fn ${name}()`);
+    });
+    expect(practice).toContain('repository root');
+    expect(practice).toContain('Docker installed and running');
+    expect(practice).toContain('running 1 test');
+    expect(practice).toContain('1 passed; 0 failed');
+  });
   it('binds the actual fixture output without production-acquisition claims', () => {
     expect(contract.rust.expected_output).toBe(golden);
     expect(report.schema_version).toBe(1);

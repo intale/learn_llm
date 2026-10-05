@@ -46585,6 +46585,81 @@ builds:
             latest_checkpoint: "COMPLETED English-only Chapter41 canonical publication. Both current reviews and both fresh adjudications PASS; all technical/static/Firefox gates passed or exactly reused; complete production export matches approved bytes. Canonical308file inventory and full English/contract/static/link/host gates verify. Development elapsed stops removed; workload/protocol/test timing preserved. Repairs/Russian41+/real corpus/cache boundary remain pending. Next action solely dedicated completed-step commit and commit/worktree verification; do not start42."
             notes: "Root reversibly archived only verified completed v2 review native contexts 01a10c67-ff15-7862-b2c2-1fcf9ceb3059 and 01a10c68-1609-79a1-bf77-7696546e75be; saved evidence untouched. Fresh technical native01a10c8f-3770-7d80-890f-989e09dc1ebb and isolated01a10c8f-6f8f-7223-af49-733b5d8ba86d observed gpt-6.1-sol/medium/rootparent. Technical activation charges1181667B; prior3426356B gives4608023B cumulative, isolated103783B uncharged until activated. No paid service/acquisition/runtime repetition."
 
+      - id: correct-ch41-executable-practice-commands
+        objective: "Give every Chapter41 optional test task an exact Docker-isolated executable command and freeze the durable authoring requirement, without changing Rust behavior."
+        depends_on: ["implement-ch41-governed-corpus-acquisition"]
+        status: "completed"
+        inputs:
+          - "User-reported Chapter41 defect: tasks name tests but omit run commands."
+          - "Canonical Chapter41 revision1 and commit67c23324be76660aa07e369fcbbfb638795154cb; original implementation and judgment evidence preserved."
+          - "Current ./course run wrapper and Dockerfile; maintained cached current-source overlay and inherited Cargo cache."
+          - ".agents/skills/author-llm-course-english/SKILL.md"
+        outputs:
+          - "curriculum/chapters/41-governed-corpus-acquisition.md"
+          - "site/src/content/chapters/en/41-governed-corpus-acquisition.mdx"
+          - "site/src/i18n/functional-catalogs/en/41-governed-corpus-acquisition.json"
+          - "site/src/content/cheat-sheets/en/41-governed-corpus-acquisition.json"
+          - "site/tests/41-governed-corpus-acquisition.test.ts"
+          - "site/tests/e2e/ch41-governed-corpus-acquisition.spec.ts"
+          - "scripts/check-functional-step-receipt.mjs"
+          - "scripts/tests/check-functional-step-receipt.test.mjs"
+          - "scripts/tests/course-network-isolation.test.mjs"
+          - "scripts/check-functional-chapter-reviews.mjs"
+          - "scripts/tests/check-functional-chapter-reviews.test.mjs"
+          - ".agents/skills/author-llm-course-english/SKILL.md"
+          - "AGENTS.md"
+          - "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/revision-02/"
+          - "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/publication-receipt.json"
+          - "artifacts/functional-laptop/step-output-inventories/correct-ch41-executable-practice-commands.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Every optional test task gives its exact Cargo test target/name through ./course run, root-directory/setup context and one actually executed passing test; no zero-test pass or prediction prompt."
+          - "Rust algorithm/implementation, fixtures, formula, history, chapter topic, no-acquisition authority, held repairs and English-only rollout remain unchanged."
+          - "User command-only exception: no fresh English wording judgments; verify the complete historical revision1 chain only against its frozen baseline and exact allowed command/setup/revision additions with current hashes. No unrelated prose, Rust, formula, history or answer edits."
+          - "Focused test command, wrapper forwarding, source/static and affected Firefox checks pass; exact production/canonical publication, valid completion checkpoint and dedicated commit."
+        validate:
+          - "Exact three named Cargo test commands in maintained pinned network-none current-source overlay; no full workspace build/test replay."
+          - "Deterministic ./course run command forwarding fixture; no actual image rebuild."
+          - "Focused Chapter41 source/static tests and sole-Firefox affected command containment/behavior assertions."
+          - "Maintained historical full English chain verifier under exact frozen baseline plus narrow command-amendment verifier; production/export/canonical identity gates."
+          - "git diff --check"
+        cost: "medium; cached CPU-only offline command correction; explicit user waiver removes fresh wording reviews for this exact amendment. No development time limit, paid service, provisioning, corpus/model network, training, Russian or routine image checks."
+        runs:
+          - run_id: "20261005T154422Z-correct-ch41-executable-practice-commands-01"
+            started_at: "2026-10-05T15:44:22Z"
+            finished_at: "2026-10-05T16:20:13Z"
+            status: "succeeded"
+            input_fingerprint:
+              commit: "67c23324be76660aa07e369fcbbfb638795154cb"
+              cached_image: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"
+              original_ch41_inventory_sha256: "c6f21b82cf6abc2edd2da325f468b5dca82281cd1d3b02d90e2800b3309a0c1c"
+            staging_dir: ".build/runs/20261005T154422Z-correct-ch41-executable-practice-commands-01/"
+            commands:
+              - "Read-only ./course run and Dockerfile inspection; exact canonical source/test/dispatcher copies staged before author edits."
+              - "Maintained run-functional-rust-overlay.sh: practice-size-01, practice-provenance-01, practice-budget-01; exact cargo test --offline --locked -p ch41-governed-corpus-acquisition --test governed_acquisition TEST -- --exact in pinned network-none image."
+              - "private-site-01.sh: wrapper3/source6/contract passed; private build failed because historical revision1 receipt was present beside changed source."
+              - "private-site-02.sh: only disposable historical receipt omitted; named hash-bound scope, 88-page build and six sole-Firefox cases passed."
+              - "prepare-command-publication-01.mjs: explicit user-authorized exact command amendment, current source/HTML/test descriptors; no new judgment records."
+              - "production-site-01.sh: historical full four-chain verified against frozen bytes, narrow current amendment accepted, production88pages."
+              - "amendment-final-03.sh: final dispatcher/amendment regression15/15 and receipt passed; canonical-verify-02.sh current receipt/contract/static/local links passed."
+              - "freeze-output-inventory-01.mjs final successor; publish-owned-02.mjs exact24files; static release unchanged from successful production/private equality."
+            artifacts:
+              - path: "artifacts/functional-laptop/step-output-inventories/correct-ch41-executable-practice-commands.json"
+                sha256: "55b135ca2880c09079bace983f7f840b05c6b638a919d49da2157429b47fb973"
+                bytes: 4631
+              - path: "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/revision-02/command-amendment.json"
+                sha256: "821b65ddc03f01cd9023518e3d60bb21d7e920d6caea16e5f2cc388edeb9aa5b"
+                bytes: 3644
+              - path: ".build/runs/20261005T154422Z-correct-ch41-executable-practice-commands-01/validation/amendment-final-03/dispatcher.stdout.txt"
+                sha256: "97369653320d3b7332591bbb6bbf8930c484d4c1cb3f38db1653d03b02138a02"
+            validation:
+              - "Three exact selected Cargo tests: each running1test,1passed,0failed,28filtered; no zero-test acceptance."
+              - "Wrapper argument forwarding3/3 and Chapter41 source6/6 passed."
+              - "Private revised HTML88pages and Firefox6/6 including shell-command desktop/narrow containment; production88pages and baseline-chain/amendment gate passed."
+              - "Final regressions15/15 (eleven negative variants); skill quick_validate passed; entire private/production export byte-identical; canonical42chapter/83locale content,88HTML/3040links/88SEO+sitemap+analytics/172artifacts passed; diff-check passed."
+            notes: "User explicitly waived fresh wording review for command-only insertion; reserved fresh contexts never activated and no records/charges claimed. Old candidate02 and original completed run stay immutable baseline evidence, not revision2 judgments. Cache copy omitted three unreadable generated incremental locks; fresh focused Cargo recompilation passed, so no complete-cache byte-identity claim. Initial private receipt mismatch, initial canonical legacy-dispatch failure and obsolete dispatcher-test assertion are retained with two superseded inventories; no failed attempt presented as passing. External generated498270065B hosttarget caused audit failure, then one recoverable move preceded root no-further-move instruction; no further cleanup/IDE changes and hostaudit not a correction gate. Root authors teaching/rule bytes; machinery validates exact amendment only."
+
       - id: establish-functional-artifact-cache-execution-boundary
         objective: "Establish one closed content-addressed acquisition, transform, publication and replay boundary for corpus, model and generated artifacts after the acquisition protocol is taught."
         depends_on:

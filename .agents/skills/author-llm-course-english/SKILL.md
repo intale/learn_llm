@@ -117,6 +117,24 @@ For new chapters, use this learner-facing progression:
    practice; the prediction-first activity has been replaced, not relocated.
    Understanding the lesson must not depend on attempting the optional task.
 
+Whenever learner-facing content asks the student to run anything, include a
+copyable command beside the task or explicitly point to an applicable command
+already given in the chapter. State the working directory, required setup or
+inputs and observable success result. Use the supported execution route and
+actual package, target and arguments; naming a function or test is insufficient.
+Validate the exact selected operation, including a nonzero test count when
+filtering tests. Keep these reproduction instructions distinct from internal
+authoring, review and publication machinery.
+
+Command-only amendments are exempt from fresh English wording reviews under
+the user's instruction. Limit this exception to executable commands and the
+local working-directory, prerequisite and expected-result context needed to use
+them; preserve the chapter's teaching prose, formulas, examples and answers.
+Validate the selected commands and affected rendering, and record the exception
+with exact baseline/current byte evidence. Preserve existing reviews as evidence
+for their original candidate, never as a new verdict over changed bytes. Other
+English meaning or presentation changes retain the full review workflow below.
+
 Retain the required worked evidence, substantive exercise coverage and checked
 answers in the course contract, recasting any prediction prompt as an explained
 example or a reproduction/inspection task. Optional means the learner may skip

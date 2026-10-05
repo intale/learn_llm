@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "chapterId": "41-governed-corpus-acquisition",
   "locale": "en",
-  "contentRevision": 1,
+  "contentRevision": 2,
   "title": "Verify a corpus together with its provenance",
   "description": "Link selected corpus bytes to source provenance, verify a complete manifest-backed bundle, and preserve acquisition limits across interruption using an offline Rust fixture.",
   "objective": "Admit a complete corpus bundle only when its source provenance, canonical manifest and all available payload bytes agree, while preserving acquisition limits across interruption."

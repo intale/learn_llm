@@ -36,6 +36,25 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
     await page.setViewportSize(viewport);
     await page.goto(path);
     await expectNoPageOverflow(page);
+    const commands = page.locator('pre[data-language="sh"]');
+    await expect(commands).toHaveCount(3);
+    for (const [index, name] of [
+      'size_digest_truncation_and_overrun_are_separate_failures',
+      'provenance_changes_identity_without_changing_raw_digests',
+      'actual_error_body_consumes_budget_without_retaining_payload',
+    ].entries()) {
+      await expect(commands.nth(index)).toContainText('./course run cargo test --offline --locked');
+      await expect(commands.nth(index)).toContainText(name);
+      await expect(commands.nth(index)).toContainText('-- --exact');
+      const geometry = await commands.nth(index).evaluate(element => {
+        const box = element.getBoundingClientRect(), style = getComputedStyle(element);
+        return {left: box.left, right: box.right, viewport: innerWidth,
+          overflow: style.overflowX, clipped: ['hidden', 'clip'].includes(style.overflowX)};
+      });
+      expect(geometry.left).toBeGreaterThanOrEqual(-1);
+      expect(geometry.right).toBeLessThanOrEqual(geometry.viewport + 1);
+      expect(geometry.clipped).toBe(false);
+    }
     const errors = await page.locator('main').evaluate(node => {
       const errors: string[] = [];
       for (const element of node.querySelectorAll<HTMLElement>('p,th,td,.katex-display')) {

@@ -41,3 +41,27 @@ test('./course run passes the no-network policy to its Docker runtime container'
   assert.equal(calls.length, 2, 'the workflow builds, then runs the workspace image');
   assert.deepEqual(calls[1], ['run', '--rm', '--network', 'none', 'learn-llm-workspace:local', 'printf', 'offline']);
 });
+
+test('./course run forwards the exact single-test Chapter41 Cargo argv after setup', () => {
+  for (const name of [
+    'size_digest_truncation_and_overrun_are_separate_failures',
+    'provenance_changes_identity_without_changing_raw_digests',
+    'actual_error_body_consumes_budget_without_retaining_payload',
+  ]) {
+    const temp = mkdtempSync(path.join(tmpdir(), 'course-command-forwarding-'));
+    const bashEnvironment = path.join(temp, 'docker-function.sh');
+    const tracePath = path.join(temp, 'docker-argv.jsonl');
+    writeFileSync(bashEnvironment, 'docker() { printf \'%s\\n\' "$*" >> "$DOCKER_TRACE"; }\n');
+    const argv = ['cargo', 'test', '--offline', '--locked', '-p',
+      'ch41-governed-corpus-acquisition', '--test', 'governed_acquisition', name, '--', '--exact'];
+    const result = spawnSync('bash', ['course', 'run', ...argv], {
+      cwd: repositoryRoot, encoding: 'utf8',
+      env: {...process.env, BASH_ENV: bashEnvironment, DOCKER_TRACE: tracePath},
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const calls = readFileSync(tracePath, 'utf8').trim().split('\n').map(line => line.split(' '));
+    assert.equal(calls.length, 2);
+    assert.deepEqual(calls[0].slice(0, 4), ['build', '--target', 'workspace', '-t']);
+    assert.deepEqual(calls[1], ['run', '--rm', '--network', 'none', 'learn-llm-workspace:local', ...argv]);
+  }
+});

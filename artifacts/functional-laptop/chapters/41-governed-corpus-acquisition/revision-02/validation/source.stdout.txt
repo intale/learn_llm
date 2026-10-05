@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /work/site
+
+ ✓ tests/41-governed-corpus-acquisition.test.ts (6 tests) 4ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  15:53:43
+   Duration  433ms (transform 107ms, setup 0ms, collect 188ms, tests 4ms, environment 0ms, prepare 78ms)
+

@@ -125,6 +125,18 @@ keep course-specific validation outside the library boundary.
 
 ### Learner-facing prose
 
+Whenever a chapter asks the learner to run an example, test or other operation,
+provide a copyable command with its working directory, necessary prerequisites
+and expected observable result. A function or test name alone is not a run
+instruction. Verify that commands select and execute the intended work; zero
+selected tests do not count as a successful reproduction.
+
+Command-only additions and their necessary local execution context do not require
+fresh English wording reviews. Validate commands and affected layout, record the
+user-authorized exception and exact unchanged teaching baseline, and retain the
+prior reviews only for the original candidate. This exception does not cover
+changes to teaching prose, formulas, examples, answers or unrelated surfaces.
+
 Learner-facing chapter content must explain LLM concepts, evidence, and
 presentation choices at the learner's level. Never refer to build instructions,
 authoring contracts, test requirements, framework or deployment constraints, or

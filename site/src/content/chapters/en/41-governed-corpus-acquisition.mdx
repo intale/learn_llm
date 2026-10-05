@@ -2,7 +2,7 @@
 {
   "chapter_id": "41-governed-corpus-acquisition",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 41,
   "concept_id": "governed-corpus-acquisition",
   "title": "Verify a corpus together with its provenance",
@@ -316,12 +316,41 @@ checks its files, and the scope field identifies the result as a synthetic fixtu
 
 ## Optional practice: reproduce and explain the checks
 
+Run the commands below from the repository root, the directory containing
+`course`, with Docker installed and running. The `./course run` wrapper prepares
+the course workspace, then runs the selected test with network access disabled.
+Each command should report `running 1 test` and `1 passed; 0 failed`; a report of
+zero tests means the named check did not run.
+
 1. Run <code style="overflow-wrap: anywhere;">size_digest_truncation_and_overrun_are_separate_failures</code> and inspect the
    `abd` case. Explain why its length passes but its bytes are refused.
+
+   ```sh
+   ./course run cargo test --offline --locked \
+     -p ch41-governed-corpus-acquisition \
+     --test governed_acquisition \
+     size_digest_truncation_and_overrun_are_separate_failures -- --exact
+   ```
+
 2. Run <code style="overflow-wrap: anywhere;">provenance_changes_identity_without_changing_raw_digests</code>. Identify the
    records that change when the attribution gains `v2`.
+
+   ```sh
+   ./course run cargo test --offline --locked \
+     -p ch41-governed-corpus-acquisition \
+     --test governed_acquisition \
+     provenance_changes_identity_without_changing_raw_digests -- --exact
+   ```
+
 3. Run <code style="overflow-wrap: anywhere;">actual_error_body_consumes_budget_without_retaining_payload</code>. Explain why
    discarding the error text does not permit a fresh request under the toy ceiling.
+
+   ```sh
+   ./course run cargo test --offline --locked \
+     -p ch41-governed-corpus-acquisition \
+     --test governed_acquisition \
+     actual_error_body_consumes_budget_without_retaining_payload -- --exact
+   ```
 
 <details>
 <summary>Checked explanations for the three corpus-verification tasks</summary>

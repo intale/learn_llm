@@ -2,7 +2,7 @@
 {
   "chapter_id": "41-governed-corpus-acquisition",
   "concept_id": "governed-corpus-acquisition",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 41,
   "objective": {
     "en": "Admit a complete corpus bundle only when its source provenance, canonical manifest and all available payload bytes agree, while preserving acquisition limits across interruption."
@@ -213,6 +213,10 @@ No prediction prompts. Reproduce named corruption, provenance-change and budget
 tests, then explain their checked results. Answers distinguish byte length from
 digest, whole-manifest identity from raw-file identity, and retained bytes from
 charged delivery. Lesson understanding does not depend on completing practice.
+Every run task includes its copyable repository-root command using the supported
+offline course wrapper, exact demo package, integration-test target and test
+name. Explain the Docker prerequisite and require one selected test to pass;
+a successful command that selects zero tests is not reproduction evidence.
 
 <!-- contract-section:decoder-connection -->
 

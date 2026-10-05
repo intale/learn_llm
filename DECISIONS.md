@@ -28770,3 +28770,81 @@ Russian translation for41+ stay held. The later cache boundary and real raw-pair
 acquisition remain separate pending steps; Chapter42 is not started here.
 
 **Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Correct Chapter41 runnable optional practice
+
+The user reports that optional tasks name Rust tests without commands. Claim a
+separate narrow corrective step after the accepted Chapter41 implementation;
+retain its completed run, source evidence and judgment chains unchanged as
+historical revision1 acceptance. Root authors exact runnable commands and the
+durable authoring requirement; machinery only executes, packages and records.
+The successor content revision receives a fresh English review/adjudication
+chain and publication inventory. It does not change taught Rust, formula,
+history, corpus authority, repairs or the English-first policy.
+
+The supported `./course run` wrapper builds the workspace image, then forwards
+the supplied argv to a Docker container with network disabled and working
+directory `/workspace`. Setup can provision official dependencies; each
+requested test runs offline. Verify its forwarding with the existing mocked
+Docker regression and execute the exact three Cargo commands in the maintained
+cached current-source overlay. Do not invoke a full cold workspace image build
+merely to validate this prose correction or repeat all prior chapter tests.
+
+**Affected step:** `correct-ch41-executable-practice-commands`.
+
+The final correction is Chapter41 revision2, with exactly24 declared published
+files in inventory SHA-256
+`55b135ca2880c09079bace983f7f840b05c6b638a919d49da2157429b47fb973`.
+The initial inventory and its successor are preserved as superseded evidence
+after a legacy direct-verifier mismatch and an obsolete regression assertion;
+only the final tested inventory governs current publication. Chapter41's direct
+review dispatcher now invokes the current publication verifier, which retains
+the exact baseline four-chain or explicit command-amendment branch; other scopes
+and the English review tool remain unchanged.
+
+Final dispatcher/amendment tests pass15/15, including eleven negative cases;
+source6/wrapper3/three selected Cargo tests/Firefox6/skill syntax pass. Production
+88pages equals the entire private export byte-for-byte. Canonical current receipt,
+contract, static content and3040links/88SEO+sitemap+analytics checks pass. Prior
+reviews are baseline judgments only; no fresh English approval is fabricated.
+Host cache cleanup is not a correction gate; one already-completed recoverable
+move preceded the instruction not to move external cache again. No further move,
+IDE change, environment rebuild, Rust suite replay, Russian41+, repairs or
+Chapter42 implementation occurs.
+
+The correction's final host audit again found an externally regenerated Cargo
+cache (498,270,065 bytes), not a course validation product. Host process inspection
+found no active Cargo/rustc writer; both Cargo locks were available and no target
+files were tracked. Preserve it once, recoverably, at
+`.build/runs/20261005T154422Z-correct-ch41-executable-practice-commands-01/host-cache-quarantine/cargo-target`;
+restoring that directory to `target` recovers the cache. No deletion, editor change,
+cache-validation reuse or cleanup loop is performed. The subsequent host audit
+passes.
+
+### 2026-10-05 — Explicit command-only wording-review exception
+
+The user states: "you don't have to validate english wording if all you did is
+inserted run command". Supersede the preceding correction's fresh-judgment
+requirement only for exact run-command additions and the necessary local
+working-directory/Docker/expected-one-test explanation. The staged lesson's
+existing teaching prose, formula, examples, history, answers, Rust and sheet
+remain byte-identical after removing those exact insertions and revision fields.
+The internal contract adds only the runnable-practice instruction; catalog changes
+only its revision. No fresh reviewer or adjudicator is activated or certified.
+
+Keep the historical candidate02 four-chain immutable. A narrowly scoped Chapter41
+revision1-to2 amendment verifies that full chain against its exact durable frozen
+source/built bytes in a temporary baseline root, then checks current source inverse
+insertions, executable Rust identity, three actually selected passing tests,
+focused source/wrapper/Firefox evidence and current built hashes. This is an
+explicit user-authorized command amendment, not a language-quality verdict or
+general review bypass. Ordinary new chapter prose still requires fresh judgments.
+
+Initial private build correctly refused the old publication receipt beside revised
+source. Only its disposable workspace copy omits that historical Chapter41 receipt,
+allowing the existing named/hash-bound private scope after verified Chapter40;
+canonical history remains unchanged. Production includes the valid new amendment
+receipt. All three exact tests, wrapper3, source6 and Firefox6 pass; no image
+interpretation, environment rebuild, full Rust replay, acquisition or repairs.
+
+**Affected step:** `correct-ch41-executable-practice-commands`.
