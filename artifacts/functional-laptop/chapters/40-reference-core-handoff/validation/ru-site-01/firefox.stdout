@@ -1,0 +1,22 @@
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox tests/e2e/ch40-reference-core-handoff.spec.ts --workers=1
+
+
+Running 14 tests using 1 worker
+
+[1/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:9:1 › en Chapter40 static evidence, formula and activated neighbor surfaces
+[2/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:36:3 › en Chapter40 nearest-box containment 1280
+[3/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:36:3 › en Chapter40 nearest-box containment 390
+[4/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:45:1 › en Chapter40 full view reuses one readable tree with keyboard exit and reachability
+[5/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:69:1 › en Chapter40 forced colors and RTL retain containment and literal data direction
+[6/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:81:3 › en Chapter40 cheat sheet keyboard and contained scrolling 1280
+[7/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:81:3 › en Chapter40 cheat sheet keyboard and contained scrolling 390
+[8/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:9:1 › ru Chapter40 static evidence, formula and activated neighbor surfaces
+[9/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:36:3 › ru Chapter40 nearest-box containment 1280
+[10/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:36:3 › ru Chapter40 nearest-box containment 390
+[11/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:45:1 › ru Chapter40 full view reuses one readable tree with keyboard exit and reachability
+[12/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:69:1 › ru Chapter40 forced colors and RTL retain containment and literal data direction
+[13/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:81:3 › ru Chapter40 cheat sheet keyboard and contained scrolling 1280
+[14/14] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:81:3 › ru Chapter40 cheat sheet keyboard and contained scrolling 390
+  14 passed (7.9s)

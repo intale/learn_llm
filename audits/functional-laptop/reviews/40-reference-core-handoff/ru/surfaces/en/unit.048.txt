@@ -1,0 +1,1 @@
+Cached generation agreement Agreement between the KV-cached and complete-prefix paths on generated tokens, decisions and RNG state for the fixed prompt and sampling settings, not proof of useful language quality.

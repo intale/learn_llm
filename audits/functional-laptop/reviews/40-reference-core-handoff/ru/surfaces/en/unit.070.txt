@@ -1,0 +1,1 @@
+The pure mutation tests construct different identities without calling the pipeline. The runner separately requires the exact accepted corpus and split bytes, so an identity is not an admission permit.

@@ -28102,6 +28102,96 @@ documents closed fields/bounds before consumer integration.
 
 **Affected step:** `establish-functional-successor-static-integration`.
 
+### 2026-10-05 — Hold Chapter40 before claim on token-profile scope
+
+Static prerequisite commit2fa444680708141f04a53f87995cb75274799072 is verified
+with a clean tree before this read-only preflight. No Chapter40 run was claimed
+and no learner file, Rust capability, review, build or training execution began.
+
+PROFILE-REFERENCE-CI lines176–196 records a valid train-token ceiling2,048 and
+N_max2048 without defining whether it applies per schedule or per invocation.
+The existing CapstoneConfig::tiny fixes32updates,16sequences per update and
+4valid target slots per sequence:32×16×4=2,048per schedule. run_capstone invokes
+training_once independently for primary and replay at pipeline.rs1073–1074,
+so one required invocation trains4,096tokens, plus separate evaluation/probe/
+generation work. Repeated validation invocations add their own cumulative charges.
+Replay is not free, and4,096 must not be reported as2,048total.
+
+The bounded accepted-contract/decision search found no accepted scope resolution.
+This is a substantive resource-profile ambiguity, not bookkeeping. Under the
+user's ask-and-stop rule, Chapter40 is blocked before claim pending an explicit
+scope/accounting decision. No per-schedule exemption or live4096ceiling is assumed;
+the frozen tiny configuration and historical profile remain unchanged. Root will
+ask the user; no unrelated checks or work continue while that choice is open.
+
+Checkpoint: .build/preflights/20261005T073714Z-ch40-token-accounting/checkpoint.json.
+It binds the exact resource contract, pipeline and existing golden trace hashes.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Resolve agent-maintained Chapter40 token accounting
+
+The user clarified that token accounting is maintained by the agents and directed
+us to decide it. Resolve the preceding pre-claim pause as accounting for the exact
+existing work, not authorization to add training or change the frozen fixture.
+Preserve the historical PROFILE-REFERENCE-CI record byte-for-byte. For this
+existing capstone, report N=2,048 valid training targets for each independent
+32-update primary/replay schedule (32×16×4), and 4,096 aggregate training targets
+per run_capstone invocation. Count evaluation, probes and generation separately;
+sum all actual invocation and validation charges, including replay and reruns.
+Never describe the whole invocation as 2,048 or silently omit other work.
+
+No configuration, training algorithm, schedule count, GPU/network/acquisition,
+paid-service or other resource expansion is authorized by this resolution.
+The historical held checkpoint remains unchanged. Chapter40 returns to pending
+and remains unclaimed by this accounting correction; its original execution
+request may resume only through the ordinary fresh preflight/claim checkpoint.
+
+Resolution: .build/preflights/20261005T074248Z-ch40-token-accounting-resolution/checkpoint.json.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Claim Chapter40 after accounting resolution
+
+The unfinished user request to finish Chapter40 remains active. Following the
+accounting correction, verify the completed static dependency at
+2fa444680708141f04a53f87995cb75274799072, its59-file output inventory and the
+exact40source/3dependency manifest fingerprints without repeating setup/build
+gates. Claim only implement-ch40-reference-core-handoff in fresh run
+20261005T074659Z-implement-ch40-reference-core-handoff-01;21outputs unchanged.
+
+Before execution retain the declared large8h/16attempt/32MiB input envelope,
+CPU-only fixed tiny workload, no GPU or model/corpus/dependency acquisition,
+and existing bounded primary-source research authority. Plan one actual ongoing
+root author plus4fresh English judgments and2fresh localization judgments;
+these are allocation estimates, not achieved/successful counts. Retain all
+existing per-context/token/output/aggregate limits; measure actual bundles before
+routing. New author/judge settings inherit the current user selection, not a
+permanent model/effort pin or backend telemetry claim.
+
+Root owns course semantics, learner Rust and language authoring; this separate
+machinery context owns deterministic tooling/evidence/ledger. Reuse existing
+compiler-bound source proof, ArtifactIdentity framing and exact registry grammar.
+No new crate, Cargo churn, hashing/parser implementation or GPT2 oracle.
+The earlier held checkpoint/profile stays historical; per independent schedule
+2048 and per existing invocation4096 accounting is transparent, with every
+evaluation/probe/generation/repeated-validation charge counted separately.
+
+Live acceptance supersedes historical predict-first wording with problem-first
+explained examples and optional reproduction/inspection practice, no learner
+prediction prompts. Use the already admitted cached Docker/staged workflow,
+not obsolete wrapper/provisioning assumptions. Private candidate rendering is
+explicit and nonpublic; final production is failclosed. Chapter40 is bilingual,
+while41+ Russian remains deferred. Prior0–39 closure is reused only for unchanged
+bytes; new39-to40 navigation, course-index/catalog/a11y values require actual
+Chapter40 review coverage. No held repair is reopened.
+
+Stage: .build/runs/20261005T074659Z-implement-ch40-reference-core-handoff-01/publish/.
+Claim checkpoint only: no learner files, Rust execution, images or judgments
+created at this transition. Root will author the first owned slice next.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
 ### 2026-10-05 — Complete bounded static plumbing without learner drift
 
 Root approved private sourceHashes exactly{en} for initial English40 review,
@@ -28141,3 +28231,208 @@ Its exact creator was not established; nothing deleted. Host audit then passed.
 Complete this step with its dedicated commit before Chapter40 is claimed.
 
 **Affected step:** `establish-functional-successor-static-integration`.
+
+### 2026-10-05 — Checkpoint only the first Chapter40 Rust slice
+
+Root authored the owned module, registry fragment, integration test and example
+in the claimed publish stage. Machinery applied only the root-requested literal
+target_count_basis field and rustfmt formatting. The pinned network-none cached
+current-source overlay passed all4new tests and the example. Exact1904-byte stdout
+was copied unchanged as staged golden; no canonical publication or whole-course
+checks occurred. Setup permission and missing /usr/bin/time failures are retained;
+both occurred before compilation/training, and the passing retry used Bash timing.
+
+Actual executed test/example control flow contains3capstone invocations and
+6independent schedules:12288valid training targets. Training/validation checkpoint
+evaluations, final decoder/bigram evaluation slots, probes and generation are
+charged separately in rust-slice-receipt-01.json. These counts are arithmetic
+from frozen code and executed control flow, not newly instrumented telemetry.
+Reuse only with exact recorded staged, fixture, compiler-bound reference/dependency
+and image fingerprints unchanged. Remaining curriculum/site and fresh English/
+Russian semantic gates keep the chapter incomplete and unpublished.
+
+Routine evidence-backed accounting is agent-maintained bookkeeping: agents decide
+and record it without asking the user. This does not permit silently changing the
+actual model, workload, acquisition authority or a material resource limit; the
+existing ask-and-stop rule remains for substantive ambiguous choices. No AGENTS
+policy expansion is part of this checkpoint.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Restore Chapter40-specific demo ownership
+
+The user approved finishing Chapter40 with its taught implementation in
+rust/demos/ch40-reference-core-handoff rather than the cumulative library's
+src/integration. Reconcile only this live chapter: demo Cargo.toml, src/lib.rs,
+src/main.rs, tests/reference_handoff.rs and expected.txt replace the five
+previous cumulative wrapper/fragment/example outputs. Root owns adaptation;
+no semantic Rust is moved or authored by machinery. The workspace already
+includes rust/demos/*, so no Cargo.toml member edit is needed. Preserve frozen
+plans and run01's passed4tests/example,1904-byte golden and12288-target charges
+as history; interrupt the stopped attempt and require a fresh run for new inputs.
+
+Shared private/production publication and locale selectors remain unchanged.
+Proposed minimal integration changes: exact Chapter40 demo dispatch in functional
+contract/example/ownership checks, corresponding focused regressions/docs and
+build.rs's Chapter40 owner entry only; future41+ registry grammar remains intact.
+Proposed validation keeps cargo test --locked -p ch40-reference-core-handoff,
+exact cargo-run stdout equality, formatting, focused shared dispatch/ownership
+checks and existing chapter/site/static/sole-Firefox/fresh language gates.
+No separate diagram trace executable is needed if the figure reads the same JSON
+report; root determines the actual figure evidence before authoring.
+
+Whole Cargo.lock is currently compiler-bound source evidence, but unrelated
+workspace package membership must not be mistaken for reference-algorithm drift.
+Propose a maintained bounded library-rooted dependency-closure projector using
+Cargo locked/offline JSON metadata and existing Python3 tomllib, binding package
+version/source/checksum, activated features and exact dependency/target edges.
+Root/crate Cargo.toml and all40 reference-source hashes stay exact; a compiler-
+bound approved closure replaces the whole-lock dependency hash. Actual closure
+must be recomputed and compared, not merely supplied as a trusted file. Prior
+whole-lock manifest/commit remain historical. This plumbing proposal, including
+build-time invocation/ownership/tests, awaits root approval before implementation;
+no new parser, dependency, image, algorithm or authority is introduced here.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Bound reference identity to course source only
+
+Root rejects the proposed dependency-closure tool and nested Cargo build-time
+invocation as unnecessary for this chapter. The approved successor schema1
+manifest retains the exact40course-owned scalar reference source files and
+accepted source revision, with dependencyHashes={}. Original whole-lock manifest
+and static/run01 evidence stay historical. SourceProof proves compiler-bound
+course source only, not dependency/runtime/environment equivalence; equal R_ref
+does not promise cross-environment bitwise equality. Core Cargo TOML files and
+the actual lock/version/feature/toolchain compatibility belong in separate run
+fingerprints and existing dependency/execution gates, not the source census.
+
+Claim fresh run20261005T081707Z-implement-ch40-reference-core-handoff-02 with
+the approved5demo paths and12necessary shared plumbing outputs declared before
+edits. Remove only Chapter40 cumulative ownership;41+ registry grammar unchanged.
+Root owns semantic adaptation. Demo dependencies are only llm-from-scratch and
+already-admitted serde_json/current features; offline lock refresh must retain
+all existing resolved versions/checksums. No algorithm, parser, graph tool,
+dependency acquisition, image or additional training/configuration is authorized.
+Prior12288training charges remain cumulative; focused no-training plumbing gates
+first, then actual adapted demo checks and independent language/site gates.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Verify demo migration without dependency or algorithm drift
+
+The approved40-source-only census/source-proof and Chapter40-only demo dispatch
+passed9Node and7Rust no-training cases;41+ registry grammar and40baseline course
+source hashes are unchanged. These are incomplete shared working-tree machinery
+until chapter acceptance, not a partial chapter publication. No dependency-closure
+tool or nested Cargo was implemented.
+
+Root adapted the demo source in run02; machinery only formatted it. Offline Cargo
+metadata added one local ch40-reference-core-handoff lock record. Mature tomllib
+comparison proves every old package record (including version/checksum/edges)
+unchanged; library Cargo feature trees compare byte-for-byte. Actual lock and
+metadata remain separate execution evidence from the source-only proof.
+All4new demo integration cases and binary passed. Actual1904-byte stdout was
+copied without edits into staged expected.txt. Its source-only R_ref is
+cd06104ff61dc8a0c6cbe6e842847952343050eb4942c79aa1d17e8d0d0bb648;
+all other report values equal run01. Three new pipeline invocations charge12288
+training targets,24576cumulative including preserved run01; separate evaluations,
+probes and generation are recorded in demo-receipt-01.json. No other schedules,
+configuration, dependency acquisition, image, site build or baseline test was run.
+Demo and lock remain staged; chapter contract/site/language gates are pending.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Use composed publication lookup in the existing Chapter0 diagram
+
+Private Chapter40 build failed because LlmPartsDiagram passed the full collection
+to the historical base-only publication helper. Root approves only changing its
+import to the existing functional-course-routes adapter. Declare this shared
+component output before editing; labels, trace and all existing0..39 destinations
+remain exact. Existing source assertions and actual diagram HTML byte comparison
+must pass. No new publication selector, prose change or Rust execution is needed.
+Six focused Chapter40 Vitest cases and233-file typecheck passed before this
+rendering failure; preserve both failed site command logs. Chapter40 remains staged.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Chapter40 focused static testing and final finding ownership
+
+Root approves promoting the existing diagram-style-system auditFigure evaluator
+without changing its substantive assertions into the maintained shared
+site/tests/e2e/helpers/diagram-containment.ts helper. Declare that helper and its
+existing caller spec before edits; Chapter40 reuses the same nearest-box, paint,
+clipping and ordinary-word checks instead of duplicating them. These automated
+assertions do not certify learner meaning or replace independent judgments.
+
+Declare artifacts/functional-laptop/audit-map/findings/F01.json as necessary shared
+output. Root will author final capability/finding meaning only after English/Russian
+gates; no completed semantic receipt is emitted now. Existing21OVER closure remains
+unchanged. Private EN structural attempts01/02 failed and remain preserved; root
+corrected the content, and retry03 passed contract/content/ownership without
+repeating training or broad baseline checks. Chapter40 stays staged/incomplete.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Chapter40 exact review-input byte allowance
+
+The root-approved final English inventory binds five complete sources, three
+actual publication HTML documents, eleven reading units and seventy-one isolated
+units, plus an audit-only exact extraction view. Maintained preparation measures
+the technical bundle at2553088bytes and isolated bundle at37077bytes. Increase
+only this step's operational per-context accessible-input byte cap from2MiB to
+3MiB before routing; retain the16attempt ceiling,32MiB aggregate input cap,
+200000input-token/40000output-token ceilings, all output-byte and8h limits.
+This routine evidence-backed accounting decision grants no new model, training,
+network, acquisition, dependency, image or publication authority. Token usage is
+unobserved, not estimated or claimed to pass. Four actual input file sizes/hashes
+must be measured at every route; an actual capacity failure must be checkpointed.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Complete Chapter40 exact bilingual handoff, POSITION only
+
+Root approved the final English93-unit four-context review/adjudication chain and
+direct Russian93-unit independent bilingual/target-only pair. All native raw bytes,
+canonical prompts, receipts, original candidate03 relative paths and actual
+gpt-6.1-sol/medium judgment settings remain untouched. Publication aliases copy
+only exact English spec/receipt bytes; original routed artifacts stay authoritative.
+Maintained language, routing and publication verifiers pass at the canonical root.
+
+Production contract/content/parity/ownership/format/type and static crawler gates
+pass:87pages,3007local links,87SEO/sitemap routes,171artifacts. All171complete
+production files are byte-identical to the approved private bilingual build,
+including six reviewed lesson/index/neighbor documents and shared assets. Reuse
+the exact validated4demo cases,7source-proof cases,9dispatch cases and14Firefox
+cases without new training or browser runs. Existing npm check:content dispatch
+would repeat the Rust demo; this checkpoint records its separate deterministic
+content checks and hash-validated existing demo proof instead, not a fictitious
+whole-wrapper execution. Actual9assigned contexts/10387876routedinput bytes fit
+the retained caps; token usage is unobserved. Cumulative training targets24576
+include prior run01;2048per schedule/4096per invocation remains exact.
+
+CAP-AUDIT-POSITION-01 binds honest scalar-reference positioning only. F01 remains
+partially addressed/open with its other nine capabilities pending. The exact
+21predecessor dispositions remain19reframe/2preserve. A mechanical receipt count
+initially tested the wrong enum spellings and recorded0/0; root approved fixing
+only those counts and dependent hashes. Original incorrect receipts/inventory
+are preserved under diagnostic-prepublication-01 and are not passing gates.
+No learner, role, judgment or protected source bytes changed in this correction.
+
+Root approved final canonical promotion and the dedicated stable-step-ID commit.
+Inactive ordinary host Cargo caches were moved recoverably into run02's
+host-artifacts/target and target-after-promotion after bounded host owner checks;
+no cache was deleted. The second cache's creator is not independently established.
+Held unrelated repairs, historic failed review evidence and the41+Russian hold
+remain unchanged. No successor step is claimed by this completion.
+
+Final whole staged whitespace check reports469observations in30generated
+HTML/review evidence snapshots only. Root approves preserving those exact
+hash-bound bytes, labeling the whole-check refusal diagnostic, and checking
+source/product/ledger with only the30offending generated paths excluded.
+That default whitespace check passes; no snapshot normalization, attributes
+suppression, blanket evidence exclusion or learner-source waiver is used.
+Fifteen declared numbered plumbing evidence files require scoped force-add
+because of a generic ignore pattern; no undeclared path is staged.
+
+**Affected step:** `implement-ch40-reference-core-handoff`.

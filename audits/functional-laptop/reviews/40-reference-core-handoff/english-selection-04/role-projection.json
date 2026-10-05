@@ -1,0 +1,658 @@
+[
+  {
+    "id": "reading.001",
+    "kind": "actual-section-reading-order",
+    "value": "The problem: changes need a fixed comparison point The previous chapter joined the tokenizer, decoder, training, evaluation, checkpoint and generation code. Now the course will extend that system. If the data, configuration and code change together, a changed result no longer tells you which version you observed. You need a fixed reference that identifies its inputs and states exactly what its checks establish. This chapter keeps the small scalar decoder unchanged. It gives that reference an input identity and a report whose claims stay attached to their evidence. The identity identifies the fixed inputs. The checks establish which behavior this execution reproduced. Neither establishes useful laptop-scale capability.",
+    "roleRequirement": "Explain the need for a fixed comparison point when extending an existing tokenizer/decoder pipeline. State the limitation of unidentified changing inputs before naming identity machinery; do not ask the learner a question or request a prediction.",
+    "requirementKey": "sections.problem",
+    "order": 1
+  },
+  {
+    "id": "reading.002",
+    "kind": "actual-section-reading-order",
+    "value": "What the reference actually does The fixture assigns 8 documents to training, 2 to validation and 2 to test. The decoder has 1188 learned scalar parameters and context capacity 4 tokens. Its primary training schedule and separately executed replay each perform 32 updates on full batches of 16 windows, with 4 valid targets per window. Therefore, each schedule consumes 32\\cdot16\\cdot4=2048 valid training targets. One pipeline invocation includes both schedules: 4096 targets altogether. These counts are derived from the frozen full-batch schedule, not from a new runtime token counter. Evaluation targets and generated tokens are separate quantities. The report’s independent_schedules field counts two separately executed copies of the same schedule from training seed 39, not statistically independent seed samples. The replay agrees bit for bit with the primary training result in this execution. The selected decoder and frozen bigram then score the same 1744 overlapping test-window target slots. Their mean negative log-likelihoods are approximately 3.866087547 and 3.981342714 nats per slot, respectively. This known comparison is a regression check: rerunning it can expose changes in the checked behavior. It is not an independent estimate of generalization. There are only 442 within-document transition occurrences in those test documents. Overlapping windows repeat occurrences, so 1744 is not a count of distinct transitions. A separate policy would score each occurrence once, using the longest available causal prefix capped at four tokens and only its newest-position distribution. This run does not report numeric mean NLL or perplexity under that policy. The checkpoint round trip preserves its encoded bytes, model and optimizer bits, and tokenizer. The restored decoder reproduces logits for the fixed At probe, encoded as token IDs [67,118]. Cached and complete-prefix generation agree on token IDs [260,34,34]: Cyrillic т followed by two spaces. Agreement checks the two generation paths; those three tokens do not demonstrate useful language quality.",
+    "roleRequirement": "Interpret actual fixed reference observations with local counts,units and scopes. Distinguish each2048-target schedule from4096 aggregate and1744 overlapping target slots from442 underlying transition occurrences. Scope replay,reload and generated tokens to the validated reference,not new capabilities.",
+    "requirementKey": "sections.worked",
+    "order": 2
+  },
+  {
+    "id": "reading.003",
+    "kind": "actual-section-reading-order",
+    "value": "The solution: identify inputs, then interpret evidence R_{\\mathrm{ref}}=\\operatorname{SHA256}(\\mathrm{config}_{1188}\\Vert\\mathrm{fixture}\\Vert\\mathrm{source\\_revision})",
+    "roleRequirement": "Introduce the reference input-identity equation in the solution's reading order. The immediately following symbol/settings unit explains its inputs and canonical encoding; this introductory equation unit need not duplicate that explanation.",
+    "requirementKey": "author-overrides.reading.003",
+    "order": 3
+  },
+  {
+    "id": "reading.004",
+    "kind": "actual-section-reading-order",
+    "value": "The identity’s symbols and fixed settings R_{\\mathrm{ref}} is a 256-bit digest, displayed as 64 lowercase hexadecimal characters. Its three named inputs are: \\mathrm{config}_{1188}: a canonical record of eighteen tiny-run settings, together with the invariant that the decoder has 1188 parameters. \\mathrm{fixture}: a canonical record of SHA-256 digests of the exact corpus bytes and exact split-manifest bytes. Even a byte change that leaves parsed JSON meaning unchanged creates a different input identity. \\mathrm{source\\_revision}: a verified source identity combining a baseline revision with the exact forty course-owned scalar-reference source files. Here \\Vert means composition into the shared identity format’s named, canonical fields, not writing three unframed strings beside one another. That distinction matters: without field boundaries, different input sequences can have the same concatenated bytes. The helper orders fields, serializes one unambiguous record and hashes its complete bytes. The settings fix eight BPE merges; decoder width, feed-forward width and context capacity of four; one attention head and one block; stride one; training and evaluation batch sizes of sixteen and one hundred twenty-eight; thirty-two updates; learning rate 0.04; gradient-norm cap 1; training seed 39; generation seed 38; bigram smoothing 1; generation temperature 0.8; top-k four; and three generated tokens. The identity records floating-point settings by their exact bit patterns rather than rounded display text. Bind configuration, exact fixture bytes and verified scalar-reference source to one input identity. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-input-identity /// Bind every tiny-config field, including exact represented floating values. /// The count is the reference decoder's required 1,188-parameter invariant. pub fn tiny_config_identity() -> Result<ArtifactIdentity, IdentityError> { let config = CapstoneConfig::tiny(); let fields = [ (\"parameters\", \"1188\".to_owned()), (\"bpe_merges\", config.bpe_merges().to_string()), (\"model_width\", config.model_width().to_string()), (\"heads\", config.heads().to_string()), ( \"feed_forward_width\", config.feed_forward_width().to_string(), ), (\"layers\", config.layers().to_string()), (\"context_length\", config.context_length().to_string()), (\"window_stride\", config.window_stride().to_string()), (\"update_batch_size\", config.update_batch_size().to_string()), ( \"evaluation_batch_size\", config.evaluation_batch_size().to_string(), ), (\"updates\", config.updates().to_string()), ( \"learning_rate_f64_bits\", format!(\"{:016x}\", config.learning_rate().to_bits()), ), ( \"max_gradient_norm_f64_bits\", format!(\"{:016x}\", config.max_gradient_norm().to_bits()), ), (\"seed\", config.seed().to_string()), (\"generation_seed\", config.generation_seed().to_string()), ( \"bigram_alpha_f64_bits\", format!(\"{:016x}\", config.bigram_alpha().to_bits()), ), ( \"generation_temperature_f64_bits\", format!(\"{:016x}\", config.generation_temperature().to_bits()), ), (\"generation_top_k\", config.generation_top_k().to_string()), (\"generation_tokens\", config.generation_tokens().to_string()), ]; ArtifactIdentity::new( \"scalar_reference_config\", fields.iter().map(|(key, value)| (*key, value.as_str())), ) } /// Pure identity construction, also usable by mutation tests without training. /// An identity by itself does not admit alternate inputs to the reference run. pub fn reference_input_identity( config: &ArtifactIdentity, corpus: &[u8], splits: &[u8], source: &ArtifactIdentity, ) -> Result<ArtifactIdentity, IdentityError> { let corpus_digest = sha256(corpus); let splits_digest = sha256(splits); let fixture = ArtifactIdentity::new( \"scalar_reference_fixture\", [ (\"corpus_sha256\", corpus_digest.as_hex()), (\"splits_sha256\", splits_digest.as_hex()), ], )?; let config_bytes = canonical_string(config)?; let fixture_bytes = canonical_string(&fixture)?; let source_bytes = canonical_string(source)?; ArtifactIdentity::new( \"scalar_reference_run\", [ (\"config_1188\", config_bytes.as_str()), (\"fixture\", fixture_bytes.as_str()), (\"source_revision\", source_bytes.as_str()), ], ) } The example verifies its compiled reference-source evidence first. It then rejects changed corpus or split bytes before training or checkpoint work. Only accepted fixed inputs reach the existing pipeline. The wrapper calls that pipeline once; the pipeline itself performs primary training and replay. Reject changed fixtures, run the unchanged scalar pipeline and retain only its checked observation. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-handoff /// Refuse changed fixtures before model/checkpoint work, then call the existing /// capstone once. That call already includes primary training and full replay. pub fn run_reference_handoff( corpus_source: &str, split_source: &str, checkpoint_path: impl AsRef<Path>, source: &ReferenceSourceProof, ) -> Result<ReferenceHandoffTrace, ReferenceHandoffError> { if sha256(corpus_source.as_bytes()).as_hex() != CORPUS_SHA256 { return Err(ReferenceHandoffError::FixtureMismatch(\"corpus\")); } if sha256(split_source.as_bytes()).as_hex() != SPLITS_SHA256 { return Err(ReferenceHandoffError::FixtureMismatch(\"split manifest\")); } // Safe callers obtain this opaque proof only through the foundation's // approved-manifest/compiled-census verification, not a revision string. let identity = reference_input_identity( &tiny_config_identity()?, corpus_source.as_bytes(), split_source.as_bytes(), source.identity(), )?; let digest = identity.digest()?; let observation = run_capstone( corpus_source, split_source, checkpoint_path, CapstoneConfig::tiny(), )?; let evaluation = observation.final_evaluation(); let checkpoint = observation.checkpoint(); if observation.training().parameter_count() != 1188 || observation.training().optimizer_step() != 32 || !observation.training().replay_bitwise() || evaluation.window_count() != 436 || evaluation.window_target_slot_count() != 1744 || evaluation.document_transition_occurrence_count() != 442 || !evaluation.decoder().mean_nll().is_finite() || !evaluation.bigram().mean_nll().is_finite() || !checkpoint.bytes_roundtrip() || !checkpoint.model_bits_exact() || !checkpoint.optimizer_bits_exact() || !checkpoint.tokenizer_exact() || !checkpoint.prompt_logits_bitwise() || !observation.generation().tokens_exact() || !observation.generation().decisions_bitwise() || !observation.generation().rng_state_exact() { return Err(ReferenceHandoffError::Invariant( \"scalar reference handoff evidence changed\", )); } Ok(ReferenceHandoffTrace { identity, digest, source_revision: source.source_revision().to_owned(), observation, }) } What matching identities do not prove A matching digest identifies the same canonical input record, subject to the hash’s collision-resistance assumption. It does not prove that the algorithm is correct or that a new machine will reproduce every floating-point bit. The source identity deliberately covers the forty scalar-reference source files, not this chapter’s reporting wrapper or interface. Toolchain, locked dependencies and arithmetic environment are recorded separately. A matching source digest is therefore not evidence that two execution environments match. The temporary checkpoint path is also outside the input identity; changing that path does not change the model’s fixed inputs. Likewise, exact checkpoint reload is narrower than complete job resumption. This check does not restore every data cursor, in-flight operation or whole-job continuation state. No laptop throughput is measured here.",
+    "roleRequirement": "Define each formula symbol and fixed setting where needed,including the verified forty-source-file boundary and separate execution-environment evidence. Explain why fixture changes refuse before training and why a pure constructed identity is not admission.",
+    "requirementKey": "sections.glossary",
+    "order": 4
+  },
+  {
+    "id": "reading.005",
+    "kind": "actual-section-reading-order",
+    "value": "History: reporting conditions and measuring variation A language-model score without its input conditions and scope does not identify what was evaluated or establish which capabilities were checked. Model Cards for Model Reporting was presented in 2019. Mitchell and colleagues propose model documentation that includes intended uses and evaluation conditions; a model card is not itself proof of quality. Model Cards describe evaluation conditions and intended uses; later fine-tuning experiments study variation across initializations and data orders. Reporting scope and measuring variation answer different questions. In Fine-Tuning Pretrained Language Models: Weight Initializations, Data Orders, and Early Stopping, published in 2020, Dodge and colleagues study fine-tuning variability associated with initialization and data order for pretrained language models. This does not measure variability in the course’s tiny decoder. Keep a fixed regression reference when changing an LLM pipeline, while recording separately the evidence needed for quality, seed sensitivity and hardware claims. The Rust reporting contrast uses the same observation. Reading only the mean NLL with this expression gives a number: trace .observation() .final_evaluation() .decoder() .mean_nll() trace.report() also states the evaluation unit, input identity, replay accounting and limits. It does not retrain a historical model or execute a seed sweep. Report the same scalar observation with its metric unit, input identity and explicit capability limits. rust/demos/ch40-reference-core-handoff/src/lib.rs#scope-bearing-report /// Read structured evidence from this one observation; never parse stdout /// or run another model to produce either reporting projection. pub fn report(&self) -> Result<String, ReferenceHandoffError> { let run = &self.observation; let evaluation = run.final_evaluation(); let checkpoint = run.checkpoint(); let generation = run.generation(); let config = CapstoneConfig::tiny(); let targets_per_schedule = config.updates() * config.update_batch_size() * config.context_length(); let record = serde_json::json!({ \"schema_version\": 1, \"chapter\": \"40-reference-core-handoff\", \"reference_identity\": self.digest.as_hex(), \"source_revision\": self.source_revision, \"scope\": \"scalar-reference-fixed-fixture-regression\", \"documents\": { \"train\": run.partitions().train_document_ids().len(), \"validation\": run.partitions().validation_document_ids().len(), \"test\": run.partitions().test_document_ids().len() }, \"model\": { \"parameters\": run.training().parameter_count(), \"context_tokens\": config.context_length() }, \"training\": { \"target_count_basis\": \"derived-from-frozen-full-batch-schedules\", \"updates_per_schedule\": config.updates(), \"independent_schedules\": 2, \"valid_targets_per_schedule\": targets_per_schedule, \"valid_targets_primary_plus_replay\": 2 * targets_per_schedule, \"selected_step\": run.training().selected_step(), \"within_invocation_replay_bitwise\": run.training().replay_bitwise() }, \"evaluation\": { \"unit\": \"overlapping-window-target-slot\", \"windows\": evaluation.window_count(), \"window_target_slots\": evaluation.window_target_slot_count(), \"document_transition_occurrences\": evaluation.document_transition_occurrence_count(), \"transition_multiplicity_counts\": evaluation.transition_multiplicity_counts(), \"decoder_mean_nll_nats_per_slot\": evaluation.decoder().mean_nll(), \"bigram_mean_nll_nats_per_slot\": evaluation.bigram().mean_nll(), \"once_per_transition_metric_reported\": false, \"independent_generalization_estimate\": false }, \"checkpoint\": { \"bytes_roundtrip\": checkpoint.bytes_roundtrip(), \"model_bits_exact\": checkpoint.model_bits_exact(), \"optimizer_bits_exact\": checkpoint.optimizer_bits_exact(), \"tokenizer_exact\": checkpoint.tokenizer_exact(), \"logit_probe_text\": checkpoint.logit_probe_text(), \"logit_probe_ids\": checkpoint.logit_probe_ids(), \"probe_logits_bitwise\": checkpoint.prompt_logits_bitwise(), \"complete_job_resume_established\": false }, \"generation\": { \"prompt\": generation.prompt_text(), \"token_ids\": generation.generated_ids(), \"decoded_text\": generation.decoded_text(), \"cached_reference_tokens_exact\": generation.tokens_exact(), \"cached_reference_decisions_bitwise\": generation.decisions_bitwise(), \"cached_reference_rng_exact\": generation.rng_state_exact(), \"useful_language_quality_established\": false }, \"laptop_throughput_measured\": false, \"successor_chapter\": SUCCESSOR_CHAPTER }); let mut text = serde_json::to_string_pretty(&record) .map_err(|_| ReferenceHandoffError::Serialization)?; text.push('\\n'); Ok(text) } Repeating seed 39 checks repeatability under fixed conditions. It does not estimate variability across seeds. Those are complementary checks, not interchangeable evidence.",
+    "roleRequirement": "State the two primary sources' supported reporting and variation claims with correct titles and chronology; separate same-seed replay from seed variability and compare the scalar getter with the scope-bearing report from one observation,without pretending to execute historical models.",
+    "requirementKey": "sections.history",
+    "order": 5
+  },
+  {
+    "id": "reading.006",
+    "kind": "actual-section-reading-order",
+    "value": "Run the reference without changing its inputs The example obtains verified source evidence and owns its temporary checkpoint location. Its report comes directly from the checked scalar observation, not from parsing a previous human-readable report. Verify the reference source, use an owned temporary checkpoint and print the scope-bearing report. rust/demos/ch40-reference-core-handoff/src/main.rs#reference-example fn main() -> Result<(), Box<dyn Error>> { let source = verify_compiled_reference_source()?; let checkpoint = OwnedCheckpoint::new()?; let trace = run_reference_handoff(CORPUS, SPLITS, &checkpoint.file, &source)?; print!(\"{}\", trace.report()?); Ok(()) }",
+    "roleRequirement": "Explain and show the actual demo ordering: obtain verified source,own the temporary checkpoint,invoke the unchanged pipeline and print its structured scope-bearing report. Do not hide the pipeline's primary-plus-replay schedules.",
+    "requirementKey": "sections.implementation",
+    "order": 6
+  },
+  {
+    "id": "reading.007",
+    "kind": "actual-section-reading-order",
+    "value": "Keep the three evidence layers separate The digest identifies the fixed inputs. The counts and generated token IDs describe checked behavior on those inputs. The final card keeps future quality, job-resumption and hardware claims outside the reference’s evidence boundary. A reference identity is not a capability certificate The configuration, exact corpus and split bytes, and verified scalar-reference source determine the input identity. Separate checks observe replay, fixed-window evaluation, reload and cached generation. Neither the identity nor those checks establishes useful language quality, complete job resumption or laptop throughput. Identify the fixed inputs SHA-256 identity of the fixed input record cd06104ff61dc8a0c6cbe6e842847952343050eb4942c79aa1d17e8d0d0bb648 Learned scalar parameters 1188 Read the checked reference behavior Overlapping test-window target slots 1744 Within-document transition occurrences 442 Generated token IDs [260,34,34] Keep unmeasured capabilities separate Not established: useful language quality, complete job resumption or laptop throughput.",
+    "roleRequirement": "Explain the relationship among identified inputs,checked behavior and unmeasured capabilities,using the actual trace-backed figure and explicit descriptions rather than position or color alone.",
+    "requirementKey": "sections.visualization",
+    "order": 7
+  },
+  {
+    "id": "reading.008",
+    "kind": "actual-section-reading-order",
+    "value": "Optional practice: inspect the boundary Run the example and inspect its report: cargo run --quiet --locked -p ch40-reference-core-handoff Find the identity, target-count basis and metric unit in the output. Explain why a digest alone would not replace the replay and reload checks. Run the demo’s tests. Identify the tests that change configuration, corpus, split bytes and source identity without training. Explain why constructing an identity for changed inputs does not admit them to the fixed reference run. Explain why a successful checkpoint round trip cannot justify the statement “the complete training job can resume,” and why 1744 must not be labeled “distinct test transitions.” Answers: input identity, evidence scope and repeated target slots The digest binds inputs; replay and reload compare actual behavior. Neither kind of evidence substitutes for the other. The target-count basis explicitly derives 2048 targets per schedule and 4096 for primary plus replay. The reported mean NLL uses nats per overlapping window-target slot. The pure mutation tests construct different identities without calling the pipeline. The runner separately requires the exact accepted corpus and split bytes, so an identity is not an admission permit. The checkpoint check covers persisted model, optimizer and tokenizer state plus a fixed logit probe, not every whole-job continuation dependency. The 1744 denominator counts overlapping window-target slots; the underlying documents contain 442 transition occurrences.",
+    "roleRequirement": "Offer optional inspection,reproduction and explanation tasks with one substantive answer per task. Preserve identity-versus-evidence,construction-versus-admission,checkpoint-versus-job andslots-versus-transitions boundaries; no prediction requests.",
+    "requirementKey": "sections.practice",
+    "order": 8
+  },
+  {
+    "id": "reading.009",
+    "kind": "actual-section-reading-order",
+    "value": "What the next extension must preserve You now have an identified scalar reference and a precisely bounded report. A later change can be compared with that reference, while carrying its own input identity and evidence. Chapter 41 will address governed corpus acquisition. New data, larger models, accelerator execution, quality evaluation and complete job resumption each require their own checks; none is already established by this handoff.",
+    "roleRequirement": "Identify what the current scalar reference enables for later comparison and state that Chapter41 corpus acquisition and larger/hardware/quality/resumption capabilities remain future work requiring new identities and evidence.",
+    "requirementKey": "sections.handoff",
+    "order": 9
+  },
+  {
+    "id": "reading.010",
+    "kind": "actual-activation-reading-order",
+    "value": "Next chapter → Keep a fixed reference before extending the decoder",
+    "roleRequirement": "Preserve the already-published neighboring lesson's unchanged content and surface roles while accurately adding Chapter40's navigation destination. Do not treat activation of that link as evidence of any further chapter's availability.",
+    "requirementKey": "documents.neighbor",
+    "order": 10
+  },
+  {
+    "id": "reading.011",
+    "kind": "actual-activation-reading-order",
+    "value": "Keep a fixed reference before extending the decoder Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability. Content revision: 1",
+    "roleRequirement": "Identify Chapter40 as a fixed scalar-reference handoff and describe its bounded learning outcome and evidence, without announcing a completed laptop LLM or new model capability.",
+    "requirementKey": "documents.catalog",
+    "order": 11
+  },
+  {
+    "id": "unit.001",
+    "kind": "metadata",
+    "value": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+    "roleRequirement": "Describe the chapter's bounded learning outcome in search metadata: identify the fixed scalar inputs and interpret the observed checks without claiming laptop-scale capability.",
+    "requirementKey": "author-overrides.unit.001",
+    "order": 1
+  },
+  {
+    "id": "unit.002",
+    "kind": "document-title",
+    "value": "Keep a fixed reference before extending the decoder · LLM, piece by piece",
+    "roleRequirement": "Identify the chapter and course in the browser document title; no complete lesson explanation is required.",
+    "requirementKey": "author-overrides.unit.002",
+    "order": 2
+  },
+  {
+    "id": "unit.003",
+    "kind": "link",
+    "value": "Skip to content",
+    "roleRequirement": "Identify the skip link's action of moving keyboard focus to the main content.",
+    "requirementKey": "author-overrides.unit.003",
+    "order": 3
+  },
+  {
+    "id": "unit.004",
+    "kind": "link",
+    "value": "LLM, piece by piece",
+    "roleRequirement": "Identify the course-home link by the course name.",
+    "requirementKey": "author-overrides.unit.004",
+    "order": 4
+  },
+  {
+    "id": "unit.005",
+    "kind": "accessible-name",
+    "value": "Language",
+    "roleRequirement": "Identify the language selector's purpose.",
+    "requirementKey": "author-overrides.unit.005",
+    "order": 5
+  },
+  {
+    "id": "unit.006",
+    "kind": "link",
+    "value": "Русский",
+    "roleRequirement": "Name Russian as the alternative language destination, not as an English technical explanation.",
+    "requirementKey": "author-overrides.unit.006",
+    "order": 6
+  },
+  {
+    "id": "unit.007",
+    "kind": "link",
+    "value": "← All chapters",
+    "roleRequirement": "Identify the backward link to the complete chapter index.",
+    "requirementKey": "author-overrides.unit.007",
+    "order": 7
+  },
+  {
+    "id": "unit.008",
+    "kind": "catalog",
+    "value": "Keep a fixed reference before extending the decoder",
+    "roleRequirement": "Name the chapter's fixed-reference subject as its contextual page heading; the following lesson supplies the explanation.",
+    "requirementKey": "author-overrides.unit.008",
+    "order": 8
+  },
+  {
+    "id": "unit.009",
+    "kind": "contextHeading",
+    "value": "The fixed scalar reference",
+    "roleRequirement": "Identify the chapter cheat sheet as terminology for the fixed scalar reference; its description and term tree supply the detailed definitions.",
+    "requirementKey": "author-message.sheet-title",
+    "order": 9
+  },
+  {
+    "id": "unit.010",
+    "kind": "accessible-name",
+    "value": "Close cheat sheet",
+    "roleRequirement": "Identify the action that closes the chapter cheat-sheet dialog.",
+    "requirementKey": "author-overrides.unit.010",
+    "order": 10
+  },
+  {
+    "id": "unit.011",
+    "kind": "contextHeading",
+    "value": "The problem: changes need a fixed comparison point",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 11
+  },
+  {
+    "id": "unit.012",
+    "kind": "contextHeading",
+    "value": "What the reference actually does",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 12
+  },
+  {
+    "id": "unit.013",
+    "kind": "contextHeading",
+    "value": "The solution: identify inputs, then interpret evidence",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 13
+  },
+  {
+    "id": "unit.014",
+    "kind": "contextHeading",
+    "value": "The identity’s symbols and fixed settings",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 14
+  },
+  {
+    "id": "unit.015",
+    "kind": "rustCaption",
+    "value": "Bind configuration, exact fixture bytes and verified scalar-reference source to one input identity. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-input-identity",
+    "roleRequirement": "Describe the displayed Rust excerpt's binding of configuration, exact fixture bytes and verified scalar-reference source into an input identity.",
+    "requirementKey": "author-overrides.unit.015",
+    "order": 15
+  },
+  {
+    "id": "unit.016",
+    "kind": "rust-accessible-label",
+    "value": "Rust source: canonical scalar-reference input identity",
+    "roleRequirement": "Identify the keyboard-accessible Rust region as the canonical scalar-reference input-identity implementation.",
+    "requirementKey": "author-overrides.unit.016",
+    "order": 16
+  },
+  {
+    "id": "unit.017",
+    "kind": "rustCaption",
+    "value": "Reject changed fixtures, run the unchanged scalar pipeline and retain only its checked observation. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-handoff",
+    "roleRequirement": "Describe the displayed Rust excerpt's refusal of changed fixtures before execution and retention of the unchanged scalar pipeline's checked observation.",
+    "requirementKey": "author-overrides.unit.017",
+    "order": 17
+  },
+  {
+    "id": "unit.018",
+    "kind": "rust-accessible-label",
+    "value": "Rust source: fixed-fixture admission and scalar-reference execution",
+    "roleRequirement": "Identify the keyboard-accessible Rust region as fixed-fixture admission and scalar-reference execution.",
+    "requirementKey": "author-overrides.unit.018",
+    "order": 18
+  },
+  {
+    "id": "unit.019",
+    "kind": "contextHeading",
+    "value": "What matching identities do not prove",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 19
+  },
+  {
+    "id": "unit.020",
+    "kind": "contextHeading",
+    "value": "History: reporting conditions and measuring variation",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 20
+  },
+  {
+    "id": "unit.021",
+    "kind": "link",
+    "value": "Model Cards for Model Reporting",
+    "roleRequirement": "Identify the linked primary paper on model reporting by its title; the associated history passage supplies its claims and limits.",
+    "requirementKey": "author-overrides.unit.021",
+    "order": 21
+  },
+  {
+    "id": "unit.022",
+    "kind": "link",
+    "value": "Fine-Tuning Pretrained Language Models: Weight Initializations, Data Orders, and Early Stopping",
+    "roleRequirement": "Identify the linked primary paper on fine-tuning variation by its actual title; the associated history passage supplies its claims and limits.",
+    "requirementKey": "author-overrides.unit.022",
+    "order": 22
+  },
+  {
+    "id": "unit.023",
+    "kind": "rustCaption",
+    "value": "Report the same scalar observation with its metric unit, input identity and explicit capability limits. rust/demos/ch40-reference-core-handoff/src/lib.rs#scope-bearing-report",
+    "roleRequirement": "Describe the displayed Rust excerpt's transformation of one scalar observation into a report with metric units, input identity and capability limits.",
+    "requirementKey": "author-overrides.unit.023",
+    "order": 23
+  },
+  {
+    "id": "unit.024",
+    "kind": "rust-accessible-label",
+    "value": "Rust source: scope-bearing scalar-reference report",
+    "roleRequirement": "Identify the keyboard-accessible Rust region as the scope-bearing scalar-reference report implementation.",
+    "requirementKey": "author-overrides.unit.024",
+    "order": 24
+  },
+  {
+    "id": "unit.025",
+    "kind": "contextHeading",
+    "value": "Run the reference without changing its inputs",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 25
+  },
+  {
+    "id": "unit.026",
+    "kind": "rustCaption",
+    "value": "Verify the reference source, use an owned temporary checkpoint and print the scope-bearing report. rust/demos/ch40-reference-core-handoff/src/main.rs#reference-example",
+    "roleRequirement": "Describe the executable Rust excerpt's source verification, owned temporary checkpoint and printing of the scope-bearing report.",
+    "requirementKey": "author-overrides.unit.026",
+    "order": 26
+  },
+  {
+    "id": "unit.027",
+    "kind": "rust-accessible-label",
+    "value": "Rust source: executable fixed scalar-reference example",
+    "roleRequirement": "Identify the keyboard-accessible Rust region as the executable fixed scalar-reference example.",
+    "requirementKey": "author-overrides.unit.027",
+    "order": 27
+  },
+  {
+    "id": "unit.028",
+    "kind": "contextHeading",
+    "value": "Keep the three evidence layers separate",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 28
+  },
+  {
+    "id": "unit.029",
+    "kind": "figureTitle",
+    "value": "A reference identity is not a capability certificate",
+    "roleRequirement": "Identify the distinction between reference input identity and capability certification,without implying that the digest proves model quality or hardware readiness.",
+    "requirementKey": "isolated.figureTitle",
+    "order": 29
+  },
+  {
+    "id": "unit.030",
+    "kind": "figureDescription",
+    "value": "The configuration, exact corpus and split bytes, and verified scalar-reference source determine the input identity. Separate checks observe replay, fixed-window evaluation, reload and cached generation. Neither the identity nor those checks establishes useful language quality, complete job resumption or laptop throughput.",
+    "roleRequirement": "Explain that fixed configuration,exact corpus/split bytes and verified scalar source determine identity,while separate checks observe replay,evaluation,reload and cached generation; explicitly exclude useful quality,whole-job resumption and laptop throughput.",
+    "requirementKey": "isolated.figureDescription",
+    "order": 30
+  },
+  {
+    "id": "unit.031",
+    "kind": "contextHeading",
+    "value": "Identify the fixed inputs",
+    "roleRequirement": "Identify the diagram group as the fixed-input identity layer,not a measurement or approval layer.",
+    "requirementKey": "isolated.figureInputHeading",
+    "order": 31
+  },
+  {
+    "id": "unit.032",
+    "kind": "contextHeading",
+    "value": "Read the checked reference behavior",
+    "roleRequirement": "Identify the diagram group as checked behavior of the scalar reference,not broad model capability.",
+    "requirementKey": "isolated.figureCheckHeading",
+    "order": 32
+  },
+  {
+    "id": "unit.033",
+    "kind": "contextHeading",
+    "value": "Keep unmeasured capabilities separate",
+    "roleRequirement": "Identify the diagram group as unmeasured future capabilities,not already accepted successor work.",
+    "requirementKey": "isolated.figureFutureHeading",
+    "order": 33
+  },
+  {
+    "id": "unit.034",
+    "kind": "contextHeading",
+    "value": "Optional practice: inspect the boundary",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 34
+  },
+  {
+    "id": "unit.035",
+    "kind": "command",
+    "value": "cargo run --quiet --locked -p ch40-reference-core-handoff",
+    "roleRequirement": "Provide the exact executable Cargo command for the Chapter40 demo,retaining ASCII option prefixes and correct package identifier.",
+    "requirementKey": "isolated.command",
+    "order": 35
+  },
+  {
+    "id": "unit.036",
+    "kind": "answerSummary",
+    "value": "Answers: input identity, evidence scope and repeated target slots",
+    "roleRequirement": "Identify the optional answer group's subjects:input identity,evidence scope and repeated target slots.",
+    "requirementKey": "isolated.answerSummary",
+    "order": 36
+  },
+  {
+    "id": "unit.037",
+    "kind": "contextHeading",
+    "value": "What the next extension must preserve",
+    "roleRequirement": "Name the associated section's concrete subject or operation so the reader can locate its explanation. This contextual heading is not required to restate the whole chapter.",
+    "requirementKey": "isolated.contextHeading",
+    "order": 37
+  },
+  {
+    "id": "unit.038",
+    "kind": "accessible-name",
+    "value": "Chapter navigation",
+    "roleRequirement": "Identify the navigation landmark containing chapter destinations.",
+    "requirementKey": "author-overrides.unit.038",
+    "order": 38
+  },
+  {
+    "id": "unit.039",
+    "kind": "link",
+    "value": "← Previous chapter Run the scalar reference end to end",
+    "roleRequirement": "Identify the previous-chapter direction and Chapter 39 destination by its lesson title.",
+    "requirementKey": "author-overrides.unit.039",
+    "order": 39
+  },
+  {
+    "id": "unit.040",
+    "kind": "link",
+    "value": "All chapters",
+    "roleRequirement": "Identify the link to the complete chapter index.",
+    "requirementKey": "author-overrides.unit.040",
+    "order": 40
+  },
+  {
+    "id": "unit.041",
+    "kind": "diagram-term-value",
+    "value": "SHA-256 identity of the fixed input record cd06104ff61dc8a0c6cbe6e842847952343050eb4942c79aa1d17e8d0d0bb648",
+    "roleRequirement": "Identify the displayed hexadecimal value as SHA-256 identity of the fixed input record,not a correctness or quality score.",
+    "requirementKey": "isolated.digest",
+    "order": 41
+  },
+  {
+    "id": "unit.042",
+    "kind": "diagram-term-value",
+    "value": "Learned scalar parameters 1188",
+    "roleRequirement": "Identify the displayed count as learned scalar parameters of the fixed decoder.",
+    "requirementKey": "isolated.parameters",
+    "order": 42
+  },
+  {
+    "id": "unit.043",
+    "kind": "diagram-term-value",
+    "value": "Overlapping test-window target slots 1744",
+    "roleRequirement": "Identify the displayed evaluation count as overlapping test-window target slots,not distinct transitions.",
+    "requirementKey": "isolated.slots",
+    "order": 43
+  },
+  {
+    "id": "unit.044",
+    "kind": "diagram-term-value",
+    "value": "Within-document transition occurrences 442",
+    "roleRequirement": "Identify the displayed count as within-document transition occurrences,distinct from repeated window-target slots.",
+    "requirementKey": "isolated.transitions",
+    "order": 44
+  },
+  {
+    "id": "unit.045",
+    "kind": "diagram-term-value",
+    "value": "Generated token IDs [260,34,34]",
+    "roleRequirement": "Identify the displayed list as generated token IDs,not positions or quality ratings.",
+    "requirementKey": "isolated.generation",
+    "order": 45
+  },
+  {
+    "id": "unit.046",
+    "kind": "limits",
+    "value": "Not established: useful language quality, complete job resumption or laptop throughput.",
+    "roleRequirement": "Explicitly state that useful language quality,complete job resumption and laptop throughput are not established by this reference.",
+    "requirementKey": "isolated.limits",
+    "order": 46
+  },
+  {
+    "id": "unit.047",
+    "kind": "cheat-sheet-term-definition",
+    "value": "Bitwise training replay A separately executed repeat of the same frozen training schedule that matches recorded training behavior and state bit for bit within this execution; it is not an independent seed sample or a measurement of variation across seeds.",
+    "roleRequirement": "Define bitwise training replay as a separately executed repeat of the same fixed schedule with matched recorded behavior/state, not an independent seed sample or seed-variation measurement.",
+    "requirementKey": "author-overrides.unit.047",
+    "order": 47
+  },
+  {
+    "id": "unit.048",
+    "kind": "cheat-sheet-term-definition",
+    "value": "Cached generation agreement Agreement between the KV-cached and complete-prefix paths on generated tokens, decisions and RNG state for the fixed prompt and sampling settings, not proof of useful language quality.",
+    "roleRequirement": "Define cached generation agreement as agreement of cached and complete-prefix paths for fixed generation settings, not proof of useful language quality.",
+    "requirementKey": "author-overrides.unit.048",
+    "order": 48
+  },
+  {
+    "id": "unit.049",
+    "kind": "cheat-sheet-term-definition",
+    "value": "Checkpoint round trip Saving and loading persisted decoder, optimizer and tokenizer state exactly, with a fixed logit probe. This narrow check does not establish complete job resumption.",
+    "roleRequirement": "Define the checkpoint round trip's persisted decoder, optimizer and tokenizer state and probe scope, distinguishing it from complete job resumption.",
+    "requirementKey": "author-overrides.unit.049",
+    "order": 49
+  },
+  {
+    "id": "unit.050",
+    "kind": "cheat-sheet-term-definition",
+    "value": "Fixed-fixture regression evidence A known result reproduced on unchanged data to detect changed behavior, rather than an independent estimate of generalization.",
+    "roleRequirement": "Define fixed-fixture regression evidence as reproducing known behavior on unchanged data, not independent generalization evidence.",
+    "requirementKey": "author-overrides.unit.050",
+    "order": 50
+  },
+  {
+    "id": "unit.051",
+    "kind": "cheat-sheet-term-definition",
+    "value": "Overlapping window-target slot One target position inside one causal window. Overlapping windows can score the same within-document transition occurrence repeatedly; this reference scores 1,744 slots representing 442 occurrences.",
+    "roleRequirement": "Define an overlapping window-target slot and its distinction from a within-document transition occurrence, including the reference's 1744-slot/442-occurrence counts.",
+    "requirementKey": "author-overrides.unit.051",
+    "order": 51
+  },
+  {
+    "id": "unit.052",
+    "kind": "cheat-sheet-term-definition",
+    "value": "Reference input identity The digest binding the tiny decoder configuration, exact corpus and split bytes, and verified scalar-reference source. It identifies inputs, not model capability.",
+    "roleRequirement": "Define reference input identity by the fixed configuration, exact corpus/split bytes and verified scalar-source boundary; distinguish identifying inputs from certifying capability.",
+    "requirementKey": "author-overrides.unit.052",
+    "order": 52
+  },
+  {
+    "id": "unit.053",
+    "kind": "cheat-sheet-term-definition",
+    "value": "Scalar reference decoder The unchanged 1,188-parameter CPU decoder used as a small, inspectable comparison point before extending the LLM pipeline.",
+    "roleRequirement": "Define the scalar reference decoder as the unchanged 1188-parameter CPU comparison point before pipeline extension.",
+    "requirementKey": "author-overrides.unit.053",
+    "order": 53
+  },
+  {
+    "id": "unit.054",
+    "kind": "navigation",
+    "value": "Next chapter → Keep a fixed reference before extending the decoder",
+    "roleRequirement": "Identify the direction and actual Chapter40 destination of navigation,without claiming availability of Chapter41 or later work.",
+    "requirementKey": "isolated.navigation",
+    "order": 54
+  },
+  {
+    "id": "unit.055",
+    "kind": "actual-catalog-card",
+    "value": "Keep a fixed reference before extending the decoder Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability. Content revision: 1",
+    "roleRequirement": "Identify Chapter40 as a fixed scalar-reference handoff and describe its bounded learning outcome and evidence, without announcing a completed laptop LLM or new model capability.",
+    "requirementKey": "documents.catalog",
+    "order": 55
+  },
+  {
+    "id": "source-unit.056",
+    "kind": "actual-source-field",
+    "value": "Keep a fixed reference before extending the decoder",
+    "roleRequirement": "Name the chapter's fixed-reference subject as its catalog title, without a broad capability claim.",
+    "requirementKey": "author-overrides.source-unit.056",
+    "order": 56
+  },
+  {
+    "id": "source-unit.057",
+    "kind": "actual-source-field",
+    "value": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+    "roleRequirement": "Describe the catalog's bounded learning outcome: identifying fixed scalar inputs and interpreting replay, score, reload and generation evidence without laptop-scale claims.",
+    "requirementKey": "author-overrides.source-unit.057",
+    "order": 57
+  },
+  {
+    "id": "source-unit.058",
+    "kind": "actual-source-field",
+    "value": "Bind the 1,188-parameter scalar reference to its configuration, fixture and verified source identity, and distinguish its checked regression behavior from unmeasured future capabilities.",
+    "roleRequirement": "State the chapter's learning objective of binding the tiny scalar reference to its input identity and separating checked regression behavior from unmeasured capabilities.",
+    "requirementKey": "author-overrides.source-unit.058",
+    "order": 58
+  },
+  {
+    "id": "source-unit.059",
+    "kind": "actual-source-field",
+    "value": "Use the unchanged eight/two/two document split and tiny scalar configuration. One pipeline invocation runs two 32-update schedules, each with 2,048 training targets. Interpret 1,744 overlapping test-window target slots, 442 within-document transition occurrences, exact reload and generated token IDs [260,34,34].",
+    "roleRequirement": "Specify the worked example's unchanged split/configuration and locally scoped schedule, evaluation, reload and generation quantities; do not mistake repeated slots for unique transitions.",
+    "requirementKey": "author-overrides.source-unit.059",
+    "order": 59
+  },
+  {
+    "id": "source-unit.060",
+    "kind": "actual-source-field",
+    "value": "The existing scalar decoder remains a fixed comparison point. Chapter 41 will change the corpus-acquisition boundary; that future change requires new input identity and its own evidence rather than upgrading this reference's claims.",
+    "roleRequirement": "Explain the decoder handoff: preserve the scalar comparison point while future Chapter 41 acquisition changes require their own identity and evidence.",
+    "requirementKey": "author-overrides.source-unit.060",
+    "order": 60
+  },
+  {
+    "id": "unit.061",
+    "kind": "rendered-lesson-description",
+    "value": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+    "roleRequirement": "Describe the lesson's bounded learning outcome: identifying fixed scalar inputs and interpreting replay, score, reload and generation evidence without laptop-scale claims.",
+    "requirementKey": "author-overrides.unit.061",
+    "order": 61
+  },
+  {
+    "id": "unit.062",
+    "kind": "rendered-lesson-objective",
+    "value": "Bind the 1,188-parameter scalar reference to its configuration, fixture and verified source identity, and distinguish its checked regression behavior from unmeasured future capabilities.",
+    "roleRequirement": "State the chapter's learning objective of binding the tiny scalar reference to its input identity and separating checked regression behavior from unmeasured capabilities.",
+    "requirementKey": "author-overrides.source-unit.058",
+    "order": 62
+  },
+  {
+    "id": "unit.063",
+    "kind": "rendered-sheet-description",
+    "value": "Terms for interpreting the tiny decoder's input identity, regression evidence, replay and checkpoint limits.",
+    "roleRequirement": "Describe the chapter cheat sheet’s subject and bounded scope—terms for interpreting reference input identity, regression, replay and checkpoint limits—without requiring a complete definition of every term.",
+    "requirementKey": "author-message.sheet-description",
+    "order": 63
+  },
+  {
+    "id": "unit.064",
+    "kind": "visible-language-neutral-chapter-ordinal",
+    "value": "40",
+    "roleRequirement": "Identify the course-card ordinal as Chapter 40 in its actual catalog-card context; it is neither a parameter count nor a capability rating.",
+    "requirementKey": "author-overrides.unit.064",
+    "order": 64
+  },
+  {
+    "id": "unit.065",
+    "kind": "cheat-sheet-trigger",
+    "value": "Open cheat sheet",
+    "roleRequirement": "Identify the action that opens this chapter’s cheat sheet of terms.",
+    "requirementKey": "author-overrides.unit.065",
+    "order": 65
+  },
+  {
+    "id": "unit.066",
+    "kind": "optional-practice-task",
+    "value": "Find the identity, target-count basis and metric unit in the output. Explain why a digest alone would not replace the replay and reload checks.",
+    "roleRequirement": "Offer an optional report-inspection task that locates input identity, target-count basis and metric unit, then explains why identifying inputs cannot replace replay and reload evidence.",
+    "requirementKey": "author-overrides.unit.066",
+    "order": 66
+  },
+  {
+    "id": "unit.067",
+    "kind": "optional-practice-task",
+    "value": "Run the demo’s tests. Identify the tests that change configuration, corpus, split bytes and source identity without training. Explain why constructing an identity for changed inputs does not admit them to the fixed reference run.",
+    "roleRequirement": "Offer an optional test-reproduction and inspection task that distinguishes pure changed-input identity construction from admitting those inputs to fixed-reference execution.",
+    "requirementKey": "author-overrides.unit.067",
+    "order": 67
+  },
+  {
+    "id": "unit.068",
+    "kind": "optional-practice-task",
+    "value": "Explain why a successful checkpoint round trip cannot justify the statement “the complete training job can resume,” and why 1744 must not be labeled “distinct test transitions.”",
+    "roleRequirement": "Offer an optional explanation task that distinguishes checkpoint round trip from complete job resumption and overlapping scored target slots from distinct transition occurrences.",
+    "requirementKey": "author-overrides.unit.068",
+    "order": 68
+  },
+  {
+    "id": "unit.069",
+    "kind": "checked-practice-answer",
+    "value": "The digest binds inputs; replay and reload compare actual behavior. Neither kind of evidence substitutes for the other. The target-count basis explicitly derives 2048 targets per schedule and 4096 for primary plus replay. The reported mean NLL uses nats per overlapping window-target slot.",
+    "roleRequirement": "Answer the report-inspection task by distinguishing input binding from checked behavior, naming schedule-versus-aggregate target counts and the reported NLL unit.",
+    "requirementKey": "author-overrides.unit.069",
+    "order": 69
+  },
+  {
+    "id": "unit.070",
+    "kind": "checked-practice-answer",
+    "value": "The pure mutation tests construct different identities without calling the pipeline. The runner separately requires the exact accepted corpus and split bytes, so an identity is not an admission permit.",
+    "roleRequirement": "Answer the mutation-test task by identifying its nontraining identity construction and the runner's separate exact-fixture admission requirement.",
+    "requirementKey": "author-overrides.unit.070",
+    "order": 70
+  },
+  {
+    "id": "unit.071",
+    "kind": "checked-practice-answer",
+    "value": "The checkpoint check covers persisted model, optimizer and tokenizer state plus a fixed logit probe, not every whole-job continuation dependency. The 1744 denominator counts overlapping window-target slots; the underlying documents contain 442 transition occurrences.",
+    "roleRequirement": "Answer the scope task by naming the persisted-state/probe boundary versus whole-job continuation and explaining the 1744 overlapping slots versus 442 transition occurrences.",
+    "requirementKey": "author-overrides.unit.071",
+    "order": 71
+  }
+]

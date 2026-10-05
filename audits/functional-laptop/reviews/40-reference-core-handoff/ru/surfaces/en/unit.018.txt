@@ -1,0 +1,1 @@
+Rust source: fixed-fixture admission and scalar-reference execution

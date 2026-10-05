@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "prior": {
+    "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-03/selected-surfaces-proposal.json",
+    "sha256": "0c7fb41677d88782baaa9b51b4dcc2fb7cfab5130d1c0cc064d1b359fbcb16ad",
+    "bytes": 259071
+  },
+  "proposal": {
+    "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-04/selected-surfaces-proposal.json",
+    "sha256": "f6ab0b455af57fac2d2effd398356ac242c6c9cb611b2a237b57632d8e180386",
+    "bytes": 259934
+  },
+  "valueChanges": [
+    {
+      "id": "reading.008",
+      "before": "Optional practice: inspect the boundary Run the example and inspect its report: cargo run --quiet --locked -p ch40-reference-core-handoff Find the identity, target-count basis and metric unit in the output. Explain why a digest alone would not replace the replay and reload checks. Run the demo’s tests. Identify the tests that change configuration, corpus, split bytes and source identity without training. Explain why constructing an identity for changed inputs does not admit them to the fixed reference run. Explain why a successful checkpoint round trip cannot justify the statement “the complete training job can resume,” and why 1744 must not be labeled “distinct test transitions.” Answers: input identity, evidence scope and repeated target slots The digest binds inputs; replay and reload compare actual behavior. Neither kind of evidence substitutes for the other. The target-count basis explicitly derives 2048 targets per schedule and 4096 for primary plus replay. The pure mutation tests construct different identities without calling the pipeline. The runner separately requires the exact accepted corpus and split bytes, so an identity is not an admission permit. The checkpoint check covers persisted model, optimizer and tokenizer state plus a fixed logit probe, not every whole-job continuation dependency. The 1744 denominator counts overlapping window-target slots; the underlying documents contain 442 transition occurrences.",
+      "after": "Optional practice: inspect the boundary Run the example and inspect its report: cargo run --quiet --locked -p ch40-reference-core-handoff Find the identity, target-count basis and metric unit in the output. Explain why a digest alone would not replace the replay and reload checks. Run the demo’s tests. Identify the tests that change configuration, corpus, split bytes and source identity without training. Explain why constructing an identity for changed inputs does not admit them to the fixed reference run. Explain why a successful checkpoint round trip cannot justify the statement “the complete training job can resume,” and why 1744 must not be labeled “distinct test transitions.” Answers: input identity, evidence scope and repeated target slots The digest binds inputs; replay and reload compare actual behavior. Neither kind of evidence substitutes for the other. The target-count basis explicitly derives 2048 targets per schedule and 4096 for primary plus replay. The reported mean NLL uses nats per overlapping window-target slot. The pure mutation tests construct different identities without calling the pipeline. The runner separately requires the exact accepted corpus and split bytes, so an identity is not an admission permit. The checkpoint check covers persisted model, optimizer and tokenizer state plus a fixed logit probe, not every whole-job continuation dependency. The 1744 denominator counts overlapping window-target slots; the underlying documents contain 442 transition occurrences."
+    },
+    {
+      "id": "unit.065",
+      "before": "",
+      "after": "Open cheat sheet"
+    },
+    {
+      "id": "unit.069",
+      "before": "The digest binds inputs; replay and reload compare actual behavior. Neither kind of evidence substitutes for the other. The target-count basis explicitly derives 2048 targets per schedule and 4096 for primary plus replay.",
+      "after": "The digest binds inputs; replay and reload compare actual behavior. Neither kind of evidence substitutes for the other. The target-count basis explicitly derives 2048 targets per schedule and 4096 for primary plus replay. The reported mean NLL uses nats per overlapping window-target slot."
+    }
+  ],
+  "sourceDescriptors": {
+    "before": [
+      {
+        "id": "source.contract",
+        "kind": "complete-source",
+        "canonicalPath": "curriculum/chapters/40-reference-core-handoff.md",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-01/english-contract-snapshot.md",
+          "sha256": "3b7d86054106dda5af70eb9270f1839cb086f96b35a27dc4a9102b746d43a901",
+          "bytes": 11473
+        },
+        "roleRequirement": "Specify the English semantic contract for the unchanged scalar reference and chapter-specific demo, including exact canonical identity boundary,actual golden,worked evidence,history scope,optional inspection tasks and independent publication gates. This immutable English-only snapshot is not the final bilingual contract; its English learner-facing projection must remain unchanged and match the lesson.",
+        "requirementKey": "documents.contract",
+        "publicationPath": "audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-01/english-contract-snapshot.md"
+      },
+      {
+        "id": "source.lesson",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/content/chapters/en/40-reference-core-handoff.mdx",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/content/chapters/en/40-reference-core-handoff.mdx",
+          "sha256": "757fb6246d1ef9df00734b1b747181525fbc3b234c0f3fe22d027b60355cf7dd",
+          "bytes": 18374
+        },
+        "roleRequirement": "Explain why an unchanged scalar decoder needs an identified comparison point before extension; connect the exact fixed inputs, canonical named-input identity, checked Rust observation and scoped conclusions in problem-first order. Preserve 1188 parameters,2048 training targets per schedule/4096 primary-plus-replay,1744 window-target slots versus442 transition occurrences,nats-per-slot metrics,reload and generation limits. Do not imply useful quality,whole-job resumption,laptop throughput or cross-environment bitwise equivalence.",
+        "requirementKey": "documents.lesson",
+        "publicationPath": "site/src/content/chapters/en/40-reference-core-handoff.mdx"
+      },
+      {
+        "id": "source.catalog",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json",
+          "sha256": "9655a5d4f9cc64ec17b02791956ed2d2417782f971e9d4b1e25b6714e9ba2dea",
+          "bytes": 587
+        },
+        "roleRequirement": "Identify Chapter40 as a fixed scalar-reference handoff and describe its bounded learning outcome and evidence, without announcing a completed laptop LLM or new model capability.",
+        "requirementKey": "documents.catalog",
+        "publicationPath": "site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json"
+      },
+      {
+        "id": "source.sheet",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/content/cheat-sheets/en/40-reference-core-handoff.json",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/content/cheat-sheets/en/40-reference-core-handoff.json",
+          "sha256": "33248876b8694c5488161b305376a8206e583f0397f7fc0b66cf59557c548784",
+          "bytes": 2000
+        },
+        "roleRequirement": "Define only chapter-used LLM evidence terms concisely, distinguishing input identity from behavior,regression from generalization,overlapping slots from transitions,replay from seed variation,reload from whole-job resumption and cached agreement from useful text quality.",
+        "requirementKey": "documents.sheet",
+        "publicationPath": "site/src/content/cheat-sheets/en/40-reference-core-handoff.json"
+      },
+      {
+        "id": "source.figure",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+          "sha256": "5f2329e257aaceebba938000f9e14f6b335f93566951ec6fbad455b361a1d9ae",
+          "bytes": 2725
+        },
+        "roleRequirement": "Provide one trace-derived static semantic diagram separating identified fixed inputs,checked reference observations and unmeasured successor capabilities. Preserve actual digest and counts,accessible causal relationship,reading order and no color-only meaning.",
+        "requirementKey": "documents.figure",
+        "publicationPath": "site/src/components/chapters/ReferenceCoreHandoffDiagram.astro"
+      }
+    ],
+    "after": [
+      {
+        "id": "source.contract",
+        "kind": "complete-source",
+        "canonicalPath": "curriculum/chapters/40-reference-core-handoff.md",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-01/english-contract-snapshot.md",
+          "sha256": "3b7d86054106dda5af70eb9270f1839cb086f96b35a27dc4a9102b746d43a901",
+          "bytes": 11473
+        },
+        "roleRequirement": "Specify the English semantic contract for the unchanged scalar reference and chapter-specific demo, including exact canonical identity boundary,actual golden,worked evidence,history scope,optional inspection tasks and independent publication gates. This immutable English-only snapshot is not the final bilingual contract; its English learner-facing projection must remain unchanged and match the lesson.",
+        "requirementKey": "documents.contract",
+        "publicationPath": "audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-01/english-contract-snapshot.md"
+      },
+      {
+        "id": "source.lesson",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/content/chapters/en/40-reference-core-handoff.mdx",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/content/chapters/en/40-reference-core-handoff.mdx",
+          "sha256": "cead6a6a6152e588fc60119c8ffbfb34282da51ed33cec877c53c070f98f538c",
+          "bytes": 18445
+        },
+        "roleRequirement": "Explain why an unchanged scalar decoder needs an identified comparison point before extension; connect the exact fixed inputs, canonical named-input identity, checked Rust observation and scoped conclusions in problem-first order. Preserve 1188 parameters,2048 training targets per schedule/4096 primary-plus-replay,1744 window-target slots versus442 transition occurrences,nats-per-slot metrics,reload and generation limits. Do not imply useful quality,whole-job resumption,laptop throughput or cross-environment bitwise equivalence.",
+        "requirementKey": "documents.lesson",
+        "publicationPath": "site/src/content/chapters/en/40-reference-core-handoff.mdx"
+      },
+      {
+        "id": "source.catalog",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json",
+          "sha256": "9655a5d4f9cc64ec17b02791956ed2d2417782f971e9d4b1e25b6714e9ba2dea",
+          "bytes": 587
+        },
+        "roleRequirement": "Identify Chapter40 as a fixed scalar-reference handoff and describe its bounded learning outcome and evidence, without announcing a completed laptop LLM or new model capability.",
+        "requirementKey": "documents.catalog",
+        "publicationPath": "site/src/i18n/functional-catalogs/en/40-reference-core-handoff.json"
+      },
+      {
+        "id": "source.sheet",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/content/cheat-sheets/en/40-reference-core-handoff.json",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/content/cheat-sheets/en/40-reference-core-handoff.json",
+          "sha256": "33248876b8694c5488161b305376a8206e583f0397f7fc0b66cf59557c548784",
+          "bytes": 2000
+        },
+        "roleRequirement": "Define only chapter-used LLM evidence terms concisely, distinguishing input identity from behavior,regression from generalization,overlapping slots from transitions,replay from seed variation,reload from whole-job resumption and cached agreement from useful text quality.",
+        "requirementKey": "documents.sheet",
+        "publicationPath": "site/src/content/cheat-sheets/en/40-reference-core-handoff.json"
+      },
+      {
+        "id": "source.figure",
+        "kind": "complete-source",
+        "canonicalPath": "site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/components/chapters/ReferenceCoreHandoffDiagram.astro",
+          "sha256": "5f2329e257aaceebba938000f9e14f6b335f93566951ec6fbad455b361a1d9ae",
+          "bytes": 2725
+        },
+        "roleRequirement": "Provide one trace-derived static semantic diagram separating identified fixed inputs,checked reference observations and unmeasured successor capabilities. Preserve actual digest and counts,accessible causal relationship,reading order and no color-only meaning.",
+        "requirementKey": "documents.figure",
+        "publicationPath": "site/src/components/chapters/ReferenceCoreHandoffDiagram.astro"
+      }
+    ]
+  },
+  "builtDescriptors": {
+    "before": [
+      {
+        "id": "built.lesson",
+        "kind": "complete-built-html",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "route": "/en/course/40-reference-core-handoff/",
+        "publicationPath": "artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+        "roleRequirement": "Explain why an unchanged scalar decoder needs an identified comparison point before extension; connect the exact fixed inputs, canonical named-input identity, checked Rust observation and scoped conclusions in problem-first order. Preserve 1188 parameters,2048 training targets per schedule/4096 primary-plus-replay,1744 window-target slots versus442 transition occurrences,nats-per-slot metrics,reload and generation limits. Do not imply useful quality,whole-job resumption,laptop throughput or cross-environment bitwise equivalence.",
+        "requirementKey": "documents.lesson"
+      },
+      {
+        "id": "built.index",
+        "kind": "complete-built-html",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/index.html",
+          "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0",
+          "bytes": 84186
+        },
+        "route": "/en/course/",
+        "publicationPath": "artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/index.html",
+        "roleRequirement": "Preserve existing course catalog meaning and controls while accurately adding Chapter40's title,description and destination as an available scalar-reference chapter,without implying later chapters are published.",
+        "requirementKey": "documents.index"
+      },
+      {
+        "id": "built.neighbor",
+        "kind": "complete-built-html",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/39-end-to-end-llm/index.html",
+          "sha256": "1c6ec5178c5548c73928997dd6dc6d7d566dda883f805773397c5c2ef6088a2f",
+          "bytes": 288503
+        },
+        "route": "/en/course/39-end-to-end-llm/",
+        "publicationPath": "artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/39-end-to-end-llm/index.html",
+        "roleRequirement": "Preserve the already-published neighboring lesson's unchanged content and surface roles while accurately adding Chapter40's navigation destination. Do not treat activation of that link as evidence of any further chapter's availability.",
+        "requirementKey": "documents.neighbor"
+      }
+    ],
+    "after": [
+      {
+        "id": "built.lesson",
+        "kind": "complete-built-html",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-02/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+          "bytes": 158238
+        },
+        "route": "/en/course/40-reference-core-handoff/",
+        "publicationPath": "artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-02/en/course/40-reference-core-handoff/index.html",
+        "roleRequirement": "Explain why an unchanged scalar decoder needs an identified comparison point before extension; connect the exact fixed inputs, canonical named-input identity, checked Rust observation and scoped conclusions in problem-first order. Preserve 1188 parameters,2048 training targets per schedule/4096 primary-plus-replay,1744 window-target slots versus442 transition occurrences,nats-per-slot metrics,reload and generation limits. Do not imply useful quality,whole-job resumption,laptop throughput or cross-environment bitwise equivalence.",
+        "requirementKey": "documents.lesson"
+      },
+      {
+        "id": "built.index",
+        "kind": "complete-built-html",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-02/en/course/index.html",
+          "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0",
+          "bytes": 84186
+        },
+        "route": "/en/course/",
+        "publicationPath": "artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-02/en/course/index.html",
+        "roleRequirement": "Preserve existing course catalog meaning and controls while accurately adding Chapter40's title,description and destination as an available scalar-reference chapter,without implying later chapters are published.",
+        "requirementKey": "documents.index"
+      },
+      {
+        "id": "built.neighbor",
+        "kind": "complete-built-html",
+        "candidate": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-02/en/course/39-end-to-end-llm/index.html",
+          "sha256": "1c6ec5178c5548c73928997dd6dc6d7d566dda883f805773397c5c2ef6088a2f",
+          "bytes": 288503
+        },
+        "route": "/en/course/39-end-to-end-llm/",
+        "publicationPath": "artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-02/en/course/39-end-to-end-llm/index.html",
+        "roleRequirement": "Preserve the already-published neighboring lesson's unchanged content and surface roles while accurately adding Chapter40's navigation destination. Do not treat activation of that link as evidence of any further chapter's availability.",
+        "requirementKey": "documents.neighbor"
+      }
+    ]
+  },
+  "roleOverrides": [
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/authoring/role-overrides-en-02.json",
+      "sha256": "725a47ff9ebe97dcdfe56a16863158c25726cf0deaa0c70c27397bb551c8c0ed",
+      "bytes": 5342
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/authoring/role-overrides-en-03.json",
+      "sha256": "c05a07fcd450a85ce34dc24ea41f4358928fb15fc145f0fbc63960867992945d",
+      "bytes": 1705
+    }
+  ],
+  "note": "Static-hidden progressive trigger raw child text is the actual JS-exposed label, not synthesized learner copy. All earlier proposals and validation remain historical."
+}

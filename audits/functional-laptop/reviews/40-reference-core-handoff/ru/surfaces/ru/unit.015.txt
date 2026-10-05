@@ -1,0 +1,1 @@
+Свяжите конфигурацию, точные байты примера и проверенный исходный код скалярного эталона в одну идентичность входов. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-input-identity

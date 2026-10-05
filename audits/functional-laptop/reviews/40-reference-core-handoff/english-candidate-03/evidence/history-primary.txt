@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Bounded primary-record evidence for the two Chapter40 history claims; no corpus/model acquisition, crawler or extraction-service dependency.",
+  "method": "Read-only primary arXiv abstract records. Only short exact fragments needed for the claims are retained; no full article copied.",
+  "sources": [
+    {
+      "id": "SRC-ISA-034",
+      "url": "https://arxiv.org/abs/1810.03993v2",
+      "title": "Model Cards for Model Reporting",
+      "version": "v2",
+      "firstSubmitted": "2018-10-05",
+      "versionDate": "2019-01-14",
+      "conference": "FAT* 2019, January 29–31",
+      "authors": "Mitchell et al.",
+      "locator": "arXiv abstract, paragraph beginning Model cards also disclose; journal reference",
+      "quotes": [
+        "context in which models are intended to be used",
+        "details of the performance evaluation procedures"
+      ],
+      "supportedClaim": "The paper proposes model documentation that describes intended uses and evaluation conditions.",
+      "limit": "Documentation does not by itself validate a capability. This chapter uses a local scope-bearing report, not a complete implementation of Model Cards.",
+      "observedAt": "2026-10-05 08:45:35 UTC"
+    },
+    {
+      "id": "SRC-DTH-EVAL-01",
+      "url": "https://arxiv.org/abs/2002.06305v1",
+      "title": "Fine-Tuning Pretrained Language Models: Weight Initializations, Data Orders, and Early Stopping",
+      "version": "v1",
+      "firstSubmitted": "2020-02-15",
+      "authors": "Dodge et al.",
+      "locator": "arXiv abstract, first and second paragraphs; title and submission history",
+      "quotes": [
+        "weight initialization and training data order"
+      ],
+      "supportedClaim": "The experiments fine-tune BERT across four GLUE datasets while varying random seeds and examine initialization and data-order effects.",
+      "limit": "The paper does not measure the tiny decoder's seed sensitivity, and same-seed replay cannot substitute for those experiments.",
+      "registryNote": "The frozen registry retains an incorrect historical title for this ID. Use this linked record's actual title; registry repair remains held.",
+      "observedAt": "2026-10-05 08:45:35 UTC"
+    }
+  ]
+}

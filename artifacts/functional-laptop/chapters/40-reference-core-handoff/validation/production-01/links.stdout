@@ -1,0 +1,5 @@
+
+> learn-llm-site@0.1.0 test:links
+> node ../scripts/check-static-links.mjs
+
+Static link check passed: 87 HTML file(s), 3007 local reference(s), 87 SEO route(s), 87 sitemap URL(s), 87 analytics route(s), 171 total artifact(s).

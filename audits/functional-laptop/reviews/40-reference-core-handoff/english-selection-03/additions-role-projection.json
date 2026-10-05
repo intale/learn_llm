@@ -1,0 +1,1028 @@
+{
+  "schemaVersion": 1,
+  "sourceAndHtmlHashesUnchanged": true,
+  "card": {
+    "id": "unit.055",
+    "documentId": "built.index",
+    "kind": "actual-catalog-card",
+    "value": "Keep a fixed reference before extending the decoder Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability. Content revision: 1",
+    "valueType": "text",
+    "roleRequirement": "Identify Chapter40 as a fixed scalar-reference handoff and describe its bounded learning outcome and evidence, without announcing a completed laptop LLM or new model capability.",
+    "requirementKey": "documents.catalog",
+    "origin": {
+      "document": {
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/index.html",
+        "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0",
+        "bytes": 84186
+      },
+      "nodePath": [
+        1,
+        2,
+        5,
+        3,
+        41,
+        1
+      ],
+      "tag": "article",
+      "attributes": {
+        "class": "feature-card",
+        "data-astro-cid-3tyg3jur": ""
+      },
+      "sourceCodeLocation": {
+        "startLine": 48,
+        "startCol": 26718,
+        "startOffset": 80197,
+        "endLine": 48,
+        "endCol": 27311,
+        "endOffset": 80790,
+        "attrs": {
+          "class": {
+            "startLine": 48,
+            "startCol": 26727,
+            "startOffset": 80206,
+            "endLine": 48,
+            "endCol": 26747,
+            "endOffset": 80226
+          },
+          "data-astro-cid-3tyg3jur": {
+            "startLine": 48,
+            "startCol": 26748,
+            "startOffset": 80227,
+            "endLine": 48,
+            "endCol": 26771,
+            "endOffset": 80250
+          }
+        },
+        "startTag": {
+          "startLine": 48,
+          "startCol": 26718,
+          "startOffset": 80197,
+          "endLine": 48,
+          "endCol": 26772,
+          "endOffset": 80251,
+          "attrs": {
+            "class": {
+              "startLine": 48,
+              "startCol": 26727,
+              "startOffset": 80206,
+              "endLine": 48,
+              "endCol": 26747,
+              "endOffset": 80226
+            },
+            "data-astro-cid-3tyg3jur": {
+              "startLine": 48,
+              "startCol": 26748,
+              "startOffset": 80227,
+              "endLine": 48,
+              "endCol": 26771,
+              "endOffset": 80250
+            }
+          }
+        },
+        "endTag": {
+          "startLine": 48,
+          "startCol": 27301,
+          "startOffset": 80780,
+          "endLine": 48,
+          "endCol": 27311,
+          "endOffset": 80790
+        }
+      }
+    },
+    "order": 55
+  },
+  "readingCard": {
+    "id": "reading.011",
+    "documentId": "built.index",
+    "kind": "actual-activation-reading-order",
+    "value": "Keep a fixed reference before extending the decoder Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability. Content revision: 1",
+    "roleRequirement": "Identify Chapter40 as a fixed scalar-reference handoff and describe its bounded learning outcome and evidence, without announcing a completed laptop LLM or new model capability.",
+    "requirementKey": "documents.catalog",
+    "origin": {
+      "document": {
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/index.html",
+        "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0",
+        "bytes": 84186
+      },
+      "nodePath": [
+        1,
+        2,
+        5,
+        3,
+        41,
+        1
+      ],
+      "tag": "article",
+      "attributes": {
+        "class": "feature-card",
+        "data-astro-cid-3tyg3jur": ""
+      },
+      "sourceCodeLocation": {
+        "startLine": 48,
+        "startCol": 26718,
+        "startOffset": 80197,
+        "endLine": 48,
+        "endCol": 27311,
+        "endOffset": 80790,
+        "attrs": {
+          "class": {
+            "startLine": 48,
+            "startCol": 26727,
+            "startOffset": 80206,
+            "endLine": 48,
+            "endCol": 26747,
+            "endOffset": 80226
+          },
+          "data-astro-cid-3tyg3jur": {
+            "startLine": 48,
+            "startCol": 26748,
+            "startOffset": 80227,
+            "endLine": 48,
+            "endCol": 26771,
+            "endOffset": 80250
+          }
+        },
+        "startTag": {
+          "startLine": 48,
+          "startCol": 26718,
+          "startOffset": 80197,
+          "endLine": 48,
+          "endCol": 26772,
+          "endOffset": 80251,
+          "attrs": {
+            "class": {
+              "startLine": 48,
+              "startCol": 26727,
+              "startOffset": 80206,
+              "endLine": 48,
+              "endCol": 26747,
+              "endOffset": 80226
+            },
+            "data-astro-cid-3tyg3jur": {
+              "startLine": 48,
+              "startCol": 26748,
+              "startOffset": 80227,
+              "endLine": 48,
+              "endCol": 26771,
+              "endOffset": 80250
+            }
+          }
+        },
+        "endTag": {
+          "startLine": 48,
+          "startCol": 27301,
+          "startOffset": 80780,
+          "endLine": 48,
+          "endCol": 27311,
+          "endOffset": 80790
+        }
+      }
+    },
+    "order": 11
+  },
+  "appendedFields": [
+    {
+      "id": "unit.061",
+      "documentId": "built.lesson",
+      "kind": "rendered-lesson-description",
+      "value": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+      "valueType": "text",
+      "roleRequirement": "Describe the catalog's bounded learning outcome: identifying fixed scalar inputs and interpreting replay, score, reload and generation evidence without laptop-scale claims.",
+      "requirementKey": "author-overrides.source-unit.057",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          7
+        ],
+        "tag": "p",
+        "attributes": {
+          "class": "lesson-description"
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 2896,
+          "startOffset": 56005,
+          "endLine": 47,
+          "endCol": 3118,
+          "endOffset": 56227,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 2899,
+              "startOffset": 56008,
+              "endLine": 47,
+              "endCol": 2925,
+              "endOffset": 56034
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 2896,
+            "startOffset": 56005,
+            "endLine": 47,
+            "endCol": 2926,
+            "endOffset": 56035,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 2899,
+                "startOffset": 56008,
+                "endLine": 47,
+                "endCol": 2925,
+                "endOffset": 56034
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 3114,
+            "startOffset": 56223,
+            "endLine": 47,
+            "endCol": 3118,
+            "endOffset": 56227
+          }
+        }
+      },
+      "order": 61
+    },
+    {
+      "id": "unit.062",
+      "documentId": "built.lesson",
+      "kind": "rendered-lesson-objective",
+      "value": "Bind the 1,188-parameter scalar reference to its configuration, fixture and verified source identity, and distinguish its checked regression behavior from unmeasured future capabilities.",
+      "valueType": "text",
+      "roleRequirement": "State the chapter's learning objective of binding the tiny scalar reference to its input identity and separating checked regression behavior from unmeasured capabilities.",
+      "requirementKey": "author-overrides.source-unit.058",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          9,
+          3
+        ],
+        "tag": "p",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 3185,
+          "startOffset": 56294,
+          "endLine": 47,
+          "endCol": 3378,
+          "endOffset": 56487,
+          "startTag": {
+            "startLine": 47,
+            "startCol": 3185,
+            "startOffset": 56294,
+            "endLine": 47,
+            "endCol": 3188,
+            "endOffset": 56297
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 3374,
+            "startOffset": 56483,
+            "endLine": 47,
+            "endCol": 3378,
+            "endOffset": 56487
+          }
+        }
+      },
+      "order": 62
+    },
+    {
+      "id": "unit.063",
+      "documentId": "built.lesson",
+      "kind": "rendered-sheet-description",
+      "value": "Terms for interpreting the tiny decoder's input identity, regression evidence, replay and checkpoint limits.",
+      "valueType": "text",
+      "roleRequirement": "Describe the chapter cheat sheet’s subject and bounded scope—terms for interpreting reference input identity, regression, replay and checkpoint limits—without requiring a complete definition of every term.",
+      "requirementKey": "author-message.sheet-description",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          3
+        ],
+        "tag": "p",
+        "attributes": {
+          "id": "cheat-sheet-40-reference-core-handoff-description",
+          "class": "cheat-sheet-description",
+          "data-astro-cid-ws375rge": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 4795,
+          "startOffset": 57904,
+          "endLine": 47,
+          "endCol": 5027,
+          "endOffset": 58136,
+          "attrs": {
+            "id": {
+              "startLine": 47,
+              "startCol": 4798,
+              "startOffset": 57907,
+              "endLine": 47,
+              "endCol": 4852,
+              "endOffset": 57961
+            },
+            "class": {
+              "startLine": 47,
+              "startCol": 4853,
+              "startOffset": 57962,
+              "endLine": 47,
+              "endCol": 4884,
+              "endOffset": 57993
+            },
+            "data-astro-cid-ws375rge": {
+              "startLine": 47,
+              "startCol": 4885,
+              "startOffset": 57994,
+              "endLine": 47,
+              "endCol": 4908,
+              "endOffset": 58017
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 4795,
+            "startOffset": 57904,
+            "endLine": 47,
+            "endCol": 4909,
+            "endOffset": 58018,
+            "attrs": {
+              "id": {
+                "startLine": 47,
+                "startCol": 4798,
+                "startOffset": 57907,
+                "endLine": 47,
+                "endCol": 4852,
+                "endOffset": 57961
+              },
+              "class": {
+                "startLine": 47,
+                "startCol": 4853,
+                "startOffset": 57962,
+                "endLine": 47,
+                "endCol": 4884,
+                "endOffset": 57993
+              },
+              "data-astro-cid-ws375rge": {
+                "startLine": 47,
+                "startCol": 4885,
+                "startOffset": 57994,
+                "endLine": 47,
+                "endCol": 4908,
+                "endOffset": 58017
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 5023,
+            "startOffset": 58132,
+            "endLine": 47,
+            "endCol": 5027,
+            "endOffset": 58136
+          }
+        }
+      },
+      "order": 63
+    }
+  ],
+  "additions": [
+    {
+      "id": "unit.064",
+      "documentId": "built.index",
+      "kind": "visible-language-neutral-chapter-ordinal",
+      "value": "40",
+      "valueType": "visible-text",
+      "roleRequirement": "PROVISIONAL: root contextual ordinal requirement pending; never route this marker.",
+      "requirementKey": "author-pending.card-ordinal",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/index.html",
+          "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0",
+          "bytes": 84186
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          3,
+          41,
+          1,
+          1
+        ],
+        "tag": "span",
+        "attributes": {
+          "class": "feature-number",
+          "aria-hidden": "true",
+          "data-astro-cid-3tyg3jur": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 48,
+          "startCol": 26773,
+          "startOffset": 80252,
+          "endLine": 48,
+          "endCol": 26856,
+          "endOffset": 80335,
+          "attrs": {
+            "class": {
+              "startLine": 48,
+              "startCol": 26779,
+              "startOffset": 80258,
+              "endLine": 48,
+              "endCol": 26801,
+              "endOffset": 80280
+            },
+            "aria-hidden": {
+              "startLine": 48,
+              "startCol": 26802,
+              "startOffset": 80281,
+              "endLine": 48,
+              "endCol": 26820,
+              "endOffset": 80299
+            },
+            "data-astro-cid-3tyg3jur": {
+              "startLine": 48,
+              "startCol": 26821,
+              "startOffset": 80300,
+              "endLine": 48,
+              "endCol": 26844,
+              "endOffset": 80323
+            }
+          },
+          "startTag": {
+            "startLine": 48,
+            "startCol": 26773,
+            "startOffset": 80252,
+            "endLine": 48,
+            "endCol": 26845,
+            "endOffset": 80324,
+            "attrs": {
+              "class": {
+                "startLine": 48,
+                "startCol": 26779,
+                "startOffset": 80258,
+                "endLine": 48,
+                "endCol": 26801,
+                "endOffset": 80280
+              },
+              "aria-hidden": {
+                "startLine": 48,
+                "startCol": 26802,
+                "startOffset": 80281,
+                "endLine": 48,
+                "endCol": 26820,
+                "endOffset": 80299
+              },
+              "data-astro-cid-3tyg3jur": {
+                "startLine": 48,
+                "startCol": 26821,
+                "startOffset": 80300,
+                "endLine": 48,
+                "endCol": 26844,
+                "endOffset": 80323
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 48,
+            "startCol": 26849,
+            "startOffset": 80328,
+            "endLine": 48,
+            "endCol": 26856,
+            "endOffset": 80335
+          }
+        }
+      },
+      "order": 64,
+      "literals": [
+        {
+          "kind": "numeric",
+          "value": "40"
+        }
+      ]
+    },
+    {
+      "id": "unit.065",
+      "documentId": "built.lesson",
+      "kind": "cheat-sheet-trigger",
+      "value": "",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          1
+        ],
+        "tag": "button",
+        "attributes": {
+          "class": "cheat-sheet-trigger",
+          "type": "button",
+          "aria-controls": "cheat-sheet-40-reference-core-handoff",
+          "aria-haspopup": "dialog",
+          "data-cheat-sheet-open": "",
+          "hidden": "",
+          "data-astro-cid-ws375rge": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 3617,
+          "startOffset": 56726,
+          "endLine": 47,
+          "endCol": 3824,
+          "endOffset": 56933,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 3625,
+              "startOffset": 56734,
+              "endLine": 47,
+              "endCol": 3652,
+              "endOffset": 56761
+            },
+            "type": {
+              "startLine": 47,
+              "startCol": 3653,
+              "startOffset": 56762,
+              "endLine": 47,
+              "endCol": 3666,
+              "endOffset": 56775
+            },
+            "aria-controls": {
+              "startLine": 47,
+              "startCol": 3667,
+              "startOffset": 56776,
+              "endLine": 47,
+              "endCol": 3720,
+              "endOffset": 56829
+            },
+            "aria-haspopup": {
+              "startLine": 47,
+              "startCol": 3721,
+              "startOffset": 56830,
+              "endLine": 47,
+              "endCol": 3743,
+              "endOffset": 56852
+            },
+            "data-cheat-sheet-open": {
+              "startLine": 47,
+              "startCol": 3744,
+              "startOffset": 56853,
+              "endLine": 47,
+              "endCol": 3765,
+              "endOffset": 56874
+            },
+            "hidden": {
+              "startLine": 47,
+              "startCol": 3766,
+              "startOffset": 56875,
+              "endLine": 47,
+              "endCol": 3772,
+              "endOffset": 56881
+            },
+            "data-astro-cid-ws375rge": {
+              "startLine": 47,
+              "startCol": 3773,
+              "startOffset": 56882,
+              "endLine": 47,
+              "endCol": 3796,
+              "endOffset": 56905
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 3617,
+            "startOffset": 56726,
+            "endLine": 47,
+            "endCol": 3797,
+            "endOffset": 56906,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 3625,
+                "startOffset": 56734,
+                "endLine": 47,
+                "endCol": 3652,
+                "endOffset": 56761
+              },
+              "type": {
+                "startLine": 47,
+                "startCol": 3653,
+                "startOffset": 56762,
+                "endLine": 47,
+                "endCol": 3666,
+                "endOffset": 56775
+              },
+              "aria-controls": {
+                "startLine": 47,
+                "startCol": 3667,
+                "startOffset": 56776,
+                "endLine": 47,
+                "endCol": 3720,
+                "endOffset": 56829
+              },
+              "aria-haspopup": {
+                "startLine": 47,
+                "startCol": 3721,
+                "startOffset": 56830,
+                "endLine": 47,
+                "endCol": 3743,
+                "endOffset": 56852
+              },
+              "data-cheat-sheet-open": {
+                "startLine": 47,
+                "startCol": 3744,
+                "startOffset": 56853,
+                "endLine": 47,
+                "endCol": 3765,
+                "endOffset": 56874
+              },
+              "hidden": {
+                "startLine": 47,
+                "startCol": 3766,
+                "startOffset": 56875,
+                "endLine": 47,
+                "endCol": 3772,
+                "endOffset": 56881
+              },
+              "data-astro-cid-ws375rge": {
+                "startLine": 47,
+                "startCol": 3773,
+                "startOffset": 56882,
+                "endLine": 47,
+                "endCol": 3796,
+                "endOffset": 56905
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 3815,
+            "startOffset": 56924,
+            "endLine": 47,
+            "endCol": 3824,
+            "endOffset": 56933
+          }
+        }
+      },
+      "roleRequirement": "PROVISIONAL: root neutral requirement pending for this actual trigger; never route this marker.",
+      "requirementKey": "author-pending.sheet-trigger",
+      "order": 65
+    },
+    {
+      "id": "unit.066",
+      "documentId": "built.lesson",
+      "kind": "optional-practice-task",
+      "value": "Find the identity, target-count basis and metric unit in the output. Explain why a digest alone would not replace the replay and reload checks.",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          91,
+          1
+        ],
+        "tag": "li",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 394,
+          "startCol": 1,
+          "startOffset": 150298,
+          "endLine": 395,
+          "endCol": 72,
+          "endOffset": 150450,
+          "startTag": {
+            "startLine": 394,
+            "startCol": 1,
+            "startOffset": 150298,
+            "endLine": 394,
+            "endCol": 5,
+            "endOffset": 150302
+          },
+          "endTag": {
+            "startLine": 395,
+            "startCol": 67,
+            "startOffset": 150445,
+            "endLine": 395,
+            "endCol": 72,
+            "endOffset": 150450
+          }
+        }
+      },
+      "roleRequirement": "PROVISIONAL: root neutral requirement pending for this actual list item; never route this marker.",
+      "requirementKey": "author-pending.task",
+      "order": 66
+    },
+    {
+      "id": "unit.067",
+      "documentId": "built.lesson",
+      "kind": "optional-practice-task",
+      "value": "Run the demo’s tests. Identify the tests that change configuration, corpus, split bytes and source identity without training. Explain why constructing an identity for changed inputs does not admit them to the fixed reference run.",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          91,
+          3
+        ],
+        "tag": "li",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 396,
+          "startCol": 1,
+          "startOffset": 150451,
+          "endLine": 398,
+          "endCol": 84,
+          "endOffset": 150689,
+          "startTag": {
+            "startLine": 396,
+            "startCol": 1,
+            "startOffset": 150451,
+            "endLine": 396,
+            "endCol": 5,
+            "endOffset": 150455
+          },
+          "endTag": {
+            "startLine": 398,
+            "startCol": 79,
+            "startOffset": 150684,
+            "endLine": 398,
+            "endCol": 84,
+            "endOffset": 150689
+          }
+        }
+      },
+      "roleRequirement": "PROVISIONAL: root neutral requirement pending for this actual list item; never route this marker.",
+      "requirementKey": "author-pending.task",
+      "order": 67
+    },
+    {
+      "id": "unit.068",
+      "documentId": "built.lesson",
+      "kind": "optional-practice-task",
+      "value": "Explain why a successful checkpoint round trip cannot justify the statement “the complete training job can resume,” and why 1744 must not be labeled “distinct test transitions.”",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          91,
+          5
+        ],
+        "tag": "li",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 399,
+          "startCol": 1,
+          "startOffset": 150690,
+          "endLine": 401,
+          "endCol": 34,
+          "endOffset": 151254,
+          "startTag": {
+            "startLine": 399,
+            "startCol": 1,
+            "startOffset": 150690,
+            "endLine": 399,
+            "endCol": 5,
+            "endOffset": 150694
+          },
+          "endTag": {
+            "startLine": 401,
+            "startCol": 29,
+            "startOffset": 151249,
+            "endLine": 401,
+            "endCol": 34,
+            "endOffset": 151254
+          }
+        }
+      },
+      "roleRequirement": "PROVISIONAL: root neutral requirement pending for this actual list item; never route this marker.",
+      "requirementKey": "author-pending.task",
+      "order": 68
+    },
+    {
+      "id": "unit.069",
+      "documentId": "built.lesson",
+      "kind": "checked-practice-answer",
+      "value": "The digest binds inputs; replay and reload compare actual behavior. Neither kind of evidence substitutes for the other. The target-count basis explicitly derives 2048 targets per schedule and 4096 for primary plus replay.",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          93,
+          1,
+          1
+        ],
+        "tag": "li",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 404,
+          "startCol": 1,
+          "startOffset": 151359,
+          "endLine": 406,
+          "endCol": 829,
+          "endOffset": 152345,
+          "startTag": {
+            "startLine": 404,
+            "startCol": 1,
+            "startOffset": 151359,
+            "endLine": 404,
+            "endCol": 5,
+            "endOffset": 151363
+          },
+          "endTag": {
+            "startLine": 406,
+            "startCol": 824,
+            "startOffset": 152340,
+            "endLine": 406,
+            "endCol": 829,
+            "endOffset": 152345
+          }
+        }
+      },
+      "roleRequirement": "PROVISIONAL: root neutral requirement pending for this actual list item; never route this marker.",
+      "requirementKey": "author-pending.answer",
+      "order": 69
+    },
+    {
+      "id": "unit.070",
+      "documentId": "built.lesson",
+      "kind": "checked-practice-answer",
+      "value": "The pure mutation tests construct different identities without calling the pipeline. The runner separately requires the exact accepted corpus and split bytes, so an identity is not an admission permit.",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          93,
+          1,
+          3
+        ],
+        "tag": "li",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 407,
+          "startCol": 1,
+          "startOffset": 152346,
+          "endLine": 409,
+          "endCol": 55,
+          "endOffset": 152556,
+          "startTag": {
+            "startLine": 407,
+            "startCol": 1,
+            "startOffset": 152346,
+            "endLine": 407,
+            "endCol": 5,
+            "endOffset": 152350
+          },
+          "endTag": {
+            "startLine": 409,
+            "startCol": 50,
+            "startOffset": 152551,
+            "endLine": 409,
+            "endCol": 55,
+            "endOffset": 152556
+          }
+        }
+      },
+      "roleRequirement": "PROVISIONAL: root neutral requirement pending for this actual list item; never route this marker.",
+      "requirementKey": "author-pending.answer",
+      "order": 70
+    },
+    {
+      "id": "unit.071",
+      "documentId": "built.lesson",
+      "kind": "checked-practice-answer",
+      "value": "The checkpoint check covers persisted model, optimizer and tokenizer state plus a fixed logit probe, not every whole-job continuation dependency. The 1744 denominator counts overlapping window-target slots; the underlying documents contain 442 transition occurrences.",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-01/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a",
+          "bytes": 158170
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          93,
+          1,
+          5
+        ],
+        "tag": "li",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 410,
+          "startCol": 1,
+          "startOffset": 152557,
+          "endLine": 413,
+          "endCol": 427,
+          "endOffset": 153587,
+          "startTag": {
+            "startLine": 410,
+            "startCol": 1,
+            "startOffset": 152557,
+            "endLine": 410,
+            "endCol": 5,
+            "endOffset": 152561
+          },
+          "endTag": {
+            "startLine": 413,
+            "startCol": 422,
+            "startOffset": 153582,
+            "endLine": 413,
+            "endCol": 427,
+            "endOffset": 153587
+          }
+        }
+      },
+      "roleRequirement": "PROVISIONAL: root neutral requirement pending for this actual list item; never route this marker.",
+      "requirementKey": "author-pending.answer",
+      "order": 71
+    }
+  ]
+}

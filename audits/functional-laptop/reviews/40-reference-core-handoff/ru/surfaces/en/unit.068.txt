@@ -1,0 +1,1 @@
+Explain why a successful checkpoint round trip cannot justify the statement “the complete training job can resume,” and why 1744 must not be labeled “distinct test transitions.”

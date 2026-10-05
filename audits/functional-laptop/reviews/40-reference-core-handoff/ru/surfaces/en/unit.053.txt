@@ -1,0 +1,1 @@
+Scalar reference decoder The unchanged 1,188-parameter CPU decoder used as a small, inspectable comparison point before extending the LLM pipeline.

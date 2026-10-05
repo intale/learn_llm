@@ -1,0 +1,1 @@
+Bitwise training replay A separately executed repeat of the same frozen training schedule that matches recorded training behavior and state bit for bit within this execution; it is not an independent seed sample or a measurement of variation across seeds.

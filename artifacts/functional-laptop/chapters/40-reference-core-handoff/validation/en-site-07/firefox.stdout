@@ -1,0 +1,13 @@
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox tests/e2e/ch40-reference-core-handoff.spec.ts --workers=1
+
+
+Running 5 tests using 1 worker
+
+[1/5] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:8:1 › Chapter40 static evidence, formula and activated neighbor surfaces
+[2/5] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:35:3 › Chapter40 nearest-box containment 1280
+[3/5] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:35:3 › Chapter40 nearest-box containment 390
+[4/5] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:44:1 › Chapter40 full view reuses one readable tree with keyboard exit and reachability
+[5/5] [firefox] › tests/e2e/ch40-reference-core-handoff.spec.ts:68:1 › Chapter40 forced colors and RTL retain containment and literal data direction
+  5 passed (4.5s)

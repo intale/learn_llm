@@ -1,0 +1,1 @@
+Rust source: canonical scalar-reference input identity

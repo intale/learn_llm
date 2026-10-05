@@ -1,0 +1,15 @@
+
+> learn-llm-site@0.1.0 test
+> vitest --run --maxWorkers=1 --minWorkers=1 tests/40-reference-core-handoff.test.ts tests/40-reference-core-handoff-diagram.test.ts
+
+
+ RUN  v3.2.7 /workspace/site
+
+ ✓ tests/40-reference-core-handoff.test.ts (4 tests) 4ms
+ ✓ tests/40-reference-core-handoff-diagram.test.ts (2 tests) 2ms
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  09:05:17
+   Duration  378ms (transform 110ms, setup 0ms, collect 185ms, tests 6ms, environment 0ms, prepare 68ms)
+

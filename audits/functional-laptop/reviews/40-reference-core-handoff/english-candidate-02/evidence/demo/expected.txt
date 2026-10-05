@@ -1,0 +1,69 @@
+{
+  "chapter": "40-reference-core-handoff",
+  "checkpoint": {
+    "bytes_roundtrip": true,
+    "complete_job_resume_established": false,
+    "logit_probe_ids": [
+      67,
+      118
+    ],
+    "logit_probe_text": "At",
+    "model_bits_exact": true,
+    "optimizer_bits_exact": true,
+    "probe_logits_bitwise": true,
+    "tokenizer_exact": true
+  },
+  "documents": {
+    "test": 2,
+    "train": 8,
+    "validation": 2
+  },
+  "evaluation": {
+    "bigram_mean_nll_nats_per_slot": 3.9813427143837696,
+    "decoder_mean_nll_nats_per_slot": 3.8660875470071363,
+    "document_transition_occurrences": 442,
+    "independent_generalization_estimate": false,
+    "once_per_transition_metric_reported": false,
+    "transition_multiplicity_counts": [
+      4,
+      4,
+      4,
+      430
+    ],
+    "unit": "overlapping-window-target-slot",
+    "window_target_slots": 1744,
+    "windows": 436
+  },
+  "generation": {
+    "cached_reference_decisions_bitwise": true,
+    "cached_reference_rng_exact": true,
+    "cached_reference_tokens_exact": true,
+    "decoded_text": "т  ",
+    "prompt": "A",
+    "token_ids": [
+      260,
+      34,
+      34
+    ],
+    "useful_language_quality_established": false
+  },
+  "laptop_throughput_measured": false,
+  "model": {
+    "context_tokens": 4,
+    "parameters": 1188
+  },
+  "reference_identity": "cd06104ff61dc8a0c6cbe6e842847952343050eb4942c79aa1d17e8d0d0bb648",
+  "schema_version": 1,
+  "scope": "scalar-reference-fixed-fixture-regression",
+  "source_revision": "3ddda34cc3e765a3f96021abff6000e9520f5a15",
+  "successor_chapter": "41-governed-corpus-acquisition",
+  "training": {
+    "independent_schedules": 2,
+    "selected_step": 32,
+    "target_count_basis": "derived-from-frozen-full-batch-schedules",
+    "updates_per_schedule": 32,
+    "valid_targets_per_schedule": 2048,
+    "valid_targets_primary_plus_replay": 4096,
+    "within_invocation_replay_bitwise": true
+  }
+}

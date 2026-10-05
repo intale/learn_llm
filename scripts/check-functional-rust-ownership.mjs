@@ -13,7 +13,8 @@ export function ownedSources(plan) {
   const prefix = 'rust/crates/llm-from-scratch/';
   const exclusions = plan.resource_projection.rust_module_registry_contract.registry_subset;
   const excluded = [...exclusions.exclude_declared_edits, ...exclusions.exclude_auto_discovered_binary];
-  return plan.rust_owners.flatMap(owner => owner.paths
+  // Chapter40's user-approved demo is not a cumulative library module.
+  return plan.rust_owners.filter(owner => owner.chapter_id !== '40-reference-core-handoff').flatMap(owner => owner.paths
     .filter(path => path.startsWith(prefix + 'src/') && path.endsWith('.rs') && !excluded.includes(path.slice(prefix.length)))
     .map(path => ({fragment:'ch' + owner.chapter_id + '.module',source:path.slice(prefix.length)})));
 }
@@ -48,8 +49,10 @@ function files(directory) {
 export function checkFunctionalRustOwnership(root) {
   const prefix='rust/crates/llm-from-scratch/', plan=readFunctionalPlan(root), owners=ownedSources(plan);
   const manifest=jsonFile(root,'configs/functional-reference-source-v1.json',32768,true);
+  if (Object.keys(manifest.dependencyHashes).length || Object.keys(manifest.sourceHashes).length !== 40)
+    throw new Error('reference census must bind exactly40course source files, not dependencies');
   for (const [path,sha] of Object.entries({...manifest.sourceHashes,...manifest.dependencyHashes})) {
-    if (hash(readRegularFile(root,path)) !== sha) throw new Error('protected baseline source/dependency drift: '+path);
+    if (hash(readRegularFile(root,path)) !== sha) throw new Error('protected baseline source drift: '+path);
   }
   const seenSources=new Set(),seenModules=new Set();
   for (const full of files(resolve(root,prefix,'module-registry/functional-v1'))) {

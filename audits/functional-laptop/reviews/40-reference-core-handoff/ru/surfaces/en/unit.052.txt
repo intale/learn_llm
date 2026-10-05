@@ -1,0 +1,1 @@
+Reference input identity The digest binding the tiny decoder configuration, exact corpus and split bytes, and verified scalar-reference source. It identifies inputs, not model capability.

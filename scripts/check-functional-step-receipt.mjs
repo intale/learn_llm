@@ -69,13 +69,19 @@ export function publicationInputPaths(chapterId, activeLocales) {
 export function languageVerifierInvocations(chapterId, activeLocales, root) {
   publicationInputPaths(chapterId, activeLocales);
   const base = 'audits/functional-laptop/reviews/' + chapterId;
-  const english = base + '/english';
+  // Chapter40's immutable routed artifacts retain their original relative
+  // candidate paths. Flat English aliases are publication inventory copies,
+  // not replacement routing identities. Other chapter conventions are intact.
+  const isChapter40 = chapterId === '40-reference-core-handoff';
+  const english = base + (isChapter40 ? '/english-candidate-03' : '/english');
+  const reviewRouting = english + (isChapter40 ? '/review-routing/review-routing.json' : '/review-routing.json');
+  const adjudicationRouting = english + (isChapter40 ? '/adjudication-routing/adjudication-routing.json' : '/adjudication-routing.json');
   const commands = [{executable: process.execPath, args: [
     resolve(root, '.agents/skills/author-llm-course-english/scripts/english-review.mjs'),
     'verify', '--spec', english + '/spec.json', '--bundle', english + '/bundle',
-    '--review-routing', english + '/review-routing.json', '--review-seals', english + '/review-seals',
+    '--review-routing', reviewRouting, '--review-seals', english + '/review-seals',
     '--adjudication-bundle', english + '/adjudication-bundle',
-    '--adjudication-routing', english + '/adjudication-routing.json',
+    '--adjudication-routing', adjudicationRouting,
     '--adjudication-seals', english + '/adjudication-seals', '--root', root,
   ]}];
   if (activeLocales.includes('ru')) commands.push({executable: process.execPath, args: [

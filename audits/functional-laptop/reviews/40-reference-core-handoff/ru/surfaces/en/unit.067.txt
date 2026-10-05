@@ -1,0 +1,1 @@
+Run the demo’s tests. Identify the tests that change configuration, corpus, split bytes and source identity without training. Explain why constructing an identity for changed inputs does not admit them to the fixed reference run.

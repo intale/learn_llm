@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "40-reference-core-handoff",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Keep a fixed reference before extending the decoder",
+  "description": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+  "objective": "Bind the 1,188-parameter scalar reference to its configuration, fixture and verified source identity, and distinguish its checked regression behavior from unmeasured future capabilities."
+}

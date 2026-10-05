@@ -1,0 +1,1 @@
+Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.

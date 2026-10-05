@@ -1,0 +1,55 @@
+TAP version 13
+# Subtest: legacy and successor contract dispatch retain the boundary
+ok 1 - legacy and successor contract dispatch retain the boundary
+  ---
+  duration_ms: 0.447564
+  ...
+# Subtest: malformed contract IDs never choose a branch
+ok 2 - malformed contract IDs never choose a branch
+  ---
+  duration_ms: 0.176583
+  ...
+# Subtest: functional examples use only the cumulative crate named target and golden
+ok 3 - functional examples use only the cumulative crate named target and golden
+  ---
+  duration_ms: 0.701263
+  ...
+# Subtest: only Chapter40 uses the exact demo target without a cumulative fragment
+ok 4 - only Chapter40 uses the exact demo target without a cumulative fragment
+  ---
+  duration_ms: 0.187895
+  ...
+# Subtest: unsafe and out-of-range example IDs refuse
+ok 5 - unsafe and out-of-range example IDs refuse
+  ---
+  duration_ms: 0.136718
+  ...
+# Subtest: stdout is compared as exact bytes, not trimmed or projected
+ok 6 - stdout is compared as exact bytes, not trimmed or projected
+  ---
+  duration_ms: 0.182023
+  ...
+# Subtest: Node grammar exactly preserves approved module mapping
+ok 7 - Node grammar exactly preserves approved module mapping
+  ---
+  duration_ms: 0.82162
+  ...
+# Subtest: malformed/duplicate/unsafe/cross-owner fragment corpus refuses
+ok 8 - malformed/duplicate/unsafe/cross-owner fragment corpus refuses
+  ---
+  duration_ms: 0.420843
+  ...
+# Subtest: canonical registry exhaustively validates actual owned functional sources
+ok 9 - canonical registry exhaustively validates actual owned functional sources
+  ---
+  duration_ms: 11.680266
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 122.090283

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "operation": "exact native final-output capture; maintained paired structural seal",
+  "nativeThreadId": "01a10b6e-82fd-7ad0-ae08-abec1f82681b",
+  "parentThreadId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+  "nativeJournal": "/home/int/.codex/sessions/2026/10/05/rollout-2026-10-05T11-39-14-01a10b6e-82fd-7ad0-ae08-abec1f82681b.jsonl",
+  "nativePhase": "final_answer",
+  "nativeFinalMessageCount": 1,
+  "nativeFinalOutputTextCount": 1,
+  "rawResponse": {
+    "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/raw-reviews/technical.json",
+    "bytes": 45610,
+    "sha256": "462af8b72f20e1856063e86fe18072df65a21b392c10f9e51cb299232e6fa363"
+  },
+  "nativeAndSavedBytesIdentical": true,
+  "exactlyOneActualFinalLf": true,
+  "canonicalCompactSortedObjectKeys": true,
+  "declaredVerdict": "fail",
+  "declaredAssessments": 91,
+  "declaredFindings": 1,
+  "maintainedSealExitCode": 0,
+  "receiptSha256": "11660da114eb2539b69cf2bf9a82053c7d89379541f62efda17229d71672cae4",
+  "semanticTransformation": "none; transport decoding and exact byte copy only; no LF appended, sorting, repair or reserialization",
+  "disposition": "Failed diagnostic candidate; no adjudications or publication claims. A revised candidate requires fresh reviews and adjudications."
+}

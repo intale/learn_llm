@@ -1,0 +1,1 @@
+Report the same scalar observation with its metric unit, input identity and explicit capability limits. rust/demos/ch40-reference-core-handoff/src/lib.rs#scope-bearing-report

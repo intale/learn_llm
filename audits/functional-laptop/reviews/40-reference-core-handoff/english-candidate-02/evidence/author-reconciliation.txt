@@ -1,0 +1,45 @@
+# Chapter 40 author inventory reconciliation
+
+This is authoring evidence, not an independent review or publication verdict.
+
+The complete source and rendered reading order teach the same fixed-reference
+boundary. The source identity excludes the reporting wrapper and execution
+environment; replay, overlapping-slot evaluation, checkpoint reload and cached
+generation have separate, expressly bounded claims. The unchanged scalar
+algorithms remain library-owned; the chapter-specific wrapper belongs in its
+demo crate.
+
+The preliminary extraction assigned complete-document requirements to several
+short titles, individual definitions and metadata fields. The author replaced
+those requirements with the actual roles in role-overrides-en-02.json and
+role-overrides-en-03.json. Paper links identify the linked primary papers;
+captions and accessible Rust-region names identify their particular operation;
+each cheat-sheet entry defines its own term; metadata states its own objective,
+worked inputs or handoff. A contextual heading does not need to repeat its whole
+lesson. The equation introduction and following symbol/settings unit retain
+their actual reading-order relationship.
+
+The catalog card is one actual article containing title, description and
+revision. Its visible ordinal is separately identified as the chapter number,
+with its aria-hidden presentation recorded. The progressively enhanced
+cheat-sheet trigger retains its actual label and hidden-static-state provenance.
+Tasks and checked answers are individual ordered-list items with requirements
+specific to identity versus evidence, construction versus admission, and
+checkpoint/job and slot/transition boundaries. Neither list relocates a
+prediction activity.
+
+Before freezing, the author also added the missing metric unit to the first
+checked answer: mean NLL uses nats per overlapping window-target slot. The
+unchanged contract already commits to that unit. This changed only English
+lesson prose; training was not repeated. The refreshed source hash is
+cead6a6a6152e588fc60119c8ffbfb34282da51ed33cec877c53c070f98f538c.
+The exact resulting build is english-build-04; validation/en-site-07 records
+successful structural/content checks, private production HTML generation and
+all five affected Firefox assertions.
+
+Previously published learner atoms are not newly certified by this authoring
+record. Export propagation evidence distinguishes invariant earlier text from
+the new Chapter 40 lesson, catalog card and Chapter 39 next-chapter navigation.
+Fresh independent reviewers must still judge inventory completeness, technical
+support, pedagogy and isolated language roles; fresh same-role adjudicators
+must judge those reviews before Russian localization or publication.

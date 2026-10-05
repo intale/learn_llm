@@ -7,10 +7,22 @@ import {publicationInputPaths,languageVerifierInvocations,readRegularFile,jsonFi
 test('Chapter40 routes actual maintained English and Russian verifiers',()=>{
   const commands=languageVerifierInvocations('40-reference-core-handoff',['en','ru'],'/fixture');
   assert.equal(commands.length,2);
-  assert.ok(commands[0].args.includes('--adjudication-seals'));
-  assert.ok(commands[0].args.includes('audits/functional-laptop/reviews/40-reference-core-handoff/english/spec.json'));
+  const english='audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-03';
+  assert.deepEqual(commands[0].args,[
+    '/fixture/.agents/skills/author-llm-course-english/scripts/english-review.mjs',
+    'verify','--spec',english+'/spec.json','--bundle',english+'/bundle',
+    '--review-routing',english+'/review-routing/review-routing.json',
+    '--review-seals',english+'/review-seals',
+    '--adjudication-bundle',english+'/adjudication-bundle',
+    '--adjudication-routing',english+'/adjudication-routing/adjudication-routing.json',
+    '--adjudication-seals',english+'/adjudication-seals','--root','/fixture',
+  ]);
   assert.ok(commands[1].args.includes('audits/functional-laptop/reviews/40-reference-core-handoff/ru/target-only.raw.json'));
-  assert.equal(languageVerifierInvocations('41-governed-corpus-acquisition',['en'],'/fixture').length,1);
+  const future=languageVerifierInvocations('41-governed-corpus-acquisition',['en'],'/fixture');
+  assert.equal(future.length,1);
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/spec.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/review-routing.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/adjudication-routing.json'));
   assert.throws(()=>languageVerifierInvocations('41-governed-corpus-acquisition',['en','ru'],'/fixture'));
 });
 test('closed activation inventory contains exact real locale input paths',()=>{

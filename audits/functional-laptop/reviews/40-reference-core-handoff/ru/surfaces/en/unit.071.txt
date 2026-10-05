@@ -1,0 +1,1 @@
+The checkpoint check covers persisted model, optimizer and tokenizer state plus a fixed logit probe, not every whole-job continuation dependency. The 1744 denominator counts overlapping window-target slots; the underlying documents contain 442 transition occurrences.

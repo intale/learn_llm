@@ -1,0 +1,1 @@
+The configuration, exact corpus and split bytes, and verified scalar-reference source determine the input identity. Separate checks observe replay, fixed-window evaluation, reload and cached generation. Neither the identity nor those checks establishes useful language quality, complete job resumption or laptop throughput.

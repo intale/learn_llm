@@ -1,0 +1,1 @@
+Verify the reference source, use an owned temporary checkpoint and print the scope-bearing report. rust/demos/ch40-reference-core-handoff/src/main.rs#reference-example

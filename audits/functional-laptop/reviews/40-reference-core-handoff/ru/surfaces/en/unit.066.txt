@@ -1,0 +1,1 @@
+Find the identity, target-count basis and metric unit in the output. Explain why a digest alone would not replace the replay and reload checks.

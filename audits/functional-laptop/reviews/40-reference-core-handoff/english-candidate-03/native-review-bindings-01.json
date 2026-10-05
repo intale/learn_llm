@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "ch40.en.phase-a.20261005.r2",
+  "scopeId": "ch40.en.phase-a",
+  "bindingSha256": "76edfdc8707b8888891542f3c37fb3cd8783f7fc1c3663b183c4a056ca0e91c5",
+  "routing": {
+    "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-03/review-routing/review-routing.json",
+    "sha256": "df2a7b23748a12dc6b9504d9a095d98696527cd43168d05df52f7d7a8a4344d6"
+  },
+  "assignments": [
+    {
+      "role": "technical-pedagogical",
+      "logicalContextId": "ch40_en_technical_review_02",
+      "agentPath": "/root/review_ch40_v2s8_technical",
+      "nativeThreadId": "01a10b82-b946-72c3-a9b2-079384f355f5",
+      "parentThreadId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+      "journal": "/home/int/.codex/sessions/2026/10/05/rollout-2026-10-05T12-01-18-01a10b82-b946-72c3-a9b2-079384f355f5.jsonl",
+      "createdAt": "2026-10-05T10:01:18.921Z",
+      "settingsObservedAt": "2026-10-05T10:01:20.574Z",
+      "nativeTurnId": "01a10b82-b97a-7de2-9e3d-9b6f9ef43173",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "fourArtifactBytes": 2641926,
+      "contextSha256": "f55fe857f2d22af24c016ef2ebf8ffe8ceab7704b2e3c0cd2bb96a44adf3fc8c",
+      "promptSha256": "7c856b30a0eb10c2e4683054594c25730ad2a47ece93c105aa20bf6577add7db"
+    },
+    {
+      "role": "isolated-surface",
+      "logicalContextId": "ch40_en_isolated_review_02",
+      "agentPath": "/root/review_ch40_v2s8_isolated",
+      "nativeThreadId": "01a10b87-a37d-78d2-ba27-173252d2be25",
+      "parentThreadId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+      "journal": "/home/int/.codex/sessions/2026/10/05/rollout-2026-10-05T12-06-41-01a10b87-a37d-78d2-ba27-173252d2be25.jsonl",
+      "createdAt": "2026-10-05T10:06:41.024Z",
+      "settingsObservedAt": "2026-10-05T10:06:42.265Z",
+      "nativeTurnId": "01a10b87-a3bb-7370-886c-f6117ac05b3a",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "fourArtifactBytes": 46937,
+      "contextSha256": "5ae17813b4fd5f453c2a5a43b481a6254d4cda20d42413c6a8ad9468c8757d05",
+      "promptSha256": "3446b07cf8acdfa4c1b7fee323637d57cfd561d9f70cc4081b1e16b96bf531ba"
+    }
+  ],
+  "chapterAssignedContentContexts": 5,
+  "chapterRoutedInputBytes": 5296873,
+  "tokenUsage": "unobserved-not-estimated",
+  "deliveryProvenance": "Parent reports exact canonical JSON plus one LF initial tasks, fork-none/no overrides and separate locator-only four-artifact messages. Bounded native session_meta and first turn_context prove actual thread/parent/configuration fields. No encrypted prompt-payload visibility or backend telemetry is claimed.",
+  "judgmentStatusAtCheckpoint": "Pending capture; no judgment content inspected during this metadata check."
+}

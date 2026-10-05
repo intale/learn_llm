@@ -1,0 +1,1 @@
+Use the unchanged split of eight training documents, two validation documents and two test documents, with the tiny scalar configuration. One pipeline invocation runs two 32-update schedules, each with 2,048 training targets. Interpret 1,744 overlapping test-window target slots, 442 within-document transition occurrences, exact reload and generated token IDs [260,34,34].

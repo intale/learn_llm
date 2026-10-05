@@ -47,26 +47,35 @@ The English-only40 candidate keeps declared final bilingual language links; only
 its exact absent Russian equivalent is tolerated by private link audit. Production
 checks every link. This rendering mechanism grants no author/review approval.
 
-Contract checking dispatches0..39 through the unchanged demo checker and40+
-through the cumulative crate's exact example/golden/registry paths.
+Contract checking dispatches0..39 through the unchanged demo checker. Chapter40
+uses the exact `rust/demos/ch40-reference-core-handoff/` package with its main/lib
+sources and `expected.txt`, while retaining the shared private/production locale
+and publication gates. No Chapter40 cumulative module fragment is accepted.
+Chapters41+ retain the cumulative crate's exact example/golden/registry paths.
 `check-functional-rust-examples.mjs --all|--chapter <id>` runs the bounded
-in-package example and compares exact stdout. `check-functional-rust-ownership.mjs`
+demo or in-package example and compares exact stdout. `check-functional-rust-ownership.mjs`
 enforces the accepted ownership-map-v1 grammar and registered source coverage.
-No new Cargo crate or registry serialization is introduced.
+Only the user-approved Chapter40 demo package is added; no new external dependency
+or registry serialization is introduced.
 
 `llm_from_scratch::reference_source_identity` exposes
 `verify_reference_source(manifest_bytes, supplied_files)` and
 `verify_compiled_reference_source() -> Result<ReferenceSourceProof, ReferenceSourceError>`.
-The latter uses the same checks without duplicating43-path loader plumbing.
+The latter uses the same checks without duplicating40-path loader plumbing.
 Proof construction is private; getters are `source_revision()`, `identity()`,
 `digest()`. The approved schema1 manifest domain is
 `functional-reference-source`; the existing ArtifactIdentity domain is
 `functional_reference_source`. They identify different structural layers, not
 different hash algorithms. RustCrypto SHA256 remains the sole digest plumbing.
-The explicit40 reference source files and3 dependency files are compiler-bound,
-as is the exact approved manifest. Missing/extra/duplicate/stale/oversized or
+The explicit40 reference course source files are compiler-bound, as is the exact
+approved schema1 manifest with `dependencyHashes: {}`. Cargo manifests and lock
+are not source-census entries. Missing/extra/duplicate/stale/oversized or
 noncanonical supplied input refuses. This proves compiled reference bytes, not
-live Git cleanliness, model quality or reference training-resource accounting.
+live Git cleanliness, dependency/runtime/environment equivalence, model quality
+or reference training-resource accounting. Equal source identities alone do not
+establish cross-environment bitwise equality. Actual Cargo.lock/hash, resolved
+versions/features and toolchain remain separately recorded and checked by existing
+execution/dependency gates; no dependency-closure tool or nested Cargo build call.
 
 Focused tests: the five `scripts/tests/check-functional-*.test.mjs` infrastructure
 files declared by the static step, `site/tests/functional-course-routes.test.ts`,

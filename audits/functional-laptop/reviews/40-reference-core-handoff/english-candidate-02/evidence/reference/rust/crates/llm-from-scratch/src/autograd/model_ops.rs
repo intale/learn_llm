@@ -1,0 +1,1485 @@
+//! Model-critical tensor operations and their local reverse-mode rules.
+
+use std::error::Error;
+use std::fmt;
+
+use super::tensor_core::{
+    AutogradContext, TensorAutodiffError, TensorOperation, TensorValue, accumulate_unbroadcast,
+};
+use crate::nn::probability::{indexed_mean_nll_forward, log_softmax_forward};
+use crate::tensor::matmul::{matmul, matmul_with_transpose};
+use crate::tensor::ops::{map_binary, map_unary, sum_axis as tensor_sum_axis};
+use crate::tensor::storage::{Tensor, checked_row_major_layout};
+
+// region:model-op-errors
+/// A rejected model-specific shape, selector, or allocation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ModelOpError {
+    GatherTableRank {
+        rank: usize,
+    },
+    GatherIndexCountMismatch {
+        expected: usize,
+        actual: usize,
+    },
+    GatherIndexOutOfBounds {
+        position: usize,
+        index: usize,
+        rows: usize,
+    },
+    CausalSoftmaxRank {
+        rank: usize,
+    },
+    CausalSoftmaxNonSquare {
+        queries: usize,
+        keys: usize,
+    },
+    CausalSoftmaxEmptyTokens,
+    OutputAllocationFailed {
+        elements: usize,
+    },
+}
+
+impl fmt::Display for ModelOpError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::GatherTableRank { rank } => {
+                write!(
+                    formatter,
+                    "row gather needs a rank-two table, got rank {rank}"
+                )
+            }
+            Self::GatherIndexCountMismatch { expected, actual } => write!(
+                formatter,
+                "gather index shape needs {expected} IDs, but received {actual}"
+            ),
+            Self::GatherIndexOutOfBounds {
+                position,
+                index,
+                rows,
+            } => write!(
+                formatter,
+                "gather ID {index} at flat position {position} is out of bounds for {rows} rows"
+            ),
+            Self::CausalSoftmaxRank { rank } => write!(
+                formatter,
+                "causal softmax needs at least rank-two [..., queries, keys] scores, got rank {rank}"
+            ),
+            Self::CausalSoftmaxNonSquare { queries, keys } => write!(
+                formatter,
+                "causal softmax needs a square query-key grid, got {queries} queries and {keys} keys"
+            ),
+            Self::CausalSoftmaxEmptyTokens => formatter.write_str(
+                "causal softmax needs at least one token so every row has an allowed key",
+            ),
+            Self::OutputAllocationFailed { elements } => write!(
+                formatter,
+                "cannot allocate model-operation output for {elements} f64 values"
+            ),
+        }
+    }
+}
+
+impl Error for ModelOpError {}
+// endregion:model-op-errors
+
+// region:model-saved-context
+/// Immutable forward evidence used by one model-operation parent edge.
+#[derive(Clone, Debug, PartialEq)]
+pub enum ModelSavedContext {
+    MatmulLeft {
+        right: Tensor,
+        input_shape: Vec<usize>,
+        output_shape: Vec<usize>,
+    },
+    MatmulRight {
+        left: Tensor,
+        input_shape: Vec<usize>,
+        output_shape: Vec<usize>,
+    },
+    GatherRows {
+        indices: Vec<usize>,
+        index_shape: Vec<usize>,
+        input_shape: Vec<usize>,
+        output_shape: Vec<usize>,
+    },
+    Exp {
+        output: Tensor,
+    },
+    Log {
+        input: Tensor,
+    },
+    Silu {
+        input: Tensor,
+        sigmoid: Tensor,
+    },
+    LogSoftmax {
+        probabilities: Tensor,
+        axis: usize,
+        input_shape: Vec<usize>,
+    },
+    CausalSoftmax {
+        probabilities: Tensor,
+        input_shape: Vec<usize>,
+        tokens: usize,
+    },
+    RotaryPairs {
+        cosines: Tensor,
+        sines: Tensor,
+        input_shape: Vec<usize>,
+    },
+    IndexedMeanNll {
+        probabilities: Tensor,
+        targets: Vec<usize>,
+        axis: usize,
+        input_shape: Vec<usize>,
+        groups: usize,
+    },
+}
+// endregion:model-saved-context
+
+// region:model-row-gather-plan
+/// Owned row-gather facts established before materialization begins.
+#[derive(Debug)]
+pub(crate) struct RowGatherPlan {
+    indices: Vec<usize>,
+    index_shape: Vec<usize>,
+    input_shape: [usize; 2],
+    output_shape: Vec<usize>,
+    output_len: usize,
+}
+
+impl RowGatherPlan {
+    fn checked(
+        table: &Tensor,
+        indices: &[usize],
+        index_shape: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        if table.rank() != 2 {
+            return Err(ModelOpError::GatherTableRank { rank: table.rank() }.into());
+        }
+        let (_, expected) = checked_row_major_layout(index_shape)?;
+        if indices.len() != expected {
+            return Err(ModelOpError::GatherIndexCountMismatch {
+                expected,
+                actual: indices.len(),
+            }
+            .into());
+        }
+        let rows = table.shape()[0];
+        for (position, &index) in indices.iter().enumerate() {
+            if index >= rows {
+                return Err(ModelOpError::GatherIndexOutOfBounds {
+                    position,
+                    index,
+                    rows,
+                }
+                .into());
+            }
+        }
+
+        Self::from_validated_indices(table, indices.to_vec(), index_shape.to_vec())
+    }
+
+    /// Seals indices whose shape, count, and bounds were established by a
+    /// crate-owned caller for this exact rank-two table.
+    pub(crate) fn from_validated_indices(
+        table: &Tensor,
+        indices: Vec<usize>,
+        index_shape: Vec<usize>,
+    ) -> Result<Self, TensorAutodiffError> {
+        let input_shape = [table.shape()[0], table.shape()[1]];
+        let width = input_shape[1];
+        let mut output_shape = index_shape.clone();
+        output_shape
+            .try_reserve_exact(1)
+            .map_err(|_| ModelOpError::OutputAllocationFailed {
+                elements: indices.len().saturating_mul(width),
+            })?;
+        output_shape.push(width);
+        let (_, output_len) = checked_row_major_layout(&output_shape)?;
+        Ok(Self {
+            indices,
+            index_shape,
+            input_shape,
+            output_shape,
+            output_len,
+        })
+    }
+
+    fn into_saved_context(self) -> ModelSavedContext {
+        let Self {
+            indices,
+            index_shape,
+            input_shape,
+            output_shape,
+            ..
+        } = self;
+        ModelSavedContext::GatherRows {
+            indices,
+            index_shape,
+            input_shape: input_shape.to_vec(),
+            output_shape,
+        }
+    }
+}
+// endregion:model-row-gather-plan
+
+// region:model-autodiff-operations
+impl TensorValue {
+    /// Multiplies rank-two or batched tensors and records both matrix pullbacks.
+    pub fn matmul(&self, right: &Self) -> Result<Self, TensorAutodiffError> {
+        self.matmul_with_context(AutogradContext::recording(), right)
+    }
+
+    /// Multiplies tensors under the caller's explicit graph-recording policy.
+    pub fn matmul_with_context(
+        &self,
+        context: AutogradContext,
+        right: &Self,
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::MatMul,
+            [self, right],
+            |primals| {
+                let left = primals[0];
+                let right = primals[1];
+                let value = matmul(&left.view(), &right.view())?;
+                let output_shape = value.shape().to_vec();
+                Ok((
+                    value,
+                    [
+                        ModelSavedContext::MatmulLeft {
+                            right: Tensor::clone(right),
+                            input_shape: left.shape().to_vec(),
+                            output_shape: output_shape.clone(),
+                        },
+                        ModelSavedContext::MatmulRight {
+                            left: Tensor::clone(left),
+                            input_shape: right.shape().to_vec(),
+                            output_shape,
+                        },
+                    ],
+                ))
+            },
+        )
+    }
+
+    // region:model-row-gather-operation
+    /// Selects rows from a rank-two table into `index_shape + [width]`.
+    ///
+    /// IDs are integer selectors and are deliberately not tape operands.
+    pub fn gather_rows(
+        &self,
+        indices: &[usize],
+        index_shape: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.gather_rows_with_context(AutogradContext::recording(), indices, index_shape)
+    }
+
+    /// Selects rows under the caller's explicit graph-recording policy.
+    pub fn gather_rows_with_context(
+        &self,
+        context: AutogradContext,
+        indices: &[usize],
+        index_shape: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.gather_rows_with_plan_and_context(context, |table| {
+            RowGatherPlan::checked(table, indices, index_shape)
+        })
+    }
+
+    /// Builds one row-gather plan under an explicit graph-recording policy.
+    pub(crate) fn gather_rows_with_plan_and_context(
+        &self,
+        context: AutogradContext,
+        build_plan: impl FnOnce(&Tensor) -> Result<RowGatherPlan, TensorAutodiffError>,
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::GatherRows,
+            [self],
+            |primals| {
+                let table = primals[0];
+                let plan = build_plan(table)?;
+                let value = gather_rows_forward(table, &plan)?;
+                Ok((value, [plan.into_saved_context()]))
+            },
+        )
+    }
+    // endregion:model-row-gather-operation
+
+    /// Applies the elementwise exponential and saves its output for reversal.
+    pub fn exp(&self) -> Result<Self, TensorAutodiffError> {
+        self.exp_with_context(AutogradContext::recording())
+    }
+
+    /// Applies the elementwise exponential under an explicit recording policy.
+    pub fn exp_with_context(&self, context: AutogradContext) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(context, TensorOperation::Exp, [self], |primals| {
+            let value = map_unary(&primals[0].view(), f64::exp)?;
+            Ok((value.clone(), [ModelSavedContext::Exp { output: value }]))
+        })
+    }
+
+    /// Applies the natural logarithm; zero and negative inputs are rejected by
+    /// the tape's finite-forward invariant.
+    pub fn log(&self) -> Result<Self, TensorAutodiffError> {
+        self.log_with_context(AutogradContext::recording())
+    }
+
+    /// Applies the natural logarithm under an explicit recording policy.
+    pub fn log_with_context(&self, context: AutogradContext) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(context, TensorOperation::Log, [self], |primals| {
+            let input = primals[0];
+            let value = map_unary(&input.view(), f64::ln)?;
+            Ok((
+                value,
+                [ModelSavedContext::Log {
+                    input: Tensor::clone(input),
+                }],
+            ))
+        })
+    }
+
+    /// Applies SiLU, `x * sigmoid(x)`, with a branchwise stable sigmoid.
+    pub fn silu(&self) -> Result<Self, TensorAutodiffError> {
+        self.silu_with_context(AutogradContext::recording())
+    }
+
+    /// Applies SiLU under the caller's explicit graph-recording policy.
+    pub fn silu_with_context(&self, context: AutogradContext) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(context, TensorOperation::Silu, [self], |primals| {
+            let input = primals[0];
+            let sigmoid = map_unary(&input.view(), stable_sigmoid)?;
+            let value = map_binary(&input.view(), &sigmoid.view(), |x, probability| {
+                x * probability
+            })?;
+            Ok((
+                value,
+                [ModelSavedContext::Silu {
+                    input: Tensor::clone(input),
+                    sigmoid,
+                }],
+            ))
+        })
+    }
+
+    // region:model-log-softmax-saved-forward
+    /// Applies stable log-softmax along one explicit class axis.
+    pub fn log_softmax(&self, axis: usize) -> Result<Self, TensorAutodiffError> {
+        self.log_softmax_with_context(AutogradContext::recording(), axis)
+    }
+
+    /// Applies stable log-softmax under an explicit recording policy.
+    pub fn log_softmax_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::LogSoftmax,
+            [self],
+            |primals| {
+                let input = primals[0];
+                let forward = log_softmax_forward(&input.view(), axis, true)?;
+                let probabilities = forward
+                    .probabilities
+                    .expect("the autodiff log-softmax forward requests saved probabilities");
+                Ok((
+                    forward.value,
+                    [ModelSavedContext::LogSoftmax {
+                        probabilities,
+                        axis,
+                        input_shape: input.shape().to_vec(),
+                    }],
+                ))
+            },
+        )
+    }
+    // endregion:model-log-softmax-saved-forward
+
+    /// Normalizes each square score row over its inclusive prefix of keys.
+    ///
+    /// Future-key probabilities are exactly zero. The implementation applies
+    /// the additive negative-infinity mask as a branch, so non-finite values
+    /// never enter the operation tape.
+    pub fn causal_softmax(&self) -> Result<Self, TensorAutodiffError> {
+        self.causal_softmax_with_context(AutogradContext::recording())
+    }
+
+    /// Applies causal softmax under an explicit graph-recording policy.
+    pub fn causal_softmax_with_context(
+        &self,
+        context: AutogradContext,
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::CausalSoftmax,
+            [self],
+            |primals| {
+                let input = primals[0];
+                let probabilities = causal_softmax_forward(input)?;
+                let tokens = input.shape()[input.rank() - 1];
+                Ok((
+                    probabilities.clone(),
+                    [ModelSavedContext::CausalSoftmax {
+                        probabilities,
+                        input_shape: input.shape().to_vec(),
+                        tokens,
+                    }],
+                ))
+            },
+        )
+    }
+
+    /// Rotates adjacent feature pairs with one precomputed angle row per token.
+    ///
+    /// Shape and position-range validation belongs to the rotary-embedding
+    /// owner. Keeping this primitive crate-private prevents callers from
+    /// constructing inconsistent sine and cosine tables.
+    /// Rotates feature pairs under an explicit graph-recording policy.
+    pub(crate) fn rotary_pairs_with_context(
+        &self,
+        context: AutogradContext,
+        cosines: &Tensor,
+        sines: &Tensor,
+    ) -> Result<Self, TensorAutodiffError> {
+        let cosines = cosines.clone();
+        let sines = sines.clone();
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::RotaryPairs,
+            [self],
+            move |primals| {
+                let input = primals[0];
+                let value = rotary_pairs_forward(input, &cosines, &sines, false)?;
+                Ok((
+                    value,
+                    [ModelSavedContext::RotaryPairs {
+                        cosines,
+                        sines,
+                        input_shape: input.shape().to_vec(),
+                    }],
+                ))
+            },
+        )
+    }
+
+    // region:model-indexed-nll-saved-forward
+    /// Computes one stable rank-zero mean NLL from flat group-major targets.
+    pub fn indexed_mean_nll(
+        &self,
+        axis: usize,
+        targets: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        self.indexed_mean_nll_with_context(AutogradContext::recording(), axis, targets)
+    }
+
+    /// Computes indexed mean NLL under an explicit graph-recording policy.
+    pub fn indexed_mean_nll_with_context(
+        &self,
+        context: AutogradContext,
+        axis: usize,
+        targets: &[usize],
+    ) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation_with_context(
+            context,
+            TensorOperation::IndexedMeanNll,
+            [self],
+            |primals| {
+                let logits = primals[0];
+                let forward = indexed_mean_nll_forward(&logits.view(), axis, targets, true)?;
+                let probabilities = forward
+                    .probabilities
+                    .expect("the autodiff indexed-NLL forward requests saved probabilities");
+                let value = Tensor::from_vec(Vec::new(), vec![forward.loss])?;
+                Ok((
+                    value,
+                    [ModelSavedContext::IndexedMeanNll {
+                        probabilities,
+                        targets: targets.to_vec(),
+                        axis,
+                        input_shape: logits.shape().to_vec(),
+                        groups: targets.len(),
+                    }],
+                ))
+            },
+        )
+    }
+    // endregion:model-indexed-nll-saved-forward
+}
+// endregion:model-autodiff-operations
+
+fn stable_sigmoid(value: f64) -> f64 {
+    if value >= 0.0 {
+        1.0 / (1.0 + (-value).exp())
+    } else {
+        let exponential = value.exp();
+        exponential / (1.0 + exponential)
+    }
+}
+
+fn output_buffer(elements: usize) -> Result<Vec<f64>, TensorAutodiffError> {
+    let mut values = Vec::new();
+    values
+        .try_reserve_exact(elements)
+        .map_err(|_| ModelOpError::OutputAllocationFailed { elements })?;
+    values.resize(elements, 0.0);
+    Ok(values)
+}
+
+fn zeros(shape: &[usize]) -> Result<Tensor, TensorAutodiffError> {
+    let (_, elements) = checked_row_major_layout(shape)?;
+    Tensor::from_vec(shape.to_vec(), output_buffer(elements)?).map_err(Into::into)
+}
+
+fn gather_rows_forward(
+    table: &Tensor,
+    plan: &RowGatherPlan,
+) -> Result<Tensor, TensorAutodiffError> {
+    debug_assert_eq!(table.shape(), plan.input_shape);
+    let width = plan.input_shape[1];
+    let mut values = output_buffer(plan.output_len)?;
+    for (position, &index) in plan.indices.iter().enumerate() {
+        let source = index * width;
+        let destination = position * width;
+        values[destination..destination + width]
+            .copy_from_slice(&table.as_slice()[source..source + width]);
+    }
+    Tensor::from_vec(plan.output_shape.clone(), values).map_err(Into::into)
+}
+
+// region:causal-softmax-forward
+fn causal_softmax_forward(input: &Tensor) -> Result<Tensor, TensorAutodiffError> {
+    if input.rank() < 2 {
+        return Err(ModelOpError::CausalSoftmaxRank { rank: input.rank() }.into());
+    }
+    let queries = input.shape()[input.rank() - 2];
+    let keys = input.shape()[input.rank() - 1];
+    if queries != keys {
+        return Err(ModelOpError::CausalSoftmaxNonSquare { queries, keys }.into());
+    }
+    if queries == 0 {
+        return Err(ModelOpError::CausalSoftmaxEmptyTokens.into());
+    }
+
+    let mut probabilities = zeros(input.shape())?;
+    let grids = input.len() / (queries * keys);
+    for grid in 0..grids {
+        for query in 0..queries {
+            let row_start = (grid * queries + query) * keys;
+            let allowed = &input.as_slice()[row_start..=row_start + query];
+            let maximum = allowed.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+            let mut exponential_tail = 0.0;
+            let mut skipped_one_maximum = false;
+            for &score in allowed {
+                let shifted = score - maximum;
+                if shifted == 0.0 && !skipped_one_maximum {
+                    skipped_one_maximum = true;
+                } else {
+                    exponential_tail += shifted.exp();
+                }
+            }
+            debug_assert!(skipped_one_maximum);
+            let denominator = 1.0 + exponential_tail;
+            for (key, &score) in allowed.iter().enumerate() {
+                let probability = (score - maximum).exp() / denominator;
+                probabilities.as_mut_slice()[row_start + key] =
+                    if probability == 0.0 { 0.0 } else { probability };
+            }
+        }
+    }
+    Ok(probabilities)
+}
+// endregion:causal-softmax-forward
+
+// region:rotary-pairs-forward
+fn rotary_pairs_forward(
+    input: &Tensor,
+    cosines: &Tensor,
+    sines: &Tensor,
+    inverse: bool,
+) -> Result<Tensor, TensorAutodiffError> {
+    debug_assert!(input.rank() >= 2);
+    debug_assert_eq!(cosines.shape(), sines.shape());
+    debug_assert_eq!(cosines.rank(), 2);
+
+    let width = input.shape()[input.rank() - 1];
+    let tokens = input.shape()[input.rank() - 2];
+    let pairs = width / 2;
+    debug_assert_eq!(cosines.shape(), [tokens, pairs]);
+
+    let mut output = zeros(input.shape())?;
+    if input.is_empty() {
+        return Ok(output);
+    }
+
+    let rows = input.len() / width;
+    for row in 0..rows {
+        let token = row % tokens;
+        for pair in 0..pairs {
+            let feature = row * width + pair * 2;
+            let table = token * pairs + pair;
+            let left = input.as_slice()[feature];
+            let right = input.as_slice()[feature + 1];
+            let cosine = cosines.as_slice()[table];
+            let sine = sines.as_slice()[table];
+            let (rotated_left, rotated_right) = if inverse {
+                (left * cosine + right * sine, -left * sine + right * cosine)
+            } else {
+                (left * cosine - right * sine, left * sine + right * cosine)
+            };
+            output.as_mut_slice()[feature] = canonical_zero(rotated_left);
+            output.as_mut_slice()[feature + 1] = canonical_zero(rotated_right);
+        }
+    }
+    Ok(output)
+}
+
+fn canonical_zero(value: f64) -> f64 {
+    if value == 0.0 { 0.0 } else { value }
+}
+// endregion:rotary-pairs-forward
+
+// region:model-vjps
+pub(crate) fn apply_model_vjp(
+    upstream: &Tensor,
+    saved: &ModelSavedContext,
+) -> Result<Tensor, TensorAutodiffError> {
+    match saved {
+        ModelSavedContext::MatmulLeft {
+            right,
+            input_shape,
+            output_shape,
+        } => {
+            debug_assert_eq!(upstream.shape(), output_shape);
+            let expanded = matmul_with_transpose(&upstream.view(), &right.view(), false, true)?;
+            unbroadcast(&expanded, input_shape)
+        }
+        ModelSavedContext::MatmulRight {
+            left,
+            input_shape,
+            output_shape,
+        } => {
+            debug_assert_eq!(upstream.shape(), output_shape);
+            let expanded = matmul_with_transpose(&left.view(), &upstream.view(), true, false)?;
+            unbroadcast(&expanded, input_shape)
+        }
+        // region:model-row-gather-vjp
+        ModelSavedContext::GatherRows {
+            indices,
+            input_shape,
+            output_shape,
+            ..
+        } => {
+            debug_assert_eq!(upstream.shape(), output_shape);
+            let width = input_shape[1];
+            let mut table_gradient = zeros(input_shape)?;
+            for (position, &index) in indices.iter().enumerate() {
+                let source = position * width;
+                let destination = index * width;
+                for feature in 0..width {
+                    table_gradient.as_mut_slice()[destination + feature] +=
+                        upstream.as_slice()[source + feature];
+                }
+            }
+            Ok(table_gradient)
+        }
+        // endregion:model-row-gather-vjp
+        ModelSavedContext::Exp { output } => {
+            map_binary(&upstream.view(), &output.view(), |gradient, value| {
+                gradient * value
+            })
+            .map_err(Into::into)
+        }
+        ModelSavedContext::Log { input } => {
+            map_binary(&upstream.view(), &input.view(), |gradient, value| {
+                gradient / value
+            })
+            .map_err(Into::into)
+        }
+        ModelSavedContext::Silu { input, sigmoid } => {
+            let derivative = map_binary(&input.view(), &sigmoid.view(), |value, probability| {
+                probability * (1.0 + value * (1.0 - probability))
+            })?;
+            map_binary(&upstream.view(), &derivative.view(), |gradient, local| {
+                gradient * local
+            })
+            .map_err(Into::into)
+        }
+        ModelSavedContext::LogSoftmax {
+            probabilities,
+            axis,
+            input_shape,
+        } => {
+            debug_assert_eq!(upstream.shape(), input_shape);
+            let row_sum = tensor_sum_axis(&upstream.view(), *axis, true)?;
+            let correction = map_binary(
+                &probabilities.view(),
+                &row_sum.view(),
+                |probability, sum| probability * sum,
+            )?;
+            map_binary(&upstream.view(), &correction.view(), |gradient, term| {
+                gradient - term
+            })
+            .map_err(Into::into)
+        }
+        ModelSavedContext::CausalSoftmax {
+            probabilities,
+            input_shape,
+            tokens,
+        } => {
+            debug_assert_eq!(upstream.shape(), input_shape);
+            let tokens = *tokens;
+            let mut result = zeros(input_shape)?;
+            let grids = upstream.len() / (tokens * tokens);
+            for grid in 0..grids {
+                for query in 0..tokens {
+                    let row_start = (grid * tokens + query) * tokens;
+                    let mut weighted_upstream = 0.0;
+                    for key in 0..=query {
+                        weighted_upstream += upstream.as_slice()[row_start + key]
+                            * probabilities.as_slice()[row_start + key];
+                    }
+                    for key in 0..=query {
+                        let offset = row_start + key;
+                        let gradient = probabilities.as_slice()[offset]
+                            * (upstream.as_slice()[offset] - weighted_upstream);
+                        result.as_mut_slice()[offset] =
+                            if gradient == 0.0 { 0.0 } else { gradient };
+                    }
+                }
+            }
+            Ok(result)
+        }
+        ModelSavedContext::RotaryPairs {
+            cosines,
+            sines,
+            input_shape,
+        } => {
+            debug_assert_eq!(upstream.shape(), input_shape);
+            rotary_pairs_forward(upstream, cosines, sines, true)
+        }
+        ModelSavedContext::IndexedMeanNll {
+            probabilities,
+            targets,
+            axis,
+            input_shape,
+            groups,
+        } => {
+            debug_assert_eq!(upstream.shape(), &[] as &[usize]);
+            debug_assert_eq!(probabilities.shape(), input_shape);
+            debug_assert_eq!(targets.len(), *groups);
+            debug_assert!(targets.iter().all(|&target| target < input_shape[*axis]));
+            let mut result = probabilities.clone();
+
+            let mut group_shape = input_shape.to_vec();
+            let mut group_strides = result.strides().to_vec();
+            group_shape.remove(*axis);
+            let class_stride = group_strides.remove(*axis);
+            let group_offsets = result
+                .view()
+                .projected_offsets(&group_shape, &group_strides, *groups)
+                .expect("a checked indexed-NLL VJP retains valid group offsets");
+
+            for (group_offset, &target) in group_offsets.zip(targets) {
+                let target_offset = target
+                    .checked_mul(class_stride)
+                    .and_then(|class_offset| group_offset.checked_add(class_offset))
+                    .expect("a checked indexed-NLL target retains a valid storage offset");
+                result.as_mut_slice()[target_offset] -= 1.0;
+            }
+            let scale = upstream.as_slice()[0] / (*groups as f64);
+            for value in result.as_mut_slice() {
+                *value *= scale;
+                if *value == 0.0 {
+                    *value = 0.0;
+                }
+            }
+            Ok(result)
+        }
+    }
+}
+// endregion:model-vjps
+
+fn unbroadcast(upstream: &Tensor, input_shape: &[usize]) -> Result<Tensor, TensorAutodiffError> {
+    let mut result = zeros(input_shape)?;
+    accumulate_unbroadcast(upstream, &mut result);
+    Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::autograd::gradcheck::sampled_tensor_gradient_check;
+    use crate::autograd::tensor_core::{GraphRetention, TensorSavedContext};
+    use crate::nn::probability::{ProbabilityError, indexed_mean_nll, log_softmax, softmax};
+    use crate::tensor::matmul::matmul as tensor_matmul;
+
+    const STEP: f64 = 1e-6;
+    const TOLERANCE: f64 = 2e-6;
+
+    fn tensor(shape: &[usize], values: &[f64]) -> Tensor {
+        Tensor::from_vec(shape.to_vec(), values.to_vec()).unwrap()
+    }
+
+    fn parameter(shape: &[usize], values: &[f64]) -> TensorValue {
+        TensorValue::parameter(tensor(shape, values)).unwrap()
+    }
+
+    fn constant(shape: &[usize], values: &[f64]) -> TensorValue {
+        TensorValue::constant(tensor(shape, values)).unwrap()
+    }
+
+    fn sum_to_scalar(mut value: TensorValue) -> TensorValue {
+        while !value.shape().is_empty() {
+            value = value.sum_axis(0, false).unwrap();
+        }
+        value
+    }
+
+    fn assert_close(actual: &[f64], expected: &[f64], tolerance: f64) {
+        assert_eq!(actual.len(), expected.len());
+        for (index, (&actual, &expected)) in actual.iter().zip(expected).enumerate() {
+            assert!(
+                (actual - expected).abs() <= tolerance,
+                "index {index}: expected {expected:.12}, got {actual:.12}"
+            );
+        }
+    }
+
+    fn assert_same_bits(actual: &[f64], expected: &[f64]) {
+        assert_eq!(actual.len(), expected.len());
+        for (index, (&actual, &expected)) in actual.iter().zip(expected).enumerate() {
+            assert_eq!(
+                actual.to_bits(),
+                expected.to_bits(),
+                "index {index}: expected bits {:016x}, got {:016x}",
+                expected.to_bits(),
+                actual.to_bits()
+            );
+        }
+    }
+
+    fn gradcheck(mut probe: Tensor, analytic: &Tensor, objective: impl FnMut(&Tensor) -> f64) {
+        let samples = probe.len();
+        let report = sampled_tensor_gradient_check(
+            &mut probe,
+            &analytic.view(),
+            STEP,
+            TOLERANCE,
+            samples,
+            objective,
+        )
+        .unwrap();
+        assert!(report.checks.iter().all(|check| check.comparison.passed));
+    }
+
+    #[test]
+    fn repeated_lookup_pipeline_has_exact_signs_and_accumulation() {
+        let embeddings = parameter(&[3, 2], &[2.0, 2.0, 1.0, -1.0, -1.0, 1.0]);
+        let weights = parameter(&[2, 2], &[1.0, -1.0, 1.0, -1.0]);
+        let gathered = embeddings.gather_rows(&[1, 1, 1, 2], &[4]).unwrap();
+        let logits = gathered.matmul(&weights).unwrap().silu().unwrap();
+        let loss = logits.indexed_mean_nll(1, &[0, 0, 0, 1]).unwrap();
+
+        assert_close(loss.value().as_slice(), &[2.0_f64.ln()], 1e-12);
+        let pass = loss.backward_with_trace().unwrap();
+        assert_eq!(
+            pass.nodes.last().unwrap().operation,
+            TensorOperation::IndexedMeanNll
+        );
+        assert_close(
+            embeddings.gradient().unwrap().as_slice(),
+            &[0.0, 0.0, -0.375, -0.375, 0.125, 0.125],
+            1e-12,
+        );
+        assert_close(
+            weights.gradient().unwrap().as_slice(),
+            &[-0.25, 0.25, 0.25, -0.25],
+            1e-12,
+        );
+    }
+
+    #[test]
+    fn every_model_vjp_passes_sampled_finite_differences() {
+        let left_values = [0.4, -0.7, 1.2, 0.3, -0.5, 0.8];
+        let right_values = [0.2, -0.4, 0.6, 0.9, -0.3, 0.5];
+        let left = parameter(&[2, 3], &left_values);
+        let right = parameter(&[3, 2], &right_values);
+        let loss = sum_to_scalar(left.matmul(&right).unwrap());
+        loss.backward().unwrap();
+        gradcheck(
+            tensor(&[2, 3], &left_values),
+            &left.gradient().unwrap(),
+            |probe| {
+                tensor_matmul(&probe.view(), &tensor(&[3, 2], &right_values).view())
+                    .unwrap()
+                    .as_slice()
+                    .iter()
+                    .sum()
+            },
+        );
+        gradcheck(
+            tensor(&[3, 2], &right_values),
+            &right.gradient().unwrap(),
+            |probe| {
+                tensor_matmul(&tensor(&[2, 3], &left_values).view(), &probe.view())
+                    .unwrap()
+                    .as_slice()
+                    .iter()
+                    .sum()
+            },
+        );
+
+        let table_values = [0.2, -0.4, 0.7, 1.1, -0.3, 0.6];
+        let table = parameter(&[3, 2], &table_values);
+        let loss = sum_to_scalar(table.gather_rows(&[2, 1, 2], &[3]).unwrap());
+        loss.backward().unwrap();
+        gradcheck(
+            tensor(&[3, 2], &table_values),
+            &table.gradient().unwrap(),
+            |probe| {
+                let plan = RowGatherPlan::checked(probe, &[2, 1, 2], &[3]).unwrap();
+                gather_rows_forward(probe, &plan)
+                    .unwrap()
+                    .as_slice()
+                    .iter()
+                    .sum()
+            },
+        );
+
+        for operation in ["exp", "log", "silu"] {
+            let values = if operation == "log" {
+                [0.4, 1.1, 2.3]
+            } else {
+                [-0.8, 0.2, 1.1]
+            };
+            let input = parameter(&[3], &values);
+            let output = match operation {
+                "exp" => input.exp().unwrap(),
+                "log" => input.log().unwrap(),
+                "silu" => input.silu().unwrap(),
+                _ => unreachable!(),
+            };
+            sum_to_scalar(output).backward().unwrap();
+            gradcheck(tensor(&[3], &values), &input.gradient().unwrap(), |probe| {
+                probe
+                    .as_slice()
+                    .iter()
+                    .map(|&value| match operation {
+                        "exp" => value.exp(),
+                        "log" => value.ln(),
+                        "silu" => value * stable_sigmoid(value),
+                        _ => unreachable!(),
+                    })
+                    .sum()
+            });
+        }
+
+        let logits_values = [0.7, -0.4, 1.1, -0.2, 0.3, 0.8];
+        let weights_values = [0.2, -0.5, 0.7, 1.1, -0.4, 0.3];
+        let logits = parameter(&[2, 3], &logits_values);
+        let weights = constant(&[2, 3], &weights_values);
+        let weighted = logits.log_softmax(1).unwrap().mul(&weights).unwrap();
+        sum_to_scalar(weighted).backward().unwrap();
+        gradcheck(
+            tensor(&[2, 3], &logits_values),
+            &logits.gradient().unwrap(),
+            |probe| {
+                log_softmax(&probe.view(), 1)
+                    .unwrap()
+                    .as_slice()
+                    .iter()
+                    .zip(weights_values)
+                    .map(|(value, weight)| value * weight)
+                    .sum()
+            },
+        );
+
+        let nll_logits = parameter(&[2, 3], &logits_values);
+        nll_logits
+            .indexed_mean_nll(1, &[2, 0])
+            .unwrap()
+            .backward()
+            .unwrap();
+        gradcheck(
+            tensor(&[2, 3], &logits_values),
+            &nll_logits.gradient().unwrap(),
+            |probe| indexed_mean_nll(&probe.view(), 1, &[2, 0]).unwrap(),
+        );
+    }
+
+    #[test]
+    fn batched_matmul_unbroadcasts_both_parent_gradients() {
+        let left = parameter(&[2, 2], &[1.0, 2.0, 3.0, 4.0]);
+        let right = parameter(
+            &[3, 2, 2],
+            &[1.0, 0.0, 0.0, 1.0, 2.0, 1.0, 1.0, 0.0, -1.0, 2.0, 0.5, 1.5],
+        );
+        let output = left.matmul(&right).unwrap();
+        assert_eq!(output.shape(), vec![3, 2, 2]);
+        sum_to_scalar(output).backward().unwrap();
+        assert_eq!(left.gradient().unwrap().shape(), &[2, 2]);
+        assert_eq!(left.gradient().unwrap().as_slice(), &[5.0, 4.0, 5.0, 4.0]);
+        assert_eq!(right.gradient().unwrap().shape(), &[3, 2, 2]);
+        assert_eq!(
+            right.gradient().unwrap().as_slice(),
+            &[4.0, 4.0, 6.0, 6.0, 4.0, 4.0, 6.0, 6.0, 4.0, 4.0, 6.0, 6.0]
+        );
+
+        let left_batched = parameter(
+            &[3, 2, 2],
+            &[1.0, 0.0, 0.0, 1.0, 2.0, 1.0, 1.0, 0.0, -1.0, 2.0, 0.5, 1.5],
+        );
+        let right_single = parameter(&[2, 2], &[1.0, 2.0, 3.0, 4.0]);
+        sum_to_scalar(left_batched.matmul(&right_single).unwrap())
+            .backward()
+            .unwrap();
+        assert_eq!(left_batched.gradient().unwrap().shape(), &[3, 2, 2]);
+        assert_eq!(
+            left_batched.gradient().unwrap().as_slice(),
+            &[3.0, 7.0, 3.0, 7.0, 3.0, 7.0, 3.0, 7.0, 3.0, 7.0, 3.0, 7.0]
+        );
+        assert_eq!(right_single.gradient().unwrap().shape(), &[2, 2]);
+        assert_eq!(
+            right_single.gradient().unwrap().as_slice(),
+            &[3.5, 3.5, 5.5, 5.5]
+        );
+
+        let left_singleton_batches = parameter(&[2, 1, 1, 1], &[2.0, 3.0]);
+        let right_singleton_batches = parameter(&[1, 3, 1, 1], &[5.0, 7.0, 11.0]);
+        sum_to_scalar(
+            left_singleton_batches
+                .matmul(&right_singleton_batches)
+                .unwrap(),
+        )
+        .backward()
+        .unwrap();
+        assert_eq!(
+            left_singleton_batches.gradient().unwrap().as_slice(),
+            &[23.0, 23.0]
+        );
+        assert_eq!(
+            right_singleton_batches.gradient().unwrap().as_slice(),
+            &[5.0, 5.0, 5.0]
+        );
+    }
+
+    #[test]
+    fn repeated_operand_and_branch_contributions_accumulate() {
+        let values = [0.3, -0.2, 0.5, 0.7];
+        let input = parameter(&[2, 2], &values);
+        let product = input.matmul(&input).unwrap();
+        let branched = product.add(&product).unwrap();
+        sum_to_scalar(branched).backward().unwrap();
+        gradcheck(
+            tensor(&[2, 2], &values),
+            &input.gradient().unwrap(),
+            |probe| {
+                2.0 * tensor_matmul(&probe.view(), &probe.view())
+                    .unwrap()
+                    .as_slice()
+                    .iter()
+                    .sum::<f64>()
+            },
+        );
+    }
+
+    #[test]
+    fn gather_scatter_adds_duplicates_and_leaves_unused_rows_zero() {
+        let table = parameter(&[3, 2], &[9.0, 9.0, 1.0, 2.0, 3.0, 4.0]);
+        let gathered = table.gather_rows(&[1, 1, 1, 2], &[2, 2]).unwrap();
+        assert_eq!(gathered.shape(), vec![2, 2, 2]);
+        sum_to_scalar(gathered).backward().unwrap();
+        assert_eq!(
+            table.gradient().unwrap().as_slice(),
+            &[0.0, 0.0, 3.0, 3.0, 1.0, 1.0]
+        );
+
+        let scalar = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0])
+            .gather_rows(&[1], &[])
+            .unwrap();
+        assert_eq!(scalar.shape(), vec![2]);
+        let empty = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0])
+            .gather_rows(&[], &[0])
+            .unwrap();
+        assert_eq!(empty.shape(), vec![0, 2]);
+    }
+
+    #[test]
+    fn checked_and_prevalidated_gather_plans_have_exact_forward_and_reverse_results() {
+        let values = [9.0, 8.0, 1.0, 2.0, 3.0, 5.0];
+        let checked_table = parameter(&[3, 2], &values);
+        let planned_table = parameter(&[3, 2], &values);
+        let indices = [2, 1, 2, 0];
+
+        let checked = checked_table.gather_rows(&indices, &[2, 2]).unwrap();
+        let planned = planned_table
+            .gather_rows_with_plan_and_context(AutogradContext::recording(), |table| {
+                RowGatherPlan::from_validated_indices(table, indices.to_vec(), vec![2, 2])
+            })
+            .unwrap();
+        assert_eq!(planned.value().shape(), checked.value().shape());
+        assert_eq!(planned.value().as_slice(), checked.value().as_slice());
+
+        let upstream = tensor(&[2, 2, 2], &[1.0, 2.0, 3.0, 5.0, 7.0, 11.0, 13.0, 17.0]);
+        checked
+            .backward_with_seed(&upstream.view(), GraphRetention::Retain)
+            .unwrap();
+        planned
+            .backward_with_seed(&upstream.view(), GraphRetention::Retain)
+            .unwrap();
+        assert_eq!(
+            planned_table.gradient().unwrap().as_slice(),
+            checked_table.gradient().unwrap().as_slice()
+        );
+        assert_eq!(
+            planned_table.gradient().unwrap().as_slice(),
+            &[13.0, 17.0, 3.0, 5.0, 8.0, 13.0]
+        );
+
+        for (edge_indices, edge_shape) in [(vec![1], vec![]), (vec![], vec![0])] {
+            let checked_edge = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0])
+                .gather_rows(&edge_indices, &edge_shape)
+                .unwrap();
+            let planned_edge = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0])
+                .gather_rows_with_plan_and_context(AutogradContext::recording(), |table| {
+                    RowGatherPlan::from_validated_indices(
+                        table,
+                        edge_indices.clone(),
+                        edge_shape.clone(),
+                    )
+                })
+                .unwrap();
+            assert_eq!(planned_edge.value().shape(), checked_edge.value().shape());
+            assert_eq!(
+                planned_edge.value().as_slice(),
+                checked_edge.value().as_slice()
+            );
+        }
+    }
+
+    #[test]
+    fn gather_rejects_rank_count_and_first_bad_id_in_order() {
+        let rank_one = constant(&[2], &[1.0, 2.0]);
+        assert_eq!(
+            rank_one
+                .gather_rows(&[usize::MAX], &[usize::MAX, 2])
+                .unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::GatherTableRank { rank: 1 })
+        );
+        let table = constant(&[2, 2], &[1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(
+            table
+                .gather_rows(&[usize::MAX], &[usize::MAX, 2])
+                .unwrap_err(),
+            TensorAutodiffError::Tensor(crate::tensor::storage::TensorError::ShapeOverflow)
+        );
+        assert_eq!(
+            table.gather_rows(&[usize::MAX], &[2]).unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::GatherIndexCountMismatch {
+                expected: 2,
+                actual: 1,
+            })
+        );
+        assert_eq!(
+            table.gather_rows(&[0, 2, 9], &[3]).unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::GatherIndexOutOfBounds {
+                position: 1,
+                index: 2,
+                rows: 2,
+            })
+        );
+
+        let zero_rows_wide = constant(&[0, usize::MAX], &[]);
+        assert_eq!(
+            zero_rows_wide.gather_rows(&[0, 0], &[2]).unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::GatherIndexOutOfBounds {
+                position: 0,
+                index: 0,
+                rows: 0,
+            })
+        );
+        assert_eq!(
+            zero_rows_wide.gather_rows(&[], &[0, 2]).unwrap_err(),
+            TensorAutodiffError::Tensor(crate::tensor::storage::TensorError::ShapeOverflow)
+        );
+    }
+
+    #[test]
+    fn elementary_operations_enforce_finite_outputs_and_stable_silu() {
+        let overflow = constant(&[], &[f64::MAX]).exp().unwrap_err();
+        assert!(matches!(
+            overflow,
+            TensorAutodiffError::NonFiniteForward {
+                operation: TensorOperation::Exp,
+                ..
+            }
+        ));
+        let underflow = constant(&[], &[-f64::MAX]).exp().unwrap();
+        assert_eq!(underflow.value().as_slice(), &[0.0]);
+        for invalid in [0.0, -1.0] {
+            assert!(matches!(
+                constant(&[], &[invalid]).log().unwrap_err(),
+                TensorAutodiffError::NonFiniteForward {
+                    operation: TensorOperation::Log,
+                    ..
+                }
+            ));
+        }
+        let large = constant(&[3], &[-1000.0, 0.0, 1000.0])
+            .silu()
+            .unwrap()
+            .value_snapshot();
+        assert_close(large.as_slice(), &[0.0, 0.0, 1000.0], 1e-12);
+    }
+
+    #[test]
+    fn log_softmax_supports_arbitrary_axis_and_zero_sum_input_gradient() {
+        let logits = parameter(
+            &[2, 2, 3],
+            &[
+                0.1, 0.5, -0.3, 1.0, -1.0, 0.2, 0.3, 0.4, 0.8, -0.2, 0.9, 0.0,
+            ],
+        );
+        let output = logits.log_softmax(1).unwrap();
+        sum_to_scalar(output).backward().unwrap();
+        let gradient = logits.gradient().unwrap();
+        for outer in 0..2 {
+            for inner in 0..3 {
+                let sum = (0..2)
+                    .map(|class| gradient.as_slice()[(outer * 2 + class) * 3 + inner])
+                    .sum::<f64>();
+                assert!(sum.abs() <= 1e-12, "gradient group sum was {sum}");
+            }
+        }
+    }
+
+    #[test]
+    fn probability_vjps_save_forward_emitted_probabilities_bit_for_bit() {
+        let values = [1000.0, -1000.0, 0.0, -3.0, -3.0, -3.0];
+        let expected_input = tensor(&[2, 3], &values);
+        let expected_probabilities = softmax(&expected_input.view(), 1).unwrap();
+        let expected_log_probabilities = log_softmax(&expected_input.view(), 1).unwrap();
+
+        let log_softmax_logits = parameter(&[2, 3], &values);
+        let log_probabilities = log_softmax_logits.log_softmax(1).unwrap();
+        assert_same_bits(
+            log_probabilities.value().as_slice(),
+            expected_log_probabilities.as_slice(),
+        );
+        let log_softmax_pass = sum_to_scalar(log_probabilities)
+            .backward_with_trace()
+            .unwrap();
+        let saved_log_softmax_probabilities = log_softmax_pass
+            .edges
+            .iter()
+            .find_map(|edge| match &edge.saved {
+                TensorSavedContext::Model(ModelSavedContext::LogSoftmax {
+                    probabilities, ..
+                }) => Some(probabilities),
+                _ => None,
+            })
+            .expect("log-softmax retains the probabilities emitted by its forward");
+        assert_same_bits(
+            saved_log_softmax_probabilities.as_slice(),
+            expected_probabilities.as_slice(),
+        );
+
+        let targets = [0, 2];
+        let expected_loss = indexed_mean_nll(&expected_input.view(), 1, &targets).unwrap();
+        let nll_logits = parameter(&[2, 3], &values);
+        let loss = nll_logits.indexed_mean_nll(1, &targets).unwrap();
+        assert_eq!(
+            loss.value().as_slice()[0].to_bits(),
+            expected_loss.to_bits()
+        );
+        let nll_pass = loss.backward_with_trace().unwrap();
+        let saved_nll_probabilities = nll_pass
+            .edges
+            .iter()
+            .find_map(|edge| match &edge.saved {
+                TensorSavedContext::Model(ModelSavedContext::IndexedMeanNll {
+                    probabilities,
+                    ..
+                }) => Some(probabilities),
+                _ => None,
+            })
+            .expect("indexed mean NLL retains the probabilities emitted by its forward");
+        assert_same_bits(
+            saved_nll_probabilities.as_slice(),
+            expected_probabilities.as_slice(),
+        );
+    }
+
+    #[test]
+    fn indexed_nll_preserves_probability_error_precedence_and_stability() {
+        let logits = constant(&[0, 2], &[]);
+        assert_eq!(
+            logits.indexed_mean_nll(1, &[]).unwrap_err(),
+            TensorAutodiffError::Probability(ProbabilityError::EmptyTargets)
+        );
+        let logits = constant(&[2, 2], &[1000.0, -1000.0, -1000.0, 1000.0]);
+        assert_eq!(
+            logits.indexed_mean_nll(1, &[0]).unwrap_err(),
+            TensorAutodiffError::Probability(ProbabilityError::TargetCountMismatch {
+                expected: 2,
+                actual: 1,
+            })
+        );
+        assert_eq!(
+            logits.indexed_mean_nll(1, &[0, 2]).unwrap_err(),
+            TensorAutodiffError::Probability(ProbabilityError::TargetOutOfBounds {
+                group: 1,
+                target: 2,
+                classes: 2,
+            })
+        );
+        let loss = logits.indexed_mean_nll(1, &[0, 1]).unwrap();
+        assert_eq!(loss.value().as_slice(), &[0.0]);
+    }
+
+    #[test]
+    fn model_vjp_buffers_keep_the_model_allocation_error_boundary() {
+        assert_eq!(
+            zeros(&[usize::MAX]).unwrap_err(),
+            TensorAutodiffError::Model(ModelOpError::OutputAllocationFailed {
+                elements: usize::MAX,
+            })
+        );
+
+        let empty_upstream = tensor(&[usize::MAX, 2, 0], &[]);
+        let empty_result = unbroadcast(&empty_upstream, &[usize::MAX, 2, 0]).unwrap();
+        assert_eq!(empty_result.shape(), &[usize::MAX, 2, 0]);
+        assert!(empty_result.is_empty());
+    }
+
+    #[test]
+    fn indexed_nll_vjp_projects_middle_axis_targets_to_storage_offsets() {
+        let logits = parameter(&[2, 3, 2], &[0.0; 12]);
+        let loss = logits.indexed_mean_nll(1, &[0, 1, 2, 0]).unwrap();
+        loss.backward_with_seed(&tensor(&[], &[2.0]).view(), GraphRetention::Retain)
+            .unwrap();
+
+        assert_close(
+            logits.gradient().unwrap().as_slice(),
+            &[
+                -1.0 / 3.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                -1.0 / 3.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                -1.0 / 3.0,
+                1.0 / 6.0,
+                1.0 / 6.0,
+                -1.0 / 3.0,
+                1.0 / 6.0,
+            ],
+            1e-12,
+        );
+
+        let singleton_class = parameter(&[2, 1, 2], &[0.0; 4]);
+        singleton_class
+            .indexed_mean_nll(1, &[0, 0, 0, 0])
+            .unwrap()
+            .backward()
+            .unwrap();
+        assert!(
+            singleton_class
+                .gradient()
+                .unwrap()
+                .as_slice()
+                .iter()
+                .all(|value| value.to_bits() == 0.0_f64.to_bits())
+        );
+    }
+
+    #[test]
+    fn model_operations_inherit_retention_and_released_operand_rules() {
+        let left = parameter(&[2, 2], &[1.0, 2.0, 3.0, 4.0]);
+        let right = constant(&[2, 2], &[1.0, 0.0, 0.0, 1.0]);
+        let product = left.matmul(&right).unwrap();
+        sum_to_scalar(product.clone())
+            .backward_with_seed(&tensor(&[], &[1.0]).view(), GraphRetention::Release)
+            .unwrap();
+        assert!(product.is_released());
+        assert_eq!(
+            product.exp().unwrap_err(),
+            TensorAutodiffError::ReleasedOperand {
+                operation: TensorOperation::Exp,
+                operand: 0,
+            }
+        );
+        assert_eq!(
+            product
+                .gather_rows(&[usize::MAX], &[usize::MAX, 2])
+                .unwrap_err(),
+            TensorAutodiffError::ReleasedOperand {
+                operation: TensorOperation::GatherRows,
+                operand: 0,
+            }
+        );
+    }
+
+    #[test]
+    fn nonfinite_model_vjp_is_transactional_and_keeps_the_graph() {
+        let input = parameter(&[], &[f64::MIN_POSITIVE]);
+        let logged = input.log().unwrap();
+        logged
+            .backward_with_seed(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)
+            .unwrap();
+        let gradient_before_failure = input
+            .gradient_snapshot()
+            .expect("the first pass stores a parameter gradient");
+
+        let huge_seed = tensor(&[], &[f64::MAX]);
+        assert!(matches!(
+            logged.backward_with_seed(&huge_seed.view(), GraphRetention::Release),
+            Err(TensorAutodiffError::NonFiniteVjp {
+                child: 1,
+                parent: 0,
+                operand: 0,
+                index: 0,
+                ..
+            })
+        ));
+        assert_eq!(&*input.gradient().unwrap(), &gradient_before_failure);
+        assert!(!logged.is_released());
+
+        logged.backward().unwrap();
+        assert_eq!(
+            input.gradient().unwrap().as_slice(),
+            &[2.0 / f64::MIN_POSITIVE]
+        );
+    }
+
+    #[test]
+    fn backward_trace_exposes_typed_model_saved_context() {
+        let table = parameter(&[3, 2], &[1.0, 0.0, 0.0, 1.0, 2.0, 3.0]);
+        let loss = sum_to_scalar(table.gather_rows(&[2, 1], &[1, 2]).unwrap());
+        let pass = loss.backward_with_trace().unwrap();
+        let saved = pass
+            .edges
+            .iter()
+            .find_map(|edge| match &edge.saved {
+                TensorSavedContext::Model(ModelSavedContext::GatherRows {
+                    indices,
+                    index_shape,
+                    input_shape,
+                    output_shape,
+                }) => Some((indices, index_shape, input_shape, output_shape)),
+                _ => None,
+            })
+            .expect("the gather edge retains its validated plan facts");
+        assert_eq!(saved.0, &[2, 1]);
+        assert_eq!(saved.1, &[1, 2]);
+        assert_eq!(saved.2, &[3, 2]);
+        assert_eq!(saved.3, &[1, 2, 2]);
+    }
+}

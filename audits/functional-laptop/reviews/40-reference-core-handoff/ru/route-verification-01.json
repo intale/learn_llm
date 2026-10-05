@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "status": "exact-route-verified",
+  "roles": {
+    "bilingual": {
+      "contextId": "ch40_ru_bilingual_review_01",
+      "recordSha256": "93da428de1bc1fdf29a6b71ef14d068700538c4c9dd15e75f200eef57b18aada",
+      "recordBytes": 2212,
+      "contextSha256": "56008359404eb9e0eadba1a5cf6a0165116bfac13d7c3ca190202dcead23f8be",
+      "promptSha256": "068a801ffbd95614d90987e7a74cee40504a024fb6b2cdb033e37948127cfc89",
+      "bundleSha256": "db293d4a666da89fbfd3fa7fe3564277079df2e8496153be0c8af4060d310894"
+    },
+    "target-only": {
+      "contextId": "ch40_ru_target_only_review_01",
+      "recordSha256": "687ae706463a7800ef02f98ed94d1466c3e53e2d891f71f0badef667363f32e8",
+      "recordBytes": 2128,
+      "contextSha256": "7f91b33632565222b3433322898a4b894fed0f3273f20a68317e5cc8e7b854f8",
+      "promptSha256": "8351e98fc29c4888c471983784515bd1c07fff8906cb13df87bbb44cc9ea9715",
+      "bundleSha256": "cde654bade97324a12979f971c45d2026085ea6b2c12ef151ed493b18da238cd"
+    }
+  },
+  "limitations": "Operational byte/routing/configuration checks only. The unchanged maintained localization verifier remains required for schema, coverage, source/target binding, blockers and publication identity; language substance comes from independent model judgments."
+}

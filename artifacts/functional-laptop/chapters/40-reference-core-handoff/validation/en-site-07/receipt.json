@@ -1,0 +1,1289 @@
+{
+  "schemaVersion": 1,
+  "kind": "deterministic-validation-and-propagation-reuse",
+  "container": "ch40-en-site-07",
+  "image": "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5",
+  "network": "none",
+  "role": "private-review",
+  "exitCode": 0,
+  "source": {
+    "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/content/chapters/en/40-reference-core-handoff.mdx",
+    "bytes": 18445,
+    "sha256": "cead6a6a6152e588fc60119c8ffbfb34282da51ed33cec877c53c070f98f538c"
+  },
+  "privateScope": {
+    "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/i18n/functional-catalogs/private-review.json",
+    "bytes": 199,
+    "sha256": "f529e1adc5e371b989aa942b791229107c8828da1ad0e750fe6fa1d7b147405b"
+  },
+  "logs": [
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/contract.stdout",
+      "bytes": 39,
+      "sha256": "371ef9263c79d1397a8c4e7ce7cb6ac865fd41bff5f6548f25239f2ab458030b"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/contract.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/content.stdout",
+      "bytes": 30,
+      "sha256": "90b45a08bce2317764fc54122db8caddf8980a63fe24180a6e3d093e22c25020"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/content.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/build.stdout",
+      "bytes": 6616,
+      "sha256": "78eec7bd5ffdc247956a9620bd9dad5a72086362947eafd4397f574b9dc18a07"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/build.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/firefox.stdout",
+      "bytes": 856,
+      "sha256": "9ca0c8419781cffdd55d3ba61d30af4b61722956151157078b720bfcf8c53b75"
+    },
+    {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/validation/en-site-07/firefox.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "results": {
+    "contract": 0,
+    "content": 0,
+    "buildPages": 86,
+    "buildSeconds": 11.27,
+    "firefoxPassed": 5,
+    "firefoxSeconds": 4.5,
+    "rustInvocations": 0
+  },
+  "propagation": {
+    "acceptedPrior": {
+      "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-01/activation-propagation.json",
+      "bytes": 505745,
+      "sha256": "23af2f48aaf5f3a2e6b9db7b5051c994680c42f5e6684dfb699999b7f71682de"
+    },
+    "files": [
+      {
+        "relativePath": "en/course/00-llm-parts/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/00-llm-parts/index.html",
+          "bytes": 107065,
+          "sha256": "78db259b4f2a943d7032e7bec6f0f0828b93c2abd5e8fcae2fb1c5af3f8cb7c5"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/00-llm-parts/index.html",
+          "bytes": 107065,
+          "sha256": "78db259b4f2a943d7032e7bec6f0f0828b93c2abd5e8fcae2fb1c5af3f8cb7c5"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/01-text-units/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/01-text-units/index.html",
+          "bytes": 125959,
+          "sha256": "e4279020f19683bdf01f8ee6182e50ebb679e19caa43e7e66f100eac3ca23783"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/01-text-units/index.html",
+          "bytes": 125959,
+          "sha256": "e4279020f19683bdf01f8ee6182e50ebb679e19caa43e7e66f100eac3ca23783"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/02-corpus-partitions/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/02-corpus-partitions/index.html",
+          "bytes": 168206,
+          "sha256": "39efd43cdcb36d81febfb25f394ed70b4cdca13af409a4a13707df5bed9d54d5"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/02-corpus-partitions/index.html",
+          "bytes": 168206,
+          "sha256": "39efd43cdcb36d81febfb25f394ed70b4cdca13af409a4a13707df5bed9d54d5"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/03-learn-bpe-merges/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/03-learn-bpe-merges/index.html",
+          "bytes": 166155,
+          "sha256": "e6030d283935cc667bd96e31ff39b779d8ad8900a9741383f6c8edf13f88522b"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/03-learn-bpe-merges/index.html",
+          "bytes": 166155,
+          "sha256": "e6030d283935cc667bd96e31ff39b779d8ad8900a9741383f6c8edf13f88522b"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/04-apply-bpe-tokenizer/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/04-apply-bpe-tokenizer/index.html",
+          "bytes": 194058,
+          "sha256": "37b9bb30851112ec1f6a01fa16a17d3ccce4f987f158fd0c065b05e1993160e2"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/04-apply-bpe-tokenizer/index.html",
+          "bytes": 194058,
+          "sha256": "37b9bb30851112ec1f6a01fa16a17d3ccce4f987f158fd0c065b05e1993160e2"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/05-autoregressive-examples/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/05-autoregressive-examples/index.html",
+          "bytes": 248109,
+          "sha256": "3fd232492e70d7bf56081172d47e8f1d632a72c4d4d53c7841bd0784108b9663"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/05-autoregressive-examples/index.html",
+          "bytes": 248109,
+          "sha256": "3fd232492e70d7bf56081172d47e8f1d632a72c4d4d53c7841bd0784108b9663"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/06-bigram-baseline/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/06-bigram-baseline/index.html",
+          "bytes": 244374,
+          "sha256": "bdf68e1d7e909b184071b2e79a8d52e6922c58a099b7b5335a51eed06d8ccb0e"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/06-bigram-baseline/index.html",
+          "bytes": 244374,
+          "sha256": "bdf68e1d7e909b184071b2e79a8d52e6922c58a099b7b5335a51eed06d8ccb0e"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/07-language-model-metrics/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/07-language-model-metrics/index.html",
+          "bytes": 247798,
+          "sha256": "83232ca3177afbb14f508bd1ffb152227424cb79c49777edccc2b19775acdabe"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/07-language-model-metrics/index.html",
+          "bytes": 247798,
+          "sha256": "83232ca3177afbb14f508bd1ffb152227424cb79c49777edccc2b19775acdabe"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/08-tensor-storage/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/08-tensor-storage/index.html",
+          "bytes": 231336,
+          "sha256": "12fc5a4026f688440f8f81e139c24e6bb86c1392faf57c6a1e60dfabd5e61272"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/08-tensor-storage/index.html",
+          "bytes": 231336,
+          "sha256": "12fc5a4026f688440f8f81e139c24e6bb86c1392faf57c6a1e60dfabd5e61272"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/09-tensor-views/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/09-tensor-views/index.html",
+          "bytes": 243318,
+          "sha256": "60ed4a7051e19b4b22b9c08536988e993a3ef37428821fb0eda7622f479dc320"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/09-tensor-views/index.html",
+          "bytes": 243318,
+          "sha256": "60ed4a7051e19b4b22b9c08536988e993a3ef37428821fb0eda7622f479dc320"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/10-broadcasting-reductions/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/10-broadcasting-reductions/index.html",
+          "bytes": 233072,
+          "sha256": "75241e738cc866b13330b5a7b04765d447707f5af244f667347ca7cc07e4154d"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/10-broadcasting-reductions/index.html",
+          "bytes": 233072,
+          "sha256": "75241e738cc866b13330b5a7b04765d447707f5af244f667347ca7cc07e4154d"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/11-matrix-multiplication/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/11-matrix-multiplication/index.html",
+          "bytes": 256571,
+          "sha256": "3912a9ee0e629f48444136dd193dd91c27d2db14701f454bae4e35ac3d138f60"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/11-matrix-multiplication/index.html",
+          "bytes": 256571,
+          "sha256": "3912a9ee0e629f48444136dd193dd91c27d2db14701f454bae4e35ac3d138f60"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/12-stable-softmax/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/12-stable-softmax/index.html",
+          "bytes": 305167,
+          "sha256": "2c094718cac9b54c26bbdf378797cc28579ceeba0ab9f31af2ef8a3552c89785"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/12-stable-softmax/index.html",
+          "bytes": 305167,
+          "sha256": "2c094718cac9b54c26bbdf378797cc28579ceeba0ab9f31af2ef8a3552c89785"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/13-gradient-checking/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/13-gradient-checking/index.html",
+          "bytes": 466733,
+          "sha256": "551595554a8976b5bdc3b63248aba8af5792a46e1e0ec21b22e7ae01e1828590"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/13-gradient-checking/index.html",
+          "bytes": 466733,
+          "sha256": "551595554a8976b5bdc3b63248aba8af5792a46e1e0ec21b22e7ae01e1828590"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/14-scalar-autodiff/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/14-scalar-autodiff/index.html",
+          "bytes": 292420,
+          "sha256": "75fad6916c93780dd3359d72681a10064efd818df11fc00e13bf4149d279ea10"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/14-scalar-autodiff/index.html",
+          "bytes": 292420,
+          "sha256": "75fad6916c93780dd3359d72681a10064efd818df11fc00e13bf4149d279ea10"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/15-tensor-autodiff-core/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/15-tensor-autodiff-core/index.html",
+          "bytes": 531309,
+          "sha256": "694d5dd6a90a27bf2956beab72c91d564fad0b8d195a5e75920b6b92a31e84bf"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/15-tensor-autodiff-core/index.html",
+          "bytes": 531309,
+          "sha256": "694d5dd6a90a27bf2956beab72c91d564fad0b8d195a5e75920b6b92a31e84bf"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/16-model-autodiff-ops/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/16-model-autodiff-ops/index.html",
+          "bytes": 393166,
+          "sha256": "5989a3b049de73d4dc52b892127f21cfc643822a4453a33dc91f433305ae3c26"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/16-model-autodiff-ops/index.html",
+          "bytes": 393166,
+          "sha256": "5989a3b049de73d4dc52b892127f21cfc643822a4453a33dc91f433305ae3c26"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/17-parameter-initialization/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/17-parameter-initialization/index.html",
+          "bytes": 309870,
+          "sha256": "6bd3c2e0df1f3c970682c6ddd25d71b0d1c6bc40b980c017f4f5bb4e695a8ba0"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/17-parameter-initialization/index.html",
+          "bytes": 309870,
+          "sha256": "6bd3c2e0df1f3c970682c6ddd25d71b0d1c6bc40b980c017f4f5bb4e695a8ba0"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/18-token-embeddings/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/18-token-embeddings/index.html",
+          "bytes": 324433,
+          "sha256": "5b68230f09373935f9fba033b6e9a70c6485c831ecc1f831cda82fb30fc7345f"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/18-token-embeddings/index.html",
+          "bytes": 324433,
+          "sha256": "5b68230f09373935f9fba033b6e9a70c6485c831ecc1f831cda82fb30fc7345f"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/19-linear-layers/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/19-linear-layers/index.html",
+          "bytes": 334977,
+          "sha256": "8f30f54bb0a2c1333a831f8523208dddd165aef98fcbbba061f6dd60d44f0c34"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/19-linear-layers/index.html",
+          "bytes": 334977,
+          "sha256": "8f30f54bb0a2c1333a831f8523208dddd165aef98fcbbba061f6dd60d44f0c34"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/20-swiglu-feed-forward/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/20-swiglu-feed-forward/index.html",
+          "bytes": 449483,
+          "sha256": "d7a089d702684c50a3a2d874c3c8ee1ce1b3c957960419b03ffc7390b8b7d725"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/20-swiglu-feed-forward/index.html",
+          "bytes": 449483,
+          "sha256": "d7a089d702684c50a3a2d874c3c8ee1ce1b3c957960419b03ffc7390b8b7d725"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/21-mini-batches/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/21-mini-batches/index.html",
+          "bytes": 405708,
+          "sha256": "efbe8a2204d5de538cd8f138ba2c58285e598dd56f1752896ed36cb121640e5f"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/21-mini-batches/index.html",
+          "bytes": 405708,
+          "sha256": "efbe8a2204d5de538cd8f138ba2c58285e598dd56f1752896ed36cb121640e5f"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/22-adamw/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/22-adamw/index.html",
+          "bytes": 619394,
+          "sha256": "ff0dc94c33fdf13e6c7557106461059482c734b8a54e4b655445bfdabfc54401"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/22-adamw/index.html",
+          "bytes": 619394,
+          "sha256": "ff0dc94c33fdf13e6c7557106461059482c734b8a54e4b655445bfdabfc54401"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/23-neural-ngram/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/23-neural-ngram/index.html",
+          "bytes": 355733,
+          "sha256": "4beb31c833ca736fa20026d0c19892cf3226b345818837ee09f293bb3308cef7"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/23-neural-ngram/index.html",
+          "bytes": 355733,
+          "sha256": "4beb31c833ca736fa20026d0c19892cf3226b345818837ee09f293bb3308cef7"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/24-residual-connections/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/24-residual-connections/index.html",
+          "bytes": 275028,
+          "sha256": "05b41a2f205748e1523d043cd2f172b7f72000d75bf6f74d9a9070be54609b91"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/24-residual-connections/index.html",
+          "bytes": 275028,
+          "sha256": "05b41a2f205748e1523d043cd2f172b7f72000d75bf6f74d9a9070be54609b91"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/25-rmsnorm/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/25-rmsnorm/index.html",
+          "bytes": 295613,
+          "sha256": "4b1764b01974d53bbb5ec0565d342b6582ccf33e053ba066bd3e0d1be5a7c90f"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/25-rmsnorm/index.html",
+          "bytes": 295613,
+          "sha256": "4b1764b01974d53bbb5ec0565d342b6582ccf33e053ba066bd3e0d1be5a7c90f"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/26-qkv-projections/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/26-qkv-projections/index.html",
+          "bytes": 360135,
+          "sha256": "1eca320612997bbc9ef166171699d15920948b321d2459980616a755ae7e18a7"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/26-qkv-projections/index.html",
+          "bytes": 360135,
+          "sha256": "1eca320612997bbc9ef166171699d15920948b321d2459980616a755ae7e18a7"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/27-self-attention/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/27-self-attention/index.html",
+          "bytes": 423348,
+          "sha256": "4621832d4de425b9d1f3c6634bf6418c3a0eff563c1ae1d33d40c3c2dfd68afd"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/27-self-attention/index.html",
+          "bytes": 423348,
+          "sha256": "4621832d4de425b9d1f3c6634bf6418c3a0eff563c1ae1d33d40c3c2dfd68afd"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/28-causal-masking/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/28-causal-masking/index.html",
+          "bytes": 396608,
+          "sha256": "b6573112392895a29e13693445ea822a238479503805f2c3d0e2e15b9e6d0614"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/28-causal-masking/index.html",
+          "bytes": 396608,
+          "sha256": "b6573112392895a29e13693445ea822a238479503805f2c3d0e2e15b9e6d0614"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/29-rope/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/29-rope/index.html",
+          "bytes": 401198,
+          "sha256": "f669ef37701dec02d282696be8d0be181bdff61a3f1d3bc2beed227a0ef3f781"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/29-rope/index.html",
+          "bytes": 401198,
+          "sha256": "f669ef37701dec02d282696be8d0be181bdff61a3f1d3bc2beed227a0ef3f781"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/30-multi-head-attention/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/30-multi-head-attention/index.html",
+          "bytes": 673574,
+          "sha256": "bd42d03e153b453c213be55ccd37d3d22dc1b763fa6d3c5337176b2bdebcd74f"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/30-multi-head-attention/index.html",
+          "bytes": 673574,
+          "sha256": "bd42d03e153b453c213be55ccd37d3d22dc1b763fa6d3c5337176b2bdebcd74f"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/31-decoder-block/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/31-decoder-block/index.html",
+          "bytes": 421380,
+          "sha256": "00ab4cc57a767b0a5a84ca5703ae9f6009bf03da24eccacd9024e17eb7508e3b"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/31-decoder-block/index.html",
+          "bytes": 421380,
+          "sha256": "00ab4cc57a767b0a5a84ca5703ae9f6009bf03da24eccacd9024e17eb7508e3b"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/32-decoder-model/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/32-decoder-model/index.html",
+          "bytes": 532772,
+          "sha256": "382d2b54860c03d3ac44376638627deaa9386856790702cdd26a8e57eb6528a8"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/32-decoder-model/index.html",
+          "bytes": 532772,
+          "sha256": "382d2b54860c03d3ac44376638627deaa9386856790702cdd26a8e57eb6528a8"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/33-training-selection/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/33-training-selection/index.html",
+          "bytes": 496047,
+          "sha256": "e1205570486b85e228a36d33e0a94e505042af4e8206b1f03f90d15f674fc85a"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/33-training-selection/index.html",
+          "bytes": 496047,
+          "sha256": "e1205570486b85e228a36d33e0a94e505042af4e8206b1f03f90d15f674fc85a"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/34-final-evaluation/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/34-final-evaluation/index.html",
+          "bytes": 330862,
+          "sha256": "68063868e09c764d7befcdaa5b9f5911b2a8b7a8363418ec5e556b6c3d2a56b6"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/34-final-evaluation/index.html",
+          "bytes": 330862,
+          "sha256": "68063868e09c764d7befcdaa5b9f5911b2a8b7a8363418ec5e556b6c3d2a56b6"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/35-checkpoints/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/35-checkpoints/index.html",
+          "bytes": 337959,
+          "sha256": "1f6ab710622d9bb4d52c6e0db6297e4e3bd93b9dde46afb8b2f64b604c3a5694"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/35-checkpoints/index.html",
+          "bytes": 337959,
+          "sha256": "1f6ab710622d9bb4d52c6e0db6297e4e3bd93b9dde46afb8b2f64b604c3a5694"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/36-temperature-top-k/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/36-temperature-top-k/index.html",
+          "bytes": 543550,
+          "sha256": "652416a7458d6b7efa33ad16dd4583f1adb62d4aeace0447d2b2f3c1d866f5cd"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/36-temperature-top-k/index.html",
+          "bytes": 543550,
+          "sha256": "652416a7458d6b7efa33ad16dd4583f1adb62d4aeace0447d2b2f3c1d866f5cd"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/37-incremental-attention/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/37-incremental-attention/index.html",
+          "bytes": 585281,
+          "sha256": "ca79bb13930a8ddf51f7a7c28262a05e68f86754e34cbd8775632c67627e90bd"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/37-incremental-attention/index.html",
+          "bytes": 585281,
+          "sha256": "ca79bb13930a8ddf51f7a7c28262a05e68f86754e34cbd8775632c67627e90bd"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/38-cached-generation/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/38-cached-generation/index.html",
+          "bytes": 663544,
+          "sha256": "16519e851801e5cd69bd39da19e65c9e4bda9b22f0522e397d47d59c577d9a16"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/38-cached-generation/index.html",
+          "bytes": 663544,
+          "sha256": "16519e851801e5cd69bd39da19e65c9e4bda9b22f0522e397d47d59c577d9a16"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/39-end-to-end-llm/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/39-end-to-end-llm/index.html",
+          "bytes": 288503,
+          "sha256": "1c6ec5178c5548c73928997dd6dc6d7d566dda883f805773397c5c2ef6088a2f"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/39-end-to-end-llm/index.html",
+          "bytes": 288503,
+          "sha256": "1c6ec5178c5548c73928997dd6dc6d7d566dda883f805773397c5c2ef6088a2f"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/course/40-reference-core-handoff/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158170,
+          "sha256": "1d49b19ceca385870f203560344e408095be414b4bc354b0cdd73f3763dd2a9a"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158238,
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc"
+        },
+        "bytesIdentical": false
+      },
+      {
+        "relativePath": "en/course/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/course/index.html",
+          "bytes": 84186,
+          "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/course/index.html",
+          "bytes": 84186,
+          "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "en/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/en/index.html",
+          "bytes": 9264,
+          "sha256": "5f4a7c6a49d828497d9cda27269b6fe2a78bd94cdc80ea2df4540273a998909e"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/en/index.html",
+          "bytes": 9264,
+          "sha256": "5f4a7c6a49d828497d9cda27269b6fe2a78bd94cdc80ea2df4540273a998909e"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/index.html",
+          "bytes": 2854,
+          "sha256": "9db024a98ac44aead5e1c937dd562c2e8a84265e1fa9872da269d1cc7c2beb19"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/index.html",
+          "bytes": 2854,
+          "sha256": "9db024a98ac44aead5e1c937dd562c2e8a84265e1fa9872da269d1cc7c2beb19"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/00-llm-parts/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/00-llm-parts/index.html",
+          "bytes": 121158,
+          "sha256": "53a7c4b139773f29613d8d4230ab7b8a200d8c645de97fae7bc1c9fd52adcd47"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/00-llm-parts/index.html",
+          "bytes": 121158,
+          "sha256": "53a7c4b139773f29613d8d4230ab7b8a200d8c645de97fae7bc1c9fd52adcd47"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/01-text-units/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/01-text-units/index.html",
+          "bytes": 139232,
+          "sha256": "854e21975c23737a4122aeb210491a499b7fa29b1b9c513f8d58df245aaeb006"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/01-text-units/index.html",
+          "bytes": 139232,
+          "sha256": "854e21975c23737a4122aeb210491a499b7fa29b1b9c513f8d58df245aaeb006"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/02-corpus-partitions/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/02-corpus-partitions/index.html",
+          "bytes": 185700,
+          "sha256": "0243454f6a773764014eda46193da59fba349b355d9f4c61ac0be18b248334a8"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/02-corpus-partitions/index.html",
+          "bytes": 185700,
+          "sha256": "0243454f6a773764014eda46193da59fba349b355d9f4c61ac0be18b248334a8"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/03-learn-bpe-merges/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/03-learn-bpe-merges/index.html",
+          "bytes": 192611,
+          "sha256": "0ff3cff827b99f2b6e6b0f6c590dc89f63c828d47d10edf84b22d0f77a2e4139"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/03-learn-bpe-merges/index.html",
+          "bytes": 192611,
+          "sha256": "0ff3cff827b99f2b6e6b0f6c590dc89f63c828d47d10edf84b22d0f77a2e4139"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/04-apply-bpe-tokenizer/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/04-apply-bpe-tokenizer/index.html",
+          "bytes": 214573,
+          "sha256": "d1b85e3116c9b797a4d6178b5a928e18dcf00c99f808183dfe0aa50aa32fc664"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/04-apply-bpe-tokenizer/index.html",
+          "bytes": 214573,
+          "sha256": "d1b85e3116c9b797a4d6178b5a928e18dcf00c99f808183dfe0aa50aa32fc664"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/05-autoregressive-examples/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/05-autoregressive-examples/index.html",
+          "bytes": 265628,
+          "sha256": "5f1639328cd521bb8e7d4cb2c580d0ed873f3cb4b85f35e35584d10bf1049439"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/05-autoregressive-examples/index.html",
+          "bytes": 265628,
+          "sha256": "5f1639328cd521bb8e7d4cb2c580d0ed873f3cb4b85f35e35584d10bf1049439"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/06-bigram-baseline/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/06-bigram-baseline/index.html",
+          "bytes": 269325,
+          "sha256": "d222aab311e39c0a1d82605175c9e7aff43f07c2bfbf8783f4a117788cfbdbb0"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/06-bigram-baseline/index.html",
+          "bytes": 269325,
+          "sha256": "d222aab311e39c0a1d82605175c9e7aff43f07c2bfbf8783f4a117788cfbdbb0"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/07-language-model-metrics/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/07-language-model-metrics/index.html",
+          "bytes": 287514,
+          "sha256": "fd2a5280031283e286c8c80b8c6c32acea9c81b422da2b264d828b2cfef1229e"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/07-language-model-metrics/index.html",
+          "bytes": 287514,
+          "sha256": "fd2a5280031283e286c8c80b8c6c32acea9c81b422da2b264d828b2cfef1229e"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/08-tensor-storage/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/08-tensor-storage/index.html",
+          "bytes": 249474,
+          "sha256": "848843b6a407e2808b8e2c1e63e163b565a3aa3b15b03313f31d680c7774e705"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/08-tensor-storage/index.html",
+          "bytes": 249474,
+          "sha256": "848843b6a407e2808b8e2c1e63e163b565a3aa3b15b03313f31d680c7774e705"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/09-tensor-views/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/09-tensor-views/index.html",
+          "bytes": 268614,
+          "sha256": "fe69602275ea4e026437fe710e741433f98a632b40480cccd8720f5a1c64cb07"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/09-tensor-views/index.html",
+          "bytes": 268614,
+          "sha256": "fe69602275ea4e026437fe710e741433f98a632b40480cccd8720f5a1c64cb07"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/10-broadcasting-reductions/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/10-broadcasting-reductions/index.html",
+          "bytes": 259365,
+          "sha256": "d9affea46247cd248eec718a51740e66a7f99740d1808713369adbb570c5f10f"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/10-broadcasting-reductions/index.html",
+          "bytes": 259365,
+          "sha256": "d9affea46247cd248eec718a51740e66a7f99740d1808713369adbb570c5f10f"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/11-matrix-multiplication/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/11-matrix-multiplication/index.html",
+          "bytes": 281119,
+          "sha256": "d6123358e5acebcf4479bbc2147b230aa29cc1fa937ceb5982a49a503d3f31b6"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/11-matrix-multiplication/index.html",
+          "bytes": 281119,
+          "sha256": "d6123358e5acebcf4479bbc2147b230aa29cc1fa937ceb5982a49a503d3f31b6"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/12-stable-softmax/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/12-stable-softmax/index.html",
+          "bytes": 332420,
+          "sha256": "2613b3e8813c60225667d520ef22263b97edf9af093a59d73541603d3953265b"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/12-stable-softmax/index.html",
+          "bytes": 332420,
+          "sha256": "2613b3e8813c60225667d520ef22263b97edf9af093a59d73541603d3953265b"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/13-gradient-checking/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/13-gradient-checking/index.html",
+          "bytes": 491299,
+          "sha256": "29b5e26c96b3ae40893c1d2a3416595209889098f3f6e59a5b755e1dc6ec291f"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/13-gradient-checking/index.html",
+          "bytes": 491299,
+          "sha256": "29b5e26c96b3ae40893c1d2a3416595209889098f3f6e59a5b755e1dc6ec291f"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/14-scalar-autodiff/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/14-scalar-autodiff/index.html",
+          "bytes": 313009,
+          "sha256": "7a0d16f351658f09db6e385442e58efb71cd7cca5a907479889db4360b6778dc"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/14-scalar-autodiff/index.html",
+          "bytes": 313009,
+          "sha256": "7a0d16f351658f09db6e385442e58efb71cd7cca5a907479889db4360b6778dc"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/15-tensor-autodiff-core/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/15-tensor-autodiff-core/index.html",
+          "bytes": 576084,
+          "sha256": "d94099f4736fc301b367c07c271aa5e04b981c8e28ad4d0734bbd0c06c4be575"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/15-tensor-autodiff-core/index.html",
+          "bytes": 576084,
+          "sha256": "d94099f4736fc301b367c07c271aa5e04b981c8e28ad4d0734bbd0c06c4be575"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/16-model-autodiff-ops/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/16-model-autodiff-ops/index.html",
+          "bytes": 431668,
+          "sha256": "3155f3d4a6223f80e3266645617e943caede0f59f025e77f31ff885ef6a0918c"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/16-model-autodiff-ops/index.html",
+          "bytes": 431668,
+          "sha256": "3155f3d4a6223f80e3266645617e943caede0f59f025e77f31ff885ef6a0918c"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/17-parameter-initialization/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/17-parameter-initialization/index.html",
+          "bytes": 336710,
+          "sha256": "665d5c66b4efeb289ef0b2b901243e548004c723525f17e4acd93a2a8803f5af"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/17-parameter-initialization/index.html",
+          "bytes": 336710,
+          "sha256": "665d5c66b4efeb289ef0b2b901243e548004c723525f17e4acd93a2a8803f5af"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/18-token-embeddings/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/18-token-embeddings/index.html",
+          "bytes": 345919,
+          "sha256": "11771b96a4996e056cb808045e58569ed49559b865b2093419d8237289393be9"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/18-token-embeddings/index.html",
+          "bytes": 345919,
+          "sha256": "11771b96a4996e056cb808045e58569ed49559b865b2093419d8237289393be9"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/19-linear-layers/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/19-linear-layers/index.html",
+          "bytes": 347610,
+          "sha256": "963821465e3e892849099e9b7ae389937790cce83fcb19bcb1b9f36a8a40b763"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/19-linear-layers/index.html",
+          "bytes": 347610,
+          "sha256": "963821465e3e892849099e9b7ae389937790cce83fcb19bcb1b9f36a8a40b763"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/20-swiglu-feed-forward/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/20-swiglu-feed-forward/index.html",
+          "bytes": 465272,
+          "sha256": "2c824c0952ef702ff57271c5072e1f0b468900213ec672e94b012e206c21224b"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/20-swiglu-feed-forward/index.html",
+          "bytes": 465272,
+          "sha256": "2c824c0952ef702ff57271c5072e1f0b468900213ec672e94b012e206c21224b"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/21-mini-batches/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/21-mini-batches/index.html",
+          "bytes": 426578,
+          "sha256": "d8c1468e66e59e641abc8462ffb65266ac828c97c5631f73eec79fd22e1d8360"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/21-mini-batches/index.html",
+          "bytes": 426578,
+          "sha256": "d8c1468e66e59e641abc8462ffb65266ac828c97c5631f73eec79fd22e1d8360"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/22-adamw/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/22-adamw/index.html",
+          "bytes": 654678,
+          "sha256": "127187ef5b638f14249e17f6971cd9b9bff39fc48e876defb2e7dd0286cc50ed"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/22-adamw/index.html",
+          "bytes": 654678,
+          "sha256": "127187ef5b638f14249e17f6971cd9b9bff39fc48e876defb2e7dd0286cc50ed"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/23-neural-ngram/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/23-neural-ngram/index.html",
+          "bytes": 373212,
+          "sha256": "7f27aa5d0e6172be3bc054c5d292981cb8f3ec17c3f336217732655239272e4e"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/23-neural-ngram/index.html",
+          "bytes": 373212,
+          "sha256": "7f27aa5d0e6172be3bc054c5d292981cb8f3ec17c3f336217732655239272e4e"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/24-residual-connections/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/24-residual-connections/index.html",
+          "bytes": 288296,
+          "sha256": "edb776d8f982c20091c32a03506daee8765d07719fff6cb9b7f339753c4384cc"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/24-residual-connections/index.html",
+          "bytes": 288296,
+          "sha256": "edb776d8f982c20091c32a03506daee8765d07719fff6cb9b7f339753c4384cc"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/25-rmsnorm/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/25-rmsnorm/index.html",
+          "bytes": 310273,
+          "sha256": "d4f2e1132bf62a47cef2bd545f078e1d6844242d667da43205e40f601f0f8a36"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/25-rmsnorm/index.html",
+          "bytes": 310273,
+          "sha256": "d4f2e1132bf62a47cef2bd545f078e1d6844242d667da43205e40f601f0f8a36"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/26-qkv-projections/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/26-qkv-projections/index.html",
+          "bytes": 374458,
+          "sha256": "22905d839597d5ec82c7937e964c3bca6e899fe8d5ee0fce4e1ffb53e731735e"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/26-qkv-projections/index.html",
+          "bytes": 374458,
+          "sha256": "22905d839597d5ec82c7937e964c3bca6e899fe8d5ee0fce4e1ffb53e731735e"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/27-self-attention/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/27-self-attention/index.html",
+          "bytes": 441203,
+          "sha256": "e002111fadcd83e795d82f22ebf0d960217c3242770c1102be4d1e777cd08cd3"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/27-self-attention/index.html",
+          "bytes": 441203,
+          "sha256": "e002111fadcd83e795d82f22ebf0d960217c3242770c1102be4d1e777cd08cd3"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/28-causal-masking/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/28-causal-masking/index.html",
+          "bytes": 412192,
+          "sha256": "69f802cbe6743acf9e5a05750caff7ff691a660494dfa7c9e8ad2d3835ccb59c"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/28-causal-masking/index.html",
+          "bytes": 412192,
+          "sha256": "69f802cbe6743acf9e5a05750caff7ff691a660494dfa7c9e8ad2d3835ccb59c"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/29-rope/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/29-rope/index.html",
+          "bytes": 418642,
+          "sha256": "d90fff0d7dd61090832e0520b73c947a8df82c108aa37779a12cf8fb27da129b"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/29-rope/index.html",
+          "bytes": 418642,
+          "sha256": "d90fff0d7dd61090832e0520b73c947a8df82c108aa37779a12cf8fb27da129b"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/30-multi-head-attention/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/30-multi-head-attention/index.html",
+          "bytes": 699288,
+          "sha256": "895a76c37e47b521ec70fa7a35a48129eb554ecd70ed5e388ee7728e23c39358"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/30-multi-head-attention/index.html",
+          "bytes": 699288,
+          "sha256": "895a76c37e47b521ec70fa7a35a48129eb554ecd70ed5e388ee7728e23c39358"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/31-decoder-block/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/31-decoder-block/index.html",
+          "bytes": 439175,
+          "sha256": "5d77c2c138f7d7be70f2df5d64178e72f457b185fa87fb02f123e75ff3e2d6a5"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/31-decoder-block/index.html",
+          "bytes": 439175,
+          "sha256": "5d77c2c138f7d7be70f2df5d64178e72f457b185fa87fb02f123e75ff3e2d6a5"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/32-decoder-model/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/32-decoder-model/index.html",
+          "bytes": 552863,
+          "sha256": "b6ce47412071893a5638dcbb12fd8e63d9f5e6b41d79f290823d45a06f21df40"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/32-decoder-model/index.html",
+          "bytes": 552863,
+          "sha256": "b6ce47412071893a5638dcbb12fd8e63d9f5e6b41d79f290823d45a06f21df40"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/33-training-selection/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/33-training-selection/index.html",
+          "bytes": 527348,
+          "sha256": "b465d1d1428bd6b14366f22e0e428829caab4787ec421ed50b216efcf560b37e"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/33-training-selection/index.html",
+          "bytes": 527348,
+          "sha256": "b465d1d1428bd6b14366f22e0e428829caab4787ec421ed50b216efcf560b37e"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/34-final-evaluation/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/34-final-evaluation/index.html",
+          "bytes": 362498,
+          "sha256": "70020da9569bfa1c28ac59e3679af37a8f458b31802865a4135d656ed1cb2f53"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/34-final-evaluation/index.html",
+          "bytes": 362498,
+          "sha256": "70020da9569bfa1c28ac59e3679af37a8f458b31802865a4135d656ed1cb2f53"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/35-checkpoints/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/35-checkpoints/index.html",
+          "bytes": 374552,
+          "sha256": "cf496e77eb1fef2f090c8d6657ca258676190c0b7bd144c47fae3e1e932a3515"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/35-checkpoints/index.html",
+          "bytes": 374552,
+          "sha256": "cf496e77eb1fef2f090c8d6657ca258676190c0b7bd144c47fae3e1e932a3515"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/36-temperature-top-k/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/36-temperature-top-k/index.html",
+          "bytes": 575153,
+          "sha256": "75cdbc87a97d04a640a8517ab1619cd13f8df70c0d2f0ee342b54fada253a055"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/36-temperature-top-k/index.html",
+          "bytes": 575153,
+          "sha256": "75cdbc87a97d04a640a8517ab1619cd13f8df70c0d2f0ee342b54fada253a055"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/37-incremental-attention/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/37-incremental-attention/index.html",
+          "bytes": 608858,
+          "sha256": "ee37b009da2c9d1db7b81719b7b4cb43a5e2b436711b441b3c32dafe74173e08"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/37-incremental-attention/index.html",
+          "bytes": 608858,
+          "sha256": "ee37b009da2c9d1db7b81719b7b4cb43a5e2b436711b441b3c32dafe74173e08"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/38-cached-generation/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/38-cached-generation/index.html",
+          "bytes": 693183,
+          "sha256": "708edc9fca141386e6a5c06b8cd9a7e57214a0995b8e866026cfc96c2e7c9334"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/38-cached-generation/index.html",
+          "bytes": 693183,
+          "sha256": "708edc9fca141386e6a5c06b8cd9a7e57214a0995b8e866026cfc96c2e7c9334"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/39-end-to-end-llm/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/39-end-to-end-llm/index.html",
+          "bytes": 328416,
+          "sha256": "c298cdf27252dde4ea0d587fd1e1fd857db50b9d71f18926c041eebb7ff9fec3"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/39-end-to-end-llm/index.html",
+          "bytes": 328416,
+          "sha256": "c298cdf27252dde4ea0d587fd1e1fd857db50b9d71f18926c041eebb7ff9fec3"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/course/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/course/index.html",
+          "bytes": 96719,
+          "sha256": "026ada5378b9a2a2ac109cdaea066dcd2cdaa0d640a4a53ac22fb4516cb1e80e"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/course/index.html",
+          "bytes": 96719,
+          "sha256": "026ada5378b9a2a2ac109cdaea066dcd2cdaa0d640a4a53ac22fb4516cb1e80e"
+        },
+        "bytesIdentical": true
+      },
+      {
+        "relativePath": "ru/index.html",
+        "before": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-03/ru/index.html",
+          "bytes": 10743,
+          "sha256": "dfe9a00bfa45df723351bf60fed4d85693e652d0d5e3219d3318f38c86e71339"
+        },
+        "after": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/english-build-04/ru/index.html",
+          "bytes": 10743,
+          "sha256": "dfe9a00bfa45df723351bf60fed4d85693e652d0d5e3219d3318f38c86e71339"
+        },
+        "bytesIdentical": true
+      }
+    ],
+    "changedRoutes": [
+      "en/course/40-reference-core-handoff/index.html"
+    ],
+    "exactAuthoredTextAddition": "The reported mean NLL uses nats per overlapping window-target slot.",
+    "unchangedHtmlDocuments": 85,
+    "note": "85 complete HTML byte identities preserve predecessor activation propagation. New Chapter40 HTML differs only by the approved answer-unit sentence. No semantic-review approval is inferred."
+  }
+}

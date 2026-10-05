@@ -1,0 +1,1 @@
+Решение: идентифицируйте входы, затем разберите свидетельства R_{\mathrm{ref}}=\operatorname{SHA256}(\mathrm{config}_{1188}\Vert\mathrm{fixture}\Vert\mathrm{source\_revision})

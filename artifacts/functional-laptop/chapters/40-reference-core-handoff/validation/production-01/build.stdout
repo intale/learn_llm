@@ -1,0 +1,111 @@
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+11:11:37 [content] Syncing content
+11:11:37 [content] Synced content
+11:11:37 [types] Generated 431ms
+11:11:37 [build] output: "static"
+11:11:37 [build] mode: "static"
+11:11:37 [build] directory: /workspace/site/dist/
+11:11:37 [build] Collecting build info...
+11:11:37 [build] ✓ Completed in 441ms.
+11:11:37 [build] Building static entrypoints...
+11:11:44 [vite] ✓ built in 7.70s
+11:11:44 [vite] ✓ built in 11ms
+11:11:45 [build] Rearranging server assets...
+
+ generating static routes 
+11:11:45   ├─ /sitemap.xml (+595ms) 
+11:11:46   ├─ /en/course/index.html (+585ms) 
+11:11:46   ├─ /ru/course/index.html (+570ms) 
+11:11:47   ├─ /en/course/00-llm-parts/index.html (+609ms) 
+11:11:48   ├─ /ru/course/00-llm-parts/index.html (+670ms) 
+11:11:48   ├─ /en/course/01-text-units/index.html (+28ms) 
+11:11:48   ├─ /ru/course/01-text-units/index.html (+22ms) 
+11:11:48   ├─ /en/course/02-corpus-partitions/index.html (+34ms) 
+11:11:48   ├─ /ru/course/02-corpus-partitions/index.html (+30ms) 
+11:11:48   ├─ /en/course/03-learn-bpe-merges/index.html (+24ms) 
+11:11:48   ├─ /ru/course/03-learn-bpe-merges/index.html (+19ms) 
+11:11:48   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+31ms) 
+11:11:48   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+26ms) 
+11:11:48   ├─ /en/course/05-autoregressive-examples/index.html (+29ms) 
+11:11:48   ├─ /ru/course/05-autoregressive-examples/index.html (+28ms) 
+11:11:48   ├─ /en/course/06-bigram-baseline/index.html (+34ms) 
+11:11:49   ├─ /ru/course/06-bigram-baseline/index.html (+26ms) 
+11:11:49   ├─ /en/course/07-language-model-metrics/index.html (+25ms) 
+11:11:49   ├─ /ru/course/07-language-model-metrics/index.html (+29ms) 
+11:11:49   ├─ /en/course/08-tensor-storage/index.html (+38ms) 
+11:11:49   ├─ /ru/course/08-tensor-storage/index.html (+25ms) 
+11:11:49   ├─ /en/course/09-tensor-views/index.html (+31ms) 
+11:11:49   ├─ /ru/course/09-tensor-views/index.html (+29ms) 
+11:11:49   ├─ /en/course/10-broadcasting-reductions/index.html (+29ms) 
+11:11:49   ├─ /ru/course/10-broadcasting-reductions/index.html (+27ms) 
+11:11:49   ├─ /en/course/11-matrix-multiplication/index.html (+31ms) 
+11:11:49   ├─ /ru/course/11-matrix-multiplication/index.html (+36ms) 
+11:11:49   ├─ /en/course/12-stable-softmax/index.html (+51ms) 
+11:11:49   ├─ /ru/course/12-stable-softmax/index.html (+49ms) 
+11:11:49   ├─ /en/course/13-gradient-checking/index.html (+81ms) 
+11:11:49   ├─ /ru/course/13-gradient-checking/index.html (+75ms) 
+11:11:49   ├─ /en/course/14-scalar-autodiff/index.html (+46ms) 
+11:11:49   ├─ /ru/course/14-scalar-autodiff/index.html (+39ms) 
+11:11:49   ├─ /en/course/15-tensor-autodiff-core/index.html (+82ms) 
+11:11:49   ├─ /ru/course/15-tensor-autodiff-core/index.html (+82ms) 
+11:11:49   ├─ /en/course/16-model-autodiff-ops/index.html (+72ms) 
+11:11:49   ├─ /ru/course/16-model-autodiff-ops/index.html (+138ms) 
+11:11:50   ├─ /en/course/17-parameter-initialization/index.html (+53ms) 
+11:11:50   ├─ /ru/course/17-parameter-initialization/index.html (+52ms) 
+11:11:50   ├─ /en/course/18-token-embeddings/index.html (+63ms) 
+11:11:50   ├─ /ru/course/18-token-embeddings/index.html (+56ms) 
+11:11:50   ├─ /en/course/19-linear-layers/index.html (+63ms) 
+11:11:50   ├─ /ru/course/19-linear-layers/index.html (+43ms) 
+11:11:50   ├─ /en/course/20-swiglu-feed-forward/index.html (+81ms) 
+11:11:50   ├─ /ru/course/20-swiglu-feed-forward/index.html (+64ms) 
+11:11:50   ├─ /en/course/21-mini-batches/index.html (+63ms) 
+11:11:50   ├─ /ru/course/21-mini-batches/index.html (+63ms) 
+11:11:50   ├─ /en/course/22-adamw/index.html (+101ms) 
+11:11:50   ├─ /ru/course/22-adamw/index.html (+116ms) 
+11:11:50   ├─ /en/course/23-neural-ngram/index.html (+56ms) 
+11:11:50   ├─ /ru/course/23-neural-ngram/index.html (+57ms) 
+11:11:50   ├─ /en/course/24-residual-connections/index.html (+38ms) 
+11:11:51   ├─ /ru/course/24-residual-connections/index.html (+37ms) 
+11:11:51   ├─ /en/course/25-rmsnorm/index.html (+45ms) 
+11:11:51   ├─ /ru/course/25-rmsnorm/index.html (+43ms) 
+11:11:51   ├─ /en/course/26-qkv-projections/index.html (+58ms) 
+11:11:51   ├─ /ru/course/26-qkv-projections/index.html (+64ms) 
+11:11:51   ├─ /en/course/27-self-attention/index.html (+77ms) 
+11:11:51   ├─ /ru/course/27-self-attention/index.html (+69ms) 
+11:11:51   ├─ /en/course/28-causal-masking/index.html (+53ms) 
+11:11:51   ├─ /ru/course/28-causal-masking/index.html (+56ms) 
+11:11:51   ├─ /en/course/29-rope/index.html (+68ms) 
+11:11:51   ├─ /ru/course/29-rope/index.html (+49ms) 
+11:11:51   ├─ /en/course/30-multi-head-attention/index.html (+103ms) 
+11:11:51   ├─ /ru/course/30-multi-head-attention/index.html (+96ms) 
+11:11:51   ├─ /en/course/31-decoder-block/index.html (+52ms) 
+11:11:51   ├─ /ru/course/31-decoder-block/index.html (+51ms) 
+11:11:51   ├─ /en/course/32-decoder-model/index.html (+76ms) 
+11:11:52   ├─ /ru/course/32-decoder-model/index.html (+78ms) 
+11:11:52   ├─ /en/course/33-training-selection/index.html (+77ms) 
+11:11:52   ├─ /ru/course/33-training-selection/index.html (+74ms) 
+11:11:52   ├─ /en/course/34-final-evaluation/index.html (+44ms) 
+11:11:52   ├─ /ru/course/34-final-evaluation/index.html (+43ms) 
+11:11:52   ├─ /en/course/35-checkpoints/index.html (+47ms) 
+11:11:52   ├─ /ru/course/35-checkpoints/index.html (+48ms) 
+11:11:52   ├─ /en/course/36-temperature-top-k/index.html (+74ms) 
+11:11:52   ├─ /ru/course/36-temperature-top-k/index.html (+68ms) 
+11:11:52   ├─ /en/course/37-incremental-attention/index.html (+85ms) 
+11:11:52   ├─ /ru/course/37-incremental-attention/index.html (+84ms) 
+11:11:52   ├─ /en/course/38-cached-generation/index.html (+112ms) 
+11:11:52   ├─ /ru/course/38-cached-generation/index.html (+99ms) 
+11:11:52   ├─ /en/course/39-end-to-end-llm/index.html (+32ms) 
+11:11:52   ├─ /ru/course/39-end-to-end-llm/index.html (+33ms) 
+11:11:53   ├─ /en/course/40-reference-core-handoff/index.html (+17ms) 
+11:11:53   ├─ /ru/course/40-reference-core-handoff/index.html (+17ms) 
+11:11:53   ├─ /en/index.html (+1ms) 
+11:11:53   ├─ /ru/index.html (+1ms) 
+11:11:53   ├─ /index.html (+2ms) 
+11:11:53 ✓ Completed in 8.06s.
+
+11:11:53 [build] ✓ Completed in 15.86s.
+11:11:53 [build] 87 page(s) built in 16.32s
+11:11:53 [build] Complete!

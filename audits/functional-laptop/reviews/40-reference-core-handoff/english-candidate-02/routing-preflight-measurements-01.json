@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "ch40.en.phase-a.20261005.r1",
+  "scopeId": "ch40.en.phase-a",
+  "routing": {
+    "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/review-routing.json",
+    "sha256": "203bd87da40719478b5cd29d47c4cc84da869b213866728d08ac9a9e9f519a2f"
+  },
+  "contexts": [
+    {
+      "role": "technical-pedagogical",
+      "logicalContextId": "ch40_en_technical_review_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/contexts/technical-pedagogical.json",
+          "sha256": "853b806169415448dde2b08bda2e484e7eb61f4bd0e71eb4f233eb75f521f3bd",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/contexts/technical-pedagogical.json",
+          "bytes": 1256
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/prompts/technical-pedagogical.json",
+          "sha256": "7c856b30a0eb10c2e4683054594c25730ad2a47ece93c105aa20bf6577add7db",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/prompts/technical-pedagogical.json",
+          "bytes": 2821
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/bundle/technical-pedagogical/review-bundle.json",
+          "sha256": "20558ca704632900e65e973cc69407da1003fd8873bdf3e30df3a4c5844dc996",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/bundle/technical-pedagogical/review-bundle.json",
+          "bytes": 2553088
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/schemas/review-record.schema.json",
+          "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/schemas/review-record.schema.json",
+          "bytes": 4763
+        }
+      },
+      "totalBytes": 2561928
+    },
+    {
+      "role": "isolated-surface",
+      "logicalContextId": "ch40_en_isolated_review_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/contexts/isolated-surface.json",
+          "sha256": "c9e9068bd648df1a4024b25898cc08349c6607b3a9e7fa7022bdf1aa61c4df20",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/contexts/isolated-surface.json",
+          "bytes": 1235
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/prompts/isolated-surface.json",
+          "sha256": "3446b07cf8acdfa4c1b7fee323637d57cfd561d9f70cc4081b1e16b96bf531ba",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/review-routing/prompts/isolated-surface.json",
+          "bytes": 3007
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/bundle/isolated-surface/review-bundle.json",
+          "sha256": "eb544f0014e172a947a53ab77893151cf99ae82b699dfdd0b644528ddb0d7651",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/bundle/isolated-surface/review-bundle.json",
+          "bytes": 37077
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/schemas/review-record.schema.json",
+          "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-candidate-02/schemas/review-record.schema.json",
+          "bytes": 4763
+        }
+      },
+      "totalBytes": 46082
+    }
+  ],
+  "newBytes": 2608010,
+  "priorRoutedInputBytes": 0,
+  "cumulativeRoutedInputBytes": 2608010,
+  "effectiveInputByteCapPerContext": 3145728,
+  "effectiveCumulativeInputByteCap": 31457280,
+  "inputTokenCeiling": 200000,
+  "tokenUsage": "unobserved-not-estimated",
+  "limitations": "Accessible file byte accounting, not actual model token usage or complete author-input accounting. No model judgment or publication approval."
+}

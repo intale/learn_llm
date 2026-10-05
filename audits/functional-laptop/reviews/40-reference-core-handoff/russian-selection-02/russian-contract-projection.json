@@ -1,0 +1,95 @@
+{
+  "chapter_id": "40-reference-core-handoff",
+  "concept_id": "reference-core-handoff",
+  "content_revision": 1,
+  "order": 40,
+  "objective": "Построить идентичность входов скалярного эталона с 1188 параметрами из его конфигурации, фиксированного примера и проверенной идентичности исходного кода; отличить результаты регрессионной проверки от ещё не измеренных будущих возможностей.",
+  "worked_inputs": "Используйте неизменное разбиение: восемь обучающих документов, два валидационных и два тестовых, а также небольшую скалярную конфигурацию. Один вызов процесса выполняет две последовательности по 32 обновления, каждая с 2048 обучающими целевыми позициями. Разберите 1744 целевые позиции перекрывающихся тестовых окон, 442 перехода внутри документов в заданных позициях, точное восстановление и сгенерированные ID токенов [260,34,34].",
+  "formula": {
+    "latex": "R_{\\mathrm{ref}}=\\operatorname{SHA256}(\\mathrm{config}_{1188}\\Vert\\mathrm{fixture}\\Vert\\mathrm{source\\_revision})",
+    "symbols": [
+      {
+        "symbol": "R_{\\mathrm{ref}}",
+        "meaning": "256-битный хеш, идентифицирующий запись фиксированных входов эталона"
+      },
+      {
+        "symbol": "\\mathrm{config}_{1188}",
+        "meaning": "каноническая запись восемнадцати настроек небольшого запуска и инварианта о 1188 параметрах"
+      },
+      {
+        "symbol": "\\mathrm{fixture}",
+        "meaning": "каноническая запись хешей SHA-256 точных байтов корпуса и манифеста разбиения"
+      },
+      {
+        "symbol": "\\mathrm{source\\_revision}",
+        "meaning": "проверенная идентичность исходного кода, связывающая базовую ревизию с точными сорока исходными файлами скалярного эталона, принадлежащими курсу"
+      },
+      {
+        "symbol": "\\Vert",
+        "meaning": "объединение именованных полей в общем каноническом формате идентичности, а не простая конкатенация байтов без границ полей"
+      },
+      {
+        "symbol": "\\operatorname{SHA256}",
+        "meaning": "вычисляемый вспомогательной библиотекой хеш SHA-256 всей канонической записи идентичности"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "evaluation-method",
+      "limitation": "Оценка языковой модели без условий запуска и границ вывода не позволяет определить, что оценивалось и какие возможности были проверены.",
+      "later_advance": "Model Cards описывают условия оценки и предполагаемое применение; более поздние эксперименты с дообучением исследуют вариацию результатов при разных инициализациях и порядках данных. Описание границ результата и измерение вариации отвечают на разные вопросы.",
+      "modern_llm_role": "При изменении процесса работы LLM сохраняйте неизменный эталон для регрессионной проверки, а свидетельства качества, чувствительности к зерну и аппаратных возможностей записывайте отдельно.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2019,
+          "name": "Model Cards for Model Reporting",
+          "source_url": "https://arxiv.org/abs/1810.03993v2",
+          "claim": "Митчелл и соавторы предлагают документацию модели, включающую предполагаемое применение и условия оценки; сама по себе карточка модели не доказывает её качество."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "Fine-Tuning Pretrained Language Models: Weight Initializations, Data Orders, and Early Stopping",
+          "source_url": "https://arxiv.org/abs/2002.06305v1",
+          "claim": "Додж и соавторы исследуют вариацию результатов дообучения предварительно обученных языковых моделей, связанную с инициализацией и порядком данных. Это исследование не измеряет вариацию результатов небольшого декодера курса."
+        }
+      ]
+    },
+    "approach": "Сравните значение потерь декодера, прочитанное из одного CapstoneRun, с отчётом о том же наблюдении, в котором указаны границы вывода; для этого сравнения новая модель не обучается.",
+    "summary": "Указывайте условия и ограничения вместе с результатом LLM. Повтор с тем же зерном проверяет воспроизводимость в данном выполнении, а не вариацию между зёрнами или качество генерируемого языка."
+  },
+  "rust": {
+    "package": "ch40-reference-core-handoff",
+    "sources": [
+      "rust/demos/ch40-reference-core-handoff/src/lib.rs",
+      "rust/demos/ch40-reference-core-handoff/src/main.rs"
+    ],
+    "expected_output": "{\n  \"chapter\": \"40-reference-core-handoff\",\n  \"checkpoint\": {\n    \"bytes_roundtrip\": true,\n    \"complete_job_resume_established\": false,\n    \"logit_probe_ids\": [\n      67,\n      118\n    ],\n    \"logit_probe_text\": \"At\",\n    \"model_bits_exact\": true,\n    \"optimizer_bits_exact\": true,\n    \"probe_logits_bitwise\": true,\n    \"tokenizer_exact\": true\n  },\n  \"documents\": {\n    \"test\": 2,\n    \"train\": 8,\n    \"validation\": 2\n  },\n  \"evaluation\": {\n    \"bigram_mean_nll_nats_per_slot\": 3.9813427143837696,\n    \"decoder_mean_nll_nats_per_slot\": 3.8660875470071363,\n    \"document_transition_occurrences\": 442,\n    \"independent_generalization_estimate\": false,\n    \"once_per_transition_metric_reported\": false,\n    \"transition_multiplicity_counts\": [\n      4,\n      4,\n      4,\n      430\n    ],\n    \"unit\": \"overlapping-window-target-slot\",\n    \"window_target_slots\": 1744,\n    \"windows\": 436\n  },\n  \"generation\": {\n    \"cached_reference_decisions_bitwise\": true,\n    \"cached_reference_rng_exact\": true,\n    \"cached_reference_tokens_exact\": true,\n    \"decoded_text\": \"т  \",\n    \"prompt\": \"A\",\n    \"token_ids\": [\n      260,\n      34,\n      34\n    ],\n    \"useful_language_quality_established\": false\n  },\n  \"laptop_throughput_measured\": false,\n  \"model\": {\n    \"context_tokens\": 4,\n    \"parameters\": 1188\n  },\n  \"reference_identity\": \"cd06104ff61dc8a0c6cbe6e842847952343050eb4942c79aa1d17e8d0d0bb648\",\n  \"schema_version\": 1,\n  \"scope\": \"scalar-reference-fixed-fixture-regression\",\n  \"source_revision\": \"3ddda34cc3e765a3f96021abff6000e9520f5a15\",\n  \"successor_chapter\": \"41-governed-corpus-acquisition\",\n  \"training\": {\n    \"independent_schedules\": 2,\n    \"selected_step\": 32,\n    \"target_count_basis\": \"derived-from-frozen-full-batch-schedules\",\n    \"updates_per_schedule\": 32,\n    \"valid_targets_per_schedule\": 2048,\n    \"valid_targets_primary_plus_replay\": 4096,\n    \"within_invocation_replay_bitwise\": true\n  }\n}\n"
+  },
+  "visualization": {
+    "decision": "useful",
+    "id": "reference-core-handoff",
+    "rationale": "Отделите идентичность входов от проверенного поведения эталона и ещё не измеренных возможностей следующего этапа, чтобы хеш не воспринимался как подтверждение возможностей модели."
+  },
+  "decoder_connection": "Существующий скалярный декодер остаётся неизменной точкой сравнения. Глава 41 изменит границу получения корпуса; это будущее изменение потребует новой идентичности входов и собственных свидетельств, а не расширения утверждений об этом эталоне.",
+  "terminology": [
+    {
+      "concept_id": "reference-input-identity",
+      "term": "идентичность входов эталона"
+    },
+    {
+      "concept_id": "fixed-fixture-regression-evidence",
+      "term": "результат регрессионной проверки фиксированного примера"
+    },
+    {
+      "concept_id": "overlapping-window-target-slot",
+      "term": "целевая позиция перекрывающегося окна"
+    },
+    {
+      "concept_id": "bitwise-replay",
+      "term": "побитовое воспроизведение обучения"
+    }
+  ]
+}

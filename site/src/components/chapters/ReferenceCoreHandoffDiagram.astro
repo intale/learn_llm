@@ -1,0 +1,55 @@
+---
+import traceSource from '../../../../rust/demos/ch40-reference-core-handoff/expected.txt?raw';
+
+interface Props {
+  labels: {
+    title: string; description: string; inputs: string; checks: string;
+    future: string; digest: string; parameters: string; slots: string;
+    transitions: string; generation: string; limits: string;
+  };
+}
+const { labels } = Astro.props;
+for (const value of Object.values(labels)) {
+  if (typeof value !== 'string' || value.trim().length === 0) throw new Error('Missing reference figure label');
+}
+const trace = JSON.parse(traceSource);
+if (trace.chapter !== '40-reference-core-handoff' ||
+    trace.scope !== 'scalar-reference-fixed-fixture-regression' ||
+    !/^[a-f0-9]{64}$/.test(trace.reference_identity) ||
+    trace.model.parameters !== 1188 || trace.evaluation.window_target_slots !== 1744 ||
+    trace.evaluation.document_transition_occurrences !== 442 ||
+    trace.laptop_throughput_measured !== false ||
+    trace.checkpoint.complete_job_resume_established !== false ||
+    trace.generation.useful_language_quality_established !== false) {
+  throw new Error('Unexpected reference handoff trace');
+}
+---
+<figure class="course-diagram reference-core-handoff-diagram"
+  data-diagram-style="course-v1" data-visualization-id="reference-core-handoff"
+  tabindex="0" aria-labelledby="reference-handoff-title" aria-describedby="reference-handoff-description">
+  <figcaption class="course-diagram__caption">
+    <h3 id="reference-handoff-title">{labels.title}</h3>
+    <p id="reference-handoff-description" class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+  <div class="course-diagram__grid">
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+      <h4>{labels.inputs}</h4>
+      <dl>
+        <dt>{labels.digest}</dt>
+        <dd class="course-diagram__technical"><code><bdi dir="ltr">{trace.reference_identity}</bdi></code></dd>
+        <dt>{labels.parameters}</dt><dd><code>{trace.model.parameters}</code></dd>
+      </dl>
+    </section>
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+      <h4>{labels.checks}</h4>
+      <dl>
+        <dt>{labels.slots}</dt><dd><code>{trace.evaluation.window_target_slots}</code></dd>
+        <dt>{labels.transitions}</dt><dd><code>{trace.evaluation.document_transition_occurrences}</code></dd>
+        <dt>{labels.generation}</dt><dd><code><bdi dir="ltr">{JSON.stringify(trace.generation.token_ids)}</bdi></code></dd>
+      </dl>
+    </section>
+    <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+      <h4>{labels.future}</h4><p class="course-diagram__description">{labels.limits}</p>
+    </section>
+  </div>
+</figure>

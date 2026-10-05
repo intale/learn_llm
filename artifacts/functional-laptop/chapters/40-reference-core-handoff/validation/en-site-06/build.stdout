@@ -1,0 +1,110 @@
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+09:05:31 [content] Syncing content
+09:05:31 [content] Synced content
+09:05:31 [types] Generated 462ms
+09:05:31 [build] output: "static"
+09:05:31 [build] mode: "static"
+09:05:31 [build] directory: /workspace/site/dist/
+09:05:31 [build] Collecting build info...
+09:05:31 [build] ✓ Completed in 475ms.
+09:05:31 [build] Building static entrypoints...
+09:05:39 [vite] ✓ built in 7.87s
+09:05:39 [vite] ✓ built in 10ms
+09:05:39 [build] Rearranging server assets...
+
+ generating static routes 
+09:05:39   ├─ /sitemap.xml (+10ms) 
+09:05:39   ├─ /en/course/index.html (+8ms) 
+09:05:39   ├─ /ru/course/index.html (+6ms) 
+09:05:39   ├─ /en/course/00-llm-parts/index.html (+12ms) 
+09:05:39   ├─ /ru/course/00-llm-parts/index.html (+8ms) 
+09:05:39   ├─ /en/course/01-text-units/index.html (+24ms) 
+09:05:39   ├─ /ru/course/01-text-units/index.html (+14ms) 
+09:05:39   ├─ /en/course/02-corpus-partitions/index.html (+29ms) 
+09:05:39   ├─ /ru/course/02-corpus-partitions/index.html (+26ms) 
+09:05:39   ├─ /en/course/03-learn-bpe-merges/index.html (+18ms) 
+09:05:39   ├─ /ru/course/03-learn-bpe-merges/index.html (+19ms) 
+09:05:39   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+24ms) 
+09:05:39   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+22ms) 
+09:05:39   ├─ /en/course/05-autoregressive-examples/index.html (+26ms) 
+09:05:39   ├─ /ru/course/05-autoregressive-examples/index.html (+25ms) 
+09:05:39   ├─ /en/course/06-bigram-baseline/index.html (+30ms) 
+09:05:39   ├─ /ru/course/06-bigram-baseline/index.html (+27ms) 
+09:05:39   ├─ /en/course/07-language-model-metrics/index.html (+24ms) 
+09:05:39   ├─ /ru/course/07-language-model-metrics/index.html (+26ms) 
+09:05:39   ├─ /en/course/08-tensor-storage/index.html (+24ms) 
+09:05:39   ├─ /ru/course/08-tensor-storage/index.html (+22ms) 
+09:05:39   ├─ /en/course/09-tensor-views/index.html (+31ms) 
+09:05:39   ├─ /ru/course/09-tensor-views/index.html (+29ms) 
+09:05:39   ├─ /en/course/10-broadcasting-reductions/index.html (+27ms) 
+09:05:39   ├─ /ru/course/10-broadcasting-reductions/index.html (+25ms) 
+09:05:39   ├─ /en/course/11-matrix-multiplication/index.html (+30ms) 
+09:05:39   ├─ /ru/course/11-matrix-multiplication/index.html (+29ms) 
+09:05:39   ├─ /en/course/12-stable-softmax/index.html (+41ms) 
+09:05:39   ├─ /ru/course/12-stable-softmax/index.html (+43ms) 
+09:05:40   ├─ /en/course/13-gradient-checking/index.html (+64ms) 
+09:05:40   ├─ /ru/course/13-gradient-checking/index.html (+59ms) 
+09:05:40   ├─ /en/course/14-scalar-autodiff/index.html (+35ms) 
+09:05:40   ├─ /ru/course/14-scalar-autodiff/index.html (+33ms) 
+09:05:40   ├─ /en/course/15-tensor-autodiff-core/index.html (+76ms) 
+09:05:40   ├─ /ru/course/15-tensor-autodiff-core/index.html (+73ms) 
+09:05:40   ├─ /en/course/16-model-autodiff-ops/index.html (+53ms) 
+09:05:40   ├─ /ru/course/16-model-autodiff-ops/index.html (+55ms) 
+09:05:40   ├─ /en/course/17-parameter-initialization/index.html (+35ms) 
+09:05:40   ├─ /ru/course/17-parameter-initialization/index.html (+32ms) 
+09:05:40   ├─ /en/course/18-token-embeddings/index.html (+40ms) 
+09:05:40   ├─ /ru/course/18-token-embeddings/index.html (+36ms) 
+09:05:40   ├─ /en/course/19-linear-layers/index.html (+41ms) 
+09:05:40   ├─ /ru/course/19-linear-layers/index.html (+39ms) 
+09:05:40   ├─ /en/course/20-swiglu-feed-forward/index.html (+55ms) 
+09:05:40   ├─ /ru/course/20-swiglu-feed-forward/index.html (+84ms) 
+09:05:40   ├─ /en/course/21-mini-batches/index.html (+53ms) 
+09:05:40   ├─ /ru/course/21-mini-batches/index.html (+50ms) 
+09:05:40   ├─ /en/course/22-adamw/index.html (+88ms) 
+09:05:41   ├─ /ru/course/22-adamw/index.html (+81ms) 
+09:05:41   ├─ /en/course/23-neural-ngram/index.html (+44ms) 
+09:05:41   ├─ /ru/course/23-neural-ngram/index.html (+40ms) 
+09:05:41   ├─ /en/course/24-residual-connections/index.html (+32ms) 
+09:05:41   ├─ /ru/course/24-residual-connections/index.html (+28ms) 
+09:05:41   ├─ /en/course/25-rmsnorm/index.html (+32ms) 
+09:05:41   ├─ /ru/course/25-rmsnorm/index.html (+31ms) 
+09:05:41   ├─ /en/course/26-qkv-projections/index.html (+39ms) 
+09:05:41   ├─ /ru/course/26-qkv-projections/index.html (+38ms) 
+09:05:41   ├─ /en/course/27-self-attention/index.html (+49ms) 
+09:05:41   ├─ /ru/course/27-self-attention/index.html (+48ms) 
+09:05:41   ├─ /en/course/28-causal-masking/index.html (+37ms) 
+09:05:41   ├─ /ru/course/28-causal-masking/index.html (+35ms) 
+09:05:41   ├─ /en/course/29-rope/index.html (+44ms) 
+09:05:41   ├─ /ru/course/29-rope/index.html (+38ms) 
+09:05:41   ├─ /en/course/30-multi-head-attention/index.html (+88ms) 
+09:05:41   ├─ /ru/course/30-multi-head-attention/index.html (+88ms) 
+09:05:41   ├─ /en/course/31-decoder-block/index.html (+49ms) 
+09:05:41   ├─ /ru/course/31-decoder-block/index.html (+44ms) 
+09:05:41   ├─ /en/course/32-decoder-model/index.html (+70ms) 
+09:05:41   ├─ /ru/course/32-decoder-model/index.html (+70ms) 
+09:05:42   ├─ /en/course/33-training-selection/index.html (+66ms) 
+09:05:42   ├─ /ru/course/33-training-selection/index.html (+66ms) 
+09:05:42   ├─ /en/course/34-final-evaluation/index.html (+49ms) 
+09:05:42   ├─ /ru/course/34-final-evaluation/index.html (+38ms) 
+09:05:42   ├─ /en/course/35-checkpoints/index.html (+45ms) 
+09:05:42   ├─ /ru/course/35-checkpoints/index.html (+45ms) 
+09:05:42   ├─ /en/course/36-temperature-top-k/index.html (+63ms) 
+09:05:42   ├─ /ru/course/36-temperature-top-k/index.html (+61ms) 
+09:05:42   ├─ /en/course/37-incremental-attention/index.html (+73ms) 
+09:05:42   ├─ /ru/course/37-incremental-attention/index.html (+66ms) 
+09:05:42   ├─ /en/course/38-cached-generation/index.html (+87ms) 
+09:05:42   ├─ /ru/course/38-cached-generation/index.html (+85ms) 
+09:05:42   ├─ /en/course/39-end-to-end-llm/index.html (+38ms) 
+09:05:42   ├─ /ru/course/39-end-to-end-llm/index.html (+27ms) 
+09:05:42   ├─ /en/course/40-reference-core-handoff/index.html (+16ms) 
+09:05:42   ├─ /en/index.html (+1ms) 
+09:05:42   ├─ /ru/index.html (+1ms) 
+09:05:42   ├─ /index.html (+1ms) 
+09:05:42 ✓ Completed in 3.61s.
+
+09:05:42 [build] ✓ Completed in 11.58s.
+09:05:42 [build] 86 page(s) built in 12.07s
+09:05:42 [build] Complete!

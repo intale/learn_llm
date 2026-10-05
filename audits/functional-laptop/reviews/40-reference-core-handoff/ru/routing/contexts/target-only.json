@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "contextId": "ch40_ru_target_only_review_01",
+  "role": "target-only",
+  "freshContext": true,
+  "model": "gpt-6.1-sol",
+  "reasoning": "medium",
+  "createdAt": "2026-10-05T10:58:54.594Z",
+  "accessBoundary": [
+    "audits/functional-laptop/reviews/40-reference-core-handoff/ru/routing/contexts/target-only.json",
+    "audits/functional-laptop/reviews/40-reference-core-handoff/ru/routing/prompts/target-only.txt",
+    "audits/functional-laptop/reviews/40-reference-core-handoff/ru/bundle/target-only/review-bundle.json",
+    "audits/functional-laptop/reviews/40-reference-core-handoff/ru/routing/schemas/review-record.schema.json"
+  ]
+}

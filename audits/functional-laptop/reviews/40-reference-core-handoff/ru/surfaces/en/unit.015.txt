@@ -1,0 +1,1 @@
+Bind configuration, exact fixture bytes and verified scalar-reference source to one input identity. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-input-identity

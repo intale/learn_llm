@@ -1,0 +1,1 @@
+Checkpoint round trip Saving and loading persisted decoder, optimizer and tokenizer state exactly, with a fixed logit probe. This narrow check does not establish complete job resumption.

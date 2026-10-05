@@ -1,0 +1,1 @@
+Reject changed fixtures, run the unchanged scalar pipeline and retain only its checked observation. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-handoff

@@ -1,0 +1,15 @@
+
+> learn-llm-site@0.1.0 check
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro check
+
+11:11:25 [content] Syncing content
+11:11:25 [content] Content config changed
+11:11:25 [content] Clearing content store
+11:11:25 [content] Synced content
+11:11:25 [types] Generated 461ms
+11:11:25 [check] Getting diagnostics for Astro files in /workspace/site...
+Result (233 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+

@@ -1,0 +1,1 @@
+Отклоните изменённый пример, запустите неизменный скалярный процесс и сохраните только проверенное наблюдение. rust/demos/ch40-reference-core-handoff/src/lib.rs#reference-handoff

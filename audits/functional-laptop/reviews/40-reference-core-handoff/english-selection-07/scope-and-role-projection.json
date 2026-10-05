@@ -1,0 +1,601 @@
+{
+  "schemaVersion": 1,
+  "prior": {
+    "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-06/selected-surfaces-proposal.json",
+    "bytes": 266949,
+    "sha256": "28fb081591780919c2249186931b88cf189d6dd999ead440f8346f845aaec9ad"
+  },
+  "proposal": {
+    "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/audits/functional-laptop/reviews/40-reference-core-handoff/english-selection-07/selected-surfaces-proposal.json",
+    "bytes": 267042,
+    "sha256": "9d51e9a3077a4c2b460eb0b74219e8c6d800dea630ed1a178af05cf03178edf3"
+  },
+  "currentRoles": [
+    {
+      "id": "source-unit.059",
+      "documentId": "source.lesson",
+      "kind": "actual-source-field",
+      "value": "Use the unchanged split of eight training documents, two validation documents and two test documents, with the tiny scalar configuration. One pipeline invocation runs two 32-update schedules, each with 2,048 training targets. Interpret 1,744 overlapping test-window target slots, 442 within-document transition occurrences, exact reload and generated token IDs [260,34,34].",
+      "valueType": "source-field",
+      "roleRequirement": "Specify the worked example's unchanged split/configuration and locally scoped schedule, evaluation, reload and generation quantities; do not mistake repeated slots for unique transitions.",
+      "requirementKey": "author-overrides.source-unit.059",
+      "origin": {
+        "source": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/site/src/content/chapters/en/40-reference-core-handoff.mdx",
+          "sha256": "bfbc62fb255aac850b9157b4d0d08c5611ce219e84b4d0fdf07397db251cea25",
+          "bytes": 18505
+        },
+        "jsonPointer": "/worked_inputs"
+      },
+      "order": 59
+    },
+    {
+      "id": "unit.072",
+      "documentId": "built.lesson",
+      "kind": "cheat-sheet-page-accessible-name",
+      "value": "Terms 1–7 of 7; page 1 of 1",
+      "valueType": "attribute",
+      "attribute": "aria-label",
+      "order": 72,
+      "roleRequirement": "Identify the cheat-sheet group's displayed term range, total term count, current page and total pages; its associated group contains the seven chapter definitions.",
+      "requirementKey": "author-overrides.unit.072",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-03/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+          "bytes": 158238
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-page",
+          "data-cheat-sheet-page": "1",
+          "role": "group",
+          "aria-label": "Terms 1–7 of 7; page 1 of 1",
+          "data-astro-cid-ws375rge": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 5028,
+          "startOffset": 58137,
+          "endLine": 47,
+          "endCol": 7503,
+          "endOffset": 60612,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 5033,
+              "startOffset": 58142,
+              "endLine": 47,
+              "endCol": 5057,
+              "endOffset": 58166
+            },
+            "data-cheat-sheet-page": {
+              "startLine": 47,
+              "startCol": 5058,
+              "startOffset": 58167,
+              "endLine": 47,
+              "endCol": 5083,
+              "endOffset": 58192
+            },
+            "role": {
+              "startLine": 47,
+              "startCol": 5084,
+              "startOffset": 58193,
+              "endLine": 47,
+              "endCol": 5096,
+              "endOffset": 58205
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 5097,
+              "startOffset": 58206,
+              "endLine": 47,
+              "endCol": 5137,
+              "endOffset": 58246
+            },
+            "data-astro-cid-ws375rge": {
+              "startLine": 47,
+              "startCol": 5138,
+              "startOffset": 58247,
+              "endLine": 47,
+              "endCol": 5161,
+              "endOffset": 58270
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 5028,
+            "startOffset": 58137,
+            "endLine": 47,
+            "endCol": 5162,
+            "endOffset": 58271,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 5033,
+                "startOffset": 58142,
+                "endLine": 47,
+                "endCol": 5057,
+                "endOffset": 58166
+              },
+              "data-cheat-sheet-page": {
+                "startLine": 47,
+                "startCol": 5058,
+                "startOffset": 58167,
+                "endLine": 47,
+                "endCol": 5083,
+                "endOffset": 58192
+              },
+              "role": {
+                "startLine": 47,
+                "startCol": 5084,
+                "startOffset": 58193,
+                "endLine": 47,
+                "endCol": 5096,
+                "endOffset": 58205
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 5097,
+                "startOffset": 58206,
+                "endLine": 47,
+                "endCol": 5137,
+                "endOffset": 58246
+              },
+              "data-astro-cid-ws375rge": {
+                "startLine": 47,
+                "startCol": 5138,
+                "startOffset": 58247,
+                "endLine": 47,
+                "endCol": 5161,
+                "endOffset": 58270
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 7497,
+            "startOffset": 60606,
+            "endLine": 47,
+            "endCol": 7503,
+            "endOffset": 60612
+          }
+        }
+      }
+    },
+    {
+      "id": "unit.073",
+      "documentId": "built.lesson",
+      "kind": "lesson-position-and-version-metadata",
+      "value": "40 · Content revision 1",
+      "valueType": "text",
+      "order": 73,
+      "roleRequirement": "Identify the lesson’s chapter ordinal and content revision as course-position/version metadata, not model size or measured capability.",
+      "requirementKey": "author-overrides.unit.073",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-03/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+          "bytes": 158238
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          3
+        ],
+        "tag": "p",
+        "attributes": {
+          "class": "eyebrow"
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 2786,
+          "startOffset": 55895,
+          "endLine": 47,
+          "endCol": 2834,
+          "endOffset": 55943,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 2789,
+              "startOffset": 55898,
+              "endLine": 47,
+              "endCol": 2804,
+              "endOffset": 55913
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 2786,
+            "startOffset": 55895,
+            "endLine": 47,
+            "endCol": 2805,
+            "endOffset": 55914,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 2789,
+                "startOffset": 55898,
+                "endLine": 47,
+                "endCol": 2804,
+                "endOffset": 55913
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 2830,
+            "startOffset": 55939,
+            "endLine": 47,
+            "endCol": 2834,
+            "endOffset": 55943
+          }
+        }
+      }
+    }
+  ],
+  "completeBuiltLessonRole": "Explain why an unchanged scalar decoder needs an identified comparison point before extension; connect the exact fixed inputs, canonical named-input identity, checked Rust observation and scoped conclusions in problem-first order. Preserve 1188 parameters,2048 training targets per schedule/4096 primary-plus-replay,1744 window-target slots versus442 transition occurrences,nats-per-slot metrics,reload and generation limits. Do not imply useful quality,whole-job resumption,laptop throughput or cross-environment bitwise equivalence. Preserve the actual lesson-header metadata and cheat-sheet accessible term-range/total/page relationships.",
+  "sharedChromeScope": [
+    {
+      "value": "Dark theme",
+      "role": "unchanged shared interface invariant",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-03/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+          "bytes": 158238
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          3,
+          3
+        ],
+        "tag": "span",
+        "attributes": {
+          "class": "theme-toggle__label",
+          "data-astro-cid-l6lhmie6": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 1076,
+          "startOffset": 54185,
+          "endLine": 47,
+          "endCol": 1151,
+          "endOffset": 54260,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 1082,
+              "startOffset": 54191,
+              "endLine": 47,
+              "endCol": 1109,
+              "endOffset": 54218
+            },
+            "data-astro-cid-l6lhmie6": {
+              "startLine": 47,
+              "startCol": 1110,
+              "startOffset": 54219,
+              "endLine": 47,
+              "endCol": 1133,
+              "endOffset": 54242
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 1076,
+            "startOffset": 54185,
+            "endLine": 47,
+            "endCol": 1134,
+            "endOffset": 54243,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 1082,
+                "startOffset": 54191,
+                "endLine": 47,
+                "endCol": 1109,
+                "endOffset": 54218
+              },
+              "data-astro-cid-l6lhmie6": {
+                "startLine": 47,
+                "startCol": 1110,
+                "startOffset": 54219,
+                "endLine": 47,
+                "endCol": 1133,
+                "endOffset": 54242
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 1144,
+            "startOffset": 54253,
+            "endLine": 47,
+            "endCol": 1151,
+            "endOffset": 54260
+          }
+        }
+      },
+      "coveredBy": []
+    },
+    {
+      "value": "In this chapter",
+      "role": "unchanged shared interface invariant",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-03/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+          "bytes": 158238
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          9,
+          1
+        ],
+        "tag": "strong",
+        "attributes": {},
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 3152,
+          "startOffset": 56261,
+          "endLine": 47,
+          "endCol": 3184,
+          "endOffset": 56293,
+          "startTag": {
+            "startLine": 47,
+            "startCol": 3152,
+            "startOffset": 56261,
+            "endLine": 47,
+            "endCol": 3160,
+            "endOffset": 56269
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 3175,
+            "startOffset": 56284,
+            "endLine": 47,
+            "endCol": 3184,
+            "endOffset": 56293
+          }
+        }
+      },
+      "coveredBy": []
+    },
+    {
+      "value": "Quick reference",
+      "role": "unchanged shared interface invariant",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-03/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+          "bytes": 158238
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "tag": "p",
+        "attributes": {
+          "class": "cheat-sheet-eyebrow",
+          "data-astro-cid-ws375rge": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 4357,
+          "startOffset": 57466,
+          "endLine": 47,
+          "endCol": 4431,
+          "endOffset": 57540,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 4360,
+              "startOffset": 57469,
+              "endLine": 47,
+              "endCol": 4387,
+              "endOffset": 57496
+            },
+            "data-astro-cid-ws375rge": {
+              "startLine": 47,
+              "startCol": 4388,
+              "startOffset": 57497,
+              "endLine": 47,
+              "endCol": 4411,
+              "endOffset": 57520
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 4357,
+            "startOffset": 57466,
+            "endLine": 47,
+            "endCol": 4412,
+            "endOffset": 57521,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 4360,
+                "startOffset": 57469,
+                "endLine": 47,
+                "endCol": 4387,
+                "endOffset": 57496
+              },
+              "data-astro-cid-ws375rge": {
+                "startLine": 47,
+                "startCol": 4388,
+                "startOffset": 57497,
+                "endLine": 47,
+                "endCol": 4411,
+                "endOffset": 57520
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 4427,
+            "startOffset": 57536,
+            "endLine": 47,
+            "endCol": 4431,
+            "endOffset": 57540
+          }
+        }
+      },
+      "coveredBy": []
+    },
+    {
+      "value": "Home",
+      "role": "unchanged shared interface invariant",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/publish/artifacts/functional-laptop/chapters/40-reference-core-handoff/english-html-03/en/course/40-reference-core-handoff/index.html",
+          "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+          "bytes": 158238
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          1
+        ],
+        "tag": "a",
+        "attributes": {
+          "class": "wordmark",
+          "href": "/en/",
+          "aria-label": "Home",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 279,
+          "startOffset": 53388,
+          "endLine": 47,
+          "endCol": 495,
+          "endOffset": 53604,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 282,
+              "startOffset": 53391,
+              "endLine": 47,
+              "endCol": 298,
+              "endOffset": 53407
+            },
+            "href": {
+              "startLine": 47,
+              "startCol": 299,
+              "startOffset": 53408,
+              "endLine": 47,
+              "endCol": 310,
+              "endOffset": 53419
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 311,
+              "startOffset": 53420,
+              "endLine": 47,
+              "endCol": 328,
+              "endOffset": 53437
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 329,
+              "startOffset": 53438,
+              "endLine": 47,
+              "endCol": 352,
+              "endOffset": 53461
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 279,
+            "startOffset": 53388,
+            "endLine": 47,
+            "endCol": 353,
+            "endOffset": 53462,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 282,
+                "startOffset": 53391,
+                "endLine": 47,
+                "endCol": 298,
+                "endOffset": 53407
+              },
+              "href": {
+                "startLine": 47,
+                "startCol": 299,
+                "startOffset": 53408,
+                "endLine": 47,
+                "endCol": 310,
+                "endOffset": 53419
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 311,
+                "startOffset": 53420,
+                "endLine": 47,
+                "endCol": 328,
+                "endOffset": 53437
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 329,
+                "startOffset": 53438,
+                "endLine": 47,
+                "endCol": 352,
+                "endOffset": 53461
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 491,
+            "startOffset": 53600,
+            "endLine": 47,
+            "endCol": 495,
+            "endOffset": 53604
+          }
+        }
+      },
+      "coveredBy": []
+    }
+  ],
+  "authorRoleInput": {
+    "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/authoring/role-overrides-en-05.json",
+    "bytes": 198,
+    "sha256": "ca10c859d0dda353e936e49c3d41e39b1c58338e678f3599ac07467ded5e87fb"
+  },
+  "allSourceAndHtmlBytesUnchangedFromSelection06": true
+}

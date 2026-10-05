@@ -1,0 +1,1 @@
+cargo run --quiet --locked -p ch40-reference-core-handoff

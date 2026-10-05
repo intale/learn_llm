@@ -1,0 +1,1 @@
+Overlapping window-target slot One target position inside one causal window. Overlapping windows can score the same within-document transition occurrence repeatedly; this reference scores 1,744 slots representing 442 occurrences.

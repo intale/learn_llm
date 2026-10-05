@@ -1,0 +1,1 @@
+Next chapter → Keep a fixed reference before extending the decoder
