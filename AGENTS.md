@@ -444,6 +444,13 @@ alone; the repository state is authoritative.
 
 ## Orchestration principles
 
+Agent development has no elapsed-time limit or automatic time-budget stop. The
+user will interrupt when needed. Record elapsed time as evidence, not a reason
+to abandon or block otherwise authorized work. This does not remove time limits
+that are part of a taught workload, resource profile, network protocol, test
+timeout or other product behavior; those remain unchanged unless separately
+authorized by the user. Preserve historical time-budget records as history.
+
 - Divide work into the smallest independently verifiable steps that leave the
   repository in a coherent state. A step should normally fit in one agent session.
 - Give every step stable acceptance criteria, declared dependencies, inputs,

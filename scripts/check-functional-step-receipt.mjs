@@ -73,9 +73,10 @@ export function languageVerifierInvocations(chapterId, activeLocales, root) {
   // candidate paths. Flat English aliases are publication inventory copies,
   // not replacement routing identities. Other chapter conventions are intact.
   const isChapter40 = chapterId === '40-reference-core-handoff';
-  const english = base + (isChapter40 ? '/english-candidate-03' : '/english');
-  const reviewRouting = english + (isChapter40 ? '/review-routing/review-routing.json' : '/review-routing.json');
-  const adjudicationRouting = english + (isChapter40 ? '/adjudication-routing/adjudication-routing.json' : '/adjudication-routing.json');
+  const isChapter41 = chapterId === '41-governed-corpus-acquisition';
+  const english = base + (isChapter40 ? '/english-candidate-03' : isChapter41 ? '/english-candidate-02' : '/english');
+  const reviewRouting = english + (isChapter40 || isChapter41 ? '/review-routing/review-routing.json' : '/review-routing.json');
+  const adjudicationRouting = english + (isChapter40 || isChapter41 ? '/adjudication-routing/adjudication-routing.json' : '/adjudication-routing.json');
   const commands = [{executable: process.execPath, args: [
     resolve(root, '.agents/skills/author-llm-course-english/scripts/english-review.mjs'),
     'verify', '--spec', english + '/spec.json', '--bundle', english + '/bundle',

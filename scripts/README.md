@@ -47,16 +47,50 @@ The English-only40 candidate keeps declared final bilingual language links; only
 its exact absent Russian equivalent is tolerated by private link audit. Production
 checks every link. This rendering mechanism grants no author/review approval.
 
-Contract checking dispatches0..39 through the unchanged demo checker. Chapter40
-uses the exact `rust/demos/ch40-reference-core-handoff/` package with its main/lib
-sources and `expected.txt`, while retaining the shared private/production locale
-and publication gates. No Chapter40 cumulative module fragment is accepted.
-Chapters41+ retain the cumulative crate's exact example/golden/registry paths.
+Contract checking dispatches0..39 through the unchanged demo checker. Exact
+Chapters40/41 use their `rust/demos/ch<chapter-id>/` package main/lib sources and
+`expected.txt`, retaining shared private/production locale/publication gates.
+Chapter40 has no cumulative module fragment. Chapter41 separately registers its
+four reusable artifact modules through the unchanged cumulative registry grammar.
+Chapters42+ retain the cumulative crate's exact example/golden/registry paths.
 `check-functional-rust-examples.mjs --all|--chapter <id>` runs the bounded
 demo or in-package example and compares exact stdout. `check-functional-rust-ownership.mjs`
 enforces the accepted ownership-map-v1 grammar and registered source coverage.
-Only the user-approved Chapter40 demo package is added; no new external dependency
-or registry serialization is introduced.
+Only exact approved Chapters40/41 use the demo exception; no other chapter ID
+selects it. Chapter41's standard URL/header/filesystem supporting dependencies
+are separately pinned, fully allowlisted and cached; they never perform course
+manifest/policy/identity/budget/restart decisions. No registry serialization change.
+
+`node scripts/check-functional-chapter-reviews.mjs ch41-governed-corpus-acquisition`
+dispatches the maintained complete English four-chain verifier at the exact
+Chapter41 `english/` review root. It adds no Russian check under the user hold,
+preserves the existing reference-core and measured-PostgreSQL dispatches, and
+propagates verifier failure without rewriting raw judgments or supplying a verdict.
+
+### Offline Rust current-source overlay
+
+From the repository root, run:
+
+```sh
+scripts/run-functional-rust-overlay.sh RUN_ID OPERATION sha256:IMAGE_DIGEST -- cargo check --offline --locked -p PACKAGE
+```
+
+Before publication, the same script can be invoked by its immutable staged path
+while the current directory remains the repository root. The owning step must
+already authorize the command, image and inputs; this launcher grants no authority.
+It requires an existing safe `.build/runs/RUN_ID/publish` and provisioned
+`cargo-cache/registry`. It never provisions crates or pulls/builds an image.
+Accepted Cargo subcommands are check/clippy/test/run/tree (locked) and fmt.
+Docker always uses network-none, the proven private0755tmpfs, read-only canonical
+and stage mounts, and a regular-file-only stage overlay. Empty claimed directories
+do not become incomplete Cargo packages. Target/cache/log writes stay in the run;
+a stable advisory lock serializes its Rust operations. Each fresh operation owns
+private `validation/OPERATION` logs, exact argv, image and copied input hashes.
+An existing operation refuses overwrite; Cargo/Docker failure is propagated.
+There is no site/browser/review/acquisition mode or semantic validation shortcut.
+
+Regression: `node --test scripts/tests/run-functional-rust-overlay.test.mjs`.
+Its Docker fixture checks command plumbing only, not Rust execution or acceptance.
 
 `llm_from_scratch::reference_source_identity` exposes
 `verify_reference_source(manifest_bytes, supplied_files)` and
@@ -246,3 +280,72 @@ The suite also prepares a tiny candidate with the real maintained localization
 tool and checks its `targetOnly` binding through routing and read-only verification.
 Course-specific extraction, full original-file provenance, locale-owned contract
 projections and inventory snapshot generation remain immutable per-run work.
+
+### Governed acquisition transport (offline Chapter41)
+
+`scripts/lib/governed-acquisition-transport.mjs` exports
+`transport({command, requestFactory})` for one Rust-selected source. `command`
+is the private typed artifact-policy-worker request/reply channel; `requestFactory`
+uses Node `https.request(url, options, callback)`'s interface and is mandatory.
+Chapter41 supplies an injected offline factory, never a live downloader. There
+is no network CLI, URL override, retry loop, cache-boundary selector or filesystem
+write. A later separately authorized executor may supply Node HTTPS plumbing.
+
+The module follows only Rust-returned GET permits and grants, sends identity
+encoding unchanged, retains every raw relevant header occurrence, reads paused
+binary streams with at most the grant (maximum65,536bytes), and sends EOF as a
+separate operation. It does not decompress, resolve redirect targets, validate
+HTTP policy, write progress/partials or decide budgets. Redirect bodies are
+destroyed before cancellation; worker/transport refusal destroys the stream
+without inventing a grant settlement or retry. Rust restoration conservatively
+charges an outstanding uncertain grant. Errors are static and never echo signed
+URLs, raw headers or private worker diagnostics. The returned object is Rust's
+file-verification acknowledgment, not dataset approval.
+
+The worker permit supplies its persisted `deadline_unix_seconds`. One monotonic
+timer covers header wait and all body reads; its duration derives only from that
+deadline and does not restart on redirects or chunks. Expiration destroys the
+request/response, refuses further command dispatch and leaves grant recovery to
+Rust. There is no transport-defined policy duration.
+
+`scripts/lib/governed-acquisition-worker-client.mjs` supplies the private fixed
+binary JSONL channel, with bounded messages, one outstanding command, no stderr
+echo and no URL or policy-limit override. The Rust integration test constructs
+the canonical manifest and owned directory, then launches
+`scripts/tests/fixtures/governed-transport-round-trip.mjs` with the exact compiled
+worker binary and fixed fixture input paths. Two injected streams exercise the
+real worker protocol without any network request or Node-side manifest authoring.
+
+Run `node --test scripts/tests/governed-acquisition-transport.test.mjs` in the
+pinned offline image. Injected streams test chunk/EOF ordering, duplicate headers,
+opaque bytes, manual redirect cancellation, short/zero/maximum grants and refusal.
+These machinery fixtures do not certify course protocol semantics or authorize
+corpus acquisition.
+
+### Chapter41 offline boundary entrypoints
+
+`node scripts/check-functional-acquisition.mjs --chapter 41-governed-corpus-acquisition`
+checks the existing protected scalar census, exact module registry ownership,
+required protocol/transport files and the actual offline fixture report's
+closed shape and scope. It does not execute a Rust policy, reimplement a digest,
+certify semantics, or replace the29Rust tests and real Rust-worker/Node roundtrip.
+`bash scripts/check-functional-offline-replay.sh --chapter 41-governed-corpus-acquisition`
+dispatches that same supplementary report/wiring check; actual bundle replay and
+tamper refusal are exercised in the Rust test
+`publication_and_replay_reverify_complete_payload`.
+
+`node scripts/acquire-functional-llm-artifacts.mjs` always refuses live acquisition.
+`bash scripts/check-functional-artifact-cache.sh` always refuses real cache
+execution. Their `--help` descriptions distinguish implemented Rust offline
+publication/reverification from the separate pending artifact-cache execution
+boundary. Neither command writes a corpus/cache/receipt or opens a connection;
+neither can declare the future boundary passed. No runtime policy/URL override,
+later acquisition selector or download configuration is introduced here.
+Regression: `node --test scripts/tests/check-functional-acquisition.test.mjs`.
+
+Chapter41 language verification selects its frozen `english-candidate-02` and
+nested review/adjudication routing files. `/english` publication receipt aliases
+must be byte-identical, not rewritten semantic records. The original relative
+candidate paths remain available under the durable owned audit root; actual
+verifier `--root` can be the publication repository after staging cleanup.
+Chapter40 and Chapter42+ conventions remain unchanged.

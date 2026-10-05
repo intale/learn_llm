@@ -1,0 +1,155 @@
+TAP version 13
+# Subtest: actual offline report has the supplementary current structure
+ok 1 - actual offline report has the supplementary current structure
+  ---
+  duration_ms: 1.004684
+  ...
+# Subtest: report drift refuses without a Rust-policy surrogate
+ok 2 - report drift refuses without a Rust-policy surrogate
+  ---
+  duration_ms: 0.610822
+  ...
+# Subtest: all live acquisition commands refuse without exposing supplied arguments
+ok 3 - all live acquisition commands refuse without exposing supplied arguments
+  ---
+  duration_ms: 0.255942
+  ...
+# Subtest: unknown chapters and missing roots reject
+ok 4 - unknown chapters and missing roots reject
+  ---
+  duration_ms: 0.568832
+  ...
+# Subtest: cache wrapper refuses future execution, replay wrapper retains chapter-only dispatch
+ok 5 - cache wrapper refuses future execution, replay wrapper retains chapter-only dispatch
+  ---
+  duration_ms: 4.792537
+  ...
+# Subtest: legacy and successor contract dispatch retain the boundary
+ok 6 - legacy and successor contract dispatch retain the boundary
+  ---
+  duration_ms: 0.455659
+  ...
+# Subtest: malformed contract IDs never choose a branch
+ok 7 - malformed contract IDs never choose a branch
+  ---
+  duration_ms: 0.194717
+  ...
+# Subtest: reference-core dispatch uses only the fixed canonical verifier roots and complete seal inputs
+ok 8 - reference-core dispatch uses only the fixed canonical verifier roots and complete seal inputs
+  ---
+  duration_ms: 0.89636
+  ...
+# Subtest: measured PostgreSQL dispatch uses its separate frozen verifier root
+ok 9 - measured PostgreSQL dispatch uses its separate frozen verifier root
+  ---
+  duration_ms: 0.162025
+  ...
+# Subtest: unknown roots are rejected instead of accepting caller-supplied review paths
+ok 10 - unknown roots are rejected instead of accepting caller-supplied review paths
+  ---
+  duration_ms: 0.267304
+  ...
+# Subtest: the real English verifier rejects a missing review specification
+ok 11 - the real English verifier rejects a missing review specification
+  ---
+  duration_ms: 531.939379
+  ...
+# Subtest: a missing or invalid English seal rejection is propagated and prevents a later verifier call
+ok 12 - a missing or invalid English seal rejection is propagated and prevents a later verifier call
+  ---
+  duration_ms: 0.315515
+  ...
+# Subtest: a Russian verifier rejection is propagated without rewriting its raw review records
+ok 13 - a Russian verifier rejection is propagated without rewriting its raw review records
+  ---
+  duration_ms: 0.177555
+  ...
+# Subtest: successful dispatch runs English then Russian and returns no semantic surrogate
+ok 14 - successful dispatch runs English then Russian and returns no semantic surrogate
+  ---
+  duration_ms: 0.153089
+  ...
+# Subtest: Chapter41 English-only dispatch retains the full four-chain and no Russian inputs
+ok 15 - Chapter41 English-only dispatch retains the full four-chain and no Russian inputs
+  ---
+  duration_ms: 0.22244
+  ...
+# Subtest: Chapter41 propagates real verifier refusal without another locale dispatch
+ok 16 - Chapter41 propagates real verifier refusal without another locale dispatch
+  ---
+  duration_ms: 0.244801
+  ...
+# Subtest: functional examples use only the cumulative crate named target and golden
+ok 17 - functional examples use only the cumulative crate named target and golden
+  ---
+  duration_ms: 0.772717
+  ...
+# Subtest: only exact Chapters40/41 use approved demo targets
+ok 18 - only exact Chapters40/41 use approved demo targets
+  ---
+  duration_ms: 0.267895
+  ...
+# Subtest: unsafe and out-of-range example IDs refuse
+ok 19 - unsafe and out-of-range example IDs refuse
+  ---
+  duration_ms: 0.173197
+  ...
+# Subtest: stdout is compared as exact bytes, not trimmed or projected
+ok 20 - stdout is compared as exact bytes, not trimmed or projected
+  ---
+  duration_ms: 0.219875
+  ...
+# Subtest: Chapter41 demo target retains separate shared library registry ownership
+ok 21 - Chapter41 demo target retains separate shared library registry ownership
+  ---
+  duration_ms: 0.122491
+  ...
+# Subtest: Node grammar exactly preserves approved module mapping
+ok 22 - Node grammar exactly preserves approved module mapping
+  ---
+  duration_ms: 0.936035
+  ...
+# Subtest: malformed/duplicate/unsafe/cross-owner fragment corpus refuses
+ok 23 - malformed/duplicate/unsafe/cross-owner fragment corpus refuses
+  ---
+  duration_ms: 0.637222
+  ...
+# Subtest: canonical registry exhaustively validates actual owned functional sources
+ok 24 - canonical registry exhaustively validates actual owned functional sources
+  ---
+  duration_ms: 13.194169
+  ...
+# Subtest: private descriptor requires explicit review role and every actual source hash
+ok 25 - private descriptor requires explicit review role and every actual source hash
+  ---
+  duration_ms: 11.811852
+  ...
+# Subtest: Chapter40 routes actual maintained English and Russian verifiers
+ok 26 - Chapter40 routes actual maintained English and Russian verifiers
+  ---
+  duration_ms: 1.116395
+  ...
+# Subtest: closed activation inventory contains exact real locale input paths
+ok 27 - closed activation inventory contains exact real locale input paths
+  ---
+  duration_ms: 0.151155
+  ...
+# Subtest: missing receipt and unsafe paths refuse before any verifier
+ok 28 - missing receipt and unsafe paths refuse before any verifier
+  ---
+  duration_ms: 0.672488
+  ...
+# Subtest: canonical JSON rejects duplicate/unknown spelling and symlink inputs
+ok 29 - canonical JSON rejects duplicate/unknown spelling and symlink inputs
+  ---
+  duration_ms: 0.973045
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 635.948357

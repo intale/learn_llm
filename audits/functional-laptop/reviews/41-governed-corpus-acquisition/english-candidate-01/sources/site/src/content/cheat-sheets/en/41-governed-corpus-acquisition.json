@@ -1,0 +1,32 @@
+{
+  "chapter_id": "41-governed-corpus-acquisition",
+  "locale": "en",
+  "title": "A verified corpus bundle",
+  "description": "Terms for linking corpus bytes to source provenance and understanding the limits of byte verification.",
+  "terms": [
+    {
+      "term": "Corpus bundle",
+      "definition": "The selected raw text sources together with their manifest and provenance files. In this offline fixture, two raw sources share one license file and one attribution file."
+    },
+    {
+      "term": "Source provenance",
+      "definition": "The record connecting selected corpus bytes to their source revision, requested and resolved endpoints, license text and attribution. It does not by itself establish permission or suitability."
+    },
+    {
+      "term": "Canonical manifest",
+      "definition": "A complete corpus record with one fixed byte representation, including file paths, roles, counts, digests and source provenance. The verifier rejects a different representation rather than silently rewriting it."
+    },
+    {
+      "term": "Dataset artifact identity",
+      "definition": "The SHA-256 digest of the complete canonical manifest. It identifies the corpus record through its provenance and recorded file digests; actual files still need verification. It is not a signature or permission certificate."
+    },
+    {
+      "term": "Retained source prefix",
+      "definition": "The initial bytes of one selected raw source that have been stored and recorded during incomplete acquisition. Recovery rehashes those bytes; resumed delivery must match the same representation validator and final source digest."
+    },
+    {
+      "term": "Raw held-out source",
+      "definition": "The separately acquired text source reserved from the raw training source. Its source filename does not define the final course validation or test split."
+    }
+  ]
+}

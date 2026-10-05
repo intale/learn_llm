@@ -1,0 +1,55 @@
+TAP version 13
+# Subtest: paused grant-sized bytes and separate EOF are relayed; request headers unchanged
+ok 1 - paused grant-sized bytes and separate EOF are relayed; request headers unchanged
+  ---
+  duration_ms: 3.776925
+  ...
+# Subtest: raw duplicate headers and compressed bytes are not normalized or decompressed
+ok 2 - raw duplicate headers and compressed bytes are not normalized or decompressed
+  ---
+  duration_ms: 0.554426
+  ...
+# Subtest: redirect body is destroyed before grant cancellation and only Rust chooses next URL
+ok 3 - redirect body is destroyed before grant cancellation and only Rust chooses next URL
+  ---
+  duration_ms: 0.856005
+  ...
+# Subtest: short final body is acknowledged before separate EOF, without exceeding grant
+ok 4 - short final body is acknowledged before separate EOF, without exceeding grant
+  ---
+  duration_ms: 0.54059
+  ...
+# Subtest: worker head refusal destroys body, never retries or releases uncertain grant
+ok 5 - worker head refusal destroys body, never retries or releases uncertain grant
+  ---
+  duration_ms: 0.576057
+  ...
+# Subtest: malformed grants, missing injected factory and duplicate redirect locations refuse
+ok 6 - malformed grants, missing injected factory and duplicate redirect locations refuse
+  ---
+  duration_ms: 1.010967
+  ...
+# Subtest: maximum granted chunk is bounded and a zero grant never consumes payload
+ok 7 - maximum granted chunk is bounded and a zero grant never consumes payload
+  ---
+  duration_ms: 3.748391
+  ...
+# Subtest: expired persisted deadline refuses before HTTP dispatch
+ok 8 - expired persisted deadline refuses before HTTP dispatch
+  ---
+  duration_ms: 0.120477
+  ...
+# Subtest: one persisted deadline destroys hanging headers and a hanging body
+ok 9 - one persisted deadline destroys hanging headers and a hanging body
+  ---
+  duration_ms: 1855.900396
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1901.88739

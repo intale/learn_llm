@@ -1,0 +1,15 @@
+version=1
+module=functional::artifact::acquisition
+source=src/artifact/acquisition.rs
+
+version=1
+module=functional::artifact::canonical_manifest
+source=src/artifact/canonical_manifest.rs
+
+version=1
+module=functional::artifact::inventory
+source=src/artifact/inventory.rs
+
+version=1
+module=functional::artifact::lineage
+source=src/artifact/lineage.rs

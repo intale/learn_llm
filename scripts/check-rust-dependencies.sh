@@ -7,26 +7,68 @@ readonly repository_root
 # Supporting crates must be listed explicitly after their rationale is recorded
 # in DECISIONS.md. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
+  base64
+  bitflags
   block-buffer
+  bytes
   cfg-if
   cpufeatures
   crypto-common
   digest
+  displaydoc
+  errno
+  form_urlencoded
   generic-array
+  headers
+  headers-core
+  http
+  httpdate
+  icu_collections
+  icu_locale_core
+  icu_normalizer
+  icu_normalizer_data
+  icu_properties
+  icu_properties_data
+  icu_provider
+  idna
+  idna_adapter
   itoa
   libc
+  linux-raw-sys
+  litemap
   memchr
+  mime
+  percent-encoding
+  potential_utf
   proc-macro2
   quote
+  rustix
   serde
   serde_core
   serde_derive
   serde_json
+  sha1
   sha2
+  smallvec
+  stable_deref_trait
   syn
+  synstructure
+  tinystr
   typenum
   unicode-ident
+  url
+  utf8_iter
   version_check
+  windows-link
+  windows-sys
+  writeable
+  yoke
+  yoke-derive
+  zerofrom
+  zerofrom-derive
+  zerotrie
+  zerovec
+  zerovec-derive
   zmij
 )
 

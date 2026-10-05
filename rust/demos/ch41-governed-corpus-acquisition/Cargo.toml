@@ -1,0 +1,15 @@
+[package]
+name = "ch41-governed-corpus-acquisition"
+default-run = "ch41-governed-corpus-acquisition"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[lints]
+workspace = true

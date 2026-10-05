@@ -7,13 +7,13 @@ import {readLocaleConfiguration} from './locale-config.mjs';
 import {parseJsonFrontmatter,validateChapterDocument} from './check-site-content.mjs';
 import {readRegularFile} from './check-functional-step-receipt.mjs';
 import {readFunctionalChapterLocaleConfiguration} from './functional-chapter-locale-config.mjs';
-import {examplePaths} from './check-functional-rust-examples.mjs';
+import {examplePaths,demoPaths} from './check-functional-rust-examples.mjs';
 import {parseRegistryFragment,readFunctionalPlan,ownedSources} from './check-functional-rust-ownership.mjs';
 import {readPrivateBuildScope} from './check-functional-site-content.mjs';
 
 export function contractDispatch(chapterId) {
   if (!/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(chapterId))throw new Error('invalid chapter ID');
-  if(chapterId==='40-reference-core-handoff')return 'successor-demo';
+  if(['40-reference-core-handoff','41-governed-corpus-acquisition'].includes(chapterId))return 'successor-demo';
   return Number(chapterId.slice(0,2))<=39?'legacy-demo':'functional-example';
 }
 export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
@@ -29,13 +29,17 @@ export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
     ? Object.keys(privateScope.sourceHashes):chapter.activeLocales;
   const parsed=validateChapterContractText(source,{sourceName:path,supportedLocales:requiredLocales});
   if(contractDispatch(data.chapter_id)==='successor-demo') {
-    const prefix='rust/demos/ch40-reference-core-handoff/';
-    if(data.rust.package!=='ch40-reference-core-handoff' ||
+    const demo=demoPaths(data.chapter_id), prefix='rust/demos/'+demo.package+'/';
+    if(data.rust.package!==demo.package ||
         !data.rust.sources.includes(prefix+'src/main.rs') ||
         !data.rust.sources.includes(prefix+'src/lib.rs') ||
         data.rust.sources.some(p=>p.startsWith('rust/demos/')&&!p.startsWith(prefix)))
-      throw new Error('Chapter40 contract must bind its exact demo package/source');
+      throw new Error('Successor contract must bind its exact approved demo package/source');
     if(structureOnly)return parsed;
+    if(data.chapter_id==='41-governed-corpus-acquisition') {
+      const fragment='rust/crates/llm-from-scratch/module-registry/functional-v1/ch41-governed-corpus-acquisition.module';
+      parseRegistryFragment(fragment.split('/').at(-1),readRegularFile(root,fragment,65536),ownedSources(readFunctionalPlan(root)));
+    }
     validateChapterContractIntegration(parsed,{repositoryRoot:root,sourceName:path,
       localeConfiguration:{...readLocaleConfiguration(root),locales:requiredLocales},
       chapterLocaleConfiguration:{...config,byChapter:{...config.byChapter,

@@ -1,0 +1,5 @@
+a3e1c01560b8f1401f70f2aa47fb9901a846b64834fbb42392672af230590a06  site/src/content/chapters/en/41-governed-corpus-acquisition.mdx
+fefb9712b3c0aefdb6fcc5c9ced99ce591d8f9332996c1ceaa40e751225b0c58  curriculum/chapters/41-governed-corpus-acquisition.md
+c23369f9d816a595151014ed2c6ba2d9b85a5dfcaeeedad5edc6e514b3af9a5e  site/src/i18n/functional-catalogs/en/41-governed-corpus-acquisition.json
+185e9051cde66cb334dd809dfc7dc1997c18902bd6ec5e663bcfade6f1fbed1c  site/src/content/cheat-sheets/en/41-governed-corpus-acquisition.json
+773f0e032b7bbb44d277170b062c1a62580533a665a9b693bb59efdbe6a7ee9c  site/tests/e2e/ch41-governed-corpus-acquisition.spec.ts

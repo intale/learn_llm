@@ -429,6 +429,34 @@ describe("localized chapter documents", () => {
     ).toThrow(/prohibited control character/);
   });
 
+  it("accepts solution-first Rust before history without weakening section gates", () => {
+    const body = chapterBody();
+    const historyStart = body.indexOf("{/* chapter-section:history */}");
+    const rustStart = body.indexOf("{/* chapter-section:rust-implementation */}");
+    const visualizationStart = body.indexOf("{/* chapter-section:visualization */}");
+    expect(historyStart).toBeLessThan(rustStart);
+    const reordered = body.slice(0, historyStart) + body.slice(rustStart, visualizationStart) +
+      body.slice(historyStart, rustStart) + body.slice(visualizationStart);
+    expect(() => validateChapterDocument(chapterSource(chapterMetadata(), reordered), {
+      checkSourceFiles: false,
+    })).not.toThrow();
+    const duplicate = reordered.replace("{/* chapter-section:history */}",
+      "{/* chapter-section:history */}\n{/* chapter-section:history */}");
+    expect(() => validateChapterDocument(chapterSource(chapterMetadata(), duplicate), {
+      checkSourceFiles: false,
+    })).toThrow(/section markers/);
+    const missing = reordered.replace("{/* chapter-section:rust-implementation */}", "");
+    expect(() => validateChapterDocument(chapterSource(chapterMetadata(), missing), {
+      checkSourceFiles: false,
+    })).toThrow(/section markers/);
+    const empty = reordered.slice(0, historyStart) +
+      "{/* chapter-section:rust-implementation */}\n## Rust\n" +
+      reordered.slice(reordered.indexOf("{/* chapter-section:history */}"));
+    expect(() => validateChapterDocument(chapterSource(chapterMetadata(), empty), {
+      checkSourceFiles: false,
+    })).toThrow(/meaningful teaching evidence/);
+  });
+
   it("rejects missing sections and Rust paths outside the allowlist", () => {
     const missingSection = chapterBody().replace(
       "{/* chapter-section:exercises */}",
@@ -564,7 +592,7 @@ describe("localized chapter documents", () => {
         chapterSource(chapterMetadata(), answersOnlyNumbering),
         { checkSourceFiles: false },
       ),
-    ).toThrow(/predict-first ordered list/);
+    ).toThrow(/ordered practice-task list/);
 
     const emptyAnswers = chapterBody().replace(
       /<details>[\s\S]*?<\/details>/,

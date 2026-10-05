@@ -1,0 +1,1818 @@
+{
+  "schemaVersion": 1,
+  "baselineRoot": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01",
+  "currentRoot": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06",
+  "routes": [
+    {
+      "route": "/en/course/00-llm-parts/",
+      "current": {
+        "relativePath": "en/course/00-llm-parts/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/00-llm-parts/index.html",
+        "sha256": "78db259b4f2a943d7032e7bec6f0f0828b93c2abd5e8fcae2fb1c5af3f8cb7c5",
+        "bytes": 107065
+      },
+      "baseline": {
+        "relativePath": "en/course/00-llm-parts/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/00-llm-parts/index.html",
+        "sha256": "78db259b4f2a943d7032e7bec6f0f0828b93c2abd5e8fcae2fb1c5af3f8cb7c5",
+        "bytes": 107065
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/01-text-units/",
+      "current": {
+        "relativePath": "en/course/01-text-units/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/01-text-units/index.html",
+        "sha256": "e4279020f19683bdf01f8ee6182e50ebb679e19caa43e7e66f100eac3ca23783",
+        "bytes": 125959
+      },
+      "baseline": {
+        "relativePath": "en/course/01-text-units/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/01-text-units/index.html",
+        "sha256": "e4279020f19683bdf01f8ee6182e50ebb679e19caa43e7e66f100eac3ca23783",
+        "bytes": 125959
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/02-corpus-partitions/",
+      "current": {
+        "relativePath": "en/course/02-corpus-partitions/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/02-corpus-partitions/index.html",
+        "sha256": "39efd43cdcb36d81febfb25f394ed70b4cdca13af409a4a13707df5bed9d54d5",
+        "bytes": 168206
+      },
+      "baseline": {
+        "relativePath": "en/course/02-corpus-partitions/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/02-corpus-partitions/index.html",
+        "sha256": "39efd43cdcb36d81febfb25f394ed70b4cdca13af409a4a13707df5bed9d54d5",
+        "bytes": 168206
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/03-learn-bpe-merges/",
+      "current": {
+        "relativePath": "en/course/03-learn-bpe-merges/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/03-learn-bpe-merges/index.html",
+        "sha256": "e6030d283935cc667bd96e31ff39b779d8ad8900a9741383f6c8edf13f88522b",
+        "bytes": 166155
+      },
+      "baseline": {
+        "relativePath": "en/course/03-learn-bpe-merges/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/03-learn-bpe-merges/index.html",
+        "sha256": "e6030d283935cc667bd96e31ff39b779d8ad8900a9741383f6c8edf13f88522b",
+        "bytes": 166155
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/04-apply-bpe-tokenizer/",
+      "current": {
+        "relativePath": "en/course/04-apply-bpe-tokenizer/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/04-apply-bpe-tokenizer/index.html",
+        "sha256": "37b9bb30851112ec1f6a01fa16a17d3ccce4f987f158fd0c065b05e1993160e2",
+        "bytes": 194058
+      },
+      "baseline": {
+        "relativePath": "en/course/04-apply-bpe-tokenizer/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/04-apply-bpe-tokenizer/index.html",
+        "sha256": "37b9bb30851112ec1f6a01fa16a17d3ccce4f987f158fd0c065b05e1993160e2",
+        "bytes": 194058
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/05-autoregressive-examples/",
+      "current": {
+        "relativePath": "en/course/05-autoregressive-examples/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/05-autoregressive-examples/index.html",
+        "sha256": "3fd232492e70d7bf56081172d47e8f1d632a72c4d4d53c7841bd0784108b9663",
+        "bytes": 248109
+      },
+      "baseline": {
+        "relativePath": "en/course/05-autoregressive-examples/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/05-autoregressive-examples/index.html",
+        "sha256": "3fd232492e70d7bf56081172d47e8f1d632a72c4d4d53c7841bd0784108b9663",
+        "bytes": 248109
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/06-bigram-baseline/",
+      "current": {
+        "relativePath": "en/course/06-bigram-baseline/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/06-bigram-baseline/index.html",
+        "sha256": "bdf68e1d7e909b184071b2e79a8d52e6922c58a099b7b5335a51eed06d8ccb0e",
+        "bytes": 244374
+      },
+      "baseline": {
+        "relativePath": "en/course/06-bigram-baseline/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/06-bigram-baseline/index.html",
+        "sha256": "bdf68e1d7e909b184071b2e79a8d52e6922c58a099b7b5335a51eed06d8ccb0e",
+        "bytes": 244374
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/07-language-model-metrics/",
+      "current": {
+        "relativePath": "en/course/07-language-model-metrics/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/07-language-model-metrics/index.html",
+        "sha256": "83232ca3177afbb14f508bd1ffb152227424cb79c49777edccc2b19775acdabe",
+        "bytes": 247798
+      },
+      "baseline": {
+        "relativePath": "en/course/07-language-model-metrics/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/07-language-model-metrics/index.html",
+        "sha256": "83232ca3177afbb14f508bd1ffb152227424cb79c49777edccc2b19775acdabe",
+        "bytes": 247798
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/08-tensor-storage/",
+      "current": {
+        "relativePath": "en/course/08-tensor-storage/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/08-tensor-storage/index.html",
+        "sha256": "12fc5a4026f688440f8f81e139c24e6bb86c1392faf57c6a1e60dfabd5e61272",
+        "bytes": 231336
+      },
+      "baseline": {
+        "relativePath": "en/course/08-tensor-storage/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/08-tensor-storage/index.html",
+        "sha256": "12fc5a4026f688440f8f81e139c24e6bb86c1392faf57c6a1e60dfabd5e61272",
+        "bytes": 231336
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/09-tensor-views/",
+      "current": {
+        "relativePath": "en/course/09-tensor-views/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/09-tensor-views/index.html",
+        "sha256": "60ed4a7051e19b4b22b9c08536988e993a3ef37428821fb0eda7622f479dc320",
+        "bytes": 243318
+      },
+      "baseline": {
+        "relativePath": "en/course/09-tensor-views/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/09-tensor-views/index.html",
+        "sha256": "60ed4a7051e19b4b22b9c08536988e993a3ef37428821fb0eda7622f479dc320",
+        "bytes": 243318
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/10-broadcasting-reductions/",
+      "current": {
+        "relativePath": "en/course/10-broadcasting-reductions/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/10-broadcasting-reductions/index.html",
+        "sha256": "75241e738cc866b13330b5a7b04765d447707f5af244f667347ca7cc07e4154d",
+        "bytes": 233072
+      },
+      "baseline": {
+        "relativePath": "en/course/10-broadcasting-reductions/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/10-broadcasting-reductions/index.html",
+        "sha256": "75241e738cc866b13330b5a7b04765d447707f5af244f667347ca7cc07e4154d",
+        "bytes": 233072
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/11-matrix-multiplication/",
+      "current": {
+        "relativePath": "en/course/11-matrix-multiplication/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/11-matrix-multiplication/index.html",
+        "sha256": "3912a9ee0e629f48444136dd193dd91c27d2db14701f454bae4e35ac3d138f60",
+        "bytes": 256571
+      },
+      "baseline": {
+        "relativePath": "en/course/11-matrix-multiplication/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/11-matrix-multiplication/index.html",
+        "sha256": "3912a9ee0e629f48444136dd193dd91c27d2db14701f454bae4e35ac3d138f60",
+        "bytes": 256571
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/12-stable-softmax/",
+      "current": {
+        "relativePath": "en/course/12-stable-softmax/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/12-stable-softmax/index.html",
+        "sha256": "2c094718cac9b54c26bbdf378797cc28579ceeba0ab9f31af2ef8a3552c89785",
+        "bytes": 305167
+      },
+      "baseline": {
+        "relativePath": "en/course/12-stable-softmax/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/12-stable-softmax/index.html",
+        "sha256": "2c094718cac9b54c26bbdf378797cc28579ceeba0ab9f31af2ef8a3552c89785",
+        "bytes": 305167
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/13-gradient-checking/",
+      "current": {
+        "relativePath": "en/course/13-gradient-checking/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/13-gradient-checking/index.html",
+        "sha256": "551595554a8976b5bdc3b63248aba8af5792a46e1e0ec21b22e7ae01e1828590",
+        "bytes": 466733
+      },
+      "baseline": {
+        "relativePath": "en/course/13-gradient-checking/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/13-gradient-checking/index.html",
+        "sha256": "551595554a8976b5bdc3b63248aba8af5792a46e1e0ec21b22e7ae01e1828590",
+        "bytes": 466733
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/14-scalar-autodiff/",
+      "current": {
+        "relativePath": "en/course/14-scalar-autodiff/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/14-scalar-autodiff/index.html",
+        "sha256": "75fad6916c93780dd3359d72681a10064efd818df11fc00e13bf4149d279ea10",
+        "bytes": 292420
+      },
+      "baseline": {
+        "relativePath": "en/course/14-scalar-autodiff/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/14-scalar-autodiff/index.html",
+        "sha256": "75fad6916c93780dd3359d72681a10064efd818df11fc00e13bf4149d279ea10",
+        "bytes": 292420
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/15-tensor-autodiff-core/",
+      "current": {
+        "relativePath": "en/course/15-tensor-autodiff-core/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/15-tensor-autodiff-core/index.html",
+        "sha256": "694d5dd6a90a27bf2956beab72c91d564fad0b8d195a5e75920b6b92a31e84bf",
+        "bytes": 531309
+      },
+      "baseline": {
+        "relativePath": "en/course/15-tensor-autodiff-core/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/15-tensor-autodiff-core/index.html",
+        "sha256": "694d5dd6a90a27bf2956beab72c91d564fad0b8d195a5e75920b6b92a31e84bf",
+        "bytes": 531309
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/16-model-autodiff-ops/",
+      "current": {
+        "relativePath": "en/course/16-model-autodiff-ops/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/16-model-autodiff-ops/index.html",
+        "sha256": "5989a3b049de73d4dc52b892127f21cfc643822a4453a33dc91f433305ae3c26",
+        "bytes": 393166
+      },
+      "baseline": {
+        "relativePath": "en/course/16-model-autodiff-ops/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/16-model-autodiff-ops/index.html",
+        "sha256": "5989a3b049de73d4dc52b892127f21cfc643822a4453a33dc91f433305ae3c26",
+        "bytes": 393166
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/17-parameter-initialization/",
+      "current": {
+        "relativePath": "en/course/17-parameter-initialization/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/17-parameter-initialization/index.html",
+        "sha256": "6bd3c2e0df1f3c970682c6ddd25d71b0d1c6bc40b980c017f4f5bb4e695a8ba0",
+        "bytes": 309870
+      },
+      "baseline": {
+        "relativePath": "en/course/17-parameter-initialization/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/17-parameter-initialization/index.html",
+        "sha256": "6bd3c2e0df1f3c970682c6ddd25d71b0d1c6bc40b980c017f4f5bb4e695a8ba0",
+        "bytes": 309870
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/18-token-embeddings/",
+      "current": {
+        "relativePath": "en/course/18-token-embeddings/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/18-token-embeddings/index.html",
+        "sha256": "5b68230f09373935f9fba033b6e9a70c6485c831ecc1f831cda82fb30fc7345f",
+        "bytes": 324433
+      },
+      "baseline": {
+        "relativePath": "en/course/18-token-embeddings/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/18-token-embeddings/index.html",
+        "sha256": "5b68230f09373935f9fba033b6e9a70c6485c831ecc1f831cda82fb30fc7345f",
+        "bytes": 324433
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/19-linear-layers/",
+      "current": {
+        "relativePath": "en/course/19-linear-layers/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/19-linear-layers/index.html",
+        "sha256": "8f30f54bb0a2c1333a831f8523208dddd165aef98fcbbba061f6dd60d44f0c34",
+        "bytes": 334977
+      },
+      "baseline": {
+        "relativePath": "en/course/19-linear-layers/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/19-linear-layers/index.html",
+        "sha256": "8f30f54bb0a2c1333a831f8523208dddd165aef98fcbbba061f6dd60d44f0c34",
+        "bytes": 334977
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/20-swiglu-feed-forward/",
+      "current": {
+        "relativePath": "en/course/20-swiglu-feed-forward/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/20-swiglu-feed-forward/index.html",
+        "sha256": "d7a089d702684c50a3a2d874c3c8ee1ce1b3c957960419b03ffc7390b8b7d725",
+        "bytes": 449483
+      },
+      "baseline": {
+        "relativePath": "en/course/20-swiglu-feed-forward/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/20-swiglu-feed-forward/index.html",
+        "sha256": "d7a089d702684c50a3a2d874c3c8ee1ce1b3c957960419b03ffc7390b8b7d725",
+        "bytes": 449483
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/21-mini-batches/",
+      "current": {
+        "relativePath": "en/course/21-mini-batches/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/21-mini-batches/index.html",
+        "sha256": "efbe8a2204d5de538cd8f138ba2c58285e598dd56f1752896ed36cb121640e5f",
+        "bytes": 405708
+      },
+      "baseline": {
+        "relativePath": "en/course/21-mini-batches/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/21-mini-batches/index.html",
+        "sha256": "efbe8a2204d5de538cd8f138ba2c58285e598dd56f1752896ed36cb121640e5f",
+        "bytes": 405708
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/22-adamw/",
+      "current": {
+        "relativePath": "en/course/22-adamw/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/22-adamw/index.html",
+        "sha256": "ff0dc94c33fdf13e6c7557106461059482c734b8a54e4b655445bfdabfc54401",
+        "bytes": 619394
+      },
+      "baseline": {
+        "relativePath": "en/course/22-adamw/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/22-adamw/index.html",
+        "sha256": "ff0dc94c33fdf13e6c7557106461059482c734b8a54e4b655445bfdabfc54401",
+        "bytes": 619394
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/23-neural-ngram/",
+      "current": {
+        "relativePath": "en/course/23-neural-ngram/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/23-neural-ngram/index.html",
+        "sha256": "4beb31c833ca736fa20026d0c19892cf3226b345818837ee09f293bb3308cef7",
+        "bytes": 355733
+      },
+      "baseline": {
+        "relativePath": "en/course/23-neural-ngram/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/23-neural-ngram/index.html",
+        "sha256": "4beb31c833ca736fa20026d0c19892cf3226b345818837ee09f293bb3308cef7",
+        "bytes": 355733
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/24-residual-connections/",
+      "current": {
+        "relativePath": "en/course/24-residual-connections/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/24-residual-connections/index.html",
+        "sha256": "05b41a2f205748e1523d043cd2f172b7f72000d75bf6f74d9a9070be54609b91",
+        "bytes": 275028
+      },
+      "baseline": {
+        "relativePath": "en/course/24-residual-connections/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/24-residual-connections/index.html",
+        "sha256": "05b41a2f205748e1523d043cd2f172b7f72000d75bf6f74d9a9070be54609b91",
+        "bytes": 275028
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/25-rmsnorm/",
+      "current": {
+        "relativePath": "en/course/25-rmsnorm/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/25-rmsnorm/index.html",
+        "sha256": "4b1764b01974d53bbb5ec0565d342b6582ccf33e053ba066bd3e0d1be5a7c90f",
+        "bytes": 295613
+      },
+      "baseline": {
+        "relativePath": "en/course/25-rmsnorm/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/25-rmsnorm/index.html",
+        "sha256": "4b1764b01974d53bbb5ec0565d342b6582ccf33e053ba066bd3e0d1be5a7c90f",
+        "bytes": 295613
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/26-qkv-projections/",
+      "current": {
+        "relativePath": "en/course/26-qkv-projections/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/26-qkv-projections/index.html",
+        "sha256": "1eca320612997bbc9ef166171699d15920948b321d2459980616a755ae7e18a7",
+        "bytes": 360135
+      },
+      "baseline": {
+        "relativePath": "en/course/26-qkv-projections/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/26-qkv-projections/index.html",
+        "sha256": "1eca320612997bbc9ef166171699d15920948b321d2459980616a755ae7e18a7",
+        "bytes": 360135
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/27-self-attention/",
+      "current": {
+        "relativePath": "en/course/27-self-attention/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/27-self-attention/index.html",
+        "sha256": "4621832d4de425b9d1f3c6634bf6418c3a0eff563c1ae1d33d40c3c2dfd68afd",
+        "bytes": 423348
+      },
+      "baseline": {
+        "relativePath": "en/course/27-self-attention/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/27-self-attention/index.html",
+        "sha256": "4621832d4de425b9d1f3c6634bf6418c3a0eff563c1ae1d33d40c3c2dfd68afd",
+        "bytes": 423348
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/28-causal-masking/",
+      "current": {
+        "relativePath": "en/course/28-causal-masking/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/28-causal-masking/index.html",
+        "sha256": "b6573112392895a29e13693445ea822a238479503805f2c3d0e2e15b9e6d0614",
+        "bytes": 396608
+      },
+      "baseline": {
+        "relativePath": "en/course/28-causal-masking/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/28-causal-masking/index.html",
+        "sha256": "b6573112392895a29e13693445ea822a238479503805f2c3d0e2e15b9e6d0614",
+        "bytes": 396608
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/29-rope/",
+      "current": {
+        "relativePath": "en/course/29-rope/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/29-rope/index.html",
+        "sha256": "f669ef37701dec02d282696be8d0be181bdff61a3f1d3bc2beed227a0ef3f781",
+        "bytes": 401198
+      },
+      "baseline": {
+        "relativePath": "en/course/29-rope/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/29-rope/index.html",
+        "sha256": "f669ef37701dec02d282696be8d0be181bdff61a3f1d3bc2beed227a0ef3f781",
+        "bytes": 401198
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/30-multi-head-attention/",
+      "current": {
+        "relativePath": "en/course/30-multi-head-attention/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/30-multi-head-attention/index.html",
+        "sha256": "bd42d03e153b453c213be55ccd37d3d22dc1b763fa6d3c5337176b2bdebcd74f",
+        "bytes": 673574
+      },
+      "baseline": {
+        "relativePath": "en/course/30-multi-head-attention/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/30-multi-head-attention/index.html",
+        "sha256": "bd42d03e153b453c213be55ccd37d3d22dc1b763fa6d3c5337176b2bdebcd74f",
+        "bytes": 673574
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/31-decoder-block/",
+      "current": {
+        "relativePath": "en/course/31-decoder-block/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/31-decoder-block/index.html",
+        "sha256": "00ab4cc57a767b0a5a84ca5703ae9f6009bf03da24eccacd9024e17eb7508e3b",
+        "bytes": 421380
+      },
+      "baseline": {
+        "relativePath": "en/course/31-decoder-block/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/31-decoder-block/index.html",
+        "sha256": "00ab4cc57a767b0a5a84ca5703ae9f6009bf03da24eccacd9024e17eb7508e3b",
+        "bytes": 421380
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/32-decoder-model/",
+      "current": {
+        "relativePath": "en/course/32-decoder-model/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/32-decoder-model/index.html",
+        "sha256": "382d2b54860c03d3ac44376638627deaa9386856790702cdd26a8e57eb6528a8",
+        "bytes": 532772
+      },
+      "baseline": {
+        "relativePath": "en/course/32-decoder-model/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/32-decoder-model/index.html",
+        "sha256": "382d2b54860c03d3ac44376638627deaa9386856790702cdd26a8e57eb6528a8",
+        "bytes": 532772
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/33-training-selection/",
+      "current": {
+        "relativePath": "en/course/33-training-selection/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/33-training-selection/index.html",
+        "sha256": "e1205570486b85e228a36d33e0a94e505042af4e8206b1f03f90d15f674fc85a",
+        "bytes": 496047
+      },
+      "baseline": {
+        "relativePath": "en/course/33-training-selection/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/33-training-selection/index.html",
+        "sha256": "e1205570486b85e228a36d33e0a94e505042af4e8206b1f03f90d15f674fc85a",
+        "bytes": 496047
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/34-final-evaluation/",
+      "current": {
+        "relativePath": "en/course/34-final-evaluation/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/34-final-evaluation/index.html",
+        "sha256": "68063868e09c764d7befcdaa5b9f5911b2a8b7a8363418ec5e556b6c3d2a56b6",
+        "bytes": 330862
+      },
+      "baseline": {
+        "relativePath": "en/course/34-final-evaluation/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/34-final-evaluation/index.html",
+        "sha256": "68063868e09c764d7befcdaa5b9f5911b2a8b7a8363418ec5e556b6c3d2a56b6",
+        "bytes": 330862
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/35-checkpoints/",
+      "current": {
+        "relativePath": "en/course/35-checkpoints/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/35-checkpoints/index.html",
+        "sha256": "1f6ab710622d9bb4d52c6e0db6297e4e3bd93b9dde46afb8b2f64b604c3a5694",
+        "bytes": 337959
+      },
+      "baseline": {
+        "relativePath": "en/course/35-checkpoints/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/35-checkpoints/index.html",
+        "sha256": "1f6ab710622d9bb4d52c6e0db6297e4e3bd93b9dde46afb8b2f64b604c3a5694",
+        "bytes": 337959
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/36-temperature-top-k/",
+      "current": {
+        "relativePath": "en/course/36-temperature-top-k/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/36-temperature-top-k/index.html",
+        "sha256": "652416a7458d6b7efa33ad16dd4583f1adb62d4aeace0447d2b2f3c1d866f5cd",
+        "bytes": 543550
+      },
+      "baseline": {
+        "relativePath": "en/course/36-temperature-top-k/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/36-temperature-top-k/index.html",
+        "sha256": "652416a7458d6b7efa33ad16dd4583f1adb62d4aeace0447d2b2f3c1d866f5cd",
+        "bytes": 543550
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/37-incremental-attention/",
+      "current": {
+        "relativePath": "en/course/37-incremental-attention/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/37-incremental-attention/index.html",
+        "sha256": "ca79bb13930a8ddf51f7a7c28262a05e68f86754e34cbd8775632c67627e90bd",
+        "bytes": 585281
+      },
+      "baseline": {
+        "relativePath": "en/course/37-incremental-attention/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/37-incremental-attention/index.html",
+        "sha256": "ca79bb13930a8ddf51f7a7c28262a05e68f86754e34cbd8775632c67627e90bd",
+        "bytes": 585281
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/38-cached-generation/",
+      "current": {
+        "relativePath": "en/course/38-cached-generation/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/38-cached-generation/index.html",
+        "sha256": "16519e851801e5cd69bd39da19e65c9e4bda9b22f0522e397d47d59c577d9a16",
+        "bytes": 663544
+      },
+      "baseline": {
+        "relativePath": "en/course/38-cached-generation/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/38-cached-generation/index.html",
+        "sha256": "16519e851801e5cd69bd39da19e65c9e4bda9b22f0522e397d47d59c577d9a16",
+        "bytes": 663544
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/39-end-to-end-llm/",
+      "current": {
+        "relativePath": "en/course/39-end-to-end-llm/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/39-end-to-end-llm/index.html",
+        "sha256": "1c6ec5178c5548c73928997dd6dc6d7d566dda883f805773397c5c2ef6088a2f",
+        "bytes": 288503
+      },
+      "baseline": {
+        "relativePath": "en/course/39-end-to-end-llm/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/39-end-to-end-llm/index.html",
+        "sha256": "1c6ec5178c5548c73928997dd6dc6d7d566dda883f805773397c5c2ef6088a2f",
+        "bytes": 288503
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/en/course/40-reference-core-handoff/",
+      "current": {
+        "relativePath": "en/course/40-reference-core-handoff/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f",
+        "bytes": 158644
+      },
+      "baseline": {
+        "relativePath": "en/course/40-reference-core-handoff/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/40-reference-core-handoff/index.html",
+        "sha256": "1b58a3dceda5475ede8d8b9ed605369bc5afec393365cd1e2b44790365b352fc",
+        "bytes": 158238
+      },
+      "status": "changed",
+      "addedAtoms": [
+        {
+          "tag": "a",
+          "value": "Next chapter → Verify a corpus together with its provenance",
+          "href": "/en/course/41-governed-corpus-acquisition/",
+          "rel": "next",
+          "class": "chapter-navigation__chapter chapter-navigation__chapter--next"
+        }
+      ],
+      "removedAtoms": []
+    },
+    {
+      "route": "/en/course/41-governed-corpus-acquisition/",
+      "current": {
+        "relativePath": "en/course/41-governed-corpus-acquisition/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959",
+        "bytes": 128109
+      },
+      "baseline": null,
+      "status": "new",
+      "addedAtoms": [
+        {
+          "tag": "meta",
+          "field": "description",
+          "value": "Link selected corpus bytes to source provenance, verify a complete manifest-backed bundle, and preserve acquisition limits across interruption using an offline Rust fixture."
+        },
+        {
+          "tag": "title",
+          "value": "Verify a corpus together with its provenance · LLM, piece by piece"
+        },
+        {
+          "tag": "a",
+          "value": "Skip to content",
+          "href": "#main-content",
+          "class": "skip-link"
+        },
+        {
+          "tag": "a",
+          "value": "LLM, piece by piece",
+          "href": "/en/",
+          "class": "wordmark"
+        },
+        {
+          "tag": "a",
+          "attribute": "aria-label",
+          "value": "Home"
+        },
+        {
+          "tag": "nav",
+          "attribute": "aria-label",
+          "value": "Language"
+        },
+        {
+          "tag": "a",
+          "value": "Русский Все главы",
+          "href": "/ru/course/"
+        },
+        {
+          "tag": "a",
+          "attribute": "aria-label",
+          "value": "Русский: Все главы"
+        },
+        {
+          "tag": "button",
+          "attribute": "title",
+          "value": "Dark theme"
+        },
+        {
+          "tag": "a",
+          "value": "← All chapters",
+          "href": "/en/course/",
+          "class": "lesson-back"
+        },
+        {
+          "tag": "p",
+          "value": "41 · Content revision 1",
+          "class": "eyebrow"
+        },
+        {
+          "tag": "h1",
+          "value": "Verify a corpus together with its provenance"
+        },
+        {
+          "tag": "p",
+          "value": "Link selected corpus bytes to source provenance, verify a complete manifest-backed bundle, and preserve acquisition limits across interruption using an offline Rust fixture.",
+          "class": "lesson-description"
+        },
+        {
+          "tag": "p",
+          "value": "Admit a complete corpus bundle only when its source provenance, canonical manifest and all available payload bytes agree, while preserving acquisition limits across interruption."
+        },
+        {
+          "tag": "p",
+          "value": "Quick reference",
+          "class": "cheat-sheet-eyebrow"
+        },
+        {
+          "tag": "h2",
+          "value": "A verified corpus bundle"
+        },
+        {
+          "tag": "button",
+          "attribute": "aria-label",
+          "value": "Close cheat sheet"
+        },
+        {
+          "tag": "button",
+          "attribute": "title",
+          "value": "Close cheat sheet"
+        },
+        {
+          "tag": "p",
+          "value": "Terms for linking corpus bytes to source provenance and understanding the limits of byte verification.",
+          "class": "cheat-sheet-description"
+        },
+        {
+          "tag": "div",
+          "attribute": "aria-label",
+          "value": "Terms 1–6 of 6; page 1 of 1"
+        },
+        {
+          "tag": "dt",
+          "value": "Canonical manifest"
+        },
+        {
+          "tag": "dd",
+          "value": "A complete corpus record with one fixed byte representation, including file paths, roles, counts, digests and source provenance. The verifier rejects a different representation rather than silently rewriting it."
+        },
+        {
+          "tag": "dt",
+          "value": "Corpus bundle"
+        },
+        {
+          "tag": "dd",
+          "value": "The selected raw text sources together with their manifest and provenance files. In this offline fixture, two raw sources share one license file and one attribution file."
+        },
+        {
+          "tag": "dt",
+          "value": "Dataset artifact identity"
+        },
+        {
+          "tag": "dd",
+          "value": "The SHA-256 digest of the complete canonical manifest. It identifies the corpus record through its provenance and recorded file digests; actual files still need verification. It is not a signature or permission certificate."
+        },
+        {
+          "tag": "dt",
+          "value": "Raw held-out source"
+        },
+        {
+          "tag": "dd",
+          "value": "The separately acquired text source reserved from the raw training source. Its source filename does not define the final course validation or test split."
+        },
+        {
+          "tag": "dt",
+          "value": "Retained source prefix"
+        },
+        {
+          "tag": "dd",
+          "value": "The initial bytes of one selected raw source that have been stored and recorded during incomplete acquisition. Recovery rehashes those bytes; resumed delivery must match the same representation validator and final source digest."
+        },
+        {
+          "tag": "dt",
+          "value": "Source provenance"
+        },
+        {
+          "tag": "dd",
+          "value": "The record connecting selected corpus bytes to their source revision, requested and resolved endpoints, license text and attribution. It does not by itself establish permission or suitability."
+        },
+        {
+          "tag": "h2",
+          "value": "The problem: a downloaded file does not identify a training corpus"
+        },
+        {
+          "tag": "p",
+          "value": "An LLM learns from the text supplied to its training pipeline. A filename alone does not tell you which text was supplied. Two files named train.txt can contain different bytes, and a complete download can still come from the wrong source revision. Even the right text is insufficient for a reproducible corpus record if its source, license text or attribution has been lost."
+        },
+        {
+          "tag": "p",
+          "value": "The acquisition boundary needs two kinds of evidence together: a record of the selected sources and their provenance, and checks that the available files match that record. This chapter builds that boundary. It does not clean the text, choose final training splits or establish that the corpus is safe or useful."
+        },
+        {
+          "tag": "h2",
+          "value": "Start with a complete, tiny corpus bundle"
+        },
+        {
+          "tag": "p",
+          "value": "The example uses course-authored test bytes, not a downloaded training dataset. It has two raw text sources and two shared provenance files:"
+        },
+        {
+          "tag": "th",
+          "value": "File in the bundle"
+        },
+        {
+          "tag": "th",
+          "value": "Exact bytes represented as a Rust literal"
+        },
+        {
+          "tag": "th",
+          "value": "Byte count"
+        },
+        {
+          "tag": "p",
+          "value": "In these literals, \\n represents one newline byte, not a backslash followed by the letter n. The two raw sources contain 3+6=9 bytes. The four payload files in the table contain 3+6+13+24=46 bytes; this count excludes the manifest record introduced below. Both source records refer to the same license and attribution files, so those shared files are counted once in the inventory."
+        },
+        {
+          "tag": "p",
+          "value": "The fixture’s license identifier is LicenseRef-Course-Test-Only. Its records mark redistribution as not-approved. Those values describe this test fixture; they do not grant permission for a real corpus or a model trained from one. Likewise, the name valid.txt identifies a raw held-out source here, not the final validation split that a later chapter will construct."
+        },
+        {
+          "tag": "h2",
+          "value": "The solution: identify the record, then verify every file"
+        },
+        {
+          "tag": "p",
+          "value": "A manifest is the record describing the bundle. Each payload entry names a relative path, a role, a media type, an exact byte count and a SHA-256 digest. Each source record also identifies the selected source revision, requested URL, resolved endpoint, license and attribution. These fields connect a source to its bytes and provenance instead of leaving them as unrelated notes."
+        },
+        {
+          "tag": "p",
+          "value": "The manifest receives one fixed byte representation: compact UTF-8 JSON, object keys in byte-sorted order, declared array order and exactly one final newline. That representation is called canonical. Its purpose is to prevent harmless formatting choices, such as indentation, from giving the same record multiple identities. An incoming manifest with a different representation is rejected; the verifier does not quietly rewrite it."
+        },
+        {
+          "tag": "p",
+          "value": "The bundle identity is"
+        },
+        {
+          "tag": "h2",
+          "value": "What the identity formula means"
+        },
+        {
+          "tag": "p",
+          "value": "Here \\mathrm{canonical\\_manifest\\_bytes} means the complete canonical record, including the payload digests and source provenance. \\operatorname{SHA256} maps those bytes to a 256-bit digest. \\mathrm{artifact\\_id} is that digest, usually displayed as 64 hexadecimal characters. It identifies the record; it is not a signature or a certificate of legal permission, privacy or language quality."
+        },
+        {
+          "tag": "p",
+          "value": "The raw files are represented in the identity through their recorded byte counts and digests. The verifier must still read the actual files and compare them with those entries. Hashing a manifest does not prove that its claimed files exist."
+        },
+        {
+          "tag": "p",
+          "value": "The verifier performs three checks in order:"
+        },
+        {
+          "tag": "p",
+          "value": "SHA-256 calculation and JSON parsing use supporting libraries. Rust owns the course-specific source policy, inventory checks, byte comparisons and admission decision."
+        },
+        {
+          "tag": "figcaption",
+          "value": "Rust checks the observed byte count and digest separately, reading at most one bounded chunk at a time and probing for actual end of file. rust/crates/llm-from-scratch/src/artifact/inventory.rs#bounded-payload-verification"
+        },
+        {
+          "tag": "pre",
+          "attribute": "aria-label",
+          "value": "Rust source: bounded corpus-file size and digest verification"
+        },
+        {
+          "tag": "h3",
+          "value": "Two changes that expose the boundary"
+        },
+        {
+          "tag": "p",
+          "value": "Replacing b\"abc\" with b\"abd\" preserves the train file’s 3-byte length. A size-only check accepts the replacement. The full verifier rejects it with Hash, because the observed digest differs from the selected manifest entry. This is a file-byte check, not evidence about what either text would teach a model."
+        },
+        {
+          "tag": "p",
+          "value": "Changing the attribution file to b\"course-authored fixture v2\\n\" instead changes that file to 27 bytes. Rebuilding a consistent manifest updates its attribution entry and both sources’ attribution references. The resulting bundle identity differs, although the two raw text digests remain unchanged. The new complete payload totals 49 bytes. The identity therefore distinguishes provenance changes as well as raw-text changes."
+        },
+        {
+          "tag": "p",
+          "value": "Selected fields from the actual offline fixture report are shown below. The manifest occupies 3084 bytes separately from the 46 payload bytes. The scope value keeps this result identified as a synthetic fixture, not an acquired training dataset."
+        },
+        {
+          "tag": "figcaption",
+          "value": "The offline Rust report separates bundle identity, verified file bytes, restart accounting and the fixture's limited scope. rust/demos/ch41-governed-corpus-acquisition/src/lib.rs#governed-report"
+        },
+        {
+          "tag": "pre",
+          "attribute": "aria-label",
+          "value": "Rust source: verified corpus-fixture report and acquisition accounting"
+        },
+        {
+          "tag": "p",
+          "value": "The example executable runs only this offline fixture and prints its report. It does not download a training corpus."
+        },
+        {
+          "tag": "figcaption",
+          "value": "The example runs the offline corpus fixture and prints its checked report; it performs no real corpus download. rust/demos/ch41-governed-corpus-acquisition/src/main.rs#offline-acquisition-example"
+        },
+        {
+          "tag": "pre",
+          "attribute": "aria-label",
+          "value": "Rust source: executable offline corpus-acquisition example"
+        },
+        {
+          "tag": "h2",
+          "value": "Interrupted acquisition must not erase earlier work"
+        },
+        {
+          "tag": "p",
+          "value": "Acquisition can stop between receiving bytes and completing a source. A resumed request must continue the same selected source and preserve the acquisition’s limits; starting a new process must not grant a new byte budget or deadline."
+        },
+        {
+          "tag": "p",
+          "value": "In the fixture, the first request retains b\"ab\", a 2-byte prefix of the 3-byte train source. After restart, Rust rehashes that retained prefix and checks its recorded digest. The next request asks for the byte at offset 2, where offsets start at zero. Its response must cover exactly bytes 2-2/3 and carry the same strong entity tag as the first response. The entity tag is the server’s representation validator; it ties the resumed response to the earlier response, while the final SHA-256 check ties the assembled bytes to the selected source policy."
+        },
+        {
+          "tag": "p",
+          "value": "Receiving b\"c\" brings the retained length to 3 bytes, but completion still requires an explicit end-of-body observation and the final digest check. The held-out source is then checked separately. The report records 9 acknowledged body bytes and request-attempt counts [2,1]: two attempts for the train source, one for the held-out source. A complete train source alone is not a complete pair."
+        },
+        {
+          "tag": "p",
+          "value": "Body bytes that were read and discarded still consume the transfer budget. For a separate toy ceiling of 10 bytes, an error response that delivers 2 discarded bytes leaves only 8 bytes available. The two raw sources still require 9 bytes, so the next request is refused before dispatch:"
+        },
+        {
+          "tag": "p",
+          "value": "Rust reserves a bounded body-read grant before allowing transport to read. If a process stops with an unsettled grant, recovery charges the whole grant as uncertain delivery, once, rather than assuming that no bytes were read. This conservative rule may prevent further acquisition even when fewer bytes actually arrived. It prevents uncertainty from becoming free budget. The counter measures bytes delivered through this body-read interface, not every byte buffered by the operating system or every network packet."
+        },
+        {
+          "tag": "p",
+          "value": "Corrupt retained prefixes are refused and preserved in quarantine. Recovery does not reset the attempt count, charged bytes or original deadline. These safeguards make interruption visible; they do not turn a failed attempt into an admitted corpus."
+        },
+        {
+          "tag": "h2",
+          "value": "History: retain the dataset’s context, not just its filename"
+        },
+        {
+          "tag": "p",
+          "value": "The useful intuition behind a filename-and-size inventory is simple: record which files were expected and detect missing or truncated downloads. Its limitation is visible in the abc to abd example: the name and size can agree while the text differs. That Rust comparison is a deliberately limited baseline, not a claim that historical dataset projects relied only on file sizes."
+        },
+        {
+          "tag": "p",
+          "value": "A file inventory alone does not preserve a dataset’s collection context, provenance or suitability for language-model training. Datasheets for Datasets proposes structured dataset documentation; the later ROOTS corpus describes source selection, metadata and governance for a multilingual language-model corpus."
+        },
+        {
+          "tag": "p",
+          "value": "Datasheets for Datasets was first posted in 2018. Gebru and colleagues propose documentation covering a dataset’s motivation, composition, collection, preprocessing, uses, distribution and maintenance. That documentation supports informed decisions by dataset creators and users; a checksum cannot replace it."
+        },
+        {
+          "tag": "a",
+          "value": "Datasheets for Datasets",
+          "href": "https://arxiv.org/abs/1803.09010v8"
+        },
+        {
+          "tag": "p",
+          "value": "The BigScience ROOTS Corpus is described in a 2023 preprint. The ROOTS corpus paper describes source selection, metadata and governance in construction of a multilingual language-model corpus; it does not validate this chapter’s fixture. The tiny manifest is not an implementation of the ROOTS governance process or proof of a dataset’s suitability."
+        },
+        {
+          "tag": "a",
+          "value": "The BigScience ROOTS Corpus",
+          "href": "https://arxiv.org/abs/2303.03915v1"
+        },
+        {
+          "tag": "p",
+          "value": "Keep selected corpus bytes linked to their source context before downstream filtering, split construction and training. Byte agreement does not establish quality, privacy or permission."
+        },
+        {
+          "tag": "h2",
+          "value": "Read the evidence directly"
+        },
+        {
+          "tag": "p",
+          "value": "A spatial diagram would not make this example’s decisions clearer. The file table states exactly which bytes belong to each role, and the Rust report records the changed identity, digest refusal and restart counts directly. Read those values together: the manifest identifies a complete record, byte verification checks its files, and the scope field identifies the result as a synthetic fixture."
+        },
+        {
+          "tag": "h2",
+          "value": "Optional practice: reproduce and explain the checks"
+        },
+        {
+          "tag": "summary",
+          "value": "Checked explanations for the three corpus-verification tasks"
+        },
+        {
+          "tag": "h2",
+          "value": "What this supplies to the decoder pipeline"
+        },
+        {
+          "tag": "p",
+          "value": "The scalar reference remains unchanged. This chapter supplies a way to identify and verify a complete corpus input before later filtering and tokenization. The offline example has not acquired TinyStories. Real acquisition needs its selected source records and approved provenance; Chapter 42’s filtering work must consume that verified real input, not relabel this fixture as training data. Verification answers whether the selected record and available bytes agree. Quality, privacy, contamination and final split selection remain separate questions."
+        },
+        {
+          "tag": "nav",
+          "attribute": "aria-label",
+          "value": "Chapter navigation"
+        },
+        {
+          "tag": "a",
+          "value": "← Previous chapter Keep a fixed reference before extending the decoder",
+          "href": "/en/course/40-reference-core-handoff/",
+          "rel": "prev",
+          "class": "chapter-navigation__chapter chapter-navigation__chapter--previous"
+        },
+        {
+          "tag": "a",
+          "value": "All chapters",
+          "href": "/en/course/",
+          "class": "chapter-navigation__all"
+        },
+        {
+          "tag": "p",
+          "value": "A static, localized course for understanding language models from the inside."
+        }
+      ],
+      "removedAtoms": []
+    },
+    {
+      "route": "/en/course/",
+      "current": {
+        "relativePath": "en/course/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/course/index.html",
+        "sha256": "a7f55dae9e76072ebe96487b6476bab83763245b2fc72d9ea6a6d5f234f60024",
+        "bytes": 84797
+      },
+      "baseline": {
+        "relativePath": "en/course/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/course/index.html",
+        "sha256": "d2dc52564882f674e571c787160a274baab26b35678e9f90cd53dc6003e8eeb0",
+        "bytes": 84186
+      },
+      "status": "changed",
+      "addedAtoms": [
+        {
+          "tag": "h2",
+          "value": "Verify a corpus together with its provenance"
+        },
+        {
+          "tag": "a",
+          "value": "Verify a corpus together with its provenance",
+          "href": "/en/course/41-governed-corpus-acquisition/"
+        },
+        {
+          "tag": "p",
+          "value": "Link selected corpus bytes to source provenance, verify a complete manifest-backed bundle, and preserve acquisition limits across interruption using an offline Rust fixture."
+        }
+      ],
+      "removedAtoms": []
+    },
+    {
+      "route": "/en/",
+      "current": {
+        "relativePath": "en/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/en/index.html",
+        "sha256": "5f4a7c6a49d828497d9cda27269b6fe2a78bd94cdc80ea2df4540273a998909e",
+        "bytes": 9264
+      },
+      "baseline": {
+        "relativePath": "en/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/en/index.html",
+        "sha256": "5f4a7c6a49d828497d9cda27269b6fe2a78bd94cdc80ea2df4540273a998909e",
+        "bytes": 9264
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/",
+      "current": {
+        "relativePath": "index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/index.html",
+        "sha256": "9db024a98ac44aead5e1c937dd562c2e8a84265e1fa9872da269d1cc7c2beb19",
+        "bytes": 2854
+      },
+      "baseline": {
+        "relativePath": "index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/index.html",
+        "sha256": "9db024a98ac44aead5e1c937dd562c2e8a84265e1fa9872da269d1cc7c2beb19",
+        "bytes": 2854
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/00-llm-parts/",
+      "current": {
+        "relativePath": "ru/course/00-llm-parts/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/00-llm-parts/index.html",
+        "sha256": "53a7c4b139773f29613d8d4230ab7b8a200d8c645de97fae7bc1c9fd52adcd47",
+        "bytes": 121158
+      },
+      "baseline": {
+        "relativePath": "ru/course/00-llm-parts/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/00-llm-parts/index.html",
+        "sha256": "53a7c4b139773f29613d8d4230ab7b8a200d8c645de97fae7bc1c9fd52adcd47",
+        "bytes": 121158
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/01-text-units/",
+      "current": {
+        "relativePath": "ru/course/01-text-units/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/01-text-units/index.html",
+        "sha256": "854e21975c23737a4122aeb210491a499b7fa29b1b9c513f8d58df245aaeb006",
+        "bytes": 139232
+      },
+      "baseline": {
+        "relativePath": "ru/course/01-text-units/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/01-text-units/index.html",
+        "sha256": "854e21975c23737a4122aeb210491a499b7fa29b1b9c513f8d58df245aaeb006",
+        "bytes": 139232
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/02-corpus-partitions/",
+      "current": {
+        "relativePath": "ru/course/02-corpus-partitions/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/02-corpus-partitions/index.html",
+        "sha256": "0243454f6a773764014eda46193da59fba349b355d9f4c61ac0be18b248334a8",
+        "bytes": 185700
+      },
+      "baseline": {
+        "relativePath": "ru/course/02-corpus-partitions/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/02-corpus-partitions/index.html",
+        "sha256": "0243454f6a773764014eda46193da59fba349b355d9f4c61ac0be18b248334a8",
+        "bytes": 185700
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/03-learn-bpe-merges/",
+      "current": {
+        "relativePath": "ru/course/03-learn-bpe-merges/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/03-learn-bpe-merges/index.html",
+        "sha256": "0ff3cff827b99f2b6e6b0f6c590dc89f63c828d47d10edf84b22d0f77a2e4139",
+        "bytes": 192611
+      },
+      "baseline": {
+        "relativePath": "ru/course/03-learn-bpe-merges/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/03-learn-bpe-merges/index.html",
+        "sha256": "0ff3cff827b99f2b6e6b0f6c590dc89f63c828d47d10edf84b22d0f77a2e4139",
+        "bytes": 192611
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/04-apply-bpe-tokenizer/",
+      "current": {
+        "relativePath": "ru/course/04-apply-bpe-tokenizer/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/04-apply-bpe-tokenizer/index.html",
+        "sha256": "d1b85e3116c9b797a4d6178b5a928e18dcf00c99f808183dfe0aa50aa32fc664",
+        "bytes": 214573
+      },
+      "baseline": {
+        "relativePath": "ru/course/04-apply-bpe-tokenizer/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/04-apply-bpe-tokenizer/index.html",
+        "sha256": "d1b85e3116c9b797a4d6178b5a928e18dcf00c99f808183dfe0aa50aa32fc664",
+        "bytes": 214573
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/05-autoregressive-examples/",
+      "current": {
+        "relativePath": "ru/course/05-autoregressive-examples/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/05-autoregressive-examples/index.html",
+        "sha256": "5f1639328cd521bb8e7d4cb2c580d0ed873f3cb4b85f35e35584d10bf1049439",
+        "bytes": 265628
+      },
+      "baseline": {
+        "relativePath": "ru/course/05-autoregressive-examples/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/05-autoregressive-examples/index.html",
+        "sha256": "5f1639328cd521bb8e7d4cb2c580d0ed873f3cb4b85f35e35584d10bf1049439",
+        "bytes": 265628
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/06-bigram-baseline/",
+      "current": {
+        "relativePath": "ru/course/06-bigram-baseline/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/06-bigram-baseline/index.html",
+        "sha256": "d222aab311e39c0a1d82605175c9e7aff43f07c2bfbf8783f4a117788cfbdbb0",
+        "bytes": 269325
+      },
+      "baseline": {
+        "relativePath": "ru/course/06-bigram-baseline/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/06-bigram-baseline/index.html",
+        "sha256": "d222aab311e39c0a1d82605175c9e7aff43f07c2bfbf8783f4a117788cfbdbb0",
+        "bytes": 269325
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/07-language-model-metrics/",
+      "current": {
+        "relativePath": "ru/course/07-language-model-metrics/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/07-language-model-metrics/index.html",
+        "sha256": "fd2a5280031283e286c8c80b8c6c32acea9c81b422da2b264d828b2cfef1229e",
+        "bytes": 287514
+      },
+      "baseline": {
+        "relativePath": "ru/course/07-language-model-metrics/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/07-language-model-metrics/index.html",
+        "sha256": "fd2a5280031283e286c8c80b8c6c32acea9c81b422da2b264d828b2cfef1229e",
+        "bytes": 287514
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/08-tensor-storage/",
+      "current": {
+        "relativePath": "ru/course/08-tensor-storage/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/08-tensor-storage/index.html",
+        "sha256": "848843b6a407e2808b8e2c1e63e163b565a3aa3b15b03313f31d680c7774e705",
+        "bytes": 249474
+      },
+      "baseline": {
+        "relativePath": "ru/course/08-tensor-storage/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/08-tensor-storage/index.html",
+        "sha256": "848843b6a407e2808b8e2c1e63e163b565a3aa3b15b03313f31d680c7774e705",
+        "bytes": 249474
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/09-tensor-views/",
+      "current": {
+        "relativePath": "ru/course/09-tensor-views/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/09-tensor-views/index.html",
+        "sha256": "fe69602275ea4e026437fe710e741433f98a632b40480cccd8720f5a1c64cb07",
+        "bytes": 268614
+      },
+      "baseline": {
+        "relativePath": "ru/course/09-tensor-views/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/09-tensor-views/index.html",
+        "sha256": "fe69602275ea4e026437fe710e741433f98a632b40480cccd8720f5a1c64cb07",
+        "bytes": 268614
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/10-broadcasting-reductions/",
+      "current": {
+        "relativePath": "ru/course/10-broadcasting-reductions/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/10-broadcasting-reductions/index.html",
+        "sha256": "d9affea46247cd248eec718a51740e66a7f99740d1808713369adbb570c5f10f",
+        "bytes": 259365
+      },
+      "baseline": {
+        "relativePath": "ru/course/10-broadcasting-reductions/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/10-broadcasting-reductions/index.html",
+        "sha256": "d9affea46247cd248eec718a51740e66a7f99740d1808713369adbb570c5f10f",
+        "bytes": 259365
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/11-matrix-multiplication/",
+      "current": {
+        "relativePath": "ru/course/11-matrix-multiplication/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/11-matrix-multiplication/index.html",
+        "sha256": "d6123358e5acebcf4479bbc2147b230aa29cc1fa937ceb5982a49a503d3f31b6",
+        "bytes": 281119
+      },
+      "baseline": {
+        "relativePath": "ru/course/11-matrix-multiplication/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/11-matrix-multiplication/index.html",
+        "sha256": "d6123358e5acebcf4479bbc2147b230aa29cc1fa937ceb5982a49a503d3f31b6",
+        "bytes": 281119
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/12-stable-softmax/",
+      "current": {
+        "relativePath": "ru/course/12-stable-softmax/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/12-stable-softmax/index.html",
+        "sha256": "2613b3e8813c60225667d520ef22263b97edf9af093a59d73541603d3953265b",
+        "bytes": 332420
+      },
+      "baseline": {
+        "relativePath": "ru/course/12-stable-softmax/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/12-stable-softmax/index.html",
+        "sha256": "2613b3e8813c60225667d520ef22263b97edf9af093a59d73541603d3953265b",
+        "bytes": 332420
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/13-gradient-checking/",
+      "current": {
+        "relativePath": "ru/course/13-gradient-checking/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/13-gradient-checking/index.html",
+        "sha256": "29b5e26c96b3ae40893c1d2a3416595209889098f3f6e59a5b755e1dc6ec291f",
+        "bytes": 491299
+      },
+      "baseline": {
+        "relativePath": "ru/course/13-gradient-checking/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/13-gradient-checking/index.html",
+        "sha256": "29b5e26c96b3ae40893c1d2a3416595209889098f3f6e59a5b755e1dc6ec291f",
+        "bytes": 491299
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/14-scalar-autodiff/",
+      "current": {
+        "relativePath": "ru/course/14-scalar-autodiff/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/14-scalar-autodiff/index.html",
+        "sha256": "7a0d16f351658f09db6e385442e58efb71cd7cca5a907479889db4360b6778dc",
+        "bytes": 313009
+      },
+      "baseline": {
+        "relativePath": "ru/course/14-scalar-autodiff/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/14-scalar-autodiff/index.html",
+        "sha256": "7a0d16f351658f09db6e385442e58efb71cd7cca5a907479889db4360b6778dc",
+        "bytes": 313009
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/15-tensor-autodiff-core/",
+      "current": {
+        "relativePath": "ru/course/15-tensor-autodiff-core/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/15-tensor-autodiff-core/index.html",
+        "sha256": "d94099f4736fc301b367c07c271aa5e04b981c8e28ad4d0734bbd0c06c4be575",
+        "bytes": 576084
+      },
+      "baseline": {
+        "relativePath": "ru/course/15-tensor-autodiff-core/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/15-tensor-autodiff-core/index.html",
+        "sha256": "d94099f4736fc301b367c07c271aa5e04b981c8e28ad4d0734bbd0c06c4be575",
+        "bytes": 576084
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/16-model-autodiff-ops/",
+      "current": {
+        "relativePath": "ru/course/16-model-autodiff-ops/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/16-model-autodiff-ops/index.html",
+        "sha256": "3155f3d4a6223f80e3266645617e943caede0f59f025e77f31ff885ef6a0918c",
+        "bytes": 431668
+      },
+      "baseline": {
+        "relativePath": "ru/course/16-model-autodiff-ops/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/16-model-autodiff-ops/index.html",
+        "sha256": "3155f3d4a6223f80e3266645617e943caede0f59f025e77f31ff885ef6a0918c",
+        "bytes": 431668
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/17-parameter-initialization/",
+      "current": {
+        "relativePath": "ru/course/17-parameter-initialization/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/17-parameter-initialization/index.html",
+        "sha256": "665d5c66b4efeb289ef0b2b901243e548004c723525f17e4acd93a2a8803f5af",
+        "bytes": 336710
+      },
+      "baseline": {
+        "relativePath": "ru/course/17-parameter-initialization/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/17-parameter-initialization/index.html",
+        "sha256": "665d5c66b4efeb289ef0b2b901243e548004c723525f17e4acd93a2a8803f5af",
+        "bytes": 336710
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/18-token-embeddings/",
+      "current": {
+        "relativePath": "ru/course/18-token-embeddings/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/18-token-embeddings/index.html",
+        "sha256": "11771b96a4996e056cb808045e58569ed49559b865b2093419d8237289393be9",
+        "bytes": 345919
+      },
+      "baseline": {
+        "relativePath": "ru/course/18-token-embeddings/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/18-token-embeddings/index.html",
+        "sha256": "11771b96a4996e056cb808045e58569ed49559b865b2093419d8237289393be9",
+        "bytes": 345919
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/19-linear-layers/",
+      "current": {
+        "relativePath": "ru/course/19-linear-layers/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/19-linear-layers/index.html",
+        "sha256": "963821465e3e892849099e9b7ae389937790cce83fcb19bcb1b9f36a8a40b763",
+        "bytes": 347610
+      },
+      "baseline": {
+        "relativePath": "ru/course/19-linear-layers/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/19-linear-layers/index.html",
+        "sha256": "963821465e3e892849099e9b7ae389937790cce83fcb19bcb1b9f36a8a40b763",
+        "bytes": 347610
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/20-swiglu-feed-forward/",
+      "current": {
+        "relativePath": "ru/course/20-swiglu-feed-forward/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/20-swiglu-feed-forward/index.html",
+        "sha256": "2c824c0952ef702ff57271c5072e1f0b468900213ec672e94b012e206c21224b",
+        "bytes": 465272
+      },
+      "baseline": {
+        "relativePath": "ru/course/20-swiglu-feed-forward/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/20-swiglu-feed-forward/index.html",
+        "sha256": "2c824c0952ef702ff57271c5072e1f0b468900213ec672e94b012e206c21224b",
+        "bytes": 465272
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/21-mini-batches/",
+      "current": {
+        "relativePath": "ru/course/21-mini-batches/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/21-mini-batches/index.html",
+        "sha256": "d8c1468e66e59e641abc8462ffb65266ac828c97c5631f73eec79fd22e1d8360",
+        "bytes": 426578
+      },
+      "baseline": {
+        "relativePath": "ru/course/21-mini-batches/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/21-mini-batches/index.html",
+        "sha256": "d8c1468e66e59e641abc8462ffb65266ac828c97c5631f73eec79fd22e1d8360",
+        "bytes": 426578
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/22-adamw/",
+      "current": {
+        "relativePath": "ru/course/22-adamw/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/22-adamw/index.html",
+        "sha256": "127187ef5b638f14249e17f6971cd9b9bff39fc48e876defb2e7dd0286cc50ed",
+        "bytes": 654678
+      },
+      "baseline": {
+        "relativePath": "ru/course/22-adamw/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/22-adamw/index.html",
+        "sha256": "127187ef5b638f14249e17f6971cd9b9bff39fc48e876defb2e7dd0286cc50ed",
+        "bytes": 654678
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/23-neural-ngram/",
+      "current": {
+        "relativePath": "ru/course/23-neural-ngram/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/23-neural-ngram/index.html",
+        "sha256": "7f27aa5d0e6172be3bc054c5d292981cb8f3ec17c3f336217732655239272e4e",
+        "bytes": 373212
+      },
+      "baseline": {
+        "relativePath": "ru/course/23-neural-ngram/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/23-neural-ngram/index.html",
+        "sha256": "7f27aa5d0e6172be3bc054c5d292981cb8f3ec17c3f336217732655239272e4e",
+        "bytes": 373212
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/24-residual-connections/",
+      "current": {
+        "relativePath": "ru/course/24-residual-connections/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/24-residual-connections/index.html",
+        "sha256": "edb776d8f982c20091c32a03506daee8765d07719fff6cb9b7f339753c4384cc",
+        "bytes": 288296
+      },
+      "baseline": {
+        "relativePath": "ru/course/24-residual-connections/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/24-residual-connections/index.html",
+        "sha256": "edb776d8f982c20091c32a03506daee8765d07719fff6cb9b7f339753c4384cc",
+        "bytes": 288296
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/25-rmsnorm/",
+      "current": {
+        "relativePath": "ru/course/25-rmsnorm/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/25-rmsnorm/index.html",
+        "sha256": "d4f2e1132bf62a47cef2bd545f078e1d6844242d667da43205e40f601f0f8a36",
+        "bytes": 310273
+      },
+      "baseline": {
+        "relativePath": "ru/course/25-rmsnorm/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/25-rmsnorm/index.html",
+        "sha256": "d4f2e1132bf62a47cef2bd545f078e1d6844242d667da43205e40f601f0f8a36",
+        "bytes": 310273
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/26-qkv-projections/",
+      "current": {
+        "relativePath": "ru/course/26-qkv-projections/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/26-qkv-projections/index.html",
+        "sha256": "22905d839597d5ec82c7937e964c3bca6e899fe8d5ee0fce4e1ffb53e731735e",
+        "bytes": 374458
+      },
+      "baseline": {
+        "relativePath": "ru/course/26-qkv-projections/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/26-qkv-projections/index.html",
+        "sha256": "22905d839597d5ec82c7937e964c3bca6e899fe8d5ee0fce4e1ffb53e731735e",
+        "bytes": 374458
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/27-self-attention/",
+      "current": {
+        "relativePath": "ru/course/27-self-attention/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/27-self-attention/index.html",
+        "sha256": "e002111fadcd83e795d82f22ebf0d960217c3242770c1102be4d1e777cd08cd3",
+        "bytes": 441203
+      },
+      "baseline": {
+        "relativePath": "ru/course/27-self-attention/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/27-self-attention/index.html",
+        "sha256": "e002111fadcd83e795d82f22ebf0d960217c3242770c1102be4d1e777cd08cd3",
+        "bytes": 441203
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/28-causal-masking/",
+      "current": {
+        "relativePath": "ru/course/28-causal-masking/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/28-causal-masking/index.html",
+        "sha256": "69f802cbe6743acf9e5a05750caff7ff691a660494dfa7c9e8ad2d3835ccb59c",
+        "bytes": 412192
+      },
+      "baseline": {
+        "relativePath": "ru/course/28-causal-masking/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/28-causal-masking/index.html",
+        "sha256": "69f802cbe6743acf9e5a05750caff7ff691a660494dfa7c9e8ad2d3835ccb59c",
+        "bytes": 412192
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/29-rope/",
+      "current": {
+        "relativePath": "ru/course/29-rope/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/29-rope/index.html",
+        "sha256": "d90fff0d7dd61090832e0520b73c947a8df82c108aa37779a12cf8fb27da129b",
+        "bytes": 418642
+      },
+      "baseline": {
+        "relativePath": "ru/course/29-rope/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/29-rope/index.html",
+        "sha256": "d90fff0d7dd61090832e0520b73c947a8df82c108aa37779a12cf8fb27da129b",
+        "bytes": 418642
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/30-multi-head-attention/",
+      "current": {
+        "relativePath": "ru/course/30-multi-head-attention/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/30-multi-head-attention/index.html",
+        "sha256": "895a76c37e47b521ec70fa7a35a48129eb554ecd70ed5e388ee7728e23c39358",
+        "bytes": 699288
+      },
+      "baseline": {
+        "relativePath": "ru/course/30-multi-head-attention/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/30-multi-head-attention/index.html",
+        "sha256": "895a76c37e47b521ec70fa7a35a48129eb554ecd70ed5e388ee7728e23c39358",
+        "bytes": 699288
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/31-decoder-block/",
+      "current": {
+        "relativePath": "ru/course/31-decoder-block/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/31-decoder-block/index.html",
+        "sha256": "5d77c2c138f7d7be70f2df5d64178e72f457b185fa87fb02f123e75ff3e2d6a5",
+        "bytes": 439175
+      },
+      "baseline": {
+        "relativePath": "ru/course/31-decoder-block/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/31-decoder-block/index.html",
+        "sha256": "5d77c2c138f7d7be70f2df5d64178e72f457b185fa87fb02f123e75ff3e2d6a5",
+        "bytes": 439175
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/32-decoder-model/",
+      "current": {
+        "relativePath": "ru/course/32-decoder-model/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/32-decoder-model/index.html",
+        "sha256": "b6ce47412071893a5638dcbb12fd8e63d9f5e6b41d79f290823d45a06f21df40",
+        "bytes": 552863
+      },
+      "baseline": {
+        "relativePath": "ru/course/32-decoder-model/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/32-decoder-model/index.html",
+        "sha256": "b6ce47412071893a5638dcbb12fd8e63d9f5e6b41d79f290823d45a06f21df40",
+        "bytes": 552863
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/33-training-selection/",
+      "current": {
+        "relativePath": "ru/course/33-training-selection/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/33-training-selection/index.html",
+        "sha256": "b465d1d1428bd6b14366f22e0e428829caab4787ec421ed50b216efcf560b37e",
+        "bytes": 527348
+      },
+      "baseline": {
+        "relativePath": "ru/course/33-training-selection/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/33-training-selection/index.html",
+        "sha256": "b465d1d1428bd6b14366f22e0e428829caab4787ec421ed50b216efcf560b37e",
+        "bytes": 527348
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/34-final-evaluation/",
+      "current": {
+        "relativePath": "ru/course/34-final-evaluation/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/34-final-evaluation/index.html",
+        "sha256": "70020da9569bfa1c28ac59e3679af37a8f458b31802865a4135d656ed1cb2f53",
+        "bytes": 362498
+      },
+      "baseline": {
+        "relativePath": "ru/course/34-final-evaluation/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/34-final-evaluation/index.html",
+        "sha256": "70020da9569bfa1c28ac59e3679af37a8f458b31802865a4135d656ed1cb2f53",
+        "bytes": 362498
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/35-checkpoints/",
+      "current": {
+        "relativePath": "ru/course/35-checkpoints/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/35-checkpoints/index.html",
+        "sha256": "cf496e77eb1fef2f090c8d6657ca258676190c0b7bd144c47fae3e1e932a3515",
+        "bytes": 374552
+      },
+      "baseline": {
+        "relativePath": "ru/course/35-checkpoints/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/35-checkpoints/index.html",
+        "sha256": "cf496e77eb1fef2f090c8d6657ca258676190c0b7bd144c47fae3e1e932a3515",
+        "bytes": 374552
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/36-temperature-top-k/",
+      "current": {
+        "relativePath": "ru/course/36-temperature-top-k/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/36-temperature-top-k/index.html",
+        "sha256": "75cdbc87a97d04a640a8517ab1619cd13f8df70c0d2f0ee342b54fada253a055",
+        "bytes": 575153
+      },
+      "baseline": {
+        "relativePath": "ru/course/36-temperature-top-k/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/36-temperature-top-k/index.html",
+        "sha256": "75cdbc87a97d04a640a8517ab1619cd13f8df70c0d2f0ee342b54fada253a055",
+        "bytes": 575153
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/37-incremental-attention/",
+      "current": {
+        "relativePath": "ru/course/37-incremental-attention/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/37-incremental-attention/index.html",
+        "sha256": "ee37b009da2c9d1db7b81719b7b4cb43a5e2b436711b441b3c32dafe74173e08",
+        "bytes": 608858
+      },
+      "baseline": {
+        "relativePath": "ru/course/37-incremental-attention/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/37-incremental-attention/index.html",
+        "sha256": "ee37b009da2c9d1db7b81719b7b4cb43a5e2b436711b441b3c32dafe74173e08",
+        "bytes": 608858
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/38-cached-generation/",
+      "current": {
+        "relativePath": "ru/course/38-cached-generation/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/38-cached-generation/index.html",
+        "sha256": "708edc9fca141386e6a5c06b8cd9a7e57214a0995b8e866026cfc96c2e7c9334",
+        "bytes": 693183
+      },
+      "baseline": {
+        "relativePath": "ru/course/38-cached-generation/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/38-cached-generation/index.html",
+        "sha256": "708edc9fca141386e6a5c06b8cd9a7e57214a0995b8e866026cfc96c2e7c9334",
+        "bytes": 693183
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/39-end-to-end-llm/",
+      "current": {
+        "relativePath": "ru/course/39-end-to-end-llm/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/39-end-to-end-llm/index.html",
+        "sha256": "276a94d2302b0426609dd0522deeea40a9492e8865b17bf168e26b12be4734d0",
+        "bytes": 328888
+      },
+      "baseline": {
+        "relativePath": "ru/course/39-end-to-end-llm/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/39-end-to-end-llm/index.html",
+        "sha256": "276a94d2302b0426609dd0522deeea40a9492e8865b17bf168e26b12be4734d0",
+        "bytes": 328888
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/40-reference-core-handoff/",
+      "current": {
+        "relativePath": "ru/course/40-reference-core-handoff/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/40-reference-core-handoff/index.html",
+        "sha256": "3337b1df348c2d933a7a1207402f0b8fc263a6b56c5a6d6b5bf0acaf2e520d5f",
+        "bytes": 173561
+      },
+      "baseline": {
+        "relativePath": "ru/course/40-reference-core-handoff/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/40-reference-core-handoff/index.html",
+        "sha256": "3337b1df348c2d933a7a1207402f0b8fc263a6b56c5a6d6b5bf0acaf2e520d5f",
+        "bytes": 173561
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/course/",
+      "current": {
+        "relativePath": "ru/course/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/course/index.html",
+        "sha256": "acc09de207efcb65ce5bb843b60b5eb985ed0e8639b06851b27a33027e80250f",
+        "bytes": 97614
+      },
+      "baseline": {
+        "relativePath": "ru/course/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/course/index.html",
+        "sha256": "acc09de207efcb65ce5bb843b60b5eb985ed0e8639b06851b27a33027e80250f",
+        "bytes": 97614
+      },
+      "status": "byte-identical"
+    },
+    {
+      "route": "/ru/",
+      "current": {
+        "relativePath": "ru/index.html",
+        "path": ".build/runs/20261005T114801Z-implement-ch41-governed-corpus-acquisition-01/private-build-06/ru/index.html",
+        "sha256": "dfe9a00bfa45df723351bf60fed4d85693e652d0d5e3219d3318f38c86e71339",
+        "bytes": 10743
+      },
+      "baseline": {
+        "relativePath": "ru/index.html",
+        "path": ".build/runs/20261005T081707Z-implement-ch40-reference-core-handoff-02/production-build-01/ru/index.html",
+        "sha256": "dfe9a00bfa45df723351bf60fed4d85693e652d0d5e3219d3318f38c86e71339",
+        "bytes": 10743
+      },
+      "status": "byte-identical"
+    }
+  ],
+  "limitations": "Multiset of selected actual text/accessibility atoms supports propagation inspection, not semantic approval; complete current output files retained."
+}

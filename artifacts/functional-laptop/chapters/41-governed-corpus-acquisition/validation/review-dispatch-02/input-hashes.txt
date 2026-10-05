@@ -1,0 +1,4 @@
+6bd2ec7e9a7492c386a7ebdd4b4e6d0132f8af1015e56dc9903ee09a3fb3130d  scripts/check-functional-step-receipt.mjs
+b0f87687728ffdd3a5d44a8f8167ee0dbb050237e5e10071e01cc9c5e7a164e0  scripts/tests/check-functional-step-receipt.test.mjs
+3f2d53ddb7a49a79a2ffbce016db2550683dd5f3a2385388ab3e1e1ff7642cba  scripts/tests/check-functional-chapter-reviews.test.mjs
+521ce5b60daf37bf32a50df088d9937ec28eb471d356a0699538880c971a91a2  scripts/README.md

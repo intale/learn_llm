@@ -40,6 +40,11 @@ export const ORIENTATION_CHAPTER_SECTIONS = Object.freeze([
   'decoder-connection',
 ]);
 
+const SOLUTION_RUST_CHAPTER_SECTIONS = Object.freeze([
+  'worked-example', 'formula', 'symbol-glossary', 'rust-implementation',
+  'history', 'visualization', 'exercises', 'decoder-connection',
+]);
+
 const CHAPTER_ID_PATTERN = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const DIAGRAM_COMPONENT_PATTERN = /^[A-Z][A-Za-z0-9]*Diagram$/;
@@ -528,7 +533,7 @@ function validateChapterSections(data, body, issues, sourceName) {
     const checkedAnswers = answerStart === -1 ? '' : exercises.slice(answerStart);
     const predictionCount = [...predictionPrompts.matchAll(/^\s*\d+\.\s+\S/gm)].length;
     if (!/^\s*1\.\s+\S/m.test(predictionPrompts)) {
-      issues.push(sourceName + ': exercises section must contain a predict-first ordered list');
+      issues.push(sourceName + ': exercises section must contain an ordered practice-task list');
     }
     const answerBlock = checkedAnswers.match(
       /^<details\b[^>]*>\s*<summary\b[^>]*>\s*\S[\s\S]*?<\/summary>([\s\S]*?)<\/details>/,
@@ -543,7 +548,7 @@ function validateChapterSections(data, body, issues, sourceName) {
       ) {
         issues.push(
           sourceName +
-            ': checked answers must contain one substantive ordered answer per prediction',
+            ': checked answers must contain one substantive ordered answer per practice task',
         );
       }
     }
@@ -950,15 +955,19 @@ export function validateChapterDocument(
   const requiredSections = isOrientationChapter(parsed.data)
     ? ORIENTATION_CHAPTER_SECTIONS
     : REQUIRED_CHAPTER_SECTIONS;
-  if (JSON.stringify(markers) !== JSON.stringify(requiredSections)) {
+  const acceptedOrder = JSON.stringify(markers) === JSON.stringify(requiredSections) ||
+    (!isOrientationChapter(parsed.data) &&
+      JSON.stringify(markers) === JSON.stringify(SOLUTION_RUST_CHAPTER_SECTIONS));
+  if (!acceptedOrder) {
     issues.push(
       sourceName +
         ': chapter section markers must appear exactly once in this order: ' +
-        requiredSections.join(', '),
+        requiredSections.join(', ') +
+        (isOrientationChapter(parsed.data) ? '' : ' (or with rust-implementation immediately before history)'),
     );
   }
 
-  if (JSON.stringify(markers) === JSON.stringify(requiredSections)) {
+  if (acceptedOrder) {
     validateChapterSections(parsed.data, parsed.body, issues, sourceName);
   }
 

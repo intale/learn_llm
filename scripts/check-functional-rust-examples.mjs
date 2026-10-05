@@ -9,17 +9,17 @@ import {readFunctionalPlan, checkFunctionalRustOwnership} from './check-function
 export function examplePaths(chapterId) {
   if (!/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(chapterId) || Number(chapterId.slice(0,2))<40 ||
       Number(chapterId.slice(0,2))>85) throw new Error('invalid functional chapter');
-  if(chapterId==='40-reference-core-handoff')throw new Error('Chapter40 uses its demo, not a cumulative example');
+  if(['40-reference-core-handoff','41-governed-corpus-acquisition'].includes(chapterId))throw new Error('Approved successor chapter uses its demo, not a cumulative example');
   const example='ch'+chapterId.replaceAll('-','_');
   const root='rust/crates/llm-from-scratch/';
   return {example,source:root+'examples/'+example+'.rs',expected:root+'examples/expected/'+example+'.txt',
     fragment:root+'module-registry/functional-v1/ch'+chapterId+'.module'};
 }
 export function demoPaths(chapterId) {
-  if(chapterId!=='40-reference-core-handoff')throw new Error('only Chapter40 has the successor demo exception');
-  return {package:'ch40-reference-core-handoff',source:'rust/demos/ch40-reference-core-handoff/src/main.rs',
-    library:'rust/demos/ch40-reference-core-handoff/src/lib.rs',
-    manifest:'rust/demos/ch40-reference-core-handoff/Cargo.toml',expected:'rust/demos/ch40-reference-core-handoff/expected.txt'};
+  if(!['40-reference-core-handoff','41-governed-corpus-acquisition'].includes(chapterId))throw new Error('only exact approved Chapters40/41 have the successor demo exception');
+  const packageName='ch'+chapterId, prefix='rust/demos/'+packageName+'/';
+  return {package:packageName,source:prefix+'src/main.rs',library:prefix+'src/lib.rs',
+    manifest:prefix+'Cargo.toml',expected:prefix+'expected.txt'};
 }
 export function validateExampleOutput(actual,expected) {
   if (!Buffer.isBuffer(actual) || !Buffer.isBuffer(expected) || !expected.length || !expected.equals(actual))
@@ -31,13 +31,13 @@ export function checkFunctionalRustExamples(root,{chapterId,run=spawnSync}={}) {
   if (chapterId && chapters.length!==1) throw new Error('unknown chapter example');
   let count=0;
   for(const c of chapters){
-    if(c.chapter_id==='40-reference-core-handoff') {
+    if(['40-reference-core-handoff','41-governed-corpus-acquisition'].includes(c.chapter_id)) {
       const p=demoPaths(c.chapter_id);
       if(!chapterId&&!existsSync(resolve(root,p.source)))continue;
       readRegularFile(root,p.source);readRegularFile(root,p.library);readRegularFile(root,p.manifest,65536);
       const expected=readRegularFile(root,p.expected,1048576);
       const result=run('cargo',['run','--quiet','--locked','-p',p.package],{cwd:root,shell:false,maxBuffer:1048576});
-      if(result.error||result.status!==0)throw new Error('Chapter40 demo failed: '+(result.error?.message??result.stderr?.toString()));
+      if(result.error||result.status!==0)throw new Error('Successor demo failed: '+(result.error?.message??result.stderr?.toString()));
       validateExampleOutput(result.stdout,expected);count++;continue;
     }
     const p=examplePaths(c.chapter_id);

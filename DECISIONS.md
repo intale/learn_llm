@@ -28436,3 +28436,337 @@ Fifteen declared numbered plumbing evidence files require scoped force-add
 because of a generic ignore pattern; no undeclared path is staged.
 
 **Affected step:** `implement-ch40-reference-core-handoff`.
+
+### 2026-10-05 — Claim Chapter41 offline protocol under current English-only workflow
+
+Root approves the live Chapter41 ownership and execution reconciliation after
+completed Chapter40 commit9b2834d. The chapter teaches and executes governed,
+restart-safe acquisition on bounded offline fixtures only. It does not download
+TinyStories, execute the later artifact-cache boundary, grant bulk acquisition,
+train a model, or expand GPU/paid-service authority. The frozen packet and prior
+plans remain historical; held Chapters6/8–10 repairs stay held.
+
+Use the existing cached Docker/./course current-source overlay, explicit private
+review versus production roles, network-none course execution and sole Firefox.
+Absent old history/offline/Firefox wrappers and forensic runtime receipts are
+superseded, not recreated. Exactly SRC-DTH-DATA-01 and SRC-DTH-DATA-05 retain
+bounded official primary evidence and durable claim/limit receipt bindings;
+no third fallback or crawl is authorized. Chapter41 is problem-first and English
+only under the explicit41+Russian hold, with the full fresh English four-chain.
+
+Chapter-specific executable/tests live in rust/demos/ch41-governed-corpus-acquisition;
+the four reusable artifact modules remain cumulative library sources registered
+through the existing grammar. No base lib declaration-prefix edit or broad
+framework is needed. Root owns taught Rust/schema/API and learner semantics;
+the separate machinery context owns deterministic integration, commands and
+ledger. Necessary shared checkers/regressions/docs, library Cargo.toml, Cargo.lock
+and the minimal complete supporting dependency allowlist are declared outputs.
+
+Reuse admitted SHA/Serde. Mature url, mime and rustix filesystem plumbing are
+approved feasibility candidates, not yet installed or version-selected: standard
+URL/MIME syntax and safe openat/no-follow/stat/lock/rename/fsync are supporting
+operations; course Rust retains policy, manifest/inventory/path, durable budget
+and restart decisions. Official environment dependency provisioning is already
+authorized; execution remains offline. Current workspace pins Rust1.93, so
+an earlier suggested1.83MSRV is compatibility information, not a downgrade.
+No cached candidate was found at standard registry roots; bounded exact package
+feasibility is the next checkpointed sub-operation, not a claim blocker.
+
+Before execution retain the large-step8h,16attempt,32MiB aggregate and2MiB
+per-context input envelope plus all token/output limits. Plan five content/judgment
+contexts (ongoing author plus four fresh judges), not a successful-context count.
+Measure actual four-file routes; do not invent token usage. Actual user-selected
+model/effort is inherited and frozen from configured evidence, never an old preset.
+Run20261005T114801Z-implement-ch41-governed-corpus-acquisition-01 starts with
+exact predecessor inventory/publication and Cargo/packet hashes; no acquisition,
+course execution or learner edit occurred during this claim.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Keep Chapter41 entrypoints supplementary or fail-closed
+
+Root approves the declared acquisition/report/cache/offline-replay entrypoints
+only as narrow offline machinery. The acquisition CLI refuses live download;
+the cache CLI refuses the separately pending execution boundary. Their diagnostics
+must distinguish implemented Rust fixture publication/reverification from real
+cache execution. The report checker and offline-replay dispatch validate current
+wiring and observed fixture structure only; they never replace actual Rust29
+tests, the real Rust-worker/Node roundtrip, or semantic review. No policy schema,
+bulk CLI, acquisition configuration, network side effect or future framework is
+added. Existing command names are preserved without claiming a future gate passed.
+
+The maintained step-receipt adapter and its existing regression are necessary
+shared outputs. Only Chapter41 selects its frozen english-candidate-01 nested
+routing topology; Chapter40 and42+ routing remain intact. Final publication
+receipt aliases are byte-identical copies, with all original relative candidate
+paths retained durably. No sealed input/response is rewritten for relocation.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Maintain one narrow offline Rust-overlay launcher
+
+Root approves scripts/run-functional-rust-overlay.sh, its focused Node regression
+and usage documentation as necessary machinery outputs after the first Chapter41
+compile. This replaces repeated handwritten Docker setup with the proven private
+0755tmpfs and regular-file-only overlay. It accepts a validated existing run ID,
+fresh operation name, exact cached image digest and a cargo argv vector; Docker
+pull is never permitted and network is always none. Source and publish mounts
+are read-only; cache/target/log writes are confined to that run. Existing operation
+evidence refuses overwrite, and captured input hashes identify actual copied
+Rust/config/lock bytes. It has no provisioning, browser, site, model, review or
+acquisition mode, and confers no workflow authority on its cargo command.
+The first repeated omitted0755option failure remains diagnostic evidence rather
+than being relabeled a compiler/product failure. No taught Rust or image changes
+are part of this launcher.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Admit Chapter41 standard URL/header/filesystem plumbing
+
+### 2026-10-05 — Keep the Chapter41 transport subordinate to Rust permits
+
+Root authorizes the existing demo's typed artifact-policy-worker binary and a
+narrow reusable scripts/lib/governed-acquisition-transport.mjs module, focused
+injected-transport tests and usage documentation. Rust alone owns URL/header
+admission, budget decisions, grant persistence and partial/progress writes.
+Node relays paused HTTPS streams with identity encoding, manual redirects,
+unchanged duplicate header occurrences and at most65,536bytes per granted read.
+Unneeded response bodies are destroyed before cancelling their grants. Signed
+URLs remain private pipe data, never public logs or learner receipts.
+This chapter tests injected offline responses only; the module has no live
+acquisition CLI or later artifact-cache boundary selector. No new corpus network
+authority, dependency, taught Rust change or environment image is introduced.
+
+The root-owned worker now supplies its persisted deadline in GET permits. A
+single monotonic transport timer derives its remaining duration from that exact
+deadline, destroys a hanging header/body request and preserves any unsettled
+grant; no default policy timeout is invented. A narrow private JSONL client and
+offline round-trip fixture launch the actual compiled worker, with a canonical
+manifest generated by the Rust test. Those necessary machinery outputs exercise
+the real Rust/Node boundary without a Node manifest implementation or live HTTPS.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Admitted supporting graph details
+
+### 2026-10-05 — Preserve substantive section gates with solution-first Rust order
+
+For Chapter41 the author retains solution explanation and its related Rust
+operations before history, matching the current evidence-led authoring sequence.
+The legacy checker required history before the separately marked Rust section.
+Root authorizes accepting exactly those two orders, with the same complete
+eight-marker membership, uniqueness and all remaining relative ordering intact.
+Orientation ordering is unchanged. Every section's heading, substantive evidence,
+formula, history claims/links, exercise and source checks still run for either
+accepted order. Add the shared checker and existing content-contract regression
+file as necessary outputs; no published chapter is rewritten or exempted.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Locked supporting package evidence
+
+Root approves exact url2.5.8 with defaults off/std, headers0.4.2 with defaults
+off/no features, and rustix1.1.5 with defaults off/std+fs. Headers supplies typed
+ContentRange, ETag and ContentType; direct mime is unnecessary. MIME remains
+transitive and its source tests cover case-insensitive media types and quoted
+UTF-8 charset equality. Header parser syntax is library-owned; course Rust owns
+resume offset/total, strong-validator admission and all other protocol policy.
+Rustix safe descriptor APIs supply standard syscalls only; containment, single
+writer, inventory identity and durable progress/grant rules remain course-owned.
+Artifact hashing stays RustCrypto sha2; headers' mandatory sha1 is unused internal
+header plumbing, never an artifact digest or taught historical implementation.
+
+The bounded manifest-only feasibility probe resolves59registry packages and
+9,985,318archive bytes including existing packages. Direct MSRVs are url1.63,
+headers1.57 and rustix1.65; current URL IDNA/ICU closure requires up to1.88,
+compatible with the admitted1.93.1 toolchain, not an asserted1.83 compatibility.
+The probe is not the final workspace graph admission or a course test. Its lock,
+metadata and source archives are preserved under the new run; canonical Cargo.lock
+is unchanged at this checkpoint. Real workspace lock refresh must retain existing
+resolved versions/checksums, then freeze the exact features/complete supporting
+graph in the declared allowlist and pass the maintained dependency checker.
+
+The actual workspace refresh subsequently adds42supporting packages while
+preserving every63prior package version/source/checksum. Its complete registry
+graph63packages/10,298,973archive bytes is recorded separately from the probe;
+all63archive SHA256digests match the actual locked checksum values. The maintained
+supporting-name allowlist and concept denylist pass offline with that graph.
+First assembly attempts refused an empty claimed demo directory and a protected
+sticky-tmpfs lock write; those logs remain diagnostic. Overlay regular-file
+selection and private0755tmpfs correct only the disposable environment, with no
+placeholder package, canonical edit or image rebuild. The chapter's later actual
+demo manifest will require an ordinary local-package lock refresh, not external
+version churn. Narrow deterministic40/41demo/contract dispatch and English-only
+complete-review dispatch pass16focused regressions;42+ ownership and previous
+reference-core/PostgreSQL assertions remain intact.
+
+Provisioning uses official Cargo registry into a run-owned cache mounted into
+the unchanged pinned image. No image assembly, corpus traffic, network course
+execution, custom parser/syscall framework or acquisition authority is added.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Chapter41 current English-only context allocation
+
+The live Chapter41 cost record plans five content/judgment contexts: the ongoing
+author, two fresh English reviewers and two fresh same-role adjudicators. The
+legacy `learner_content_contexts_successful_exact` field is a planning allocation,
+not evidence that five contexts have succeeded. Its historical original value
+eight remains recorded here and in frozen plans; completed Chapter40 costs and
+artifacts are unchanged. All attempt, input/output byte/token, time, network and
+workload ceilings remain unchanged. No Russian or routine image review is added.
+
+The latest root-authored output excerpt changes only Chapter41 lesson body.
+Reuse the clean233-file typecheck and unchanged29Rust/9transport checks; scoped
+contract and cached Astro build bind the successor actual HTML. Preserve first
+build and failed disposable assembly attempts. Recover the exact successful
+source-only assembler rather than copy compiler caches or guess optional paths.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Freeze Chapter41 exact English roles and readable routing
+
+Root approves the final89-unit extraction with neutral actual-role requirements;
+maintained preparation adds one declared audit-only complete document, yielding
+90technical and70isolated units. The audit view carries exact selected values
+and provenance only, not new learner context. Four complete source documents and
+three actual representative built documents remain exact; export provenance
+records85unchanged prior HTML documents,2changed EN index/Chapter40 navigation
+documents and1new EN41 document. No Russian41 surface is activated.
+
+Three long optional-practice identifiers receive root-authored local wrapping,
+without word changes or global CSS. The sole Firefox assertions distinguish
+intentional horizontal math scrolling from real vertical painted-ink clipping;
+actual ink must remain within the padded bounded viewport. The final cached
+build and6Firefox cases pass. Earlier failures remain diagnostic evidence.
+
+Canonical routing first refused unresolved parse5 at the staged parser root.
+The established parserRoot=/workspace API uses the cached parser successfully,
+without installation or framework changes. Only the current generated candidate
+receives host UID/GID1000 ownership; private modes and all hashes are unchanged.
+Fresh root-parented technical/isolated contexts are verified gpt-6.1-sol/medium.
+Actual assigned contexts are3including author, not the planned5successful count;
+four-artifact input charges total1,124,643bytes, token usage unobserved. An initial
+three-path isolated transport message is corrected before any artifact read;
+no frozen prompt, bundle or schema changes. Both judgments remain pending and
+no publication/localization verdict is inferred from deterministic checks.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Retire incomplete Chapter41 inventory and review successor serially
+
+The first technical adjudicator rejects the original review's rendered coverage:
+the actual lesson-objective aside needs its own rendered group and reading-order
+entry; source-field coverage does not replace that role. Preserve both exact
+passing review responses and their receipts, the exact failing adjudication,
+all frozen inputs and the intentionally absent isolated adjudication as
+diagnostic history. No obsolete isolated judgment is activated or fabricated.
+
+Root audits the successor's exact aside, wordmark accessible name, Language
+label, opposite-language fallback accessible name, progressive theme labels and
+footer note against the actual HTML. Existing Quick reference wording remains
+covered in its legitimate glossary reading group. Root approves all97 roles at
+14:15:18Z; maintained preparation adds only the declared audit document,
+yielding98technical and77isolated units. Product source, HTML and prior passing
+Rust, transport and Firefox bytes remain unchanged. New judgment inputs exclude
+earlier findings, draft history and old private assessments.
+
+Candidate02 root-container preparation followed by scoped successor ownership
+uses the established recipe. An initial UID1000 sibling-directory EACCES is
+setup evidence only, with no files written; no frozen bytes are altered. Both
+fresh v2 native contexts are root-parented and configured gpt-6.1-sol/medium.
+Only technical activation succeeds initially; actual thread capacity queues the
+isolated context unread under the same frozen routing. Charge1,105,999bytes now,
+retaining2,266,626earlier bytes for a current3,372,625total. Isolated53,731bytes
+are charged only upon activation. Four new judgments are planned within the
+existing16attempt/32MiB/8h limits; token usage is unobserved. Reserved contexts
+and planned allocations are not successful judgment counts. No corpus network,
+training, Russian41 content, broad rechecks or publication is authorized here.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Chapter41 adjudication interrupted by actual platform capacity
+
+At14:49:53UTC, record the root-reported resumed-platform blocker: after the
+machinery worker returned final, serial activation of the reserved fresh
+`adjudicate_ch41_technical_v2` context still refused with `agent thread limit
+reached`. A new `adjudicate_ch41_technical_v2_resume` spawn also refused. The
+root's bounded agent list reports only root running and machinery completed;
+the resumed environment exposes historical contexts, not the reserved v2
+reviewers/adjudicators. Serial execution has therefore been attempted rather
+than assumed unavailable. No author, reviewer or historical adjudicator may
+substitute for either required fresh same-role judgment.
+
+Mark the implementation step blocked and this running attempt interrupted,
+preserving all exact source/build inputs, both current passing review records
+and receipts, prospective adjudication bundles/routes, earlier failed chain
+and passing runtime/browser evidence. Neither refusal performed a judgment or
+incurred another four-artifact input charge;3,426,356charged bytes remain,
+and1,285,450prospective adjudication bytes remain uncharged. There is no
+publication, completed-step commit, scope waiver, alternative model/service,
+new acquisition authority or repeated runtime/browser execution.
+
+Resume only when distinct fresh technical and isolated contexts can actually
+be provisioned. Bind their observed native identities, parent and configured
+selection to newly frozen successor context/routing manifests carrying the
+same exact canonical prompts, same-role bundles and schema. Preserve the old
+unactivated routing as history, never rewrite it or the sealed reviews. After
+both untouched adjudication records seal and the maintained full English
+chain passes, execute the already prepared final production identity,
+links/SEO/sitemap gates and coherent publication/checkpoint/commit. Unchanged
+source fingerprints permit reuse of prior runtime/browser proof; material
+input or selected-setting drift must be reconciled before any such reuse.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.
+
+### 2026-10-05 — Remove agent-development elapsed-time stop limits
+
+The user removes development time limits and will interrupt work if needed.
+Agent-development wall-time budgets no longer stop authorized work. Preserve
+earlier frozen plans and run evidence; elapsed duration remains observed data.
+This override does not change taught resource-profile durations, acquisition
+deadlines, test timeouts or workload admission predicates. No network, paid
+service, output ownership or independent judgment authority is enlarged.
+
+Chapter41 resumes through a fresh run while the prior interrupted run and its
+staged source, exact sealed reviews and passing validation evidence remain
+immutable. Actual platform capacity still requires fresh distinct adjudicators;
+completed historical contexts may not substitute for them. Route serially and
+reuse exact verified evidence instead of repeating Rust or Firefox gates.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition` and future agent
+development scheduling.
+
+### 2026-10-05 — Publish Chapter41 reviewed English and preserve operational evidence
+
+The corrected candidate02 receives two fresh same-role adjudications, each
+supporting every review assessment with no findings. Exact native final bytes
+are preserved and sealed unchanged; the maintained full verifier passes both
+reviews, both adjudications, upstream receipt links and five-way separation.
+Two verified completed reviewer tasks were reversibly archived solely to release
+actual platform capacity; their saved artifacts were not edited or replaced.
+
+The final production build has88pages and matches the entire reviewed private
+export byte-for-byte. Exact unchanged source and export identities permit reuse
+of the previously passing Rust, static and six sole-Firefox cases. Current
+canonical contract, content, full review chain, local links, SEO and sitemap
+checks pass. No repeated training, environment assembly, routine image review,
+Russian41+, production corpus or pending cache-boundary execution occurs.
+Chapter41's protocol fixtures do not close aggregate data/quality claims.
+
+Host audit found a pre-existing generated Cargo cache, then an external
+editor-related regenerated cache after Cargo source publication. No active
+compiler, locked Cargo writer, tracked source or non-generated Rust was found.
+Preserve both by separate recoverable same-filesystem moves inside the current
+ignored run; retain provenance and restoration paths. No deletion, editor
+configuration/process change or host-compiler validation reuse is performed.
+Final host audit passes after the second move; do not repeat cleanup in a loop.
+
+Canonical publication is the exact308-file declared inventory plus agent-owned
+completion records. Reusable offline overlay machinery is maintained in
+scripts/ with tests/documentation; narrow candidate/routing/publication adapters
+remain immutable run-coupled evidence rather than a new framework. Repairs and
+Russian translation for41+ stay held. The later cache boundary and real raw-pair
+acquisition remain separate pending steps; Chapter42 is not started here.
+
+**Affected step:** `implement-ch41-governed-corpus-acquisition`.

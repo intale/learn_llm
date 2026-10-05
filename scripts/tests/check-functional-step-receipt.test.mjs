@@ -20,9 +20,11 @@ test('Chapter40 routes actual maintained English and Russian verifiers',()=>{
   assert.ok(commands[1].args.includes('audits/functional-laptop/reviews/40-reference-core-handoff/ru/target-only.raw.json'));
   const future=languageVerifierInvocations('41-governed-corpus-acquisition',['en'],'/fixture');
   assert.equal(future.length,1);
-  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/spec.json'));
-  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/review-routing.json'));
-  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/adjudication-routing.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/spec.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/review-routing/review-routing.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/adjudication-routing/adjudication-routing.json'));
+  const later=languageVerifierInvocations('42-deterministic-corpus-filtering',['en'],'/fixture');
+  assert.ok(later[0].args.includes('audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/spec.json'));
   assert.throws(()=>languageVerifierInvocations('41-governed-corpus-acquisition',['en','ru'],'/fixture'));
 });
 test('closed activation inventory contains exact real locale input paths',()=>{

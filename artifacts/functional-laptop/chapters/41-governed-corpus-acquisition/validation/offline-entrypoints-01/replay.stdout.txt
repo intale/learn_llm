@@ -1,0 +1,1 @@
+{"scope":"synthetic-offline-fixture","fixtureFiles":4,"registeredSources":4,"evidenceBoundary":"Supplementary wiring/report checks only; actual Rust tests and worker roundtrip are separately required. Real cache execution and corpus acquisition are not executed."}

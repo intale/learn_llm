@@ -1,0 +1,45 @@
+TAP version 13
+# Subtest: legacy and successor contract dispatch retain the boundary
+ok 1 - legacy and successor contract dispatch retain the boundary
+  ---
+  duration_ms: 0.411446
+  ...
+# Subtest: malformed contract IDs never choose a branch
+ok 2 - malformed contract IDs never choose a branch
+  ---
+  duration_ms: 0.161856
+  ...
+# Subtest: functional examples use only the cumulative crate named target and golden
+ok 3 - functional examples use only the cumulative crate named target and golden
+  ---
+  duration_ms: 0.680333
+  ...
+# Subtest: only exact Chapters40/41 use approved demo targets
+ok 4 - only exact Chapters40/41 use approved demo targets
+  ---
+  duration_ms: 0.2066
+  ...
+# Subtest: unsafe and out-of-range example IDs refuse
+ok 5 - unsafe and out-of-range example IDs refuse
+  ---
+  duration_ms: 0.13251
+  ...
+# Subtest: stdout is compared as exact bytes, not trimmed or projected
+ok 6 - stdout is compared as exact bytes, not trimmed or projected
+  ---
+  duration_ms: 0.177424
+  ...
+# Subtest: Chapter41 demo target retains separate shared library registry ownership
+ok 7 - Chapter41 demo target retains separate shared library registry ownership
+  ---
+  duration_ms: 0.10613
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 104.728572

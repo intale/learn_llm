@@ -1,0 +1,8 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch41-governed-corpus-acquisition v0.1.0 (/work/rust/demos/ch41-governed-corpus-acquisition)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.40s
+     Running unittests src/lib.rs (/target/debug/deps/ch41_governed_corpus_acquisition-fb858ab30cd859e0)
+     Running unittests src/bin/artifact-policy-worker.rs (/target/debug/deps/artifact_policy_worker-c523c7d4e650e0b7)
+     Running unittests src/main.rs (/target/debug/deps/ch41_governed_corpus_acquisition-d46444f3753d9c6a)
+     Running tests/governed_acquisition.rs (/target/debug/deps/governed_acquisition-d5c22461bde18657)
+   Doc-tests ch41_governed_corpus_acquisition
