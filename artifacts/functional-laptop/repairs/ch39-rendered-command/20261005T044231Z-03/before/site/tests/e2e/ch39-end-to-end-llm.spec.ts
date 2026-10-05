@@ -1684,23 +1684,6 @@ test.describe(
   "chapter 39 end-to-end LLM vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("both locales preserve literal ASCII command flags", async ({ page }) => {
-      const command = "cargo run --quiet --locked -p ch39-end-to-end-llm";
-      for (const locale of locales) {
-        const route = chapterPath(locale, chapterId);
-        const response = await page.request.get(route);
-        expect(response.ok()).toBe(true);
-        const html = await response.text();
-        const commands = [...html.matchAll(/<code\b[^>]*>(cargo run[^<]*)<\/code>/g)];
-        expect(commands.map((match) => match[1])).toEqual([command]);
-
-        await page.goto(route);
-        const renderedCommand = page.locator("code").filter({ hasText: "cargo run" });
-        await expect(renderedCommand).toHaveCount(1);
-        await expect(renderedCommand).toHaveText(command);
-      }
-    });
-
     test("English and Russian publish reciprocal Chapter 39 routes", async ({
       page,
     }) => {

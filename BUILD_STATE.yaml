@@ -45282,6 +45282,59 @@ builds:
                 notes: "Initial check found only the pre-existing ignored generated Cargo target directory (276 MB, no active consumer); moved intact to .build/runs/20261004T194405Z-establish-functional-firefox-execution-boundary-02/preserved-host-target. Restore with: mv -- .build/runs/20261004T194405Z-establish-functional-firefox-execution-boundary-02/preserved-host-target target. Host audit then passed."
             notes: "Fresh strict claim after preserving run01 as exact interrupted preflight evidence. Source snapshot included Dockerfile/course/build wrapper, .dockerignore, package manifest/lock, sole Firefox config, selected Chapter39 test and its helper/locales. The v2 Dockerfile, checker and compatibility-test bytes remain preserved by their exact incoming v2 output inventory and v5 successor handoffs. No course, Rust algorithm or learner-facing content bytes changed."
 
+      - id: repair-ch39-literal-command-flags
+        objective: "Preserve literal ASCII cargo command flags in the English and Russian Chapter39 rendered code without changing other learner content."
+        depends_on:
+          - "establish-functional-firefox-execution-boundary"
+        status: "completed"
+        inputs:
+          - "Explicit user approval for only the Chapter39 EN/RU command markup correction and rendered-byte regression; explicit exclusion of whole chapter checks for this command-only fix."
+          - "Canonical EN/RU Chapter39 MDX and existing sole-Firefox Chapter39 specification."
+          - "Failed reframe run02 target-only record a8b7567c61891ff95d2aeaeacefc00b2ec71d6e290e0fc8c2a6fd496ad71a4fe and actual locale refusal receipt4d943fc0340d3974b9560d081e037d7f907fe6940e37620678143c3231ca1837."
+          - "Existing cached Node22.12/Firefox pipeline imagefc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5; no reinstall/new provisioning."
+        outputs:
+          - "site/src/content/chapters/en/39-end-to-end-llm.mdx"
+          - "site/src/content/chapters/ru/39-end-to-end-llm.mdx"
+          - "site/tests/e2e/ch39-end-to-end-llm.spec.ts"
+          - "artifacts/functional-laptop/repairs/ch39-rendered-command/20261005T044231Z-03/"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Only the two authorized raw-code command presentations change to literal Markdown code; all other canonical chapter bytes remain exact."
+          - "One focused sole-Firefox test visits EN/RU routes and asserts the unique cargo-run code equals cargo run --quiet --locked -p ch39-end-to-end-llm, both in the DOM and actual HTTP static HTML."
+          - "Only the command regression runs; no geometry/full-chapter helper invocation, whole-chapter suite, course check, new language judgments, generic typography change or other held repair. A normal cached render needed to produce actual HTML is permitted."
+          - "Failed reframe run02 and staged reframe remain immutable blocked/unpublished evidence. This dedicated repair does not declare their old whole-candidate byte bindings current or alter failed semantic verdicts."
+        validate:
+          - "npm --prefix site run test:e2e -- tests/e2e/ch39-end-to-end-llm.spec.ts --grep 'literal ASCII command flags' --workers=1"
+          - "git diff --check"
+        cost:
+          class: "small"
+          notes: "Cached normal render and one targeted offline sole-Firefox test only; no course check/full chapter suite/review routing/paid service/network acquisition. Prior33contexts/54553360B charges and existing limits retained; no abandoned six-judgment budget extension."
+        runs:
+          - run_id: "20261005T044231Z-ch39-rendered-command-correction-03"
+            started_at: "2026-10-05T04:42:31Z"
+            finished_at: "2026-10-05T04:49:16Z"
+            status: "succeeded"
+            input_fingerprint:
+              commit: "365f70dde3510f40e84f9700aa11a3dea79e2ff0"
+              inputs_sha256:
+                site/src/content/chapters/en/39-end-to-end-llm.mdx: "6234b3ea092e6a53f74fe8d10fc6ed85c4f2f168192356b4264b502d3fa84f07"
+                site/src/content/chapters/ru/39-end-to-end-llm.mdx: "83b5b1200a3c7c685552236646bb5d8dc36d1beb16e9de84d9dc6f50710732d7"
+                site/tests/e2e/ch39-end-to-end-llm.spec.ts: "d2586bc521ce2de17daf18ab886ab4b8aee535781846734f68a8c960571183dc"
+              tools: "Existing cached imagefc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5; supported Firefox/JS-only runtime; actual configured selection inherited."
+            staging_dir: ".build/runs/20261005T044231Z-ch39-rendered-command-correction-03/"
+            commands:
+              - "docker run --name learn-llm-ch39-command-20261005-044231 --pull=never --network none --cap-drop ALL --security-opt no-new-privileges --memory 4g --cpus 2 --pids-limit 512 --shm-size 512m; mount only the two current canonical Ch39 MDX files and existing specification read-only over /workspace; image sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5; npm --prefix site run build && npm --prefix site run test:e2e -- tests/e2e/ch39-end-to-end-llm.spec.ts --grep 'literal ASCII command flags' --workers=1"
+              - "docker logs and docker cp preserve the exact command output and two actual rendered Chapter39 HTML documents in the declared artifact root."
+            artifacts:
+              - {path: "artifacts/functional-laptop/repairs/ch39-rendered-command/20261005T044231Z-03/render-and-firefox.log", sha256: "0c2da7e95f8a84960bb427485f58402f26d31ea2e69c0e2a66feda096d6a2c65"}
+              - {path: "artifacts/functional-laptop/repairs/ch39-rendered-command/20261005T044231Z-03/en/index.html", sha256: "dc43c5193a8cd68d2d4dc75e71d3f8d9606390a3bbb2fbb660db3a18b61ac870"}
+              - {path: "artifacts/functional-laptop/repairs/ch39-rendered-command/20261005T044231Z-03/ru/index.html", sha256: "719539b83c35e3206a4b09abb202aa05298e535754b765b4aadf75e12959d141"}
+            validation:
+              - {command: "npm --prefix site run build", status: "passed", notes: "Cached offline normal Astro render: 85 pages in 12.56s. Not course check or a chapter suite."}
+              - {command: "npm --prefix site run test:e2e -- tests/e2e/ch39-end-to-end-llm.spec.ts --grep 'literal ASCII command flags' --workers=1", status: "passed", notes: "Only 1 sole-Firefox test ran, passed in 3.5s; exact ASCII command verified in both locales' actual HTTP static HTML and unique live DOM code element."}
+              - {command: "git diff --check", status: "passed"}
+            notes: "Root authored only two markup replacements and the isolated17line regression. Corrected EN/RU/test hashes6971f2ba7b4a3f8c0358afa6c2535b2291dcc36021f5d5d80b5570ef66a4c1af/d171210907970c2a29907643fda384ff705d216606de792864f7c1d39cc6d275/a9576cc39fa3a1e97d7e9fb6dcb9dd860269a5f9581b50fea6629b0fa8665b5e. Canonical3file pre-edit snapshots retained. No wholechapter checks, reviews, screenshots or additional repairs. Failed reframe run02 remains unchanged blocked/unpublished; this scoped pass does not update any old whole-candidate review binding. Root authorized the dedicated repair commit; no successor claimed. Container exited0, no active process."
       - id: reframe-functional-reference-core-surfaces
         objective: "Reframe every accepted overbroad reference-core surface while preserving two controls and freezing the scalar-core versus laptop-track boundary."
         depends_on:

@@ -1,0 +1,118 @@
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+04:48:28 [content] Syncing content
+04:48:28 [content] Synced content
+04:48:28 [types] Generated 438ms
+04:48:28 [build] output: "static"
+04:48:28 [build] mode: "static"
+04:48:28 [build] directory: /workspace/site/dist/
+04:48:28 [build] Collecting build info...
+04:48:28 [build] ✓ Completed in 450ms.
+04:48:28 [build] Building static entrypoints...
+04:48:36 [vite] ✓ built in 8.07s
+04:48:36 [vite] ✓ built in 11ms
+04:48:36 [build] Rearranging server assets...
+
+ generating static routes 
+04:48:36   ├─ /sitemap.xml (+11ms) 
+04:48:36   ├─ /en/course/index.html (+9ms) 
+04:48:36   ├─ /ru/course/index.html (+7ms) 
+04:48:36   ├─ /en/course/00-llm-parts/index.html (+14ms) 
+04:48:36   ├─ /ru/course/00-llm-parts/index.html (+9ms) 
+04:48:36   ├─ /en/course/01-text-units/index.html (+31ms) 
+04:48:36   ├─ /ru/course/01-text-units/index.html (+14ms) 
+04:48:36   ├─ /en/course/02-corpus-partitions/index.html (+28ms) 
+04:48:36   ├─ /ru/course/02-corpus-partitions/index.html (+27ms) 
+04:48:36   ├─ /en/course/03-learn-bpe-merges/index.html (+20ms) 
+04:48:36   ├─ /ru/course/03-learn-bpe-merges/index.html (+21ms) 
+04:48:36   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+26ms) 
+04:48:36   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+24ms) 
+04:48:36   ├─ /en/course/05-autoregressive-examples/index.html (+30ms) 
+04:48:36   ├─ /ru/course/05-autoregressive-examples/index.html (+26ms) 
+04:48:36   ├─ /en/course/06-bigram-baseline/index.html (+34ms) 
+04:48:36   ├─ /ru/course/06-bigram-baseline/index.html (+29ms) 
+04:48:36   ├─ /en/course/07-language-model-metrics/index.html (+32ms) 
+04:48:36   ├─ /ru/course/07-language-model-metrics/index.html (+29ms) 
+04:48:36   ├─ /en/course/08-tensor-storage/index.html (+26ms) 
+04:48:36   ├─ /ru/course/08-tensor-storage/index.html (+24ms) 
+04:48:36   ├─ /en/course/09-tensor-views/index.html (+29ms) 
+04:48:37   ├─ /ru/course/09-tensor-views/index.html (+27ms) 
+04:48:37   ├─ /en/course/10-broadcasting-reductions/index.html (+28ms) 
+04:48:37   ├─ /ru/course/10-broadcasting-reductions/index.html (+27ms) 
+04:48:37   ├─ /en/course/11-matrix-multiplication/index.html (+33ms) 
+04:48:37   ├─ /ru/course/11-matrix-multiplication/index.html (+34ms) 
+04:48:37   ├─ /en/course/12-stable-softmax/index.html (+40ms) 
+04:48:37   ├─ /ru/course/12-stable-softmax/index.html (+38ms) 
+04:48:37   ├─ /en/course/13-gradient-checking/index.html (+68ms) 
+04:48:37   ├─ /ru/course/13-gradient-checking/index.html (+63ms) 
+04:48:37   ├─ /en/course/14-scalar-autodiff/index.html (+37ms) 
+04:48:37   ├─ /ru/course/14-scalar-autodiff/index.html (+34ms) 
+04:48:37   ├─ /en/course/15-tensor-autodiff-core/index.html (+85ms) 
+04:48:37   ├─ /ru/course/15-tensor-autodiff-core/index.html (+76ms) 
+04:48:37   ├─ /en/course/16-model-autodiff-ops/index.html (+53ms) 
+04:48:37   ├─ /ru/course/16-model-autodiff-ops/index.html (+51ms) 
+04:48:37   ├─ /en/course/17-parameter-initialization/index.html (+35ms) 
+04:48:37   ├─ /ru/course/17-parameter-initialization/index.html (+32ms) 
+04:48:37   ├─ /en/course/18-token-embeddings/index.html (+41ms) 
+04:48:37   ├─ /ru/course/18-token-embeddings/index.html (+35ms) 
+04:48:37   ├─ /en/course/19-linear-layers/index.html (+40ms) 
+04:48:37   ├─ /ru/course/19-linear-layers/index.html (+38ms) 
+04:48:37   ├─ /en/course/20-swiglu-feed-forward/index.html (+55ms) 
+04:48:38   ├─ /ru/course/20-swiglu-feed-forward/index.html (+54ms) 
+04:48:38   ├─ /en/course/21-mini-batches/index.html (+53ms) 
+04:48:38   ├─ /ru/course/21-mini-batches/index.html (+49ms) 
+04:48:38   ├─ /en/course/22-adamw/index.html (+96ms) 
+04:48:38   ├─ /ru/course/22-adamw/index.html (+88ms) 
+04:48:38   ├─ /en/course/23-neural-ngram/index.html (+44ms) 
+04:48:38   ├─ /ru/course/23-neural-ngram/index.html (+42ms) 
+04:48:38   ├─ /en/course/24-residual-connections/index.html (+33ms) 
+04:48:38   ├─ /ru/course/24-residual-connections/index.html (+30ms) 
+04:48:38   ├─ /en/course/25-rmsnorm/index.html (+33ms) 
+04:48:38   ├─ /ru/course/25-rmsnorm/index.html (+34ms) 
+04:48:38   ├─ /en/course/26-qkv-projections/index.html (+42ms) 
+04:48:38   ├─ /ru/course/26-qkv-projections/index.html (+39ms) 
+04:48:38   ├─ /en/course/27-self-attention/index.html (+49ms) 
+04:48:38   ├─ /ru/course/27-self-attention/index.html (+45ms) 
+04:48:38   ├─ /en/course/28-causal-masking/index.html (+37ms) 
+04:48:38   ├─ /ru/course/28-causal-masking/index.html (+37ms) 
+04:48:38   ├─ /en/course/29-rope/index.html (+45ms) 
+04:48:38   ├─ /ru/course/29-rope/index.html (+52ms) 
+04:48:38   ├─ /en/course/30-multi-head-attention/index.html (+183ms) 
+04:48:39   ├─ /ru/course/30-multi-head-attention/index.html (+94ms) 
+04:48:39   ├─ /en/course/31-decoder-block/index.html (+50ms) 
+04:48:39   ├─ /ru/course/31-decoder-block/index.html (+48ms) 
+04:48:39   ├─ /en/course/32-decoder-model/index.html (+74ms) 
+04:48:39   ├─ /ru/course/32-decoder-model/index.html (+81ms) 
+04:48:39   ├─ /en/course/33-training-selection/index.html (+75ms) 
+04:48:39   ├─ /ru/course/33-training-selection/index.html (+66ms) 
+04:48:39   ├─ /en/course/34-final-evaluation/index.html (+45ms) 
+04:48:39   ├─ /ru/course/34-final-evaluation/index.html (+46ms) 
+04:48:39   ├─ /en/course/35-checkpoints/index.html (+48ms) 
+04:48:39   ├─ /ru/course/35-checkpoints/index.html (+53ms) 
+04:48:39   ├─ /en/course/36-temperature-top-k/index.html (+71ms) 
+04:48:39   ├─ /ru/course/36-temperature-top-k/index.html (+67ms) 
+04:48:39   ├─ /en/course/37-incremental-attention/index.html (+86ms) 
+04:48:39   ├─ /ru/course/37-incremental-attention/index.html (+78ms) 
+04:48:40   ├─ /en/course/38-cached-generation/index.html (+119ms) 
+04:48:40   ├─ /ru/course/38-cached-generation/index.html (+101ms) 
+04:48:40   ├─ /en/course/39-end-to-end-llm/index.html (+38ms) 
+04:48:40   ├─ /ru/course/39-end-to-end-llm/index.html (+33ms) 
+04:48:40   ├─ /en/index.html (+1ms) 
+04:48:40   ├─ /ru/index.html (+1ms) 
+04:48:40   ├─ /index.html (+1ms) 
+04:48:40 ✓ Completed in 3.91s.
+
+04:48:40 [build] ✓ Completed in 12.08s.
+04:48:40 [build] 85 page(s) built in 12.56s
+04:48:40 [build] Complete!
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox tests/e2e/ch39-end-to-end-llm.spec.ts --grep literal ASCII command flags --workers=1
+
+
+Running 1 test using 1 worker
+
+[1/1] [firefox] › tests/e2e/ch39-end-to-end-llm.spec.ts:1687:5 › chapter 39 end-to-end LLM vertical slice › both locales preserve literal ASCII command flags @chapter:39-end-to-end-llm
+  1 passed (3.5s)

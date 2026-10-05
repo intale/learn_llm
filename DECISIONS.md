@@ -27475,3 +27475,37 @@ For a new workspace image, the exact retained v3 recipe and cached inputs were i
 The retained context inventory is 1,847 files / 625,345,584 file bytes (inventory SHA-256 `4fd686a64e463d54e58e024d41301453c4509e7b159dd2bea8c22db62623a42f`; entry digest `b24987c1acf19e339acc955dbfc33628387f6af54a5f50e54229134d30dddc86`). The exact Dockerfile SHA-256 is `eb885aad6c12de1f307ee4101fa16770368aaac9f44a013a02182e5f4c66ddf7`, and `.dockerignore` SHA-256 is `37a436409a6559399aafdc73aedac320711b9c205d5bb6437ced2a2106e46a45`. Required local COPY roots are present: workspace Debian archives (10 files), Rustup inputs (7), Cargo cache (695 files), npm cache (1,126 files), provenance (3 files), and exact package/lock files. Read-only Docker accounting before build found the prior v3 image size 2.86GB and builder cache 1.094GB; against the previously recorded aggregate basis of 12.53GB, the conservative additional 6.35GB allowance (new image, uncached intermediates, context) estimated 18.88GB under the 20GB ceiling. Docker 25.0.2's installed legacy builder was selected via `DOCKER_BUILDKIT=0`; command requested `--memory=6442450944 --memory-swap=6442450944`, intended as a 6GiB per-RUN cap with ~2GiB reserve. The exact RUN container was removed by `--force-rm` before its HostConfig could be captured. Preserve that limitation: there is no observed build-container memory configuration or aggregate peak measurement, despite the bounded invocation flags. A separate uniquely owned config probe on the fresh image did capture enforced 1GiB memory/swap, network-none, read-only rootfs, cap-drop ALL, no-new-privileges and expected tools; this does not prove the build RUN settings or workspace admission. This one-run operation did not alter general caps, grant network/download authority, or pass an original acceptance gate.
 
 **Affected step:** `establish-functional-offline-workspace-execution-boundary`.
+
+### 2026-10-05 — Authorize only the Chapter 39 literal-command repair
+
+The user explicitly approved correcting the English/Russian Chapter39 command
+markup and adding its rendered-byte regression, and explicitly excluded whole
+chapter checks for this command-only fix. Execute the standalone
+`repair-ch39-literal-command-flags` step in fresh run
+`20261005T044231Z-ch39-rendered-command-correction-03`. Preserve exact canonical
+snapshots of the two MDX files and existing Chapter39 e2e specification before
+editing. Root implements the two literal markup corrections and focused test.
+
+Use the existing cached Astro pipeline to render current source once, without
+`course check` or a complete chapter suite, then run only the sole-Firefox test
+selected by `--grep 'literal ASCII command flags'`. Assert the unique cargo-run
+code's exact ASCII text in English and Russian DOM and actual static HTTP HTML.
+No geometry helpers, typography overhaul, new judgment contexts, budget extension,
+skill/protocol change or other held repair is authorized by this exception.
+
+The prior reframe remains blocked and unpublished, with failed run02, semantic
+verdicts and every frozen artifact untouched. This targeted repair does not make
+old whole-candidate byte bindings current or silently certify their review chain.
+Commit only this dedicated repair after its focused validation passes; reconcile
+the blocked reframe's new canonical inputs in a subsequent explicit resumption.
+
+**Affected steps:** `repair-ch39-literal-command-flags` and
+`reframe-functional-reference-core-surfaces`.
+
+Targeted result: cached offline Astro rendering passed (85 pages,12.56s), then
+exactly one sole-Firefox regression passed (3.5s). It checked the ASCII command
+in both actual HTTP HTML and live DOM. The declared artifact root contains the
+raw combined log and two rendered Chapter39 documents. Root approved the exact
+two markup replacements and isolated17line test and authorized a dedicated
+commit. No wholechapter checks or independent judgments ran; the blocked
+reframe's historical failures and whole-candidate bindings remain untouched.
