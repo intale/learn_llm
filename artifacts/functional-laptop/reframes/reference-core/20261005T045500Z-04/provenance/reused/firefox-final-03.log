@@ -1,0 +1,29 @@
+
+> learn-llm-site@0.1.0 test:e2e
+> playwright test --project=firefox tests/e2e/ch00-llm-parts.spec.ts tests/e2e/ch32-decoder-model.spec.ts tests/e2e/ch38-cached-generation.spec.ts tests/e2e/ch39-end-to-end-llm.spec.ts --workers=2
+
+
+Running 21 tests using 2 workers
+
+[1/21] [firefox] › tests/e2e/ch00-llm-parts.spec.ts:770:5 › Chapter 0 LLM-parts orientation › English and Russian both start with Chapter 0 @chapter:00-llm-parts
+[2/21] [firefox] › tests/e2e/ch00-llm-parts.spec.ts:742:1 › ordinary-word wrapping permits punctuation breaks but rejects broken words
+[3/21] [firefox] › tests/e2e/ch00-llm-parts.spec.ts:801:7 › Chapter 0 LLM-parts orientation › en linked map remains complete at desktop and narrow widths @chapter:00-llm-parts
+[4/21] [firefox] › tests/e2e/ch00-llm-parts.spec.ts:845:7 › Chapter 0 LLM-parts orientation › en full-view controls expand each figure and restore focus @chapter:00-llm-parts
+[5/21] [firefox] › tests/e2e/ch00-llm-parts.spec.ts:801:7 › Chapter 0 LLM-parts orientation › ru linked map remains complete at desktop and narrow widths @chapter:00-llm-parts
+[6/21] [firefox] › tests/e2e/ch00-llm-parts.spec.ts:845:7 › Chapter 0 LLM-parts orientation › ru full-view controls expand each figure and restore focus @chapter:00-llm-parts
+[7/21] [firefox] › tests/e2e/ch32-decoder-model.spec.ts:420:5 › chapter 32 complete tied decoder model vertical slice › English and Russian publish reciprocal Chapter 32 routes @chapter:32-decoder-model
+[8/21] [firefox] › tests/e2e/ch32-decoder-model.spec.ts:443:5 › chapter 32 complete tied decoder model vertical slice › both complete lessons and contained diagrams render at desktop and narrow widths @chapter:32-decoder-model
+[9/21] [firefox] › tests/e2e/ch32-decoder-model.spec.ts:457:5 › chapter 32 complete tied decoder model vertical slice › full view reuses the localized semantic figure and restores focus @chapter:32-decoder-model
+[10/21] [firefox] › tests/e2e/ch32-decoder-model.spec.ts:521:5 › chapter 32 complete tied decoder model vertical slice › repeated, tied, and verified cues survive forced colors @chapter:32-decoder-model
+[11/21] [firefox] › tests/e2e/ch32-decoder-model.spec.ts:554:5 › chapter 32 complete tied decoder model vertical slice › RTL prose keeps formulas, trace values, and vocabulary order left-to-right @chapter:32-decoder-model
+[12/21] [firefox] › tests/e2e/ch38-cached-generation.spec.ts:533:5 › chapter 38 cached generation vertical slice › English and Russian publish reciprocal Chapter 38 routes @chapter:38-cached-generation
+[13/21] [firefox] › tests/e2e/ch38-cached-generation.spec.ts:564:5 › chapter 38 cached generation vertical slice › both complete cached-generation lessons render at desktop and narrow widths @chapter:38-cached-generation
+[14/21] [firefox] › tests/e2e/ch38-cached-generation.spec.ts:578:5 › chapter 38 cached generation vertical slice › full view reuses each localized complete figure @chapter:38-cached-generation
+[15/21] [firefox] › tests/e2e/ch38-cached-generation.spec.ts:623:5 › chapter 38 cached generation vertical slice › localized text plus solid and double phase cues survive forced colors @chapter:38-cached-generation
+[16/21] [firefox] › tests/e2e/ch38-cached-generation.spec.ts:646:5 › chapter 38 cached generation vertical slice › RTL prose keeps technical values and phase order left-to-right @chapter:38-cached-generation
+[17/21] [firefox] › tests/e2e/ch39-end-to-end-llm.spec.ts:1687:5 › chapter 39 end-to-end LLM vertical slice › English and Russian publish reciprocal Chapter 39 routes @chapter:39-end-to-end-llm
+[18/21] [firefox] › tests/e2e/ch39-end-to-end-llm.spec.ts:1718:5 › chapter 39 end-to-end LLM vertical slice › both complete capstone lessons render at desktop and narrow widths @chapter:39-end-to-end-llm
+[19/21] [firefox] › tests/e2e/ch39-end-to-end-llm.spec.ts:1790:5 › chapter 39 end-to-end LLM vertical slice › full view reuses each localized complete pipeline @chapter:39-end-to-end-llm
+[20/21] [firefox] › tests/e2e/ch39-end-to-end-llm.spec.ts:1980:5 › chapter 39 end-to-end LLM vertical slice › localized text and redundant boundaries survive forced colors @chapter:39-end-to-end-llm
+[21/21] [firefox] › tests/e2e/ch39-end-to-end-llm.spec.ts:2018:5 › chapter 39 end-to-end LLM vertical slice › RTL prose preserves localized stage order and left-to-right evidence @chapter:39-end-to-end-llm
+  21 passed (35.6s)

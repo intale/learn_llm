@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "reference-core.en.command.final.20261005.r1",
+  "specSha256": "c7c8856fae6fff510519d2ba5bb9075dcbecfa26d921cf1c99be3759a9a11fbd",
+  "bindingSha256": "ce23dfe3cc5466fdc5e1111bb71be27c362df4575594e245cd7ba56d5a557daa",
+  "inventorySha256": "7da2c5c8ec5a0a15cf4c66ad18480ac0ca1b7d613de304c48751c803aacd3ec1",
+  "image": "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5",
+  "environment": {"network": "none", "user": "1000:1000", "NODE_PATH": "/workspace/site/node_modules"},
+  "root": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish",
+  "candidatePath": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01",
+  "sealAttempt": {"status": "failed", "exitCode": 2, "output": "usage: unknown flag --bundle\n", "outputCreated": false},
+  "sealAdjudications": {"status": "passed", "exitCode": 0, "cli": "seal-adjudications --spec <candidatePath>/spec.json --adjudication-bundle <candidatePath>/adjudication-bundle --review-seals <candidatePath>/review-seals --adjudication-routing <candidatePath>/adjudication-routing.json --technical-raw-response <candidatePath>/raw-adjudications/technical.json --isolated-raw-response <candidatePath>/raw-adjudications/isolated.json --out <candidatePath>/adjudication-seals --root <root>"},
+  "verification": {"status": "adjudication-verified", "exitCode": 0, "cli": "verify --spec <candidatePath>/spec.json --bundle <candidatePath>/bundle --review-routing <candidatePath>/review-routing.json --review-seals <candidatePath>/review-seals --adjudication-bundle <candidatePath>/adjudication-bundle --adjudication-routing <candidatePath>/adjudication-routing.json --adjudication-seals <candidatePath>/adjudication-seals --root <root>", "reportOption": "omitted"},
+  "receipts": {
+    "technicalReview": "2a64e359219e0ad9502a196271d341888e84f3b2feda72fcff613fde7dd9e6ae",
+    "isolatedReview": "85deeab2c1bebda5fc58c56bcf4d8474dcf9262fecfa0822aee73b691f797e34",
+    "technicalAdjudication": "b94c4957e57957653d8adce792abe8abac119db9251b97ac50d16279a03bb810",
+    "isolatedAdjudication": "7648fd0c955a3a6fc409018709808264321b27358f5896e63b746ec286c50996"
+  },
+  "limitations": "Operational checkpoint of actual maintained command outcomes, not a semantic judgment or raw-response transformation. Russian and closure gates remain pending."
+}

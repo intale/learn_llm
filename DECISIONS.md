@@ -3,6 +3,90 @@
 This is an append-only record of durable project decisions. New decisions may
 supersede earlier ones but must not erase them.
 
+## 2026-10-05 — Current selected-model routing and staged reframe handoff
+
+Root authorized a bounded cost-only allowance adjustment after actual maintained
+phase-A preparation: the technical bundle is 2,765,696 bytes, its exact canonical
+prompt 2,821 bytes and schema 4,763 bytes, totaling 2,773,280 before the actual
+small context manifest. The ten full source documents and eight complete built
+HTML documents alone are 2,100,836 bytes, already above the original 2 MiB.
+Increase only this reframe step's per-context input-byte allowance to 3 MiB
+(3,145,728 bytes). Retain its 200,000 input-token, 40,000 output-token, output-byte,
+aggregate-byte, context-count and wall-time ceilings unchanged; edit no global
+resource plan or frozen chapter runtime profile. No tokenizer count is available
+from maintained/installed tools, so bytes do not certify token feasibility.
+Root expressly approved routing with bounded structured tool reads and requires
+any actual context/capacity failure to be reported without narrowing documents,
+altering the bundle, silently raising retained limits or inventing counts.
+This bookkeeping decision grants no new network, package, model, paid-service,
+publication or course scope.
+
+The newest direct user AGENTS instruction requires the user-selected model and
+effort for content, review, and operational work, including Bash execution and
+evidence collection. For this continuation that selection is `gpt-6.1-sol/high`;
+it is configured routing provenance, not a claim of independently observed
+backend telemetry or a permanent repository model pin. This supersedes the
+older Luna machinery routing. Keep separate machinery ownership and fresh,
+pairwise-distinct judgment contexts, and preserve all prior Luna evidence with
+its original provenance. The root remains semantic author; after the prior
+worker safely checkpointed and stopped its processes, root explicitly transferred
+sole ledger/machinery ownership to `reframe_validation_selected` within the
+still-running reframe attempt. This is a live bounded handoff, not recovery of an
+abandoned run. Add AGENTS.md as necessary process integration output; no course
+publication or commit is authorized by this handoff.
+
+The staged reframe build exposed a static-link checker defect: its generic
+quoted-attribute regex truncates a double-quoted SEO description at an internal
+apostrophe. Reuse the already-locked `parse5` 7.3.0 supporting HTML parser for
+SEO meta syntax and source offsets. Its locked `entities` dependency decodes
+attributes exactly once; course-owned validation retains head placement,
+uniqueness, blank/placeholder/source identity, route, link and sitemap rules.
+No dependency or learner-facing algorithm is added. Declare the checker and
+focused Node regression tests before edits; preserve the failed build evidence.
+The ordinary cached `./course review RUN --check` path remains the build boundary,
+with official provisioning sources permitted and Rust execution network-disabled.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+## 2026-10-05 — Correct Chapter 0 word-boundary assertion and local full-view geometry
+
+The same Chapter 0 fullscreen assertions failed on baseline and reframe candidate
+HTML in sole-project Firefox with JavaScript enabled at actual 1366×768. Scoped
+programmatic range/box/CSS evidence, without screenshots, shows two different
+causes. English `fixed-fixture` breaks only at its ordinary ASCII hyphen; both
+letter sequences remain intact, and the whole compound is narrower than its
+153.2px paragraph. The assertion regex incorrectly treats ASCII hyphens and
+en/em dashes as unbreakable word contents. Root authorizes correcting only that
+token boundary: ordinary punctuation breaks are allowed; apostrophes and the
+nonbreaking hyphen remain bound word content. Add Firefox regression fixtures
+that retain rejection of genuinely split ordinary and nonbreaking words; do not
+weaken containment, clipping, scale, focus or overflow assertions.
+
+Russian full-view detail-map words really split inside their letters: measured
+unbroken widths 107.3–117.7px exceed the 104.27px inner boxes created by three
+cards across each 411.6px fullscreen panel. Root authorizes local geometry-only
+reflow in LlmPartsDiagram.astro, declared as necessary integration output before
+editing. Keep source/DOM/reading order, text, type sizes and shared diagram styling
+unchanged, and rerun nearest-box/full-view scrolling assertions. No held repair,
+global typography or learner prose change is authorized.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+## 2026-10-05 — Scope-aware timing of the reframe wrapper verification
+
+The reframe validates the real reference-core English/Russian review chain now.
+The Chapter 85 measured-PostgreSQL review artifacts cannot exist before that
+future chapter executes. Remove only the premature real
+`node scripts/check-functional-chapter-reviews.mjs measured-postgresql-v1`
+invocation from this step's effective validate list; retain the focused wrapper
+regressions proving exact canonical verifier argv, missing-input rejection and
+nonzero propagation for both scopes, including the actual canonical verifier's
+missing-spec rejection. Keep the future Chapter 85 full-chain verifier command
+and its owner unchanged. This avoids an impossible scheduling dependency and
+does not fabricate a Chapter 85 pass or weaken either scope's dispatch gates.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
 ## 2026-07-18 — Bootstrap resumable build orchestration
 
 **Status:** Accepted
@@ -27231,6 +27315,40 @@ receipt; this is not runtime admission.
 
 **Affected step:** `establish-functional-offline-workspace-execution-boundary`.
 
+### 2026-10-04 — Reframe uses the maintained course and review workflows
+
+The reference-core reframe keeps its existing independent English/Russian
+review and adjudication requirements, exact-response rules, and Chapter 85
+verifier-wrapper regression coverage. Its obsolete custom offline/Firefox
+dispatch commands are replaced by the repository's ordinary `./course`
+toolchain and sole Firefox workflow; no alternate runner or environment receipt
+gate is introduced. Chapter 39's demo library source is an owned output because
+its recorded report/next-step handoff may change with the reframe. The review
+wrapper remains an owned, tested output because it must prove exact verifier
+dispatch, nonzero propagation, and refusal of missing/invalid seals.
+
+Because the Russian translation affects the shared bilingual render root and
+final built HTML identity, final review follows two immutable English phases:
+phase A reviews/adjudicates the complete English candidate before translation;
+Russian is translated directly from that approved English source; phase B
+reviews/adjudicates the final bilingual source and built candidate with fresh
+English judgment contexts, then obtains fresh Russian bilingual and target-only
+reviews. Phase-A evidence remains preserved but cannot satisfy phase B. The
+declared exact successful-context count is therefore 12 (two author contexts,
+eight English judgment contexts across both phases, and two Russian review
+contexts); the existing attempt, aggregate-byte, and wall-time ceilings remain
+unchanged.
+
+The phase-A and phase-B render checks use the existing `./course review RUN
+--check` path. Its Dockerfile may use official OS, Rust and npm/Playwright
+repositories only when the existing compatible layer cache misses; the
+build-time Rust tests remain explicitly network-disabled. The review run uses
+its own run-derived image tag, preserves the publish tree, and records measured
+cache/build behavior. This is the ordinary static-candidate build, not a
+separate forensic runtime image or an image-review gate.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
 ### 2026-10-04 — Use the existing course Dockerfile for the sole Firefox harness
 
 The Chapter 40 setup remains the existing Node 22.12 Dockerfile and `./course`
@@ -27476,6 +27594,345 @@ The retained context inventory is 1,847 files / 625,345,584 file bytes (inventor
 
 **Affected step:** `establish-functional-offline-workspace-execution-boundary`.
 
+### 2026-10-05 — Bounded reference-core judgment allocation after a second failed draft
+
+The root authorized a cost-only, step-local allocation amendment for
+`reframe-functional-reference-core-surfaces`: planned content/judgment contexts
+19, attempt ceiling24. At this checkpoint seven contexts were actually assigned
+(author1, first complete chain4, second reviewers2); two pending adjudicators
+would make nine, not already assigned. The planned19 accounts for author1,
+three phase-A chains12, final bilingual-source English chain4, and Russian
+reviews2. Five reserve fresh replacement attempts are a budget, not automatic
+authority for another candidate. The compatibility field
+`learner_content_contexts_successful_exact` records allocation, never achieved
+successes; failed drafts remain failed evidence.
+
+The second isolated review reports missing local referents in a Chapter38
+connection. Preserve both exact reviews and obtain fresh same-role adjudications
+before any semantic revision. This amendment does not weaken a gate, reuse a
+judgment context, or alter any frozen candidate. Retain the3MiB per-context byte
+cap,200k input-token/40k output-token ceilings,32MiB aggregate input,16MiB
+aggregate output,8h aggregate wall allowance, and all other existing resource,
+network, paid-service, scope and publication limits. Measure cumulative routed
+artifact bytes at subsequent routes; model token usage remains unobserved,
+not an invented estimate or telemetry claim.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Reject invalid second-review bytes; replace the paired route without repair
+
+The maintained sealer rejected candidate02's original isolated response because
+its surface-assessment array was not UTF-8 ordered. The captured semantic
+classification in that invalid record is not a validated blocker or basis for
+a source revision. Preserve both original raw responses unchanged and the
+original paired route as failed-attempt evidence. The tool created no seal.
+
+The maintained interface accepts one paired review routing manifest and has no
+isolated-only replacement option. Root authorized the ordinary safer fresh pair
+against the exact unchanged candidate02: new canonical routing, two fresh
+contexts, no prior findings or failure explanation in their four artifacts.
+Do not bind the old technical response to post-response routing provenance.
+Both original completed contexts were recoverably archived only after exact
+capture and failure preservation, without deleting any repository evidence.
+
+Assigned content/judgment contexts now9, still within the24-attempt ceiling.
+Eight judgment routes have measured cumulative four-artifact file bytes
+11,433,667; this is not model token usage or complete author-input accounting.
+The planned third phase-A chain is contingency, not automatically authorized
+if this same candidate obtains a sound passing complete chain.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+
+### 2026-10-05 — Narrow locale routing reuse and final English freeze
+
+The reference-core reframe owner approved promoting the previously hash-verified,
+accepted run04 locale routing/verification operation into staged
+`scripts/localization-routing.mjs`, focused tests and usage documentation.
+The helper copies exact root-authored neutral prompts, uses the unchanged locale
+record schema and role format, rejects unsafe paths and changed four-artifact
+routes, and validates untouched canonical response bytes. Its optional read-only
+verification path supports closure revalidation without fabricating a report.
+It does not replace the maintained semantic-review verifier or decide meaning.
+Course-specific surface extraction remains immutable per-run machinery.
+Pinned network-none regression evidence records 47 passing tests: 25 closure,
+15 locale routing and seven existing wrapper cases.
+
+Root authored and reconciled the final bilingual source revision after a passing
+phase-A English four-judgment chain. Final English inventory retains all ten
+complete source documents, eight actual publication HTML documents, sixteen
+reading groups and fifty-four isolated roles, plus the declared audit-only view.
+All English reading/isolated values and requirements remain unchanged; only the
+four complete mixed-locale contract bytes and complete chooser route changed
+through translation, with explicit phase-qualified document requirements.
+Fresh final English reviewers use new contexts and exact canonical routes.
+The 2,777,625-byte technical and 52,583-byte isolated four-artifact inputs fit the
+already-authorized step-local three-MiB limit; token usage remains unobserved.
+Twelve actual assigned judgment routes total 17,219,831 accessible artifact bytes,
+not measured model token consumption or complete author input accounting.
+
+Same-image sole-Firefox final validation passed 21/21 after exact root-authored
+Russian expectation literals were refreshed without weakening assertions.
+Earlier six/four outdated-literal failure logs remain immutable. No learner
+bytes or geometry were changed to obtain this test result; no screenshot,
+publication, or language approval follows from deterministic validation.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+
+### 2026-10-05 — Step-local complete bilingual input allowance
+
+Root reconciled the actual Russian inventory: 79 learner document/unit pairs,
+not a synthetic role-policy surface. The closed localization API carries the
+exact neutral ID/role/order/requirement map inside each root-authored successor
+rubric. Mixed-language contract and chooser source-blind projections retain only
+actual locale-owned values, with complete original hashes/locators externally
+bound; all seven complete localized publication routes remain intact.
+
+Maintained preparation measured bilingual bundle 4,449,982 bytes and target-only
+bundle 2,391,769 bytes. The complete paired documents alone total 4,178,270 bytes,
+so the former three-MiB per-context allowance cannot retain mandatory evidence.
+Root authorized the bounded step-local input-byte cap increase to eight MiB
+(8,388,608 bytes), conditional on actual final four-artifact totals fitting it
+and cumulative routed-file inputs staying within 32 MiB (33,554,432 bytes).
+Fourteen routed English judgment inputs total 20,171,948 accessible file bytes;
+adding both prepared Russian bundles gives 27,013,699 bytes before small route
+artifacts. Actual final routing measurements remain required before assignment.
+
+This is cost-only bookkeeping, not broader course/model/network/paid-service
+authority or an acceptance waiver. Retain 200k input-token and40k output-token
+ceilings, one-MiB per-context output, aggregate outputs,24attempts and eight-hour
+wall allowance. Token consumption is unobserved, never invented or marked passed.
+The actual author and fourteen assigned judges are15contexts, not15successes.
+Russian reviewers cannot be assigned until the final English chain passes.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Real locale helper binding regression and measured routing
+
+The first actual Russian route preparation rejected an operational key mismatch:
+the maintained localization bindings use `targetOnly`, while the promoted helper
+and its synthetic fixture used `target-only`. No route output was produced and
+no candidate defect was inferred. Root approved the narrow key bridge and a
+regression using the real maintained preparation tool. All old helper, fixture,
+usage and 47-test evidence bytes remain retained snapshots. New pinned offline
+regressions pass 48/48; the extra case covers real preparation through route
+creation and read-only verification. No frozen candidate, prompt, rubric,
+review semantics or assertion was changed.
+
+The complete final English review/adjudication chain passed canonical verification
+before Russian routing. Actual Russian four-artifact inputs are 4,456,562 and
+2,400,428 bytes, within the authorized eight-MiB allowance. Sixteen routed judge
+inputs total 27,028,938 accessible file bytes, within the retained 32-MiB aggregate;
+these are not tokenizer measurements or complete author-input accounting.
+Token usage remains unobserved. Root assigned two actual fresh Russian contexts
+with scoped configured gpt-6.1-sol/high metadata, bringing assigned content/judgment
+contexts to17 (root plus16judges), not seventeen successful contexts.
+
+Root-selected closure corrections only remap actual Russian catalog occurrences,
+include existing diagram description/group/link IDs, and record Chapter39's planned
+handoff inside the existing reading016 group. Preserve prior-owner plan records,
+baseline control boundaries and the failed first mapping. No learner source,
+frozen inventory, requirement or review input is changed by closure bookkeeping.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+### 2026-10-05 — Russian target-only blocker requires bounded repair authority
+
+Final English canonical verification passed, but the Russian target-only record
+contains blocking finding `ru-target-only-001` on complete rendered Chapter38
+`doc.rendered.007`. The bilingual record passes with no findings. Maintained
+verification rejects the target-only verdict with exit1; exact route/response-byte
+verification independently rejects the nonpassing language verdict. Both native
+records remain untouched, and operational failure evidence preserves actual
+commands and outputs. No final language approval, closure pass, publication or
+commit is claimed.
+
+Root confirmed the definition is a pre-existing claim in both English and Russian
+Chapter38 cheat sheets, outside this step's outputs and within held repair scope.
+Root-authored `authoring/ru-blocker-handoff-01.md` retains source confirmation and
+the bounded scope question. Stop all work pending user direction; current step
+is blocked and run failed, with all staged source/build/judgment evidence retained.
+Corrected closure proposal02 is author-approved mapping only. Machinery/ledger
+ownership returns to root at this safe checkpoint, with no active commands.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Authorized Chapter38 definition correction in a fresh run
+
+The user explicitly approved the bounded Chapter38 English/Russian cheat-sheet
+definition correction after the held-repair question. Only those two sheet files
+and their corresponding focused assertions join the current reframe outputs;
+all other held repairs remain held. Root owns English wording, commitments and
+neutral requirements, and translates the approved English correction directly
+into Russian only after a fresh English four-judgment chain. Machinery edits no
+learner bytes. Preserve failed run01 and every frozen source/judgment artifact.
+Fresh run `20261005T020709Z-reference-core-cheat-sheet-correction-02` carries the
+entire prior staged product/tool reframe byte-exact, without copying old failed
+review directories as if they were new candidates.
+
+Root approved a cost-only cumulative routed-input increase to64MiB (67,108,864
+bytes), retaining the prior27,028,938-byte route charges. Six new judges are
+planned: actual assigned contexts remain17 until assignment, planned total23
+within24attempts. Retain8MiB/context,200k/40k input/output token ceilings,
+one-MiB context output,16MiB aggregate output,eight-hour wall allowance and all
+model/network/GPU/paid-service boundaries. Token usage is unobserved. No numeric
+budget represents a guaranteed successful chain. Measure actual fresh routes
+before assignment; no silent reset of earlier costs.
+
+Locale-specific sheet indexing suggests the later Russian-only sheet edit may
+leave all bound English source and built bytes unchanged. This is not presumed
+approval: compare every source, built document, extracted value, role/requirement,
+order and isolation group against the new English frozen candidate after the
+Russian build. Retain that same fresh English chain only on exact binding and
+publication identity; any drift fails closed and requires a new English chain.
+No previously failed locale record or prior-run English approval is reused as
+corrective acceptance. Revision7 remains unpublished; use its maintained
+revision contract without an unnecessary content-version change.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Retain explicit corrective post-localization English gate
+
+Before any corrective judgment assignment, root noticed that the step's existing
+acceptance explicitly requires a fresh final English four-judgment chain after
+direct Russian translation, even if English bytes remain unchanged. This
+supersedes the immediately preceding six-judge/chain-identity optimization.
+Retain two different fresh English four-judgment chains and two fresh Russian
+reviews: ten new judges, planned total27contexts from actual17.
+
+Root approved the bounded cost-only attempt ceiling32, superseding24 while
+preserving its historical evidence. Planned compatibility allocation27 is not
+an achieved success count. Keep the authorized64MiB cumulative input allowance
+with all earlier charges and exact forthcoming measurements; keep every other
+per-context, token, output, wall, model, network, GPU and scope boundary unchanged.
+Byte identity still supports reuse of unaffected deterministic proof, but cannot
+replace either explicit review phase. No corrective candidate has been routed.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Correct the complete-document requirement projection in a fresh chain
+
+Root's read-only check found that corrective candidate02's complete rendered
+Chapter38 requirement retained the prior paragraph but omitted the exact new
+sentence required in the root-authored requirement dictionary. New definition
+units carry their explicit requirements, but their coverage does not waive the
+author-required complete-document projection. Candidate02 and its exact judgments
+remain diagnostic and ineligible for localization/publication, even if maintained
+diagnostic verification passes. Do not edit its frozen inputs or semantic records.
+
+Root requires unchanged English source/build bytes and stable unit IDs/values in
+successor proposal03/candidate03, adding only the exact root Chapter38 obligation
+before its existing built-document suffix. This role-requirement change requires
+four different fresh English judgments. Planned eventual content/judgment context
+allocation rises27→31 within the retained32-attempt ceiling; actual assignments
+remain21 and cumulative routed input32,949,114bytes before successor routing.
+Keep all preceding byte/time charges,64MiB aggregate,8MiB per context and other
+resource/authority ceilings. Token usage remains unobserved. Preserve both
+mandatory English phases and independent Russian reviews; no localization yet.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Defer Russian delivery for Chapters 41 and higher
+
+The user explicitly disabled Russian translation for Chapters 41 and higher until
+further notice and requested English-first delivery, with the user deciding later
+whether to resume translation. Defer every Russian learner-facing lesson, catalog,
+metadata field, diagram label, accessibility surface, exercise, answer, navigation
+entry and cheat sheet for those chapters, together with Russian review and
+publication. Do not create Russian placeholders or present English as Russian.
+
+Eligible English chapters retain all existing English review/adjudication,
+technical, static and sole-Firefox gates; deferred Russian artifacts do not block
+their completion/publication or introduce another translation-approval pause.
+This explicit override applies only to chapter numbers 41 and higher. Existing
+bilingual Chapters 0–40, the current Chapter 38 correction and supporting
+localization architecture remain unchanged. No frozen judgment input, current
+candidate learner byte, historical plan or completed run is edited by this policy.
+
+At each future step claim, reconcile live bilingual output/acceptance/validation
+selectors to the override in a new decision while preserving frozen historical
+plans and run records. Keep the current running corrective run and staged final
+proposals intact; no final reviewer route starts before root's manifests and
+course continuation. No new build, heavy validation, network or product repair
+scope is introduced by this policy-only checkpoint.
+
+**Affected scope:** Chapters 41 and higher; current corrective reframe records this
+handoff without changing its Chapters 0–40 bilingual acceptance gates.
+
+### 2026-10-05 — Replace final-review contexts after effort inheritance mismatch
+
+The two final English review01 contexts were actually assigned configured
+`gpt-6.1-sol/medium`, although the frozen routes require the user's selected
+`gpt-6.1-sol/high`. Root interrupted both before a final judgment. Preserve their
+immutable route/context inputs as failed setting-assignment evidence; no semantic
+record, receipt or approval from these contexts may be reused. This is a platform
+inheritance failure, not a candidate or reviewer-semantic defect.
+
+Prepare two different fresh contexts with the same candidate and exact canonical
+prompts, explicitly implementing the selected high effort and checking actual
+native configured metadata before judgments. Retain actual assignments27 and
+41,757,015 routed-input bytes, including the failed attempt. Root approved a
+cost-only ceiling increase32→36 and planned context allocation31→33; those are
+budgets, not achieved successful-context counts. All64MiB aggregate/8MiB per-context,
+token/output,8h wall, model, network and product-scope boundaries remain unchanged.
+Russian routing remains contingent on a sound fresh final English four-context
+chain. No learner, source, rendered byte or role requirement changes are authorized.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Correct stale selection provenance from actual current parent metadata
+
+Root's actual native parent journal shows earlier turns configured high, but the
+current turn begun03:46:16 is `gpt-6.1-sol/medium`. The carried high selection was
+stale; current user-selected medium must be inherited without a high override.
+This supersedes the preceding decision's proposed explicit-high replacement, not
+its preservation of failed assignments or resource charges. The two interrupted
+review01 contexts remain failed binding/settings evidence because their frozen
+high inputs mismatched actual medium. The unassigned high review-routing-02
+preparation is likewise preserved unused, never routed or sealed.
+
+Root supplies truthful successor English author02 and Russian author05 manifests
+for final candidate IDs ending.r2, retaining scope identities and every learner
+byte, value, role and requirement. Declare immutable `english-candidate-02/` and
+`ru-candidate-02/` outputs; preserve prior `english/` and `ru/` bytes. Root approved
+only narrow reference-core wrapper/test/documentation and closure final-path
+integration to these actual roots, with measured-PostgreSQL dispatch unchanged.
+No runtime selector framework, judgment API change or semantic repair is added.
+Fresh reviewers/adjudicators inherit current medium; actual configured metadata
+must match the frozen selection. Retain27 actual assignments,41,757,015B charges,
+planned33/ceiling36 and every other resource and authority bound.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Stop at the independently found Chapter 39 rendered-command blocker
+
+The fresh source-blind Russian target-only review reports a blocking finding on
+actual complete rendered Chapter39 (`doc.rendered.008`): the cargo command's
+ASCII `--quiet --locked` flags become em-dash flags in built English and Russian
+HTML. Root's read-only HEAD check confirms the raw-code source markup predates
+the authorized Chapter38 glossary correction. This is a held baseline repair;
+do not infer permission from the request to finish Chapter40.
+
+Preserve both exact current Russian records: bilingual2305bytes/hash
+`9c30442ed8d9ee7cb63321c056cdc87d2ff5595b1819cb65365e82c4c05ee188`
+and target-only3650bytes/hash
+`a8b7567c61891ff95d2aeaeacefc00b2ec71d6e290e0fc8c2a6fd496ad71a4fe`.
+Both raw byte contracts are unchanged. The pinned maintained locale verifier
+refused with exit1, `review-verdict: target-only review did not pass`; exact command
+and output receipt hash is
+`4d943fc0340d3974b9560d081e037d7f907fe6940e37620678143c3231ca1837`.
+No host response repair or acceptance seal is manufactured.
+
+Checkpoint corrective run02 failed and current reframe step blocked at
+04:32:37UTC. Retain33 actual assigned contexts/54,553,360 routed-input bytes,
+all prior costs, frozen candidates and existing proof. Ask for only the bounded
+EN/RU Chapter39 code-markup correction and rendered-byte regression; no typography
+overhaul or Chapters6/8–10 repairs. Stop all work pending that scope decision.
+No closure/publication/commit or successor/static/Chapter40 implementation is
+claimed. Sole machinery/ledger ownership returns to root after safe handoff.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.
+
 ### 2026-10-05 — Authorize only the Chapter 39 literal-command repair
 
 The user explicitly approved correcting the English/Russian Chapter39 command
@@ -27509,3 +27966,72 @@ raw combined log and two rendered Chapter39 documents. Root approved the exact
 two markup replacements and isolated17line test and authorized a dedicated
 commit. No wholechapter checks or independent judgments ran; the blocked
 reframe's historical failures and whole-candidate bindings remain untouched.
+
+### 2026-10-05 — Resume reframe after the bounded ASCII-command repair
+
+The user explicitly asks to finish Chapter40. Root authorizes fresh run
+`20261005T045500Z-reference-core-command-reframe-04` of
+`reframe-functional-reference-core-surfaces`, after dedicated repair commit
+`a4252de`. Preserve failed run02 and all exact raw records as immutable history.
+Copy its35 staged product files, applying only the two already-authored Ch39
+command code-wrapper replacements and17line regression insertion. Never replace
+the pending reframe's complete staged Ch39 files with canonical baseline files.
+
+The repair exception narrowed only its deterministic checks, not all subsequent
+review obligations. Changed source/complete HTML requires a fresh English pair,
+two fresh same-role adjudicators, and two fresh locale reviewers. Root owns
+semantic inputs; the existing machinery context owns deterministic staging and
+ledger updates, inheriting the actual current user-selected configuration.
+
+Root approves a bounded cost-only cumulative-input allowance of80MiB and40
+attempts, retaining all earlier charges:33actual contexts/54,553,360routed bytes.
+Six new contexts are planned, not assigned or guaranteed to pass. Prior matching
+six-role route sizes project67,349,705cumulative bytes,240,841above64MiB; measure
+actual fresh routes before assignment. Retain8MiB per-context,200k input-token,
+40k output-token, wall-time and other existing caps; token usage unobserved.
+No model override, paid service, network/acquisition, GPU or held repair scope is
+added. Reuse unchanged exact Rust/test/Firefox evidence. Render the changed
+complete staged candidate once using the existing cache; do not rerun unchanged
+wholechapter checks merely for resumption. Preserve current21OVER roles/order
+and neutral requirements; root reconciles actual refreshed inventory before
+freeze. No successor/static/Chapter40 claim occurs before dedicated reframe
+validation/publication/commit. Chapter40 remains bilingual; Chapters41+ are
+English-first under the explicit later user policy.
+
+### 2026-10-05 — Complete the current reference-core reframe gates
+
+Run `20261005T045500Z-reference-core-command-reframe-04` passed its fresh
+English technical/isolated reviews and same-role adjudications, then its fresh
+Russian bilingual/target-only reviews. Maintained canonical verification passed
+for the exact published bytes,94 technical/58 isolated/84 locale roles, all21
+OVER dispositions and baseline preservation controls. No old failed semantic
+record was repaired or reused as a new approval.
+
+Reuse unchanged deterministic proof only: actual current rendering and the
+ASCII-command Firefox regression passed; existing21-case Firefox and four-case
+Ch38 modal proof remain applicable to unchanged presentation except the separately
+validated command correction. Missing staged Ch39 Cargo-test proof was filled by
+exactly five passing demo tests and the formatting check in the cached offline
+image. Unchanged core tests and parser/localization-routing regressions retain
+their existing hash-bound proof; no broad chapter/site/browser suite repeated.
+The held Chapter17/18 whole-cheat-sheet baseline failures remain failed evidence,
+not a green whole-suite claim or newly authorized repair.
+
+Packaging failures remain recorded: one unsupported seal flag, five missing
+audit-only projection aliases (resolved by byte-identical copies), and two
+disposable-overlay setup failures. Frozen prompts, bundles, requirements and raw
+responses were unchanged. Current canonical closure and host-artifact audit pass.
+An inactive ordinary Cargo `target/` directory was recoverably renamed into
+this run's `host-artifacts/target`; nothing was deleted.
+
+Publish only the35 exact owned product files, current frozen audit evidence and
+useful durable artifacts. Fifteen complete publication-bound built documents are
+durable; the entire169-file export remains immutable in staging. Output inventory
+`58d9a3cf5869f505d405942b467be6d8c377b82bb16a5e00ede16ae88eca8519`
+binds396 declared files. Canonical AGENTS/state/decision integration includes
+previously authorized policy and historical checkpoints, not merely this final
+attempt. Actual assigned content/judgment contexts39 and routed-input bytes
+67,538,699 remain within40/80MiB; token usage unobserved, all other caps retained.
+Complete a dedicated reframe commit before claiming static integration or Chapter40.
+
+**Affected step:** `reframe-functional-reference-core-surfaces`.

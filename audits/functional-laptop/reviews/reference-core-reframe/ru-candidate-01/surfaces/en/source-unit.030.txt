@@ -1,0 +1,1 @@
+The map previews the scalar reference decoder: token IDs become feature vectors, repeated pre-norm blocks mix causal context and transform features, a tied head produces logits, sampling chooses a token, and learning changes the same weights through loss, gradients, and AdamW. This structural map does not establish language quality or measured laptop-scale capability.

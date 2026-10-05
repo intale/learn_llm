@@ -1,0 +1,1 @@
+The scalar reference implementation now produces differentiable next-token logits and mean indexed loss from token IDs. Chapter 33 will train this CPU model with a bounded deterministic loop and choose one state using validation loss only; these steps do not establish measured laptop-scale capability.

@@ -1,0 +1,1 @@
+Build a tiny scalar reference language model in Rust, then examine the separate laptop-track plan.

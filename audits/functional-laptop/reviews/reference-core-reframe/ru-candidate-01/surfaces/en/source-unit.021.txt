@@ -1,0 +1,1 @@
+Run one deterministic scalar reference decoder end to end on bilingual data, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation.

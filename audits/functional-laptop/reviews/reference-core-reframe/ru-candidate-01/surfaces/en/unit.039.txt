@@ -1,0 +1,1 @@
+Connect inference to the scalar reference pipeline

@@ -1,0 +1,8 @@
+--- /home/int/rust/learn_llm/.build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01/publish/artifacts/functional-laptop/reframes/reference-core/20261004T221700Z-01/operations/ch39-execution-02/baseline-golden.txt	2026-10-05 01:25:49.759701398 +0200
++++ /home/int/rust/learn_llm/.build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01/publish/artifacts/functional-laptop/reframes/reference-core/20261004T221700Z-01/operations/ch39-execution-02/stdout.txt	2026-10-05 01:25:49.684700519 +0200
+@@ -10,4 +10,4 @@
+ checkpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true
+ generation=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:"т  " prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true
+ history=window_slot_unit:overlapping-window-target-slot window_target_slots:1744 document_transition_occurrences:442 bigram_context_tokens:1 decoder_context_capacity:4 decoder_window_slot_context_lengths:[1,2,3,4] bigram_window_slot_mean_nll_nats:3.981342714 decoder_window_slot_mean_nll_nats:3.866087547 window_slot_gap_nats:0.115255167
+-next=inspect, modify, test, and extend the complete decoder
++next=inspect the scalar reference and its limits before extending it

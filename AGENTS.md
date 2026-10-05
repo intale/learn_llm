@@ -47,22 +47,22 @@ independent English or localization review or adjudication.
 
 ### Codex resource routing and deterministic tooling
 
-Use the user-selected model and effort for course content, including curriculum
-material, learner-facing Rust implementation, technical and pedagogical decisions,
-localization, and independent review/adjudication judgments. Inherit that selection
-in required fresh judgment contexts; do not impose another model or effort preset
-for those roles.
+Use the user-selected model and effort for content, review, and operational work,
+including curriculum material, learner-facing Rust implementation, technical and
+pedagogical decisions, localization, independent review/adjudication judgments,
+Bash execution, and evidence collection. Inherit that selection in required fresh
+contexts; do not impose another model or effort preset for those roles.
 
-Delegate machinery work to a separate agent thread using the
-`latest luna (or equivalent)` model. This includes preparing and maintaining
+Delegate machinery work to a separate agent thread inheriting the user-selected
+model and effort. This includes preparing and maintaining
 deterministic development scripts, Docker/Bash tooling, running scripts and
 validation commands, and deterministic extraction, hashing, packaging and
 operational evidence collection. Classify work by its role, not its language: a
 taught Rust algorithm remains course content, while incidental development
-plumbing is machinery. Luna must not make or replace course-content, algorithm,
+plumbing is machinery. The machinery worker must not make or replace course-content, algorithm,
 pedagogical or language-review judgments.
 
-The user-selected model's thread may orchestrate Luna: prepare the content,
+The content owner's thread may orchestrate the machinery worker: prepare the content,
 context, specifications and acceptance criteria, assign bounded output ownership,
 and inspect returned artifacts and results. Up to four concurrent machinery
 worker threads may be used, or fewer when actual platform capacity is lower,
@@ -190,7 +190,7 @@ requirement exactly and receive substantive adjudicator approval before
 localization begins. The author, both reviewers, and both adjudicators must use
 pairwise-distinct contexts. Use the user-selected model and effort for authoring
 and all four judgments; delegate deterministic packaging and command execution
-to a separate Luna thread under the resource-routing rule above. Packaging and
+to a separate machinery thread under the resource-routing rule above. Packaging and
 optional reported-issue diagnostics do not replace independent language judgments.
 
 An adjudicator judges the soundness and completeness of the same-role review,
@@ -294,6 +294,22 @@ uses new disjoint concepts, opaque identities, private preaudits, judgment
 contexts, routes, receipts, mapping, and evaluator evidence.
 
 ### Localization source and review
+
+Until further user notice, Chapters 41 and higher are delivered in English
+first. Russian authoring, review and publication for every learner-facing surface
+of those chapters are deferred: lessons, catalogs, metadata, diagram labels,
+accessibility copy, exercises, answers, navigation and cheat sheets. The user
+decides later whether to resume their Russian translation. Eligible English
+chapters may complete and publish after the unchanged English review/adjudication,
+technical, static and sole-Firefox gates; absent deferred Russian artifacts must
+not block English delivery or introduce another translation-approval pause.
+Do not create placeholder Russian content or present English copy as Russian.
+This override supersedes older coherent bilingual-delivery requirements only for
+Chapters 41 and higher. Preserve the existing bilingual policy for Chapters 0–40,
+including the current Chapter 38 correction, and retain localization architecture.
+Keep frozen historical plans and run records unchanged. When claiming a future
+step, record the reconciliation of its live outputs, acceptance and validation
+selectors with this explicit override rather than silently editing history.
 
 English is the canonical semantic source for every localized course surface.
 Author or revise English first, then translate each non-English locale directly

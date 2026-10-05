@@ -1,0 +1,1 @@
+Learn language-model mechanisms in Rust through a tiny CPU scalar reference; distinguish that teaching example from the planned laptop-scale extension.

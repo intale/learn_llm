@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005T045500Z-reference-core-command-reframe-04",
+  "english": {"candidateId":"reference-core.en.command.final.20261005.r1","status":"adjudication-verified","exitCode":0,"technicalAssessments":94,"isolatedAssessments":58},
+  "russian": {"candidateId":"reference-core.ru.command.final.20261005.r1","status":"structural-evidence-verified","exitCode":0,"coveredSurfaces":84,"bilingualRawSha256":"538574a3b4e037051c8508c8207e0cbb317991360d7f31fd08695fe3a364764c","targetOnlyRawSha256":"5d2484dd86c25762622026746f2e9c5b94433a4f774ad30b4ca72b8213616c59","bindingSha256":"c4a162a901a5c6383dd4983410fc6003c4099f67ce90f55202f34a4208a7123f"},
+  "localeFirstAttempt": {"exitCode":2,"reason":"missing-file: doc.contract.00.publicationPath","resolution":"Five declared audit-only projection aliases copied byte-identically from frozen target files, all target hashes/publication paths checked before retry; no spec, role, bundle, prompt or response edits."},
+  "closure": {"records":21,"manifestSha256":"12ce70272e51c92a0941798ee5cef078e2784ef4220187b1a6286db5f3727655","stageOverlayExitCode":0,"canonicalExitCode":0,"logSha256":"d1967fcf1198f54fced0c3a1c6991e24e4887bd6f2a6f9545328140f2e6ba91e"},
+  "deterministicReuse": {
+    "policy":"Root authorized reuse of unchanged Rust and broad browser proof; command-only source/rendering delta checked by one fresh current-stage Astro build and sole-Firefox command regression. No old semantic candidate judgments reused.",
+    "previousFinalBuildLogSha256":"1567faeb722b9b60b917edb1fefd8f9eafefbd00371ecc21fbcc9b2ca41117c6",
+    "previousFinalFirefox21LogSha256":"9f7bc77f606f8e7a8bde3f674bce8d0165b0c2cc62bb3c2b5fe3c0c13b76a443",
+    "unchangedParserRegression":13,
+    "currentWrapperAndClosureRegression":32,
+    "currentCommandFirefoxRegression":1,
+    "heldWholeCheatSheetSuite":"Prior98-case suite remains96pass/2held baseline failures in Chapters17/18; not falsely reported green and not a declared whole-file acceptance gate.",
+    "rustStdoutSha256":"92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5",
+    "preservedStdoutControlSha256":"da73ba11478416d6471e815a5269f9143c14408e77d298d114997bf796aed0ef"
+  },
+  "hostAudit": {"initialExitCode":1,"initialReason":"generated host artifact exists: target","recovery":"No Cargo/compiler process or lsof owner found; ordinary generated Cargo directory renamed recoverably, not deleted.","originalPath":"/home/int/rust/learn_llm/target","retainedPath":".build/runs/20261005T045500Z-reference-core-command-reframe-04/host-artifacts/target","createdAtLocal":"2026-10-05T05:48:54+02:00","finalExitCode":0},
+  "cost": {"actuallyAssignedContentJudgmentContexts":39,"cumulativeRoutedInputBytes":67538699,"attemptCeiling":40,"aggregateInputByteCeiling":83886080,"perContextInputByteCeiling":8388608,"tokenUsage":"unobserved-not-estimated"},
+  "limitations":"Deterministic gates verify bytes/provenance/coverage/routing/verdict consistency. Semantic approval is supplied only by the independent current model judgments. Historical failed runs and exact responses remain immutable."
+}

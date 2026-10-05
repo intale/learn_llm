@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "routingPath": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/routing.json",
+  "routingSha256": "b51214218f0d6055f49bcdcbc0491007b89aabe0e452bde6980c1c50f72f5222",
+  "parentThreadId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+  "actualAssignedContentAndJudgmentContexts": 39,
+  "cumulativeRoutedInputBytes": 67538699,
+  "reviewers": [
+    {"role":"bilingual","logicalContextId":"run04_bilingual_review_01","actualAgentPath":"/root/review_r4c9_bilingual","nativeThreadId":"01a10a95-d5ae-7fe2-9a89-9ab69f45bd10","journal":"/home/int/.codex/sessions/2026/10/05/rollout-2026-10-05T07-42-34-01a10a95-d5ae-7fe2-9a89-9ab69f45bd10.jsonl","startedAt":"2026-10-05T05:42:34.162Z","turnContextAt":"2026-10-05T05:42:35.380Z","model":"gpt-6.1-sol","reasoning":"medium","promptSha256":"068a801ffbd95614d90987e7a74cee40504a024fb6b2cdb033e37948127cfc89"},
+    {"role":"target-only","logicalContextId":"run04_target_only_review_01","actualAgentPath":"/root/review_r4c9_target","nativeThreadId":"01a10a96-50c6-7ae2-8858-b23b67e22fb0","journal":"/home/int/.codex/sessions/2026/10/05/rollout-2026-10-05T07-43-05-01a10a96-50c6-7ae2-8858-b23b67e22fb0.jsonl","startedAt":"2026-10-05T05:43:05.673Z","turnContextAt":"2026-10-05T05:43:07.276Z","model":"gpt-6.1-sol","reasoning":"medium","promptSha256":"8351e98fc29c4888c471983784515bd1c07fff8906cb13df87bbb44cc9ea9715"}
+  ],
+  "promptDeliveryProvenance": "Root explicitly reported exact frozen root-authored initial task bytes and four-path-only transport. Frozen prompt files independently match their approved originals. Native incoming agent_message payload is encrypted; delivered payload bytes are not independently decrypted or recomputed here.",
+  "limitations": "Actual configured native metadata, not backend telemetry or cryptographic access isolation. No private judgment content read and no verdict assumed."
+}

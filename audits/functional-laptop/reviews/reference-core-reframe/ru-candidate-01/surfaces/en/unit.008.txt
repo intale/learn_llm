@@ -1,0 +1,1 @@
+Start with Chapter 0: see how the scalar reference decoder fits together, then follow the chapters that implement its parts in Rust.

@@ -1,0 +1,262 @@
+{
+  "localizedFields": [
+    {
+      "path": [
+        "objective"
+      ],
+      "value": "Run one deterministic scalar reference decoder end to end on bilingual data, report mean NLL and perplexity for its overlapping test-window slots, distinguish those 1,744 slots from 442 within-document transition occurrences, and preserve the boundaries around selection, regression evidence, checkpoint reload, and cached generation."
+    },
+    {
+      "path": [
+        "worked_inputs"
+      ],
+      "value": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation mean NLL 3.889531885, and compare the decoder with the frozen bigram on the same 1,744 overlapping stride-one window-target slots. Label 3.866087547 and 3.981342714 as mean NLL in nats per slot and 47.755180205 and 53.588940583 as their dimensionless window-slot perplexities. A separate policy would score each of 442 within-document transition occurrences once, give the decoder the longest available causal prefix capped at four tokens, and use only its newest-position distribution; its numeric mean NLL and PPL are not reported. Then restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces."
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "0"
+      ],
+      "value": "the probability distribution defined by the decoder parameters"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "1"
+      ],
+      "value": "all learned decoder parameter values selected by validation loss"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "2"
+      ],
+      "value": "one token sequence from its first token through its final token"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "3"
+      ],
+      "value": "the number of tokens in the sequence being assigned probability"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "4"
+      ],
+      "value": "multiplication of one next-token conditional probability at every sequence position"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "5"
+      ],
+      "value": "the current token position"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "6"
+      ],
+      "value": "the observed token at position t"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "7"
+      ],
+      "value": "the earlier prefix in the general factorization; this bounded fixture presents at most the last four earlier tokens to the decoder"
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "limitation"
+      ],
+      "value": "A count-based bigram estimates the next token from one preceding token and cannot share statistical strength through learned features or use the longer causal prefix."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "later_advance"
+      ],
+      "value": "Neural language models learned distributed token features and longer-context probability functions; the Transformer supplied masked self-attention, and later autoregressive Transformer language models scaled that training objective."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "modern_llm_role"
+      ],
+      "value": "This course capstone combines training-only tokenizer learning, causal next-token updates, validation-selected state, within-execution selection isolation, fixed-fixture regression evaluation, exact checkpoint round-trip, and stateful generation; these are local evidence rules, not requirements of the cited papers."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "0",
+        "claim"
+      ],
+      "value": "Bengio and colleagues describe traditional n-gram generalization through short overlapping sequences and show a neural probability function that learns distributed word representations and benefits from longer contexts; their model is not a Transformer or this course pipeline."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "1",
+        "claim"
+      ],
+      "value": "Dwork and colleagues show that adaptive repeated reuse of a standard holdout can overfit that holdout; this general warning does not establish any fact about the capstone fixture, its score, or its local access count."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "2",
+        "claim"
+      ],
+      "value": "Vaswani and colleagues define the Transformer and mask decoder self-attention so a position cannot read later positions; their published architecture is an encoder-decoder model and does not define this course data, checkpoint, or generation policy."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "3",
+        "claim"
+      ],
+      "value": "Brown and colleagues train GPT-3, a 175-billion-parameter autoregressive Transformer language model based on the GPT-2 architecture, and evaluate zero-, one-, and few-shot tasks without gradient updates or fine-tuning; none of its scale or capability results transfers to this tiny teaching run."
+    },
+    {
+      "path": [
+        "history",
+        "approach"
+      ],
+      "value": "Compare the training-only alpha-one bigram with the validation-selected causal decoder on the same ordered 1,744 overlapping window-target slots. Four tokens is the decoder's context capacity, while its slot predictions use one, two, three, or four in-window context tokens. A separate policy would score each of 442 within-document transition occurrences once, use the longest available causal prefix capped at four tokens and only its newest-position distribution, and report neither numeric mean NLL nor PPL here. Treat the retained slot mean-NLL gap as fixed-fixture regression evidence rather than causal attribution, independent generalization, or architecture superiority."
+    },
+    {
+      "path": [
+        "history",
+        "summary"
+      ],
+      "value": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local responsibility boundaries while treating its known lower decoder window-slot mean NLL only as fixed-fixture regression evidence."
+    },
+    {
+      "path": [
+        "visualization",
+        "rationale"
+      ],
+      "value": "One numbered process makes the within-execution boundary visible: test batches appear only after selection; the 1,744-slot metric is separated from the policy that would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, without reporting numeric mean NLL or PPL; the known slot ordering is marked as fixed-fixture regression evidence before exact reload and cached generation."
+    },
+    {
+      "path": [
+        "decoder_connection"
+      ],
+      "value": "The scalar reference components now participate in one bounded CPU program: frozen bilingual data becomes BPE tokens and overlapping causal windows; validation selects the decoder state before the decoder and count-bigram baseline score the same ordered test-window target slots; the separate policy would score 442 within-document transitions once each with the longest causal prefix capped at four tokens and only its newest-position distribution, but reports no numeric mean NLL or PPL; checkpoint state reloads exactly; the At probe reproduces logits; and cached generation returns text. This integration evidence does not establish useful language quality or measured laptop-scale capability."
+    },
+    {
+      "path": [
+        "terminology",
+        "0"
+      ],
+      "value": "end-to-end LLM"
+    },
+    {
+      "path": [
+        "terminology",
+        "1"
+      ],
+      "value": "training-only tokenizer"
+    },
+    {
+      "path": [
+        "terminology",
+        "2"
+      ],
+      "value": "validation-selected state"
+    },
+    {
+      "path": [
+        "terminology",
+        "3"
+      ],
+      "value": "local single-use final evaluation"
+    },
+    {
+      "path": [
+        "terminology",
+        "4"
+      ],
+      "value": "overlapping window-target slot"
+    },
+    {
+      "path": [
+        "terminology",
+        "5"
+      ],
+      "value": "window-slot mean NLL"
+    },
+    {
+      "path": [
+        "terminology",
+        "6"
+      ],
+      "value": "window-slot perplexity"
+    },
+    {
+      "path": [
+        "terminology",
+        "7"
+      ],
+      "value": "within-document transition occurrence"
+    },
+    {
+      "path": [
+        "terminology",
+        "8"
+      ],
+      "value": "decoder context capacity"
+    },
+    {
+      "path": [
+        "terminology",
+        "9"
+      ],
+      "value": "fixed-fixture regression evidence"
+    },
+    {
+      "path": [
+        "terminology",
+        "10"
+      ],
+      "value": "frozen bigram baseline"
+    },
+    {
+      "path": [
+        "terminology",
+        "11"
+      ],
+      "value": "bitwise deterministic replay"
+    },
+    {
+      "path": [
+        "terminology",
+        "12"
+      ],
+      "value": "cached continuation"
+    }
+  ]
+}

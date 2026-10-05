@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "commands": ["cargo test --locked -p ch39-end-to-end-llm", "cargo fmt --all -- --check"],
+  "image": "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5",
+  "network": "none",
+  "mounts": ["rust/demos/ch39-end-to-end-llm/src/lib.rs", "rust/demos/ch39-end-to-end-llm/expected.txt"],
+  "sourceSha256": "89282acc94b6e07a27c70a835197bc156938045c477d6cb6b6dce7adbbf0fa35",
+  "goldenSha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5",
+  "status": "passed",
+  "exitCode": 0,
+  "unitTests": 5,
+  "unitTestSeconds": 4.75,
+  "formatCheck": "passed",
+  "limits": {"memoryBytes":2147483648,"cpus":2,"pids":256},
+  "notes": "Missing exact staged test proof filled by these two root-approved checks only. Unchanged core tests reused; no broad site, chapter or browser suite repeated."
+}

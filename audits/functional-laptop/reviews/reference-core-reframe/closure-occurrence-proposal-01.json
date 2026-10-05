@@ -1,0 +1,1696 @@
+{
+  "schemaVersion": 1,
+  "status": "Prior root-reconciled21-role links retained with current source/inventory hashes; current root confirmation and final review gates pending",
+  "rootRoleMap": {
+    "path": ".build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01/authoring/over-role-map-01.json",
+    "sha256": "2ab6a0965efa393e396127dc049e056321913549a885d93b40266d6ac149e820"
+  },
+  "englishSelection": {
+    "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-selection-02/selected-surfaces-proposal.json",
+    "sha256": "320f6864ab3985d9ee3e9f25c542ca27a895f0c0a46a7d6853f6f2070cebc31c"
+  },
+  "russianProposal": {
+    "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/russian-selection-01/inventory-proposal.json",
+    "sha256": "27326faec5942dca4abc02eace54d1e05f9c328a4d583948cf8a33afd7ea1be8"
+  },
+  "inventories": {
+    "english": {
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/bundle/inventory.json",
+      "sha256": "7da2c5c8ec5a0a15cf4c66ad18480ac0ca1b7d613de304c48751c803aacd3ec1"
+    },
+    "russian": {
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/closure-evidence/ru-inventory.json",
+      "sha256": "3e1e290ee125c9417e2c70bfb999f1696455da6a46b1a4b6127f3c470e947c8b"
+    }
+  },
+  "dispositions": [
+    {
+      "surfaceId": "OVER-CATALOG-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/i18n/catalogs/en.json",
+          "role": "site-description",
+          "source": {
+            "path": "site/src/i18n/catalogs/en.json",
+            "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.010",
+                "unit.001",
+                "unit.003"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "site-description"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "site-description": [
+                "unit.001",
+                "unit.003"
+              ]
+            },
+            "russian": {
+              "site-description": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/en.json",
+          "role": "language-picker-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/en.json",
+            "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.010",
+                "unit.055"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "chooser-intro"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "chooser-intro": [
+                "unit.055"
+              ]
+            },
+            "russian": {
+              "chooser-intro": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/en.json",
+          "role": "eyebrow-home-title-home-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/en.json",
+            "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.009",
+                "source.010",
+                "unit.004",
+                "unit.005",
+                "unit.006"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "home-eyebrow",
+            "home-title",
+            "home-intro",
+            "home-hero"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "home-eyebrow": [
+                "unit.004"
+              ],
+              "home-title": [
+                "unit.005"
+              ],
+              "home-intro": [
+                "unit.006"
+              ],
+              "home-hero": [
+                "reading.009"
+              ]
+            },
+            "russian": {
+              "home-eyebrow": [],
+              "home-title": [],
+              "home-intro": [],
+              "home-hero": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CATALOG-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/i18n/catalogs/ru.json",
+          "role": "site-description",
+          "source": {
+            "path": "site/src/i18n/catalogs/ru.json",
+            "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.catalog",
+                "catalog.siteDescription",
+                "unit.003"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "site-description"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "site-description": []
+            },
+            "russian": {
+              "site-description": [
+                "unit.003"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Root-reconciled Russian catalog occurrences; English counterparts do not certify target-language roles."
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/ru.json",
+          "role": "language-picker-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/ru.json",
+            "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.catalog",
+                "catalog.languagePickerIntro",
+                "unit.055"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "chooser-intro"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "chooser-intro": []
+            },
+            "russian": {
+              "chooser-intro": [
+                "unit.055"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Root-reconciled Russian catalog occurrences; English counterparts do not certify target-language roles."
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/ru.json",
+          "role": "eyebrow-home-title-home-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/ru.json",
+            "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.catalog",
+                "catalog.eyebrow",
+                "catalog.homeTitle",
+                "catalog.homeIntro",
+                "reading.009",
+                "unit.004",
+                "unit.005",
+                "unit.006"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "home-eyebrow",
+            "home-title",
+            "home-intro",
+            "home-hero"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "home-eyebrow": [],
+              "home-title": [],
+              "home-intro": [],
+              "home-hero": []
+            },
+            "russian": {
+              "home-eyebrow": [
+                "unit.004"
+              ],
+              "home-title": [
+                "unit.005"
+              ],
+              "home-intro": [
+                "unit.006"
+              ],
+              "home-hero": [
+                "reading.009"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Root-reconciled Russian catalog occurrences; English counterparts do not certify target-language roles."
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH00-CONTRACT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/00-llm-parts.md",
+          "role": "history-section-title",
+          "source": {
+            "path": "curriculum/chapters/00-llm-parts.md",
+            "sha256": "93d0b4f31555a7693cc337ae12bc5cfc38d681fda0fcf2f5c7ffdd184c2ee4ad"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.008",
+                "source.002"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch00-history-heading"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch00-history-heading": [
+                "source-unit.008"
+              ]
+            },
+            "russian": {
+              "ch00-history-heading": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "curriculum/chapters/00-llm-parts.md",
+          "role": "terminal-map-handoff",
+          "source": {
+            "path": "curriculum/chapters/00-llm-parts.md",
+            "sha256": "93d0b4f31555a7693cc337ae12bc5cfc38d681fda0fcf2f5c7ffdd184c2ee4ad"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.003",
+                "source.002"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch00-path-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch00-path-handoff": [
+                "reading.003"
+              ]
+            },
+            "russian": {
+              "ch00-path-handoff": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH00-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/en/00-llm-parts.mdx",
+          "role": "page-title",
+          "source": {
+            "path": "site/src/content/chapters/en/00-llm-parts.mdx",
+            "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.006",
+                "unit.010",
+                "unit.018",
+                "unit.020",
+                "unit.031"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch00-title"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch00-title": [
+                "unit.010",
+                "unit.018",
+                "unit.020",
+                "unit.031"
+              ]
+            },
+            "russian": {
+              "ch00-title": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/00-llm-parts.mdx",
+          "role": "diagram-isolated-labels",
+          "source": {
+            "path": "site/src/content/chapters/en/00-llm-parts.mdx",
+            "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.006",
+                "unit.023",
+                "unit.024",
+                "unit.025",
+                "unit.026",
+                "unit.027",
+                "unit.028",
+                "unit.056"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch00-system-title",
+            "ch00-detail-title",
+            "ch00-system-section",
+            "ch00-capstone"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch00-system-title": [
+                "unit.023"
+              ],
+              "ch00-detail-title": [
+                "unit.026"
+              ],
+              "ch00-system-section": [
+                "unit.025"
+              ],
+              "ch00-capstone": [
+                "unit.056"
+              ]
+            },
+            "russian": {
+              "ch00-system-title": [],
+              "ch00-detail-title": [],
+              "ch00-system-section": [],
+              "ch00-capstone": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim",
+          "rootSelectedAdditionalOccurrences": [
+            "unit.024",
+            "unit.027",
+            "unit.028"
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/00-llm-parts.mdx",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "site/src/content/chapters/en/00-llm-parts.mdx",
+            "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.003",
+                "reading.013",
+                "source.006"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch00-path-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch00-path-handoff": [
+                "reading.003",
+                "reading.013"
+              ]
+            },
+            "russian": {
+              "ch00-path-handoff": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH00-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/ru/00-llm-parts.mdx",
+          "role": "page-title",
+          "source": {
+            "path": "site/src/content/chapters/ru/00-llm-parts.mdx",
+            "sha256": "95ede75be454f806f945c9502647fe9939e16aaa9a09b27f346c776e841855b1"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.00",
+                "unit.010",
+                "unit.018",
+                "unit.020",
+                "unit.031"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch00-title"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch00-title": []
+            },
+            "russian": {
+              "ch00-title": [
+                "unit.010",
+                "unit.018",
+                "unit.020",
+                "unit.031"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/ru/00-llm-parts.mdx",
+          "role": "diagram-isolated-labels",
+          "source": {
+            "path": "site/src/content/chapters/ru/00-llm-parts.mdx",
+            "sha256": "95ede75be454f806f945c9502647fe9939e16aaa9a09b27f346c776e841855b1"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.00",
+                "unit.023",
+                "unit.024",
+                "unit.025",
+                "unit.026",
+                "unit.027",
+                "unit.028",
+                "unit.056"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch00-system-title",
+            "ch00-detail-title",
+            "ch00-system-section",
+            "ch00-capstone"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch00-system-title": [],
+              "ch00-detail-title": [],
+              "ch00-system-section": [],
+              "ch00-capstone": []
+            },
+            "russian": {
+              "ch00-system-title": [
+                "unit.023"
+              ],
+              "ch00-detail-title": [
+                "unit.026"
+              ],
+              "ch00-system-section": [
+                "unit.025"
+              ],
+              "ch00-capstone": [
+                "unit.056"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim",
+          "rootSelectedAdditionalOccurrences": [
+            "unit.024",
+            "unit.027",
+            "unit.028"
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH32-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/32-decoder-model.md",
+          "role": "outcome-integration-wording",
+          "source": {
+            "path": "curriculum/chapters/32-decoder-model.md",
+            "sha256": "4ea6e03fcd48942718fd6c1e2d4cac5a1fc6e52382e3fa84b4404cce53335ded"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.004",
+                "source.003"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch32-scope"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch32-scope": [
+                "reading.004"
+              ]
+            },
+            "russian": {
+              "ch32-scope": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/32-decoder-model.mdx",
+          "role": "isolated-headings-captions",
+          "source": {
+            "path": "site/src/content/chapters/en/32-decoder-model.mdx",
+            "sha256": "8229d75316ed06f5f09c720aa3633fecf9b5795a3d10ec3a8bd2a696af90ca6e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.007",
+                "unit.034",
+                "unit.035",
+                "unit.057"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch32-figure-title",
+            "ch32-rust-heading",
+            "ch32-rust-caption"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch32-figure-title": [
+                "unit.035"
+              ],
+              "ch32-rust-heading": [
+                "unit.034"
+              ],
+              "ch32-rust-caption": [
+                "unit.057"
+              ]
+            },
+            "russian": {
+              "ch32-figure-title": [],
+              "ch32-rust-heading": [],
+              "ch32-rust-caption": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH38-CONTRACT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/38-cached-generation.md",
+          "role": "scope-integration",
+          "source": {
+            "path": "curriculum/chapters/38-cached-generation.md",
+            "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.006",
+                "source-unit.016",
+                "source.004"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "source-unit.016"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch38-scope",
+            "ch38-connection"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch38-scope": [
+                "reading.006"
+              ],
+              "ch38-connection": [
+                "source-unit.016"
+              ]
+            },
+            "russian": {
+              "ch38-scope": [],
+              "ch38-connection": [
+                "source-unit.016"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "curriculum/chapters/38-cached-generation.md",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "curriculum/chapters/38-cached-generation.md",
+            "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.007",
+                "source.004"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch38-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch38-handoff": [
+                "reading.007"
+              ]
+            },
+            "russian": {
+              "ch38-handoff": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH38-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/en/38-cached-generation.mdx",
+          "role": "isolated-section-handoff",
+          "source": {
+            "path": "site/src/content/chapters/en/38-cached-generation.mdx",
+            "sha256": "32f91f116c5efa2ec99b45b6a5a34f7932b5f1b8067180711a5944162527fec3"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.007",
+                "reading.015",
+                "source.008",
+                "unit.039"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch38-handoff-heading",
+            "ch38-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch38-handoff-heading": [
+                "unit.039"
+              ],
+              "ch38-handoff": [
+                "reading.007",
+                "reading.015"
+              ]
+            },
+            "russian": {
+              "ch38-handoff-heading": [],
+              "ch38-handoff": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH38-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/ru/38-cached-generation.mdx",
+          "role": "isolated-section-handoff",
+          "source": {
+            "path": "site/src/content/chapters/ru/38-cached-generation.mdx",
+            "sha256": "ec3fea79d544a70fd2e3d6f982a347881bc947be379277471e0e4fb6cf767405"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.38",
+                "reading.015",
+                "unit.039"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch38-handoff-heading",
+            "ch38-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch38-handoff-heading": [],
+              "ch38-handoff": []
+            },
+            "russian": {
+              "ch38-handoff-heading": [
+                "unit.039"
+              ],
+              "ch38-handoff": [
+                "reading.015"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-CONTRACT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "title",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.024",
+                "source.005"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-title"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-title": [
+                "source-unit.024"
+              ]
+            },
+            "russian": {
+              "ch39-title": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.008",
+                "source.005"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-handoff": [
+                "reading.008"
+              ]
+            },
+            "russian": {
+              "ch39-handoff": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "title",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.009",
+                "unit.013",
+                "unit.028",
+                "unit.042",
+                "unit.045",
+                "unit.047"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-title"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-title": [
+                "unit.013",
+                "unit.028",
+                "unit.042",
+                "unit.045",
+                "unit.047"
+              ]
+            },
+            "russian": {
+              "ch39-title": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "description",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.009",
+                "unit.014",
+                "unit.044",
+                "unit.048"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-description"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-description": [
+                "unit.014",
+                "unit.044",
+                "unit.048"
+              ]
+            },
+            "russian": {
+              "ch39-description": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "isolated-terminal-heading",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.009",
+                "unit.051"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-handoff-heading"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-handoff-heading": [
+                "unit.051"
+              ]
+            },
+            "russian": {
+              "ch39-handoff-heading": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "terminal-claim-handoff",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.008",
+                "reading.016",
+                "source.009"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-handoff",
+            "ch39-planned-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-handoff": [
+                "reading.008",
+                "reading.016"
+              ],
+              "ch39-planned-handoff": [
+                "reading.016"
+              ]
+            },
+            "russian": {
+              "ch39-handoff": [],
+              "ch39-planned-handoff": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim",
+          "groupedRoleCoverage": {
+            "requirementKey": "ch39-planned-handoff",
+            "frozenGroupRequirementKey": "ch39-handoff",
+            "english": [
+              "reading.016"
+            ],
+            "authorReconciliation": ".build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01/authoring/over-reconciliation-02.md"
+          }
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-OUTPUT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "rust/demos/ch39-end-to-end-llm/expected.txt",
+          "role": "trace-handoff",
+          "source": {
+            "path": "rust/demos/ch39-end-to-end-llm/expected.txt",
+            "sha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-output"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-output": [
+                "unit.050"
+              ]
+            },
+            "russian": {
+              "ch39-output": [
+                "unit.050"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "embedded-expected-trace",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.022",
+                "source.005",
+                "unit.050"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-output"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-output": [
+                "unit.050",
+                "source-unit.022"
+              ]
+            },
+            "russian": {
+              "ch39-output": [
+                "unit.050"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+          "role": "embedded-english-trace",
+          "source": {
+            "path": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+            "sha256": "702a6e768040c26470bd38d5840f9bae8f04cf75e33d0a03b3614c1fa25affe9"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.39",
+                "unit.050"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-output"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-output": []
+            },
+            "russian": {
+              "ch39-output": [
+                "unit.050"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+          "role": "isolated-terminal-title-claim",
+          "source": {
+            "path": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+            "sha256": "702a6e768040c26470bd38d5840f9bae8f04cf75e33d0a03b3614c1fa25affe9"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.39",
+                "reading.016",
+                "unit.051"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "ch39-handoff-heading",
+            "ch39-handoff",
+            "ch39-planned-handoff"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "ch39-handoff-heading": [],
+              "ch39-handoff": [],
+              "ch39-planned-handoff": []
+            },
+            "russian": {
+              "ch39-handoff-heading": [
+                "unit.051"
+              ],
+              "ch39-handoff": [
+                "reading.016"
+              ],
+              "ch39-planned-handoff": [
+                "reading.016"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim",
+          "groupedRoleCoverage": {
+            "requirementKey": "ch39-planned-handoff",
+            "frozenGroupRequirementKey": "ch39-handoff",
+            "russian": [
+              "reading.016"
+            ],
+            "authorReconciliation": ".build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01/authoring/over-reconciliation-02.md"
+          }
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-EVAL-01",
+      "disposition": "preserve",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/34-final-evaluation.md",
+          "role": "evidence-classification",
+          "source": {
+            "path": "curriculum/chapters/34-final-evaluation.md",
+            "sha256": "ade774f925dbaf5c830651ea5067fd98e6d4573c727497c3264e2bf7725ae38b"
+          },
+          "mode": "control",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [
+            "preserved-evaluation"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "preserved-evaluation": []
+            },
+            "russian": {
+              "preserved-evaluation": []
+            }
+          },
+          "unrepresentedRequirementKeys": [
+            "preserved-evaluation"
+          ],
+          "note": "Exact accepted baseline controls remain mandatory; inventory links do not replace them"
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/34-final-evaluation.mdx",
+          "role": "evidence-classification",
+          "source": {
+            "path": "site/src/content/chapters/en/34-final-evaluation.mdx",
+            "sha256": "095902ed5db207ba601f29e2fedd5f40fa427badd0aa1c5d27bdb942dad07791"
+          },
+          "mode": "control",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [
+            "preserved-evaluation"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "preserved-evaluation": []
+            },
+            "russian": {
+              "preserved-evaluation": []
+            }
+          },
+          "unrepresentedRequirementKeys": [
+            "preserved-evaluation"
+          ],
+          "note": "Exact accepted baseline controls remain mandatory; inventory links do not replace them"
+        },
+        {
+          "canonicalPath": "rust/demos/ch39-end-to-end-llm/expected.txt",
+          "role": "metrics-evidence-trace",
+          "source": {
+            "path": "rust/demos/ch39-end-to-end-llm/expected.txt",
+            "sha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5"
+          },
+          "mode": "control",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "preserved-evaluation",
+            "ch39-output"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "preserved-evaluation": [],
+              "ch39-output": [
+                "unit.050"
+              ]
+            },
+            "russian": {
+              "preserved-evaluation": [],
+              "ch39-output": [
+                "unit.050"
+              ]
+            }
+          },
+          "unrepresentedRequirementKeys": [
+            "preserved-evaluation"
+          ],
+          "note": "Exact accepted baseline controls remain mandatory; inventory links do not replace them"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-01",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "document-title",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [],
+          "actualOccurrencesByRequirement": {
+            "english": {},
+            "russian": {}
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Accepted prior-owner internal plan record; no new language judgment claim"
+        },
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "final-target-intro",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [],
+          "actualOccurrencesByRequirement": {
+            "english": {},
+            "russian": {}
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Accepted prior-owner internal plan record; no new language judgment claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-02",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "target-boundary-section",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [],
+          "actualOccurrencesByRequirement": {
+            "english": {},
+            "russian": {}
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Accepted prior-owner internal plan record; no new language judgment claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-03",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "chapter-32-to-33-handoff",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [],
+          "actualOccurrencesByRequirement": {
+            "english": {},
+            "russian": {}
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Accepted prior-owner internal plan record; no new language judgment claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-04",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "chapter-38-to-39-handoff",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [],
+          "actualOccurrencesByRequirement": {
+            "english": {},
+            "russian": {}
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Accepted prior-owner internal plan record; no new language judgment claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-05",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "chapter-39-outcome",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [],
+          "actualOccurrencesByRequirement": {
+            "english": {},
+            "russian": {}
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Accepted prior-owner internal plan record; no new language judgment claim"
+        },
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": [],
+          "authorRequirementKeys": [],
+          "actualOccurrencesByRequirement": {
+            "english": {},
+            "russian": {}
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Accepted prior-owner internal plan record; no new language judgment claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-README-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "README.md",
+          "role": "repository-title",
+          "source": {
+            "path": "README.md",
+            "sha256": "60b61ddae1b47709fc42a31ed2d267f6709028e7f4dff67796535d636fb8f896"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.001",
+                "source.001"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "readme-title"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "readme-title": [
+                "source-unit.001"
+              ]
+            },
+            "russian": {
+              "readme-title": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        },
+        {
+          "canonicalPath": "README.md",
+          "role": "repository-intro",
+          "source": {
+            "path": "README.md",
+            "sha256": "60b61ddae1b47709fc42a31ed2d267f6709028e7f4dff67796535d636fb8f896"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.001",
+                "source.001"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "readme-intro"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "readme-intro": [
+                "reading.001"
+              ]
+            },
+            "russian": {
+              "readme-intro": []
+            }
+          },
+          "unrepresentedRequirementKeys": [],
+          "note": "Draft exact occurrence mapping for root semantic reconciliation; complete document coverage is distinct from an isolated-role claim"
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-SCOPE-01",
+      "disposition": "preserve",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "explicit-limitations",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "control",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.005"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "preserved-scope"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "preserved-scope": []
+            },
+            "russian": {
+              "preserved-scope": []
+            }
+          },
+          "unrepresentedRequirementKeys": [
+            "preserved-scope"
+          ],
+          "note": "Exact accepted baseline controls remain mandatory; inventory links do not replace them"
+        },
+        {
+          "canonicalPath": "curriculum/chapters/38-cached-generation.md",
+          "role": "explicit-omissions",
+          "source": {
+            "path": "curriculum/chapters/38-cached-generation.md",
+            "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf"
+          },
+          "mode": "control",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.004"
+              ]
+            }
+          ],
+          "authorRequirementKeys": [
+            "preserved-scope"
+          ],
+          "actualOccurrencesByRequirement": {
+            "english": {
+              "preserved-scope": []
+            },
+            "russian": {
+              "preserved-scope": []
+            }
+          },
+          "unrepresentedRequirementKeys": [
+            "preserved-scope"
+          ],
+          "note": "Exact accepted baseline controls remain mandatory; inventory links do not replace them"
+        }
+      ]
+    }
+  ],
+  "predecessor": {
+    "path": ".build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01/publish/audits/functional-laptop/reviews/reference-core-reframe/closure-occurrence-proposal-02.json",
+    "sha256": "09f64c60eeedb4567109f32ba3227f5d5d36ae577ae7d6d47ffa7ebddcb7bb4d"
+  },
+  "authorReconciliation": {
+    "path": ".build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01/authoring/over-reconciliation-02.md",
+    "sha256": "90f979062a6caa9c33c02d6b20ae3eb173fd153db29cc0370bd92be655f72c54"
+  }
+}

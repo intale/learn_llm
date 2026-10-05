@@ -1,0 +1,1 @@
+Scalar reference capstone: Connect the reference parts in one bounded training-to-generation example. Ch 39

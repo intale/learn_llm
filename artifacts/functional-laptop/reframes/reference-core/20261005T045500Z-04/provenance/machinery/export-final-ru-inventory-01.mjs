@@ -1,0 +1,16 @@
+import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
+import {resolve,dirname} from 'node:path';
+const repository=resolve(process.argv[2]??'.');
+const run='.build/runs/20261005T045500Z-reference-core-command-reframe-04';
+const root=resolve(repository,run,'publish');
+const tool=await import(resolve(repository,'.agents/skills/localize-llm-course/scripts/localization-review.mjs'));
+const base='audits/functional-laptop/reviews/reference-core-reframe';
+const read=p=>readFileSync(resolve(root,p));
+const spec=JSON.parse(read(`${base}/ru-candidate-01/spec.json`)),bindings=JSON.parse(read(`${base}/ru-candidate-01/bundle/bindings.json`));
+const inventory={candidateId:spec.candidateId,scopeId:spec.scopeId,referenceLocale:spec.referenceLocale,requiredSurfaceIds:spec.requiredSurfaceIds,schemaVersion:1,surfaces:spec.surfaces.map(s=>({id:s.id,kind:s.kind,order:s.order,localization:s.localization,publicationPath:s.publicationPath??null,source:{path:s.source.path,sha256:s.source.sha256},target:{path:s.target.path,sha256:s.target.sha256}})),targetLocale:spec.targetLocale};
+const bytes=tool.canonicalJson(inventory),digest=tool.sha256(bytes);
+if(digest!==bindings.inventorySha256)throw Error('Maintained canonical inventory hash differs');
+const target=resolve(root,base,'closure-evidence/ru-inventory.json');
+if(existsSync(target))throw Error('Inventory snapshot already exists');
+mkdirSync(dirname(target),{recursive:true,mode:0o700});writeFileSync(target,bytes,{flag:'wx',mode:0o600});
+console.log(JSON.stringify({path:`${base}/closure-evidence/ru-inventory.json`,sha256:digest,bytes:Buffer.byteLength(bytes),surfaces:inventory.surfaces.length,status:'Extraction/byte identity only; independent maintained verifier recomputation remains required'}));

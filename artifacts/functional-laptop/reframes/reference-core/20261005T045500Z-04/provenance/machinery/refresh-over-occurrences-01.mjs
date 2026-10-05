@@ -1,0 +1,32 @@
+import {readFileSync,writeFileSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {createHash} from 'node:crypto';
+const repository=resolve(process.argv[2]??'.');
+const prior='.build/runs/20261004T221700Z-reframe-functional-reference-core-surfaces-01';
+const run='.build/runs/20261005T045500Z-reference-core-command-reframe-04',stage=`${run}/publish`;
+const base='audits/functional-laptop/reviews/reference-core-reframe',audit=`${stage}/${base}`;
+const read=p=>readFileSync(resolve(repository,p)),sha=b=>createHash('sha256').update(b).digest('hex');
+const bound=p=>({path:p,sha256:sha(read(p))});
+const input=`${prior}/publish/${base}/closure-occurrence-proposal-02.json`;
+if(sha(read(input))!=='09f64c60eeedb4567109f32ba3227f5d5d36ae577ae7d6d47ffa7ebddcb7bb4d')throw Error('Prior author-reconciled mapping drift');
+const old=JSON.parse(read(input)),proposal=structuredClone(old);
+const enPath=`${audit}/english-candidate-01/bundle/inventory.json`,ruPath=`${audit}/closure-evidence/ru-inventory.json`;
+const inventories=Object.fromEntries([['english',enPath],['russian',ruPath]].map(([locale,p])=>[locale,new Set(JSON.parse(read(p)).surfaces.map(s=>s.id))]));
+for(const row of proposal.dispositions)for(const locator of row.locators){
+  const path=existsSync(resolve(repository,stage,locator.canonicalPath))?`${stage}/${locator.canonicalPath}`:locator.canonicalPath;
+  locator.source={path:locator.canonicalPath,sha256:sha(read(path))};
+  for(const link of locator.inventoryLinks)for(const id of link.surfaceIds)if(!inventories[link.locale].has(id))throw Error('Missing retained actual occurrence '+link.locale+':'+id);
+}
+const exactLinks=rows=>rows.map(r=>({surfaceId:r.surfaceId,disposition:r.disposition,ownerStep:r.ownerStep,locators:r.locators.map(l=>({canonicalPath:l.canonicalPath,role:l.role,mode:l.mode,inventoryLinks:l.inventoryLinks}))}));
+if(JSON.stringify(exactLinks(old.dispositions))!==JSON.stringify(exactLinks(proposal.dispositions)))throw Error('Prior approved occurrence mapping changed');
+proposal.status='Prior root-reconciled21-role links retained with current source/inventory hashes; current root confirmation and final review gates pending';
+proposal.predecessor=bound(input);
+proposal.rootRoleMap=bound(`${prior}/authoring/over-role-map-01.json`);
+proposal.authorReconciliation=bound(`${prior}/authoring/over-reconciliation-02.md`);
+proposal.englishSelection=bound(`${audit}/english-selection-02/selected-surfaces-proposal.json`);
+proposal.russianProposal=bound(`${audit}/russian-selection-01/inventory-proposal.json`);
+proposal.inventories={english:bound(enPath),russian:bound(ruPath)};
+const output=`${audit}/closure-occurrence-proposal-01.json`;
+if(existsSync(resolve(repository,output)))throw Error('Immutable proposal exists');
+writeFileSync(resolve(repository,output),JSON.stringify(proposal,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({path:output,sha256:sha(read(output)),records:proposal.dispositions.length,retainedRoleLinksExact:true,englishInventory:proposal.inventories.english,russianInventory:proposal.inventories.russian,status:'Proposal only, not final closure or review approval'}));

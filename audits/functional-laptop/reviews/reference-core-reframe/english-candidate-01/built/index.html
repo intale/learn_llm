@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="mul" dir="ltr" data-theme-storage-key="learn-llm-color-theme"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><meta name="description" content="Learn language-model mechanisms in Rust through a tiny CPU scalar reference; distinguish that teaching example from the planned laptop-scale extension."><meta name="color-scheme" content="light dark"><script data-theme-bootstrap>
+  (() => {
+    const root = document.documentElement;
+    const storageKey = root.dataset.themeStorageKey;
+    if (!storageKey) return;
+
+    let storedTheme = null;
+    try {
+      storedTheme = window.localStorage.getItem(storageKey);
+    } catch {
+      // Storage can be unavailable; the system preference remains usable.
+    }
+
+    if (storedTheme === 'light' || storedTheme === 'dark') {
+      root.dataset.theme = storedTheme;
+    } else {
+      delete root.dataset.theme;
+    }
+  })();
+</script><!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-B5JVTL721S"></script> <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('set', 'cookie_domain', 'intale.github.io');
+  gtag('config', 'G-B5JVTL721S');
+</script><title>Choose a language</title><link rel="alternate" hreflang="en" href="/en/"><link rel="alternate" hreflang="ru" href="/ru/"><link rel="alternate" hreflang="x-default" href="/"><link rel="stylesheet" href="/_astro/theme.BpA4-oYh.css"></head> <body class="language-page"> <main class="language-picker" aria-labelledby="language-title"> <span class="language-picker-mark" aria-hidden="true">λ</span> <p class="eyebrow">  <span lang="en" dir="ltr"> LLM, piece by piece </span> <span aria-hidden="true"> · </span>  <span lang="ru" dir="ltr"> LLM по частям </span>   </p> <h1 id="language-title"> <span lang="en" dir="ltr"> Choose a language </span><span lang="ru" dir="ltr"> Выберите язык </span> </h1> <p class="language-intro"> <span lang="en" dir="ltr"> Build a tiny scalar reference language model in Rust, then examine the separate laptop-track plan. </span><span lang="ru" dir="ltr"> Соберите небольшую эталонную языковую модель со скалярными вычислениями на Rust, а затем изучите отдельно запланированное расширение для LLM на ноутбуке. </span> </p> <nav class="language-options" aria-label="Language"> <a href="/en/" lang="en" dir="ltr" hreflang="en" data-locale="en"> <span>English</span> <span aria-hidden="true" dir="ltr"> EN → </span> </a><a href="/ru/" lang="ru" dir="ltr" hreflang="ru" data-locale="ru"> <span>Русский</span> <span aria-hidden="true" dir="ltr"> RU → </span> </a> </nav> </main> </body> </html>

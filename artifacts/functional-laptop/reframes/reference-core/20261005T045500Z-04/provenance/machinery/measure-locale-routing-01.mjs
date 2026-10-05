@@ -1,0 +1,21 @@
+import {readFileSync,writeFileSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {createHash} from 'node:crypto';
+const repository=resolve(process.argv[2]??'.'),run='.build/runs/20261005T045500Z-reference-core-command-reframe-04';
+const stage=`${run}/publish`,base='audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01';
+const read=p=>readFileSync(resolve(repository,stage,p)),sha=b=>createHash('sha256').update(b).digest('hex');
+const routingPath=`${base}/routes/routing.json`,route=JSON.parse(read(routingPath));
+const contexts=Object.entries(route.roles).map(([role,entry])=>{
+  const paths={context:entry.contextPath,prompt:entry.promptPath,bundle:entry.bundlePath,schema:entry.schemaPath};
+  const files=Object.fromEntries(Object.entries(paths).map(([key,path])=>{const bytes=read(path),bound=entry.artifacts[path];if(!bound||sha(bytes)!==bound.sha256||bytes.length!==bound.bytes)throw Error('Frozen route drift '+path);return[key,{path,...bound,absolutePath:resolve(repository,stage,path)}];}));
+  const frozenPrompt=read(`${base}/frozen/${role==='bilingual'?'bilingual':'target-only'}-prompt.txt`);
+  if(!read(entry.promptPath).equals(frozenPrompt))throw Error('Exact root prompt drift');
+  const totalBytes=Object.values(files).reduce((n,file)=>n+file.bytes,0);if(totalBytes>8388608)throw Error('Per-context byte cap');
+  return {role,logicalContextId:entry.contextId,files,totalBytes};
+});
+const newBytes=contexts.reduce((n,item)=>n+item.totalBytes,0),priorRoutedInputBytes=60651399,cumulativeRoutedInputBytes=priorRoutedInputBytes+newBytes;
+if(cumulativeRoutedInputBytes>83886080)throw Error('Aggregate byte cap');
+const report={schemaVersion:1,contexts,newBytes,priorRoutedInputBytes,cumulativeRoutedInputBytes,routing:{path:routingPath,sha256:sha(read(routingPath))},perContextInputByteCap:8388608,aggregateInputByteCap:83886080,inputTokenCap:200000,tokenUsage:'unobserved-not-estimated',status:'Fresh two-role route preparation; actual assignment and independent judgments pending'};
+const output=`${base}/routing-input-measurements-01.json`;if(existsSync(resolve(repository,stage,output)))throw Error('Immutable measurement exists');
+writeFileSync(resolve(repository,stage,output),JSON.stringify(report,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({...report,measurement:{absolutePath:resolve(repository,stage,output),sha256:sha(read(output))}}));

@@ -1216,7 +1216,7 @@ const exactDefinitions = {
     "Complete-prefix reference":
       "An uncached computation that reruns the entire known prefix and provides the correctness baseline for cached generation.",
     "Newest-logit equivalence":
-      "Agreement within tolerance between cached and complete-prefix logits at the newest position, preserving the same next-token decision under the same policy.",
+      "Agreement within a specified numerical tolerance between cached and complete-prefix logits at the newest token position. The chapter checks selected tokens separately on fixed examples, with the same selection policy and initial random-generator state. Close logits alone do not guarantee the same selected token.",
     "Retained prefix length":
       "The current number of token positions exposed by every coherent layer cache and therefore the number of keys read by the newest cached query.",
     "Attention-score work":

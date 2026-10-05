@@ -1,0 +1,328 @@
+{
+  "schemaVersion": 1,
+  "priorSpecSha256": "966527d11626223b7c4e53115fad8a3b45fc7e0a69807f2a02e6fcc4158a48ca",
+  "records": [
+    {
+      "canonicalPath": "README.md",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/README.md",
+      "priorSha256": "60b61ddae1b47709fc42a31ed2d267f6709028e7f4dff67796535d636fb8f896",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/README.md",
+      "sha256": "60b61ddae1b47709fc42a31ed2d267f6709028e7f4dff67796535d636fb8f896",
+      "bytes": 11459,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "curriculum/chapters/00-llm-parts.md",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/curriculum/chapters/00-llm-parts.md",
+      "priorSha256": "93d0b4f31555a7693cc337ae12bc5cfc38d681fda0fcf2f5c7ffdd184c2ee4ad",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/curriculum/chapters/00-llm-parts.md",
+      "sha256": "93d0b4f31555a7693cc337ae12bc5cfc38d681fda0fcf2f5c7ffdd184c2ee4ad",
+      "bytes": 20286,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "curriculum/chapters/32-decoder-model.md",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/curriculum/chapters/32-decoder-model.md",
+      "priorSha256": "4ea6e03fcd48942718fd6c1e2d4cac5a1fc6e52382e3fa84b4404cce53335ded",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/curriculum/chapters/32-decoder-model.md",
+      "sha256": "4ea6e03fcd48942718fd6c1e2d4cac5a1fc6e52382e3fa84b4404cce53335ded",
+      "bytes": 36060,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "curriculum/chapters/38-cached-generation.md",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/curriculum/chapters/38-cached-generation.md",
+      "priorSha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/curriculum/chapters/38-cached-generation.md",
+      "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf",
+      "bytes": 47091,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/curriculum/chapters/39-end-to-end-llm.md",
+      "priorSha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/curriculum/chapters/39-end-to-end-llm.md",
+      "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140",
+      "bytes": 56320,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "rust/demos/ch39-end-to-end-llm/expected.txt",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/rust/demos/ch39-end-to-end-llm/expected.txt",
+      "priorSha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/rust/demos/ch39-end-to-end-llm/expected.txt",
+      "sha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5",
+      "bytes": 2816,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/rust/demos/ch39-end-to-end-llm/src/lib.rs",
+      "priorSha256": "89282acc94b6e07a27c70a835197bc156938045c477d6cb6b6dce7adbbf0fa35",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/rust/demos/ch39-end-to-end-llm/src/lib.rs",
+      "sha256": "89282acc94b6e07a27c70a835197bc156938045c477d6cb6b6dce7adbbf0fa35",
+      "bytes": 29393,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/README.md",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/README.md",
+      "priorSha256": "818dba55cea62f57373b6a6eb87f93c3164ceb98f1a5a8ee5cf314085dffbafb",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/README.md",
+      "sha256": "818dba55cea62f57373b6a6eb87f93c3164ceb98f1a5a8ee5cf314085dffbafb",
+      "bytes": 10102,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/check-functional-chapter-reviews.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/check-functional-chapter-reviews.mjs",
+      "priorSha256": "13bcf0f41ec4773006173829810324e1560fa73c847e5173ad4ebf097adac6b1",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/check-functional-chapter-reviews.mjs",
+      "sha256": "13bcf0f41ec4773006173829810324e1560fa73c847e5173ad4ebf097adac6b1",
+      "bytes": 3043,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/check-functional-overbroad-surfaces.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/check-functional-overbroad-surfaces.mjs",
+      "priorSha256": "f9721825bab91d00966aede22d611edaf0eec155d36309c740783c8e6c849a0b",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/check-functional-overbroad-surfaces.mjs",
+      "sha256": "f9721825bab91d00966aede22d611edaf0eec155d36309c740783c8e6c849a0b",
+      "bytes": 11372,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/check-static-links.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/check-static-links.mjs",
+      "priorSha256": "5c538d3a0fd8612d7b3ae15ccffe7b4e5709d2c3296eba35afe21b42191ec003",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/check-static-links.mjs",
+      "sha256": "5c538d3a0fd8612d7b3ae15ccffe7b4e5709d2c3296eba35afe21b42191ec003",
+      "bytes": 39263,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/localization-routing.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/localization-routing.mjs",
+      "priorSha256": "b68f4d011621f7ccdb6a2a7d0aecd4bc416582690bb783ab6083f2b7e246363a",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/localization-routing.mjs",
+      "sha256": "b68f4d011621f7ccdb6a2a7d0aecd4bc416582690bb783ab6083f2b7e246363a",
+      "bytes": 13326,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/tests/check-functional-chapter-reviews.test.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/tests/check-functional-chapter-reviews.test.mjs",
+      "priorSha256": "40dc206ea97600a3bb68814fa278a60325bcb2dc56a6fdfde869b2928b754e0f",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/tests/check-functional-chapter-reviews.test.mjs",
+      "sha256": "40dc206ea97600a3bb68814fa278a60325bcb2dc56a6fdfde869b2928b754e0f",
+      "bytes": 4754,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/tests/check-functional-overbroad-surfaces.test.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/tests/check-functional-overbroad-surfaces.test.mjs",
+      "priorSha256": "f0a11ced31431a918f8bc5b3700964ef65cf2e9eaaa29e95f61b3397cb33c471",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/tests/check-functional-overbroad-surfaces.test.mjs",
+      "sha256": "f0a11ced31431a918f8bc5b3700964ef65cf2e9eaaa29e95f61b3397cb33c471",
+      "bytes": 10590,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/tests/check-static-links.test.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/tests/check-static-links.test.mjs",
+      "priorSha256": "444da362619ad6d93ed997fde39dbbf26e05677a9be942ea4f0ea42b67ce3531",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/tests/check-static-links.test.mjs",
+      "sha256": "444da362619ad6d93ed997fde39dbbf26e05677a9be942ea4f0ea42b67ce3531",
+      "bytes": 2977,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "scripts/tests/localization-routing.test.mjs",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/scripts/tests/localization-routing.test.mjs",
+      "priorSha256": "e18ca3d5472d13215f31d5ef7b5f38c4248db7e4be849bfc654592d629fcb807",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/scripts/tests/localization-routing.test.mjs",
+      "sha256": "e18ca3d5472d13215f31d5ef7b5f38c4248db7e4be849bfc654592d629fcb807",
+      "bytes": 14197,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/components/chapters/LlmPartsDiagram.astro",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/components/chapters/LlmPartsDiagram.astro",
+      "priorSha256": "7617be2646c0351729ad2cd645aed9798f5852a8cbb7df393023899644df92ce",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/components/chapters/LlmPartsDiagram.astro",
+      "sha256": "7617be2646c0351729ad2cd645aed9798f5852a8cbb7df393023899644df92ce",
+      "bytes": 15083,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/en/00-llm-parts.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/en/00-llm-parts.mdx",
+      "priorSha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/en/00-llm-parts.mdx",
+      "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218",
+      "bytes": 15327,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/en/32-decoder-model.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/en/32-decoder-model.mdx",
+      "priorSha256": "8229d75316ed06f5f09c720aa3633fecf9b5795a3d10ec3a8bd2a696af90ca6e",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/en/32-decoder-model.mdx",
+      "sha256": "8229d75316ed06f5f09c720aa3633fecf9b5795a3d10ec3a8bd2a696af90ca6e",
+      "bytes": 28394,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/en/38-cached-generation.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/en/38-cached-generation.mdx",
+      "priorSha256": "32f91f116c5efa2ec99b45b6a5a34f7932b5f1b8067180711a5944162527fec3",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/en/38-cached-generation.mdx",
+      "sha256": "32f91f116c5efa2ec99b45b6a5a34f7932b5f1b8067180711a5944162527fec3",
+      "bytes": 32541,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/en/39-end-to-end-llm.mdx",
+      "priorSha256": "e8c9f405f2c008c96d7807d3dd56bca09bb24ed6371c97070034e5a64fd34785",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/en/39-end-to-end-llm.mdx",
+      "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e",
+      "bytes": 40541,
+      "change": "exact-command-markup"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/ru/00-llm-parts.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/ru/00-llm-parts.mdx",
+      "priorSha256": "95ede75be454f806f945c9502647fe9939e16aaa9a09b27f346c776e841855b1",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/ru/00-llm-parts.mdx",
+      "sha256": "95ede75be454f806f945c9502647fe9939e16aaa9a09b27f346c776e841855b1",
+      "bytes": 27752,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/ru/32-decoder-model.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/ru/32-decoder-model.mdx",
+      "priorSha256": "b54ead4378ce2a2eb589797a02ec28d663b2c878ff47d1825da57c58804cd92b",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/ru/32-decoder-model.mdx",
+      "sha256": "b54ead4378ce2a2eb589797a02ec28d663b2c878ff47d1825da57c58804cd92b",
+      "bytes": 50025,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/ru/38-cached-generation.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/ru/38-cached-generation.mdx",
+      "priorSha256": "ec3fea79d544a70fd2e3d6f982a347881bc947be379277471e0e4fb6cf767405",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/ru/38-cached-generation.mdx",
+      "sha256": "ec3fea79d544a70fd2e3d6f982a347881bc947be379277471e0e4fb6cf767405",
+      "bytes": 62927,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+      "priorSha256": "a9567736951b3fe363a892f5dc87f5da60ffcacd361d50a294a5dd0cc165b4d8",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+      "sha256": "702a6e768040c26470bd38d5840f9bae8f04cf75e33d0a03b3614c1fa25affe9",
+      "bytes": 79988,
+      "change": "exact-command-markup"
+    },
+    {
+      "canonicalPath": "site/src/content/cheat-sheets/en/38-cached-generation.json",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/cheat-sheets/en/38-cached-generation.json",
+      "priorSha256": "8a4fc9170c4cebebbb133d1a3f1988fdc755ce04a3cdcc17640abbeb7a9503bf",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/cheat-sheets/en/38-cached-generation.json",
+      "sha256": "8a4fc9170c4cebebbb133d1a3f1988fdc755ce04a3cdcc17640abbeb7a9503bf",
+      "bytes": 3571,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/content/cheat-sheets/ru/38-cached-generation.json",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/content/cheat-sheets/ru/38-cached-generation.json",
+      "priorSha256": "2c39ff9f907c85fae5ac852821a3f3813245f3614d52a7063fea5ca2a9e90f04",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/cheat-sheets/ru/38-cached-generation.json",
+      "sha256": "2c39ff9f907c85fae5ac852821a3f3813245f3614d52a7063fea5ca2a9e90f04",
+      "bytes": 7247,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/i18n/catalogs/en.json",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/i18n/catalogs/en.json",
+      "priorSha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/i18n/catalogs/en.json",
+      "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c",
+      "bytes": 2333,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/src/i18n/catalogs/ru.json",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/src/i18n/catalogs/ru.json",
+      "priorSha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/i18n/catalogs/ru.json",
+      "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0",
+      "bytes": 4171,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/tests/cheat-sheets.test.ts",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/tests/cheat-sheets.test.ts",
+      "priorSha256": "f28a9b0798c518bff818d01670b137d2c9f1089b65f4a6be3d73164feb3c0d1b",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/tests/cheat-sheets.test.ts",
+      "sha256": "f28a9b0798c518bff818d01670b137d2c9f1089b65f4a6be3d73164feb3c0d1b",
+      "bytes": 126957,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/tests/e2e/ch00-llm-parts.spec.ts",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/tests/e2e/ch00-llm-parts.spec.ts",
+      "priorSha256": "548020110f8462d9732dd746c55cabb08beade33567ec8c5e59532f95f6ba31c",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/tests/e2e/ch00-llm-parts.spec.ts",
+      "sha256": "548020110f8462d9732dd746c55cabb08beade33567ec8c5e59532f95f6ba31c",
+      "bytes": 37592,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/tests/e2e/ch32-decoder-model.spec.ts",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/tests/e2e/ch32-decoder-model.spec.ts",
+      "priorSha256": "e67457695a4c777e8fc7d2c044e7c8b38089fd16507e4405c4b32f4f20394f55",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/tests/e2e/ch32-decoder-model.spec.ts",
+      "sha256": "e67457695a4c777e8fc7d2c044e7c8b38089fd16507e4405c4b32f4f20394f55",
+      "bytes": 23429,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/tests/e2e/ch38-cached-generation.spec.ts",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/tests/e2e/ch38-cached-generation.spec.ts",
+      "priorSha256": "d3b193178b016f10ebb00436933e95c157db6f7c1b3ad3004e292dd519eaf844",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/tests/e2e/ch38-cached-generation.spec.ts",
+      "sha256": "d3b193178b016f10ebb00436933e95c157db6f7c1b3ad3004e292dd519eaf844",
+      "bytes": 30668,
+      "change": "unchanged"
+    },
+    {
+      "canonicalPath": "site/tests/e2e/ch39-end-to-end-llm.spec.ts",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/tests/e2e/ch39-end-to-end-llm.spec.ts",
+      "priorSha256": "1eff62dde55e219a80f4f94aa1dfb7986fdde200ddab9afb78efdb42d5c10621",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/tests/e2e/ch39-end-to-end-llm.spec.ts",
+      "sha256": "a2e76f97de86864232938670401b7603634c5061b4680e724acebb902a86763d",
+      "bytes": 85508,
+      "change": "exact-root17line-test"
+    },
+    {
+      "canonicalPath": "site/tests/e2e/cheat-sheets.spec.ts",
+      "priorPath": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/site/tests/e2e/cheat-sheets.spec.ts",
+      "priorSha256": "9cf4ae64e4d1c5eef005b731d267c4837ee831f462618dbbb8b277f567c57b88",
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/tests/e2e/cheat-sheets.spec.ts",
+      "sha256": "9cf4ae64e4d1c5eef005b731d267c4837ee831f462618dbbb8b277f567c57b88",
+      "bytes": 85299,
+      "change": "unchanged"
+    }
+  ],
+  "productFiles": 35,
+  "changedFiles": 3,
+  "limits": {
+    "attempts": 40,
+    "aggregateInputBytes": 83886080
+  },
+  "limitations": "Exact mechanical bytes/provenance only; no current language or publication approval."
+}

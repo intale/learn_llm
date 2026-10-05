@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "reference-core.en.command.final.20261005.r1",
+  "scopeId": "reference-core.en.command.final",
+  "routing": {
+    "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing.json",
+    "sha256": "2e518c3fcec1afeed64c61852c4ef93f24db82a292682f3c2233b453d45c1599"
+  },
+  "contexts": [
+    {
+      "role": "technical-pedagogical",
+      "logicalContextId": "run04_technical_review_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/contexts/technical-pedagogical.json",
+          "sha256": "8af1c4acb5f6a1c927d1e8c4f5b17e866cd8de24b1522265dee2181774966d46",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/contexts/technical-pedagogical.json",
+          "bytes": 1274
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/prompts/technical-pedagogical.json",
+          "sha256": "7c856b30a0eb10c2e4683054594c25730ad2a47ece93c105aa20bf6577add7db",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/prompts/technical-pedagogical.json",
+          "bytes": 2821
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/bundle/technical-pedagogical/review-bundle.json",
+          "sha256": "6d16fb5d0f02351db50ef34903d1780a6a4717e1228b47dca37d2bbf62f82987",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/bundle/technical-pedagogical/review-bundle.json",
+          "bytes": 2923433
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/review-record.schema.json",
+          "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/review-record.schema.json",
+          "bytes": 4763
+        }
+      },
+      "totalBytes": 2932291
+    },
+    {
+      "role": "isolated-surface",
+      "logicalContextId": "run04_isolated_review_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/contexts/isolated-surface.json",
+          "sha256": "bbf5eafb2425d61961d468beee6d5a3a2c1d0ebb99274ba7ea0804852296bdbb",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/contexts/isolated-surface.json",
+          "bytes": 1253
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/prompts/isolated-surface.json",
+          "sha256": "3446b07cf8acdfa4c1b7fee323637d57cfd561d9f70cc4081b1e16b96bf531ba",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/review-routing/prompts/isolated-surface.json",
+          "bytes": 3007
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/bundle/isolated-surface/review-bundle.json",
+          "sha256": "2c47e9cef6d5c9b9f1f4f7bbabb931aff9b4aca5dae43d7da17a85a8996c6583",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/bundle/isolated-surface/review-bundle.json",
+          "bytes": 46392
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/review-record.schema.json",
+          "sha256": "b925cf70d225af0e992c47c0000149c6d430424aee5878ff42f388948f8e7177",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/review-record.schema.json",
+          "bytes": 4763
+        }
+      },
+      "totalBytes": 55415
+    }
+  ],
+  "newBytes": 2987706,
+  "priorRoutedInputBytes": 54553360,
+  "cumulativeRoutedInputBytes": 57541066,
+  "effectiveInputByteCapPerContext": 8388608,
+  "effectiveCumulativeInputByteCap": 83886080,
+  "inputTokenCeiling": 200000,
+  "tokenUsage": "unobserved-not-estimated",
+  "limitations": "Accessible file byte accounting, not actual model token usage or complete author-input accounting. No model judgment or publication approval."
+}

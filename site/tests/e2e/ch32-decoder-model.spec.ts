@@ -26,13 +26,13 @@ const copy = {
       "Reuse the embedding table at the far end of the stack",
       "Distinguish one parameter from its two uses",
       "From separate recurrent components to one decoder stack",
-      "Make the complete model boundary explicit in Rust",
+      "Make the scalar reference model boundary explicit in Rust",
       "Inspect one table at both ends of the forward path",
       "Test axes, ownership, causality, and failures",
       "Train this exact model at the next boundary",
     ],
     diagramTitle:
-      "Follow one tied vocabulary table through a complete decoder",
+      "Follow one tied vocabulary table through the scalar reference decoder",
     diagramDescription:
       "Read exact Rust-authored token rows through lookup, two distinct causal blocks, final RMSNorm, and the transpose projection back to five vocabulary logits.",
     cues: [
@@ -68,12 +68,12 @@ const copy = {
       "Повторно используйте таблицу эмбеддингов в конце стека",
       "Различайте один параметр и два его применения",
       "От раздельных рекуррентных компонентов к единому стеку декодера",
-      "Явно задайте полную границу модели на Rust",
+      "Явно задайте границу эталонной модели со скалярными вычислениями на Rust",
       "Проследите одну таблицу в начале и конце прямого прохода",
       "Проверьте оси, владение, каузальность и ошибки",
       "На следующем шаге обучите именно эту модель",
     ],
-    diagramTitle: "Проследите общую таблицу словаря через весь декодер",
+    diagramTitle: "Проследите общую таблицу словаря через эталонный декодер со скалярными вычислениями",
     diagramDescription:
       "Проследите точные строки признаков для токенов из вычислений Rust через выбор эмбеддингов, два разных каузальных блока, итоговый RMSNorm и транспонированную проекцию обратно в пять логитов словаря.",
     cues: [
@@ -282,7 +282,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 32,
-    revision: 4,
+    revision: 5,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: locales,

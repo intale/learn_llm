@@ -1,0 +1,269 @@
+{
+  "localizedFields": [
+    {
+      "path": [
+        "objective"
+      ],
+      "value": "Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm, and one genuinely tied vocabulary projection into differentiable logits."
+    },
+    {
+      "path": [
+        "worked_inputs"
+      ],
+      "value": "Send token IDs [0,1,2] through a deterministic two-block decoder with vocabulary size five and model width four, then inspect every stage, tied-head logits, indexed loss, causality, parameter ownership, and gradients."
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "0"
+      ],
+      "value": "the vocabulary-logit tensor, not the scalar training loss"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "1"
+      ],
+      "value": "the rank-two batch of integer token IDs"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "2"
+      ],
+      "value": "the single trainable vocabulary-by-feature table used for both token lookup and output projection"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "3"
+      ],
+      "value": "the token embeddings gathered from rows of the tied table"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "4"
+      ],
+      "value": "the i-th pre-normalized causal decoder block from Chapter 31, with parameters distinct from every other block"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "5"
+      ],
+      "value": "the configured number of repeated decoder blocks; zero, one, and larger depths are valid"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "6"
+      ],
+      "value": "the learned-gain final normalization applied after the complete block stack"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "7"
+      ],
+      "value": "the transpose view of the same embedding parameter, producing one score per vocabulary item"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "8"
+      ],
+      "value": "the batch size"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "9"
+      ],
+      "value": "the number of token positions in each sequence"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "10"
+      ],
+      "value": "the vocabulary size"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "11"
+      ],
+      "value": "the residual-stream feature width"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "12"
+      ],
+      "value": "the hidden width inside each SwiGLU feed-forward branch"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "13"
+      ],
+      "value": "the rank-two batch of target vocabulary IDs, one per token position"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "14"
+      ],
+      "value": "the scalar mean indexed negative log likelihood"
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "limitation"
+      ],
+      "value": "Earlier recurrent neural language models commonly separated an input embedding, stepwise recurrent computation, and a distinct vocabulary classifier, so input and output word tables could own independent parameters and updates."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "later_advance"
+      ],
+      "value": "Weight tying made one vocabulary-feature matrix serve both roles, the Transformer organized causally masked layers into a stack, and GPT-2 placed normalization at each sub-block input plus one final normalization before the vocabulary head."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "modern_llm_role"
+      ],
+      "value": "A decoder-only LLM maps token IDs through a repeated causal residual stack into vocabulary logits; this course uses the already-taught RMSNorm, RoPE, attention, and SwiGLU pieces while making its tied-head choice explicit rather than universal."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "0",
+        "claim"
+      ],
+      "value": "Press and Wolf describe the input-embedding, intervening-computation, and output-score-matrix roles in recurrent neural language models, recommend tying the two embeddings, and analyze the tied update as contributions from both roles."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "1",
+        "claim"
+      ],
+      "value": "Vaswani and colleagues define a stacked causally masked Transformer decoder and report sharing one matrix between embeddings and the pre-softmax linear transformation."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "2",
+        "claim"
+      ],
+      "value": "Radford and colleagues describe GPT-2 as a multi-layer Transformer language model with normalization at each sub-block input and an additional normalization after the final block."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "3",
+        "claim"
+      ],
+      "value": "Touvron and colleagues place pre-normalization with RMSNorm, SwiGLU, RoPE, and causal attention in a modern Transformer language-model family with model depth as an explicit architecture dimension."
+    },
+    {
+      "path": [
+        "history",
+        "approach"
+      ],
+      "value": "Recurrent language models with separate input and output tables, followed by the transition to tied vocabulary weights and repeated causal Transformer layers."
+    },
+    {
+      "path": [
+        "history",
+        "summary"
+      ],
+      "value": "The model boundary evolved from a token embedding feeding stepwise recurrent state and a separate classifier toward repeated causally masked blocks whose final hidden states are normalized and projected to vocabulary logits. Weight tying lets one table own lookup and classifier roles, reducing parameters while requiring both gradient contributions to accumulate on one leaf."
+    },
+    {
+      "path": [
+        "visualization",
+        "rationale"
+      ],
+      "value": "A single pipeline makes the repeated same-shaped block stack and the one embedding table's two distant roles visible together, while exact per-stage vectors and logits prove that the diagram is evidence rather than decorative architecture art."
+    },
+    {
+      "path": [
+        "decoder_connection"
+      ],
+      "value": "The scalar reference implementation now produces differentiable next-token logits and mean indexed loss from token IDs. Chapter 33 will train this CPU model with a bounded deterministic loop and choose one state using validation loss only; these steps do not establish measured laptop-scale capability."
+    },
+    {
+      "path": [
+        "terminology",
+        "0"
+      ],
+      "value": "decoder model"
+    },
+    {
+      "path": [
+        "terminology",
+        "1"
+      ],
+      "value": "weight tying"
+    },
+    {
+      "path": [
+        "terminology",
+        "2"
+      ],
+      "value": "vocabulary logits"
+    },
+    {
+      "path": [
+        "terminology",
+        "3"
+      ],
+      "value": "final normalization"
+    },
+    {
+      "path": [
+        "terminology",
+        "4"
+      ],
+      "value": "layer stack"
+    },
+    {
+      "path": [
+        "terminology",
+        "5"
+      ],
+      "value": "token lookup"
+    }
+  ]
+}

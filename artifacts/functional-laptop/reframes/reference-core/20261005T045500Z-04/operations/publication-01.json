@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261005T045500Z-reference-core-command-reframe-04",
+  "productFiles": [
+    {
+      "path": "README.md",
+      "sha256": "60b61ddae1b47709fc42a31ed2d267f6709028e7f4dff67796535d636fb8f896"
+    },
+    {
+      "path": "curriculum/chapters/00-llm-parts.md",
+      "sha256": "93d0b4f31555a7693cc337ae12bc5cfc38d681fda0fcf2f5c7ffdd184c2ee4ad"
+    },
+    {
+      "path": "curriculum/chapters/32-decoder-model.md",
+      "sha256": "4ea6e03fcd48942718fd6c1e2d4cac5a1fc6e52382e3fa84b4404cce53335ded"
+    },
+    {
+      "path": "curriculum/chapters/38-cached-generation.md",
+      "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf"
+    },
+    {
+      "path": "curriculum/chapters/39-end-to-end-llm.md",
+      "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+    },
+    {
+      "path": "rust/demos/ch39-end-to-end-llm/expected.txt",
+      "sha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5"
+    },
+    {
+      "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
+      "sha256": "89282acc94b6e07a27c70a835197bc156938045c477d6cb6b6dce7adbbf0fa35"
+    },
+    {
+      "path": "scripts/README.md",
+      "sha256": "6e565e236e1645881b703c662a35149a9e4ad9f8c7ccb39bbe09ce6db9ea0ac3"
+    },
+    {
+      "path": "scripts/check-functional-chapter-reviews.mjs",
+      "sha256": "b204dc0e7033383f778c2404d2b1e9621652f1b1a5a21f190d7c2650e1723476"
+    },
+    {
+      "path": "scripts/check-functional-overbroad-surfaces.mjs",
+      "sha256": "45f25758c15b919faa69e0b28e94faba6bc123b4213873f8a6e11c020ea77b2d"
+    },
+    {
+      "path": "scripts/check-static-links.mjs",
+      "sha256": "5c538d3a0fd8612d7b3ae15ccffe7b4e5709d2c3296eba35afe21b42191ec003"
+    },
+    {
+      "path": "scripts/localization-routing.mjs",
+      "sha256": "b68f4d011621f7ccdb6a2a7d0aecd4bc416582690bb783ab6083f2b7e246363a"
+    },
+    {
+      "path": "scripts/tests/check-functional-chapter-reviews.test.mjs",
+      "sha256": "23e63875ba87ee6adea41652f0a5c2e2760ed450c0e00167e468b93a1f6e9084"
+    },
+    {
+      "path": "scripts/tests/check-functional-overbroad-surfaces.test.mjs",
+      "sha256": "14a3901699a552f7b2dcaa8b421290f7fa46a085e8102348e39415cfc6ba2e10"
+    },
+    {
+      "path": "scripts/tests/check-static-links.test.mjs",
+      "sha256": "444da362619ad6d93ed997fde39dbbf26e05677a9be942ea4f0ea42b67ce3531"
+    },
+    {
+      "path": "scripts/tests/localization-routing.test.mjs",
+      "sha256": "e18ca3d5472d13215f31d5ef7b5f38c4248db7e4be849bfc654592d629fcb807"
+    },
+    {
+      "path": "site/src/components/chapters/LlmPartsDiagram.astro",
+      "sha256": "7617be2646c0351729ad2cd645aed9798f5852a8cbb7df393023899644df92ce"
+    },
+    {
+      "path": "site/src/content/chapters/en/00-llm-parts.mdx",
+      "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218"
+    },
+    {
+      "path": "site/src/content/chapters/en/32-decoder-model.mdx",
+      "sha256": "8229d75316ed06f5f09c720aa3633fecf9b5795a3d10ec3a8bd2a696af90ca6e"
+    },
+    {
+      "path": "site/src/content/chapters/en/38-cached-generation.mdx",
+      "sha256": "32f91f116c5efa2ec99b45b6a5a34f7932b5f1b8067180711a5944162527fec3"
+    },
+    {
+      "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+      "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+    },
+    {
+      "path": "site/src/content/chapters/ru/00-llm-parts.mdx",
+      "sha256": "95ede75be454f806f945c9502647fe9939e16aaa9a09b27f346c776e841855b1"
+    },
+    {
+      "path": "site/src/content/chapters/ru/32-decoder-model.mdx",
+      "sha256": "b54ead4378ce2a2eb589797a02ec28d663b2c878ff47d1825da57c58804cd92b"
+    },
+    {
+      "path": "site/src/content/chapters/ru/38-cached-generation.mdx",
+      "sha256": "ec3fea79d544a70fd2e3d6f982a347881bc947be379277471e0e4fb6cf767405"
+    },
+    {
+      "path": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+      "sha256": "702a6e768040c26470bd38d5840f9bae8f04cf75e33d0a03b3614c1fa25affe9"
+    },
+    {
+      "path": "site/src/content/cheat-sheets/en/38-cached-generation.json",
+      "sha256": "8a4fc9170c4cebebbb133d1a3f1988fdc755ce04a3cdcc17640abbeb7a9503bf"
+    },
+    {
+      "path": "site/src/content/cheat-sheets/ru/38-cached-generation.json",
+      "sha256": "2c39ff9f907c85fae5ac852821a3f3813245f3614d52a7063fea5ca2a9e90f04"
+    },
+    {
+      "path": "site/src/i18n/catalogs/en.json",
+      "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c"
+    },
+    {
+      "path": "site/src/i18n/catalogs/ru.json",
+      "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0"
+    },
+    {
+      "path": "site/tests/cheat-sheets.test.ts",
+      "sha256": "f28a9b0798c518bff818d01670b137d2c9f1089b65f4a6be3d73164feb3c0d1b"
+    },
+    {
+      "path": "site/tests/e2e/ch00-llm-parts.spec.ts",
+      "sha256": "548020110f8462d9732dd746c55cabb08beade33567ec8c5e59532f95f6ba31c"
+    },
+    {
+      "path": "site/tests/e2e/ch32-decoder-model.spec.ts",
+      "sha256": "e67457695a4c777e8fc7d2c044e7c8b38089fd16507e4405c4b32f4f20394f55"
+    },
+    {
+      "path": "site/tests/e2e/ch38-cached-generation.spec.ts",
+      "sha256": "d3b193178b016f10ebb00436933e95c157db6f7c1b3ad3004e292dd519eaf844"
+    },
+    {
+      "path": "site/tests/e2e/ch39-end-to-end-llm.spec.ts",
+      "sha256": "a2e76f97de86864232938670401b7603634c5061b4680e724acebb902a86763d"
+    },
+    {
+      "path": "site/tests/e2e/cheat-sheets.spec.ts",
+      "sha256": "9cf4ae64e4d1c5eef005b731d267c4837ee831f462618dbbb8b277f567c57b88"
+    }
+  ],
+  "durableBuildDocuments": [
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/00-llm-parts/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/01-text-units/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/32-decoder-model/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/38-cached-generation/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/39-end-to-end-llm/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/course/00-llm-parts/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/course/01-text-units/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/course/32-decoder-model/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/course/38-cached-generation/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/course/39-end-to-end-llm/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/course/index.html",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/index.html"
+  ],
+  "completeBuildFilesRetainedInStaging": 169,
+  "publicationRoots": [
+    "audits/functional-laptop/reviews/reference-core-reframe",
+    "artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04"
+  ],
+  "limitations": "Exact byte publication only; unchanged proof reuse is separate. Frozen semantic records and historical failed runs unchanged."
+}

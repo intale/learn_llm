@@ -1,0 +1,1 @@
+A map of the scalar reference decoder In the tiny CPU reference, tokenization gives IDs, embeddings give features, and decoder blocks plus a vocabulary head produce logits. Sampling selects tokens, caching reuses attention state, and training updates the same weights. This architectural map does not establish measured laptop-scale capability. Content revision: 6

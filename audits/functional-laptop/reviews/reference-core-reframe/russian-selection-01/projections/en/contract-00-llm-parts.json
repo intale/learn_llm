@@ -1,0 +1,148 @@
+{
+  "localizedFields": [
+    {
+      "path": [
+        "objective"
+      ],
+      "value": "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part."
+    },
+    {
+      "path": [
+        "worked_inputs"
+      ],
+      "value": "Follow prompt text through tokenization, embeddings, repeated decoder blocks, the vocabulary head, and next-token selection; then compare generation with the learning branch that uses targets, loss, gradients, updates, evaluation, and checkpoints."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "limitation"
+      ],
+      "value": "Count n-grams condition on a fixed short context and cannot learn reusable distributed features or content-dependent access to a longer prefix."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "later_advance"
+      ],
+      "value": "Neural language models learned distributed token representations, the Transformer supplied masked self-attention over the prefix, and later autoregressive Transformer language models scaled next-token prediction."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "modern_llm_role"
+      ],
+      "value": "A modern decoder-only LLM repeatedly transforms token features with normalized causal attention and gated feed-forward branches, then projects the result to a next-token distribution used by learning or generation."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "0",
+        "claim"
+      ],
+      "value": "Bengio and colleagues contrast n-gram generalization with a neural probability function that learns distributed word representations; their model predates the Transformer and this course's decoder block."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "1",
+        "claim"
+      ],
+      "value": "Vaswani and colleagues define the Transformer and mask decoder self-attention against later positions; their published system is an encoder-decoder model, not this course's decoder-only topology."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "2",
+        "claim"
+      ],
+      "value": "Brown and colleagues describe GPT-3 as a scaled autoregressive language model; its scale and measured capabilities do not transfer to the tiny reference model used here."
+    },
+    {
+      "path": [
+        "history",
+        "approach"
+      ],
+      "value": "Begin with a count-based short-context language model, then place learned representations, masked self-attention, decoder blocks, optimization, and autoregressive generation on one road to the modern decoder-only LLM."
+    },
+    {
+      "path": [
+        "history",
+        "summary"
+      ],
+      "value": "The useful mental model is not one mysterious intelligence box: it is a text interface, a learned feature pipeline repeated across decoder blocks, a vocabulary prediction head, and a learning process that adjusts those weights from next-token evidence."
+    },
+    {
+      "path": [
+        "visualization",
+        "rationale"
+      ],
+      "value": "A connected block schema makes repeated decoder computation, the next-token feedback loop, and the learning branch from the shared forward path easier to understand than a flat list of chapter titles."
+    },
+    {
+      "path": [
+        "visualization",
+        "supplementary",
+        "0",
+        "rationale"
+      ],
+      "value": "A separate detail map opens the decoder block and links every named part to the implementation chapter without crowding the complete-system schema."
+    },
+    {
+      "path": [
+        "decoder_connection"
+      ],
+      "value": "The map previews the scalar reference decoder: token IDs become feature vectors, repeated pre-norm blocks mix causal context and transform features, a tied head produces logits, sampling chooses a token, and learning changes the same weights through loss, gradients, and AdamW. This structural map does not establish language quality or measured laptop-scale capability."
+    },
+    {
+      "path": [
+        "terminology",
+        "0"
+      ],
+      "value": "LLM parts"
+    },
+    {
+      "path": [
+        "terminology",
+        "1"
+      ],
+      "value": "inference path"
+    },
+    {
+      "path": [
+        "terminology",
+        "2"
+      ],
+      "value": "learning path"
+    },
+    {
+      "path": [
+        "terminology",
+        "3"
+      ],
+      "value": "decoder block"
+    },
+    {
+      "path": [
+        "terminology",
+        "4"
+      ],
+      "value": "vocabulary head"
+    },
+    {
+      "path": [
+        "terminology",
+        "5"
+      ],
+      "value": "key-value cache"
+    }
+  ]
+}

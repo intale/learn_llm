@@ -1,0 +1,1 @@
+Collect one coherent evidence record for the scalar reference decoder boundary rust/demos/ch32-decoder-model/src/lib.rs#learner-evidence

@@ -2,6 +2,7 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import nodePath from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -587,7 +588,7 @@ export function deriveSeoExpectations(
   return normalized;
 }
 
-function validateSeoDescription(relativePath, source, expected, issues) {
+export function validateSeoDescription(relativePath, source, expected, issues) {
   const route = htmlRoute(relativePath);
   const headOpenings = [...source.matchAll(/<head\b[^>]*>/gi)];
   const headClosings = [...source.matchAll(/<\/head\s*>/gi)];
@@ -605,16 +606,26 @@ function validateSeoDescription(relativePath, source, expected, issues) {
     );
   }
 
-  const descriptionMetas = [...source.matchAll(/<meta\b[^>]*>/gi)]
-    .map((match) => ({
-      index: match.index,
-      values: attributes(match[0]),
-    }))
-    .filter(
-      ({ values }) =>
-        typeof values.name === 'string' &&
-        values.name.toLocaleLowerCase() === 'description',
-    );
+  // Resolve the existing locked parser from its owning dependency graph.
+  // Source offsets preserve our raw-source head-placement assertion even when
+  // the HTML parser repairs malformed element placement.
+  const requireFromSite = createRequire(
+    nodePath.join(repositoryRootFromCwd(), 'site/package.json'),
+  );
+  const { parse } = requireFromSite('parse5');
+  const document = parse(source, { sourceCodeLocationInfo: true });
+  const descriptionMetas = [];
+  const visit = (node) => {
+    if (node.tagName === 'meta') {
+      const values = Object.fromEntries(node.attrs.map(({ name, value }) => [name, value]));
+      if (values.name?.toLowerCase() === 'description') {
+        descriptionMetas.push({ index: node.sourceCodeLocation?.startOffset, values });
+      }
+    }
+    for (const child of node.childNodes ?? []) visit(child);
+    if (node.content) visit(node.content);
+  };
+  visit(document);
   if (descriptionMetas.length !== 1) {
     issues.push(
       relativePath +
@@ -638,7 +649,7 @@ function validateSeoDescription(relativePath, source, expected, issues) {
   if (descriptionMetas.length !== 1) return;
   const content = descriptionMetas[0].values.content;
   const decoded = typeof content === 'string'
-    ? decodeHtmlEntities(content).trim()
+    ? content.trim()
     : '';
   if (normalizedDescriptionText(decoded) === '') {
     issues.push(

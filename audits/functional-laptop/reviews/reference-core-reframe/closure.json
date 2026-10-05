@@ -1,0 +1,947 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "365f70dde3510f40e84f9700aa11a3dea79e2ff0",
+  "coverage": {
+    "path": "audits/2026-08-10-functional-llm-capability/coverage.md",
+    "sha256": "42a2fd6ea482995c280f1c55d1a8c30a494968116edc57594579a7b1da2f4fb1"
+  },
+  "plan": {
+    "path": "curriculum/functional-laptop-llm-extension-plan.md",
+    "sha256": "be619fa7e8a09adc95b7e7d7ab89b23a1c2998389f43b69a53bd92748aedfd6d"
+  },
+  "inventories": {
+    "english": {
+      "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/bundle/inventory.json",
+      "sha256": "7da2c5c8ec5a0a15cf4c66ad18480ac0ca1b7d613de304c48751c803aacd3ec1"
+    },
+    "russian": {
+      "path": "audits/functional-laptop/reviews/reference-core-reframe/closure-evidence/ru-inventory.json",
+      "sha256": "3e1e290ee125c9417e2c70bfb999f1696455da6a46b1a4b6127f3c470e947c8b"
+    }
+  },
+  "dispositions": [
+    {
+      "surfaceId": "OVER-CATALOG-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/i18n/catalogs/en.json",
+          "role": "site-description",
+          "source": {
+            "path": "site/src/i18n/catalogs/en.json",
+            "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.010",
+                "unit.001",
+                "unit.003"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/en.json",
+          "role": "language-picker-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/en.json",
+            "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.010",
+                "unit.055"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/en.json",
+          "role": "eyebrow-home-title-home-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/en.json",
+            "sha256": "56c8f2dbb3b66038286f9334f27df3fc950107ca8610c7b1c473b47a59873e7c"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.009",
+                "source.010",
+                "unit.004",
+                "unit.005",
+                "unit.006"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CATALOG-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/i18n/catalogs/ru.json",
+          "role": "site-description",
+          "source": {
+            "path": "site/src/i18n/catalogs/ru.json",
+            "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.catalog",
+                "catalog.siteDescription",
+                "unit.003"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/ru.json",
+          "role": "language-picker-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/ru.json",
+            "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.catalog",
+                "catalog.languagePickerIntro",
+                "unit.055"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/i18n/catalogs/ru.json",
+          "role": "eyebrow-home-title-home-intro",
+          "source": {
+            "path": "site/src/i18n/catalogs/ru.json",
+            "sha256": "eab979016a4327b8e034331e4b0ae27025475517f7aea1eae3b1969c57a5d1a0"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.catalog",
+                "catalog.eyebrow",
+                "catalog.homeTitle",
+                "catalog.homeIntro",
+                "reading.009",
+                "unit.004",
+                "unit.005",
+                "unit.006"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH00-CONTRACT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/00-llm-parts.md",
+          "role": "history-section-title",
+          "source": {
+            "path": "curriculum/chapters/00-llm-parts.md",
+            "sha256": "93d0b4f31555a7693cc337ae12bc5cfc38d681fda0fcf2f5c7ffdd184c2ee4ad"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.008",
+                "source.002"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "curriculum/chapters/00-llm-parts.md",
+          "role": "terminal-map-handoff",
+          "source": {
+            "path": "curriculum/chapters/00-llm-parts.md",
+            "sha256": "93d0b4f31555a7693cc337ae12bc5cfc38d681fda0fcf2f5c7ffdd184c2ee4ad"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.003",
+                "source.002"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH00-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/en/00-llm-parts.mdx",
+          "role": "page-title",
+          "source": {
+            "path": "site/src/content/chapters/en/00-llm-parts.mdx",
+            "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.006",
+                "unit.010",
+                "unit.018",
+                "unit.020",
+                "unit.031"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/00-llm-parts.mdx",
+          "role": "diagram-isolated-labels",
+          "source": {
+            "path": "site/src/content/chapters/en/00-llm-parts.mdx",
+            "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.006",
+                "unit.023",
+                "unit.024",
+                "unit.025",
+                "unit.026",
+                "unit.027",
+                "unit.028",
+                "unit.056"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/00-llm-parts.mdx",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "site/src/content/chapters/en/00-llm-parts.mdx",
+            "sha256": "9bc85760cc2404fec2e9d871ed97d0558b6ec04bb320ccc36878bbe77238d218"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.003",
+                "reading.013",
+                "source.006"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH00-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/ru/00-llm-parts.mdx",
+          "role": "page-title",
+          "source": {
+            "path": "site/src/content/chapters/ru/00-llm-parts.mdx",
+            "sha256": "95ede75be454f806f945c9502647fe9939e16aaa9a09b27f346c776e841855b1"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.00",
+                "unit.010",
+                "unit.018",
+                "unit.020",
+                "unit.031"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/ru/00-llm-parts.mdx",
+          "role": "diagram-isolated-labels",
+          "source": {
+            "path": "site/src/content/chapters/ru/00-llm-parts.mdx",
+            "sha256": "95ede75be454f806f945c9502647fe9939e16aaa9a09b27f346c776e841855b1"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.00",
+                "unit.023",
+                "unit.024",
+                "unit.025",
+                "unit.026",
+                "unit.027",
+                "unit.028",
+                "unit.056"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH32-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/32-decoder-model.md",
+          "role": "outcome-integration-wording",
+          "source": {
+            "path": "curriculum/chapters/32-decoder-model.md",
+            "sha256": "4ea6e03fcd48942718fd6c1e2d4cac5a1fc6e52382e3fa84b4404cce53335ded"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.004",
+                "source.003"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/32-decoder-model.mdx",
+          "role": "isolated-headings-captions",
+          "source": {
+            "path": "site/src/content/chapters/en/32-decoder-model.mdx",
+            "sha256": "8229d75316ed06f5f09c720aa3633fecf9b5795a3d10ec3a8bd2a696af90ca6e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.007",
+                "unit.034",
+                "unit.035",
+                "unit.057"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH38-CONTRACT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/38-cached-generation.md",
+          "role": "scope-integration",
+          "source": {
+            "path": "curriculum/chapters/38-cached-generation.md",
+            "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.006",
+                "source-unit.016",
+                "source.004"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "source-unit.016"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "curriculum/chapters/38-cached-generation.md",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "curriculum/chapters/38-cached-generation.md",
+            "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.007",
+                "source.004"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH38-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/en/38-cached-generation.mdx",
+          "role": "isolated-section-handoff",
+          "source": {
+            "path": "site/src/content/chapters/en/38-cached-generation.mdx",
+            "sha256": "32f91f116c5efa2ec99b45b6a5a34f7932b5f1b8067180711a5944162527fec3"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.007",
+                "reading.015",
+                "source.008",
+                "unit.039"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH38-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/ru/38-cached-generation.mdx",
+          "role": "isolated-section-handoff",
+          "source": {
+            "path": "site/src/content/chapters/ru/38-cached-generation.mdx",
+            "sha256": "ec3fea79d544a70fd2e3d6f982a347881bc947be379277471e0e4fb6cf767405"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.38",
+                "reading.015",
+                "unit.039"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-CONTRACT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "title",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.024",
+                "source.005"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.008",
+                "source.005"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-EN-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "title",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.009",
+                "unit.013",
+                "unit.028",
+                "unit.042",
+                "unit.045",
+                "unit.047"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "description",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.009",
+                "unit.014",
+                "unit.044",
+                "unit.048"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "isolated-terminal-heading",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.009",
+                "unit.051"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "role": "terminal-claim-handoff",
+          "source": {
+            "path": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+            "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.008",
+                "reading.016",
+                "source.009"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-OUTPUT-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "rust/demos/ch39-end-to-end-llm/expected.txt",
+          "role": "trace-handoff",
+          "source": {
+            "path": "rust/demos/ch39-end-to-end-llm/expected.txt",
+            "sha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "embedded-expected-trace",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.022",
+                "source.005",
+                "unit.050"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-CH39-RU-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+          "role": "embedded-english-trace",
+          "source": {
+            "path": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+            "sha256": "702a6e768040c26470bd38d5840f9bae8f04cf75e33d0a03b3614c1fa25affe9"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.39",
+                "unit.050"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+          "role": "isolated-terminal-title-claim",
+          "source": {
+            "path": "site/src/content/chapters/ru/39-end-to-end-llm.mdx",
+            "sha256": "702a6e768040c26470bd38d5840f9bae8f04cf75e33d0a03b3614c1fa25affe9"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "doc.lesson.39",
+                "reading.016",
+                "unit.051"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-EVAL-01",
+      "disposition": "preserve",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/34-final-evaluation.md",
+          "role": "evidence-classification",
+          "source": {
+            "path": "curriculum/chapters/34-final-evaluation.md",
+            "sha256": "ade774f925dbaf5c830651ea5067fd98e6d4573c727497c3264e2bf7725ae38b"
+          },
+          "mode": "control",
+          "inventoryLinks": []
+        },
+        {
+          "canonicalPath": "site/src/content/chapters/en/34-final-evaluation.mdx",
+          "role": "evidence-classification",
+          "source": {
+            "path": "site/src/content/chapters/en/34-final-evaluation.mdx",
+            "sha256": "095902ed5db207ba601f29e2fedd5f40fa427badd0aa1c5d27bdb942dad07791"
+          },
+          "mode": "control",
+          "inventoryLinks": []
+        },
+        {
+          "canonicalPath": "rust/demos/ch39-end-to-end-llm/expected.txt",
+          "role": "metrics-evidence-trace",
+          "source": {
+            "path": "rust/demos/ch39-end-to-end-llm/expected.txt",
+            "sha256": "92a17c359cb1fb68ab89778bfb985ad8de87a88bddbffded3f17c69c3e9e1ff5"
+          },
+          "mode": "control",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            },
+            {
+              "locale": "russian",
+              "surfaceIds": [
+                "unit.050"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-01",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "document-title",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": []
+        },
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "final-target-intro",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": []
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-02",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "target-boundary-section",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": []
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-03",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "chapter-32-to-33-handoff",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": []
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-04",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "chapter-38-to-39-handoff",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": []
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-PLAN-05",
+      "disposition": "reframe",
+      "ownerStep": "design-functional-laptop-llm-curriculum-extension",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "chapter-39-outcome",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": []
+        },
+        {
+          "canonicalPath": "curriculum/course-plan.md",
+          "role": "terminal-handoff",
+          "source": {
+            "path": "curriculum/course-plan.md",
+            "sha256": "d9bd8273e3a3c834d093b2d1113b683acc729029696d5010915ad0c9a4a48868"
+          },
+          "mode": "prior-plan",
+          "inventoryLinks": []
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-README-01",
+      "disposition": "reframe",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "README.md",
+          "role": "repository-title",
+          "source": {
+            "path": "README.md",
+            "sha256": "60b61ddae1b47709fc42a31ed2d267f6709028e7f4dff67796535d636fb8f896"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source-unit.001",
+                "source.001"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "README.md",
+          "role": "repository-intro",
+          "source": {
+            "path": "README.md",
+            "sha256": "60b61ddae1b47709fc42a31ed2d267f6709028e7f4dff67796535d636fb8f896"
+          },
+          "mode": "publication",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "reading.001",
+                "source.001"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surfaceId": "OVER-SCOPE-01",
+      "disposition": "preserve",
+      "ownerStep": "reframe-functional-reference-core-surfaces",
+      "locators": [
+        {
+          "canonicalPath": "curriculum/chapters/39-end-to-end-llm.md",
+          "role": "explicit-limitations",
+          "source": {
+            "path": "curriculum/chapters/39-end-to-end-llm.md",
+            "sha256": "ec6136d687632a8eaffe77a377798a1ebd13bf00462c15bab3f08d80461f5140"
+          },
+          "mode": "control",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.005"
+              ]
+            }
+          ]
+        },
+        {
+          "canonicalPath": "curriculum/chapters/38-cached-generation.md",
+          "role": "explicit-omissions",
+          "source": {
+            "path": "curriculum/chapters/38-cached-generation.md",
+            "sha256": "14b9eb366374ea4baeafc4a46e8ffb08f9a7fdc1dffd8890add03e1b1e49dcbf"
+          },
+          "mode": "control",
+          "inventoryLinks": [
+            {
+              "locale": "english",
+              "surfaceIds": [
+                "source.004"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "localeRouting": {
+    "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/routing.json",
+    "sha256": "b51214218f0d6055f49bcdcbc0491007b89aabe0e452bde6980c1c50f72f5222"
+  },
+  "localeAuthorContext": {
+    "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/frozen/author-context.json",
+    "sha256": "6e1d527f2d6c28190b999cfe13ec68a8b06ea7c99d8b58539aa8e5c1d8751935"
+  }
+}

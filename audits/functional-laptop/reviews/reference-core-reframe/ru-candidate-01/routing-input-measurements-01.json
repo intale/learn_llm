@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "contexts": [
+    {
+      "role": "bilingual",
+      "logicalContextId": "run04_bilingual_review_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/contexts/bilingual.json",
+          "bytes": 689,
+          "sha256": "753c64d70159bd45ad77c6dd0b063b9a60f969c2f3441aed58fe31022093303a",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/contexts/bilingual.json"
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/prompts/bilingual.txt",
+          "bytes": 1772,
+          "sha256": "068a801ffbd95614d90987e7a74cee40504a024fb6b2cdb033e37948127cfc89",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/prompts/bilingual.txt"
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/bundle/bilingual/review-bundle.json",
+          "bytes": 4467434,
+          "sha256": "edd8dc3c20208d9c645acb86f0fbe66b0160e832e49eef258d5ff86d64327256",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/bundle/bilingual/review-bundle.json"
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/schemas/review-record.schema.json",
+          "bytes": 4170,
+          "sha256": "34996de163025aa6411e19ff72a00fc75e88bbfecd8953672a50d790c4d2b41b",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/schemas/review-record.schema.json"
+        }
+      },
+      "totalBytes": 4474065
+    },
+    {
+      "role": "target-only",
+      "logicalContextId": "run04_target_only_review_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/contexts/target-only.json",
+          "bytes": 699,
+          "sha256": "1726cf446f2e054b534180e1371e2b119122554ce145e47b4a63fab0969d2fea",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/contexts/target-only.json"
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/prompts/target-only.txt",
+          "bytes": 3841,
+          "sha256": "8351e98fc29c4888c471983784515bd1c07fff8906cb13df87bbb44cc9ea9715",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/prompts/target-only.txt"
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/bundle/target-only/review-bundle.json",
+          "bytes": 2404525,
+          "sha256": "0983e86bc24359231b30f673bbecc24b61b4698b35af9f04d0201b42782de725",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/bundle/target-only/review-bundle.json"
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/schemas/review-record.schema.json",
+          "bytes": 4170,
+          "sha256": "34996de163025aa6411e19ff72a00fc75e88bbfecd8953672a50d790c4d2b41b",
+          "absolutePath": "/home/int/rust/learn_llm/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/schemas/review-record.schema.json"
+        }
+      },
+      "totalBytes": 2413235
+    }
+  ],
+  "newBytes": 6887300,
+  "priorRoutedInputBytes": 60651399,
+  "cumulativeRoutedInputBytes": 67538699,
+  "routing": {
+    "path": "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/routing.json",
+    "sha256": "b51214218f0d6055f49bcdcbc0491007b89aabe0e452bde6980c1c50f72f5222"
+  },
+  "perContextInputByteCap": 8388608,
+  "aggregateInputByteCap": 83886080,
+  "inputTokenCap": 200000,
+  "tokenUsage": "unobserved-not-estimated",
+  "status": "Fresh two-role route preparation; actual assignment and independent judgments pending"
+}

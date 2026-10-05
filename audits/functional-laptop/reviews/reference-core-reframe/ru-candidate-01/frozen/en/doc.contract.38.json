@@ -1,0 +1,229 @@
+{
+  "localizedFields": [
+    {
+      "path": [
+        "objective"
+      ],
+      "value": "Give every decoder block its own KV cache, bind that model-wide state to one exact decoder for a session, and prefill the prompt once. For the exact fixtures, advance all block caches coherently and verify that newest-position logits and generation decisions match complete-prefix references."
+    },
+    {
+      "path": [
+        "worked_inputs"
+      ],
+      "value": "Bind a two-layer, two-head decoder to its model-wide cache, prefill token IDs 0 and 1, decode token ID 2 without passing the model again, compare both newest-position logits with complete-prefix references within 2e-12, and then match seeded cached generation against the Chapter 36 uncached loop."
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "0"
+      ],
+      "value": "the current retained prefix length and therefore the number of attention scores made when one cached newest query scans all retained keys"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "1"
+      ],
+      "value": "the final retained prefix length covered by the comparison"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "2"
+      ],
+      "value": "the dense causal attention score grid rebuilt by one complete-prefix decoder replay at length t"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "3"
+      ],
+      "value": "accumulation of that attention-score work over retained lengths one through T"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "4"
+      ],
+      "value": "the cubic growth class of repeated complete-prefix attention-score grids when batch, layers, heads, and head width are fixed"
+    },
+    {
+      "path": [
+        "formula",
+        "symbols",
+        "5"
+      ],
+      "value": "the quadratic growth class of cached newest-query attention-score rows under the same fixed factors"
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "limitation"
+      ],
+      "value": "A causal Transformer decoder can generate one token at a time by replaying the complete known prefix, but that stateless interface rebuilds earlier attention score grids and key/value projections on every later call."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "later_advance"
+      ],
+      "value": "Incremental decoding made previous key/value tensors explicit state, and later LLM serving work separated one prompt phase from sequential generation while retaining key/value state across decoder layers and heads."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "modern_llm_role"
+      ],
+      "value": "Model-wide cached generation prefills one independent cache per decoder block and advances every block only when later logits are needed. In the exact fixtures, newest-position logits agree with complete-prefix references within tolerance, and restored cached generation matches selected tokens, sampling draws, final RNG state, and stopping reason."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "0",
+        "claim"
+      ],
+      "value": "Vaswani and colleagues describe a stacked autoregressive Transformer decoder whose masked self-attention prevents a position from reading later positions; their encoder-decoder architecture also includes cross-attention and does not specify a KV-cache API."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "1",
+        "claim"
+      ],
+      "value": "Shazeer's incremental self-attention receives previous key and value tensors, appends the current projected key and value, and returns the updated state; the paper's contribution is multi-query attention, not a claim to have invented KV caching."
+    },
+    {
+      "path": [
+        "history",
+        "llm_evolution",
+        "sources",
+        "2",
+        "claim"
+      ],
+      "value": "Kwon and colleagues separate a prompt phase from sequential generation, describe later iterations reusing cached keys and values while computing only the newest pair, and account for KV-cache state across Transformer layers and heads."
+    },
+    {
+      "path": [
+        "history",
+        "approach"
+      ],
+      "value": "Move from replaying the complete causal decoder prefix for each selection to one prompt prefill followed by stateful one-token decoder calls."
+    },
+    {
+      "path": [
+        "history",
+        "summary"
+      ],
+      "value": "The original Transformer establishes the stacked causal decoder, explicit previous-K/V interfaces expose reusable inference state, and modern LLM serving separates prompt processing from sequential decode. The implementation in this chapter checks the complete decoder/cache relationship when a session is created, retains read-only access to every parameter value for that session, prepares every block before committing any cache row, and keeps reset, counters, typed errors, and serial prompt processing explicit. These are local correctness choices, not policies prescribed by the cited sources."
+    },
+    {
+      "path": [
+        "visualization",
+        "rationale"
+      ],
+      "value": "A prompt-to-decode timeline across two distinct layer caches makes the coherently managed model-wide state, length changes, newest-position matches, and the attention-score comparison visible together."
+    },
+    {
+      "path": [
+        "decoder_connection"
+      ],
+      "value": "The scalar reference decoder can now bind compatible graph-free K/V state across all blocks for one session, prefill a prompt, and decode selected tokens without receiving the model again. The session keeps using the exact decoder it bound and retains read-only access to its parameter values. After the session ends, a weight update makes the old cache stale, so the updated model needs a newly constructed cache. Chapter 39 will connect this inference path to the bounded CPU reference pipeline, not demonstrate laptop-scale performance; inside that execution test cannot affect the selected state, while Chapter 39's checked-in decoder-lower-than-bigram loss ordering is retained only as fixed-fixture regression evidence."
+    },
+    {
+      "path": [
+        "terminology",
+        "0"
+      ],
+      "value": "cached generation"
+    },
+    {
+      "path": [
+        "terminology",
+        "1"
+      ],
+      "value": "prompt prefill"
+    },
+    {
+      "path": [
+        "terminology",
+        "2"
+      ],
+      "value": "one-token decode"
+    },
+    {
+      "path": [
+        "terminology",
+        "3"
+      ],
+      "value": "model-wide KV cache"
+    },
+    {
+      "path": [
+        "terminology",
+        "4"
+      ],
+      "value": "complete-prefix replay"
+    },
+    {
+      "path": [
+        "terminology",
+        "5"
+      ],
+      "value": "coherent cache commit"
+    },
+    {
+      "path": [
+        "terminology",
+        "6"
+      ],
+      "value": "attention-score count"
+    },
+    {
+      "path": [
+        "terminology",
+        "7"
+      ],
+      "value": "logical cache length"
+    },
+    {
+      "path": [
+        "terminology",
+        "8"
+      ],
+      "value": "cache capacity"
+    },
+    {
+      "path": [
+        "terminology",
+        "9"
+      ],
+      "value": "pseudorandom-number-generator state"
+    },
+    {
+      "path": [
+        "terminology",
+        "10"
+      ],
+      "value": "parameter-value revision"
+    },
+    {
+      "path": [
+        "terminology",
+        "11"
+      ],
+      "value": "stale model-wide KV cache"
+    }
+  ]
+}

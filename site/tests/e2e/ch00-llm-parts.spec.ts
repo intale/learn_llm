@@ -32,9 +32,9 @@ const russianPolicyChapterIds = new Set(
 
 const chapterCopy = {
   en: {
-    title: "A map of a modern LLM",
+    title: "A map of the scalar reference decoder",
     description:
-      "See how tokenization, embeddings, decoder blocks, attention, feed-forward layers, training, sampling, and caching fit together in a decoder-only LLM.",
+      "In the tiny CPU reference, tokenization gives IDs, embeddings give features, and decoder blocks plus a vocabulary head produce logits. Sampling selects tokens, caching reuses attention state, and training updates the same weights. This architectural map does not establish measured laptop-scale capability.",
     revisionLabel: "Content revision",
     headings: [
       "See the system before its mechanisms",
@@ -43,7 +43,7 @@ const chapterCopy = {
       "Use the map as a table of contents",
       "Start with the model’s input boundary",
     ],
-    systemSection: "How the complete system connects",
+    systemSection: "How the scalar reference connects",
     forward: "Shared forward path",
     generation: "Generation branch",
     learning: "Learning branch",
@@ -78,9 +78,9 @@ const chapterCopy = {
     chapterLong: "Chapter",
   },
   ru: {
-    title: "Карта устройства современной LLM",
+    title: "Карта эталонного декодера со скалярными вычислениями",
     description:
-      "Посмотрите, как токенизация, эмбеддинги, блоки декодера, внимание, ветви прямого распространения, обучение, выбор токена и KV-кэш соединяются в LLM только с декодером.",
+      "В небольшой эталонной реализации со скалярными вычислениями на CPU токенизация даёт ID, эмбеддинги — признаки, а блоки декодера и проекция на словарь — логиты. При генерации выбираются токены, кэш позволяет повторно использовать состояние внимания, а обучение обновляет те же веса. Эта карта устройства не служит измерением возможностей более крупной LLM на ноутбуке.",
     revisionLabel: "Версия материала",
     headings: [
       "Сначала взгляните на систему целиком",
@@ -89,7 +89,7 @@ const chapterCopy = {
       "Используйте карту как оглавление",
       "Начните с входной границы модели",
     ],
-    systemSection: "Как связана вся система",
+    systemSection: "Связи внутри эталонной реализации со скалярными вычислениями",
     forward: "Общий путь прямого распространения",
     generation: "Генерация",
     learning: "Обучение",
@@ -188,7 +188,7 @@ async function splitOrdinaryWords(diagram: Locator) {
       while (walker.nextNode()) {
         const node = walker.currentNode as Text;
         for (const match of node.data.matchAll(
-          /[\p{L}\p{M}]+(?:['’‑–—-][\p{L}\p{M}]+)*/gu,
+          /[\p{L}\p{M}]+(?:['’‑][\p{L}\p{M}]+)*/gu,
         )) {
           const range = document.createRange();
           range.setStart(node, match.index ?? 0);
@@ -419,7 +419,7 @@ async function expectChapter(page: Page, locale: ChapterLocale) {
     chapterId,
     locale,
     order: 0,
-    revision: 5,
+    revision: 6,
     revisionLabel: copy.revisionLabel,
     title: copy.title,
     equivalentLocales: ["en", "ru"],
@@ -738,6 +738,30 @@ async function expectCompleteChapterLinks(
     0,
   );
 }
+
+test('ordinary-word wrapping permits punctuation breaks but rejects broken words', async ({ page }) => {
+  await page.setContent('<main><div data-diagram-box style="font:16px monospace;width:7ch"></div></main>');
+  const box = page.locator('[data-diagram-box]');
+  for (const text of ['fixed-fixture', 'fixed–fixture', 'fixed—fixture']) {
+    await box.evaluate((node, text) => { node.textContent = text; }, text);
+    const lineCount = await box.evaluate(node => {
+      const range = document.createRange();
+      range.selectNodeContents(node.firstChild!);
+      return range.getClientRects().length;
+    });
+    expect(lineCount, `${text} fixture actually wraps`).toBeGreaterThan(1);
+    expect(await splitOrdinaryWords(page.locator('main')), `${text} permits punctuation break`).toEqual([]);
+  }
+  for (const text of ['tokenizer', 'fixed‑fixture', 'decoder’s', "decoder's"]) {
+    await box.evaluate((node, text) => {
+      const element = node as HTMLElement;
+      element.style.width = '4ch';
+      element.style.overflowWrap = 'anywhere';
+      element.textContent = text;
+    }, text);
+    expect(await splitOrdinaryWords(page.locator('main')), `${text} remains bound word content`).toEqual([`0:${text}`]);
+  }
+});
 
 test.describe(
   "Chapter 0 LLM-parts orientation",

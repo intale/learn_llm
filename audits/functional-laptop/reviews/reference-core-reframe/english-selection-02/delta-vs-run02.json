@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "predecessor": {
+    "path": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/publish/audits/functional-laptop/reviews/reference-core-reframe/final-en-selection-01/selected-surfaces-proposal.json",
+    "sha256": "23cd37826cb94d13fbc4123a3ec71d4df92ed232dcc627857f180e06a25a9b3c",
+    "bytes": 236027
+  },
+  "counts": {
+    "source": 11,
+    "built": 8,
+    "reading": 16,
+    "isolated": 58
+  },
+  "existingReadingAndIsolatedValuesRolesRequirementsUnchanged": true,
+  "changedCompleteRequirements": [
+    "source.009",
+    "built.008"
+  ],
+  "appendedUnits": [
+    {
+      "id": "source-unit.044",
+      "documentId": "source.009",
+      "canonicalPath": "site/src/content/chapters/en/39-end-to-end-llm.mdx",
+      "kind": "copyable-command",
+      "value": "cargo run --quiet --locked -p ch39-end-to-end-llm",
+      "source": {
+        "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/en/39-end-to-end-llm.mdx",
+        "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e",
+        "bytes": 40541
+      },
+      "utf16StartOffset": 31318,
+      "origin": {
+        "source": {
+          "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/site/src/content/chapters/en/39-end-to-end-llm.mdx",
+          "sha256": "61b261bf14c3fa18171e97c95ba87f48b8656ffac06ff2258e39a48e6974605e",
+          "bytes": 40541
+        },
+        "utf16StartOffset": 31318,
+        "utf16EndOffset": 31367,
+        "utf8StartOffset": 31367,
+        "utf8EndOffset": 31416
+      },
+      "roleRequirement": "Provide the literal Cargo command for running the Chapter 39 demo, preserving the package name and the two ASCII hyphens of each long option so the command can be copied and executed.",
+      "requirementKey": "ch39-cargo-command"
+    },
+    {
+      "id": "unit.059",
+      "documentId": "built.008",
+      "kind": "copyable-command",
+      "value": "cargo run --quiet --locked -p ch39-end-to-end-llm",
+      "valueType": "text",
+      "origin": {
+        "document": {
+          "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/39-end-to-end-llm/index.html",
+          "sha256": "99a811692936689a8da6f9bd5eefab48641128707c67ccb34bed462dae18f96d",
+          "bytes": 288100
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          107,
+          1
+        ],
+        "tag": "code",
+        "attributes": {},
+        "locator": null,
+        "sourceCodeLocation": {
+          "startLine": 566,
+          "startCol": 8,
+          "startOffset": 228437,
+          "endLine": 566,
+          "endCol": 70,
+          "endOffset": 228499,
+          "startTag": {
+            "startLine": 566,
+            "startCol": 8,
+            "startOffset": 228437,
+            "endLine": 566,
+            "endCol": 14,
+            "endOffset": 228443
+          },
+          "endTag": {
+            "startLine": 566,
+            "startCol": 63,
+            "startOffset": 228492,
+            "endLine": 566,
+            "endCol": 70,
+            "endOffset": 228499
+          }
+        }
+      },
+      "roleRequirement": "Provide the literal Cargo command for running the Chapter 39 demo, preserving the package name and the two ASCII hyphens of each long option so the command can be copied and executed.",
+      "requirementKey": "ch39-cargo-command"
+    }
+  ],
+  "staticFiles": 169,
+  "changedStaticFiles": [
+    {
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/en/course/39-end-to-end-llm/index.html",
+      "sha256": "99a811692936689a8da6f9bd5eefab48641128707c67ccb34bed462dae18f96d",
+      "bytes": 288100,
+      "relativePath": "en/course/39-end-to-end-llm/index.html",
+      "priorSha256": "f1f8fe200c0c144127e98e6d67ad7f2fec7ba2c43b8bebb844238e5c0d506319",
+      "unchanged": false
+    },
+    {
+      "path": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/artifacts/functional-laptop/reframes/reference-core/20261005T045500Z-04/build-01/ru/course/39-end-to-end-llm/index.html",
+      "sha256": "c298cdf27252dde4ea0d587fd1e1fd857db50b9d71f18926c041eebb7ff9fec3",
+      "bytes": 328416,
+      "relativePath": "ru/course/39-end-to-end-llm/index.html",
+      "priorSha256": "2c7af749db94342acf73fbbe68e9ce4396f10f76779c5826a6a93c9990769212",
+      "unchanged": false
+    }
+  ],
+  "limitations": "Exact extraction/provenance only; no semantic or publication approval."
+}

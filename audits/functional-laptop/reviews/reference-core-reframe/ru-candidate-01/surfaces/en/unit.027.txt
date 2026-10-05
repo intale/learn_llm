@@ -1,0 +1,1 @@
+Trace inference and learning inside the scalar reference, inspect its decoder block, and follow each part's implementation chapter. Scalar reference capstone: Connect the reference parts in one bounded training-to-generation example. Ch 39

@@ -1,0 +1,1 @@
+Connect tensors, attention, training, and generation in one bounded CPU Rust example. The planned laptop track extends that reference; its implementation and measured capabilities are separate work.

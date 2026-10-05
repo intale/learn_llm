@@ -1,0 +1,25 @@
+   Compiling ch39-end-to-end-llm v0.1.0 (/workspace/rust/demos/ch39-end-to-end-llm)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.11s
+     Running unittests src/lib.rs (target/debug/deps/ch39_end_to_end_llm-13b9e29a3215d5c3)
+
+running 5 tests
+test tests::completes_the_frozen_pipeline_within_the_cpu_budget ... ok
+test tests::generated_stdout_and_trace_match_the_frozen_files_byte_for_byte ... ok
+test tests::historical_contrast_stays_on_the_road_to_modern_llms ... ok
+test tests::records_the_fixed_fixture_loss_order_after_one_local_test_access ... ok
+test tests::reload_and_cached_generation_preserve_exact_evidence ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.75s
+
+     Running unittests src/main.rs (target/debug/deps/ch39_end_to_end_llm-db2261abe23ef538)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests ch39_end_to_end_llm
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

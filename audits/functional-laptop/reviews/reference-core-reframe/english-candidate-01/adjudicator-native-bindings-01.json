@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "routingPath": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing.json",
+  "routingSha256": "e704804f646d5572423864b5d07c4e442bf5bedbfb47b2e7da4e1e802f120349",
+  "parentThreadId": "019f744e-94e7-7861-a1c6-79205fb55b53",
+  "actualAssignedContentAndJudgmentContexts": 37,
+  "cumulativeRoutedInputBytes": 60651399,
+  "adjudicators": [
+    {
+      "role": "technical-pedagogical",
+      "logicalContextId": "run04_technical_adjudication_01",
+      "actualAgentPath": "/root/adjudicate_r4c9_technical",
+      "nativeThreadId": "01a10a8c-1012-7b03-ba88-4937c4576535",
+      "journal": "/home/int/.codex/sessions/2026/10/05/rollout-2026-10-05T07-31-53-01a10a8c-1012-7b03-ba88-4937c4576535.jsonl",
+      "startedAt": "2026-10-05T05:31:53.749Z",
+      "turnContextAt": "2026-10-05T05:31:55.213Z",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "canonicalPromptSha256": "328ba25abc094aebe0573e4f40c2440643f48d7c68fd51f7ff6c2370569b8017"
+    },
+    {
+      "role": "isolated-surface",
+      "logicalContextId": "run04_isolated_adjudication_01",
+      "actualAgentPath": "/root/adjudicate_r4c9_isolated",
+      "nativeThreadId": "01a10a8c-ba2e-7cc1-8b0c-efa46d2f23de",
+      "journal": "/home/int/.codex/sessions/2026/10/05/rollout-2026-10-05T07-32-37-01a10a8c-ba2e-7cc1-8b0c-efa46d2f23de.jsonl",
+      "startedAt": "2026-10-05T05:32:37.297Z",
+      "turnContextAt": "2026-10-05T05:32:38.429Z",
+      "model": "gpt-6.1-sol",
+      "reasoning": "medium",
+      "canonicalPromptSha256": "1eb6b75e802bfa0f7ef5f3aaeeffdb3453c19a467bf121367c424755e9a1bb83"
+    }
+  ],
+  "promptDeliveryProvenance": "Root explicitly reported exact canonical initial task bytes and four-path-only transport. Prepared prompt files independently match executable canonical output. Native journal incoming agent_message records expose transport headers plus encrypted payload; delivered payload bytes are not independently decrypted or recomputed here.",
+  "limitations": "Actual configured native metadata, not backend telemetry or cryptographic access isolation. No private judgment content read and no verdict assumed."
+}

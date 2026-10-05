@@ -1,0 +1,1 @@
+Make the scalar reference model boundary explicit in Rust

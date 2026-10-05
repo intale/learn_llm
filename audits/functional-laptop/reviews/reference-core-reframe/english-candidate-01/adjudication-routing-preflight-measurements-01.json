@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "reference-core.en.command.final.20261005.r1",
+  "scopeId": "reference-core.en.command.final",
+  "routing": {
+    "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing.json",
+    "sha256": "e704804f646d5572423864b5d07c4e442bf5bedbfb47b2e7da4e1e802f120349"
+  },
+  "contexts": [
+    {
+      "role": "technical-pedagogical",
+      "logicalContextId": "run04_technical_adjudication_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/contexts/technical-pedagogical.json",
+          "sha256": "09798cae7dbdab590734cfb82d98730d9c26e560208507a8e6edaccb16b87cab",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/contexts/technical-pedagogical.json",
+          "bytes": 1341
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/prompts/technical-pedagogical.json",
+          "sha256": "328ba25abc094aebe0573e4f40c2440643f48d7c68fd51f7ff6c2370569b8017",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/prompts/technical-pedagogical.json",
+          "bytes": 2716
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-bundle/technical-pedagogical/adjudication-bundle.json",
+          "sha256": "0dad336671215b8b4f430ef530d56d468b112c1f1d4056ea5d7dd9d70de56ca4",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-bundle/technical-pedagogical/adjudication-bundle.json",
+          "bytes": 2996878
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/adjudication-record.schema.json",
+          "sha256": "6463982e2e84c5cea564699242abc5e681d13364e3b7457961d62f9b3c26ca69",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/adjudication-record.schema.json",
+          "bytes": 9175
+        }
+      },
+      "totalBytes": 3010110
+    },
+    {
+      "role": "isolated-surface",
+      "logicalContextId": "run04_isolated_adjudication_01",
+      "files": {
+        "context": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/contexts/isolated-surface.json",
+          "sha256": "b07311474dc964809811bbf1b5f0b3cefdf724bbb1534434e04f1c209a679395",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/contexts/isolated-surface.json",
+          "bytes": 1320
+        },
+        "prompt": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/prompts/isolated-surface.json",
+          "sha256": "1eb6b75e802bfa0f7ef5f3aaeeffdb3453c19a467bf121367c424755e9a1bb83",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-routing/prompts/isolated-surface.json",
+          "bytes": 2701
+        },
+        "bundle": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-bundle/isolated-surface/adjudication-bundle.json",
+          "sha256": "c80f1ef064f735379308c07dd94efbdb42feb839977f544b291f3959c0485b5d",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/adjudication-bundle/isolated-surface/adjudication-bundle.json",
+          "bytes": 87027
+        },
+        "schema": {
+          "path": "audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/adjudication-record.schema.json",
+          "sha256": "6463982e2e84c5cea564699242abc5e681d13364e3b7457961d62f9b3c26ca69",
+          "absolutePath": "/source/.build/runs/20261005T045500Z-reference-core-command-reframe-04/publish/audits/functional-laptop/reviews/reference-core-reframe/english-candidate-01/schemas/adjudication-record.schema.json",
+          "bytes": 9175
+        }
+      },
+      "totalBytes": 100223
+    }
+  ],
+  "newBytes": 3110333,
+  "priorRoutedInputBytes": 57541066,
+  "cumulativeRoutedInputBytes": 60651399,
+  "effectiveInputByteCapPerContext": 8388608,
+  "effectiveCumulativeInputByteCap": 83886080,
+  "inputTokenCeiling": 200000,
+  "tokenUsage": "unobserved-not-estimated",
+  "limitations": "Accessible file byte accounting, not actual model token usage. Planned route charge until actual context assignment. No model judgment or publication approval."
+}

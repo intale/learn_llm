@@ -1,0 +1,1 @@
+Newest-logit equivalence Agreement within a specified numerical tolerance between cached and complete-prefix logits at the newest token position. The chapter checks selected tokens separately on fixed examples, with the same selection policy and initial random-generator state. Close logits alone do not guarantee the same selected token.

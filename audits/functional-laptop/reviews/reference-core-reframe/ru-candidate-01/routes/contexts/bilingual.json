@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "contextId": "run04_bilingual_review_01",
+  "role": "bilingual",
+  "freshContext": true,
+  "model": "gpt-6.1-sol",
+  "reasoning": "medium",
+  "createdAt": "2026-10-05T05:41:39.165Z",
+  "accessBoundary": [
+    "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/contexts/bilingual.json",
+    "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/prompts/bilingual.txt",
+    "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/bundle/bilingual/review-bundle.json",
+    "audits/functional-laptop/reviews/reference-core-reframe/ru-candidate-01/routes/schemas/review-record.schema.json"
+  ]
+}

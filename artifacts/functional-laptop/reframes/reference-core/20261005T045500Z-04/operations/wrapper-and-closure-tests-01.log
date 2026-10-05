@@ -1,0 +1,170 @@
+TAP version 13
+# Subtest: reference-core dispatch uses only the fixed canonical verifier roots and complete seal inputs
+ok 1 - reference-core dispatch uses only the fixed canonical verifier roots and complete seal inputs
+  ---
+  duration_ms: 0.752369
+  ...
+# Subtest: measured PostgreSQL dispatch uses its separate frozen verifier root
+ok 2 - measured PostgreSQL dispatch uses its separate frozen verifier root
+  ---
+  duration_ms: 0.152848
+  ...
+# Subtest: unknown roots are rejected instead of accepting caller-supplied review paths
+ok 3 - unknown roots are rejected instead of accepting caller-supplied review paths
+  ---
+  duration_ms: 0.289176
+  ...
+# Subtest: the real English verifier rejects a missing review specification
+ok 4 - the real English verifier rejects a missing review specification
+  ---
+  duration_ms: 22.382906
+  ...
+# Subtest: a missing or invalid English seal rejection is propagated and prevents a later verifier call
+ok 5 - a missing or invalid English seal rejection is propagated and prevents a later verifier call
+  ---
+  duration_ms: 0.308763
+  ...
+# Subtest: a Russian verifier rejection is propagated without rewriting its raw review records
+ok 6 - a Russian verifier rejection is propagated without rewriting its raw review records
+  ---
+  duration_ms: 0.205638
+  ...
+# Subtest: successful dispatch runs English then Russian and returns no semantic surrogate
+ok 7 - successful dispatch runs English then Russian and returns no semantic surrogate
+  ---
+  duration_ms: 0.20675
+  ...
+# Subtest: synthetic mapping fixture covers all 21 frozen IDs, owners and dispositions; not a semantic receipt
+ok 8 - synthetic mapping fixture covers all 21 frozen IDs, owners and dispositions; not a semantic receipt
+  ---
+  duration_ms: 1.995103
+  ...
+# Subtest: actual exact frozen coverage table and accepted plan bind the same21 records
+ok 9 - actual exact frozen coverage table and accepted plan bind the same21 records
+  ---
+  duration_ms: 8.602098
+  ...
+# Subtest: rejects missing ID
+ok 10 - rejects missing ID
+  ---
+  duration_ms: 0.390556
+  ...
+# Subtest: rejects extra ID
+ok 11 - rejects extra ID
+  ---
+  duration_ms: 0.134023
+  ...
+# Subtest: rejects duplicate ID
+ok 12 - rejects duplicate ID
+  ---
+  duration_ms: 0.283194
+  ...
+# Subtest: rejects order drift
+ok 13 - rejects order drift
+  ---
+  duration_ms: 0.719728
+  ...
+# Subtest: rejects owner drift
+ok 14 - rejects owner drift
+  ---
+  duration_ms: 0.262906
+  ...
+# Subtest: rejects disposition drift
+ok 15 - rejects disposition drift
+  ---
+  duration_ms: 0.161505
+  ...
+# Subtest: rejects role drift
+ok 16 - rejects role drift
+  ---
+  duration_ms: 0.374988
+  ...
+# Subtest: rejects missing locator
+ok 17 - rejects missing locator
+  ---
+  duration_ms: 0.434459
+  ...
+# Subtest: rejects missing surface
+ok 18 - rejects missing surface
+  ---
+  duration_ms: 0.446452
+  ...
+# Subtest: rejects duplicate link
+ok 19 - rejects duplicate link
+  ---
+  duration_ms: 0.189077
+  ...
+# Subtest: rejects missing publication link
+ok 20 - rejects missing publication link
+  ---
+  duration_ms: 0.146235
+  ...
+# Subtest: rejects unknown locale
+ok 21 - rejects unknown locale
+  ---
+  duration_ms: 0.130316
+  ...
+# Subtest: rejects unknown object field
+ok 22 - rejects unknown object field
+  ---
+  duration_ms: 0.129744
+  ...
+# Subtest: rejects prior-plan falsely reviewed
+ok 23 - rejects prior-plan falsely reviewed
+  ---
+  duration_ms: 0.306398
+  ...
+# Subtest: bound descriptor failures propagate; hash checks cannot be replaced with mapping success
+ok 24 - bound descriptor failures propagate; hash checks cannot be replaced with mapping success
+  ---
+  duration_ms: 0.370829
+  ...
+# Subtest: fixed control selectors retain exact bytes and reject ambiguous/missing boundaries
+ok 25 - fixed control selectors retain exact bytes and reject ambiguous/missing boundaries
+  ---
+  duration_ms: 0.220385
+  ...
+# Subtest: actual current preserved controls match fixed baseline365f70d hashes
+ok 26 - actual current preserved controls match fixed baseline365f70d hashes
+  ---
+  duration_ms: 0.98082
+  ...
+# Subtest: unsafe paths, symlink files and symlink parents are rejected
+ok 27 - unsafe paths, symlink files and symlink parents are rejected
+  ---
+  duration_ms: 0.850935
+  ...
+# Subtest: no final closure inputs means failure, never an implicit publication pass
+ok 28 - no final closure inputs means failure, never an implicit publication pass
+  ---
+  duration_ms: 0.357955
+  ...
+# Subtest: same maintained final receipt dispatch is closed and preserves nonzero results
+ok 29 - same maintained final receipt dispatch is closed and preserves nonzero results
+  ---
+  duration_ms: 0.289396
+  ...
+# Subtest: file bytes, digest and descriptor keys are hash-bound
+ok 30 - file bytes, digest and descriptor keys are hash-bound
+  ---
+  duration_ms: 0.484223
+  ...
+# Subtest: both final inventories must equal their maintained binding hashes and identities
+ok 31 - both final inventories must equal their maintained binding hashes and identities
+  ---
+  duration_ms: 2.879072
+  ...
+# Subtest: tampering each preserved control fails, without claiming whole Chapter38/39 unchanged
+ok 32 - tampering each preserved control fails, without claiming whole Chapter38/39 unchanged
+  ---
+  duration_ms: 3.653362
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 132.549245

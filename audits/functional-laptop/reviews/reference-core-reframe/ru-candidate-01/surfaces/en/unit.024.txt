@@ -1,0 +1,1 @@
+The tiny CPU reference maps text to logits. Generation uses those logits to select the next token; learning computes loss from a target token, derives gradients, and uses AdamW to update the same weights. These paths explain computation, not language quality or laptop performance.

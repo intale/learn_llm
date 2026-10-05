@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rootApprovedProposalSha256": "27326faec5942dca4abc02eace54d1e05f9c328a4d583948cf8a33afd7ea1be8",
+  "reports": [
+    {
+      "input": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/authoring/bilingual-rubric-03.md",
+      "inputSha256": "8fb4c9ef69dbb7e620612d34a772746d07f1b16db3d9bcc90c6c005ea9160eb2",
+      "output": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/authoring/bilingual-rubric-04.md",
+      "outputSha256": "3bed0afe6db2a0f6d37bf87c4e7b6ec5949e0cf1be01c56330e5ac66180e74d3",
+      "roles": 84,
+      "prefixAndSuffixByteExact": true
+    },
+    {
+      "input": ".build/runs/20261005T020709Z-reference-core-cheat-sheet-correction-02/authoring/target-only-rubric-03.md",
+      "inputSha256": "45842351ee5d956c841e58df7ac0100b6ddf5f5deeac06f836e020f43b645623",
+      "output": ".build/runs/20261005T045500Z-reference-core-command-reframe-04/authoring/target-only-rubric-04.md",
+      "outputSha256": "a52ee87f5a83b0b2922ad770a6795ff1da0989f8111fd9e368c709ff4116b519",
+      "roles": 84,
+      "prefixAndSuffixByteExact": true
+    }
+  ],
+  "limitations": "Mechanical approved neutral-map projection only, no language judgment or new role semantics."
+}
