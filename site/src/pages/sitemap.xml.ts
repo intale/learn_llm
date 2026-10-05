@@ -2,7 +2,7 @@ import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
 
 import { locales } from '../i18n';
-import { findPublishableChapterSets } from '../lib/chapter-publication';
+import { findPublishableChapterSets } from '../lib/functional-course-routes';
 import { renderSitemapXml } from '../../sitemap.config.mjs';
 
 export const prerender = true;
@@ -20,7 +20,7 @@ export const GET: APIRoute = async ({ site }) => {
       ? []
       : await getCollection('chapters');
   const chapterRoutes = findPublishableChapterSets(allChapters).flatMap((set) =>
-    set.activeLocales.map(
+    set.activeLocales.filter((locale) => set.byLocale[locale]).map(
       (locale) => `/${locale}/course/${set.chapterId}/`,
     ),
   );

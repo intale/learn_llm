@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-05T06:08:33Z"
+updated_at: "2026-10-05T06:19:39Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -45974,16 +45974,19 @@ builds:
             notes: "COMPLETED: current English4 and Russian2 exact chains, canonical21OVER closure, published-byte identity, scoped5Rust tests/format, current commandFirefox and host audit pass.393-file provisional inventory retained in preflight; final396-file inventory includes scoped Rust proof. Actual39contexts/67538699B. Failed prior runs unchanged; no successor claimed. User explicitly resumes Chapter40; root approved fresh reframe run04 and cost-only80MiB cumulative input/40attempt caps, retaining33 actual assigned contexts/54553360B and every earlier charge. Six fresh judgments planned, eventual39contexts; all per-context/token/output/time caps retained. Machinery owns this ledger and new run-specific preflight/extraction/preparation adapters and owned staged audit/artifact outputs; root owns content/commitments/requirements/manifests. Preserve35file run02 product stage, apply only already-authored two Ch39 code-wrapper replacements and17line test insertion to staged files, never whole canonical overlay. One cached changed-candidate render needed; unchanged Rust/tests/browser evidence reused after exact hash verification, not rerun. All failed runs/raw records remain immutable; old full-candidate language bindings are stale and not reused as new approval. New full English4chain then freshRU2 required, no exception-based broad waiver. No successor/static/Chapter40 implementation claim yet."
 
       - id: establish-functional-successor-static-integration
-        objective: "Create reusable cumulative-Rust, bilingual static-route, review-receipt and validation infrastructure without publishing a partial chapter."
+        objective: "Create reusable cumulative-Rust, active-locale static-route, review-receipt and validation infrastructure without publishing a partial chapter."
         depends_on:
           - "reframe-functional-reference-core-surfaces"
-        status: "pending"
+        status: "completed"
         inputs:
           - "Accepted extension plan"
           - "current static route, locale, content, diagram and Firefox contracts"
           - "existing rust/crates/llm-from-scratch crate"
           - "scripts/chapter-locale-config.mjs exact immutable revision-78 base reader bytes"
           - "site/src/lib/chapter-locales.ts exact immutable revision-78 typed base reader bytes"
+          - "verified predecessor commit3ddda34cc3e765a3f96021abff6000e9520f5a15 and396-file inventory58d9a3cf5869f505d405942b467be6d8c377b82bb16a5e00ede16ae88eca8519"
+          - "2026-10-05 live authority decision: existing Docker/./course;40 bilingual,41–85 English-only; private review distinct from production publication"
+          - ".build/runs/20261005T061939Z-establish-functional-successor-static-integration-01/preflight/input-fingerprint.json"
         outputs:
           - "site/src/i18n/functional-chapter-locales.json"
           - "scripts/check-site-content.mjs"
@@ -46029,30 +46032,76 @@ builds:
           - "artifacts/functional-laptop/step-output-inventories/establish-functional-successor-static-integration.json"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
+          - "configs/functional-reference-source-v1.json"
+          - "rust/crates/llm-from-scratch/src/reference_source_identity.rs"
+          - "rust/crates/llm-from-scratch/tests/reference_source_identity.rs"
+          - "scripts/README.md"
+          - "artifacts/functional-laptop/static-integration/"
+          - "Dockerfile"
         acceptance:
-          - "The immutable base chapter-locale manifest and its 0-39 reader/checker projection remain unchanged; the exact separate functional manifest owns Chapters 40-85 with locale order [en,ru]."
-          - "A successor chapter activates only as the next contiguous prefix member after its EN/RU content revision and signature agree and its contract, two sheets, both review/hash-bound locale activation seals, and complete English/Russian review receipts pass; one filesystem-neutral shared .mjs publication core is consumed by the typed Astro wrapper and plain-Node content/link checkers, with exact parity fixtures, so detail/index/navigation/sitemap/SEO/link consumers all use the same fail-closed selector."
-          - "The exact 0-39 reference manifest remains the predecessor checker boundary while a separate 40-85 extension manifest is composed for runtime content, link, sitemap, formula, cheat-sheet and Firefox discovery; all existing raw-manifest/count consumers preserve exact reference-prefix assertions and discover the extension without duplicate IDs."
-          - "The existing llm-from-scratch crate gains disjoint per-chapter module ownership without a second LLM crate."
-          - "The sole build.rs and one lib.rs include parse exhaustive multi-record chapter fragments as specified by ownership-map-v1; every allowlisted new Rust source is reachable exactly once, forbidden existing edits/binaries/assets are excluded, and missing, extra, duplicate, cross-owner, symlink or unsafe paths fail closed."
-          - "The shared diagram/full-view system and sole Firefox project are reused; no runtime model, server or database is required by the site."
-          - "One filesystem-neutral functional-course-publication.mjs selector is consumed by the typed Astro wrapper and the plain-Node content and link checkers. It activates only the contiguous successor prefix whose EN/RU lessons, both sheets, contract, two hash-bound locale catalog seals, and complete English/Russian review receipts agree."
-          - "The sole build.rs and one existing lib.rs include parse exhaustive multi-record fragments; each registered source is reachable exactly once and no src/functional/mod.rs, undeclared source, unsafe path, later clobber, or Cargo package/lock churn is introduced."
-          - "The immutable revision-78 base manifest and both base readers remain byte-identical. The separately owned functional-chapter-locale-config.mjs and functional-chapter-locales.ts compose the exact 0..39 base with the 40..85 successor projection; site/src/content.config.ts and every runtime/content/link/Astro consumer switch explicitly to that composed helper without changing the base export."
-          - "Only the closed network-none offline and Firefox runners are authoritative successor acceptance paths. Preexisting ./course run and ./course check remain non-authoritative developer workflows and are neither invoked nor trusted by this step."
-          - "The embedded ownership-map-v1 grammar is exact: every fragment is one or more three-line ASCII/LF records, records have one blank separator, the final source line has one LF and no trailing blank record, every source/module/filename matches the frozen allowlist and normalization, and every malformed, symlinked, duplicate, prefix-colliding, cross-owner, missing or extra source fails closed."
-          - "The immutable revision-78 base chapter-locale manifest and its reader/checker exports remain byte-identical for Chapters 0-39; the separate functional manifest is exactly Chapters 40-85 with locale order [en,ru], and the composed view rejects gaps, duplicates, order drift, plan/revision/signature drift, or an orphan locale."
-          - "Normal package and ./course checks reach the successor gates; check:contract dispatches the unchanged <=39 demo contract and the >=40 in-package example, expected-output and registry-fragment contract."
-          - "Detail, index, previous/next navigation, sitemap, SEO, content, links, formulas, MathML, cheat sheets and Firefox use the same composed publication decision; Chapter 39 navigation is migrated once to the shared helper and every successor spec derives previous/next from that helper."
+          - "The immutable revision-78 base manifest and both base reader/checker exports remain byte-identical; separate functional metadata owns exactly40–85 with activeLocales[en,ru] for40 and[en] for41–85 under the explicit Russian hold."
+          - "One filesystem-neutral shared production selector drives typed Astro and plain-Node detail/index/navigation/sitemap/SEO/content/link/formula/MathML/cheat-sheet/Firefox discovery. Only the contiguous next prefix member with actual active-locale revision/signature, contract, sheets, catalog activation seals and complete English/localization receipts activates; absent deferred Russian is not a blocker for41+."
+          - "A separate explicitly scoped private staged-review rendering path can render English40 before localization/review completion using declared bilingual navigation, without Russian placeholders, fabricated receipts or production activation. Translation-triggered English HTML drift invalidates the English binding."
+          - "Base0–39 prefix assertions remain exact while composed runtime discovery rejects duplicate IDs, gaps, order/plan/revision/signature drift and orphan active locales. Static setup publishes no partial40 route/navigation/sitemap."
+          - "The existing cumulative crate owns one build.rs and one lib.rs include, no second crate/mod.rs/registry/Cargo churn. Existing protected reference algorithm/config sources are unchanged; baseline lib.rs declarations remain byte-identical prefix."
+          - "ownership-map-v1 stays exact: exhaustive allowlisted chapter fragments have3ASCII/LF lines per record, one blank separator, finalLF/no extra blank; normalized functional module/source/filename mapping is exact. Missing/extra/duplicate/symlink/unsafe/nonASCII/prefix-colliding/cross-owner sources fail closed and every registered source is reached exactly once."
+          - "The narrow source-proof helper validates the compiled approved schema1 manifest, explicit40-file source census and3 dependency files using existing serde_json/ArtifactIdentity/SHA256. Unknown fields/schema, duplicate keys, unsafe/nonexact paths, invalid hashes, missing/extra/duplicate/stale inputs reject before future wrapper I/O; proof fields are private."
+          - "The shared diagram/full-view module and sole JavaScript-enabled Firefox project remain authoritative; production static HTML needs no runtime model/server/database."
+          - "Existing pinned Dockerfile and ./course workflows are the live validation authority; historical plan exclusions remain preserved in the preflight snapshot, not silently rewritten."
+          - "Normal package/course checks reach successor contract/site/example/ownership/receipt gates; <=39 demo dispatch remains unchanged and >=40 in-package examples, expected stdout and registry fragments use the new gates."
         validate:
-          - "scripts/run-functional-offline.sh --step establish-functional-successor-static-integration --target establish-functional-successor-static-integration-v1"
-          - "scripts/run-functional-firefox.sh test --step establish-functional-successor-static-integration --target functional-shell-v1"
+          - "node --test scripts/tests/check-functional-chapter-contract.test.mjs scripts/tests/check-functional-site-content.test.mjs scripts/tests/check-functional-rust-examples.test.mjs scripts/tests/check-functional-rust-ownership.test.mjs scripts/tests/check-functional-step-receipt.test.mjs"
+          - "npm --prefix site run test -- --run tests/functional-course-routes.test.ts tests/chapter-locales.test.ts"
+          - "cargo test --locked -p llm-from-scratch --test reference_source_identity"
+          - "cargo fmt --all -- --check"
+          - "npm --prefix site run check"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
+          - "npm --prefix site run check:functional"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- tests/e2e/functional-course-shell.spec.ts"
+          - "npm --prefix site run test:e2e -- tests/e2e/ch37-incremental-attention.spec.ts tests/e2e/ch38-cached-generation.spec.ts tests/e2e/ch39-end-to-end-llm.spec.ts --grep 'publish reciprocal'"
           - "git diff --check"
           - "./course audit-host"
         cost:
           class: "large"
-          notes: "cpu=C3;gpu=G0;network=N0;paid=none"
-        runs: []
+          notes: "Estimated2h,2CPU workers,4GiB working memory;gpu=G0;network=N0;paid=none; no model/corpus/dependency acquisition; cached pinned Docker. Cost decision recorded before claim, chapter runtime profiles unchanged."
+        runs:
+          - run_id: 20261005T061939Z-establish-functional-successor-static-integration-01
+            started_at: "2026-10-05T06:19:39Z"
+            finished_at: "2026-10-05T07:32:25Z"
+            status: "succeeded"
+            input_fingerprint:
+              commit: "3ddda34cc3e765a3f96021abff6000e9520f5a15"
+              manifest: ".build/runs/20261005T061939Z-establish-functional-successor-static-integration-01/preflight/input-fingerprint.json"
+              sha256: "64d2de4db3d952ac1a8941385715afa48b1a01a5b35281c5046da26c211c3108"
+              tools: "cached image fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5;Rust1.93.1;Node22.12.0;soleFirefox"
+            staging_dir: ".build/runs/20261005T061939Z-establish-functional-successor-static-integration-01/"
+            commands:
+              - "Cached image fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5 network-none disposable current-source overlay: cargo test --locked -p llm-from-scratch --test reference_source_identity; initial7/7 pass, convenience API added afterward."
+              - "Pinned rustfmt on disposable copies; exact formatted output applied to the three newly owned Rust files. Initial root-private/individual-file-mount attempts failed; no host toolchain/dependency installed."
+              - "Cached network-none fail-fast cp-r overlay: node --test scripts/tests/check-functional-chapter-contract.test.mjs scripts/tests/check-functional-site-content.test.mjs scripts/tests/check-functional-rust-examples.test.mjs scripts/tests/check-functional-rust-ownership.test.mjs scripts/tests/check-functional-step-receipt.test.mjs;13/13 passed."
+              - "Same overlay: npm --prefix site run test -- --run tests/functional-course-routes.test.ts tests/chapter-locales.test.ts;26/26 passed. Earlier cp-a overlay emitted ownership-preservation warnings; retained as preliminary observation, not final clean-overlay proof."
+            artifacts:
+              - {path: ".build/runs/20261005T061939Z-establish-functional-successor-static-integration-01/authoring/reference-source-manifest-proposal-01.json", sha256: "a8761083cacce1453042019c4efcc15570ac8ca06edb15e6ff68e5d80c0771e5"}
+              - {path: ".build/runs/20261005T061939Z-establish-functional-successor-static-integration-01/preflight/baseline-lib.rs", sha256: "d84daa75c403999975a266475788a4969d1c9c4d925b1b8926cc6f16dcf1d9d7"}
+            validation:
+              - {command: "node --test scripts/tests/check-functional-chapter-contract.test.mjs scripts/tests/check-functional-site-content.test.mjs scripts/tests/check-functional-rust-examples.test.mjs scripts/tests/check-functional-rust-ownership.test.mjs scripts/tests/check-functional-step-receipt.test.mjs", status: "passed", notes: "13/13 in pinned offline exact current-source overlay."}
+              - {command: "npm --prefix site run test -- --run tests/functional-course-routes.test.ts tests/chapter-locales.test.ts", status: "passed", notes: "27/27; exact base hash and private/production boundary checks."}
+              - {command: "cargo test --locked -p llm-from-scratch --test reference_source_identity", status: "passed", notes: "7/7 including compiled convenience proof and invalid manifest/source/registry inputs."}
+              - {command: "cargo fmt --all -- --check", status: "passed"}
+              - {command: "npm --prefix site run check", status: "passed", notes: "0errors/0warnings/0hints after only owned infrastructure corrections."}
+              - {command: "npm --prefix site run check:content", status: "passed", notes: "80actual sources/40sets; normal successor ownership/example checks reached."}
+              - {command: "npm --prefix site run check:parity", status: "passed", notes: "80sources/40sets; unchanged base metadata/signatures."}
+              - {command: "npm --prefix site run check:functional", status: "passed", notes: "Actual legacy/functional contract dispatcher checked40contracts;40sets/80locales;0future examples/registry sources. Final package-script-only change validated, no repeat rendering."}
+              - {command: "npm --prefix site run build", status: "passed", notes: "85pages/169artifacts; exact full path/byte identity versus accepted predecessor export."}
+              - {command: "npm --prefix site run test:links", status: "passed", notes: "85HTML/2939local references/85SEO/85sitemap/85analytics/169artifacts."}
+              - {command: "npm --prefix site run test:e2e -- tests/e2e/functional-course-shell.spec.ts", status: "passed", notes: "2/2 sole Firefox, JavaScript enabled."}
+              - {command: "npm --prefix site run test:e2e -- tests/e2e/ch37-incremental-attention.spec.ts tests/e2e/ch38-cached-generation.spec.ts tests/e2e/ch39-end-to-end-llm.spec.ts --grep 'publish reciprocal'", status: "passed", notes: "3/3 changed navigation assertions against already validated unchanged dist; no product rebuild."}
+              - {command: "git diff --check", status: "passed"}
+              - {command: "./course audit-host", status: "passed", notes: "Inactive ordinary target cache moved recoverably into owned staging after root approval."}
+            notes: "COMPLETED: accepted exact40-source/3-dependency compiler-bound private proof, registry, separate production/private selectors and actual contract/receipt orchestration; no partial40 route. Root authorized current-source pinned network-none disposable overlays after uncached Dockerfile provisioning failure; exact commands/bindings under artifacts/functional-laptop/static-integration/20261005T061939Z-01/operations/exact-validation-commands-01.json. validate entries are exact commands executed within that documented environment, not host tooling or false ./course-check passes. All169 generated files byte-identical to predecessor; all15 durable publication documents rehashed. No fresh semantic judgments or learner edits. Known held17/18 cheat-sheet assertions unchanged/not run. Unchanged prior reference algorithm/test evidence retained; new helper7cases run. Actual selected model/medium inherited; no overrides. No40claim yet. 061500 was an uncreated proposal. Initial formatting/type/bundling failures preserved; no history rewritten. Full dist/cache retained in run staging; durable small lossless log/spec/provenance artifacts published."
 
       - id: implement-ch40-reference-core-handoff
         objective: "Establish the hash-bound handoff from the 1,188-parameter scalar reference core to the separately measured functional laptop track without transferring laptop-scale claims."

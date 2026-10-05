@@ -11,12 +11,13 @@ import {
 } from './locale-config.mjs';
 import {
   activeLocalesForChapter,
-  readChapterLocaleConfiguration,
-} from './chapter-locale-config.mjs';
+  readFunctionalChapterLocaleConfiguration as readChapterLocaleConfiguration,
+} from './functional-chapter-locale-config.mjs';
 import {
   validateChapterRouteScope,
   validateDiagramComponentCss,
 } from '../site/scripts/css-scope-validation.mjs';
+import {readPrivateBuildScope,selectFunctionalBuildSets} from './check-functional-site-content.mjs';
 
 export { REFERENCE_LOCALE, SUPPORTED_LOCALES } from './locale-config.mjs';
 
@@ -1821,8 +1822,10 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     repositoryRoot,
     localeConfiguration,
   );
+  const privateScope = readPrivateBuildScope(repositoryRoot);
   const requiredLocales = (chapterId) =>
-    activeLocalesForChapter(chapterLocaleConfiguration, chapterId);
+    privateScope?.chapterId === chapterId ? Object.keys(privateScope.sourceHashes) :
+      activeLocalesForChapter(chapterLocaleConfiguration, chapterId);
   const mode = args[0] && !args[0].startsWith('--') ? args[0] : 'all';
   const chapter = readOption(args, '--chapter');
   const locale = readOption(args, '--locale');
@@ -1892,10 +1895,11 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     throw new ContentValidationError(['unknown content-check mode "' + mode + '"']);
   }
 
-  const sets = validateAllChapterSets(documents, {
+  validateAllChapterSets(documents, {
     requiredLocales,
     referenceLocale,
   });
+  const sets = selectFunctionalBuildSets(repositoryRoot, documents, chapterLocaleConfiguration);
   validatePublishedContractSequence(
     sets,
     readChapterContractSummaries(repositoryRoot),

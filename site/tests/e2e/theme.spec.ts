@@ -1,5 +1,6 @@
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { readFileSync } from 'node:fs';
+import {publishableChapterLocaleManifest as publication} from './helpers/publishable-chapter-navigation';
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
@@ -521,7 +522,8 @@ test('all registered diagrams consume readable shared dark surfaces @theme @them
   const chapters = await readOrderedCourseChapters(page, 'en', {
     includeIntroduction: true,
   });
-  expect(chapters).toHaveLength(40);
+  expect(chapters.filter(c => c.order <= 39)).toHaveLength(40);
+  expect(chapters).toHaveLength(publication.chapters.filter(c => c.activeLocales.includes("en")).length);
 
   let figureCount = 0;
   for (const chapter of chapters) {

@@ -13,12 +13,13 @@ import {
 import { LOCALE_CONFIGURATION } from './locale-config.mjs';
 import {
   activeLocalesForChapter,
-  readChapterLocaleConfiguration,
-} from './chapter-locale-config.mjs';
+  readFunctionalChapterLocaleConfiguration as readChapterLocaleConfiguration,
+} from './functional-chapter-locale-config.mjs';
 import {
   DEFAULT_SITE_URL,
   renderSitemapXml,
 } from '../site/sitemap.config.mjs';
+import {readPrivateBuildScope} from './check-functional-site-content.mjs';
 
 export const GOOGLE_ANALYTICS_MEASUREMENT_ID = 'G-B5JVTL721S';
 export const GOOGLE_ANALYTICS_COOKIE_DOMAIN = 'intale.github.io';
@@ -1146,6 +1147,7 @@ export function auditStaticSite(
     seoExpectations = undefined,
     sitemapUrl = DEFAULT_SITE_URL,
     googleAnalyticsMeasurementId = undefined,
+    privateScope = null,
   } = {},
 ) {
   if (!existsSync(distDirectory)) {
@@ -1155,6 +1157,9 @@ export function auditStaticSite(
   }
 
   const absoluteDist = nodePath.resolve(distDirectory);
+  if (privateScope && process.env.COURSE_BUILD_ROLE !== 'private-review') {
+    throw new Error('Production static audit refuses private scope');
+  }
   const siteBase = normalizeSiteBase(basePath);
   const files = listFiles(absoluteDist);
   const knownFiles = new Set(
@@ -1226,6 +1231,11 @@ export function auditStaticSite(
         continue;
       }
       if (!candidates.some((candidate) => knownFiles.has(candidate))) {
+        // Only this declared Russian equivalent may be absent in EN-only review.
+        if (privateScope?.chapterId?.startsWith('40-') &&
+            !Object.hasOwn(privateScope.sourceHashes, 'ru') &&
+            relative === 'en/course/' + privateScope.chapterId + '/index.html' &&
+            candidates.includes('ru/course/' + privateScope.chapterId + '/index.html')) continue;
         issues.push(
           relative +
             ': local reference "' +
@@ -1293,6 +1303,7 @@ export function runStaticLinkCheck(cwd = process.cwd()) {
       seoExpectations,
       sitemapUrl: process.env.SITE_URL ?? DEFAULT_SITE_URL,
       googleAnalyticsMeasurementId: GOOGLE_ANALYTICS_MEASUREMENT_ID,
+      privateScope: readPrivateBuildScope(repositoryRoot),
     },
   );
 }

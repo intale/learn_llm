@@ -5,9 +5,7 @@ import { resolve } from "node:path";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
-import chapterLocaleManifest from "../../src/i18n/chapter-locales.json" with {
-  type: "json",
-};
+import {publishableChapterLocaleManifest as chapterLocaleManifest} from "./helpers/publishable-chapter-navigation";
 import localeManifest from "../../src/i18n/locales.json" with { type: "json" };
 
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.

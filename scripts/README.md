@@ -5,6 +5,75 @@ implement learner-facing LLM algorithms or grant callers additional authority.
 Run their focused tests with the pinned development Node environment declared by
 the owning `BUILD_STATE.yaml` step.
 
+## Functional successor integration
+
+`site/src/i18n/functional-chapter-locales.json` is the separate exact40–85
+projection:40 is English/Russian,41+ English-only while Russian is held. The
+revision78 base manifest and both readers are immutable. The composed Node/typed
+helpers validate the separate projection without changing those base exports.
+
+`site/src/lib/functional-course-publication.mjs` owns pure production and private
+candidate selectors. Production needs the exact contiguous prefix and validated
+active-locale evidence. A missing receipt stops activation; a malformed existing
+receipt fails the build. Detail/index/navigation/sitemap and content/link checks
+share that decision. No partial Chapter40 is published by infrastructure setup.
+
+Functional catalog files use closed fields `schemaVersion`, `chapterId`,
+`locale`, `contentRevision`, `title`, `description`, `objective`; the last
+three equal actual lesson metadata. Their canonical paths are
+`site/src/i18n/functional-catalogs/<locale>/<chapter-id>.json`.
+
+A separate `artifacts/functional-laptop/chapters/<id>/publication-receipt.json`
+has closed fields `schemaVersion:1`, `chapterId`, `contentRevision`, `files`.
+Every `files` key is an exact path returned by
+`publicationInputPaths(id, activeLocales)`, with only `bytes` and `sha256`.
+Use the maintained review tool's `canonicalJson` for compact sorted JSON+LF.
+This receipt records bytes, NOT a verdict. The verifier recomputes the complete
+inventory and invokes the unchanged maintained English four-chain verifier,
+plus Russian localization verification for40. It checks revision, the existing
+localized contract/lesson projection, neutral signature, catalog metadata and
+sheet identities. Unknown, missing, extra, unsafe or drifting inputs refuse.
+Run `node scripts/check-functional-step-receipt.mjs <chapter-id>`.
+
+Private review uses only the existing `./course review RUN --check` staging
+overlay. That Docker target sets `COURSE_BUILD_ROLE=private-review`; production
+refuses a private descriptor. In the stage only, create
+`site/src/i18n/functional-catalogs/private-review.json` with closed fields
+`schemaVersion:1`, `chapterId`, `scopeId`, `sourceHashes`, canonical JSON+LF,
+at most16384bytes. Source hashes are exactly `{en:<sha256>}`, or `{en,ru}` for
+Chapter40 after English approval. Every declared source must exist and match;
+actual locale revisions/signatures agree. There is no Russian41+ scope or stub.
+The English-only40 candidate keeps declared final bilingual language links; only
+its exact absent Russian equivalent is tolerated by private link audit. Production
+checks every link. This rendering mechanism grants no author/review approval.
+
+Contract checking dispatches0..39 through the unchanged demo checker and40+
+through the cumulative crate's exact example/golden/registry paths.
+`check-functional-rust-examples.mjs --all|--chapter <id>` runs the bounded
+in-package example and compares exact stdout. `check-functional-rust-ownership.mjs`
+enforces the accepted ownership-map-v1 grammar and registered source coverage.
+No new Cargo crate or registry serialization is introduced.
+
+`llm_from_scratch::reference_source_identity` exposes
+`verify_reference_source(manifest_bytes, supplied_files)` and
+`verify_compiled_reference_source() -> Result<ReferenceSourceProof, ReferenceSourceError>`.
+The latter uses the same checks without duplicating43-path loader plumbing.
+Proof construction is private; getters are `source_revision()`, `identity()`,
+`digest()`. The approved schema1 manifest domain is
+`functional-reference-source`; the existing ArtifactIdentity domain is
+`functional_reference_source`. They identify different structural layers, not
+different hash algorithms. RustCrypto SHA256 remains the sole digest plumbing.
+The explicit40 reference source files and3 dependency files are compiler-bound,
+as is the exact approved manifest. Missing/extra/duplicate/stale/oversized or
+noncanonical supplied input refuses. This proves compiled reference bytes, not
+live Git cleanliness, model quality or reference training-resource accounting.
+
+Focused tests: the five `scripts/tests/check-functional-*.test.mjs` infrastructure
+files declared by the static step, `site/tests/functional-course-routes.test.ts`,
+`cargo test --locked -p llm-from-scratch --test reference_source_identity`, and
+the sole-Firefox `functional-course-shell.spec.ts`. Browser discovery reads actual
+built routes; it is not an activation or semantic-certification mechanism.
+
 ## Bounded response byte reader
 
 `lib/bounded-response.mjs` exports:

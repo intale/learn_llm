@@ -28035,3 +28035,109 @@ attempt. Actual assigned content/judgment contexts39 and routed-input bytes
 Complete a dedicated reframe commit before claiming static integration or Chapter40.
 
 **Affected step:** `reframe-functional-reference-core-surfaces`.
+
+### 2026-10-05 — Claim successor static integration under current authority
+
+Verified predecessor commit `3ddda34cc3e765a3f96021abff6000e9520f5a15`
+has the same completed reframe tree after a subject-only correction. Claim only
+`establish-functional-successor-static-integration` in fresh run
+`20261005T061939Z-establish-functional-successor-static-integration-01`.
+The preflight preserves the original pending step verbatim, the immutable base
+manifest/readers, the accepted reference source census and dependency hashes.
+The earlier 061500 path was an uncreated proposal, not an executed run.
+
+Before execution, record a large bounded estimate: two hours, two CPU workers,
+4 GiB working memory, no GPU, paid service, dataset/model acquisition or new
+network provisioning. Reuse the existing pinned cached Docker image and normal
+Dockerfile/`./course` workflow. The build has no numeric agent-session ceiling;
+this is declared infrastructure work within its accepted implementation boundary,
+not a change to chapter runtime profiles or historical review charges.
+
+The later explicit user environment simplification supersedes this pending step's
+historical exclusion of `./course`; the frozen plan remains historical evidence.
+Chapter40 stays bilingual; Chapters41–85 have English-only active publication
+until the user's Russian hold is released. Do not create Russian placeholders or
+publish English as Russian. The revision-78 base manifest and both base readers
+remain byte-identical. Shared production publication remains fail-closed and
+contiguous; a separate explicitly scoped private candidate-rendering selector
+must not fabricate completed reviews, Russian lessons or production activation.
+Static setup must not publish partial Chapter40 navigation, routes or sitemap.
+
+Root approved five necessary shared outputs for a minimal reference source proof:
+the schema1 manifest, existing-crate helper and its focused integration test,
+maintained usage documentation and a durable static-integration artifact root.
+The proof uses existing serde_json syntax and ArtifactIdentity/SHA256 plumbing;
+Rust still owns closed fields, duplicate/path/hash/coverage validation. The sole
+build.rs binds the exact explicit40-file pre-integration source census, excluding
+lib.rs and future integration sources, plus the approved manifest. Dependency
+provenance binds the actual root Cargo.toml/Cargo.lock and cumulative crate
+Cargo.toml; no nonexistent rust/Cargo.lock alias is created. Baseline lib.rs
+declarations are preserved by a separate prefix/diff check. No Cargo churn,
+handwritten hashing, new wireformat, runtime recursive glob or guessed revision.
+Exact staged manifest/API proposal requires root confirmation before code edits.
+
+Root confirmed the exact40-file list,3 dependency paths,5214-byte schema1
+manifest and bounded private proof API. Initial focused offline Rust checks
+passed7/7. New helper/build/test files are explicitly incomplete working-tree
+machinery, not published chapter content. Root additionally approved Dockerfile
+as the50th necessary shared output: only the existing review-workspace target
+sets COURSE_BUILD_ROLE=private-review; default production must reject private
+scope. No new runner, provisioning or dependency authority is added. The existing
+review staging overlay provides the bounded descriptor; the shared selectors
+stay separate. Direct cached formatter invocation initially failed because the
+container entrypoint PATH omitted rustfmt; the existing absolute pinned path was
+resolved without installation.
+
+Root approved the bounded catalog/publication-receipt/private-scope schema.
+Catalog title/description/objective match actual MDX metadata. A separate receipt
+binds exact input file bytes and fixed review roots to avoid catalog/spec hash
+cycles; it cannot approve content through a stored status. The adapter re-executes
+maintained English four-chain and Chapter40 Russian verification. Revision,
+existing contract/lesson projection and neutral signature gates all remain.
+Unknown/extra/missing/unsafe inventory paths reject. Private scope requires the
+explicit existing review target marker plus exact English source hash; only its
+declared absent target-language link is tolerated during private audit. Final
+production must resolve every active-locale link. The approved stage API record
+documents closed fields/bounds before consumer integration.
+
+**Affected step:** `establish-functional-successor-static-integration`.
+
+### 2026-10-05 — Complete bounded static plumbing without learner drift
+
+Root approved private sourceHashes exactly{en} for initial English40 review,
+or{en,ru} for its actual authored localization candidate; Chapters41–85 stay
+English-only. Every declared source hash is recomputed. Private contract validation
+uses only those authored locales; production still requires the exact active-locale
+pair, metadata/revision/neutral signature and real maintained semantic verifiers.
+No stub, status-only approval or public partial successor is introduced.
+
+The approved convenience API `verify_compiled_reference_source()` delegates to
+the same closed manifest/census validation as the supplied-files verifier. It proves
+compiler-bound reference bytes, not live Git cleanliness or trained quality.
+Manifest domain `functional-reference-source` and existing ArtifactIdentity
+domain `functional_reference_source` are distinct documented structural roles.
+
+Offline Dockerfile prewarm encountered an uncached provisioning layer and failed
+under network-none; no dependency acquisition succeeded. Root approved exact
+current-source disposable overlay validation using the already provisioned pinned
+image, superseding the stale literal ./course check/run invocations for this run.
+All substantive formatting, Astro/content/parity/build/link and focused tests
+remain. Production role was explicit; private descriptor regressions explicitly
+selected the private role. No new image/provisioning or network authority.
+
+Focused13Node/27Vitest/7Rust cases, formatting, Astro diagnostics,80-source
+content/parity,85-route static checks and2 sole-Firefox shell cases passed.
+The actual169-file build path set and every byte equal the completed predecessor
+export; all15 durable predecessor publication documents rehashed to their recorded
+bindings. No learner presentation or language role changed, so no fresh semantic
+judgments were needed. Normal check:functional now invokes actual contract/site/
+ownership/example gates and passed40base contracts with no successor published.
+Known held Chapter17/18 full-cheat-sheet assertions remain untouched and are not
+claimed green. Initial infrastructure diagnostics remain in staging.
+
+An inactive ordinary68MiB host Cargo target was recoverably moved into this run's
+host-artifacts/target after process/layout inspection and root authorization.
+Its exact creator was not established; nothing deleted. Host audit then passed.
+Complete this step with its dedicated commit before Chapter40 is claimed.
+
+**Affected step:** `establish-functional-successor-static-integration`.

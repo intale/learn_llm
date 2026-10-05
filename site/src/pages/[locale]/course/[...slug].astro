@@ -18,7 +18,7 @@ import {
   findChapterNeighbors,
   type ChapterNavigationTarget,
 } from '../../../lib/chapter-navigation';
-import { findPublishableChapterSets } from '../../../lib/chapter-publication';
+import { findPublishableChapterSets } from '../../../lib/functional-course-routes';
 import {
   cheatSheetRouteKey,
   indexCheatSheets,
@@ -42,11 +42,9 @@ export async function getStaticPaths() {
   const publishable = findPublishableChapterSets(chapters).flatMap((set) =>
     set.activeLocales.flatMap((locale) => {
       const entry = set.byLocale[locale];
-      if (!entry) {
-        throw new Error(
-          `Publishable chapter ${set.chapterId} is missing active locale ${locale}.`,
-        );
-      }
+      // Private English rendering retains declared final locale navigation but
+      // emits no invented target-language lesson. Production sets are complete.
+      if (!entry) return [];
       return [{
         entry,
         equivalentLocales: set.activeLocales as readonly Locale[],

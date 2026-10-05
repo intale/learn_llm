@@ -21,7 +21,7 @@ RUN cargo fetch --locked
 RUN --network=none cargo test --workspace --locked
 
 FROM source AS workspace
-RUN cargo fmt --all -- --check \
+RUN --network=none cargo fmt --all -- --check \
  && npm --prefix site run check \
  && npm --prefix site run check:content \
  && npm --prefix site run check:parity \
@@ -29,8 +29,9 @@ RUN cargo fmt --all -- --check \
  && npm --prefix site run test:links
 
 FROM source AS review-workspace
+ENV COURSE_BUILD_ROLE=private-review
 COPY --from=staged . .
-RUN npm --prefix site run check:content \
+RUN --network=none npm --prefix site run check:content \
  && npm --prefix site run check:parity \
  && npm --prefix site run check \
  && npm --prefix site run build \

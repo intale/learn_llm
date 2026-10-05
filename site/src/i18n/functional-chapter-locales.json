@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "planId": "functional-laptop-llm-extension",
+  "planRevision": 1,
+  "policyId": "functional-current-locale-activation",
+  "referenceLocale": "en",
+  "chapters": [
+    {
+      "chapterId": "40-reference-core-handoff",
+      "order": 40,
+      "activeLocales": [
+        "en",
+        "ru"
+      ]
+    },
+    {
+      "chapterId": "41-governed-corpus-acquisition",
+      "order": 41,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "42-deterministic-corpus-filtering",
+      "order": 42,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "43-deduplication-decontamination",
+      "order": 43,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "44-scalable-bpe-tokenizer",
+      "order": 44,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "45-padded-variable-batches",
+      "order": 45,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "46-packed-sequence-masks",
+      "order": 46,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "47-depth-stable-decoder",
+      "order": 47,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "48-configurable-decoder-core",
+      "order": 48,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "49-dropout-semantics",
+      "order": 49,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "50-dependency-error-contract",
+      "order": 50,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "51-serving-config-admission",
+      "order": 51,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "52-accelerator-tensor-parity",
+      "order": 52,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "53-mixed-precision-training",
+      "order": 53,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "54-memory-bounded-training",
+      "order": 54,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "55-optimizer-schedules-clipping",
+      "order": 55,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "56-tensor-artifact-interchange",
+      "order": 56,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "57-immutable-artifact-persistence",
+      "order": 57,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "58-exact-job-resume",
+      "order": 58,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "59-resource-observability",
+      "order": 59,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "60-multi-seed-evaluation",
+      "order": 60,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "61-quantized-gguf-artifacts",
+      "order": 61,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "62-laptop-hardware-admission",
+      "order": 62,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "63-gqa-context-policy",
+      "order": 63,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "64-online-tiled-attention",
+      "order": 64,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "65-kv-block-pool",
+      "order": 65,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "66-nucleus-penalties-logprobs",
+      "order": 66,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "67-stop-strings-unicode-streaming",
+      "order": 67,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "68-continuous-batch-scheduling",
+      "order": 68,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "69-cancellation-backpressure-budgets",
+      "order": 69,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "70-loopback-serving-metrics",
+      "order": 70,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "71-lora-sft-adapters",
+      "order": 71,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "72-direct-preference-optimization",
+      "order": 72,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "73-qlora-boundary",
+      "order": 73,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "74-prefix-cache-reuse",
+      "order": 74,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "75-rope-context-scaling",
+      "order": 75,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "76-retrieval-provenance",
+      "order": 76,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "77-constrained-json-decoding",
+      "order": 77,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "78-authorized-tools",
+      "order": 78,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "79-safety-privacy-model-card",
+      "order": 79,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "80-from-scratch-laptop-capstone",
+      "order": 80,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "81-import-adapt-serve-capstone",
+      "order": 81,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "82-advanced-decoding-serving",
+      "order": 82,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "83-distributed-schedule-simulation",
+      "order": 83,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "84-moe-routing-simulation",
+      "order": 84,
+      "activeLocales": [
+        "en"
+      ]
+    },
+    {
+      "chapterId": "85-persistence-scale-decision",
+      "order": 85,
+      "activeLocales": [
+        "en"
+      ]
+    }
+  ]
+}

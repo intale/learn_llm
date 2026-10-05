@@ -74,3 +74,5 @@ pub mod tokenizer {
     #[path = "bpe_trainer.rs"]
     pub mod bpe_trainer;
 }
+
+include!(concat!(env!("OUT_DIR"), "/functional-modules.rs"));

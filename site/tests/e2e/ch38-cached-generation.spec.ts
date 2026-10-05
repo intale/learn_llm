@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import {publishableChapterLocaleManifest as publication} from './helpers/publishable-chapter-navigation';
 
 import {
   chapterPath,
@@ -534,9 +535,11 @@ test.describe(
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
-      expect(english).toHaveLength(39);
+      expect(english.filter(c => c.order <= 39)).toHaveLength(39);
+      expect(english).toHaveLength(publication.chapters.filter(c => c.order > 0 && c.activeLocales.includes("en")).length);
       const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian).toHaveLength(39);
+      expect(russian.filter(c => c.order <= 39)).toHaveLength(39);
+      expect(russian).toHaveLength(publication.chapters.filter(c => c.order > 0 && c.activeLocales.includes("ru")).length);
 
       for (const locale of locales) {
         const chapters = locale === "en" ? english : russian;

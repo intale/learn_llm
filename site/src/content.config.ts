@@ -6,7 +6,7 @@ import { glob, type Loader } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 import { isLocale, type Locale } from './i18n';
-import { activeLocalesForChapter } from './lib/chapter-locales';
+import { activeLocalesForChapter } from './lib/functional-chapter-locales';
 
 const kebabId = z.string().regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/);
 const chapterId = z.string().regex(/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/);

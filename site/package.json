@@ -14,8 +14,9 @@
     "build": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "test:e2e": "playwright test --project=firefox",
-    "check:content": "node ../scripts/check-site-content.mjs",
-    "check:contract": "node ../scripts/check-chapter-contract.mjs",
+    "check:content": "node ../scripts/check-site-content.mjs && npm run check:functional",
+    "check:functional": "node ../scripts/check-functional-chapter-contract.mjs && node ../scripts/check-functional-site-content.mjs && node ../scripts/check-functional-rust-ownership.mjs --all && node ../scripts/check-functional-rust-examples.mjs --all",
+    "check:contract": "node ../scripts/check-functional-chapter-contract.mjs",
     "check:chapter": "node ../scripts/check-site-content.mjs chapter",
     "check:parity": "node ../scripts/check-site-content.mjs parity",
     "test:links": "node ../scripts/check-static-links.mjs"
