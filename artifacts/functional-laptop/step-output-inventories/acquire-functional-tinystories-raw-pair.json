@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "step_id": "acquire-functional-tinystories-raw-pair",
+  "files": [
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/content-v2-production-binding.json",
+      "bytes": 4278,
+      "sha256": "ca16ccb752576b00bed29a0109323ea91456465f542dd4cbd1358707e52106f6"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/manifest.json",
+      "bytes": 2174,
+      "sha256": "7bc3b05101f0427e52c596e34c28f13f60f64bb0b114509d1df27038f570e940"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/receipt.json",
+      "bytes": 10867,
+      "sha256": "354187f4087ab683302cb20316d3c70a23ddcb1dc875a26df408773eff6f020b"
+    }
+  ],
+  "bookkeeping": [
+    "BUILD_STATE.yaml",
+    "DECISIONS.md"
+  ],
+  "scope": "Only bounded acquisition metadata; raw content and producer/runtime evidence remain private or ignored."
+}

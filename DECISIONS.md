@@ -29620,3 +29620,115 @@ the accepted stage; full YAML88builds/503steps changes only the inserted step an
 acquisition's added dependency. Historical runs, teaching inputs, source policy,
 lock graph and held repairs/Russian41+ remain unchanged. Complete and commit
 this ten-output prerequisite before the distinct current-V2 acquisition run.
+
+### 2026-10-06 — Current-V2 acquisition with stable selection, historical producer
+
+Root approves preflight6937f798 for the exact frozen raw pair through the existing
+selected Docker source target with admitted590runtime flags. Reconcile only live
+acquisition inputs/outputs/acceptance/selectors; retain all three old failed or
+interrupted runs and frozen protocol/checker history unchanged. The six-host
+configuration already resolves the former host refusal. No retry/fallback/new
+input, purged worker, environment rebuild or public-tag migration is authorized.
+
+Current V2 binding has exactly16 live compatibility inputs: fixed selected asset
+config, source metadata inventory and its14 members. Do not bind live replay to
+all current Cargo/Rust/config/Dockerfile bytes: Chapter42's ordinary demo/module/
+lock changes must not invalidate an accepted unchanged raw bundle. Preserve full
+actual source-build context provenance in its immutable private receipt and
+baselineGitcommit5c883842; bind actual producer binary, transport and source-image
+hashes as historical facts. Never derive the actual binary identity from source
+code or a mocked/draft manifest. No duplicate canonical source snapshots.
+
+Use the canonical-shaped private validation root and maintained current Rust
+verify/publish/replay boundary, then exact canonical replay. Reuse just-built
+verifier9660d65a/receipt a83ea986/source3b3379b6 only with matching actual hashes;
+no repeated compilation or Cargo cache/target copy. Future current verifier
+identity is separate from the historical data producer. Export raw bytes once,
+then move accepted digest rather than create another full raw copy. Raw bodies,
+signed URL records, binaries and logs remain ignored/private; promote only four
+metadata artifacts plus ledger/decision records.
+
+The pair has1943728838raw bytes; all four payloads total1943743374bytes. Preserve
+2GBfinal-content/14400sworkload/4GiBhost/8GBdisk envelopes; wire/redirect bodies
+and unmeasured wholeBuildKit RAM peak remain unavailable, not zero or invented
+passes. Estimate<=7GBincremental working/image/cache storage, no paid service or
+agent elapsed-time stop. After real admission use mature Linux tools for bounded
+body-free framing observations, never source-story excerpts or a filtering
+decision. Repairs/Russian41+ held; Chapter42 content/dispatch/review work is not
+claimed here. Checkpoint costly boundaries and commit this six-output step first.
+
+### 2026-10-06 — User takes over source-build status and stops agent work
+
+At12:51:51Z the user asks for an image-status command and stops further agent
+work. The already-started source build is intentionally left running in external
+session5799; its selected client compiled in8.10s and its transfer RUN was active
+at the last12:51:27Z observation. No export, actual source observation, producer
+binding, offline raw verification, cache admission or publication has happened.
+Do not monitor, kill, restart or retry it solely to end the agent turn.
+
+Run/step remainrunning for that external operation while the notes explicitly
+record stopped agent ownership and user handoff. The fresh run's final receipt
+is `source-build-true-1/build-receipt.json`; its write-once log is build.log.
+`learn-llm-tinystories:local` is the intended output tag, but its pre-build
+existence was not inspected, so image presence alone does not certify this run.
+Preserve the prepared private root/byte-identical verifier and two synthetic
+observer checks, all old runs and held scopes. These incomplete acquisition
+edits are not a completed-step commit. Resume only under the user's instruction,
+first establishing the actual external process/result and immutable receipt.
+
+### 2026-10-06 — Recover successful source suboperation, continue offline only
+
+The user reports the source image ready and authorizes continuation. Recovery
+confirms external5799completed0, actual sourceimage57e8ca6b matching the fresh
+55072byte receipt14a502d5,845.826sbuild/833.5stransfer and1943743374finalbytes.
+All355 immutable context inputs and current material fingerprints match. Preserve
+this successful build evidence unchanged; do not rebuild or redownload it.
+
+Root agrees to preserve the user-stopped .04 whole-attempt as interrupted and
+claim fresh .05 only for remaining export/binding/offline admission/observation/
+canonical publication. Keep the same six outputs and16fixed live selection
+inputs; no source, model, resource or repair scope expansion. The845.826spent
+seconds remain charged, not reset by the continuation. Current rules/environment
+and instruction bytes remain unchanged; inherit selection/non-exposure truthfully.
+
+Existing source image size8383479106includes preexistingbase6432659235bytes;
+the reported logicaldelta1950819871is not a peak or physical shared-block proof.
+Reuse exact verified cache-tool bytes/source/image receipts and the existing
+observer utility under recorded provenance; no registry/target copy, compile,
+archive/source duplication, new wrapper or repeated prerequisite gates. Actual
+export/producer/admission evidence remains required before completion/commit.
+
+### 2026-10-06 — Complete frozen source admission without repeating acquisition
+
+Fresh .05 completes the existing six-output acquisition after verified reuse of
+the successful immutable .04 source-build suboperation. Actual exported producer
+binary2e2d0557 and transport agree with the canonical descriptor; full355-file
+historical context stays private and bound to baseline5c883842. The live production
+binding has exactly16 fixed recipe/metadata inputs, not all current course Rust.
+No rebuild, redownload, verifier compile, Cargo cache copy or prerequisite test
+repeat occurred. Prior interrupted/failed attempts remain historical evidence.
+
+The existing network-none Rust verifier, atomic store publication and read-only
+replay all agree on artifact7bc3b051 and1943743374 final payload bytes. The accepted
+cache digest moves atomically to the ordinary ignored cache without a third raw
+copy. Four bounded metadata artifacts are exact staged bytes; canonical-root
+replay passes in40.824s with the exact private bundle/binding. Publication170.968s,
+private replay44.937s and the already spent845.826s source-build allowance remain
+accountable, not reset by the new run. No signed URLs, producer binary, source
+stories, archives or raw corpus bytes enter the repository outputs.
+
+Actual body-free Linux observations preserve source SHA/counts and expose a
+nonseparator EOF record without final LF in both train and validation. Train has
+2119718 exact whole-line markers and validation21989; all marker occurrences are
+whole-line and no CRLF record occurs. These are framing facts, not a filtering
+or final-tail decision. Root must reconcile the Chapter42 packet's strict tail
+proposal with actual source evidence before claiming that content step; no
+policy is selected or relaxed by this acquisition worker.
+
+The receipt distinguishes configured ceilings, sampled host allocated bytes and
+logical source/base image sizes. Whole-BuildKit/host/lifetime-disk peaks and wire/
+redirect-body counts remain unavailable, never zero or invented measured passes.
+Only acquisition changes relative to the dedicated prerequisite commit; ledger
+syntax, inventory/bytes, stable inputs, canonical equality and diff checks pass.
+Held repairs, Russian41+ deferral and pending Chapter42 remain unchanged. Commit
+only the six declared paths before any further claim.

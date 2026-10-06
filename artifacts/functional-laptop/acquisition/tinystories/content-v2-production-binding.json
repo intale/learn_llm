@@ -1,0 +1,95 @@
+{
+  "schema_version": 2,
+  "step_id": "acquire-functional-tinystories-raw-pair",
+  "target_id": "acquire-functional-tinystories-raw-pair-v2",
+  "metadata_inventory_sha256": "1e5c11b46760cd9066c4ab56f4cb04af13b36f8aae6dfc59bd230c4b98c84463",
+  "binding": {
+    "producer": {
+      "config_sha256": "5d21797249134bc6cc2b4e71b49394a642550d60201b572a93889800c867e4a7",
+      "script_sha256": "2e2d055705ca20b6727779e4ac155422554e5e562685a2bdb8d940a2f5dd87f9"
+    },
+    "selected_asset_sha256": "d4e684b105b9695ec5b31e5d6ecc4fe44a60d66c591707311ef537d1df95ac3d"
+  },
+  "producer_inputs": [
+    {
+      "path": "configs/functional-corpus-assets.json",
+      "bytes": 4911,
+      "sha256": "5d21797249134bc6cc2b4e71b49394a642550d60201b572a93889800c867e4a7"
+    },
+    {
+      "path": "artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json",
+      "bytes": 2891,
+      "sha256": "1e5c11b46760cd9066c4ab56f4cb04af13b36f8aae6dfc59bd230c4b98c84463"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/attribution-and-permission.json",
+      "bytes": 2263,
+      "sha256": "f4ed8f96a818cf5b926b81d04777aa106d6d948d76ac83eb404c3d1b942c144a"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/cdla-page-text.txt",
+      "bytes": 12273,
+      "sha256": "2e8dc5697c0ff6fb8a399f2fb781c058d40313adf4f3d7779a395ed6fb0c8360"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/cdla-sharing-1-0.receipt.json",
+      "bytes": 1692,
+      "sha256": "8dbc5e5bb273eebe311533dfc83dafd226a7a3aef18184e573de80f1aeda28d2"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/provenance/bounded-response.mjs",
+      "bytes": 1370,
+      "sha256": "8d5b77e1d7977686eed9b4acac96870b15b29f614040a1c169d839253d0b954d"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/provenance/capture-metadata-01.mjs",
+      "bytes": 2287,
+      "sha256": "f384f3a253fa481e1b0f168e346a4a02b5701182e45e6ed1fbb4335266a9f055"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/provenance/extract-cdla-01.mjs",
+      "bytes": 690,
+      "sha256": "2e5789c282307c317464b3d821fa2adf4e9fc06ccafe69be9b4af93d1a867dc6"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/provenance/package-metadata-01.mjs",
+      "bytes": 2320,
+      "sha256": "c188c30abb2e94466947f2fd1bcc11c67178b705045130a3e6163c517480089f"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/responses/cdla-sharing-1-0-0.body",
+      "bytes": 155753,
+      "sha256": "95a3d93bdfa19363f7bf4c67bf2159e296946896df2195e1090bebb0f7ba8192"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/responses/cdla-sharing-1-0-0.json",
+      "bytes": 1430,
+      "sha256": "9e6a1662c2289f81de766cae8d937ec83fa1ca47235b3b467562fdf35ac9b276"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/responses/tinystories-card-0.body",
+      "bytes": 293,
+      "sha256": "bf2fa8ec5fce127c54d8bb654122afb87e3f25106023d2467905445e4ca67172"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/responses/tinystories-card-0.json",
+      "bytes": 1975,
+      "sha256": "2fe9cadeb54757b4fad241dd63890f853a996d97d04b93a5fe2dde4b73b0b46d"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/responses/tinystories-card-1.body",
+      "bytes": 1061,
+      "sha256": "f67b71c3ffe761795b9428222444bfc1ec447d45cb13b00821b7e6c1ceecf7c5"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/responses/tinystories-card-1.json",
+      "bytes": 1842,
+      "sha256": "f8704bcc81b41e2e5692440e45d066efddf397c96147f9b9e8b1e12610b600a9"
+    },
+    {
+      "path": "artifacts/functional-laptop/acquisition/tinystories/source-metadata/tinystories-card.receipt.json",
+      "bytes": 4414,
+      "sha256": "dd49041e74f24d22e825d9ef2f28202faf84f7e96aa5c83a30712fb330a32848"
+    }
+  ]
+}

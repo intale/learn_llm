@@ -47410,38 +47410,38 @@ builds:
           - "configure-functional-corpus-assets"
           - "setup-library-owned-corpus-transport"
           - "prepare-explicit-cached-corpus-runtime"
-        status: "blocked"
+        status: "completed"
         inputs:
-          - "Chapter 41 manifest and protocol"
+          - "Accepted Chapter41 content-only V2 DatasetPolicy/VerifiedBundle/Read/Write/store boundary, not purged protocol workers."
           - "exact frozen URLs, revisions, sizes and SHA-256 values"
           - "CDLA-Sharing-1.0 text and attribution"
           - "Latest user override: existing Dockerfile conditional source build enabled by default; cloud builds explicitly disabled; all containers offline. No HTTP-resume execution claim."
-          - "Accepted existing workspace image/tag; exact2fixed endpoints and allowed official redirect hosts, maximum5 redirects, cumulative2GB and14400s. No automatic network retries."
+          - "Root-approved currentV2 preflight6937f798; clean5c883842baseline; explicit admitted existing590image; exact2fixed endpoints/six allowed hosts/maximum5redirects; finalcontent2GB/14400s, wireunavailable, no automatic retries."
+          - "Reuse exact verified current21.8MBcache binary/receipt/source binding, no new compile or Cargo cachecopy. Actual producer binary/image/transport and full historical build-context receipt plus baselineGitcommit; live binding only16 fixed recipe/metadata inputs."
         outputs:
-          - "artifacts/functional-laptop/acquisition/tinystories/production-binding.json"
-          - "artifacts/functional-laptop/acquisition/tinystories/producer-config.json"
-          - "artifacts/functional-laptop/acquisition/tinystories/producer-snapshots/"
+          - "artifacts/functional-laptop/acquisition/tinystories/content-v2-production-binding.json"
           - "artifacts/functional-laptop/acquisition/tinystories/manifest.json"
           - "artifacts/functional-laptop/acquisition/tinystories/receipt.json"
           - "artifacts/functional-laptop/step-output-inventories/acquire-functional-tinystories-raw-pair.json"
-          - "scripts/download-fixed-tinystories-image.mjs"
-          - "scripts/tests/download-fixed-tinystories-image.test.mjs"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
           - "Only the frozen 1,924,281,556-byte train and 19,447,282-byte validation files are eligible."
-          - "Build-mediated bounded source transfer preserves exact requested/redirect/final identities and actual cumulative accounting. Offline Rust validates canonical manifest, count, hashes, license and attribution before atomic content-addressed promotion. Do not claim HTTP range/resume execution."
+          - "Actual maintained selected-target source build/export binds historical producer binary/transport/image/context facts; exact final-content accounting, wire/redirect bodies unavailable. Rust validates independent V2 policy/canonical manifest/count/hash/license/attribution before atomic content-addressed promotion. No HTTP range/resume/grant accounting claim."
           - "Default=true conditional course-corpus stage is cached independently of unrelated course content; closed false branch sends no corpus request/exports no corpus payload. All cloud Docker builds explicitly disable it; no separate Dockerfile."
           - "Raw corpus bytes remain gitignored; offline replay uses only the receipt-bound cache; no substitute or archive expansion is accepted."
+          - "Stable live production binding checks only fixed assetconfig/metadata inventory14members, not unrelated current Cargo/Rust/Dockerfile bytes. Private/full historical provenance remains; later current verifier source changes do not invalidate unchanged raw selection."
+          - "Current Rust private verify/publish/read-only replay and canonical replay agree, body-free framing observations are bound but do not implement filtering; sixoutputs only, held repairs/Russian41+/Chapter42 unchanged."
         validate:
-          - "Focused fixed-build transport/flag/cloud wiring tests in current pinned offline image; actual disabled source build exports no corpus."
-          - "Build only course-corpus with existing workspace base; exact predefined pair and actual byte/deadline receipt."
-          - "Existing cache tool: offline finalize/verify/publish/replay with exact private run inputs and immutable producer binding."
+          - "node scripts/build-functional-tinystories-image.mjs --run-id 20261006T123336Z-acquire-functional-tinystories-raw-pair-04 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+          - "Actualsourceimage immutable-ID/network-none export; Linuxstat/sha256sum and producer/context/config/metadata exact binding checks."
+          - "Existing maintained cache CLI verify,publish,replay: exact raw-pair-v2 target, private canonical-shapedroot, selected590flags, reusedsource-bound verifier; canonicalroot replay exactequality."
+          - "Actual admitted read-only source payload body-free Linuxframing/EOF observations; no source stories or simulated counts."
           - "git diff --check"
           - "Scoped owned-output/inventory/no-new-host-cache verification; pre-existing target and known audit-host failure preserved."
         cost:
           class: "large"
-          notes: "cpu=C2;gpu=G0;network=N3;paid=none;download_bytes_exact=1943728838;download_bytes_max=2000000000;host_bytes_max=4294967296;disk_bytes_max=8000000000;wall_seconds_max=14400"
+          notes: "cpu=C3;gpu=G0;network=N1;paid=none;raw_pair_final_bytes_exact=1943728838;bundle_final_bytes_exact=1943743374;final_content_bytes_max=2000000000;wire_bytes=unavailable;host_bytes_max=4294967296;disk_bytes_max=8000000000;wall_seconds_max=14400;agent_elapsed_limit=none"
         runs:
           - run_id: "20261006T071624Z-acquire-functional-tinystories-raw-pair-03"
             started_at: "2026-10-06T07:16:24Z"
@@ -47498,6 +47498,63 @@ builds:
             artifacts: []
             validation: []
             notes: "Latest user narrows turn to condition setup; move that work to preceding separate step and preserve this pre-transfer run.16 offline injected/flag/wrapper tests passed; initial disabled build failed before downloader because BuildKit interpreted raw image ID as registry name, exact log/receipt preserved. No corpus transfer or active process. Future acquisition is pending after condition commit; no Chapter42 claim."
+
+          - run_id: "20261006T123336Z-acquire-functional-tinystories-raw-pair-04"
+            started_at: "2026-10-06T12:33:36Z"
+            finished_at: "2026-10-06T13:05:09Z"
+            status: interrupted
+            input_fingerprint: {commit: "5c88384224c48dcb8a4b44c61d47c4134390d727", runtime_image: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758", fingerprint_file: ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/input-fingerprint.json", fingerprint_sha256: "88da47372ef99b9b8de879934b6c5b0ab329530685a00dd12162a42767a05957"}
+            staging_dir: ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/"
+            commands:
+              - "Read root-approved corrected6937f798preflight; verify current wrappers/runtime/tool bytes; reconcile live V2 selection and claim sole acquisition before source execution."
+              - "node scripts/build-functional-tinystories-image.mjs --run-id 20261006T123336Z-acquire-functional-tinystories-raw-pair-04 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758; external unified session5799. Releaseclient compile8.10s completes; checksum-bound source RUN active at last poll12:51:27Z, no final result yet."
+              - "Prepare private canonical-shaped root with exact current source/scripts/16stableinputs and byte-identical21.8MB verifier; no new Cargo cache/target copy or compile. Run-private mature Linux body-free observer passes2tiny synthetic fixtures offline; no source observation performed."
+              - "2026-10-06T12:51:51Z user asks status command and stops agent work. Leave already-started external build running for user's manual check; no kill/wait/export/admission/publication/Chapter42 work."
+              - "Recovery13:05:09Z after usercontinuation: external5799completed0, immutable55072Breceipt14a502d5/sourceimage57e8ca6b/current355inputs verified. Sourcebuild successful845.826s, final1943743374bytes/artifact7bc3b051; no network repeat. Wholeattempt interrupted at ownership handoff; fresh05 owns remaining phases, sourcebuild evidence unchanged."
+            artifacts:
+              - {path: ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/preflight.md", sha256: "6937f7985a1a4a01aa5087d791d50b6a53fea7b3f49d7dbefabc8f7f2bf32d5b"}
+              - {path: ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/input-fingerprint.json", sha256: "88da47372ef99b9b8de879934b6c5b0ab329530685a00dd12162a42767a05957"}
+              - {path: ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/source-build-true-1/build-receipt.json", sha256: "14a502d5442c6b608d317e1f1c30ec33e0375404b081b8dfe360109f5dd4a79e"}
+              - {path: ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/source-build-true-1/build.log", sha256: "3cfeb0b008fedad1053ebc8fdaf423baaaafe61e91a23a5170513a264e03d4d5"}
+            validation:
+              - "Only2synthetic body-free observer fixture checks pass; no actual source-build success, producer binding, export, raw verification/cache admission or completion is claimed."
+              - "Later authorized recovery verifies completed externalbuild0/immutable receipt14a502d5/image57e8ca6b/355inputs; successful source suboperation preserved unchanged. Wholeattempt remainsinterrupted;05 owns offline completion."
+            notes: "AGENT OWNERSHIP STOPPED at user request12:51:51Z; step/run remainrunning solely because external builder session5799 is active at last observation and intentionally handed to user, not because an agent continues work. Do not take over/restart/retry while that external operation remains active. Targettag learn-llm-tinystories:local; finalfreshbuildreceipt .build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/source-build-true-1/build-receipt.json is pending; livebuildlog same-directory build.log. Targettag preexistence was not inspected, so presence alone does not prove this run. No export/admission/publication; current6output claim incomplete ledger/decision edits only, private root/observer/cache bytes retained. All historicalruns/heldrepairs/Russian41+/Chapter42 unchanged. Resume only after user instruction and inspect external outcome/receipt without repeating successful prerequisites."
+
+          - run_id: "20261006T130509Z-acquire-functional-tinystories-raw-pair-05"
+            started_at: "2026-10-06T13:05:09Z"
+            finished_at: "2026-10-06T13:24:22Z"
+            status: succeeded
+            input_fingerprint: {commit: "5c88384224c48dcb8a4b44c61d47c4134390d727", runtime_image: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758", fingerprint_file: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/input-fingerprint.json", fingerprint_sha256: "08da3ee245d00a4cc56eff6b5edc4bf8ff247d2f2f4f59b9fe69da70b388ec62"}
+            staging_dir: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/"
+            commands:
+              - "Resume under user instruction; full ledger/rules/decisions/environment and68fingerprints,355actual sourcecontextinputs verified; external5799done0/sourceimage57e8ca6b matches actual buildreceipt. Fresh continuation references immutable04source success, no rebuild/redownload;845.826sspent stays charged."
+              - "Actual immutable57sourceimage network-none/read-only/memory4GiB export via standardcp/stat completed0; exported binary2e2d0557 agrees with manifest/transport, current355historicalinputs and16stableinputs verified. Prepare private canonical-shaped root/copybyte-identical verifier/move single raw input, no compile/cachecopy. Initial run-private import-path error refused before any packaging effects; exact failed adapter preserved, corrected3-level import succeeds."
+              - "Existing maintained cache CLI private verify0, publish0 in170.968s, read-only replay0 in44.937s, same selected590runtimeflags/actual reusedverifier. Exact verified_bundle equality and fourhashes/counts/artifact7bc3b051 pass. Actual body-free observation of admitted cache starts only after replay."
+              - "Body-free mature Linux observer0, wholepayload SHA before/after equal; train12542ms/validation394ms. Exact framingfields recorded only, no filtering/tail policy decision or storydisclosure. Atomically move accepted digest to canonicalignoredcache without thirdrawcopy; publish fourmetadata exactstage."
+              - "bash scripts/run-functional-artifact-cache.sh replay --run-id 20261006T130509Z-acquire-functional-tinystories-raw-pair-05 --step acquire-functional-tinystories-raw-pair --target acquire-functional-tinystories-raw-pair-v2 --receipt /home/int/rust/learn_llm/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-publish-receipt-v2.json --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758; canonicalroot0/40824ms/exactprivatebundlebinding equality."
+              - "python3 .build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validate-publication.py; full YAML/JSON/stagehash/inventory/16inputs/current canonicalreplay/onlysixpaths/allotherstepsunchanged/append-onlydecisions pass. git diff --check0. Reused prior27tooling/FSformat/client/dependency evidence; no rerun/fullsite/browser/images/acquisition."
+            artifacts:
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/preflight.md", sha256: "4762fda4361ccabf0e98ae6df609ad7a3a9cb06254da1802f4ddb4b58591200c"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/input-fingerprint.json", sha256: "08da3ee245d00a4cc56eff6b5edc4bf8ff247d2f2f4f59b9fe69da70b388ec62"}
+              - {path: ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/source-build-true-1/build-receipt.json", sha256: "14a502d5442c6b608d317e1f1c30ec33e0375404b081b8dfe360109f5dd4a79e"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/export-provenance.json", sha256: "c8d98705cce077b887cfd5bebc2137e002df60f58bf84466c3c852ccd56d25ab"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/prepare-private-root.mjs", sha256: "af99f10083e39d7e515b51265468ec9c77242582327b6dc38865faf4c7c323e5"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation-root/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-verify-receipt-v2.json", sha256: "e7575427c24b739b916a025bdce21fc9599b6ac686cad60852877c5a93a2548e"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation-root/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-publish-receipt-v2.json", sha256: "7d4ac5f65ac08ca3f71ed57ec83ca9d391691cf5e92bf461f00328df39bb49d9"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation-root/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-replay-receipt-v2.json", sha256: "6bd3997580a92e54b9478b9dba5d310a7f317d5e3176ff6ec2fe0d22ef44a5a9"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/framing-observations.json", sha256: "1894137cc1fc1c217da9f710afc0d32a32785ef5b65f66166f80e73aaebb866d"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/metadata-publication.json", sha256: "d7896189ec1d6a0df139b005d7ae4a3d5ab8a93757d1ce4aef796d8ef729582a"}
+              - {path: ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-replay-receipt-v2.json", sha256: "6bd3997580a92e54b9478b9dba5d310a7f317d5e3176ff6ec2fe0d22ef44a5a9"}
+              - {path: "artifacts/functional-laptop/acquisition/tinystories/content-v2-production-binding.json", sha256: "ca16ccb752576b00bed29a0109323ea91456465f542dd4cbd1358707e52106f6"}
+              - {path: "artifacts/functional-laptop/acquisition/tinystories/manifest.json", sha256: "7bc3b05101f0427e52c596e34c28f13f60f64bb0b114509d1df27038f570e940"}
+              - {path: "artifacts/functional-laptop/acquisition/tinystories/receipt.json", sha256: "354187f4087ab683302cb20316d3c70a23ddcb1dc875a26df408773eff6f020b"}
+              - {path: "artifacts/functional-laptop/step-output-inventories/acquire-functional-tinystories-raw-pair.json", sha256: "f9123bf7c6122c2869790a551dda9c760764573f61799c001a96933e5efc9a43"}
+            validation:
+              - "Actual frozen sourcebuild/export/producer and16stableinput binding pass; current Rust verify/publish/private readonlyreplay/canonicalreadonlyreplay0 and exactequality. Fourpayloads1943743374bytes/hash identities verified."
+              - "Body-free actualframing observations0; both payloads have nonseparator/nonwhitespace EOF records/no finalLF. No source tail handling is silently chosen; Chapter42 remainspending for root reconciliation."
+              - "Full scoped YAML/JSON/inventory/stagebyte/onlysixpaths/holds/append-onlydecisions validation0; git diff --check0. No claimed measurement of unavailable BuildKit/host/diskpeaks or wire/redirectbody counts."
+            notes: "Completed05offline continuation, no rebuild/redownload/compile/registrycopy/repeatedgates. 845.826sspentsourcebuild remainscharged; actualsourceimage57/cacheartifact7bc3b051. Sampled allocated .05storage3921911808 and .04storage35426304bytes, sourceimage logicaldelta1950819871 versuspreexistingbase; not physical lifetimepeak proof. Canonicalcache allocated1943773184bytes; rawbytes ignored and no imagepush/redistribution approval. All old runs/sourcebuildartifacts/heldrepairs/Russian41+/Chapter42 unchanged. Dedicatedsixpathcommit required before furtherclaim."
 
       - id: implement-ch42-deterministic-corpus-filtering
         objective: "Apply deterministic quality, language, privacy and refusal filtering with exact reject reasons and preserved provenance."

@@ -1,0 +1,223 @@
+{
+  "schema_version": 2,
+  "step_id": "acquire-functional-tinystories-raw-pair",
+  "run_id": "20261006T130509Z-acquire-functional-tinystories-raw-pair-05",
+  "evidence_kind": "production-source-policy",
+  "status": "admitted-offline",
+  "artifact_id": "7bc3b05101f0427e52c596e34c28f13f60f64bb0b114509d1df27038f570e940",
+  "manifest_sha256": "7bc3b05101f0427e52c596e34c28f13f60f64bb0b114509d1df27038f570e940",
+  "baseline_commit": "5c88384224c48dcb8a4b44c61d47c4134390d727",
+  "production_binding": {
+    "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/publish/artifacts/functional-laptop/acquisition/tinystories/content-v2-production-binding.json",
+    "bytes": 4278,
+    "sha256": "ca16ccb752576b00bed29a0109323ea91456465f542dd4cbd1358707e52106f6"
+  },
+  "producer": {
+    "config_sha256": "5d21797249134bc6cc2b4e71b49394a642550d60201b572a93889800c867e4a7",
+    "script_sha256": "2e2d055705ca20b6727779e4ac155422554e5e562685a2bdb8d940a2f5dd87f9"
+  },
+  "actual_producer_binary": {
+    "bytes": 3407800,
+    "sha256": "2e2d055705ca20b6727779e4ac155422554e5e562685a2bdb8d940a2f5dd87f9",
+    "private_path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/export/source-private/producer-inputs/course-asset-fetch.bin"
+  },
+  "historical_source_build": {
+    "receipt": {
+      "path": ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/source-build-true-1/build-receipt.json",
+      "bytes": 55072,
+      "sha256": "14a502d5442c6b608d317e1f1c30ec33e0375404b081b8dfe360109f5dd4a79e"
+    },
+    "input_count": 355,
+    "source_image_id": "sha256:57e8ca6bec81d59df466ad4e50aed3a19f9cc079725cac48f17a12c1bff65fb4",
+    "base_image_id": "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758",
+    "elapsed_ms": 845826,
+    "transport": {
+      "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/export/source-private/transport.json",
+      "bytes": 3129,
+      "sha256": "ae33485eb949ddbf0b6c72f1e68b9a7d91d60b3265ececba3c0d35311a7d95f3",
+      "elapsed_ms": 832174,
+      "wire_bytes": "unavailable",
+      "redirect_body_bytes": "unavailable"
+    },
+    "context_policy": "Full actual source-build inputs are immutable historical evidence bound to the baseline Git commit, not live current-source requirements."
+  },
+  "live_compatibility": {
+    "input_count": 16,
+    "scope": "Fixed selected asset configuration, metadata inventory and its fourteen members only. Unrelated later Cargo/Rust changes require a current verifier build, not raw-source reacquisition."
+  },
+  "verified_bundle": {
+    "artifact_id": "7bc3b05101f0427e52c596e34c28f13f60f64bb0b114509d1df27038f570e940",
+    "evidence_kind": "production-source-policy",
+    "payloads": [
+      {
+        "bytes": 2263,
+        "id": "attribution",
+        "sha256": "f4ed8f96a818cf5b926b81d04777aa106d6d948d76ac83eb404c3d1b942c144a"
+      },
+      {
+        "bytes": 12273,
+        "id": "license",
+        "sha256": "2e8dc5697c0ff6fb8a399f2fb781c058d40313adf4f3d7779a395ed6fb0c8360"
+      },
+      {
+        "bytes": 1924281556,
+        "id": "train",
+        "sha256": "c5cf5e22ff13614e830afbe61a99fbcbe8bcb7dd72252b989fa1117a368d401f"
+      },
+      {
+        "bytes": 19447282,
+        "id": "validation",
+        "sha256": "94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4"
+      }
+    ],
+    "total_bytes": 1943743374
+  },
+  "offline_evidence": {
+    "runtime_image_id": "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758",
+    "network": "none",
+    "verify_publish_replay_equal": true,
+    "receipts": [
+      {
+        "operation": "verify",
+        "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation-root/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-verify-receipt-v2.json",
+        "bytes": 1708,
+        "sha256": "e7575427c24b739b916a025bdce21fc9599b6ac686cad60852877c5a93a2548e"
+      },
+      {
+        "operation": "publish",
+        "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation-root/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-publish-receipt-v2.json",
+        "bytes": 1709,
+        "sha256": "7d4ac5f65ac08ca3f71ed57ec83ca9d391691cf5e92bf461f00328df39bb49d9"
+      },
+      {
+        "operation": "replay",
+        "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation-root/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/artifact-cache-replay-receipt-v2.json",
+        "bytes": 1708,
+        "sha256": "6bd3997580a92e54b9478b9dba5d310a7f317d5e3176ff6ec2fe0d22ef44a5a9"
+      }
+    ],
+    "reused_verifier_build_receipt": {
+      "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation-root/.build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/tool-build-receipt-v2-1.json",
+      "bytes": 771,
+      "sha256": "a83ea9861276d8577c4f3a26ba0f66b6e83d5734510e5554ba755eac6cb1a9bb"
+    },
+    "verifier_binary_sha256": "9660d65aebedce10ad8e8d6e70597a2c914d2d7095218a22b6605ff3f4d0fade",
+    "compiler_repeated": false
+  },
+  "framing": {
+    "evidence_kind": "body-free-source-observation-not-filtering",
+    "receipt": {
+      "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/framing-observations.json",
+      "bytes": 2881,
+      "sha256": "1894137cc1fc1c217da9f710afc0d32a32785ef5b65f66166f80e73aaebb866d"
+    },
+    "observer": {
+      "path": ".build/runs/20261006T123336Z-acquire-functional-tinystories-raw-pair-04/observe-framing.sh",
+      "sha256": "f247237aa78f13517a2eb3339cff67f288ee42c35ace9a6222af7f27383379df",
+      "prior_fixture_log_sha256": "c556aec53cca2fe8e0d2f0a83bb234359b29134181a3843947c90bb76831aba2"
+    },
+    "observations": [
+      {
+        "logical_id": "train",
+        "bytes": "1924281556",
+        "sha256_before": "c5cf5e22ff13614e830afbe61a99fbcbe8bcb7dd72252b989fa1117a368d401f",
+        "lf_count": "14815489",
+        "awk_records": "14815490",
+        "empty_lf_records": "1195149",
+        "crlf_records": "0",
+        "exact_whole_line_separators": "2119718",
+        "crlf_whole_line_separators": "0",
+        "max_record_bytes_excluding_lf": "4928",
+        "final_record_kind": "other",
+        "marker_occurrences_anywhere": "2119718",
+        "final_byte_decimal": "100",
+        "sha256_after": "c5cf5e22ff13614e830afbe61a99fbcbe8bcb7dd72252b989fa1117a368d401f",
+        "command": {
+          "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation/framing-train-01/command.json",
+          "sha256": "6cee4bd7ffd043cec9f41ba71212c4283cce04eb496bae458a39a5958078b94e"
+        },
+        "output": {
+          "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation/framing-train-01/stdout.txt",
+          "sha256": "e4a27294e23c6649b4c48632df4d310a68a11c69d2ceafed28dd5d4be35a3544"
+        }
+      },
+      {
+        "logical_id": "validation",
+        "bytes": "19447282",
+        "sha256_before": "94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4",
+        "lf_count": "147272",
+        "awk_records": "147273",
+        "empty_lf_records": "11694",
+        "crlf_records": "0",
+        "exact_whole_line_separators": "21989",
+        "crlf_whole_line_separators": "0",
+        "max_record_bytes_excluding_lf": "1484",
+        "final_record_kind": "other",
+        "marker_occurrences_anywhere": "21989",
+        "final_byte_decimal": "33",
+        "sha256_after": "94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4",
+        "command": {
+          "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation/framing-validation-01/command.json",
+          "sha256": "264487f0649275f8b8b38616e6f31cf31ead5839f9aab7468912c44978733b01"
+        },
+        "output": {
+          "path": ".build/runs/20261006T130509Z-acquire-functional-tinystories-raw-pair-05/validation/framing-validation-01/stdout.txt",
+          "sha256": "e63ecee20f7e4dfefa20a93446332d2e2633db30a88b3bd91b7a8f1673d4fb0b"
+        }
+      }
+    ],
+    "interpretation": "Physical line/separator/EOF observations only, not document filtering, tokenizer statistics, coverage or model-quality evidence."
+  },
+  "resources": {
+    "limits": {
+      "selected_final_content_bytes": 2000000000,
+      "host_bytes": 4294967296,
+      "disk_bytes": 8000000000,
+      "workload_wall_seconds": 14400
+    },
+    "actual_final_payload_bytes": 1943743374,
+    "raw_pair_bytes": 1943728838,
+    "source_build_elapsed_ms_charged": 845826,
+    "transport_elapsed_ms_within_source_build": 832174,
+    "private_publish_elapsed_ms": 170968,
+    "private_replay_elapsed_ms": 44937,
+    "wire_bytes": "unavailable",
+    "redirect_body_bytes": "unavailable",
+    "host_peak_bytes": "unavailable",
+    "disk_peak_bytes": "unavailable",
+    "storage_observations": {
+      "measurement": "du -s -B 1 before metadata publication/cache move",
+      "current_run_allocated_bytes": 3921911808,
+      "interrupted_run_allocated_bytes": 35426304,
+      "source_image_logical_bytes": 8383479106,
+      "preexisting_base_image_logical_bytes": 6432659235,
+      "reported_logical_image_delta_bytes": 1950819871,
+      "qualification": "Logical image sizes include shared layers; neither these sizes nor sampled host allocation prove physical whole-build or lifetime peaks."
+    },
+    "qualification": "Configured resource ceilings and bounded runtime limits are preserved. Unavailable whole-BuildKit/host and lifetime disk peaks are not asserted as measured passes; transfer duration is contained in build duration, not added twice. Continuation does not refund already spent allowance."
+  },
+  "redistribution": {
+    "adapter": "not-approved",
+    "derived_model": "not-approved",
+    "raw_input": "not-approved"
+  },
+  "routing": {
+    "model_and_effort": "inherited current user selection; no override",
+    "configured_names_exposed_to_orchestrator": false
+  },
+  "scope": {
+    "source_fetch_repeated": false,
+    "image_rebuild": false,
+    "paid_service": false,
+    "raw_bytes_tracked": false,
+    "source_bodies_disclosed": false,
+    "held_repairs_changed": false,
+    "russian_41_and_higher_deferred": true,
+    "chapter_42_claimed": false
+  },
+  "known_historical_failures": {
+    "source_attempts_01_to_03": "Preserved as interrupted/failed history; no changed success claim.",
+    "source_attempt_04": "Interrupted whole attempt at user ownership handoff; completed immutable source-build suboperation reused.",
+    "run_05_packaging": "Initial import depth and read-only build-key extraction mistakes refused before corresponding outputs; failed evidence retained."
+  }
+}
