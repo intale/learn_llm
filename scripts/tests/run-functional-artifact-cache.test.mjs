@@ -30,6 +30,8 @@ test('self-test generated handoff cannot acquire network input',()=>{
 });
 test('bridge aliases and operation are closed',()=>{
  assert.equal(bridgeRequest('publish').cache_parent,'/cache');
+ assert.equal(bridgeRequest('publish').policy_config_path,'/policy/source-policy.json');
+ assert.equal(bridgeRequest('replay',{digest}).policy_config_path,'/policy/source-policy.json');
  assert.equal(bridgeRequest('replay',{digest}).entry_root,'/entry/'+digest);
  assert.throws(()=>bridgeRequest('fetch'));assert.throws(()=>bridgeRequest('replay',{digest:'../escape'}));
 });

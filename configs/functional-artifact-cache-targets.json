@@ -3,9 +3,11 @@
   "runtime_tag": "learn-llm-workspace:local",
   "cache_parent": ".build/artifact-cache/functional-v1/sha256",
   "metadata_inventory": "artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json",
+  "fixture_policy_config": "rust/demos/ch41-governed-corpus-acquisition/fixtures/source-policy.json",
   "targets": {
     "artifact-cache-v1": {"step_id":"establish-functional-artifact-cache-execution-boundary","modes":["self-test"],"validator":"rust-dataset-v1","policy_kind":"synthetic-offline-fixture"},
-    "acquire-functional-tinystories-raw-pair-v1": {"step_id":"acquire-functional-tinystories-raw-pair","modes":["acquire","publish","verify","replay"],"validator":"rust-dataset-v1","policy_kind":"production-source-policy","license_text":"artifacts/functional-laptop/acquisition/tinystories/source-metadata/cdla-page-text.txt","license_text_sha256":"2e8dc5697c0ff6fb8a399f2fb781c058d40313adf4f3d7779a395ed6fb0c8360","attribution":"artifacts/functional-laptop/acquisition/tinystories/source-metadata/attribution-and-permission.json","attribution_references":["https://huggingface.co/datasets/roneneldan/TinyStories/resolve/f54c09fd23315a6f9c86f9dc80f725de7d8f9c64/README.md","https://cdla.dev/sharing-1-0/"],"download_bytes_max":2000000000,"download_bytes_exact":1943728838,"wall_seconds":14400},
+    "configured-corpus-assets-v1": {"step_id":"configure-functional-corpus-assets","modes":["self-test"],"validator":"rust-dataset-v1","policy_kind":"synthetic-offline-fixture"},
+    "acquire-functional-tinystories-raw-pair-v1": {"step_id":"acquire-functional-tinystories-raw-pair","modes":["acquire","publish","verify","replay"],"validator":"rust-dataset-v1","policy_kind":"production-source-policy","asset_config":"configs/functional-corpus-assets.json","asset_id":"tinystories-raw-pair","license_text":"artifacts/functional-laptop/acquisition/tinystories/source-metadata/cdla-page-text.txt","attribution":"artifacts/functional-laptop/acquisition/tinystories/source-metadata/attribution-and-permission.json","production_binding":"artifacts/functional-laptop/acquisition/tinystories/production-binding.json"},
     "execute-functional-corpus-filtering-v1": {"step_id":"execute-functional-corpus-filtering","modes":[],"validator":"unavailable-until-ch42-publication","policy_kind":"unadmitted"}
   }
 }

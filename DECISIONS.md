@@ -29039,3 +29039,99 @@ cases pass. Default-enabled evidence is injected/synthetic only, not a physical
 1.94GB transfer. Real default download, raw admission/publication/replay and
 Chapter42 implementation remain pending. Durable receipts state that limit;
 do not continue acquisition in this condition-only turn.
+
+### 2026-10-06 — Resume exact raw acquisition after condition completion
+
+The user now authorizes Chapter42 continuation. Claim only the eligible raw
+acquisition successor after b2524fa; preserve its interrupted pre-transfer run
+and reuse completed metadata/cache/condition evidence. The existing maintained
+builder downloads only the frozen pair in the default-enabled course-corpus
+image BUILD, using the ready workspace base. All container executions stay
+network-none. Exact1943728838 source bytes, cumulative2GB,4GiB host,8GB disk and
+14400s product bounds remain; no retry, environment rebuild or paid service.
+Freeze actual producer inputs/image and accepted metadata for future replay,
+not arbitrary later Dockerfile bytes. Chapter42 stays unclaimed until admitted
+raw publication/replay and its prerequisite completion commit. Repairs and
+Russian41+ remain held.
+
+### 2026-10-06 — Preserve first transfer refusal and add bounded diagnostics
+
+Successor02's actual enabled build refused after1192received body bytes and zero
+completed files. The old generic failure lacks the exact predicate; preserve its
+receipt/log. Root authorizes only static reason/status/hostname/normalized media
+and redirect-count diagnostics, excluding URLs, query values, headers and bodies.
+Fifteen actual offline pinned Node22 tests pass, including secrecy tests. A new
+changed-input acquisition03 may diagnose the identical frozen source; this is
+not a transient retry wrapper or source/host/media/checksum relaxation. Previous
+1192bytes remain charged; cumulative source2GB ceiling is unchanged.
+
+The corrected03 build now identifies the exact conflict: huggingface.co returns
+HTTP302, text/plain, to us.aws.cdn.hf.co for the unchanged pinned train request.
+That host is outside the frozen five-host policy, so the downloader refuses
+before a destination request.1184body bytes were received; cumulative2376bytes,
+zero completed files, no admitted corpus. Preserve both failed receipts/logs.
+Acquisition is blocked pending a source-policy decision; do not add the domain,
+relax media/checksum rules, substitute sources or retry speculatively. Chapter42
+remains pending. The small validated telemetry edits remain explicit incomplete
+acquisition-owned working-tree changes, not a completed acquisition commit.
+
+### 2026-10-06 — Suspend transport simplification for asset configuration
+
+The user now requires implementation not to hardcode course assets. Suspend
+the incomplete curl corrective step before any corpus download or publication.
+Preserve partial shell/Docker/builder/test/rule and root6host edits; their fixed
+asset literals are drafts to migrate after root freezes a configuration contract.
+Official curl8.22.0 tool image Linuxamd64 manifest43366cd60f226c7655181a0f7e85c468a41d182fdd2dc2c1c3b872a2b9d05d7a
+was provisioned; actual offline version/standard tools and host stub cases passed.
+The actual unknown-length Unix-socket probe could not connect, so no cap probe
+acceptance is claimed; private raw diagnostic remains in the corrective run.
+No corpus transfer beyond the already recorded2376failed bytes occurred.
+Root owns generic Rust policy/config validation; machinery must not invent a
+competing asset format. Main image unchanged, acquisition/Chapter42 remain held.
+
+### 2026-10-06 — Selected asset configuration replaces partial transport scope
+
+Root freezes one closed configs/functional-corpus-assets.json selection and
+generic DatasetPolicyConfigV1; producer identity is a separate approved runtime
+binding. Source specifications, provenance, hosts and caps come from selected
+configuration, never an untrusted manifest. The demo owns its synthetic fixture
+configuration. Replace the invalidated incomplete curl-only step with the narrow
+configured-assets step, preserving its interrupted history. Machinery updates
+registry/CLI/curl/jq plumbing, root owns Rust policy and demo behavior. No corpus
+transfer occurs until this correction passes and its own commit completes.
+
+### 2026-10-06 — Content IO and destination correction; transport kept separate
+
+The user clarifies that Chapter41 governs content, not retrieval. Its shared
+technical boundary accepts standard Read and Write and an external staged
+AssetStore; selected source-specific policy lives in checked-in configuration.
+The filesystem adapter retains complete anchored inventory checks and atomic
+publication, while generic readers cannot claim to discover hidden files or
+inode aliases. No database driver or rollback guarantee is implied.
+
+Preserve the unaccepted manual curl HTTP draft in the first configured-assets
+run and restore its canonical transport files to the prior baseline. Mature
+standard-client retrieval remains a separate machinery prerequisite; reqwest
+preflight is not dependency admission or an executed download. The HTTP-centric
+Chapter41 learner demonstration needs a separate authored correction and fresh
+English gates. This technical checkpoint changes neither learner prose nor its
+rendered Rust excerpts or stdout. Acquisition and Chapter42 remain pending.
+
+Successor02 freezes the final technical scope and rebuilds the tool receipt;
+earlier immutable diagnostics and stale receipts remain history, never relabeled.
+No additional corpus bytes, environment rebuild or client installation occurs.
+
+The completed technical gates are42Chapter41 policy/content/store tests,6CLI
+tests,18maintained Node22 wrapper/receipt cases, scoped clippy with warnings
+denied, exact stdout equality, seven unchanged learner-facing source records and
+two unchanged rendered Rust regions. Actual offline synthetic publication,
+readonly replay, generated handoff and mount/refusal checks pass using fresh
+tool evidence. This is not raw corpus admission or a language-review verdict.
+
+The separately queued standard-client boundary will count verified final payload
+bytes under the2GB content ceiling; it must not claim per-hop/wire-byte limits
+which automatic clients cannot prove. Preserve historical grant accounting as
+history, not executed reqwest behavior. Latest user content/retrieval separation
+authorizes this explicit live compatibility distinction; source HTTPS authority,
+selected host policy, redirect bounds and product deadlines remain. No client
+dependency or real download is installed/executed in the completed checkpoint.

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "default_asset": "tinystories-raw-pair",
+  "assets": {
+    "tinystories-raw-pair": {
+      "schema_version": 1,
+      "allowed_hosts": ["huggingface.co", "cdn-lfs.huggingface.co", "cdn-lfs-us-1.huggingface.co", "cdn-lfs-eu-1.huggingface.co", "cas-bridge.xethub.hf.co", "us.aws.cdn.hf.co"],
+      "attribution_path": "provenance/ATTRIBUTION.txt",
+      "attribution_references": ["https://huggingface.co/datasets/roneneldan/TinyStories/resolve/f54c09fd23315a6f9c86f9dc80f725de7d8f9c64/README.md", "https://cdla.dev/sharing-1-0/"],
+      "attribution_sha256": "f4ed8f96a818cf5b926b81d04777aa106d6d948d76ac83eb404c3d1b942c144a",
+      "body_ceiling": 2000000000,
+      "domain": "synthetic-short-stories",
+      "evidence_kind": "production-source-policy",
+      "language": "en",
+      "license_id": "CDLA-Sharing-1.0",
+      "license_path": "provenance/LICENSE.txt",
+      "license_sha256": "2e8dc5697c0ff6fb8a399f2fb781c058d40313adf4f3d7779a395ed6fb0c8360",
+      "selected_source": "roneneldan-TinyStories-original-text-pair",
+      "sources": [
+        {"bytes":1924281556,"path":"raw/TinyStories-train.txt","requested_url":"https://huggingface.co/datasets/roneneldan/TinyStories/resolve/f54c09fd23315a6f9c86f9dc80f725de7d8f9c64/TinyStories-train.txt","sha256":"c5cf5e22ff13614e830afbe61a99fbcbe8bcb7dd72252b989fa1117a368d401f","source_id":"tinystories-train-raw","upstream_revision":"f54c09fd23315a6f9c86f9dc80f725de7d8f9c64"},
+        {"bytes":19447282,"path":"raw/TinyStories-valid.txt","requested_url":"https://huggingface.co/datasets/roneneldan/TinyStories/resolve/f54c09fd23315a6f9c86f9dc80f725de7d8f9c64/TinyStories-valid.txt","sha256":"94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4","source_id":"tinystories-valid-raw","upstream_revision":"f54c09fd23315a6f9c86f9dc80f725de7d8f9c64"}
+      ],
+      "wall_seconds": 14400
+    }
+  }
+}

@@ -47,6 +47,11 @@ independent English or localization review or adjudication.
 
 ### Codex resource routing and deterministic tooling
 
+Before implementing scripts to supply course assets or support development,
+consider existing Linux tools. Prefer mature tools such as curl, sha256sum,
+stat and standard shell utilities when they satisfy the required behavior;
+keep custom glue narrow and do not reimplement their protocols or plumbing.
+
 Use the user-selected model and effort for content, review, and operational work,
 including curriculum material, learner-facing Rust implementation, technical and
 pedagogical decisions, localization, independent review/adjudication judgments,

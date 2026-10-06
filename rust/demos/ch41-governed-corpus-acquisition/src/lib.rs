@@ -21,6 +21,17 @@ pub const LICENSE: &[u8] = b"fixture-only\n";
 pub const ATTRIBUTION: &[u8] = b"course-authored fixture\n";
 pub const VARIANT_ATTRIBUTION: &[u8] = b"course-authored fixture v2\n";
 
+pub fn fixture_policy() -> DatasetPolicy {
+    DatasetPolicy::from_config_bytes(
+        include_bytes!("../fixtures/source-policy.json"),
+        Producer {
+            config_sha256: "0".repeat(64),
+            script_sha256: "0".repeat(64),
+        },
+    )
+    .expect("checked-in chapter fixture policy must be valid")
+}
+
 /// This demonstration owns only the directory it exclusively creates. Its path
 /// never enters the teaching trace or an artifact identity.
 pub struct OwnedDirectory(PathBuf);
@@ -70,13 +81,17 @@ impl Drop for OwnedDirectory {
 pub fn fixture_manifest(
     attribution: &[u8],
 ) -> Result<(DatasetArtifactManifestV1, DatasetPolicy), AcquisitionError> {
-    let policy = DatasetPolicy::synthetic_fixture()
-        .fixture_with_attribution(sha256(attribution).as_hex())?;
+    let policy = fixture_policy().fixture_with_attribution(sha256(attribution).as_hex())?;
+    let config = policy.config();
     let mut payload: Vec<PayloadEntry> = [
-        ("raw/train.txt", "raw-train", TRAIN),
-        ("raw/valid.txt", "raw-validation", VALIDATION),
-        ("provenance/LICENSE.txt", "license", LICENSE),
-        ("provenance/ATTRIBUTION.txt", "attribution", attribution),
+        (config.sources[0].path.as_str(), "raw-train", TRAIN),
+        (
+            config.sources[1].path.as_str(),
+            "raw-validation",
+            VALIDATION,
+        ),
+        (config.license_path.as_str(), "license", LICENSE),
+        (config.attribution_path.as_str(), "attribution", attribution),
     ]
     .into_iter()
     .map(|(path, role, bytes)| PayloadEntry {
@@ -94,14 +109,14 @@ pub fn fixture_manifest(
         .enumerate()
         .map(|(index, source)| {
             Ok(SourceRecord {
-                attribution_path: "provenance/ATTRIBUTION.txt".into(),
-                attribution_references: vec!["https://example.invalid/fixtures".into()],
+                attribution_path: config.attribution_path.clone(),
+                attribution_references: config.attribution_references.clone(),
                 attribution_sha256: sha256(attribution).as_hex().into(),
                 bytes: source.bytes,
                 filter_config_sha256: None,
                 filter_script_sha256: None,
-                license_id: "LicenseRef-Course-Test-Only".into(),
-                license_path: "provenance/LICENSE.txt".into(),
+                license_id: config.license_id.clone(),
+                license_path: config.license_path.clone(),
                 license_text_sha256: sha256(LICENSE).as_hex().into(),
                 media_type: "text/plain".into(),
                 payload_path: source.path.clone(),
@@ -121,16 +136,13 @@ pub fn fixture_manifest(
         .collect::<Result<Vec<_>, AcquisitionError>>()?;
     let manifest = DatasetArtifactManifestV1 {
         dataset_scope: DatasetScope {
-            domain: "synthetic-policy-fixture".into(),
-            language: "fixture".into(),
-            selected_source: "fixture-pair".into(),
+            domain: config.domain.clone(),
+            language: config.language.clone(),
+            selected_source: config.selected_source.clone(),
         },
         kind: "dataset".into(),
         payload,
-        producer: Producer {
-            config_sha256: "0".repeat(64),
-            script_sha256: "0".repeat(64),
-        },
+        producer: policy.producer().clone(),
         redistribution: Redistribution {
             adapter: "not-approved".into(),
             derived_model: "not-approved".into(),
@@ -144,14 +156,19 @@ pub fn fixture_manifest(
 }
 
 pub fn write_fixture(root: &Path, attribution: &[u8]) -> Result<(), AcquisitionError> {
-    fs::create_dir(root.join("raw")).map_err(|_| AcquisitionError::Io)?;
-    fs::create_dir(root.join("provenance")).map_err(|_| AcquisitionError::Io)?;
+    let config = fixture_policy().config();
     for (path, bytes) in [
-        ("raw/train.txt", TRAIN),
-        ("raw/valid.txt", VALIDATION),
-        ("provenance/LICENSE.txt", LICENSE),
-        ("provenance/ATTRIBUTION.txt", attribution),
+        (config.sources[0].path.as_str(), TRAIN),
+        (config.sources[1].path.as_str(), VALIDATION),
+        (config.license_path.as_str(), LICENSE),
+        (config.attribution_path.as_str(), attribution),
     ] {
+        fs::create_dir_all(
+            root.join(path)
+                .parent()
+                .ok_or(AcquisitionError::UnsafePath)?,
+        )
+        .map_err(|_| AcquisitionError::Io)?;
         fs::write(root.join(path), bytes).map_err(|_| AcquisitionError::Io)?;
     }
     Ok(())

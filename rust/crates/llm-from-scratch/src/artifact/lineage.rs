@@ -6,8 +6,8 @@ use std::fmt;
 use url::Url;
 
 use super::canonical_manifest::{
-    DatasetArtifactManifestV1, Producer, RedactedEndpoint, lower_sha256, query_inventory_digest,
-    validate_manifest_structure,
+    DatasetArtifactManifestV1, Producer, RedactedEndpoint, lower_sha256, portable_payload_path,
+    query_inventory_digest, validate_manifest_structure,
 };
 use crate::artifact_identity::{ArtifactDigest, sha256};
 
@@ -49,16 +49,7 @@ impl fmt::Display for AcquisitionError {
 }
 impl std::error::Error for AcquisitionError {}
 
-pub const TINYSTORIES_REVISION: &str = "f54c09fd23315a6f9c86f9dc80f725de7d8f9c64";
-pub const PRODUCTION_BODY_CEILING: u64 = 2_000_000_000;
-pub const PRODUCTION_WALL_SECONDS: u64 = 14_400;
-pub const REDIRECT_HOSTS: [&str; 5] = [
-    "huggingface.co",
-    "cdn-lfs.huggingface.co",
-    "cdn-lfs-us-1.huggingface.co",
-    "cdn-lfs-eu-1.huggingface.co",
-    "cas-bridge.xethub.hf.co",
-];
+pub const MAX_POLICY_CONFIG_BYTES: usize = 65_536;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -73,6 +64,8 @@ pub struct SourceSpec {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct DatasetPolicy {
+    allowed_hosts: Vec<String>,
+    attribution_path: String,
     attribution_references: Vec<String>,
     attribution_sha256: String,
     body_ceiling: u64,
@@ -80,127 +73,202 @@ pub struct DatasetPolicy {
     evidence_kind: String,
     language: String,
     license_id: String,
+    license_path: String,
     license_sha256: String,
     producer: Producer,
+    schema_version: u32,
     selected_source: String,
     sources: [SourceSpec; 2],
     wall_seconds: u64,
 }
 
+/// Selected asset data, supplied independently of an untrusted bundle manifest.
+/// The caller owns selection, provenance and the read-only configuration boundary.
+/// This v1 codec describes the existing paired-source bundle, not a named dataset.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct DatasetPolicyConfigV1 {
+    pub allowed_hosts: Vec<String>,
+    pub attribution_path: String,
+    pub attribution_references: Vec<String>,
+    pub attribution_sha256: String,
+    pub body_ceiling: u64,
+    pub domain: String,
+    pub evidence_kind: String,
+    pub language: String,
+    pub license_id: String,
+    pub license_path: String,
+    pub license_sha256: String,
+    pub schema_version: u32,
+    pub selected_source: String,
+    pub sources: [SourceSpec; 2],
+    pub wall_seconds: u64,
+}
+
 impl DatasetPolicy {
-    /// A named offline policy, not a production flag that relaxes an allowlist.
-    /// Production entry points construct `tinystories` and never accept this
-    /// policy through caller-supplied JSON.
-    pub fn synthetic_fixture() -> Self {
-        Self {
-            attribution_references: vec!["https://example.invalid/fixtures".into()],
-            attribution_sha256: "0d00779105653df98f180d5d8b910ea061782492fcb25e1d955e70453c3456f5"
-                .into(),
-            body_ceiling: 64,
-            domain: "synthetic-policy-fixture".into(),
-            evidence_kind: "synthetic-offline-fixture".into(),
-            language: "fixture".into(),
-            license_id: "LicenseRef-Course-Test-Only".into(),
-            license_sha256: "db64e55296d3cb3c38619dae7b7cce54bb74a83956423be38443258ebb0724da"
-                .into(),
-            producer: Producer {
-                config_sha256: "0".repeat(64),
-                script_sha256: "0".repeat(64),
-            },
-            selected_source: "fixture-pair".into(),
-            sources: [
-                SourceSpec {
-                    bytes: 3,
-                    path: "raw/train.txt".into(),
-                    requested_url: "https://example.invalid/fixtures/train.txt".into(),
-                    sha256: "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
-                        .into(),
-                    source_id: "fixture-train".into(),
-                    upstream_revision: "fixture-revision-1".into(),
-                },
-                SourceSpec {
-                    bytes: 6,
-                    path: "raw/valid.txt".into(),
-                    requested_url: "https://example.invalid/fixtures/valid.txt".into(),
-                    sha256: "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03"
-                        .into(),
-                    source_id: "fixture-valid".into(),
-                    upstream_revision: "fixture-revision-1".into(),
-                },
-            ],
-            wall_seconds: 60,
+    pub fn from_config_bytes(bytes: &[u8], producer: Producer) -> Result<Self, AcquisitionError> {
+        if bytes.len() > MAX_POLICY_CONFIG_BYTES {
+            return Err(AcquisitionError::ManifestBound);
         }
+        let config = serde_json::from_slice(bytes).map_err(|_| AcquisitionError::Schema)?;
+        Self::from_config(config, producer)
     }
 
-    /// Retained real metadata and actual producer bindings must already exist.
-    /// This constructor neither fetches metadata nor decides legal permission.
-    pub fn tinystories(
+    /// Validate selected configuration before constructing an admission policy.
+    /// Producer identity comes from the caller's verified execution binding, not
+    /// from a dataset-specific constructor or an authorization claim in a manifest.
+    pub fn from_config(
+        config: DatasetPolicyConfigV1,
         producer: Producer,
-        license_sha256: String,
-        attribution_sha256: String,
-        attribution_references: Vec<String>,
     ) -> Result<Self, AcquisitionError> {
-        for hash in [
-            &producer.config_sha256,
-            &producer.script_sha256,
-            &license_sha256,
-            &attribution_sha256,
-        ] {
+        if config.schema_version != 1
+            || config.body_ceiling == 0
+            || config.wall_seconds == 0
+            || !matches!(
+                config.evidence_kind.as_str(),
+                "synthetic-offline-fixture" | "production-source-policy"
+            )
+        {
+            return Err(AcquisitionError::Policy);
+        }
+        let fixture = config.evidence_kind == "synthetic-offline-fixture";
+        for hash in [&config.license_sha256, &config.attribution_sha256] {
             if !lower_sha256(hash) || hash.bytes().all(|b| b == b'0') {
                 return Err(AcquisitionError::Policy);
             }
         }
-        if attribution_references.is_empty() || attribution_references.len() > 16 {
+        for hash in [&producer.config_sha256, &producer.script_sha256] {
+            if !lower_sha256(hash) || (!fixture && hash.bytes().all(|b| b == b'0')) {
+                return Err(AcquisitionError::Policy);
+            }
+        }
+        for value in [
+            &config.domain,
+            &config.language,
+            &config.license_id,
+            &config.selected_source,
+        ] {
+            if value.is_empty() || value.len() > 256 || value.chars().any(char::is_control) {
+                return Err(AcquisitionError::Metadata);
+            }
+        }
+        if config.attribution_references.is_empty() || config.attribution_references.len() > 16 {
             return Err(AcquisitionError::Metadata);
         }
-        let make = |name: &str, source_id: &str, bytes: u64, digest: &str| SourceSpec {
-            bytes,
-            path: format!("raw/{name}"),
-            requested_url: format!(
-                "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/{TINYSTORIES_REVISION}/{name}"
-            ),
-            sha256: digest.into(),
-            source_id: source_id.into(),
-            upstream_revision: TINYSTORIES_REVISION.into(),
-        };
+        if config.allowed_hosts.is_empty() || config.allowed_hosts.len() > 32 {
+            return Err(AcquisitionError::Policy);
+        }
+        let mut hosts = std::collections::BTreeSet::new();
+        for host in &config.allowed_hosts {
+            let parsed =
+                Url::parse(&format!("https://{host}/")).map_err(|_| AcquisitionError::Policy)?;
+            if host.len() > 253
+                || host.bytes().any(|byte| {
+                    !byte.is_ascii_lowercase()
+                        && !byte.is_ascii_digit()
+                        && !matches!(byte, b'-' | b'.')
+                })
+                || parsed.host_str() != Some(host.as_str())
+                || !hosts.insert(host)
+            {
+                return Err(AcquisitionError::Policy);
+            }
+        }
+        let mut paths = std::collections::BTreeSet::new();
+        for path in [
+            &config.license_path,
+            &config.attribution_path,
+            &config.sources[0].path,
+            &config.sources[1].path,
+        ] {
+            if !portable_payload_path(path) || !paths.insert(path.to_ascii_lowercase()) {
+                return Err(AcquisitionError::UnsafePath);
+            }
+        }
+        let mut source_ids = std::collections::BTreeSet::new();
+        for source in &config.sources {
+            if !lower_sha256(&source.sha256)
+                || source.source_id.is_empty()
+                || source.source_id.len() > 256
+                || source.upstream_revision.is_empty()
+                || source.upstream_revision.len() > 256
+                || source.source_id.chars().any(char::is_control)
+                || source.upstream_revision.chars().any(char::is_control)
+                || !source_ids.insert(&source.source_id)
+            {
+                return Err(AcquisitionError::Policy);
+            }
+        }
         let policy = Self {
-            attribution_references,
-            attribution_sha256,
-            body_ceiling: PRODUCTION_BODY_CEILING,
-            domain: "synthetic-short-stories".into(),
-            evidence_kind: "production-source-policy".into(),
-            language: "en".into(),
-            license_id: "CDLA-Sharing-1.0".into(),
-            license_sha256,
+            allowed_hosts: config.allowed_hosts,
+            attribution_path: config.attribution_path,
+            attribution_references: config.attribution_references,
+            attribution_sha256: config.attribution_sha256,
+            body_ceiling: config.body_ceiling,
+            domain: config.domain,
+            evidence_kind: config.evidence_kind,
+            language: config.language,
+            license_id: config.license_id,
+            license_path: config.license_path,
+            license_sha256: config.license_sha256,
             producer,
-            selected_source: "roneneldan-TinyStories-original-text-pair".into(),
-            sources: [
-                make(
-                    "TinyStories-train.txt",
-                    "tinystories-train-raw",
-                    1_924_281_556,
-                    "c5cf5e22ff13614e830afbe61a99fbcbe8bcb7dd72252b989fa1117a368d401f",
-                ),
-                make(
-                    "TinyStories-valid.txt",
-                    "tinystories-valid-raw",
-                    19_447_282,
-                    "94e431816c4cce81ff71e4408ff8d3bda9a42e8d2663986697c3954288cb38b4",
-                ),
-            ],
-            wall_seconds: PRODUCTION_WALL_SECONDS,
+            schema_version: config.schema_version,
+            selected_source: config.selected_source,
+            sources: config.sources,
+            wall_seconds: config.wall_seconds,
         };
         for reference in &policy.attribution_references {
             let parsed = Url::parse(reference).map_err(|_| AcquisitionError::Metadata)?;
-            if parsed.scheme() != "https"
+            if reference.len() > 16_384
+                || parsed.scheme() != "https"
                 || parsed.host_str().is_none()
                 || !parsed.username().is_empty()
                 || parsed.password().is_some()
+                || parsed.fragment().is_some()
             {
                 return Err(AcquisitionError::Metadata);
             }
         }
+        for source in policy.sources() {
+            let (url, _) = policy.admit_endpoint(&source.requested_url)?;
+            // Selected source URLs are public provenance, unlike private signed
+            // redirect destinations. Never embed query values in that record.
+            if url.query().is_some() {
+                return Err(AcquisitionError::Url);
+            }
+        }
+        if serde_json::to_vec(&policy.config())
+            .map_err(|_| AcquisitionError::Schema)?
+            .len()
+            > MAX_POLICY_CONFIG_BYTES
+        {
+            return Err(AcquisitionError::ManifestBound);
+        }
         Ok(policy)
+    }
+
+    pub fn config(&self) -> DatasetPolicyConfigV1 {
+        DatasetPolicyConfigV1 {
+            allowed_hosts: self.allowed_hosts.clone(),
+            attribution_path: self.attribution_path.clone(),
+            attribution_references: self.attribution_references.clone(),
+            attribution_sha256: self.attribution_sha256.clone(),
+            body_ceiling: self.body_ceiling,
+            domain: self.domain.clone(),
+            evidence_kind: self.evidence_kind.clone(),
+            language: self.language.clone(),
+            license_id: self.license_id.clone(),
+            license_path: self.license_path.clone(),
+            license_sha256: self.license_sha256.clone(),
+            schema_version: self.schema_version,
+            selected_source: self.selected_source.clone(),
+            sources: self.sources.clone(),
+            wall_seconds: self.wall_seconds,
+        }
+    }
+
+    pub fn producer(&self) -> &Producer {
+        &self.producer
     }
 
     pub fn sources(&self) -> &[SourceSpec; 2] {
@@ -290,9 +358,9 @@ impl DatasetPolicy {
                 return Err(AcquisitionError::Policy);
             }
             if source.license_id != self.license_id
-                || source.license_path != "provenance/LICENSE.txt"
+                || source.license_path != self.license_path
                 || source.license_text_sha256 != self.license_sha256
-                || source.attribution_path != "provenance/ATTRIBUTION.txt"
+                || source.attribution_path != self.attribution_path
                 || source.attribution_sha256 != self.attribution_sha256
                 || source.attribution_references != self.attribution_references
             {
@@ -311,11 +379,7 @@ impl DatasetPolicy {
     }
 
     fn host_allowed(&self, host: &str) -> bool {
-        if self.is_fixture() {
-            host == "example.invalid"
-        } else {
-            REDIRECT_HOSTS.contains(&host)
-        }
+        self.allowed_hosts.iter().any(|allowed| allowed == host)
     }
 
     /// Mature parsing first; the course decides the destination and disclosure

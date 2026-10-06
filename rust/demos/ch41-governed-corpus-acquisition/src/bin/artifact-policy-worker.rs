@@ -7,7 +7,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use llm_from_scratch::functional::artifact::acquisition::{BodyGrant, ProgressStore, ResponseHead};
 use llm_from_scratch::functional::artifact::inventory::read_manifest;
-use llm_from_scratch::functional::artifact::lineage::{AcquisitionError, DatasetPolicy};
+use llm_from_scratch::functional::artifact::lineage::{
+    AcquisitionError, DatasetPolicy, MAX_POLICY_CONFIG_BYTES,
+};
 use serde::Deserialize;
 use serde_json::{Value, json};
 
@@ -122,20 +124,21 @@ fn run() -> Result<(), AcquisitionError> {
         PathBuf::from(std::env::var_os("CH41_MANIFEST_PATH").ok_or(AcquisitionError::Policy)?);
     let progress_path =
         PathBuf::from(std::env::var_os("CH41_PROGRESS_DIRECTORY").ok_or(AcquisitionError::Policy)?);
+    let policy_path =
+        PathBuf::from(std::env::var_os("CH41_POLICY_CONFIG_PATH").ok_or(AcquisitionError::Policy)?);
     let manifest = read_manifest(&manifest_path)?;
-    let policy = match std::env::var("CH41_POLICY_KIND").as_deref() {
-        Ok("synthetic-offline-fixture") => DatasetPolicy::synthetic_fixture(),
-        Ok("production-source-policy") => {
-            let source = manifest.sources.first().ok_or(AcquisitionError::Policy)?;
-            DatasetPolicy::tinystories(
-                manifest.producer.clone(),
-                source.license_text_sha256.clone(),
-                source.attribution_sha256.clone(),
-                source.attribution_references.clone(),
-            )?
-        }
-        _ => return Err(AcquisitionError::Policy),
-    };
+    // The executor supplies independent, read-only selected asset configuration.
+    // No expected source, license or attribution value is taken from the bundle.
+    let mut config_bytes = Vec::new();
+    std::fs::File::open(policy_path)
+        .map_err(|_| AcquisitionError::Io)?
+        .take(MAX_POLICY_CONFIG_BYTES as u64 + 1)
+        .read_to_end(&mut config_bytes)
+        .map_err(|_| AcquisitionError::Io)?;
+    let policy = DatasetPolicy::from_config_bytes(&config_bytes, manifest.producer.clone())?;
+    if std::env::var("CH41_POLICY_KIND").as_deref() != Ok(policy.evidence_kind()) {
+        return Err(AcquisitionError::Policy);
+    }
     policy.validate_manifest(&manifest)?;
     let mut store = if progress_path
         .join("progress.json")

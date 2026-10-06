@@ -46882,11 +46882,165 @@ builds:
               - "17 pinned Node cases and actual disabled build/export pass;3 focused deployment guard cases pass."
               - "15owned output files101473B passed canonical inventory verification; complete YAML and git diff --check pass. No curriculum/learner-facing source/Rust teaching changed."
             notes: "Condition only completed; actual real default download unexecuted and acquisition/Chapter42 pending. Previous scope/BuildKit diagnostic preserved without falsely relabeling it; no active process interrupted. No new Dockerfile or broad rebuild."
+      - id: simplify-corpus-build-curl
+        objective: "Replace incidental custom HTTP with pinned official curl and standard Linux tools; record user-approved exact redirect host."
+        depends_on: ["setup-conditional-course-corpus-image-build"]
+        status: invalidated
+        inputs:
+          - "User authorizes current curl and exact us.aws.cdn.hf.co; no other source-policy relaxation."
+          - "Official curl release8.22.0/manpage/tool-image lookup; image provisioning only, no corpus download in this step."
+          - "Preserved failed acquisition02/03 receipts and partial static diagnostics."
+        outputs:
+          - "AGENTS.md"
+          - "Dockerfile"
+          - "scripts/download-fixed-tinystories-image.sh"
+          - "scripts/download-fixed-tinystories-image.mjs"
+          - "scripts/build-functional-tinystories-image.mjs"
+          - "scripts/tests/download-fixed-tinystories-image.test.mjs"
+          - "scripts/README.md"
+          - "rust/crates/llm-from-scratch/src/artifact/lineage.rs"
+          - "rust/demos/ch41-governed-corpus-acquisition/tests/governed_acquisition.rs"
+          - "artifacts/functional-laptop/execution-boundaries/curl-corpus-build/"
+          - "artifacts/functional-laptop/step-output-inventories/simplify-corpus-build-curl.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Curl owns all HTTP; shell glue fixes pair/flag/host/resource policy, exact checksums and atomic payload promotion."
+          - "Official current-at-selection curl version/digest pinned only in corpus stage; main development image unchanged."
+          - "Offline tests cover disabled/no request, closed hosts/redirect bound, checksum/size failures, unknown-length cap and secret-free reporting."
+          - "Root owns exact shared Rust host constant and endpoint tests; no Chapter41 prose or broader algorithm changes."
+        validate: ["Focused offline shell/config/Rust endpoint tests", "Actual pinned curl version and unknown-length cap probe offline", "git diff --check"]
+        cost: "medium; official curl tool-image provisioning network only; no corpus request/training/paid service."
+        runs:
+          - run_id: "20261006T072220Z-simplify-corpus-build-curl-01"
+            started_at: "2026-10-06T07:22:20Z"
+            finished_at: "2026-10-06T07:28:47Z"
+            status: interrupted
+            input_fingerprint: {commit: "b2524fa59e28bee80683e893ae78f16962431a5b", curl_version: "8.22.0", curl_linux_amd64_manifest: "sha256:43366cd60f226c7655181a0f7e85c468a41d182fdd2dc2c1c3b872a2b9d05d7a"}
+            staging_dir: ".build/runs/20261006T072220Z-simplify-corpus-build-curl-01/"
+            commands: []
+            artifacts: []
+            validation: []
+            notes: "User supersedes hardcoded assets with configured assets before transport completion. Preserve partial shell/Docker/builder/tests/rule/root6host edits in working tree; no real download. Official curl8.22 provision/version/tools passed; host stub suite passed. Actual unknown-length Unix socket probe failed connectivity, not cap acceptance; raw diagnostic preserved. Configuration contract pending root ownership decision; no completed commit."
+      - id: configure-functional-corpus-assets
+        objective: "Move source-specific policy into selected checked-in JSON and expose content-only Read/Write/asset-store boundaries; leave retrieval transport and Chapter41 authored boundary correction separately pending."
+        depends_on: ["setup-conditional-course-corpus-image-build"]
+        replaces: ["simplify-corpus-build-curl"]
+        status: completed
+        inputs:
+          - "User requires no hardcoded assets; root freezes DatasetPolicyConfigV1, registry selection and separate runtime producer binding."
+          - "Accepted source metadata, exact pinned pair, six approved hosts and unchanged caps; retrieval remains separately pending."
+          - "Preserved interrupted transport run and failed acquisition receipts; no real source download in this correction."
+        outputs:
+          - "configs/functional-corpus-assets.json"
+          - "configs/functional-artifact-cache-targets.json"
+          - "rust/crates/llm-from-scratch/src/artifact/lineage.rs"
+          - "rust/crates/llm-from-scratch/src/artifact/inventory.rs"
+          - "rust/demos/ch41-governed-corpus-acquisition/src/lib.rs"
+          - "rust/demos/ch41-governed-corpus-acquisition/src/bin/artifact-policy-worker.rs"
+          - "rust/demos/ch41-governed-corpus-acquisition/tests/governed_acquisition.rs"
+          - "rust/demos/ch41-governed-corpus-acquisition/fixtures/source-policy.json"
+          - "rust/tools/functional-artifact-cache/src/main.rs"
+          - "scripts/lib/functional-artifact-cache-boundary.mjs"
+          - "scripts/lib/run-functional-artifact-cache.mjs"
+          - "scripts/tests/run-functional-artifact-cache.test.mjs"
+          - "scripts/tests/fixtures/artifact-cache-fixture.mjs"
+          - "scripts/README.md"
+          - "AGENTS.md"
+          - "artifacts/functional-laptop/execution-boundaries/configured-corpus-assets/"
+          - "artifacts/functional-laptop/step-output-inventories/configure-functional-corpus-assets.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Core byte consumption is standard IO-agnostic std::io::Read; file/cursor/HTTP bodies are caller-owned, no custom HTTP/File hierarchy or new client dependency in the LLM crate."
+          - "No source-specific assets remain in shared library; selected closed config supplies identity/provenance/hosts/caps. Transport adapter correction is not claimed by this step."
+          - "Generic bounded serde validation plus runtime producer binds complete policy digest; stale progress refuses."
+          - "No manifest-derived approval or arbitrary policy selection; registry fixes selected config/id, production and fixture remain isolated."
+          - "Generic read_manifest_from and verify_bundle_from share content validation with filesystem adapters; memory/file/boxed-reader equivalence and failure cases pass."
+          - "Write-backed verification and generic staged asset-store publication preserve complete verification before publish; failures never publish, filesystem adapter and memory store tests agree, no database implementation claimed."
+          - "Reqwest retrieval adapter preflight is reported only; manual-loop curl draft is not accepted or published by this technical checkpoint. HTTP-centric old Chapter41 demonstration remains a separately pending authored correction."
+        validate: ["Offline Chapter41 policy/content/store tests and machinery CLI tests", "Scoped clippy, exact stdout and unchanged learner-region checks", "Configured wrapper tests and actual offline cache publication/replay", "git diff --check"]
+        cost: "medium; offline technical correction using admitted dependencies and verified Cargo cache; no new provisioning, corpus transfer, client dependency or paid service. Earlier isolated curl provisioning remains historical evidence only."
+        runs:
+          - run_id: "20261006T073053Z-configure-functional-corpus-assets-01"
+            started_at: "2026-10-06T07:30:53Z"
+            finished_at: "2026-10-06T08:01:03Z"
+            status: interrupted
+            input_fingerprint: {commit: "b2524fa59e28bee80683e893ae78f16962431a5b", curl_linux_amd64_manifest: "sha256:43366cd60f226c7655181a0f7e85c468a41d182fdd2dc2c1c3b872a2b9d05d7a"}
+            staging_dir: ".build/runs/20261006T073053Z-configure-functional-corpus-assets-01/"
+            commands: []
+            artifacts: []
+            validation: []
+            notes: "Preserved iterative config/Read/Write/store diagnostics and superseded unaccepted HTTP draft. Final 42 policy tests and 6 CLI tests pass. Tool receipt predates final store source, so successor freezes corrected technical scope without overwriting evidence."
+          - run_id: "20261006T080103Z-configure-functional-corpus-assets-02"
+            started_at: "2026-10-06T08:01:03Z"
+            finished_at: "2026-10-06T08:04:42Z"
+            status: interrupted
+            input_fingerprint: {commit: "b2524fa59e28bee80683e893ae78f16962431a5b", runtime_image: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"}
+            staging_dir: ".build/runs/20261006T080103Z-configure-functional-corpus-assets-02/"
+            commands:
+              - "node scripts/lib/run-functional-artifact-cache.mjs build-tools --run-id 20261006T080103Z-configure-functional-corpus-assets-02"
+              - "node scripts/lib/run-functional-artifact-cache.mjs self-test --run-id 20261006T080103Z-configure-functional-corpus-assets-02 --step configure-functional-corpus-assets --target configured-corpus-assets-v1"
+              - "Final unchanged-source Rust checks are recorded in predecessor01/validation/final-policy-tests-01, final-clippy-01 and final-stdout-01; current exact tool source hashes bind their final inputs."
+              - "node .build/runs/20261006T080103Z-configure-functional-corpus-assets-02/audit-technical.mjs"
+              - "node .build/runs/20261006T080103Z-configure-functional-corpus-assets-02/publish-evidence.mjs"
+            artifacts:
+              - path: ".build/runs/20261006T080103Z-configure-functional-corpus-assets-02/artifact-cache-receipt.json"
+                sha256: "6ae5ca3b1416926f9492eabf35c53577fc11e5fd9c4f627d8fdbfad47ec44ed2"
+              - path: ".build/runs/20261006T080103Z-configure-functional-corpus-assets-02/technical-audit.json"
+                sha256: "6d14bf9d3d5db0fbff1983fff49fe0193d563020d363dca853b767686471c29d"
+            validation:
+              - "PASS42policy/content/store tests,6CLI tests; scoped offline clippy -Dwarnings; exact Chapter41 stdout."
+              - "PASS18maintained Node22 wrapper/receipt tests; fresh actual offline synthetic publication/replay and all9refusal/isolation checks."
+              - "PASS7unchanged learner records and2rendered Rust regions; no library asset literals; restored HTTP draft baseline; YAML parse and git diff --check."
+            notes: "All interim gates passed, but root subsequently corrected native rename-error mapping before commit; preserve this candidate receipt and validation as interim, not final completion. Initial run-mode and subprocess permission diagnostics preserved."
+          - run_id: "20261006T080500Z-configure-functional-corpus-assets-03"
+            started_at: "2026-10-06T08:05:00Z"
+            finished_at: "2026-10-06T08:06:11Z"
+            status: succeeded
+            input_fingerprint: {commit: "b2524fa59e28bee80683e893ae78f16962431a5b", runtime_image: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"}
+            staging_dir: ".build/runs/20261006T080500Z-configure-functional-corpus-assets-03/"
+            commands:
+              - "scripts/run-functional-rust-overlay.sh 20261006T080500Z-configure-functional-corpus-assets-03 final-policy-tests-01 sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5 -- cargo test --locked --offline -p ch41-governed-corpus-acquisition -p functional-artifact-cache"
+              - "scripts/run-functional-rust-overlay.sh 20261006T080500Z-configure-functional-corpus-assets-03 final-clippy-01 sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5 -- cargo clippy --locked --offline -p ch41-governed-corpus-acquisition -p functional-artifact-cache --all-targets -- -D warnings"
+              - "scripts/run-functional-rust-overlay.sh 20261006T080500Z-configure-functional-corpus-assets-03 final-stdout-01 sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5 -- cargo run --locked --offline -q -p ch41-governed-corpus-acquisition --bin ch41-governed-corpus-acquisition"
+              - "node scripts/lib/run-functional-artifact-cache.mjs build-tools --run-id 20261006T080500Z-configure-functional-corpus-assets-03"
+              - "node scripts/lib/run-functional-artifact-cache.mjs self-test --run-id 20261006T080500Z-configure-functional-corpus-assets-03 --step configure-functional-corpus-assets --target configured-corpus-assets-v1"
+              - "node .build/runs/20261006T080500Z-configure-functional-corpus-assets-03/final-evidence.mjs"
+            artifacts:
+              - path: "artifacts/functional-laptop/step-output-inventories/configure-functional-corpus-assets.json"
+                sha256: "660725896db94bd47b4c3950ddb17a2cd81ceb59726a33a6ab507e67759520e7"
+              - path: "artifacts/functional-laptop/execution-boundaries/configured-corpus-assets/receipt.json"
+                sha256: "1a9ba5da99897f85a78a5ca28485d7542925671aced45f5ed6c0e4d8e2d4e683"
+              - path: "artifacts/functional-laptop/execution-boundaries/configured-corpus-assets/technical-audit.json"
+                sha256: "6d14bf9d3d5db0fbff1983fff49fe0193d563020d363dca853b767686471c29d"
+            validation:
+              - "PASS42policy/content/store tests and6CLI tests, scoped clippy -Dwarnings, exact stdout equality."
+              - "PASS18pinned Node22 wrapper/receipt cases and current actual offline synthetic publication/read-only replay/refusal checks."
+              - "PASS7unchanged learner records,2unchanged rendered Rust excerpts, asset-literal scan, restored transport baseline, YAML parse and git diff --check."
+            notes: "Final late native rename-error classification correction rebound under fresh exact source/tool receipts. Earlier candidates remain immutable interim evidence. No client dependency, network acquisition, authored Chapter41 correction or Chapter42 implementation."
+      - id: setup-library-owned-corpus-transport
+        objective: "Replace incidental asset HTTP transport with an existing client that owns response parsing, redirect following and HTTP/IO errors; keep retrieval outside the Chapter41 content library."
+        depends_on: ["configure-functional-corpus-assets"]
+        status: pending
+        inputs:
+          - "User content-only source/sink and existing-library instructions; root-selected reqwest blocking preflight, not yet dependency admission."
+          - "Selected asset config and independently bound producer; exact hosts, sources and product caps remain."
+          - "Before execution freeze minimal client version/features/full graph. Latest user content/retrieval separation counts verified final payload streams under2GB, not unobservable per-hop/wire bytes; historical HTTP-grant evidence remains unchanged. No manual parsing or redirect loop."
+        outputs: ["Maintained separate machinery client and focused tests, paths to be frozen in preflight", "Necessary locked dependency allowlist and Docker integration, scoped before execution", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Existing mature client owns HTTP parsing, redirects and errors; policy callback delegates after existing endpoint admission. No client or retrieval demonstration in llm-from-scratch."
+          - "Standard content Read/Write/store boundary unchanged; body/time/redirect and metadata compatibility explicitly reconciled, never claim hidden client bytes as zero."
+          - "Default corpus build flag/cloud false and all runtime containers offline remain; no real corpus download in this setup step."
+        validate: ["Focused offline client/config/refusal tests and dependency checks, exact commands frozen before execution", "git diff --check"]
+        cost: "medium; official dependency provisioning only during permitted image build after exact graph/resource preflight; no corpus acquisition or paid service."
+        runs: []
       - id: acquire-functional-tinystories-raw-pair
         objective: "Acquire only the frozen TinyStories pair during the user-selected conditional Docker image build; admit and reproduce it with existing Chapter41 offline artifact APIs."
         depends_on:
-          - "setup-conditional-course-corpus-image-build"
-        status: "pending"
+          - "configure-functional-corpus-assets"
+          - "setup-library-owned-corpus-transport"
+        status: "blocked"
         inputs:
           - "Chapter 41 manifest and protocol"
           - "exact frozen URLs, revisions, sizes and SHA-256 values"
@@ -46900,6 +47054,8 @@ builds:
           - "artifacts/functional-laptop/acquisition/tinystories/manifest.json"
           - "artifacts/functional-laptop/acquisition/tinystories/receipt.json"
           - "artifacts/functional-laptop/step-output-inventories/acquire-functional-tinystories-raw-pair.json"
+          - "scripts/download-fixed-tinystories-image.mjs"
+          - "scripts/tests/download-fixed-tinystories-image.test.mjs"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
@@ -46917,6 +47073,47 @@ builds:
           class: "large"
           notes: "cpu=C2;gpu=G0;network=N3;paid=none;download_bytes_exact=1943728838;download_bytes_max=2000000000;host_bytes_max=4294967296;disk_bytes_max=8000000000;wall_seconds_max=14400"
         runs:
+          - run_id: "20261006T071624Z-acquire-functional-tinystories-raw-pair-03"
+            started_at: "2026-10-06T07:16:24Z"
+            finished_at: "2026-10-06T07:17:10Z"
+            status: failed
+            input_fingerprint:
+              commit: "b2524fa59e28bee80683e893ae78f16962431a5b"
+              downloader_sha256: "42b06cc80ff99e489986474ee32441e7917bb07e5058902546eafaba0f9fcac5"
+              image_id: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"
+            staging_dir: ".build/runs/20261006T071624Z-acquire-functional-tinystories-raw-pair-03/"
+            commands:
+              - "node scripts/build-functional-tinystories-image.mjs --run-id 20261006T071624Z-acquire-functional-tinystories-raw-pair-03"
+            artifacts:
+              - path: ".build/runs/20261006T071624Z-acquire-functional-tinystories-raw-pair-03/source-build-true/build-receipt.json"
+                sha256: "a8a0c75bd1fc30ffbfa453c801fc6ad72083edbd02a3c8c7bed76424440d8a32"
+              - path: ".build/runs/20261006T071624Z-acquire-functional-tinystories-raw-pair-03/source-build-true/build.log"
+                sha256: "ed295dea5bc39e4955b9ae10addec6217b39e5f92b9c4e927d57b2c9d217c549"
+            validation:
+              - "Changed diagnostics:15 actual pinned Node22 downloader tests pass, including body/query secrecy and status/host reporting."
+              - "Actual build refuses official302 redirect from huggingface.co to us.aws.cdn.hf.co outside frozen5-host policy,1184received bytes,0files. No destination request."
+            notes: "Blocked on genuine source host-policy choice; no relaxation or further retry. Cumulative2376bytes across02/03 remain charged. Chapter42 unclaimed; maintained diagnostics are incomplete acquisition-owned working-tree changes, not completed-step commit."
+          - run_id: "20261006T071423Z-acquire-functional-tinystories-raw-pair-02"
+            started_at: "2026-10-06T07:14:23Z"
+            finished_at: "2026-10-06T07:16:24Z"
+            status: failed
+            input_fingerprint:
+              commit: "b2524fa59e28bee80683e893ae78f16962431a5b"
+              image_id: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"
+              metadata_inventory_sha256: "1e5c11b46760cd9066c4ab56f4cb04af13b36f8aae6dfc59bd230c4b98c84463"
+              condition_inventory_sha256: "05d94dee6110c35849cd6225d0e7cfc8169a4fb1c364e95dea6a6a956203b0db"
+              source_policy: "Exact pinned two-file pair; default-enabled image BUILD transfer only; every container RUN/create network none; no retries."
+            staging_dir: ".build/runs/20261006T071423Z-acquire-functional-tinystories-raw-pair-02/"
+            commands:
+              - "node scripts/build-functional-tinystories-image.mjs --run-id 20261006T071423Z-acquire-functional-tinystories-raw-pair-02"
+            artifacts:
+              - path: ".build/runs/20261006T071423Z-acquire-functional-tinystories-raw-pair-02/source-build-true/build-receipt.json"
+                sha256: "23ef509d5637349291f2f6769a6eace5b722429e8e83a86b46d8a2dc74f58355"
+              - path: ".build/runs/20261006T071423Z-acquire-functional-tinystories-raw-pair-02/source-build-true/build.log"
+                sha256: "9e22bb2ed13295d86011d4a856fb7dccc72ba1af7f6df13f34ea861ef2a6bed9"
+            validation:
+              - "Actual source build refused, exit2,1192body bytes,0completed files. Missing detailed failed-hop diagnostics; no admitted corpus."
+            notes: "Preserve failed build. Root authorizes narrowly improved static body-free telemetry and changed-input successor, not policy relaxation or speculative retries."
           - run_id: "20261006T064613Z-acquire-functional-tinystories-raw-pair-01"
             started_at: "2026-10-06T06:46:13Z"
             finished_at: "2026-10-06T06:59:20Z"

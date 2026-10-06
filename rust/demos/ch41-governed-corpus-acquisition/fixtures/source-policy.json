@@ -1,0 +1,34 @@
+{
+  "allowed_hosts": ["example.invalid"],
+  "attribution_path": "provenance/ATTRIBUTION.txt",
+  "attribution_references": ["https://example.invalid/fixtures"],
+  "attribution_sha256": "0d00779105653df98f180d5d8b910ea061782492fcb25e1d955e70453c3456f5",
+  "body_ceiling": 64,
+  "domain": "synthetic-policy-fixture",
+  "evidence_kind": "synthetic-offline-fixture",
+  "language": "fixture",
+  "license_id": "LicenseRef-Course-Test-Only",
+  "license_path": "provenance/LICENSE.txt",
+  "license_sha256": "db64e55296d3cb3c38619dae7b7cce54bb74a83956423be38443258ebb0724da",
+  "schema_version": 1,
+  "selected_source": "fixture-pair",
+  "sources": [
+    {
+      "bytes": 3,
+      "path": "raw/train.txt",
+      "requested_url": "https://example.invalid/fixtures/train.txt",
+      "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+      "source_id": "fixture-train",
+      "upstream_revision": "fixture-revision-1"
+    },
+    {
+      "bytes": 6,
+      "path": "raw/valid.txt",
+      "requested_url": "https://example.invalid/fixtures/valid.txt",
+      "sha256": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
+      "source_id": "fixture-valid",
+      "upstream_revision": "fixture-revision-1"
+    }
+  ],
+  "wall_seconds": 60
+}

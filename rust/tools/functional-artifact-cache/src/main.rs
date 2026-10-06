@@ -9,7 +9,7 @@ use llm_from_scratch::functional::artifact::{
     lineage::{AcquisitionError, DatasetPolicy},
 };
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -33,6 +33,7 @@ struct Request {
     operation: Operation,
     policy_kind: PolicyKind,
     manifest_path: PathBuf,
+    policy_config_path: PathBuf,
     payload_root: Option<PathBuf>,
     cache_parent: Option<PathBuf>,
     entry_root: Option<PathBuf>,
@@ -53,6 +54,10 @@ fn clean_path(path: &Path) -> Result<(), AcquisitionError> {
 
 fn execute(request: Request) -> Result<Value, AcquisitionError> {
     clean_path(&request.manifest_path)?;
+    clean_path(&request.policy_config_path)?;
+    if request.policy_config_path != Path::new("/policy/source-policy.json") {
+        return Err(AcquisitionError::UnsafePath);
+    }
     for path in [
         &request.payload_root,
         &request.cache_parent,
@@ -129,18 +134,23 @@ fn execute(request: Request) -> Result<Value, AcquisitionError> {
         return Err(AcquisitionError::UnsafePath);
     }
     let mut manifest = read_manifest(&request.manifest_path)?;
-    let policy = match request.policy_kind {
-        PolicyKind::SyntheticOfflineFixture => DatasetPolicy::synthetic_fixture(),
-        PolicyKind::ProductionSourcePolicy => {
-            let source = manifest.sources.first().ok_or(AcquisitionError::Schema)?;
-            DatasetPolicy::tinystories(
-                manifest.producer.clone(),
-                source.license_text_sha256.clone(),
-                source.attribution_sha256.clone(),
-                source.attribution_references.clone(),
-            )?
-        }
+    let mut config_bytes = Vec::new();
+    std::fs::File::open(&request.policy_config_path)
+        .map_err(|_| AcquisitionError::Io)?
+        .take(65_537)
+        .read_to_end(&mut config_bytes)
+        .map_err(|_| AcquisitionError::Io)?;
+    if config_bytes.len() > 65_536 {
+        return Err(AcquisitionError::Schema);
+    }
+    let policy = DatasetPolicy::from_config_bytes(&config_bytes, manifest.producer.clone())?;
+    let expected_kind = match request.policy_kind {
+        PolicyKind::SyntheticOfflineFixture => "synthetic-offline-fixture",
+        PolicyKind::ProductionSourcePolicy => "production-source-policy",
     };
+    if policy.evidence_kind() != expected_kind {
+        return Err(AcquisitionError::Policy);
+    }
     policy.validate_manifest(&manifest)?;
     if matches!(request.operation, Operation::FinalizeManifest) {
         let urls = request.final_urls.ok_or(AcquisitionError::Schema)?;
@@ -232,7 +242,11 @@ fn main() {
 mod tests {
     use super::*;
 
-    fn request(value: Value) -> Request {
+    fn request(mut value: Value) -> Request {
+        value.as_object_mut().expect("test object").insert(
+            "policy_config_path".into(),
+            json!("/policy/source-policy.json"),
+        );
         serde_json::from_value(value).expect("test request syntax")
     }
 

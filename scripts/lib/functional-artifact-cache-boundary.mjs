@@ -34,7 +34,7 @@ export function bindProductionProvenance(manifest,binding){
 
 export function bridgeRequest(operation,{digest,policyKind='production-source-policy',finalUrls}={}){
   if(!['production-source-policy','synthetic-offline-fixture'].includes(policyKind))throw refused();
-  const request={operation,policy_kind:policyKind};
+  const request={operation,policy_kind:policyKind,policy_config_path:'/policy/source-policy.json'};
   if(operation==='publish')Object.assign(request,{manifest_path:'/input/artifact-manifest.json',payload_root:'/input/payload',cache_parent:'/cache'});
   else if(operation==='verify')Object.assign(request,{manifest_path:'/input/artifact-manifest.json',payload_root:'/input/payload'});
   else if(operation==='replay'){

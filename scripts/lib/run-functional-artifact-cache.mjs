@@ -79,6 +79,11 @@ function tools(root,run,image){
 }
 
 function bridge(root,run,image,request,mounts,{expectSuccess=true}={}){
+ if(!mounts.some(m=>m.target==='/policy/source-policy.json')){
+  if(request.policy_kind!=='synthetic-offline-fixture')fail();
+  const registry=parseFile(join(root,'configs/functional-artifact-cache-targets.json'));
+  mounts=[...mounts,{source:join(root,registry.fixture_policy_config),target:'/policy/source-policy.json',readOnly:true}];
+ }
  const receipt=tools(root,run,image),tool=join(run,'tool-target/debug/functional-artifact-cache');
  const result=docker(image,[{source:tool,target:'/tool',readOnly:true},...mounts],['--entrypoint','/tool'],{input:JSON.stringify(request)+'\n',expectSuccess});
  if(result.stdout.length>2_097_152)fail();let output;try{output=JSON.parse(result.stdout);}catch{fail();}
@@ -91,7 +96,7 @@ function verifyMetadata(root,config){
  for(const f of inventory.files){const bytes=readFileSync(join(root,f.path));if(bytes.length!==f.bytes||sha(bytes)!==f.sha256)fail();}
 }
 
-function selfTest(root,run,config){
+function selfTest(root,run,config,opts){
  const directory=join(run,'cache-self-test');if(existsSync(directory))fail();mkdirSync(directory,{mode:0o700});
  const source=join(directory,'source');mkdirSync(source,{mode:0o700});createCacheFixture(source);
  const cache=resolve(root,config.cache_parent);mkdirSync(cache,{recursive:true,mode:0o700});ownedPath(cache,{root:resolve(root,'.build/artifact-cache/functional-v1')});
@@ -116,7 +121,7 @@ function selfTest(root,run,config){
  const symlink=join(directory,'escaped');symlinkSync(source,symlink);let rejected=false;try{ownedPath(symlink,{root:directory});}catch{rejected=true;}if(!rejected)fail();
  chmodSync(generated,0o777);rejected=false;try{ownedPath(generated,{root:directory});}catch{rejected=true;}finally{chmodSync(generated,0o700);}if(!rejected)fail();
  rejected=false;try{ownedPath(source,{root:directory,uid:99999});}catch{rejected=true;}if(!rejected)fail();
- const receipt={schema_version:1,step_id:'establish-functional-artifact-cache-execution-boundary',target_id:'artifact-cache-v1',evidence_kind:'synthetic-offline-fixture',image_id:image,tool_build_receipt_sha256:sha(readFileSync(join(run,'tool-build-receipt.json'))),artifact_id:digest,verified_bundle:replay.output,producer_receipt_sha256:sha(readFileSync(join(directory,'producer-receipt.json'))),checks:{actual_publication:true,actual_readonly_replay:true,consumer_write_refused:true,generated_fixture_handoff:true,symlink_refused:true,wrong_mode_refused:true,wrong_uid_refused:true,private_url_redacted:true,unapproved_endpoint_refused:true},network:'none'};
+ const receipt={schema_version:1,step_id:opts.step,target_id:opts.target,evidence_kind:'synthetic-offline-fixture',image_id:image,tool_build_receipt_sha256:sha(readFileSync(join(run,'tool-build-receipt.json'))),artifact_id:digest,verified_bundle:replay.output,producer_receipt_sha256:sha(readFileSync(join(directory,'producer-receipt.json'))),checks:{actual_publication:true,actual_readonly_replay:true,consumer_write_refused:true,generated_fixture_handoff:true,symlink_refused:true,wrong_mode_refused:true,wrong_uid_refused:true,private_url_redacted:true,unapproved_endpoint_refused:true},network:'none'};
  save(join(run,'artifact-cache-receipt.json'),receipt);return receipt;
 }
 
@@ -127,7 +132,7 @@ export function runCacheCommand(args,{root=process.cwd()}={}){
  if(opts.mode==='build-tools'){buildTools(root,run,config.runtime_image);return 0;}
  const target=config.targets[opts.target];if(!target||target.step_id!==opts.step||!target.modes.includes(opts.mode)||target.validator!=='rust-dataset-v1')fail();
  verifyMetadata(root,config);
- if(opts.mode==='self-test'){selfTest(root,run,config);return 0;}
+ if(opts.mode==='self-test'){selfTest(root,run,config,opts);return 0;}
  if(!['publish','verify','replay'].includes(opts.mode)||target.policy_kind!=='production-source-policy')fail();
  const cache=resolve(root,config.cache_parent);mkdirSync(cache,{recursive:true,mode:0o700});ownedPath(cache,{root:resolve(root,'.build/artifact-cache/functional-v1')});
  let input,manifest,digest;
@@ -141,13 +146,18 @@ export function runCacheCommand(args,{root=process.cwd()}={}){
  }
  // The acquisition owner freezes this accepted producer binding once. Replay
  // compares historical production identities, not unrelated later tool edits.
- const accepted=parseFile(join(root,'artifacts/functional-laptop/acquisition/tinystories/production-binding.json'));
+ const assetEnvelope=parseFile(join(root,target.asset_config));
+ if(assetEnvelope.schema_version!==1||assetEnvelope.default_asset!==target.asset_id||!assetEnvelope.assets?.[target.asset_id])fail();
+ const policy=assetEnvelope.assets[target.asset_id],policyBytes=Buffer.from(JSON.stringify(policy)+'\n');
+ const policyPath=join(run,'selected-source-policy.json');
+ if(existsSync(policyPath)){if(!readFileSync(policyPath).equals(policyBytes))fail();}else writeFileSync(policyPath,policyBytes,{flag:'wx',mode:0o600});
+ const accepted=parseFile(join(root,target.production_binding));
  if(accepted.schema_version!==1||accepted.step_id!==opts.step||accepted.target_id!==opts.target||accepted.metadata_inventory_sha256!==sha(readFileSync(join(root,config.metadata_inventory))))fail();
  const binding=accepted.producer_binding;
- if(binding?.licenseTextSha256!==target.license_text_sha256||binding?.attributionSha256!==sha(readFileSync(join(root,target.attribution)))||JSON.stringify(binding?.attributionReferences)!==JSON.stringify(target.attribution_references))fail();
+ if(binding?.licenseTextSha256!==policy.license_sha256||binding?.attributionSha256!==policy.attribution_sha256||sha(readFileSync(join(root,target.attribution)))!==policy.attribution_sha256||JSON.stringify(binding?.attributionReferences)!==JSON.stringify(policy.attribution_references)||accepted.selected_policy_sha256!==sha(policyBytes))fail();
  bindProductionProvenance(manifest,binding);
  const plan=runtimeMountPlan(opts.mode,{runRoot:run,inputRoot:input,cacheRoot:cache,digest,policyKind:target.policy_kind,targetKind:'raw-pair'});
- const result=bridge(root,run,config.runtime_image,bridgeRequest(opts.mode,{digest,policyKind:target.policy_kind}),plan.mounts);
+ const result=bridge(root,run,config.runtime_image,bridgeRequest(opts.mode,{digest,policyKind:target.policy_kind}),[...plan.mounts,{source:policyPath,target:'/policy/source-policy.json',readOnly:true}]);
  const receipt={schema_version:1,step_id:opts.step,target_id:opts.target,evidence_kind:target.policy_kind,image_id:config.runtime_image,operation:opts.mode,artifact_id:result.output.artifact_id,verified_bundle:result.output,tool_build_receipt_sha256:sha(readFileSync(join(run,'tool-build-receipt.json'))),metadata_inventory_sha256:sha(readFileSync(join(root,config.metadata_inventory))),producer_binding:binding,network:'none'};
  save(join(run,`artifact-cache-${opts.mode}-receipt.json`),receipt);return 0;
 }

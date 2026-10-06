@@ -475,3 +475,40 @@ This condition checkpoint actually verified only the disabled image branch,
 empty offline export, injected transport/default-flag tests and cloud/wrapper
 guards. The real default download and raw artifact admission remain the separate
 pending acquisition step; no corpus acquisition is claimed here.
+
+### Configured content and IO boundaries
+
+`configs/functional-corpus-assets.json` owns selected source identities, URLs,
+revisions, counts, digests, allowed hosts, metadata identity and resource caps.
+The cache target registry references its file and asset ID. Its separate fixture
+policy file belongs to the Chapter41 demo. Shared library code contains neither
+the production asset nor the fixture's literal source definition. A manifest
+cannot authorize its own expected policy: the selected configuration and actual
+producer binding are independently supplied and validated.
+
+The core content entrypoints accept the standard `std::io::Read` interface:
+`read_manifest_from` and `verify_bundle_from`. Callers open files, supply memory
+cursors, or provide another reader. `verify_payload_into` additionally accepts
+`std::io::Write`; `persist_bundle_from` uses `AssetStore`/`StagedAssets` to stage
+each verified payload and publish only a complete verified bundle. Concrete
+storage owns its transaction, cleanup and commit behavior. This interface does
+not implement a database driver or certify a future database adapter.
+
+`FilesystemAssetStore` implements that same staged destination boundary using
+configured payload paths, exclusive pending storage, complete inventory
+reverification, synchronization and atomic publication. Failed staging is
+preserved without becoming a published bundle; replay remains read-only.
+
+The filesystem compatibility functions retain their descriptor-anchored inventory
+and before/after metadata checks. Generic stream verification does not pretend
+to discover unlisted files or inode aliases in a caller's arbitrary source.
+The selected complete policy, including hosts and metadata paths, binds progress;
+changes refuse stale progress rather than silently reuse an old expected policy.
+The machinery bridge accepts only a readonly selected policy at
+`/policy/source-policy.json`, with production/fixture evidence kinds kept separate.
+
+HTTP retrieval remains outside the content library. The previous image-build
+transport and Chapter41's HTTP-centric demonstration are not certified as the
+new boundary by this technical checkpoint. A separately scoped standard-client
+adapter and authored chapter correction remain pending; no corpus acquisition
+or learner-facing prose change is claimed here.
