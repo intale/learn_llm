@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-05T15:17:06Z"
+updated_at: "2026-10-06T11:39:05Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47225,6 +47225,85 @@ builds:
               - "PASSbothfreshreviews/bothfreshsame-roleadjudications, canonical prompts/raw exactLF/receipts/context separation/full maintainedchain/current publication identity; durable84inputs/8docs/209ownedfiles,7exactrecoverabledeletions,211retiredfilesexcluded."
               - "Standard cached diff-check exit2 honestly retained for105warnings/16exact generated/frozen files; root-approved scoped formatter gate PASS exact hashes/list, strict every-other-staged-path and observed-category-only checks without global/source exemption. Full pinned YAML parse and exact owned inventory PASS."
             notes: "Completed corrective step only. Root owns content/English; machinery integrates209exactownedfiles/7recoverablelegacydeletions after four fresh V4cPASS judgments and complete-chain/current publication verification. Finalbinding22b29a33... vs exactbindingsfilehash2a84ee19...; canonical verified report9f27e220.... Old committed historical evidence untouched; current-run retired candidates excluded; no .build files committed. Core4modules rewritten around Read/AssetSource/AssetStore/StagedAssets, FS/HTTP external; worker and Chapter41 command-amendment compatibility deleted under user's breaking/no-compatibility authority. Optional-corpus=false old image proves unchanged false branch only, not current-client binary execution. No real corpus, RU41+, repairs or Chapter42; future42 must reconcile content-onlyV2/externaladapters."
+      - id: test-artifact-core-and-name-validation-limits
+        objective: "Put artifact unit tests beside all four shared modules and name/document existing manifest validation limits without changing behavior."
+        depends_on: ["refactor-ch41-content-only-boundary"]
+        status: completed
+        inputs:
+          - "User identifies absent inline/core-owned artifact tests and unexplained validation numbers after the completed Chapter41 refactor."
+          - "Clean baseline8a16c56f3770e4db4ea030f582e5d45dc4edeb61; existing20demo integration tests and prior immutable evidence."
+          - "Root-owned behavior-preserving design: documented current defaults, named validation phases, crate-owned cfg(test) modules; existing function/trait/type signatures, error precedence and canonical bytes preserved, new public named constants expose existing values."
+          - "Maintained offline Rust overlay runner and already cached image590b0c2f; no provisioning or network operation."
+        outputs:
+          - "rust/crates/llm-from-scratch/src/artifact/canonical_manifest.rs"
+          - "rust/crates/llm-from-scratch/src/artifact/lineage.rs"
+          - "rust/crates/llm-from-scratch/src/artifact/inventory.rs"
+          - "rust/crates/llm-from-scratch/src/artifact/acquisition.rs"
+          - "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/artifact-core-validation-receipt.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Crate-owned tests run with cargo test -p llm-from-scratch functional::artifact::, independently of demo package; each of four modules owns local tests."
+          - "Current schema/kind, UTF-8 byte lengths, digest width, entry/reference counts and serialized-byte ceilings use explained names/units; validation phases preserve current errors and precedence."
+          - "Direct field/boundary/order/reference/overflow tests and generic source/sink/staging/policy tests pass; existing20demo integration tests remain and actual stdout matches golden."
+          - "All six displayed Rust regions and all English surfaces remain byte-identical; no site rebuild/new wording review, corpus acquisition, Russian41+, held repairs or Chapter42 execution."
+          - "Only one concise new validation receipt is published; verbose logs remain in the new run, and all completed evidence stays immutable."
+        validate:
+          - "Maintained offline overlay: cargo fmt -p llm-from-scratch -- --check with four explicit artifact source paths; whole-workspace pre-existing external FS blank-line failure retained, not claimed passing."
+          - "Maintained offline overlay: cargo test --locked --offline -p llm-from-scratch functional::artifact::"
+          - "Maintained offline overlay: cargo test --locked --offline -p ch41-governed-corpus-acquisition -p functional-artifact-cache"
+          - "Maintained offline overlay: cargo clippy --locked --offline -p llm-from-scratch -p ch41-governed-corpus-acquisition -p functional-artifact-cache --all-targets -- -D warnings"
+          - "Maintained offline overlay: cargo run --quiet --locked --offline -p ch41-governed-corpus-acquisition; cmp actual stdout with expected.txt"
+          - "Exact six-region and English source-byte preservation; maintained publication receipt verifier; full YAML parse; git diff --check"
+        cost: "medium C2/G0/N0; cached offline Rust checks, no Docker image build, dependency provisioning, download or paid service; agent elapsed time is unbounded."
+        runs:
+          - run_id: "20261006T111320Z-test-artifact-core-and-name-validation-limits-01"
+            started_at: "2026-10-06T11:13:20Z"
+            finished_at: "2026-10-06T11:39:05Z"
+            elapsed_seconds: 1545
+            status: succeeded
+            input_fingerprint:
+              commit: "8a16c56f3770e4db4ea030f582e5d45dc4edeb61"
+              runtime_image: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              fingerprint_file: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/input-fingerprint.json"
+              fingerprint_sha256: "69f75d0bbdc3c651aa08cd31731968eb297319bddb46aa20ce593ae6f273acfc"
+            staging_dir: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/"
+            commands:
+              - "Read-only git status, complete YAML parse88builds/501steps/no-running, current decisions and artifact/test inventory."
+              - "Verify baseline and existing hashes; inspect cached image after preserved Docker-socket sandbox denial; no product execution yet."
+              - "cp -a --reflink=auto the preceding run's163MiB Cargo cache and1.9GiB compiled target into this new run; both copies finish successfully, original run/cache unchanged. Compiled artifacts are reuseable cache only, never validation evidence for changed Rust."
+              - "Whole-workspace cargo fmt --all -- --check fails only on existing external filesystem.rs447blankline; no unrelated source edit. Explicit4path formatter suggestions inspected outside displayed regions, then mature rustfmt applied via stdin/stdout only to owned stage. Initial nonrootPATH/rootmappedwrite/missingdependency-mount harness failures retained."
+              - "Final explicit4path formatting passes; initialcore32tests pass, root improves cfg(test) publish attempt counter, then final currentcore32/32 passes. No production behavior change from that test-double refinement."
+              - "Existing demo20+FS3+CLI2 pass; final source-hash and author-declared cfg(test)-prefix equality proves unchanged executed production bytes, so no repeated demo/adapter run."
+              - "Final current scoped clippy --all-targets -Dwarnings passes; actual demo stdout cmp exactgolden passes. Core/clippy/golden input manifests have identical SHA9dfb7861...."
+              - "Maintained extractor proves6shownRustregions and4Englishsource files byte-identical; unchanged maintained Chapter41 publication/review verifier passes without editing completed evidence, no site/image/review round."
+              - "Root inspects and approves final source/tests/4479-byte receipt; promote exactly4corefiles+receipt by same-directory temporary-file rename. cmp and hashes prove canonical bytes equal validated stage. No Rust replay for exact promoted bytes."
+              - "Canonical6region/4English preservation and unchanged publication verifier pass; full YAML/receipt JSON syntax, soleclaim and gitdiffcheck pass. Completion checkpoint written before dedicated7path commit."
+            artifacts:
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/preflight.md"
+                sha256: "8a1719dfecb2029b044914f535f4c8b1a1c836f28c14e2510e5cdbaae4d5d881"
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/input-fingerprint.json"
+                sha256: "69f75d0bbdc3c651aa08cd31731968eb297319bddb46aa20ce593ae6f273acfc"
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/validation/core-tests-03/stdout.txt"
+                sha256: "4ead3f6edb85c7ed04c71747f93030abdf1b8464652c961c279df2c26ee3b045"
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/validation/core-tests-03/input-hashes.txt"
+                sha256: "9dfb78611182a9d80d49b7224b113d5ea95dc8599d952e69e162fc4642ca804d"
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/validation/demo-and-adapter-tests-01/stdout.txt"
+                sha256: "a3c44bfcbf8780a6348944112d875178119ae35f84039cfd85b1d3fd06726151"
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/validation/demo-tranche-reuse-proof-01.json"
+                sha256: "17c50c2c61add5e1bc21ce5d4908ef7c140f93c3bbf25f313f7da3b06830c509"
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/validation/surface-proof-stage-02.json"
+                sha256: "f7a14b53c37004951a4675b23d3426747f06a84a9c6d0686cb665e8723f65bc8"
+              - path: ".build/runs/20261006T111320Z-test-artifact-core-and-name-validation-limits-01/validation/surface-proof-canonical-01.json"
+                sha256: "4e963f5f97d06b357cd8cdfdca863913ce9ea519d67958916f91b240e560e2db"
+              - path: "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/artifact-core-validation-receipt.json"
+                sha256: "c3192bd578ef5575d54ec8cc4ce5d71cc8e0607483324bc0543f22e58af7b6fd"
+            validation:
+              - "PASS32currentcoretests:13manifest,5policy,8inventory,6acquisition;20existingdemo+3FS+2CLI, final cfg(test)-only amendment reuse proof; scopedclippy -Dwarnings and exactgolden."
+              - "PASSexplicit4pathformatting; whole-workspace formatter FAILED existing externalFS447blankline and remains honestly out-of-scope. No broad waiver."
+              - "PASSexact6displayedregions/4Englishfiles; unchanged Chapter41 publication/review verification. No new semantic review verdict or image/site build."
+              - "PASScanonical5productfiles cmp/hashes equal validated stage; canonical6regions/4English and unchanged existingreview/publication verifier; wholeYAML/JSONsyntax/scope/diff checks."
+            notes: "Completed narrow Rust correction after root source/receipt approval and exact canonical checks.32localcoretests+20existingdemo+5adaptertests pass; new named public constants expose unchanged values and private phases preserve original conditions/order. Prior completed reviews certify only their unchanged archived candidate; new implementation evidence is this concise receipt. Existing externalFS workspace-fmt blankline remains out-of-scope, owned4fileformat passes. No .build/duplicateHTML/source/log artifacts, corpus/RU/repair/Chapter42 work."
       - id: setup-library-owned-corpus-transport
         objective: "Replace incidental asset HTTP transport with an existing client that owns response parsing, redirect following and HTTP/IO errors; keep retrieval outside the Chapter41 content library."
         depends_on: ["refactor-ch41-content-only-boundary"]

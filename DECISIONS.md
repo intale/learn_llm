@@ -29442,3 +29442,70 @@ external filesystem/HTTP ownership. No real corpus acquisition, Russian41+,
 held repair or Chapter42 implementation starts. Future Chapter42 preflight must
 reconcile the live content-only APIs and selected external adapters, not revive
 the removed worker/resume protocol.
+
+### 2026-10-06 — Artifact core test ownership and explicit validation limits
+
+The user identifies that all20 artifact regression tests were placed in the
+Chapter41 demo, leaving no local tests in the four reusable core modules, and
+that manifest validation still uses unexplained literal limits. Claim the narrow
+Rust-only corrective step `test-artifact-core-and-name-validation-limits` after
+the completed content-only refactor. Preserve the old successful run and reviews.
+
+Root owns algorithm/test design: document and name the unchanged schema/kind,
+256-byte UTF-8 labels,16384-byte provenance references,16 attribution references,
+64 lowercase SHA-256 hexadecimal characters,1MiB serialized manifest and4096
+entry ceilings. These are explicit current format/policy defaults, not dataset
+assets or a newly configurable architecture. Factor named validation phases
+without changing public APIs, canonical bytes, errors or their precedence.
+Add `cfg(test)` modules beside all four components, independent of demo fixtures
+or dependencies; retain the existing20 demo integration tests.
+
+Machinery uses the maintained offline Rust overlay and already provisioned image,
+with network-none containers, focused tests/formatting/clippy and exact stdout.
+Compare all six rendered Rust regions and current English sources exactly.
+Unchanged learner surfaces require no repeated site build or wording judgments;
+existing review records still certify only their exact frozen candidate. Publish
+only a concise current-step receipt, not source/HTML/log duplicates. No corpus,
+Russian41+, held repair, new dependency, image build or Chapter42 work. Estimate
+medium C2/G0/N0; no agent elapsed-time stop or paid service.
+
+### 2026-10-06 — Artifact core scoped validation and unchanged-surface evidence
+
+The new local suites pass32/32:13 manifest,5 policy,8 inventory and6 admission/
+replay tests. The existing20 demo integration tests and3FS/2CLI adapter tests
+also pass. Root refines the test-only publication counter to count attempted
+calls (including the failed publish attempt); fresh current core tests and
+clippy include that amendment. Its production prefixes are byte-identical to
+the earlier actual demo/adapter input tranche, whose source hashes are verified.
+Actual demo stdout still matches the unchanged golden exactly.
+
+Existing function/trait/type signatures are preserved. The public symbol set is
+not identical: new named constants expose the prior schema/kind/hash-width and
+policy values. Root's baseline comparison preserves the original validation
+conditions/order/error behavior; passing tests are bounded evidence, not a
+proof of every possible behavior. Test-only in-memory transactional fixtures
+prove visibility/order/refusal cases, not filesystem crash durability.
+
+Ordinary cargo fmt does not discover generated registry source modules. Its
+whole-workspace check fails on an existing extra blank line in external adapter
+filesystem.rs447; that file is outside this correction and remains untouched.
+The accepted owned-file formatting check supplies the four artifact paths
+explicitly and passes. This is a scoped gate, not an unqualified workspace pass
+or a broad formatting waiver. Failed initial formatter/dependency-mount harness
+attempts stay recorded; mature cached tooling succeeds without provisioning.
+
+All six displayed Rust regions and four English source surfaces match the exact
+baseline bytes. The maintained Chapter41 publication/review verifier passes on
+the unchanged archived candidate; old language judgments do not certify the
+changed full Rust implementation. No English edit, image/site build, routine
+image check or new language-review round occurs. Only one concise current-step
+receipt is staged; source/HTML/log copies are not added to canonical artifacts.
+
+Root inspected and approved the final source/test semantics and4479-byte
+receipt. Exactly four core files and that concise receipt are promoted with
+same-directory temporary-file renames. Canonical comparisons/hashes match the
+validated stage; all six displayed regions/four English sources and the existing
+maintained publication verifier pass again without changing historical evidence.
+No redundant Rust replay occurs for identical promoted bytes. Complete this
+narrow step/run and persist its seven declared paths in one dedicated commit;
+all verbose/failed harness evidence remains only in the named private run.
