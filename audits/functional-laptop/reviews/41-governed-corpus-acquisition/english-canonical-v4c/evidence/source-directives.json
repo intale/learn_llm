@@ -1,0 +1,1328 @@
+{
+  "schemaVersion": 1,
+  "authority": "Author-defined source field classification and actual semantic group extraction. Validate exact origins; do not invent or broaden requirements.",
+  "sourceGroups": [
+    {
+      "id": "unit.87",
+      "documentId": "source.contract",
+      "kind": "source-worked-input-description",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/worked_inputs/en"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C5",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.88",
+      "documentId": "source.contract",
+      "kind": "source-symbol-and-associated-meaning",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/formula/symbols/0/symbol"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/formula/symbols/0/en"
+        }
+      ],
+      "commitmentIds": [
+        "C3"
+      ]
+    },
+    {
+      "id": "unit.89",
+      "documentId": "source.contract",
+      "kind": "source-symbol-and-associated-meaning",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/formula/symbols/1/symbol"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/formula/symbols/1/en"
+        }
+      ],
+      "commitmentIds": [
+        "C3"
+      ]
+    },
+    {
+      "id": "unit.90",
+      "documentId": "source.contract",
+      "kind": "source-symbol-and-associated-meaning",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/formula/symbols/2/symbol"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/formula/symbols/2/en"
+        }
+      ],
+      "commitmentIds": [
+        "C3"
+      ]
+    },
+    {
+      "id": "unit.91",
+      "documentId": "source.contract",
+      "kind": "source-historical-limitation",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/limitation/en"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.92",
+      "documentId": "source.contract",
+      "kind": "source-historical-advance",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/later_advance/en"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.93",
+      "documentId": "source.contract",
+      "kind": "source-modern-role",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/modern_llm_role/en"
+        }
+      ],
+      "commitmentIds": [
+        "C8",
+        "C1"
+      ]
+    },
+    {
+      "id": "unit.94",
+      "documentId": "source.contract",
+      "kind": "source-citation-and-supported-claim",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/sources/0/name"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/sources/0/source_url"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/sources/0/claim/en"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.95",
+      "documentId": "source.contract",
+      "kind": "source-citation-and-supported-claim",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/sources/1/name"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/sources/1/source_url"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/llm_evolution/sources/1/claim/en"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.96",
+      "documentId": "source.contract",
+      "kind": "source-historical-Rust-approach",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/approach/en"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.97",
+      "documentId": "source.contract",
+      "kind": "source-history-summary",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/summary/en"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.98",
+      "documentId": "source.contract",
+      "kind": "source-Rust-contrast-scope",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/history/rust_contrast"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.99",
+      "documentId": "source.contract",
+      "kind": "source-visualization-rationale",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/visualization/rationale/en"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.100",
+      "documentId": "source.contract",
+      "kind": "source-successor-handoff",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/decoder_connection/en"
+        }
+      ],
+      "commitmentIds": [
+        "C1"
+      ]
+    },
+    {
+      "id": "unit.101",
+      "documentId": "source.contract",
+      "kind": "source-terminology-name",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/terminology/0/en"
+        }
+      ],
+      "commitmentIds": [
+        "C1"
+      ]
+    },
+    {
+      "id": "unit.102",
+      "documentId": "source.contract",
+      "kind": "source-terminology-name",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/terminology/1/en"
+        }
+      ],
+      "commitmentIds": [
+        "C1"
+      ]
+    },
+    {
+      "id": "unit.103",
+      "documentId": "source.contract",
+      "kind": "source-terminology-name",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/terminology/2/en"
+        }
+      ],
+      "commitmentIds": [
+        "C1"
+      ]
+    },
+    {
+      "id": "unit.104",
+      "documentId": "source.contract",
+      "kind": "source-terminology-name",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/terminology/3/en"
+        }
+      ],
+      "commitmentIds": [
+        "C1"
+      ]
+    },
+    {
+      "id": "unit.105",
+      "documentId": "source.contract",
+      "kind": "source-terminology-name",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/terminology/4/en"
+        }
+      ],
+      "commitmentIds": [
+        "C1"
+      ]
+    },
+    {
+      "id": "unit.106",
+      "documentId": "source.contract",
+      "kind": "source-operation-and-associated-outcome",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/0/input"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/0/expected"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C5",
+        "C6",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.107",
+      "documentId": "source.contract",
+      "kind": "source-operation-and-associated-outcome",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/1/input"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/1/expected"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C5",
+        "C6",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.108",
+      "documentId": "source.contract",
+      "kind": "source-operation-and-associated-outcome",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/2/input"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/2/expected"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C5",
+        "C6",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.109",
+      "documentId": "source.contract",
+      "kind": "source-operation-and-associated-outcome",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/3/input"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/3/expected"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C5",
+        "C6",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.110",
+      "documentId": "source.contract",
+      "kind": "source-operation-and-associated-outcome",
+      "origins": [
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/4/input"
+        },
+        {
+          "documentId": "source.contract",
+          "jsonPointer": "/acceptance_examples/4/expected"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C5",
+        "C6",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.111",
+      "documentId": "source.lesson",
+      "kind": "source-Rust-path-region-purpose",
+      "origins": [
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/0/path"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/0/region"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/0/purpose"
+        }
+      ],
+      "commitmentIds": [
+        "C3"
+      ]
+    },
+    {
+      "id": "unit.112",
+      "documentId": "source.lesson",
+      "kind": "source-Rust-path-region-purpose",
+      "origins": [
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/1/path"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/1/region"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/1/purpose"
+        }
+      ],
+      "commitmentIds": [
+        "C4",
+        "C5"
+      ]
+    },
+    {
+      "id": "unit.113",
+      "documentId": "source.lesson",
+      "kind": "source-Rust-path-region-purpose",
+      "origins": [
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/2/path"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/2/region"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/2/purpose"
+        }
+      ],
+      "commitmentIds": [
+        "C6"
+      ]
+    },
+    {
+      "id": "unit.114",
+      "documentId": "source.lesson",
+      "kind": "source-Rust-path-region-purpose",
+      "origins": [
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/3/path"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/3/region"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/3/purpose"
+        }
+      ],
+      "commitmentIds": [
+        "C2",
+        "C7"
+      ]
+    },
+    {
+      "id": "unit.115",
+      "documentId": "source.lesson",
+      "kind": "source-Rust-path-region-purpose",
+      "origins": [
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/4/path"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/4/region"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/4/purpose"
+        }
+      ],
+      "commitmentIds": [
+        "C8"
+      ]
+    },
+    {
+      "id": "unit.116",
+      "documentId": "source.lesson",
+      "kind": "source-Rust-path-region-purpose",
+      "origins": [
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/5/path"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/5/region"
+        },
+        {
+          "documentId": "source.lesson",
+          "jsonPointer": "/rust_sources/5/purpose"
+        }
+      ],
+      "commitmentIds": [
+        "C1"
+      ]
+    }
+  ],
+  "fieldClassification": [
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/chapter_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/concept_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/objective/en",
+      "kind": "exact-English-projection",
+      "unitId": "unit.073",
+      "relationship": "Objective value inside label-and-value group"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/worked_inputs/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.87"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/latex",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/0/symbol",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.88"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/0/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.88"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/1/symbol",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.89"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/1/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.89"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/2/symbol",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.90"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/2/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.90"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/predecessor_kind",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/limitation/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.91"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/later_advance/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.92"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/modern_llm_role/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.93"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/role",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/name",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.94"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/source_url",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.94"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/claim/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.94"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/role",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/name",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.95"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/source_url",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.95"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/claim/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.95"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/approach/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.96"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/summary/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.97"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/rust_contrast",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.98"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/package",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/0",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/1",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/2",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/3",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/4",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/expected_output",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/visualization/decision",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/visualization/rationale/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.99"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/decoder_connection/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.100"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/0/concept_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/0/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.101"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/1/concept_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/1/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.102"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/2/concept_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/2/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.103"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/3/concept_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/3/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.104"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/4/concept_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/4/en",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.105"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/translation_notes/0",
+      "kind": "internal-delivery-instruction",
+      "reason": "Author instructions about deferred localization, never learner-facing"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/0/input",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.106"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/0/expected",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.106"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/1/input",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.107"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/1/expected",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.107"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/2/input",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.108"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/2/expected",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.108"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/3/input",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.109"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/3/expected",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.109"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/4/input",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.110"
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/4/expected",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.110"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/chapter_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/locale",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/concept_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/title",
+      "kind": "exact-English-projection",
+      "unitId": "unit.011"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/description",
+      "kind": "exact-English-projection",
+      "unitId": "unit.001"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/objective",
+      "kind": "exact-English-projection",
+      "unitId": "unit.073",
+      "relationship": "Objective value inside label-and-value group"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/worked_inputs",
+      "kind": "exact-English-projection",
+      "unitId": "unit.87"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/latex",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/0/symbol",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/0/meaning",
+      "kind": "exact-English-projection",
+      "unitId": "unit.88"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/1/symbol",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/1/meaning",
+      "kind": "exact-English-projection",
+      "unitId": "unit.89"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/2/symbol",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/2/meaning",
+      "kind": "exact-English-projection",
+      "unitId": "unit.90"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/predecessor_kind",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/limitation",
+      "kind": "exact-English-projection",
+      "unitId": "unit.91"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/later_advance",
+      "kind": "exact-English-projection",
+      "unitId": "unit.92"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/modern_llm_role",
+      "kind": "exact-English-projection",
+      "unitId": "unit.93"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/role",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/name",
+      "kind": "exact-English-projection",
+      "unitId": "unit.94"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/source_url",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/claim",
+      "kind": "exact-English-projection",
+      "unitId": "unit.94"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/role",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/name",
+      "kind": "exact-English-projection",
+      "unitId": "unit.95"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/source_url",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/claim",
+      "kind": "exact-English-projection",
+      "unitId": "unit.95"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/approach",
+      "kind": "exact-English-projection",
+      "unitId": "unit.96"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/summary",
+      "kind": "exact-English-projection",
+      "unitId": "unit.97"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/rust_source",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/0/path",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.111"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/0/region",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.111"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/0/purpose",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.111"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/1/path",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.112"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/1/region",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.112"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/1/purpose",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.112"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/2/path",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.113"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/2/region",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.113"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/2/purpose",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.113"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/3/path",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.114"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/3/region",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.114"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/3/purpose",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.114"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/4/path",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.115"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/4/region",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.115"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/4/purpose",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.115"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/5/path",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.116"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/5/region",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.116"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/5/purpose",
+      "kind": "reviewed-English-semantic-group",
+      "unitId": "unit.116"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/visualization/decision",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/visualization/rationale",
+      "kind": "exact-English-projection",
+      "unitId": "unit.99"
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/decoder_connection",
+      "kind": "exact-English-projection",
+      "unitId": "unit.100"
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/chapterId",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/locale",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/title",
+      "kind": "exact-English-projection",
+      "unitId": "unit.011"
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/description",
+      "kind": "exact-English-projection",
+      "unitId": "unit.001"
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/objective",
+      "kind": "exact-English-projection",
+      "unitId": "unit.073",
+      "relationship": "Objective value inside label-and-value group"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/chapter_id",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/locale",
+      "kind": "language-neutral-math-code-data",
+      "reason": "Identifier, enum, mathematical literal, code/path, or byte-bound observed program output"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/title",
+      "kind": "exact-English-projection",
+      "unitId": "unit.012"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/description",
+      "kind": "exact-English-projection",
+      "unitId": "unit.074"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/0/term",
+      "kind": "exact-English-projection",
+      "unitId": "unit.018",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/0/definition",
+      "kind": "exact-English-projection",
+      "unitId": "unit.018",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/1/term",
+      "kind": "exact-English-projection",
+      "unitId": "unit.021",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/1/definition",
+      "kind": "exact-English-projection",
+      "unitId": "unit.021",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/2/term",
+      "kind": "exact-English-projection",
+      "unitId": "unit.016",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/2/definition",
+      "kind": "exact-English-projection",
+      "unitId": "unit.016",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/3/term",
+      "kind": "exact-English-projection",
+      "unitId": "unit.019",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/3/definition",
+      "kind": "exact-English-projection",
+      "unitId": "unit.019",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/4/term",
+      "kind": "exact-English-projection",
+      "unitId": "unit.017",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/4/definition",
+      "kind": "exact-English-projection",
+      "unitId": "unit.017",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/5/term",
+      "kind": "exact-English-projection",
+      "unitId": "unit.020",
+      "relationship": "Term-and-definition pair"
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/5/definition",
+      "kind": "exact-English-projection",
+      "unitId": "unit.020",
+      "relationship": "Term-and-definition pair"
+    }
+  ]
+}

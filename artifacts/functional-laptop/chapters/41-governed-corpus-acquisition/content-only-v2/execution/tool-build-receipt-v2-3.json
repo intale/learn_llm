@@ -1,0 +1,1 @@
+{"schema_version":2,"image_id":"sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5","source_tree_sha256":"aa786383899a7544d0e803934048a6c2efdc116280fd18c0010bd2ecfb1bac92","binary":{"path":"tool-binary-v2-3","sha256":"997c0d200972a17cb374287f17f3a884e0086b12e2352b2d19d59ab0d9de8cd0"},"network":"none","cargo_locked":true}

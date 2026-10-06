@@ -1,0 +1,175 @@
+TAP version 13
+# Subtest: default corpus enabled and cloud explicitly disabled
+ok 1 - default corpus enabled and cloud explicitly disabled
+  ---
+  duration_ms: 0.638394
+  ...
+# Subtest: mature client executable replaces custom response downloader
+ok 2 - mature client executable replaces custom response downloader
+  ---
+  duration_ms: 0.126067
+  ...
+# Subtest: download cache stage copies only built executable and selected assets before provenance
+ok 3 - download cache stage copies only built executable and selected assets before provenance
+  ---
+  duration_ms: 0.135856
+  ...
+# Subtest: selected production recipe owns values; shared content and client have no asset literals
+ok 4 - selected production recipe owns values; shared content and client have no asset literals
+  ---
+  duration_ms: 0.962867
+  ...
+# Subtest: actual generated content-only fixture report has no retrieval/path assumptions
+ok 5 - actual generated content-only fixture report has no retrieval/path assumptions
+  ---
+  duration_ms: 0.770013
+  ...
+# Subtest: legacy protocol fields and falsely broadened approval refuse
+ok 6 - legacy protocol fields and falsely broadened approval refuse
+  ---
+  duration_ms: 0.178988
+  ...
+# Subtest: changed counts identity evidence or private-stage assertion refuse
+ok 7 - changed counts identity evidence or private-stage assertion refuse
+  ---
+  duration_ms: 0.247447
+  ...
+# Subtest: current receipt structural fixture passes
+ok 8 - current receipt structural fixture passes
+  ---
+  duration_ms: 0.532073
+  ...
+# Subtest: missing false or extra checks refuse
+ok 9 - missing false or extra checks refuse
+  ---
+  duration_ms: 0.298243
+  ...
+# Subtest: network identity schema and policy substitution refuse
+ok 10 - network identity schema and policy substitution refuse
+  ---
+  duration_ms: 0.118163
+  ...
+# Subtest: course Rust tests run in a BuildKit network-isolated layer after locked fetch
+ok 11 - course Rust tests run in a BuildKit network-isolated layer after locked fetch
+  ---
+  duration_ms: 0.537504
+  ...
+# Subtest: ./course run passes the no-network policy to its Docker runtime container
+ok 12 - ./course run passes the no-network policy to its Docker runtime container
+  ---
+  duration_ms: 4.98315
+  ...
+# Subtest: ./course run forwards the exact single-test Chapter41 Cargo argv after setup
+ok 13 - ./course run forwards the exact single-test Chapter41 Cargo argv after setup
+  ---
+  duration_ms: 11.207271
+  ...
+# Subtest: ./course propagates default true or explicit fixture-only false before offline run
+ok 14 - ./course propagates default true or explicit fixture-only false before offline run
+  ---
+  duration_ms: 13.204128
+  ...
+# Subtest: declared regular candidate file is removed, sibling baseline preserved
+ok 15 - declared regular candidate file is removed, sibling baseline preserved
+  ---
+  duration_ms: 2.881365
+  ...
+# Subtest: whole list validates before any deletion
+ok 16 - whole list validates before any deletion
+  ---
+  duration_ms: 2.12033
+  ...
+# Subtest: symlink target and malformed shape refuse
+ok 17 - symlink target and malformed shape refuse
+  ---
+  duration_ms: 1.071821
+  ...
+# Subtest: closed public command refuses arbitrary source and ignored option
+ok 18 - closed public command refuses arbitrary source and ignored option
+  ---
+  duration_ms: 0.667779
+  ...
+# Subtest: runtime evidence binds actual workflow image and offline boundary
+ok 19 - runtime evidence binds actual workflow image and offline boundary
+  ---
+  duration_ms: 0.144142
+  ...
+# Subtest: acquisition build authority has no runtime network or cache mount
+ok 20 - acquisition build authority has no runtime network or cache mount
+  ---
+  duration_ms: 0.140275
+  ...
+# Subtest: publication mounts exact input read-only and cache writable
+ok 21 - publication mounts exact input read-only and cache writable
+  ---
+  duration_ms: 0.369537
+  ...
+# Subtest: replay chooses one entry mounted at closed alias without manifest filename
+ok 22 - replay chooses one entry mounted at closed alias without manifest filename
+  ---
+  duration_ms: 0.168128
+  ...
+# Subtest: production cannot downgrade selected policy or select unadmitted stage
+ok 23 - production cannot downgrade selected policy or select unadmitted stage
+  ---
+  duration_ms: 0.113173
+  ...
+# Subtest: fixture handoff is offline and cannot acquire
+ok 24 - fixture handoff is offline and cannot acquire
+  ---
+  duration_ms: 0.114196
+  ...
+# Subtest: bridge is v2 content-only with independent mount selection
+ok 25 - bridge is v2 content-only with independent mount selection
+  ---
+  duration_ms: 0.144072
+  ...
+# Subtest: selected recipe requires external producer and never uses candidate fields
+ok 26 - selected recipe requires external producer and never uses candidate fields
+  ---
+  duration_ms: 0.398311
+  ...
+# Subtest: fixed offline cached-image overlay preserves argv and scopes every mount
+ok 27 - fixed offline cached-image overlay preserves argv and scopes every mount
+  ---
+  duration_ms: 26.105084
+  ...
+# Subtest: Docker/Cargo failure is returned and recorded without replacing evidence
+ok 28 - Docker/Cargo failure is returned and recorded without replacing evidence
+  ---
+  duration_ms: 27.271205
+  ...
+# Subtest: locked offline build preserves the same bounded execution boundary
+ok 29 - locked offline build preserves the same bounded execution boundary
+  ---
+  duration_ms: 23.323477
+  ...
+# Subtest: run-owned deletion manifest mounts readonly into the candidate only
+ok 30 - run-owned deletion manifest mounts readonly into the candidate only
+  ---
+  duration_ms: 23.283181
+  ...
+# Subtest: unsafe identities and non-Cargo/provisioning commands refuse before Docker
+ok 31 - unsafe identities and non-Cargo/provisioning commands refuse before Docker
+  ---
+  duration_ms: 11.417788
+  ...
+# Subtest: symlink stage or cache cannot escape run ownership
+ok 32 - symlink stage or cache cannot escape run ownership
+  ---
+  duration_ms: 7.645212
+  ...
+# Subtest: symlink evidence/target and a missing repository-root invocation refuse
+ok 33 - symlink evidence/target and a missing repository-root invocation refuse
+  ---
+  duration_ms: 9.180187
+  ...
+1..33
+# tests 33
+# suites 0
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 171.637678

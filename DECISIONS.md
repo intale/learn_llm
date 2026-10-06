@@ -29135,3 +29135,310 @@ history, not executed reqwest behavior. Latest user content/retrieval separation
 authorizes this explicit live compatibility distinction; source HTTPS authority,
 selected host policy, redirect bounds and product deadlines remain. No client
 dependency or real download is installed/executed in the completed checkpoint.
+
+### 2026-10-06 — User approves purging Chapter41 legacy boundary
+
+The user rejects the partial abstraction and explicitly chooses to purge the
+old serialized v1/HTTP-resume example rather than preserve its live contract.
+Claim refactor-ch41-content-only-boundary as a separate corrective step after
+the completed configured-assets checkpoint. All historical runs, candidates and
+receipts remain unchanged; their verdicts cannot certify replacement English.
+
+Root owns all four shared artifact modules, the taught demo/tests and English
+surfaces. Machinery owns external adapter/config/registry/tooling and evidence.
+Shared content must not assume a filesystem, manifest filename, HTTP protocol or
+fixed two-source/four-file recipe. Standard Read/Write and staged storage remain
+the extension boundary; filesystem and source authority are operational adapters,
+not a database implementation. Freeze the concrete root design before those
+adapters change. No network client installation or corpus download is needed.
+
+The replacement English requires a coherent staged build and fresh independent
+technical/isolated reviews plus same-role adjudications. Use current maintained
+review packaging, serial fresh contexts when necessary, automated static and
+sole-Firefox assertions, and no routine image review. Repairs/Russian41+/raw
+acquisition/Chapter42 remain held; standard HTTP-client setup now depends on this
+correction. User-selected model/effort are inherited, never the skill's stale
+Luna wording. Local cached toolchains and prior utilities may be reused only with
+matching verified provenance; old candidate bytes and judgments stay historical.
+
+### 2026-10-06 — Library-owned transport required for coherent v2 consumers
+
+Superseding the earlier no-client-install scope within
+refactor-ch41-content-only-boundary, the root content owner authorizes the
+previously selected reqwest client in a separate machinery package. Removing
+legacy shared HTTP APIs must not leave the default Docker corpus branch calling
+the dead custom response/worker protocol. Reqwest0.13.5 is pinned at selection,
+with default features disabled and blocking/native-tls-no-alpn only. This is
+incidental HTTPS plumbing, never an LLM concept or a Chapter41 retrieval lesson.
+The existing cached official workspace already supplies pkg-config/OpenSSL;
+official Cargo dependency provisioning is permitted during image BUILD only.
+Record and allowlist the complete locked graph. Estimated additional build/cache
+disk is at most2GB; no raw corpus request, GPU, paid service or broad environment
+rebuild is authorized by this integration.
+
+The client owns response parsing, redirect resolution/following and HTTP/IO error
+handling. A small destination-authority callback checks the independently
+configured HTTPS hosts/credentials/port and delegates to the client's bounded
+redirect policy. Final payload content remains size/digest verified through the
+neutral Read boundary. Do not claim a hard aggregate wire/per-hop body ceiling
+that a high-level client does not expose. Historical grant/range evidence is
+unchanged and is not evidence that this new client ran. Disabled/cloud corpus
+branches perform no retrieval; every runtime container remains network-none.
+
+The live v2 transport field is expected_payload_ceiling_bytes, not body_ceiling:
+it bounds independently declared final payload content, not hidden HTTP ingress.
+The content verifier bounds the bytes it observes with Read.take(count+1);
+client buffering, headers and redirect bodies are unavailable observations,
+never zero. This breaking name/meaning supersedes the old live transport-budget
+selector without altering historical grant/resume receipts or claiming a
+restart/refund/network-wire budget for reqwest.
+
+The supporting graph is locked in Cargo.lock and explicitly allowlisted,
+including platform-specific packages. Reqwest/hyper/tower/http/url supply the
+client, redirect machinery and standard URL/HTTP types; native-tls/openssl and
+their platform bindings supply TLS; tokio/futures and synchronization types
+support the client's internal runtime; MIME parsing uses mime0.3.17. Build
+discovery/macros/OS interfaces are plumbing only. No decompression, cookies,
+JSON response adapter, proxy auto-discovery, HTTP2/3 or model algorithm is enabled.
+The shared llm crate retains serde/serde_json and sha2 only. Previously admitted
+headers/headers-core/httpdate/sha1, used by the purged protocol, leave the live
+graph/allowlist. Official provisioning preserved existing lock versions where
+compatible; an initial unrestricted lock-resolution image is retained as
+diagnostic provisioning history, not the adopted lock. Accepted cache image:
+sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758.
+
+### 2026-10-06 — Durable Chapter41 publication topology and compatibility purge
+
+The first content-only English review package bound its inputs to run staging
+under `.build`; both exact raw reviews are preserved as diagnostic evidence,
+not publication certification. Its index-card reading unit also represented
+only the link title rather than the complete actual card. The author corrected
+that role/group before a fresh canonical-path chain; source and built learner
+bytes did not change. No semantic response was repaired or repackaged.
+
+The final package is assembled in a disposable canonical-path `/work` tree with
+no `.build` directory. A maintained durability preflight rejects staging paths,
+symlinks, missing inputs, hash drift and publication-byte mismatch before routing.
+All35 bound inputs and8 publication documents passed in that clean topology.
+Three versioned preflight tests cover no-staging success and path/byte refusal;
+this deterministic gate does not approve English meaning or review substance.
+
+Purge the obsolete Chapter41-specific command-amendment helper, its revision2
+language-verifier bypass and its two dedicated regression tests. They are not a
+generic exception framework and must not constrain revised content to historical
+HTTP prose. Historical command-amendment artifacts and sealed records remain
+unchanged. Current revision3 uses the complete fresh review/adjudication chain;
+generic publication inventory, path, hash and verifier refusal checks stay strict.
+
+Cache self-test receipts are attempt-versioned and write-once, preserving prior
+valid attempts when actual tool fingerprints change. The client disables its
+automatic retries, proxies and implicit Referer and uses minimumTLS1.2. Client
+Read/status/redirect and MIME implementation evidence is copied verbatim from
+the exact officially provisioned registry packages into bounded supporting-source
+artifacts. No actual corpus transfer or claimed wire-byte accounting occurred.
+
+Focused observed gates:33/33 pinnedNode22 machinery cases;16/16 generic
+publication/durability cases; complete locked dependency allowlist/denylist;
+current client tests and clippy; real offline cache publication/replay/refusals;
+6/6 Firefox content/containment/glossary cases plus1/1 optional disclosure case.
+These do not substitute for the final independent English judgments. No routine
+screenshots, Russian41+, repairs, database implementation or Chapter42 claim.
+
+### 2026-10-06 — Chapter41 canonical-v3 review findings and revision4
+
+The fresh isolated-surface reviewer returned blocking findings001/002 on the
+source formula definitions: the canonical-byte definition omitted explicit
+UTF-8 byte collation for content/source IDs, and the SHA256 definition depended
+on the nonlocal phrase "those exact manifest bytes". The author accepted both
+findings and supplied explicit definitions in contract and MDX, plus the visible
+array-order explanation. English catalog/contract/lesson revision becomes4.
+Rust implementation, formula literal, generated stdout and glossary bytes are
+unchanged. A mechanical consistency assertion now compares every symbol/meaning
+pair between contract and lesson as well as their formula literal.
+
+Canonical-v3 responses/routing/candidate bytes remain frozen failed-candidate
+evidence. No adjudication or publication approval is inferred from either review;
+the technical context finishes undisturbed for additional author findings.
+After its result, one revised static export and clean canonical-v4 package must
+receive two fresh reviewers and two fresh same-role adjudicators. No old review
+or unchanged Rust evidence can certify edited English. Previously satisfied
+unaffected machinery/dependency/cache tests are reused with exact provenance.
+
+### 2026-10-06 — Final Chapter41 V4 machinery and publication boundary
+
+Transfer sole operational integration and ledger ownership to the fresh
+`/root/ch41_final_machinery` thread after the prior worker and child stop. Native
+parent and child metadata observes actual gpt-6.1-sol/xhigh for current work;
+earlier medium evidence stays truthful and reusable for unchanged inputs. This
+continues the same running corrective attempt and selects no later step.
+
+The V4 package binds the actual root author UUID and current selection, exact V4
+source/built bytes and author-supplied requirements. A pristine canonical `/work`
+tree without `.build` passes durable-path and publication-byte preflight before
+and after canonical review routing:35 bound inputs and8 publication documents.
+Only the final passing canonical-v4 chain is a publication output. Retired
+attempt02 and canonical-v3 directories remain immutable diagnostic staging and
+are excluded from canonical publication and its owned output inventory.
+
+Current affected Firefox assertions pass7/7 against the final V4 export, at
+1280/390 widths with formulas, text/table ink, forced colors, optional disclosure
+and glossary keyboard/scroll coverage. Four changed strict receipt-selector
+tests pass; the final Chapter41 selector is canonical-v4, with no obsolete
+command-amendment helper, revision2 verifier bypass or dedicated compatibility
+tests. Generic byte/path/hash and maintained verifier refusal checks stay strict.
+Initial Docker-socket sandbox refusals stay in their separate attempt evidence;
+the approved offline invocations pass. No image interpretation occurs.
+
+The prior disabled-source image685c10ed... contains binary67b88f16... and old
+clientlibe34eea7a..., not the current clientlib186ffdc5... fingerprint. Its main,
+Dockerfile, locked graph and selected assets are unchanged. COURSE_CORPUS=false
+returns before loading assets or constructing Client, so retry-never,
+Referer-disabled and minimumTLS settings are unreachable in that branch. Root
+accepts the prior build only as unchanged false-path evidence; current client
+compile/tests/clippy support the changed source separately. No current-binary
+image provenance is claimed, no incremental rebuild or corpus request is needed,
+and the maintained build wrapper still fingerprints/rebuilds current source.
+
+### 2026-10-06 — V4b source-only refinement and explicit breaking replacement
+
+The isolated V4 reviewer identifies a genuine missing independent-selection
+condition in the source-only attribution-variant acceptance input. The technical
+V4 reviewer passes without findings. Preserve both exact native responses and
+the entire V4 candidate as retired diagnostic staging; neither certifies V4b.
+The author changes only acceptance_examples[2].input to independently select the
+variant and replaces prior-review-resolution notes in the commitment map with
+neutral present commitments. Diagnostic history is outside all judgment bundles.
+
+Exact one-field and localizedContractProjection comparison plus current contract
+and lesson parity validation proves the amendment unrendered. Lesson/catalog/
+sheet, all3 built documents and all172 export artifacts remain byte-identical;
+the seven passing V4 Firefox assertions are hash-verified for reuse. No full
+Rust, site, dependency or image repetition is needed. Fresh canonical-v4b review
+routes and later adjudication routes retain actual gpt-6.1-sol/xhigh; only a
+complete passing V4b chain may publish. The bindings-file byte hash and internal
+candidate binding digest are distinct and recorded separately.
+
+The user's explicit no-compatibility authority means this is a breaking schema
+and API replacement, not an adapter for the retired worker/resume protocol. All
+four shared artifact core modules are rewritten around standard Read/AssetSource
+and AssetStore/StagedAssets. Filesystem ownership and HTTP remain separate
+operational adapters; the historical worker and Chapter41-only command-amendment
+compatibility are deleted. Future Chapter42 preflight must reconcile its live
+inputs/selectors with content-only V2 and external adapters rather than expect
+the old worker/resume protocol. Frozen planning history is preserved. This
+corrective step does not start Chapter42, fetch real corpus, resume Russian41+,
+or perform held repairs.
+
+Supporting call-site roles remain explicit: sha2 supplies standard SHA-256,
+while course code owns observed counts, expected-digest agreement and manifest
+identity input; serde/serde_json handle standard JSON syntax, while course code
+owns closed structure, complete canonical-byte agreement, ordering, independent
+selection and inventory/provenance rules. Reqwest owns HTTP response parsing,
+redirect following and transport/status errors; configured destination authority
+and final content checks stay outside it. MIME owns media-type grammar; the
+client compares admitted normalized types and identity encoding. Rustix supplies
+descriptor-relative filesystem/OS operations in the external adapter; that
+adapter owns layout, no-link/complete-inventory checks and publication/replay.
+Required features are minimal, the graph is locked and fully allowlisted, and
+the already performed pinned offline graph/denylist gates remain evidence. No
+renewed package-license or Docker census is authorized or needed here.
+
+### 2026-10-06 — V4c local handoff and primary command evidence closure
+
+Retain both exact V4b responses and the entire V4b route as failed diagnostic
+staging. The author adds the concrete decoder referent to the paired contract
+and lesson-frontmatter handoff fields. The lesson body is byte-identical and
+the actual functional render signature is byte-identical; the only non-content
+decoder_connection consumer is the content schema. Contract/lesson parity,
+all3 built HTML documents,172 export artifacts and the existing7-case Firefox
+receipt pass the narrow hash/dependency proof. No full rebuild is needed.
+
+Add neutral primary executable evidence to the fresh technical bundle: exact
+current course wrapper, Dockerfile, builder/client/configuration and supporting
+inputs, separately labeled dispatch-only assertions and four actual current
+staged offline Cargo invocations. The demo matches its exact golden; each named
+--exact practice command selects1 and passes1. A Docker stub tests forwarding of
+all four argv vectors, COURSE_CORPUS=false image-build selection and the runtime
+--network none argument. This is not a claim that literal ./course end-to-end
+workspace builds/runs were performed. Source dispatch and actual offline runtime
+evidence are joined by exact argv/current inputs, with their boundaries explicit.
+
+V4c supersedes the earlier current-run publication candidates only after both
+fresh reviews and both fresh same-role adjudications pass. Its clean canonical
+package has84 bound files and8 publication documents and no .build dependency.
+All retired current-run directories remain excluded from publication; historical
+committed evidence remains untouched. The final strict receipt selector uses
+english-canonical-v4c. The actual active local cache evidence is
+artifact-cache-receipt-v2-2.json bound to tool-build-receipt-v2-3.json and actual
+tool-binary-v2-3 SHA997c0d200972a17cb374287f17f3a884e0086b12e2352b2d19d59ab0d9de8cd0,
+not an obsolete path/fingerprint. Old disabled-image evidence is still only
+unchanged false-branch evidence, separate from current client source tests.
+
+### 2026-10-06 — Completed V4c publication and exact artifact-formatting reconciliation
+
+Both fresh reviews and both different fresh same-role adjudications pass without
+findings. The untouched native raw records satisfy compact recursively UTF-8
+sorted JSON and exactly one final LF; seals copy those exact bytes. Maintained
+complete-chain verification passes, including current root author identity,
+pairwise-distinct contexts, canonical prompts, role requirements, receipts and
+current publication identity. The canonical final report is
+`audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/verification/report.json`,
+SHA9f27e220c3651d1a60c065822a645c2f3eaa29f9fe5bfa5e005c04d6c2e20431.
+Canonical pre/post checks pass209 owned files,7 exact deletions,84 bound inputs
+and8 publication documents without a .build tree.211 retired staged files are
+excluded; old committed reviews remain unchanged. Seven removed legacy files
+are recoverable through Git and the private integration backup.
+
+The first publication-preparation attempt failed on four run-staging parent
+directories owned by65534 rather than1000. Only those exact validated directories
+were reassigned; no file bytes changed. Failed attempts and their evidence remain
+unchanged. A fresh attempt reuses only byte-verified minimal native observation
+copies, then passes publication and canonical verification. This is ownership
+bookkeeping, not response repair or a new semantic candidate.
+
+The standard cached `git diff --check` exits2 with exactly105 observations in
+the16 frozen/generated files below. Do not claim an unqualified formatting pass.
+Root author/orchestrator explicitly approves preserving these exact bytes:
+the one JSON glossary and its identical frozen copy,4 emitted/bound HTML copies
+and10 unmodified execution stdout/log copies. The glossary ends in hex
+`0a7d0a0a` (closing brace followed by two LF bytes); its blank line33 is
+insignificant JSON whitespace, not a change to any term, role or extracted value.
+No frozen source, generated HTML, log or semantic response is normalized.
+
+The complete standard output is retained at
+`.build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/staged-standard-diff-check-v4c.stdout.txt`,
+SHA365f6ec7dda7ae226f27df6941f946c10a9906820a0b8f7e8cd65359c52362fc;
+the exact registry JSON has SHAcdbf1f74cf3839698e103fc305466facfe17ed2cd8258403235cfef9b3e1ed44.
+`node .build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/check-frozen-diff-whitespace-v4c.mjs 01`
+passes exact hash/105-observation equality, strict cached diff-check for every
+other staged path, and per-file checks disabling only each listed observed
+category while retaining all other default whitespace checks. Its report SHA is
+f7349e8f4b7a225a66b83a5dce943050dbe863eee34e5569a01af9dbf2fa79ec.
+No global Git configuration, wildcard/future exception, or authored
+Rust/script/MDX/contract/catalog exception is created. This enumerated expansion
+supersedes the initial one-file bookkeeping approval.
+
+| Exact path | Line(s) | Only disabled category | SHA-256 |
+| --- | --- | --- | --- |
+| artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/english-html/en/course/40-reference-core-handoff/index.html | 47 | blank-at-eol | f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f |
+| artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/english-html/en/course/41-governed-corpus-acquisition/index.html | 47 | blank-at-eol | 38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824 |
+| artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/core-and-demo-tests.stdout.txt | 77 | blank-at-eof | c693513fccc54bfc4cf6c7ebf69447281bfc0a3d9d8554eac09518bc84feb022 |
+| artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/current-client-tests.stdout.txt | 7 | blank-at-eof | 8579a4a891e1a21df97fa4939f0269aba397010ef28da906d1dd1d866e7a4ce6 |
+| artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/current-storage-test.stdout.txt | 6 | blank-at-eof | 5a47d7091637cf77ecbbef1f8d467c589885b00bcbfa2e23ea3f4522e3a96b79 |
+| artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/static-build.stdout.txt | 21–110 | blank-at-eol | 443130256c048cd6a72a92bcf045cd652179c2d6ae46a1970919d8b333e58a07 |
+| artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/static-content-tests.stdout.txt | 14 | blank-at-eof | 654501dc564535254f5106842035035e8521f093320459513f02213f2655b01b |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/built/en/course/40-reference-core-handoff/index.html | 47 | blank-at-eol | f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/built/en/course/41-governed-corpus-acquisition/index.html | 47 | blank-at-eol | 38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824 |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/evidence/operations/commands/learner-attribution-v4c/stdout.txt | 6 | blank-at-eof | b6874e4a38592b36a55ee802e970ab106f188ad34359ce0992013443406b9dc9 |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/evidence/operations/commands/learner-corruption-v4c/stdout.txt | 6 | blank-at-eof | e7154b26fa6fe920ac9b5c62cb5bb17c46604ae0e363af16da93cebd0d68bba8 |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/evidence/operations/commands/learner-publication-v4c/stdout.txt | 6 | blank-at-eof | aa6bc8efa8f3d16ee1bf97f7edeae1871eb018694c003c42c392d5a11a14e1e5 |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/evidence/operations/current-client-tests.txt | 7 | blank-at-eof | 8579a4a891e1a21df97fa4939f0269aba397010ef28da906d1dd1d866e7a4ce6 |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/evidence/rust-tests.txt | 77 | blank-at-eof | c693513fccc54bfc4cf6c7ebf69447281bfc0a3d9d8554eac09518bc84feb022 |
+| audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/sources/site/src/content/cheat-sheets/en/41-governed-corpus-acquisition.json | 33 | blank-at-eof | a5c105ce376023e2c43cc56781bd2ac969d25cd64c2efabbf7898682639ba32c |
+| site/src/content/cheat-sheets/en/41-governed-corpus-acquisition.json | 33 | blank-at-eof | a5c105ce376023e2c43cc56781bd2ac969d25cd64c2efabbf7898682639ba32c |
+
+The completed step preserves the breaking content-only V2/API decision and
+external filesystem/HTTP ownership. No real corpus acquisition, Russian41+,
+held repair or Chapter42 implementation starts. Future Chapter42 preflight must
+reconcile the live content-only APIs and selected external adapters, not revive
+the removed worker/resume protocol.

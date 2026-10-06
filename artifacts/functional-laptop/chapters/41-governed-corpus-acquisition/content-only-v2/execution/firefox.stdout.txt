@@ -1,0 +1,11 @@
+
+Running 7 tests using 1 worker
+
+[1/7] [firefox] › tests/e2e/ch41-governed-corpus-acquisition.spec.ts:5:1 › Chapter41 optional explanations remain keyboard-operable
+[2/7] [firefox] › tests/e2e/ch41-governed-corpus-acquisition.spec.ts:19:1 › Chapter41 static report, mathematical formula and English activation
+[3/7] [firefox] › tests/e2e/ch41-governed-corpus-acquisition.spec.ts:49:3 › Chapter41 prose, table and mathematical ink containment 1280
+[4/7] [firefox] › tests/e2e/ch41-governed-corpus-acquisition.spec.ts:49:3 › Chapter41 prose, table and mathematical ink containment 390
+[5/7] [firefox] › tests/e2e/ch41-governed-corpus-acquisition.spec.ts:102:1 › Chapter41 forced colors retain English navigation and complete evidence
+[6/7] [firefox] › tests/e2e/ch41-governed-corpus-acquisition.spec.ts:112:3 › Chapter41 glossary keyboard and contained scrolling 1280
+[7/7] [firefox] › tests/e2e/ch41-governed-corpus-acquisition.spec.ts:112:3 › Chapter41 glossary keyboard and contained scrolling 390
+  7 passed (5.0s)

@@ -1,0 +1,4 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch41-governed-corpus-acquisition v0.1.0 (/work/rust/demos/ch41-governed-corpus-acquisition)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.85s
+     Running tests/governed_acquisition.rs (/target/debug/deps/governed_acquisition-e37c0fb6a8449469)

@@ -1,0 +1,1939 @@
+{
+  "schemaVersion": 1,
+  "fields": [
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/chapter_id",
+      "value": "41-governed-corpus-acquisition",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/chapter_id"
+          },
+          {
+            "documentId": "source.sheet",
+            "jsonPointer": "/chapter_id"
+          }
+        ],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/concept_id",
+      "value": "governed-corpus-acquisition",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/concept_id"
+          }
+        ],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/objective/en",
+      "value": "Admit a corpus bundle only when an independently selected provenance record and every supplied payload agree, without making retrieval or storage layout part of the content rules.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/objective"
+          },
+          {
+            "documentId": "source.catalog",
+            "jsonPointer": "/objective"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.012"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/worked_inputs/en",
+      "value": "Use course-authored abc and hello followed by a newline, plus shared license and attribution payloads: two source records, four payloads, nine raw bytes and 46 payload bytes. Compare same-size corruption, an attribution-only change, complete replay and a failed replacement that preserves the prior bundle.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/worked_inputs"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.001",
+          "reading.002"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/latex",
+      "value": "\\mathrm{artifact\\_id}=\\operatorname{SHA256}(\\mathrm{canonical\\_manifest\\_bytes})",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/formula/latex"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/0/symbol",
+      "value": "\\mathrm{artifact\\_id}",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/formula/symbols/0/symbol"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/0/en",
+      "value": "the 256-bit digest identifying the complete canonical corpus record, not a signature or permission certificate",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/1/symbol",
+      "value": "\\mathrm{canonical\\_manifest\\_bytes}",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/formula/symbols/1/symbol"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/1/en",
+      "value": "the complete compact UTF-8 JSON manifest, including payload digests and source provenance, with object keys, payload content IDs and source IDs ordered by their UTF-8 bytes, and exactly one final newline",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/2/symbol",
+      "value": "\\operatorname{SHA256}",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/formula/symbols/2/symbol"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/formula/symbols/2/en",
+      "value": "the supporting library's SHA-256 operation on the complete canonical manifest bytes",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/predecessor_kind",
+      "value": "model-building-practice",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/predecessor_kind"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/limitation/en",
+      "value": "A byte inventory alone does not preserve a dataset's collection context, provenance or suitability for language-model training.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/limitation"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/later_advance/en",
+      "value": "Datasheets for Datasets proposes structured dataset documentation; the later ROOTS corpus describes data creation, curation and governance for a multilingual language-model corpus.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/later_advance"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/modern_llm_role/en",
+      "value": "Keep selected corpus bytes linked to their source context before downstream filtering, split construction and training. Byte agreement does not establish quality, privacy or permission.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/modern_llm_role"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/role",
+      "value": "earlier",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/0/role"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/name",
+      "value": "Datasheets for Datasets",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/0/name"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/source_url",
+      "value": "https://arxiv.org/abs/1803.09010v8",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/0/source_url"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/0/claim/en",
+      "value": "Gebru and colleagues propose dataset documentation describing motivation, composition, collection and recommended uses to improve communication, transparency and accountability.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/0/claim"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/role",
+      "value": "later",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/1/role"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/name",
+      "value": "The BigScience ROOTS Corpus: A 1.6TB Composite Multilingual Dataset",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/1/name"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/source_url",
+      "value": "https://arxiv.org/abs/2303.03915v1",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/1/source_url"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/llm_evolution/sources/1/claim/en",
+      "value": "The ROOTS corpus paper documents data creation and curation with governance foregrounded in a multilingual language-model project; it does not validate this chapter's fixture.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/llm_evolution/sources/1/claim"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/approach/en",
+      "value": "Contrast a byte-count check with a provenance-bearing manifest and full byte verification on the same three-byte train fixture.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/approach"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/summary/en",
+      "value": "Preserve dataset context beside selected bytes. Documentation and byte verification serve different purposes, and neither alone establishes corpus suitability.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/history/summary"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/history/rust_contrast",
+      "value": "The fixture demonstrates that a three-byte count check accepts abd whereas the selected abc digest refuses it. This course-local comparison does not reenact a historical dataset project's full governance process.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/package",
+      "value": "ch41-governed-corpus-acquisition",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/0",
+      "value": "rust/crates/llm-from-scratch/src/artifact/canonical_manifest.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/1",
+      "value": "rust/crates/llm-from-scratch/src/artifact/inventory.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/2",
+      "value": "rust/crates/llm-from-scratch/src/artifact/acquisition.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/3",
+      "value": "rust/demos/ch41-governed-corpus-acquisition/src/lib.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/sources/4",
+      "value": "rust/demos/ch41-governed-corpus-acquisition/src/main.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/rust/expected_output",
+      "value": "{\n  \"artifact_id\": \"c6a8351f4c3236687f7dbad72b333d01364416b2e0f8f74f88221cab4a6da2df\",\n  \"artifact_manifest_bytes\": 1756,\n  \"attribution_variant_artifact_id\": \"a11d314b5c084d51cf145a194963e73547fc82123a08a2f2422a28e1da5d30cb\",\n  \"checks\": {\n    \"attribution_change_changes_bundle_identity\": true,\n    \"attribution_change_preserves_raw_digests\": true,\n    \"complete_bundle_replay_identity\": true,\n    \"failure_preserves_prior_bundle\": true,\n    \"same_size_wrong_bytes_refusal\": \"Hash\",\n    \"size_only_contrast_accepts_abd\": true\n  },\n  \"inventoried_payloads\": 4,\n  \"logical_sources\": 2,\n  \"payloads\": [\n    {\n      \"bytes\": 24,\n      \"id\": \"attribution\",\n      \"sha256\": \"0d00779105653df98f180d5d8b910ea061782492fcb25e1d955e70453c3456f5\"\n    },\n    {\n      \"bytes\": 13,\n      \"id\": \"license\",\n      \"sha256\": \"db64e55296d3cb3c38619dae7b7cce54bb74a83956423be38443258ebb0724da\"\n    },\n    {\n      \"bytes\": 3,\n      \"id\": \"train\",\n      \"sha256\": \"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\"\n    },\n    {\n      \"bytes\": 6,\n      \"id\": \"validation\",\n      \"sha256\": \"5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03\"\n    }\n  ],\n  \"privacy_quality_or_redistribution_approval\": false,\n  \"raw_bytes\": 9,\n  \"schema_version\": 2,\n  \"scope\": \"synthetic-offline-fixture\",\n  \"total_payload_bytes\": 46\n}\n",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/visualization/decision",
+      "value": "not-useful",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/visualization/decision"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.007"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/visualization/rationale/en",
+      "value": "The payload table names each exact byte sequence and role, while the Rust report directly records identity changes, digest refusal and complete replay. A spatial diagram would not clarify those record comparisons.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/visualization/rationale"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.007"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/decoder_connection/en",
+      "value": "The scalar decoder reference remains unchanged. This content boundary identifies and verifies corpus inputs before filtering and tokenization; the synthetic fixture is not acquired TinyStories or Chapter 42's real input.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/decoder_connection"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.009"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/0/concept_id",
+      "value": "corpus-bundle",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/0/en",
+      "value": "corpus bundle",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/1/concept_id",
+      "value": "source-provenance",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/1/en",
+      "value": "source provenance",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/2/concept_id",
+      "value": "canonical-manifest",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/2/en",
+      "value": "canonical manifest",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/3/concept_id",
+      "value": "dataset-artifact-identity",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/3/en",
+      "value": "dataset artifact identity",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/4/concept_id",
+      "value": "content-id",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/terminology/4/en",
+      "value": "content ID",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/translation_notes/0",
+      "value": "Chapter 41 is canonical English only under the user's deferred Russian rollout. No Russian lesson, glossary, catalog or navigation is created or activated.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/0/input",
+      "value": "Run the offline content fixture",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/0/expected",
+      "value": "The actual JSON output matches expected.txt and records schema 2, synthetic-offline-fixture, two sources, four payloads, nine raw bytes and 46 total payload bytes.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/1/input",
+      "value": "Replace abc with same-length abd",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/1/expected",
+      "value": "The byte count agrees but full verification returns Hash; the memory store publishes no replacement.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/2/input",
+      "value": "Independently select the attribution-only variant",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/2/expected",
+      "value": "The attribution payload count and digest change; source content-ID references and raw text digests do not. The complete record identity changes; the original policy refuses the new record.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/3/input",
+      "value": "Inject a corrupt final payload or a storage failure",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/3/expected",
+      "value": "The memory store preserves its prior published bundle and publishes no partial candidate. This does not prove crash recovery for arbitrary adapters.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/4/input",
+      "value": "Replay a recorded identity with changed current content",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/acceptance_examples/4/expected",
+      "value": "Read-only replay rechecks every payload and refuses the changed bytes; identity alone is not proof they remain intact.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.008"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/chapter_id",
+      "value": "41-governed-corpus-acquisition",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/chapter_id"
+          },
+          {
+            "documentId": "source.sheet",
+            "jsonPointer": "/chapter_id"
+          }
+        ],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/locale",
+      "value": "en",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.catalog",
+            "jsonPointer": "/locale"
+          },
+          {
+            "documentId": "source.sheet",
+            "jsonPointer": "/locale"
+          }
+        ],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/concept_id",
+      "value": "governed-corpus-acquisition",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/concept_id"
+          }
+        ],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/title",
+      "value": "Verify a corpus together with its provenance",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.catalog",
+            "jsonPointer": "/title"
+          }
+        ],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/description",
+      "value": "Verify selected corpus bytes and source provenance as one complete bundle, independently of retrieval and storage, using a small offline Rust example.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.catalog",
+            "jsonPointer": "/description"
+          }
+        ],
+        "proposedReadingIds": []
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/objective",
+      "value": "Admit a corpus bundle only when an independently selected provenance record and every supplied payload agree, without making retrieval or storage layout part of the content rules.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/objective/en"
+          },
+          {
+            "documentId": "source.catalog",
+            "jsonPointer": "/objective"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.012"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/worked_inputs",
+      "value": "Use course-authored abc and hello followed by a newline, plus shared license and attribution payloads: two source records, four payloads, nine raw bytes and 46 payload bytes. Compare same-size corruption, an attribution-only change, complete replay and a failed replacement that preserves the prior bundle.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/worked_inputs/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.001",
+          "reading.002"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/latex",
+      "value": "\\mathrm{artifact\\_id}=\\operatorname{SHA256}(\\mathrm{canonical\\_manifest\\_bytes})",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/formula/latex"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/0/symbol",
+      "value": "\\mathrm{artifact\\_id}",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/formula/symbols/0/symbol"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/0/meaning",
+      "value": "the 256-bit digest identifying the complete canonical corpus record, not a signature or permission certificate",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/1/symbol",
+      "value": "\\mathrm{canonical\\_manifest\\_bytes}",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/formula/symbols/1/symbol"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/1/meaning",
+      "value": "the complete compact UTF-8 JSON manifest, including payload digests and source provenance, with object keys, payload content IDs and source IDs ordered by their UTF-8 bytes, and exactly one final newline",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/2/symbol",
+      "value": "\\operatorname{SHA256}",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/formula/symbols/2/symbol"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/formula/symbols/2/meaning",
+      "value": "the supporting library's SHA-256 operation on the complete canonical manifest bytes",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.003",
+          "reading.004"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/predecessor_kind",
+      "value": "model-building-practice",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/predecessor_kind"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/limitation",
+      "value": "A byte inventory alone does not preserve a dataset's collection context, provenance or suitability for language-model training.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/limitation/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/later_advance",
+      "value": "Datasheets for Datasets proposes structured dataset documentation; the later ROOTS corpus describes data creation, curation and governance for a multilingual language-model corpus.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/later_advance/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/modern_llm_role",
+      "value": "Keep selected corpus bytes linked to their source context before downstream filtering, split construction and training. Byte agreement does not establish quality, privacy or permission.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/modern_llm_role/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/role",
+      "value": "earlier",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/0/role"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/name",
+      "value": "Datasheets for Datasets",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/0/name"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/source_url",
+      "value": "https://arxiv.org/abs/1803.09010v8",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/0/source_url"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/0/claim",
+      "value": "Gebru and colleagues propose dataset documentation describing motivation, composition, collection and recommended uses to improve communication, transparency and accountability.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/0/claim/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/role",
+      "value": "later",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/1/role"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/name",
+      "value": "The BigScience ROOTS Corpus: A 1.6TB Composite Multilingual Dataset",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/1/name"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/source_url",
+      "value": "https://arxiv.org/abs/2303.03915v1",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/1/source_url"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/llm_evolution/sources/1/claim",
+      "value": "The ROOTS corpus paper documents data creation and curation with governance foregrounded in a multilingual language-model project; it does not validate this chapter's fixture.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/llm_evolution/sources/1/claim/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/approach",
+      "value": "Contrast a byte-count check with a provenance-bearing manifest and full byte verification on the same three-byte train fixture.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/approach/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/summary",
+      "value": "Preserve dataset context beside selected bytes. Documentation and byte verification serve different purposes, and neither alone establishes corpus suitability.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/history/summary/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/history/rust_source",
+      "value": "rust/demos/ch41-governed-corpus-acquisition/src/lib.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.006"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/0/path",
+      "value": "rust/crates/llm-from-scratch/src/artifact/canonical_manifest.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/0/region",
+      "value": "dataset-artifact-identity",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/0/purpose",
+      "value": "Identify the complete canonical corpus record through its exact bytes.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/1/path",
+      "value": "rust/crates/llm-from-scratch/src/artifact/inventory.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/1/region",
+      "value": "bounded-payload-verification",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/1/purpose",
+      "value": "Stream supplied content through standard I/O, detect a wrong length and compare its digest with the selected entry.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/2/path",
+      "value": "rust/crates/llm-from-scratch/src/artifact/acquisition.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/2/region",
+      "value": "content-admission",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/2/purpose",
+      "value": "Keep destination staging unpublished until all selected payloads have passed verification.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/3/path",
+      "value": "rust/demos/ch41-governed-corpus-acquisition/src/lib.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/3/region",
+      "value": "governed-report",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/3/purpose",
+      "value": "Report verified content, provenance changes, replay and the memory-store failure boundary on an explicitly synthetic fixture.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/4/path",
+      "value": "rust/demos/ch41-governed-corpus-acquisition/src/lib.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/4/region",
+      "value": "size-only-contrast",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/4/purpose",
+      "value": "Demonstrate the limited byte-count baseline on equal-length inputs.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/5/path",
+      "value": "rust/demos/ch41-governed-corpus-acquisition/src/main.rs",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/5/region",
+      "value": "offline-acquisition-example",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/rust_sources/5/purpose",
+      "value": "Run the course-authored offline fixture and print its actual report without downloading a corpus.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [],
+        "proposedReadingIds": [
+          "reading.005"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/visualization/decision",
+      "value": "not-useful",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/visualization/decision"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.007"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/visualization/rationale",
+      "value": "The payload table names each exact byte sequence and role, while the Rust report directly records identity changes, digest refusal and complete replay. A spatial diagram would not clarify those record comparisons.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/visualization/rationale/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.007"
+        ]
+      }
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/decoder_connection",
+      "value": "The scalar decoder reference remains unchanged. This content boundary identifies and verifies corpus inputs before filtering and tokenization; the synthetic fixture is not acquired TinyStories or Chapter 42's real input.",
+      "mapping": {
+        "projection": "author-audit-candidate-mapping-not-semantic-coverage",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.contract",
+            "jsonPointer": "/decoder_connection/en"
+          }
+        ],
+        "proposedReadingIds": [
+          "reading.009"
+        ]
+      }
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/chapterId",
+      "value": "41-governed-corpus-acquisition",
+      "mapping": {
+        "projection": "lesson-frontmatter-and-course-index",
+        "matchingSourceFields": [],
+        "readingIds": [
+          "reading.010"
+        ]
+      }
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/locale",
+      "value": "en",
+      "mapping": {
+        "projection": "lesson-frontmatter-and-course-index",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/locale"
+          }
+        ],
+        "readingIds": [
+          "reading.010"
+        ]
+      }
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/title",
+      "value": "Verify a corpus together with its provenance",
+      "mapping": {
+        "projection": "lesson-frontmatter-and-course-index",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/title"
+          }
+        ],
+        "readingIds": [
+          "reading.010"
+        ]
+      }
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/description",
+      "value": "Verify selected corpus bytes and source provenance as one complete bundle, independently of retrieval and storage, using a small offline Rust example.",
+      "mapping": {
+        "projection": "lesson-frontmatter-and-course-index",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/description"
+          }
+        ],
+        "readingIds": [
+          "reading.010"
+        ]
+      }
+    },
+    {
+      "documentId": "source.catalog",
+      "jsonPointer": "/objective",
+      "value": "Admit a corpus bundle only when an independently selected provenance record and every supplied payload agree, without making retrieval or storage layout part of the content rules.",
+      "mapping": {
+        "projection": "lesson-frontmatter-and-course-index",
+        "matchingSourceFields": [
+          {
+            "documentId": "source.lesson",
+            "jsonPointer": "/objective"
+          }
+        ],
+        "readingIds": [
+          "reading.010"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/chapter_id",
+      "value": "41-governed-corpus-acquisition",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/locale",
+      "value": "en",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/title",
+      "value": "A verified corpus bundle",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/description",
+      "value": "Terms for connecting selected corpus bytes to provenance and keeping content checks separate from retrieval and storage.",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/0/term",
+      "value": "Corpus bundle",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/0/definition",
+      "value": "The selected raw text and metadata payloads together with their manifest. In this synthetic example, two sources share one license payload and one attribution payload.",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/1/term",
+      "value": "Source provenance",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/1/definition",
+      "value": "The record connecting selected corpus content to its source revision, provenance reference, license text and attribution. Matching those claims does not establish that they are true or grant permission.",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/2/term",
+      "value": "Canonical manifest",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/2/definition",
+      "value": "A complete corpus record with one fixed byte representation, including content IDs, roles, counts, digests and provenance. The verifier rejects different formatting or ordering rather than silently rewriting it.",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/3/term",
+      "value": "Dataset artifact identity",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/3/definition",
+      "value": "The SHA-256 digest of the complete canonical manifest. It identifies the record through its provenance and payload digests; supplied payload bytes still need verification. It is not a signature or permission certificate.",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/4/term",
+      "value": "Content ID",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/4/definition",
+      "value": "A logical name for one payload in the selected corpus record. A source uses that name to refer to content; adapters choose how to retrieve or store it. The name is not a required filename or URL.",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/5/term",
+      "value": "Raw held-out source",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    },
+    {
+      "documentId": "source.sheet",
+      "jsonPointer": "/terms/5/definition",
+      "value": "The separate raw text source selected outside the raw training source. Its name does not define the final validation or test split, which is constructed later.",
+      "mapping": {
+        "projection": "glossary-dialog",
+        "readingIds": [
+          "reading.013"
+        ],
+        "matchingNewUnitIds": [
+          "unit.074",
+          "unit.075",
+          "unit.076",
+          "unit.077",
+          "unit.078",
+          "unit.079"
+        ]
+      }
+    }
+  ],
+  "limitations": "All128actual string fields retained for author classification, including operational/internal/language-neutral fields. Proposed projection references do not prove semantics or visibility."
+}

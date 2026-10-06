@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://learn-llm.local/schemas/english-adjudication-record-v1.json",
+  "title": "Independent canonical-English semantic adjudication record",
+  "description": "This record judges the soundness and completeness of the same-role review, not the candidate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "adjudicationId",
+    "role",
+    "scopeId",
+    "adjudicator",
+    "surfaceAdjudications",
+    "reviewFindingAdjudications",
+    "verdict",
+    "findings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "candidateId": { "$ref": "#/$defs/id" },
+    "adjudicationId": { "$ref": "#/$defs/id" },
+    "role": { "enum": ["technical-pedagogical", "isolated-surface"] },
+    "scopeId": { "$ref": "#/$defs/id" },
+    "adjudicator": { "$ref": "#/$defs/adjudicator" },
+    "surfaceAdjudications": {
+      "description": "Each entry exactly echoes the same-role review assessment's pass, advisory, or blocking judgment, then separately judges that assessment as supported or rejected; it does not judge the candidate surface directly.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/surfaceAdjudication" }
+    },
+    "reviewFindingAdjudications": {
+      "description": "Each entry judges one same-role review finding. A supported review finding has no adjudicator-finding links; a rejected review finding requires a linked blocking adjudicator finding that explains the review defect.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/reviewFindingAdjudication" }
+    },
+    "verdict": {
+      "description": "pass means the same-role review is sound and complete, even when that review correctly fails the candidate; fail means the same-role review is unsound or incomplete. This verdict never judges the candidate directly.",
+      "enum": ["pass", "fail"]
+    },
+    "findings": {
+      "description": "Adjudicator findings describe defects in the same-role review's requirement, assessment, reasoning, finding, coverage, or severity; they do not repeat candidate defects already captured by supported review findings.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "verdict": { "const": "pass" } },
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "findings": {
+            "items": {
+              "properties": { "severity": { "const": "advisory" } },
+              "required": ["severity"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "verdict": { "const": "fail" } },
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "findings": {
+            "contains": {
+              "properties": { "severity": { "const": "blocking" } },
+              "required": ["severity"]
+            },
+            "minContains": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "adjudicator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contextId",
+        "freshContext",
+        "model",
+        "reasoning",
+        "startedAt",
+        "completedAt",
+        "accessBoundary"
+      ],
+      "properties": {
+        "contextId": { "$ref": "#/$defs/id" },
+        "freshContext": { "const": true },
+        "model": { "type": "string", "minLength": 1 },
+        "reasoning": { "type": "string", "minLength": 1 },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "accessBoundary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "declaredArtifactIdsRead"],
+          "properties": {
+            "mode": { "const": "declared-read-only" },
+            "declaredArtifactIdsRead": {
+              "type": "array",
+              "const": [
+                "context-manifest",
+                "prompt",
+                "adjudication-bundle",
+                "adjudication-record-schema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "surfaceAdjudication": {
+      "description": "Echoes the bound same-role review assessment in reviewAssessmentJudgment and judges the soundness of that assessment in judgment. A sound blocking review assessment is blocking plus supported, not an adjudication failure.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surfaceId",
+        "reviewAssessmentJudgment",
+        "judgment",
+        "rationale",
+        "findingIds"
+      ],
+      "properties": {
+        "surfaceId": { "$ref": "#/$defs/id" },
+        "reviewAssessmentJudgment": {
+          "description": "Exact echo of the bound same-role review assessment's judgment; the deterministic verifier rejects any mismatch.",
+          "enum": ["pass", "advisory", "blocking"]
+        },
+        "judgment": {
+          "description": "supported approves the same-role review assessment even when reviewAssessmentJudgment is blocking; rejected means the assessment is unsound or incomplete.",
+          "enum": ["supported", "rejected"]
+        },
+        "rationale": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "findingIds": {
+          "description": "Links only adjudicator findings that explain a rejected same-role review assessment. It is empty for supported; rejected requires a linked blocking finding on this surface.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "judgment": { "const": "supported" } },
+            "required": ["judgment"]
+          },
+          "then": { "properties": { "findingIds": { "maxItems": 0 } } }
+        },
+        {
+          "if": {
+            "properties": { "judgment": { "const": "rejected" } },
+            "required": ["judgment"]
+          },
+          "then": { "properties": { "findingIds": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "reviewFindingAdjudication": {
+      "description": "Judges one finding made by the same-role review rather than judging the candidate defect again.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewFindingId", "judgment", "rationale", "findingIds"],
+      "properties": {
+        "reviewFindingId": { "$ref": "#/$defs/id" },
+        "judgment": { "enum": ["supported", "rejected"] },
+        "rationale": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "findingIds": {
+          "description": "Links only adjudicator findings that explain why this review finding is rejected; this array is empty when judgment is supported.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "judgment": { "const": "supported" } },
+            "required": ["judgment"]
+          },
+          "then": { "properties": { "findingIds": { "maxItems": 0 } } }
+        },
+        {
+          "if": {
+            "properties": { "judgment": { "const": "rejected" } },
+            "required": ["judgment"]
+          },
+          "then": { "properties": { "findingIds": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "finding": {
+      "description": "Describes a defect in the same-role review, not a candidate defect already captured by a supported review finding.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "severity",
+        "surfaceIds",
+        "evidence",
+        "learnerConsequence",
+        "correctionCriterion"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "category": {
+          "enum": [
+            "source-ambiguity",
+            "technical",
+            "evidence-overreach",
+            "represented-arithmetic",
+            "history-source",
+            "pedagogy",
+            "prerequisite",
+            "causal-structure",
+            "formula-code-consistency",
+            "accessibility-isolation",
+            "surface-role",
+            "other"
+          ]
+        },
+        "severity": { "enum": ["blocking", "advisory"] },
+        "surfaceIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "evidence": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "learnerConsequence": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "correctionCriterion": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+    Checking functional-artifact-cache v0.1.0 (/work/rust/tools/functional-artifact-cache)
+    Checking ch41-governed-corpus-acquisition v0.1.0 (/work/rust/demos/ch41-governed-corpus-acquisition)
+    Checking course-asset-fetch v0.1.0 (/work/rust/tools/course-asset-fetch)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.46s

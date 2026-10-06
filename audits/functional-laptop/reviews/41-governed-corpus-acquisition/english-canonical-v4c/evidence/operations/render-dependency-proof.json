@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "exact-unrendered-frontmatter-dependency-check",
+  "pairedFields": [
+    "source.contract:/decoder_connection/en",
+    "source.lesson:/decoder_connection"
+  ],
+  "lessonBodySha256": "fe49dc245e675a180fe92bca7c0c67d2ece8db61cc08d7bfac9be4cecbde67dc",
+  "oldFunctionalSignatureSha256": "1527f717b2a3ffb2e94eab6811dd0ad644cfcd1594f12725874fbcd135bd023e",
+  "currentFunctionalSignatureSha256": "1527f717b2a3ffb2e94eab6811dd0ad644cfcd1594f12725874fbcd135bd023e",
+  "signatureByteIdentical": true,
+  "nonContentDecoderConnectionConsumers": [
+    "site/src/content.config.ts"
+  ],
+  "dependencySources": [
+    {
+      "path": "site/src/lib/functional-course-publication.mjs",
+      "bytes": 9386,
+      "sha256": "504870320079ec9f189d695a9c012cfd566ac429cb369bbccfedfb6166c59d00"
+    },
+    {
+      "path": "site/src/pages/[locale]/course/[...slug].astro",
+      "bytes": 8540,
+      "sha256": "4d10ceb11ba22c687e10dfa17bd8842bb1db7dde78109213ddec0de7a41fa4ff"
+    },
+    {
+      "path": "site/src/content.config.ts",
+      "bytes": 10386,
+      "sha256": "7b671426ea7f84373df1f57743841dc4dd3de0c11e0ded1c3e9692d1bfc72edb"
+    }
+  ],
+  "sourceOnlyProjectionProof": {
+    "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/static-export-proposal-v4c/source-only-dependency-proof.json",
+    "bytes": 3145,
+    "sha256": "27eb2f10a93313061e44618711cb9cd1c8f6ca7aaea1514c73a826790e50ca44"
+  },
+  "limitation": "Metadata parity, render-input equality and byte/provenance checks do not replace fresh language review. Existing HTML/Firefox are reused only for unchanged rendered inputs."
+}

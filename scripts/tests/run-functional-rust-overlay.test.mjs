@@ -64,6 +64,9 @@ test('locked offline build preserves the same bounded execution boundary',()=>{
     assert.deepEqual(args.slice(0,6),['run','--rm','--pull','never','--network','none']);
   }finally{f.close();}
 });
+test('run-owned deletion manifest mounts readonly into the candidate only',()=>{
+ const f=fixture();try{writeFileSync(join(f.run,'deleted-files.json'),JSON.stringify({schema_version:1,paths:['rust/demos/example/src/bin/old.rs']}));const result=f.call();assert.equal(result.status,0,result.stderr);const args=JSON.parse(readFileSync(f.log,'utf8'));assert.ok(args.includes(`type=bind,source=${f.run}/deleted-files.json,target=/deletions.json,readonly`));assert.match(args[args.indexOf('-c')+1],/functional-staging-deletions\.mjs \/deletions\.json \/work/);}finally{f.close();}
+});
 test('unsafe identities and non-Cargo/provisioning commands refuse before Docker',()=>{
   const f=fixture();try{
     for(const args of [

@@ -1,0 +1,6 @@
+67b88f16443df363974f3a80931faaa3bbf40accec6b6f5db4349d974697ed89  /source-private/producer-inputs/course-asset-fetch.bin
+e34eea7a271f54b6c3d8e819a6dd5b34daec317885a505815b80d5954e63d30c  /source-private/producer-inputs/course-asset-fetch/src/lib.rs
+a49c188eeff36629964d167311e548748a4f115afd7d2e29b925c2f2fc9c3755  /source-private/producer-inputs/course-asset-fetch/src/main.rs
+5f433985dd91ed56b0a6b4f84f3e737966ff8c34b65fd8b423296e80df5cee1a  /source-private/producer-inputs/Dockerfile
+76d1b786f8464a2de3b7543d9ba33bef0318716a91a15d62aef121754cf91ae4  /source-private/producer-inputs/Cargo.lock
+5d21797249134bc6cc2b4e71b49394a642550d60201b572a93889800c867e4a7  /source-private/producer-inputs/functional-corpus-assets.json

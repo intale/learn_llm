@@ -281,74 +281,21 @@ tool and checks its `targetOnly` binding through routing and read-only verificat
 Course-specific extraction, full original-file provenance, locale-owned contract
 projections and inventory snapshot generation remain immutable per-run work.
 
-### Governed acquisition transport (offline Chapter41)
+### Chapter41 content-only source and destination boundary
 
-`scripts/lib/governed-acquisition-transport.mjs` exports
-`transport({command, requestFactory})` for one Rust-selected source. `command`
-is the private typed artifact-policy-worker request/reply channel; `requestFactory`
-uses Node `https.request(url, options, callback)`'s interface and is mandatory.
-Chapter41 supplies an injected offline factory, never a live downloader. There
-is no network CLI, URL override, retry loop, cache-boundary selector or filesystem
-write. A later separately authorized executor may supply Node HTTPS plumbing.
+The shared artifact modules accept opaque logical IDs, independently selected
+v2 content/provenance records, standard Read/Write and staged AssetSource/AssetStore
+interfaces. They contain no filesystem layout, HTTP protocol or fixed corpus
+recipe. The filesystem implementation is external operational tooling with
+explicit FileLayout mappings and an explicit metadata filename.
 
-The module follows only Rust-returned GET permits and grants, sends identity
-encoding unchanged, retains every raw relevant header occurrence, reads paused
-binary streams with at most the grant (maximum65,536bytes), and sends EOF as a
-separate operation. It does not decompress, resolve redirect targets, validate
-HTTP policy, write progress/partials or decide budgets. Redirect bodies are
-destroyed before cancellation; worker/transport refusal destroys the stream
-without inventing a grant settlement or retry. Rust restoration conservatively
-charges an outstanding uncertain grant. Errors are static and never echo signed
-URLs, raw headers or private worker diagnostics. The returned object is Rust's
-file-verification acknowledgment, not dataset approval.
-
-The worker permit supplies its persisted `deadline_unix_seconds`. One monotonic
-timer covers header wait and all body reads; its duration derives only from that
-deadline and does not restart on redirects or chunks. Expiration destroys the
-request/response, refuses further command dispatch and leaves grant recovery to
-Rust. There is no transport-defined policy duration.
-
-`scripts/lib/governed-acquisition-worker-client.mjs` supplies the private fixed
-binary JSONL channel, with bounded messages, one outstanding command, no stderr
-echo and no URL or policy-limit override. The Rust integration test constructs
-the canonical manifest and owned directory, then launches
-`scripts/tests/fixtures/governed-transport-round-trip.mjs` with the exact compiled
-worker binary and fixed fixture input paths. Two injected streams exercise the
-real worker protocol without any network request or Node-side manifest authoring.
-
-Run `node --test scripts/tests/governed-acquisition-transport.test.mjs` in the
-pinned offline image. Injected streams test chunk/EOF ordering, duplicate headers,
-opaque bytes, manual redirect cancellation, short/zero/maximum grants and refusal.
-These machinery fixtures do not certify course protocol semantics or authorize
-corpus acquisition.
-
-### Chapter41 offline boundary entrypoints
-
-`node scripts/check-functional-acquisition.mjs --chapter 41-governed-corpus-acquisition`
-checks the existing protected scalar census, exact module registry ownership,
-required protocol/transport files and the actual offline fixture report's
-closed shape and scope. It does not execute a Rust policy, reimplement a digest,
-certify semantics, or replace the29Rust tests and real Rust-worker/Node roundtrip.
-`bash scripts/check-functional-offline-replay.sh --chapter 41-governed-corpus-acquisition`
-dispatches that same supplementary report/wiring check; actual bundle replay and
-tamper refusal are exercised in the Rust test
-`publication_and_replay_reverify_complete_payload`.
-
-`node scripts/acquire-functional-llm-artifacts.mjs` always refuses live acquisition.
-`bash scripts/check-functional-artifact-cache.sh` always refuses real cache
-execution. Their `--help` descriptions distinguish implemented Rust offline
-publication/reverification from the separate pending artifact-cache execution
-boundary. Neither command writes a corpus/cache/receipt or opens a connection;
-neither can declare the future boundary passed. No runtime policy/URL override,
-later acquisition selector or download configuration is introduced here.
-Regression: `node --test scripts/tests/check-functional-acquisition.test.mjs`.
-
-Chapter41 language verification selects its frozen `english-candidate-02` and
-nested review/adjudication routing files. `/english` publication receipt aliases
-must be byte-identical, not rewritten semantic records. The original relative
-candidate paths remain available under the durable owned audit root; actual
-verifier `--root` can be the publication repository after staging cleanup.
-Chapter40 and Chapter42+ conventions remain unchanged.
+node scripts/check-functional-acquisition.mjs --chapter 41-governed-corpus-acquisition
+checks only wiring and the generated synthetic report. Rust tests prove content
+cases; the configured filesystem and real offline cache gates prove their own
+operational cases, not arbitrary database transaction or crash guarantees.
+The prior HTTP worker/client/response loops are purged, not compatibility APIs.
+Historical publication/review/run evidence remains immutable; the current
+English candidate requires its own fresh reviews and adjudications.
 
 ### Maintained artifact-cache boundary
 
@@ -358,7 +305,7 @@ orchestration. Its dedicated Rust plumbing package,
 source-policy, inventory, atomic-publication and replay APIs. It implements no
 new course algorithm. Production records cannot select synthetic fixture policy;
 external target/metadata/producer hashes bind provenance before Rust admission.
-Replay uses the accepted immutable acquisition `production-binding.json`, not
+Replay uses the accepted immutable acquisition `content-v2-production-binding.json`, not
 current unrelated Dockerfile or global-registry hashes. A new acquisition binds
 its actual producer bytes; changing a verifier does not silently change source
 provenance or require downloading an unchanged valid artifact again.
@@ -368,9 +315,12 @@ registers them. A raw-pair validator never admits a filtered bundle.
 All container invocations are offline. Source transfer belongs to an explicitly
 selected network-enabled Docker image build; publication, verification and
 consumption then run with `--network none`. The cache is ignored, local and
-content-addressed under `.build/artifact-cache/functional-v1/sha256/<digest>`.
+content-addressed under `.build/artifact-cache/functional-v2/sha256/<digest>`.
 Consumers receive only that selected digest directory read-only. No generic
 URL, policy, image, arbitrary executable or broad cache-mount override is offered.
+Each self-test attempt has its own directory and `artifact-cache-receipt-v2-N.json`;
+receipts are write-once, including when prior attempts failed. Select the actual
+successful attempt's receipt rather than replacing earlier evidence.
 
 From the repository root, with Docker available, the tiny synthetic fixture can
 be reproduced independently of the 2GB corpus:
@@ -380,8 +330,8 @@ docker build --build-arg COURSE_CORPUS=false --target workspace -t learn-llm-wor
 mkdir -p .build/runs/20261006T000000Z-cache-example-01
 chmod 700 .build/runs/20261006T000000Z-cache-example-01
 bash scripts/run-functional-artifact-cache.sh build-tools --run-id 20261006T000000Z-cache-example-01
-bash scripts/run-functional-artifact-cache.sh self-test --run-id 20261006T000000Z-cache-example-01 --step establish-functional-artifact-cache-execution-boundary --target artifact-cache-v1
-node scripts/check-functional-artifact-cache-receipt.mjs --step establish-functional-artifact-cache-execution-boundary --receipt .build/runs/20261006T000000Z-cache-example-01/artifact-cache-receipt.json
+bash scripts/run-functional-artifact-cache.sh self-test --run-id 20261006T000000Z-cache-example-01 --step refactor-ch41-content-only-boundary --target artifact-cache-v2
+node scripts/check-functional-artifact-cache-receipt.mjs --step refactor-ch41-content-only-boundary --receipt .build/runs/20261006T000000Z-cache-example-01/artifact-cache-receipt-v2-1.json
 ```
 
 After image cleanup, rebuild the same existing Dockerfile workspace target using
@@ -399,7 +349,7 @@ write-once and a failed fixture directory is not overwritten.
 Expected fixture result: one 46-byte synthetic four-file bundle is verified,
 atomically published, replayed from an exact read-only digest mount and handed
 through a generated-fixture producer receipt. An attempted consumer write fails
-with EROFS. Symlink, unsafe-mode, wrong-UID and unapproved-endpoint cases refuse.
+with EROFS. Corrupt-candidate, symlink, unsafe-mode and wrong-UID cases refuse.
 This evidence proves boundary mechanics, not acquired corpus, filtering, model
 quality or language-review correctness. The checker validates structure and
 declared checks only; Rust and actual container receipts supply execution evidence.
@@ -408,7 +358,7 @@ Full-data setup is owned by `acquire-functional-tinystories-raw-pair`, using the
 same Dockerfile's explicitly selected `course-corpus` target.
 Its two fixed source identities, raw checksums, complete license text and credits
 must survive offline verification before production cache publication. It does
-not run or claim Chapter41's online resumable protocol. Never push that local
+not run or claim the purged historical online resumable protocol. Never push that local
 image or commit raw payloads. Deleting `.build` requires rebuilding maintained
 tools and reacquiring the exact source pair, not recovering old opaque adapters.
 
@@ -422,9 +372,12 @@ node --test scripts/tests/run-functional-artifact-cache.test.mjs scripts/tests/c
 
 The existing shared Dockerfile enables the fixed TinyStories pair by default:
 `COURSE_CORPUS=true`. This is an image-build operation, not a runtime network
-request. The independent `course-corpus` stage uses only the fixed downloader,
-accepted source metadata and supporting transport helper before unrelated course
-copies. Corpus data therefore stays cached when chapter content changes.
+request. The independent `course-corpus` stage copies only the compiled machinery
+client, selected external asset recipe and accepted metadata before retrieval.
+Unrelated chapter changes do not enter that download layer. Reqwest owns response
+parsing, redirect following and transport/status errors; configured destination
+authority delegates to its five-redirect policy. Shared content sees Read bytes.
+No manual response loop or compatibility HTTP worker remains.
 Only `true` and `false` are accepted; `FALSE`, `0` and other spellings refuse.
 The default final deployment stage is unchanged. The cloud workflow explicitly
 passes `COURSE_CORPUS=false`, and never requests or exports corpus payloads.
@@ -438,7 +391,7 @@ docker build --build-arg COURSE_CORPUS=false --target workspace -t learn-llm-wor
 COURSE_CORPUS=false docker compose build workspace
 ```
 
-The first command selects the six machinery CLI tests and runs its application
+The first command selects filesystem/closed-CLI package tests and runs its application
 container with networking disabled. The course wrapper forwards the flag to
 workspace, site and review builds; Compose forwards it to both build targets.
 Leaving the flag unset retains the requested default-on behavior. Full-data
@@ -448,12 +401,16 @@ setup from a fresh checkout remains the existing workspace build:
 docker build --target workspace -t learn-llm-workspace:local .
 ```
 
-That default build is intended to download the exact checksum-bound pair during
+That default build is intended to download the configured checksum-bound pair during
 image construction and expose it under `/opt/course-corpus/raw/`, alongside
 `/opt/course-corpus/provenance/LICENSE.txt` and `ATTRIBUTION.txt`. All later
 containers must use `--network none`. Do not push a corpus-containing local image
 or commit raw payloads. The dataset's CDLA agreement/credits are distinct from
 the code's licenses; raw/modified-data redistribution remains not approved.
+The expected_payload_ceiling_bytes field is not a network-wire budget. Client
+buffers, headers and redirect bodies are unavailable observations, not zero and
+not evidence of historical grant/range accounting. Selected final payload counts
+and digests are verified before publication; private URL provenance is not logged.
 
 Maintained acquisition tooling can build only the small source target against
 an existing workspace image, without reprovisioning or whole-course checks:
@@ -478,6 +435,28 @@ pending acquisition step; no corpus acquisition is claimed here.
 
 ### Configured content and IO boundaries
 
+Before routing an English candidate, check its durable publication topology in
+the disposable canonical-path packaging overlay, with no `.build` directory:
+
+```sh
+node scripts/check-english-review-durability.mjs --root /work \
+  --spec audits/example/english/spec.json
+```
+
+All bound inputs must use regular repository-relative paths outside `.build`.
+The exact source and built publication files must already equal the candidate
+bytes in that overlay. After routing, add `--routing` with its manifest path to
+check the four-artifact file bindings too. This is a path/hash preflight, not a
+language judgment or a substitute for full review-chain verification. Publish
+the same archive and publication bytes; never relocate or reserialize judgments.
+
+Rust candidate overlays may remove obsolete owned source files with a private
+run-local `deleted-files.json`: `{"schema_version":1,"paths":["rust/.../old.rs"]}`.
+The maintained overlay validates the complete list and removes only listed
+regular files inside its `/work` tmpfs candidate, never the repository or prior
+evidence. Declare deletions in the owning step; this mechanism grants no new
+output authority. Symlinks, traversal, duplicates and unrelated trees refuse.
+
 `configs/functional-corpus-assets.json` owns selected source identities, URLs,
 revisions, counts, digests, allowed hosts, metadata identity and resource caps.
 The cache target registry references its file and asset ID. Its separate fixture
@@ -487,28 +466,32 @@ cannot authorize its own expected policy: the selected configuration and actual
 producer binding are independently supplied and validated.
 
 The core content entrypoints accept the standard `std::io::Read` interface:
-`read_manifest_from` and `verify_bundle_from`. Callers open files, supply memory
+`read_manifest` consumes a reader, while `AssetSource` supplies independently
+inventoried payload readers to `verify_bundle`. Callers open files, supply memory
 cursors, or provide another reader. `verify_payload_into` additionally accepts
-`std::io::Write`; `persist_bundle_from` uses `AssetStore`/`StagedAssets` to stage
+`std::io::Write`; `acquire_bundle` uses `AssetStore`/`StagedAssets` to stage
 each verified payload and publish only a complete verified bundle. Concrete
 storage owns its transaction, cleanup and commit behavior. This interface does
 not implement a database driver or certify a future database adapter.
 
-`FilesystemAssetStore` implements that same staged destination boundary using
+The external tooling package's `FileStore` implements that destination boundary using
 configured payload paths, exclusive pending storage, complete inventory
 reverification, synchronization and atomic publication. Failed staging is
 preserved without becoming a published bundle; replay remains read-only.
 
-The filesystem compatibility functions retain their descriptor-anchored inventory
+The external `FileSource` owns descriptor-anchored physical inventory
 and before/after metadata checks. Generic stream verification does not pretend
 to discover unlisted files or inode aliases in a caller's arbitrary source.
-The selected complete policy, including hosts and metadata paths, binds progress;
-changes refuse stale progress rather than silently reuse an old expected policy.
+The selected complete content policy binds logical IDs, provenance and expected
+bytes. Transport hosts and physical paths belong to separate external adapter
+configuration, not the content policy. Historical HTTP progress is not migrated.
 The machinery bridge accepts only a readonly selected policy at
-`/policy/source-policy.json`, with production/fixture evidence kinds kept separate.
+`/policy/content-policy.json`, with production/fixture evidence kinds kept separate.
 
-HTTP retrieval remains outside the content library. The previous image-build
-transport and Chapter41's HTTP-centric demonstration are not certified as the
-new boundary by this technical checkpoint. A separately scoped standard-client
-adapter and authored chapter correction remain pending; no corpus acquisition
-or learner-facing prose change is claimed here.
+HTTP retrieval remains outside the content library. The `course-asset-fetch`
+machinery binary uses reqwest for response parsing, limited redirects and HTTP
+errors, and feeds its standard reader into the content boundary. It disables
+automatic retries, implicit Referer headers and proxies; configured HTTPS
+destination checks precede following redirects. The Chapter41 fixture uses
+memory readers and a memory store, not retrieval protocol examples. Actual corpus
+acquisition remains separately pending; synthetic verification is not a download.

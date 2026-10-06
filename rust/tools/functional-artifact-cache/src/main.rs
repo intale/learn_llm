@@ -1,11 +1,14 @@
-// Incidental CLI plumbing. Every manifest/policy/publication/replay decision
-// is delegated to the existing course-owned Chapter41 implementation.
+// Closed offline cache plumbing. Content selection and storage layout are
+// separately mounted inputs, never inferred from the candidate manifest.
+use std::fs::File;
 use std::io::{self, Read};
-use std::path::{Component, Path, PathBuf};
+use std::path::{Path, PathBuf};
 
+use functional_artifact_cache::filesystem::{CacheLayout, FileLayout, FileSource, FileStore};
 use llm_from_scratch::functional::artifact::{
-    canonical_manifest::{artifact_id, canonical_manifest_bytes, lower_sha256},
-    inventory::{publish_bundle, read_manifest, replay_bundle, verify_bundle},
+    acquisition::{acquire_bundle, replay_bundle},
+    canonical_manifest::{MAX_MANIFEST_BYTES, artifact_id},
+    inventory::{VerifiedBundle, read_manifest, verify_bundle},
     lineage::{AcquisitionError, DatasetPolicy},
 };
 use serde::Deserialize;
@@ -17,299 +20,227 @@ enum Operation {
     Publish,
     Replay,
     Verify,
-    FinalizeManifest,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "kebab-case")]
-enum PolicyKind {
-    ProductionSourcePolicy,
-    SyntheticOfflineFixture,
 }
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Request {
     operation: Operation,
-    policy_kind: PolicyKind,
-    manifest_path: PathBuf,
-    policy_config_path: PathBuf,
-    payload_root: Option<PathBuf>,
+    input_root: Option<PathBuf>,
     cache_parent: Option<PathBuf>,
     entry_root: Option<PathBuf>,
     selected_artifact_id: Option<String>,
-    final_urls: Option<[String; 2]>,
+    expected_evidence_kind: String,
 }
 
-fn clean_path(path: &Path) -> Result<(), AcquisitionError> {
-    if !path.is_absolute()
-        || path
-            .components()
-            .any(|c| matches!(c, Component::ParentDir | Component::CurDir))
-    {
-        return Err(AcquisitionError::UnsafePath);
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AdapterConfig {
+    cache: CacheLayout,
+    files: FileLayout,
+    schema_version: u32,
+}
+
+fn read_bounded(path: &Path) -> Result<Vec<u8>, AcquisitionError> {
+    let file = File::open(path).map_err(|_| AcquisitionError::Io)?;
+    let mut bytes = Vec::new();
+    file.take(MAX_MANIFEST_BYTES as u64 + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|_| AcquisitionError::Io)?;
+    if bytes.len() > MAX_MANIFEST_BYTES {
+        return Err(AcquisitionError::ManifestBound);
+    }
+    Ok(bytes)
+}
+
+fn validate_request(request: &Request) -> Result<(), AcquisitionError> {
+    let input = request.input_root.as_deref();
+    let cache = request.cache_parent.as_deref();
+    let entry = request.entry_root.as_deref();
+    let valid = match request.operation {
+        Operation::Verify => {
+            input == Some(Path::new("/input"))
+                && cache.is_none()
+                && entry.is_none()
+                && request.selected_artifact_id.is_none()
+        }
+        Operation::Publish => {
+            input == Some(Path::new("/input"))
+                && cache == Some(Path::new("/cache"))
+                && entry.is_none()
+                && request.selected_artifact_id.is_none()
+        }
+        Operation::Replay => {
+            input.is_none()
+                && cache.is_none()
+                && entry == Some(Path::new("/entry"))
+                && request.selected_artifact_id.as_ref().is_some_and(|s| {
+                    s.len() == 64
+                        && s.bytes()
+                            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+                })
+        }
+    };
+    if !valid {
+        return Err(AcquisitionError::Policy);
     }
     Ok(())
 }
 
-fn execute(request: Request) -> Result<Value, AcquisitionError> {
-    clean_path(&request.manifest_path)?;
-    clean_path(&request.policy_config_path)?;
-    if request.policy_config_path != Path::new("/policy/source-policy.json") {
-        return Err(AcquisitionError::UnsafePath);
-    }
-    for path in [
-        &request.payload_root,
-        &request.cache_parent,
-        &request.entry_root,
-    ]
-    .into_iter()
-    .flatten()
-    {
-        clean_path(path)?;
-    }
-    // Reject unused operation fields before reading inputs or writing outputs.
-    let shape_ok = match request.operation {
-        Operation::Publish => {
-            request.payload_root.is_some()
-                && request.cache_parent.is_some()
-                && request.entry_root.is_none()
-                && request.selected_artifact_id.is_none()
-                && request.final_urls.is_none()
-        }
-        Operation::Replay => {
-            request.payload_root.is_none()
-                && request.cache_parent.is_none()
-                && request.entry_root.is_some()
-                && request
-                    .selected_artifact_id
-                    .as_deref()
-                    .is_some_and(lower_sha256)
-                && request.final_urls.is_none()
-        }
-        Operation::Verify => {
-            request.payload_root.is_some()
-                && request.cache_parent.is_none()
-                && request.entry_root.is_none()
-                && request.selected_artifact_id.is_none()
-                && request.final_urls.is_none()
-        }
-        Operation::FinalizeManifest => {
-            request.payload_root.is_none()
-                && request.cache_parent.is_none()
-                && request.entry_root.is_none()
-                && request.selected_artifact_id.is_none()
-                && request.final_urls.is_some()
-        }
-    };
-    if !shape_ok {
-        return Err(AcquisitionError::Schema);
-    }
-    // Only fixed wrapper-selected container mount aliases are accepted. The
-    // wrapper separately binds production provenance to its closed target.
-    let aliases_ok = match request.operation {
-        Operation::Publish => {
-            request.manifest_path == Path::new("/input/artifact-manifest.json")
-                && request.payload_root.as_deref() == Some(Path::new("/input/payload"))
-                && request.cache_parent.as_deref() == Some(Path::new("/cache"))
-        }
-        Operation::Verify => {
-            request.manifest_path == Path::new("/input/artifact-manifest.json")
-                && request.payload_root.as_deref() == Some(Path::new("/input/payload"))
-        }
-        Operation::FinalizeManifest => {
-            request.manifest_path == Path::new("/input/artifact-manifest.json")
-        }
-        Operation::Replay => {
-            let digest = request
-                .selected_artifact_id
-                .as_deref()
-                .ok_or(AcquisitionError::Schema)?;
-            let entry = PathBuf::from("/entry").join(digest);
-            request.entry_root.as_deref() == Some(entry.as_path())
-                && request.manifest_path == entry.join("artifact-manifest.json")
-        }
-    };
-    if !aliases_ok {
-        return Err(AcquisitionError::UnsafePath);
-    }
-    let mut manifest = read_manifest(&request.manifest_path)?;
-    let mut config_bytes = Vec::new();
-    std::fs::File::open(&request.policy_config_path)
-        .map_err(|_| AcquisitionError::Io)?
-        .take(65_537)
-        .read_to_end(&mut config_bytes)
-        .map_err(|_| AcquisitionError::Io)?;
-    if config_bytes.len() > 65_536 {
-        return Err(AcquisitionError::Schema);
-    }
-    let policy = DatasetPolicy::from_config_bytes(&config_bytes, manifest.producer.clone())?;
-    let expected_kind = match request.policy_kind {
-        PolicyKind::SyntheticOfflineFixture => "synthetic-offline-fixture",
-        PolicyKind::ProductionSourcePolicy => "production-source-policy",
-    };
-    if policy.evidence_kind() != expected_kind {
-        return Err(AcquisitionError::Policy);
-    }
-    policy.validate_manifest(&manifest)?;
-    if matches!(request.operation, Operation::FinalizeManifest) {
-        let urls = request.final_urls.ok_or(AcquisitionError::Schema)?;
-        for (source, url) in manifest.sources.iter_mut().zip(urls) {
-            source.resolved_url = policy.admit_endpoint(&url)?.1;
-        }
-        policy.validate_manifest(&manifest)?;
-        let bytes = canonical_manifest_bytes(&manifest)?;
-        let text = String::from_utf8(bytes.clone()).map_err(|_| AcquisitionError::Schema)?;
-        return Ok(
-            json!({"artifact_id":artifact_id(&manifest)?.as_hex(),"canonical_manifest":text,"manifest_bytes":bytes.len()}),
-        );
-    }
-    let proof = match request.operation {
-        Operation::Publish => publish_bundle(
-            &manifest,
-            request
-                .payload_root
-                .as_deref()
-                .ok_or(AcquisitionError::Schema)?,
-            request
-                .cache_parent
-                .as_deref()
-                .ok_or(AcquisitionError::Schema)?,
-            &policy,
-        )?,
-        Operation::Replay => replay_bundle(
-            &manifest,
-            request
-                .selected_artifact_id
-                .as_deref()
-                .ok_or(AcquisitionError::Schema)?,
-            request
-                .entry_root
-                .as_deref()
-                .ok_or(AcquisitionError::Schema)?,
-            &policy,
-        )?,
-        Operation::Verify => verify_bundle(
-            &manifest,
-            request
-                .payload_root
-                .as_deref()
-                .ok_or(AcquisitionError::Schema)?,
-            &policy,
-        )?,
-        Operation::FinalizeManifest => return Err(AcquisitionError::Schema),
-    };
-    let files: Vec<Value> = proof
-        .files()
-        .iter()
-        .map(|f| json!({"path":f.path(),"bytes":f.bytes(),"sha256":f.sha256()}))
-        .collect();
-    Ok(
-        json!({"artifact_id":proof.artifact_id(),"evidence_kind":proof.evidence_kind(),"files":files,"total_bytes":proof.total_bytes()}),
-    )
+fn report(proof: VerifiedBundle) -> Value {
+    json!({"artifact_id":proof.artifact_id(),"evidence_kind":proof.evidence_kind(),"payloads":proof.payloads().iter().map(|p|json!({"id":p.id(),"bytes":p.bytes(),"sha256":p.sha256()})).collect::<Vec<_>>(),"total_bytes":proof.total_bytes()})
 }
 
-fn run() -> Result<Value, AcquisitionError> {
-    if std::env::args_os().count() != 1 {
+fn execute(request: Request) -> Result<Value, AcquisitionError> {
+    validate_request(&request)?;
+    let policy =
+        DatasetPolicy::from_config_bytes(&read_bounded(Path::new("/policy/content-policy.json"))?)?;
+    if policy.evidence_kind() != request.expected_evidence_kind {
+        return Err(AcquisitionError::Policy);
+    }
+    let adapter: AdapterConfig =
+        serde_json::from_slice(&read_bounded(Path::new("/layout/storage-layout.json"))?)
+            .map_err(|_| AcquisitionError::Schema)?;
+    if adapter.schema_version != 1 {
         return Err(AcquisitionError::Schema);
     }
-    let mut input = Vec::new();
-    io::stdin()
-        .take(1_048_577)
-        .read_to_end(&mut input)
-        .map_err(|_| AcquisitionError::Io)?;
-    if input.len() > 1_048_576 {
-        return Err(AcquisitionError::Schema);
-    }
-    let request = serde_json::from_slice(&input).map_err(|_| AcquisitionError::Schema)?;
-    execute(request)
+    adapter.files.validate()?;
+    adapter.cache.validate()?;
+    let proof = match request.operation {
+        Operation::Verify => {
+            let mut source = FileSource::new(
+                request
+                    .input_root
+                    .as_deref()
+                    .ok_or(AcquisitionError::Policy)?,
+                adapter.files,
+            )?;
+            let manifest = read_manifest(&mut source.manifest_reader()?)?;
+            verify_bundle(&manifest, &policy, &mut source)?
+        }
+        Operation::Replay => {
+            let mut source = FileSource::new(
+                request
+                    .entry_root
+                    .as_deref()
+                    .ok_or(AcquisitionError::Policy)?,
+                adapter.files,
+            )?;
+            replay_bundle(
+                request
+                    .selected_artifact_id
+                    .as_deref()
+                    .ok_or(AcquisitionError::Policy)?,
+                &mut source.manifest_reader()?,
+                &policy,
+                &mut source,
+            )?
+        }
+        Operation::Publish => {
+            let input = request
+                .input_root
+                .as_deref()
+                .ok_or(AcquisitionError::Policy)?;
+            let parent = request
+                .cache_parent
+                .as_deref()
+                .ok_or(AcquisitionError::Policy)?;
+            let mut source = FileSource::new(input, adapter.files.clone())?;
+            let manifest = read_manifest(&mut source.manifest_reader()?)?;
+            policy.validate_manifest(&manifest)?;
+            let digest = artifact_id(&manifest)?.as_hex().to_owned();
+            let mut destination =
+                FileStore::new(parent, adapter.files.clone(), adapter.cache.clone())?;
+            match acquire_bundle(&manifest, &policy, &mut source, &mut destination) {
+                Ok(proof) => proof,
+                Err(AcquisitionError::AlreadyPublished) => {
+                    // An intact existing entry does not certify the bytes of
+                    // a newly supplied candidate with the same declaration.
+                    verify_bundle(&manifest, &policy, &mut source)?;
+                    let mut existing = FileSource::new(
+                        &parent.join(adapter.cache.entry_name(&digest)?),
+                        adapter.files,
+                    )?;
+                    replay_bundle(
+                        &digest,
+                        &mut existing.manifest_reader()?,
+                        &policy,
+                        &mut existing,
+                    )?
+                }
+                Err(error) => return Err(error),
+            }
+        }
+    };
+    Ok(report(proof))
 }
 
 fn main() {
-    let (result, status) = match run() {
-        Ok(v) => (v, 0),
-        Err(e) => (json!({"error":e.to_string(),"status":"refused"}), 2),
-    };
-    if result.to_string().len() > 2_097_152 {
-        println!("{{\"error\":\"Schema\",\"status\":\"refused\"}}");
-        std::process::exit(2);
+    let result = (|| {
+        let mut bytes = Vec::new();
+        io::stdin()
+            .take(65_537)
+            .read_to_end(&mut bytes)
+            .map_err(|_| AcquisitionError::Io)?;
+        if bytes.len() > 65_536 {
+            return Err(AcquisitionError::ManifestBound);
+        }
+        let request = serde_json::from_slice(&bytes).map_err(|_| AcquisitionError::Schema)?;
+        execute(request)
+    })();
+    match result {
+        Ok(output) => println!("{output}"),
+        Err(error) => {
+            println!("{}", json!({"error":error.to_string()}));
+            std::process::exit(2);
+        }
     }
-    println!("{result}");
-    std::process::exit(status);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn request(mut value: Value) -> Request {
-        value.as_object_mut().expect("test object").insert(
-            "policy_config_path".into(),
-            json!("/policy/source-policy.json"),
-        );
-        serde_json::from_value(value).expect("test request syntax")
-    }
-
-    #[test]
-    fn unknown_operation_and_fields_refuse_before_io() {
-        assert!(serde_json::from_value::<Request>(json!({"operation":"fetch"})).is_err());
-        assert!(serde_json::from_value::<Request>(json!({"operation":"verify","policy_kind":"synthetic-offline-fixture","manifest_path":"/input/artifact-manifest.json","payload_root":"/input/payload","override":true})).is_err());
-    }
-
-    #[test]
-    fn unused_operation_fields_refuse_before_io() {
-        let r = request(
-            json!({"operation":"verify","policy_kind":"synthetic-offline-fixture","manifest_path":"/input/artifact-manifest.json","payload_root":"/input/payload","cache_parent":"/cache"}),
-        );
-        assert_eq!(execute(r), Err(AcquisitionError::Schema));
-    }
-
-    #[test]
-    fn arbitrary_absolute_publication_path_refuses_before_io() {
-        let r = request(
-            json!({"operation":"publish","policy_kind":"synthetic-offline-fixture","manifest_path":"/input/artifact-manifest.json","payload_root":"/input/payload","cache_parent":"/tmp/arbitrary"}),
-        );
-        assert_eq!(execute(r), Err(AcquisitionError::UnsafePath));
-    }
-
-    #[test]
-    fn relative_and_parent_paths_refuse_before_io() {
-        for manifest in ["relative.json", "/input/../artifact-manifest.json"] {
-            let r = request(
-                json!({"operation":"verify","policy_kind":"synthetic-offline-fixture","manifest_path":manifest,"payload_root":"/input/payload"}),
-            );
-            assert_eq!(execute(r), Err(AcquisitionError::UnsafePath));
+    fn request(operation: &str, additions: Value) -> Request {
+        let mut value = json!({"operation":operation,"input_root":null,"cache_parent":null,"entry_root":null,"selected_artifact_id":null,"expected_evidence_kind":"synthetic-offline-fixture"});
+        for (key, value2) in additions.as_object().unwrap() {
+            value[key] = value2.clone();
         }
+        serde_json::from_value(value).unwrap()
     }
-
     #[test]
-    fn replay_requires_selected_digest_alias_before_io() {
-        let r = request(
-            json!({"operation":"replay","policy_kind":"synthetic-offline-fixture","manifest_path":"/entry/other/artifact-manifest.json","entry_root":"/entry/other","selected_artifact_id":"a".repeat(64)}),
+    fn closed_operation_shapes_refuse_before_io() {
+        assert!(
+            validate_request(&request(
+                "verify",
+                json!({"input_root":"/input","cache_parent":"/cache"})
+            ))
+            .is_err()
         );
-        assert_eq!(execute(r), Err(AcquisitionError::UnsafePath));
+        assert!(
+            validate_request(&request(
+                "publish",
+                json!({"input_root":"/input","cache_parent":"/tmp/arbitrary"})
+            ))
+            .is_err()
+        );
+        assert!(
+            validate_request(&request(
+                "replay",
+                json!({"entry_root":"/entry","selected_artifact_id":"../escape"})
+            ))
+            .is_err()
+        );
+        assert!(validate_request(&request("verify", json!({"input_root":"/input"}))).is_ok());
     }
-
     #[test]
-    fn finalization_requires_exact_two_urls_and_no_other_operation_fields() {
-        for urls in [
-            json!([]),
-            json!(["https://example.invalid"]),
-            json!([
-                "https://example.invalid",
-                "https://example.invalid",
-                "https://example.invalid"
-            ]),
-        ] {
-            assert!(serde_json::from_value::<Request>(json!({"operation":"finalize-manifest","policy_kind":"synthetic-offline-fixture","manifest_path":"/input/artifact-manifest.json","final_urls":urls})).is_err());
-        }
-        let r = request(
-            json!({"operation":"finalize-manifest","policy_kind":"synthetic-offline-fixture","manifest_path":"/input/artifact-manifest.json","final_urls":["https://example.invalid/train","https://example.invalid/valid"],"cache_parent":"/cache"}),
+    fn unknown_transport_and_policy_override_fields_refuse() {
+        assert!(
+            serde_json::from_value::<Request>(
+                json!({"operation":"finalize-manifest","expected_evidence_kind":"fixture"})
+            )
+            .is_err()
         );
-        assert_eq!(execute(r), Err(AcquisitionError::Schema));
-        let r = request(
-            json!({"operation":"finalize-manifest","policy_kind":"synthetic-offline-fixture","manifest_path":"/input/artifact-manifest.json"}),
-        );
-        assert_eq!(execute(r), Err(AcquisitionError::Schema));
+        assert!(serde_json::from_value::<Request>(json!({"operation":"verify","expected_evidence_kind":"fixture","url":"https://example.invalid"})).is_err());
+        assert!(serde_json::from_value::<Request>(json!({"operation":"verify","expected_evidence_kind":"fixture","policy_path":"/caller/policy"})).is_err());
     }
 }

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "stepId": "refactor-ch41-content-only-boundary",
+  "files": [
+    {
+      "path": "rust/demos/ch41-governed-corpus-acquisition/src/bin/artifact-policy-worker.rs",
+      "bytes": 7325,
+      "sha256": "8e30e8a7b2318562d7fc54f8d0b7e47afa3d9bcb05708b071d80d846758ec406"
+    },
+    {
+      "path": "scripts/download-fixed-tinystories-image.mjs",
+      "bytes": 6233,
+      "sha256": "aa42070e93ed2ee19d6b7e2e193e16a0430eeb83ddd4f4f10ab96ffa8b1d034d"
+    },
+    {
+      "path": "scripts/tests/download-fixed-tinystories-image.test.mjs",
+      "bytes": 5990,
+      "sha256": "4a953b475824932b097b0ff15dd7a69996157c0d89c6069470d79c8d24ed52c6"
+    },
+    {
+      "path": "scripts/lib/governed-acquisition-transport.mjs",
+      "bytes": 6842,
+      "sha256": "97403063880e9d67e3d6663a1125e6810d2984f2bdcbfc6071114bbc4901300e"
+    },
+    {
+      "path": "scripts/lib/governed-acquisition-worker-client.mjs",
+      "bytes": 2572,
+      "sha256": "c512a1b6454593f247bddce53f73e3624487e2598035cb7b661ef83dbae70468"
+    },
+    {
+      "path": "scripts/tests/governed-acquisition-transport.test.mjs",
+      "bytes": 8053,
+      "sha256": "13fb8e101c566b2313a10921c8ce7065b7b1ae9996294a9aad711a0912fe25c6"
+    },
+    {
+      "path": "scripts/tests/fixtures/governed-transport-round-trip.mjs",
+      "bytes": 1890,
+      "sha256": "0080d913a8302e80f1ae3df26594f1445a8364efd7288f3a3e72e0205447ee6f"
+    }
+  ],
+  "authority": "User-authorized breaking content-only V2 replacement; no worker/resume or Chapter41-only command-amendment compatibility.",
+  "recovery": "Previous committed files remain in Git history; exact pre-publication originals also copied into the private run integration backup."
+}

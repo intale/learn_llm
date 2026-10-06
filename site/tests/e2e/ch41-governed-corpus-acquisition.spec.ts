@@ -1,13 +1,25 @@
 import { expect, test } from '@playwright/test';
 import { expectNoPageOverflow } from './chapter-helpers';
 const path = '/en/course/41-governed-corpus-acquisition/';
-const digest = '569de16c16720f73aca07de6a3184b779b80700c3f5f8eefc01f60fea3019b89';
+
+test('Chapter41 optional explanations remain keyboard-operable', async ({ page }) => {
+  await page.goto(path);
+  const answers = page.locator('details').filter({ has: page.locator('summary', { hasText: 'Checked explanations for the three corpus-content verification tasks' }) });
+  const summary = answers.locator('summary');
+  await expect(answers).not.toHaveAttribute('open', '');
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  await expect(answers).toHaveAttribute('open', '');
+  await expect(answers.locator('li')).toHaveCount(3);
+  await page.keyboard.press('Enter');
+  await expect(answers).not.toHaveAttribute('open', '');
+  await expect(summary).toBeFocused();
+});
 
 test('Chapter41 static report, mathematical formula and English activation', async ({ page, request }) => {
   const response = await request.get(path);
   expect(response.ok()).toBe(true);
   const html = await response.text();
-  expect(html).toContain(digest);
   expect(html).toContain('application/x-tex');
   expect(html).toContain('Terms 1–6 of 6; page 1 of 1');
   await page.goto(path);
@@ -17,8 +29,10 @@ test('Chapter41 static report, mathematical formula and English activation', asy
   const formula = page.locator('.katex-display annotation[encoding="application/x-tex"]').filter({ hasText: 'canonical' });
   await expect(formula).toHaveCount(1);
   expect(await formula.textContent()).toBe('\\mathrm{artifact\\_id}=\\operatorname{SHA256}(\\mathrm{canonical\\_manifest\\_bytes})');
-  const selected = JSON.parse(await page.locator('pre[data-language="json"] code').innerText());
-  expect(selected).toEqual({ artifact_id: digest, artifact_manifest_bytes: 3084, inventoried_files: 4, logical_sources: 2, raw_bytes: 9, scope: 'synthetic-offline-fixture', total_payload_bytes: 46 });
+  await expect(page.locator('pre.rust-source-code')).toHaveCount(6);
+  await expect(page.locator('table tbody tr')).toHaveCount(4);
+  await expect(page.locator('main')).toContainText('46');
+  await expect(page.locator('pre[data-language="json"]')).toHaveCount(0);
   await expect(page.locator('a[href="https://arxiv.org/abs/1803.09010v8"]')).toHaveCount(1);
   await expect(page.locator('a[href="https://arxiv.org/abs/2303.03915v1"]')).toHaveCount(1);
   await expect(page.locator('[data-locale="ru"]')).toHaveAttribute('href', '/ru/course/');
@@ -37,16 +51,17 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
     await page.goto(path);
     await expectNoPageOverflow(page);
     const commands = page.locator('pre[data-language="sh"]');
-    await expect(commands).toHaveCount(3);
+    await expect(commands).toHaveCount(4);
+    await expect(commands.nth(0)).toContainText('COURSE_CORPUS=false ./course run cargo run --offline --locked');
     for (const [index, name] of [
       'size_digest_truncation_and_overrun_are_separate_failures',
       'provenance_changes_identity_without_changing_raw_digests',
-      'actual_error_body_consumes_budget_without_retaining_payload',
+      'failure_preserves_prior_bundle_without_publishing_partial_candidate',
     ].entries()) {
-      await expect(commands.nth(index)).toContainText('./course run cargo test --offline --locked');
-      await expect(commands.nth(index)).toContainText(name);
-      await expect(commands.nth(index)).toContainText('-- --exact');
-      const geometry = await commands.nth(index).evaluate(element => {
+      await expect(commands.nth(index + 1)).toContainText('COURSE_CORPUS=false ./course run cargo test --offline --locked');
+      await expect(commands.nth(index + 1)).toContainText(name);
+      await expect(commands.nth(index + 1)).toContainText('-- --exact');
+      const geometry = await commands.nth(index + 1).evaluate(element => {
         const box = element.getBoundingClientRect(), style = getComputedStyle(element);
         return {left: box.left, right: box.right, viewport: innerWidth,
           overflow: style.overflowX, clipped: ['hidden', 'clip'].includes(style.overflowX)};
@@ -89,7 +104,7 @@ test('Chapter41 forced colors retain English navigation and complete evidence', 
   await page.goto(path);
   await expect(page.locator('h1')).toHaveText('Verify a corpus together with its provenance');
   await expect(page.locator('table tbody tr')).toHaveCount(4);
-  await expect(page.locator('pre.rust-source-code')).toHaveCount(3);
+  await expect(page.locator('pre.rust-source-code')).toHaveCount(6);
   await expectNoPageOverflow(page);
 });
 

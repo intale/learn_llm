@@ -1,0 +1,1 @@
+{"cache":{"entry_prefix":"","lock_file":"writer.lock","pending_prefix":"pending-"},"files":{"manifest_path":"metadata/fixture-descriptor.json","payload_paths":{"attribution":"credits.txt","license":"rights/terms.txt","train":"bytes/a.txt","validation":"bytes/b.txt"}},"schema_version":1}

@@ -1,0 +1,262 @@
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 3.06kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/learn-llm-workspace:local
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [corpus-tools 1/6] FROM docker.io/library/learn-llm-workspace:local
+#4 CACHED
+
+#5 [internal] load build context
+#5 transferring context: 3.05MB 0.0s done
+#5 DONE 0.0s
+
+#6 [corpus-tools 2/6] WORKDIR /source-build
+#6 CACHED
+
+#7 [corpus-tools 3/6] COPY Cargo.toml Cargo.lock ./
+#7 CACHED
+
+#8 [corpus-tools 4/6] COPY rust/ rust/
+#8 DONE 0.1s
+
+#9 [corpus-tools 5/6] COPY configs/ configs/
+#9 DONE 0.1s
+
+#10 [corpus-tools 6/6] RUN cargo build --locked --release -p course-asset-fetch
+#10 0.207     Updating crates.io index
+#10 0.857  Downloading crates ...
+#10 0.902   Downloaded foreign-types v0.3.2
+#10 0.903   Downloaded errno v0.3.14
+#10 0.904   Downloaded atomic-waker v1.1.2
+#10 0.906   Downloaded find-msvc-tools v0.1.14
+#10 0.910   Downloaded displaydoc v0.2.7
+#10 0.915   Downloaded bitflags v2.13.2
+#10 0.926   Downloaded bytes v1.12.1
+#10 0.929   Downloaded pin-project-lite v0.2.17
+#10 0.934   Downloaded openssl-macros v0.1.1
+#10 0.935   Downloaded want v0.3.2
+#10 0.936   Downloaded mime v0.3.17
+#10 0.937   Downloaded cc v1.6.0
+#10 0.940   Downloaded slab v0.4.12
+#10 0.941   Downloaded zerofrom-derive v0.1.8
+#10 0.942   Downloaded base64 v0.23.1
+#10 0.945   Downloaded ipnet v2.12.2
+#10 0.946   Downloaded percent-encoding v2.3.2
+#10 0.948   Downloaded sync_wrapper v1.0.2
+#10 0.948   Downloaded tower-layer v0.3.3
+#10 0.948   Downloaded futures-core v0.3.34
+#10 0.949   Downloaded hyper-tls v0.6.0
+#10 0.951   Downloaded yoke-derive v0.8.4
+#10 0.951   Downloaded writeable v0.6.4
+#10 0.953   Downloaded pkg-config v0.3.34
+#10 0.954   Downloaded once_cell v1.21.4
+#10 0.956   Downloaded try-lock v0.2.5
+#10 0.957   Downloaded tower-service v0.3.3
+#10 0.958   Downloaded idna_adapter v1.2.2
+#10 0.958   Downloaded futures-io v0.3.34
+#10 0.959   Downloaded foreign-types-shared v0.1.1
+#10 0.960   Downloaded shlex v2.0.1
+#10 0.961   Downloaded native-tls v0.2.18
+#10 0.962   Downloaded futures-sink v0.3.34
+#10 0.963   Downloaded zerofrom v0.1.8
+#10 0.964   Downloaded form_urlencoded v1.2.2
+#10 0.965   Downloaded potential_utf v0.1.6
+#10 0.965   Downloaded openssl-probe v0.2.1
+#10 0.967   Downloaded rustls-pki-types v1.15.1
+#10 0.969   Downloaded litemap v0.8.3
+#10 0.970   Downloaded http-body v1.1.0
+#10 0.972   Downloaded utf8_iter v1.0.4
+#10 0.973   Downloaded futures-task v0.3.34
+#10 0.973   Downloaded zeroize v1.9.0
+#10 0.975   Downloaded httparse v1.10.1
+#10 0.976   Downloaded futures-channel v0.3.34
+#10 0.978   Downloaded stable_deref_trait v1.2.1
+#10 0.979   Downloaded tinystr v0.8.4
+#10 0.980   Downloaded zerovec-derive v0.11.6
+#10 0.982   Downloaded smallvec v1.16.2
+#10 0.983   Downloaded tokio-native-tls v0.3.1
+#10 0.984   Downloaded http-body-util v0.1.5
+#10 0.986   Downloaded openssl-sys v0.9.117
+#10 0.990   Downloaded synstructure v0.14.0
+#10 0.993   Downloaded yoke v0.8.3
+#10 1.004   Downloaded socket2 v0.6.5
+#10 1.006   Downloaded log v0.4.34
+#10 1.010   Downloaded icu_provider v2.3.1
+#10 1.012   Downloaded tracing-core v0.1.36
+#10 1.026   Downloaded icu_normalizer_data v2.3.0
+#10 1.029   Downloaded reqwest v0.13.5
+#10 1.033   Downloaded tower v0.5.3
+#10 1.041   Downloaded zerotrie v0.2.5
+#10 1.044   Downloaded icu_properties v2.3.0
+#10 1.046   Downloaded hyper v1.11.1
+#10 1.051   Downloaded url v2.5.8
+#10 1.053   Downloaded hyper-util v0.1.21
+#10 1.058   Downloaded zerovec v0.11.8
+#10 1.062   Downloaded tower-http v0.6.11
+#10 1.069   Downloaded http v1.5.0
+#10 1.072   Downloaded idna v1.1.0
+#10 1.075   Downloaded icu_properties_data v2.3.0
+#10 1.083   Downloaded futures-util v0.3.34
+#10 1.093   Downloaded icu_locale_core v2.3.0
+#10 1.098   Downloaded icu_collections v2.3.0
+#10 1.103   Downloaded vcpkg v0.2.15
+#10 1.149   Downloaded mio v1.2.4
+#10 1.154   Downloaded openssl v0.10.81
+#10 1.161   Downloaded syn v2.0.119
+#10 1.169   Downloaded tracing v0.1.44
+#10 1.180   Downloaded rustix v1.1.5
+#10 1.201   Downloaded icu_normalizer v2.3.0
+#10 1.208   Downloaded tokio v1.53.2
+#10 1.243   Downloaded linux-raw-sys v0.12.1
+#10 1.372    Compiling proc-macro2 v1.0.107
+#10 1.372    Compiling quote v1.0.47
+#10 1.372    Compiling unicode-ident v1.0.24
+#10 1.372    Compiling stable_deref_trait v1.2.1
+#10 1.372    Compiling libc v0.2.190
+#10 1.372    Compiling itoa v1.0.18
+#10 1.377    Compiling find-msvc-tools v0.1.14
+#10 1.377    Compiling shlex v2.0.1
+#10 1.380    Compiling pin-project-lite v0.2.17
+#10 1.382    Compiling bytes v1.12.1
+#10 1.388    Compiling vcpkg v0.2.15
+#10 1.389    Compiling futures-core v0.3.34
+#10 1.390    Compiling pkg-config v0.3.34
+#10 1.390    Compiling smallvec v1.16.2
+#10 1.393    Compiling version_check v0.9.5
+#10 1.396    Compiling memchr v2.8.3
+#10 1.398    Compiling litemap v0.8.3
+#10 1.401    Compiling writeable v0.6.4
+#10 1.405    Compiling icu_normalizer_data v2.3.0
+#10 1.408    Compiling cfg-if v1.0.5
+#10 1.409    Compiling futures-sink v0.3.34
+#10 1.411    Compiling utf8_iter v1.0.4
+#10 1.416    Compiling icu_properties_data v2.3.0
+#10 1.422    Compiling bitflags v2.13.2
+#10 1.426    Compiling typenum v1.20.1
+#10 1.426    Compiling openssl v0.10.81
+#10 1.426    Compiling serde_core v1.0.229
+#10 1.426    Compiling futures-task v0.3.34
+#10 1.426    Compiling slab v0.4.12
+#10 1.426    Compiling httparse v1.10.1
+#10 1.426    Compiling foreign-types-shared v0.1.1
+#10 1.426    Compiling futures-io v0.3.34
+#10 1.427    Compiling percent-encoding v2.3.2
+#10 1.450    Compiling once_cell v1.21.4
+#10 1.461    Compiling cc v1.6.0
+#10 1.477    Compiling tower-service v0.3.3
+#10 1.486    Compiling try-lock v0.2.5
+#10 1.491    Compiling native-tls v0.2.18
+#10 1.495    Compiling zmij v1.0.23
+#10 1.510    Compiling foreign-types v0.3.2
+#10 1.521    Compiling futures-channel v0.3.34
+#10 1.525    Compiling log v0.4.34
+#10 1.544    Compiling want v0.3.2
+#10 1.545    Compiling serde v1.0.229
+#10 1.548    Compiling atomic-waker v1.1.2
+#10 1.550    Compiling openssl-probe v0.2.1
+#10 1.550    Compiling serde_json v1.0.151
+#10 1.551    Compiling sync_wrapper v1.0.2
+#10 1.579    Compiling form_urlencoded v1.2.2
+#10 1.586    Compiling generic-array v0.14.7
+#10 1.588    Compiling rustix v1.1.5
+#10 1.588    Compiling ipnet v2.12.2
+#10 1.588    Compiling llm-from-scratch v0.1.0 (/source-build/rust/crates/llm-from-scratch)
+#10 1.588    Compiling tower-layer v0.3.3
+#10 1.599    Compiling cpufeatures v0.2.17
+#10 1.616    Compiling base64 v0.23.1
+#10 1.617    Compiling linux-raw-sys v0.12.1
+#10 1.634    Compiling tracing-core v0.1.36
+#10 1.642    Compiling zeroize v1.9.0
+#10 1.652    Compiling mime v0.3.17
+#10 1.741    Compiling rustls-pki-types v1.15.1
+#10 1.786    Compiling futures-util v0.3.34
+#10 1.826    Compiling http v1.5.0
+#10 1.903    Compiling tracing v0.1.44
+#10 2.054    Compiling syn v3.0.3
+#10 2.054    Compiling syn v2.0.119
+#10 2.264    Compiling openssl-sys v0.9.117
+#10 2.345    Compiling socket2 v0.6.5
+#10 2.345    Compiling mio v1.2.4
+#10 2.355    Compiling http-body v1.1.0
+#10 2.416    Compiling http-body-util v0.1.5
+#10 2.435    Compiling crypto-common v0.1.7
+#10 2.435    Compiling block-buffer v0.10.4
+#10 2.487    Compiling digest v0.10.7
+#10 2.551    Compiling tokio v1.53.2
+#10 2.555    Compiling sha2 v0.10.9
+#10 3.142    Compiling synstructure v0.14.0
+#10 3.266    Compiling zerovec-derive v0.11.6
+#10 3.266    Compiling displaydoc v0.2.7
+#10 3.267    Compiling serde_derive v1.0.229
+#10 3.304    Compiling zerofrom-derive v0.1.8
+#10 3.304    Compiling yoke-derive v0.8.4
+#10 3.406    Compiling openssl-macros v0.1.1
+#10 3.524    Compiling zerofrom v0.1.8
+#10 3.566    Compiling yoke v0.8.3
+#10 3.667    Compiling zerotrie v0.2.5
+#10 3.687    Compiling zerovec v0.11.8
+#10 3.989    Compiling tinystr v0.8.4
+#10 3.989    Compiling potential_utf v0.1.6
+#10 4.025    Compiling icu_collections v2.3.0
+#10 4.055    Compiling icu_locale_core v2.3.0
+#10 4.530    Compiling icu_provider v2.3.1
+#10 4.646    Compiling hyper v1.11.1
+#10 4.646    Compiling tower v0.5.3
+#10 4.686    Compiling icu_properties v2.3.0
+#10 4.686    Compiling icu_normalizer v2.3.0
+#10 5.146    Compiling hyper-util v0.1.21
+#10 5.304    Compiling tokio-native-tls v0.3.1
+#10 5.328    Compiling idna_adapter v1.2.2
+#10 5.374    Compiling idna v1.1.0
+#10 5.545    Compiling url v2.5.8
+#10 5.758    Compiling hyper-tls v0.6.0
+#10 5.832    Compiling tower-http v0.6.11
+#10 5.985    Compiling reqwest v0.13.5
+#10 6.903    Compiling functional-artifact-cache v0.1.0 (/source-build/rust/tools/functional-artifact-cache)
+#10 7.097    Compiling course-asset-fetch v0.1.0 (/source-build/rust/tools/course-asset-fetch)
+#10 8.834     Finished `release` profile [optimized] target(s) in 8.65s
+#10 DONE 8.9s
+
+#11 [course-corpus  2/11] COPY --from=corpus-tools /source-build/target/release/course-asset-fetch /source-build/course-asset-fetch
+#11 DONE 0.1s
+
+#12 [course-corpus  3/11] COPY configs/functional-corpus-assets.json /source-build/assets.json
+#12 DONE 0.1s
+
+#13 [course-corpus  4/11] COPY artifacts/functional-laptop/acquisition/tinystories/source-metadata/ /source-build/inputs/artifacts/functional-laptop/acquisition/tinystories/source-metadata/
+#13 DONE 0.1s
+
+#14 [course-corpus  5/11] RUN /source-build/course-asset-fetch
+#14 0.158 {"enabled":false,"final_payload_bytes":0,"schema_version":2}
+#14 DONE 0.2s
+
+#15 [course-corpus  6/11] COPY Dockerfile /source-private/producer-inputs/Dockerfile
+#15 DONE 0.1s
+
+#16 [course-corpus  7/11] COPY Cargo.lock /source-private/producer-inputs/Cargo.lock
+#16 DONE 0.1s
+
+#17 [course-corpus  8/11] COPY configs/functional-corpus-assets.json /source-private/producer-inputs/functional-corpus-assets.json
+#17 DONE 0.1s
+
+#18 [course-corpus  9/11] COPY rust/tools/course-asset-fetch/ /source-private/producer-inputs/course-asset-fetch/
+#18 DONE 0.1s
+
+#19 [course-corpus 10/11] COPY artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json /source-private/producer-inputs/source-metadata-inventory.json
+#19 DONE 0.1s
+
+#20 [course-corpus 11/11] RUN cp /source-build/course-asset-fetch /source-private/producer-inputs/course-asset-fetch.bin
+#20 DONE 0.2s
+
+#21 exporting to image
+#21 exporting layers
+#21 exporting layers 0.3s done
+#21 writing image sha256:685c10ed68bd07488ef2ca3dbdd43db88af92e13ee7949478c469bdb73cb233e done
+#21 naming to docker.io/library/learn-llm-tinystories-disabled:local 0.0s done
+#21 DONE 0.3s

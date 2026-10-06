@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "stepId": "refactor-ch41-content-only-boundary",
+  "kind": "exact-copied-operational-evidence",
+  "evidence": [
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-rust-tests-02/stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/core-and-demo-tests.stdout.txt",
+      "bytes": 3066,
+      "sha256": "c693513fccc54bfc4cf6c7ebf69447281bfc0a3d9d8554eac09518bc84feb022",
+      "scope": "Core/demo bytes are unchanged; later external adapter/client corrections have separate current evidence."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-rust-tests-02/input-hashes.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/core-and-demo-input-hashes.txt",
+      "bytes": 38883,
+      "sha256": "67c7a79dc48a56b4ab7a544ae5f58ab3a2e7eaaf5a3a61561e600611679510d5",
+      "scope": "Exact historical invocation source inventory, not a claim all external adapter bytes stayed unchanged."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-clippy-02/stderr.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/core-and-storage-clippy.stderr.txt",
+      "bytes": 419,
+      "sha256": "108e480d71cb64aa53fa9e44fdc594d71841ecdb06058594ffdfb56cd2473c1c",
+      "scope": "Existing pinned clippy evidence; current HTTP client evidence is separate."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-http-library-03/stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/current-client-tests.stdout.txt",
+      "bytes": 255,
+      "sha256": "8579a4a891e1a21df97fa4939f0269aba397010ef28da906d1dd1d866e7a4ce6",
+      "scope": "Current supporting client tests."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-http-library-03/input-hashes.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/current-client-input-hashes.txt",
+      "bytes": 38883,
+      "sha256": "5cd1292d6ed23e7c6ece163c34ffec39309fac43e46bf86c97c79783010def5c",
+      "scope": "Invocation-bound current inputs."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-http-clippy-03/stderr.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/current-client-clippy.stderr.txt",
+      "bytes": 314,
+      "sha256": "4e2076b65eea5c9d6b30c20ecb4e75b7633912f3f252729aa8f600dbbbff1557",
+      "scope": "Current supporting client compilation/lints."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-storage-test-03/stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/current-storage-test.stdout.txt",
+      "bytes": 220,
+      "sha256": "5a47d7091637cf77ecbbef1f8d467c589885b00bcbfa2e23ea3f4522e3a96b79",
+      "scope": "Current external adapter no-link test."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-node-gates-02/node.stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/tooling-tests.stdout.txt",
+      "bytes": 6255,
+      "sha256": "7ed23f48d3c281d3d3634c22e8b5b661839ca924e2d3cc03663d968ad326a220",
+      "scope": "Existing 33-case pinned tooling gate."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-node-gates-02/dependencies.stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/dependency-graph.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Existing locked/offline allowlist graph gate."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-publication-tests-01/node.stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/publication-tools-tests.stdout.txt",
+      "bytes": 3301,
+      "sha256": "f94f8fcedd8a10f886d690d5c77445786e5b3b982d86a3eac46b414785790ea1",
+      "scope": "Existing16-case publication/durability tooling gate."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/test.stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/static-content-tests.stdout.txt",
+      "bytes": 361,
+      "sha256": "654501dc564535254f5106842035035e8521f093320459513f02213f2655b01b",
+      "scope": "Existing7-case static candidate gate; metadata-only amendments verified by the separate render proof."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/build.stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/static-build.stdout.txt",
+      "bytes": 6848,
+      "sha256": "443130256c048cd6a72a92bcf045cd652179c2d6ae46a1970919d8b333e58a07",
+      "scope": "Existing88-page export; only proven unchanged render inputs permit reuse."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/links.stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/static-links.stdout.txt",
+      "bytes": 227,
+      "sha256": "cb2470fd8d9a19803b1aa6a4cc7267654ab86c59f1de6f73e32ae47ffedf84c4",
+      "scope": "Existing3040-reference/88-route/172-artifact link/SEO gate."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/input-hashes.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/static-build-input-hashes.txt",
+      "bytes": 35457,
+      "sha256": "f771b0d29beccf19f0b8a67bf2d340bcbada35425972b555d379791cb5a440f9",
+      "scope": "Actual old render invocation source hashes; not relabeled as a new build."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-firefox-04-02/stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/firefox.stdout.txt",
+      "bytes": 1045,
+      "sha256": "1d056abae529cc5faeb288b457feefe4ebe79caa9b70a9ed0fe8f6e478bb2a50",
+      "scope": "Existing7-case current-render Firefox assertions; no screenshots."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-firefox-04-02/exit-status.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/firefox.exit-status.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "scope": "Actual successful Firefox invocation."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/receipt-selectors-v4c/stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/receipt-selector-tests.stdout.txt",
+      "bytes": 857,
+      "sha256": "538d5e8ad5b641e144c84903ab652fe3be59f6dbd8617ef1da672ff0e3ea6a87",
+      "scope": "Only four final affected selector tests."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/canonical-review-packaging-v4c/post-routing-durability.json",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/review-package-durability.json",
+      "bytes": 252,
+      "sha256": "0e7b5b407c2dc8b7b3bf755cf6523126ad547b4805ff386bed0f2d3085b8cf83",
+      "scope": "84 bound files and8 publication documents; no semantic verdict."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/render-and-dispatch-v4c/render-dependency-proof.json",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/render-dependency-proof.json",
+      "bytes": 1636,
+      "sha256": "cee7d940d0d25f02e8028d1e90cf602079b35c6322bd21fabf9f67ca5371450b",
+      "scope": "Exact body/signature and dependency evidence."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/render-and-dispatch-v4c/dispatch.stdout.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/wrapper-dispatch.stdout.txt",
+      "bytes": 351,
+      "sha256": "0b0a7643dc86ca84475fc9553d3509b7b2e61a4f97b1837d84742d644646a744",
+      "scope": "Docker-stub dispatch only; not actual image build/runtime."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/artifact-cache-receipt-v2-2.json",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/artifact-cache-receipt-v2-2.json",
+      "bytes": 1345,
+      "sha256": "6d91184a0d4d38738592462850aa2532ad070a92a03382496c1fc2eb4138d7a0",
+      "scope": "Actual active receipt; do not substitute obsolete receipt."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/tool-build-receipt-v2-3.json",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/tool-build-receipt-v2-3.json",
+      "bytes": 344,
+      "sha256": "a94c653e481a4645950a95a974813e066aeeb506af012ee3c8134cd84c3d3918",
+      "scope": "Actual receipt bound by the active cache record."
+    },
+    {
+      "sourcePath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/disabled-image-fingerprint-v4/old-image-sha256.txt",
+      "publicationPath": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/content-only-v2/execution/old-disabled-image-sha256.txt",
+      "bytes": 724,
+      "sha256": "727e3ad3eece2a882b3d7e772bc504f5ba68ebc072a298608b9347c701c6b7f9",
+      "scope": "Old binary/current client distinction; unchanged false branch only."
+    }
+  ],
+  "activeLocalCache": {
+    "receiptPath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/artifact-cache-receipt-v2-2.json",
+    "receiptSha256": "6d91184a0d4d38738592462850aa2532ad070a92a03382496c1fc2eb4138d7a0",
+    "toolReceiptPath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/tool-build-receipt-v2-3.json",
+    "toolReceiptSha256": "a94c653e481a4645950a95a974813e066aeeb506af012ee3c8134cd84c3d3918",
+    "binaryPath": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/tool-binary-v2-3",
+    "binarySha256": "997c0d200972a17cb374287f17f3a884e0086b12e2352b2d19d59ab0d9de8cd0",
+    "sourceTreeSha256": "aa786383899a7544d0e803934048a6c2efdc116280fd18c0010bd2ecfb1bac92"
+  },
+  "limitation": "These copies preserve existing command/byte provenance and bounded reuse. They do not author or replace independent semantic judgments; no literal course end-to-end build/runtime or current-client old-image execution is inferred."
+}

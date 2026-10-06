@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "changedFields": [
+    {
+      "documentId": "source.contract",
+      "jsonPointer": "/decoder_connection/en",
+      "currentValue": "The scalar decoder reference remains unchanged. This content boundary identifies and verifies corpus inputs before filtering and tokenization; the synthetic fixture is not acquired TinyStories or Chapter 42's real input."
+    },
+    {
+      "documentId": "source.lesson",
+      "jsonPointer": "/decoder_connection",
+      "currentValue": "The scalar decoder reference remains unchanged. This content boundary identifies and verifies corpus inputs before filtering and tokenization; the synthetic fixture is not acquired TinyStories or Chapter 42's real input."
+    }
+  ],
+  "oldContract": {
+    "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/publish/audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4b/sources/curriculum/chapters/41-governed-corpus-acquisition.md",
+    "sha256": "c3787f285e88ebb879e557a12d55cd1a7f7419f8029877df2ba442f1791bd199"
+  },
+  "currentContract": {
+    "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/publish/curriculum/chapters/41-governed-corpus-acquisition.md",
+    "bytes": 14332,
+    "sha256": "0cf4cf580934c169e4de8d7187d37270afd296b55a25dbb7a29ef20e598ac91b"
+  },
+  "otherContractProjectionFieldsUnchanged": true,
+  "lessonBodyByteIdentical": true,
+  "renderSignatureInputsUnchanged": true,
+  "otherSourceDocumentsUnchanged": true,
+  "builtDocuments": [
+    {
+      "id": "built.lesson",
+      "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+      "bytes": 145643,
+      "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+    },
+    {
+      "id": "built.index",
+      "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/index.html",
+      "bytes": 84774,
+      "sha256": "942d14a3faee510893cf328cb800dabafa0663195bdd8f6dcdcf1fd2da103bdf"
+    },
+    {
+      "id": "built.neighbor",
+      "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+      "bytes": 158644,
+      "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+    }
+  ],
+  "exportArtifactsVerified": 172,
+  "reusedFirefox": {
+    "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/current-firefox-04-02/stdout.txt",
+    "sha256": "1d056abae529cc5faeb288b457feefe4ebe79caa9b70a9ed0fe8f6e478bb2a50",
+    "tests": 7
+  },
+  "validatorPaths": [
+    "scripts/check-chapter-contract.mjs:localizedContractProjection",
+    "scripts/check-chapter-contract.mjs:validateChapterContractText",
+    "scripts/check-chapter-contract.mjs:validateContractLesson"
+  ],
+  "limitation": "Exact source/dependency/projection/evidence checks only. Fresh independent reviews and adjudications are still required over the new contract and inventory."
+}

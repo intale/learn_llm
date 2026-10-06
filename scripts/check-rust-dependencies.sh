@@ -7,22 +7,41 @@ readonly repository_root
 # Supporting crates must be listed explicitly after their rationale is recorded
 # in DECISIONS.md. Every transitive package is checked too.
 readonly -a allowed_supporting_crates=(
+  atomic-waker
   base64
   bitflags
   block-buffer
+  bumpalo
   bytes
+  cc
   cfg-if
+  core-foundation
+  core-foundation-sys
   cpufeatures
   crypto-common
   digest
   displaydoc
   errno
+  fastrand
+  find-msvc-tools
+  foreign-types
+  foreign-types-shared
   form_urlencoded
+  futures-channel
+  futures-core
+  futures-io
+  futures-sink
+  futures-task
+  futures-util
   generic-array
-  headers
-  headers-core
+  getrandom
   http
-  httpdate
+  http-body
+  http-body-util
+  httparse
+  hyper
+  hyper-tls
+  hyper-util
   icu_collections
   icu_locale_core
   icu_normalizer
@@ -32,33 +51,74 @@ readonly -a allowed_supporting_crates=(
   icu_provider
   idna
   idna_adapter
+  ipnet
   itoa
+  js-sys
   libc
   linux-raw-sys
   litemap
+  log
   memchr
   mime
+  mio
+  native-tls
+  once_cell
+  openssl
+  openssl-macros
+  openssl-probe
+  openssl-sys
   percent-encoding
+  pin-project-lite
+  pkg-config
   potential_utf
   proc-macro2
   quote
+  r-efi
+  reqwest
   rustix
+  rustls-pki-types
+  rustversion
+  schannel
+  security-framework
+  security-framework-sys
   serde
   serde_core
   serde_derive
   serde_json
-  sha1
   sha2
+  shlex
+  slab
   smallvec
+  socket2
   stable_deref_trait
   syn
+  sync_wrapper
   synstructure
+  tempfile
   tinystr
+  tokio
+  tokio-native-tls
+  tower
+  tower-http
+  tower-layer
+  tower-service
+  tracing
+  tracing-core
+  try-lock
   typenum
   unicode-ident
   url
   utf8_iter
+  vcpkg
   version_check
+  want
+  wasi
+  wasm-bindgen
+  wasm-bindgen-futures
+  wasm-bindgen-macro
+  wasm-bindgen-macro-support
+  wasm-bindgen-shared
+  web-sys
   windows-link
   windows-sys
   writeable
@@ -66,6 +126,7 @@ readonly -a allowed_supporting_crates=(
   yoke-derive
   zerofrom
   zerofrom-derive
+  zeroize
   zerotrie
   zerovec
   zerovec-derive

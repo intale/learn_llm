@@ -1,0 +1,3986 @@
+{
+  "schemaVersion": 1,
+  "baselineSpec": {
+    "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english/spec.json",
+    "sha256": "c22acf2d33ee69868758fe30b59e1c73fe10c19fe494e0a9537fb2002aeb4f74"
+  },
+  "invariants": [
+    {
+      "id": "unit.003",
+      "documentId": "built.lesson",
+      "kind": "actual-a",
+      "value": "Skip to content",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          1
+        ],
+        "tag": "a",
+        "attributes": {
+          "class": "skip-link",
+          "href": "#main-content",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 140,
+          "startOffset": 53132,
+          "endLine": 47,
+          "endCol": 225,
+          "endOffset": 53217,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 143,
+              "startOffset": 53135,
+              "endLine": 47,
+              "endCol": 160,
+              "endOffset": 53152
+            },
+            "href": {
+              "startLine": 47,
+              "startCol": 161,
+              "startOffset": 53153,
+              "endLine": 47,
+              "endCol": 181,
+              "endOffset": 53173
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 182,
+              "startOffset": 53174,
+              "endLine": 47,
+              "endCol": 205,
+              "endOffset": 53197
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 140,
+            "startOffset": 53132,
+            "endLine": 47,
+            "endCol": 206,
+            "endOffset": 53198,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 143,
+                "startOffset": 53135,
+                "endLine": 47,
+                "endCol": 160,
+                "endOffset": 53152
+              },
+              "href": {
+                "startLine": 47,
+                "startCol": 161,
+                "startOffset": 53153,
+                "endLine": 47,
+                "endCol": 181,
+                "endOffset": 53173
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 182,
+                "startOffset": 53174,
+                "endLine": 47,
+                "endCol": 205,
+                "endOffset": 53197
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 221,
+            "startOffset": 53213,
+            "endLine": 47,
+            "endCol": 225,
+            "endOffset": 53217
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "Skip to content",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            1
+          ],
+          "tag": "a",
+          "attributes": {
+            "class": "skip-link",
+            "href": "#main-content",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "#main-content",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.004",
+      "documentId": "built.lesson",
+      "kind": "actual-aria-label",
+      "value": "Home",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          1
+        ],
+        "tag": "a",
+        "attributes": {
+          "class": "wordmark",
+          "href": "/en/",
+          "aria-label": "Home",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 279,
+          "startOffset": 53271,
+          "endLine": 47,
+          "endCol": 495,
+          "endOffset": 53487,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 282,
+              "startOffset": 53274,
+              "endLine": 47,
+              "endCol": 298,
+              "endOffset": 53290
+            },
+            "href": {
+              "startLine": 47,
+              "startCol": 299,
+              "startOffset": 53291,
+              "endLine": 47,
+              "endCol": 310,
+              "endOffset": 53302
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 311,
+              "startOffset": 53303,
+              "endLine": 47,
+              "endCol": 328,
+              "endOffset": 53320
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 329,
+              "startOffset": 53321,
+              "endLine": 47,
+              "endCol": 352,
+              "endOffset": 53344
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 279,
+            "startOffset": 53271,
+            "endLine": 47,
+            "endCol": 353,
+            "endOffset": 53345,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 282,
+                "startOffset": 53274,
+                "endLine": 47,
+                "endCol": 298,
+                "endOffset": 53290
+              },
+              "href": {
+                "startLine": 47,
+                "startCol": 299,
+                "startOffset": 53291,
+                "endLine": 47,
+                "endCol": 310,
+                "endOffset": 53302
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 311,
+                "startOffset": 53303,
+                "endLine": 47,
+                "endCol": 328,
+                "endOffset": 53320
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 329,
+                "startOffset": 53321,
+                "endLine": 47,
+                "endCol": 352,
+                "endOffset": 53344
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 491,
+            "startOffset": 53483,
+            "endLine": 47,
+            "endCol": 495,
+            "endOffset": 53487
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "Home",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            1
+          ],
+          "tag": "a",
+          "attributes": {
+            "class": "wordmark",
+            "href": "/en/",
+            "aria-label": "Home",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "/en/",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.005",
+      "documentId": "built.lesson",
+      "kind": "actual-a",
+      "value": "LLM, piece by piece",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          1
+        ],
+        "tag": "a",
+        "attributes": {
+          "class": "wordmark",
+          "href": "/en/",
+          "aria-label": "Home",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 279,
+          "startOffset": 53271,
+          "endLine": 47,
+          "endCol": 495,
+          "endOffset": 53487,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 282,
+              "startOffset": 53274,
+              "endLine": 47,
+              "endCol": 298,
+              "endOffset": 53290
+            },
+            "href": {
+              "startLine": 47,
+              "startCol": 299,
+              "startOffset": 53291,
+              "endLine": 47,
+              "endCol": 310,
+              "endOffset": 53302
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 311,
+              "startOffset": 53303,
+              "endLine": 47,
+              "endCol": 328,
+              "endOffset": 53320
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 329,
+              "startOffset": 53321,
+              "endLine": 47,
+              "endCol": 352,
+              "endOffset": 53344
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 279,
+            "startOffset": 53271,
+            "endLine": 47,
+            "endCol": 353,
+            "endOffset": 53345,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 282,
+                "startOffset": 53274,
+                "endLine": 47,
+                "endCol": 298,
+                "endOffset": 53290
+              },
+              "href": {
+                "startLine": 47,
+                "startCol": 299,
+                "startOffset": 53291,
+                "endLine": 47,
+                "endCol": 310,
+                "endOffset": 53302
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 311,
+                "startOffset": 53303,
+                "endLine": 47,
+                "endCol": 328,
+                "endOffset": 53320
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 329,
+                "startOffset": 53321,
+                "endLine": 47,
+                "endCol": 352,
+                "endOffset": 53344
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 491,
+            "startOffset": 53483,
+            "endLine": 47,
+            "endCol": 495,
+            "endOffset": 53487
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "LLM, piece by piece",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            1
+          ],
+          "tag": "a",
+          "attributes": {
+            "class": "wordmark",
+            "href": "/en/",
+            "aria-label": "Home",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "/en/",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.006",
+      "documentId": "built.lesson",
+      "kind": "actual-aria-label",
+      "value": "Language",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          1
+        ],
+        "tag": "nav",
+        "attributes": {
+          "class": "locale-switch",
+          "aria-label": "Language",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 556,
+          "startOffset": 53548,
+          "endLine": 47,
+          "endCol": 947,
+          "endOffset": 53939,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 561,
+              "startOffset": 53553,
+              "endLine": 47,
+              "endCol": 582,
+              "endOffset": 53574
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 583,
+              "startOffset": 53575,
+              "endLine": 47,
+              "endCol": 604,
+              "endOffset": 53596
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 605,
+              "startOffset": 53597,
+              "endLine": 47,
+              "endCol": 628,
+              "endOffset": 53620
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 556,
+            "startOffset": 53548,
+            "endLine": 47,
+            "endCol": 629,
+            "endOffset": 53621,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 561,
+                "startOffset": 53553,
+                "endLine": 47,
+                "endCol": 582,
+                "endOffset": 53574
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 583,
+                "startOffset": 53575,
+                "endLine": 47,
+                "endCol": 604,
+                "endOffset": 53596
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 605,
+                "startOffset": 53597,
+                "endLine": 47,
+                "endCol": 628,
+                "endOffset": 53620
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 941,
+            "startOffset": 53933,
+            "endLine": 47,
+            "endCol": 947,
+            "endOffset": 53939
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "Language",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            1
+          ],
+          "tag": "nav",
+          "attributes": {
+            "class": "locale-switch",
+            "aria-label": "Language",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.007",
+      "documentId": "built.lesson",
+      "kind": "actual-aria-label",
+      "value": "Русский: Все главы",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          1,
+          3
+        ],
+        "tag": "a",
+        "attributes": {
+          "href": "/ru/course/",
+          "lang": "ru",
+          "dir": "ltr",
+          "hreflang": "ru",
+          "data-locale": "ru",
+          "data-locale-fallback": "course-index",
+          "aria-label": "Русский: Все главы",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 676,
+          "startOffset": 53668,
+          "endLine": 47,
+          "endCol": 940,
+          "endOffset": 53932,
+          "attrs": {
+            "href": {
+              "startLine": 47,
+              "startCol": 679,
+              "startOffset": 53671,
+              "endLine": 47,
+              "endCol": 697,
+              "endOffset": 53689
+            },
+            "lang": {
+              "startLine": 47,
+              "startCol": 698,
+              "startOffset": 53690,
+              "endLine": 47,
+              "endCol": 707,
+              "endOffset": 53699
+            },
+            "dir": {
+              "startLine": 47,
+              "startCol": 708,
+              "startOffset": 53700,
+              "endLine": 47,
+              "endCol": 717,
+              "endOffset": 53709
+            },
+            "hreflang": {
+              "startLine": 47,
+              "startCol": 718,
+              "startOffset": 53710,
+              "endLine": 47,
+              "endCol": 731,
+              "endOffset": 53723
+            },
+            "data-locale": {
+              "startLine": 47,
+              "startCol": 732,
+              "startOffset": 53724,
+              "endLine": 47,
+              "endCol": 748,
+              "endOffset": 53740
+            },
+            "data-locale-fallback": {
+              "startLine": 47,
+              "startCol": 749,
+              "startOffset": 53741,
+              "endLine": 47,
+              "endCol": 784,
+              "endOffset": 53776
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 785,
+              "startOffset": 53777,
+              "endLine": 47,
+              "endCol": 816,
+              "endOffset": 53808
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 817,
+              "startOffset": 53809,
+              "endLine": 47,
+              "endCol": 840,
+              "endOffset": 53832
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 676,
+            "startOffset": 53668,
+            "endLine": 47,
+            "endCol": 841,
+            "endOffset": 53833,
+            "attrs": {
+              "href": {
+                "startLine": 47,
+                "startCol": 679,
+                "startOffset": 53671,
+                "endLine": 47,
+                "endCol": 697,
+                "endOffset": 53689
+              },
+              "lang": {
+                "startLine": 47,
+                "startCol": 698,
+                "startOffset": 53690,
+                "endLine": 47,
+                "endCol": 707,
+                "endOffset": 53699
+              },
+              "dir": {
+                "startLine": 47,
+                "startCol": 708,
+                "startOffset": 53700,
+                "endLine": 47,
+                "endCol": 717,
+                "endOffset": 53709
+              },
+              "hreflang": {
+                "startLine": 47,
+                "startCol": 718,
+                "startOffset": 53710,
+                "endLine": 47,
+                "endCol": 731,
+                "endOffset": 53723
+              },
+              "data-locale": {
+                "startLine": 47,
+                "startCol": 732,
+                "startOffset": 53724,
+                "endLine": 47,
+                "endCol": 748,
+                "endOffset": 53740
+              },
+              "data-locale-fallback": {
+                "startLine": 47,
+                "startCol": 749,
+                "startOffset": 53741,
+                "endLine": 47,
+                "endCol": 784,
+                "endOffset": 53776
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 785,
+                "startOffset": 53777,
+                "endLine": 47,
+                "endCol": 816,
+                "endOffset": 53808
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 817,
+                "startOffset": 53809,
+                "endLine": 47,
+                "endCol": 840,
+                "endOffset": 53832
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 936,
+            "startOffset": 53928,
+            "endLine": 47,
+            "endCol": 940,
+            "endOffset": 53932
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "Русский: Все главы",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            1,
+            3
+          ],
+          "tag": "a",
+          "attributes": {
+            "href": "/ru/course/",
+            "lang": "ru",
+            "dir": "ltr",
+            "hreflang": "ru",
+            "data-locale": "ru",
+            "data-locale-fallback": "course-index",
+            "aria-label": "Русский: Все главы",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "/ru/course/",
+      "scopeNote": "Unchanged Russian locale-navigation labels only; no Russian authoring or judgment."
+    },
+    {
+      "id": "unit.008",
+      "documentId": "built.lesson",
+      "kind": "actual-a",
+      "value": "Русский Все главы",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          1,
+          3
+        ],
+        "tag": "a",
+        "attributes": {
+          "href": "/ru/course/",
+          "lang": "ru",
+          "dir": "ltr",
+          "hreflang": "ru",
+          "data-locale": "ru",
+          "data-locale-fallback": "course-index",
+          "aria-label": "Русский: Все главы",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 676,
+          "startOffset": 53668,
+          "endLine": 47,
+          "endCol": 940,
+          "endOffset": 53932,
+          "attrs": {
+            "href": {
+              "startLine": 47,
+              "startCol": 679,
+              "startOffset": 53671,
+              "endLine": 47,
+              "endCol": 697,
+              "endOffset": 53689
+            },
+            "lang": {
+              "startLine": 47,
+              "startCol": 698,
+              "startOffset": 53690,
+              "endLine": 47,
+              "endCol": 707,
+              "endOffset": 53699
+            },
+            "dir": {
+              "startLine": 47,
+              "startCol": 708,
+              "startOffset": 53700,
+              "endLine": 47,
+              "endCol": 717,
+              "endOffset": 53709
+            },
+            "hreflang": {
+              "startLine": 47,
+              "startCol": 718,
+              "startOffset": 53710,
+              "endLine": 47,
+              "endCol": 731,
+              "endOffset": 53723
+            },
+            "data-locale": {
+              "startLine": 47,
+              "startCol": 732,
+              "startOffset": 53724,
+              "endLine": 47,
+              "endCol": 748,
+              "endOffset": 53740
+            },
+            "data-locale-fallback": {
+              "startLine": 47,
+              "startCol": 749,
+              "startOffset": 53741,
+              "endLine": 47,
+              "endCol": 784,
+              "endOffset": 53776
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 785,
+              "startOffset": 53777,
+              "endLine": 47,
+              "endCol": 816,
+              "endOffset": 53808
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 817,
+              "startOffset": 53809,
+              "endLine": 47,
+              "endCol": 840,
+              "endOffset": 53832
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 676,
+            "startOffset": 53668,
+            "endLine": 47,
+            "endCol": 841,
+            "endOffset": 53833,
+            "attrs": {
+              "href": {
+                "startLine": 47,
+                "startCol": 679,
+                "startOffset": 53671,
+                "endLine": 47,
+                "endCol": 697,
+                "endOffset": 53689
+              },
+              "lang": {
+                "startLine": 47,
+                "startCol": 698,
+                "startOffset": 53690,
+                "endLine": 47,
+                "endCol": 707,
+                "endOffset": 53699
+              },
+              "dir": {
+                "startLine": 47,
+                "startCol": 708,
+                "startOffset": 53700,
+                "endLine": 47,
+                "endCol": 717,
+                "endOffset": 53709
+              },
+              "hreflang": {
+                "startLine": 47,
+                "startCol": 718,
+                "startOffset": 53710,
+                "endLine": 47,
+                "endCol": 731,
+                "endOffset": 53723
+              },
+              "data-locale": {
+                "startLine": 47,
+                "startCol": 732,
+                "startOffset": 53724,
+                "endLine": 47,
+                "endCol": 748,
+                "endOffset": 53740
+              },
+              "data-locale-fallback": {
+                "startLine": 47,
+                "startCol": 749,
+                "startOffset": 53741,
+                "endLine": 47,
+                "endCol": 784,
+                "endOffset": 53776
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 785,
+                "startOffset": 53777,
+                "endLine": 47,
+                "endCol": 816,
+                "endOffset": 53808
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 817,
+                "startOffset": 53809,
+                "endLine": 47,
+                "endCol": 840,
+                "endOffset": 53832
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 936,
+            "startOffset": 53928,
+            "endLine": 47,
+            "endCol": 940,
+            "endOffset": 53932
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "Русский Все главы",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            1,
+            3
+          ],
+          "tag": "a",
+          "attributes": {
+            "href": "/ru/course/",
+            "lang": "ru",
+            "dir": "ltr",
+            "hreflang": "ru",
+            "data-locale": "ru",
+            "data-locale-fallback": "course-index",
+            "aria-label": "Русский: Все главы",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "/ru/course/",
+      "scopeNote": "Unchanged Russian locale-navigation labels only; no Russian authoring or judgment."
+    },
+    {
+      "id": "unit.009",
+      "documentId": "built.lesson",
+      "kind": "actual-title",
+      "value": "Dark theme",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          3
+        ],
+        "tag": "button",
+        "attributes": {
+          "class": "theme-toggle",
+          "type": "button",
+          "aria-pressed": "false",
+          "title": "Dark theme",
+          "data-theme-toggle": "",
+          "hidden": "",
+          "data-astro-cid-l6lhmie6": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 948,
+          "startOffset": 53940,
+          "endLine": 47,
+          "endCol": 1337,
+          "endOffset": 54329,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 956,
+              "startOffset": 53948,
+              "endLine": 47,
+              "endCol": 976,
+              "endOffset": 53968
+            },
+            "type": {
+              "startLine": 47,
+              "startCol": 977,
+              "startOffset": 53969,
+              "endLine": 47,
+              "endCol": 990,
+              "endOffset": 53982
+            },
+            "aria-pressed": {
+              "startLine": 47,
+              "startCol": 991,
+              "startOffset": 53983,
+              "endLine": 47,
+              "endCol": 1011,
+              "endOffset": 54003
+            },
+            "title": {
+              "startLine": 47,
+              "startCol": 1012,
+              "startOffset": 54004,
+              "endLine": 47,
+              "endCol": 1030,
+              "endOffset": 54022
+            },
+            "data-theme-toggle": {
+              "startLine": 47,
+              "startCol": 1031,
+              "startOffset": 54023,
+              "endLine": 47,
+              "endCol": 1048,
+              "endOffset": 54040
+            },
+            "hidden": {
+              "startLine": 47,
+              "startCol": 1049,
+              "startOffset": 54041,
+              "endLine": 47,
+              "endCol": 1055,
+              "endOffset": 54047
+            },
+            "data-astro-cid-l6lhmie6": {
+              "startLine": 47,
+              "startCol": 1056,
+              "startOffset": 54048,
+              "endLine": 47,
+              "endCol": 1079,
+              "endOffset": 54071
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 948,
+            "startOffset": 53940,
+            "endLine": 47,
+            "endCol": 1080,
+            "endOffset": 54072,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 956,
+                "startOffset": 53948,
+                "endLine": 47,
+                "endCol": 976,
+                "endOffset": 53968
+              },
+              "type": {
+                "startLine": 47,
+                "startCol": 977,
+                "startOffset": 53969,
+                "endLine": 47,
+                "endCol": 990,
+                "endOffset": 53982
+              },
+              "aria-pressed": {
+                "startLine": 47,
+                "startCol": 991,
+                "startOffset": 53983,
+                "endLine": 47,
+                "endCol": 1011,
+                "endOffset": 54003
+              },
+              "title": {
+                "startLine": 47,
+                "startCol": 1012,
+                "startOffset": 54004,
+                "endLine": 47,
+                "endCol": 1030,
+                "endOffset": 54022
+              },
+              "data-theme-toggle": {
+                "startLine": 47,
+                "startCol": 1031,
+                "startOffset": 54023,
+                "endLine": 47,
+                "endCol": 1048,
+                "endOffset": 54040
+              },
+              "hidden": {
+                "startLine": 47,
+                "startCol": 1049,
+                "startOffset": 54041,
+                "endLine": 47,
+                "endCol": 1055,
+                "endOffset": 54047
+              },
+              "data-astro-cid-l6lhmie6": {
+                "startLine": 47,
+                "startCol": 1056,
+                "startOffset": 54048,
+                "endLine": 47,
+                "endCol": 1079,
+                "endOffset": 54071
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 1328,
+            "startOffset": 54320,
+            "endLine": 47,
+            "endCol": 1337,
+            "endOffset": 54329
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "Dark theme",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            3
+          ],
+          "tag": "button",
+          "attributes": {
+            "class": "theme-toggle",
+            "type": "button",
+            "aria-pressed": "false",
+            "title": "Dark theme",
+            "data-theme-toggle": "",
+            "hidden": "",
+            "data-astro-cid-l6lhmie6": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.010",
+      "documentId": "built.lesson",
+      "kind": "actual-a",
+      "value": "← All chapters",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/41-governed-corpus-acquisition/index.html",
+          "bytes": 145643,
+          "sha256": "38e9519829731918374f0b3da39a2a7f29abe31c4ad0b5c3d67dd10fdaaa0824"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          1
+        ],
+        "tag": "a",
+        "attributes": {
+          "class": "lesson-back",
+          "href": "/en/course/"
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 2818,
+          "startOffset": 55810,
+          "endLine": 47,
+          "endCol": 2880,
+          "endOffset": 55872,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 2821,
+              "startOffset": 55813,
+              "endLine": 47,
+              "endCol": 2840,
+              "endOffset": 55832
+            },
+            "href": {
+              "startLine": 47,
+              "startCol": 2841,
+              "startOffset": 55833,
+              "endLine": 47,
+              "endCol": 2859,
+              "endOffset": 55851
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 2818,
+            "startOffset": 55810,
+            "endLine": 47,
+            "endCol": 2860,
+            "endOffset": 55852,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 2821,
+                "startOffset": 55813,
+                "endLine": 47,
+                "endCol": 2840,
+                "endOffset": 55832
+              },
+              "href": {
+                "startLine": 47,
+                "startCol": 2841,
+                "startOffset": 55833,
+                "endLine": 47,
+                "endCol": 2859,
+                "endOffset": 55851
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 2876,
+            "startOffset": 55868,
+            "endLine": 47,
+            "endCol": 2880,
+            "endOffset": 55872
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/41-governed-corpus-acquisition/index.html",
+        "sha256": "06a8b7b8f390895068b54731713600184073c3a8b90faec599c0aa97b684b959"
+      },
+      "baselineValue": "← All chapters",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            1,
+            1
+          ],
+          "tag": "a",
+          "attributes": {
+            "class": "lesson-back",
+            "href": "/en/course/"
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "/en/course/",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.055",
+      "documentId": "built.index",
+      "kind": "metadata-description",
+      "value": "Each localized chapter adds one tested idea to the same Rust implementation.",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/index.html",
+          "bytes": 84774,
+          "sha256": "942d14a3faee510893cf328cb800dabafa0663195bdd8f6dcdcf1fd2da103bdf"
+        },
+        "nodePath": [
+          1,
+          0,
+          2
+        ],
+        "tag": "meta",
+        "attributes": {
+          "name": "description",
+          "content": "Each localized chapter adds one tested idea to the same Rust implementation."
+        },
+        "sourceCodeLocation": {
+          "startLine": 1,
+          "startCol": 296,
+          "startOffset": 295,
+          "endLine": 1,
+          "endCol": 408,
+          "endOffset": 407,
+          "attrs": {
+            "name": {
+              "startLine": 1,
+              "startCol": 302,
+              "startOffset": 301,
+              "endLine": 1,
+              "endCol": 320,
+              "endOffset": 319
+            },
+            "content": {
+              "startLine": 1,
+              "startCol": 321,
+              "startOffset": 320,
+              "endLine": 1,
+              "endCol": 407,
+              "endOffset": 406
+            }
+          },
+          "startTag": {
+            "startLine": 1,
+            "startCol": 296,
+            "startOffset": 295,
+            "endLine": 1,
+            "endCol": 408,
+            "endOffset": 407,
+            "attrs": {
+              "name": {
+                "startLine": 1,
+                "startCol": 302,
+                "startOffset": 301,
+                "endLine": 1,
+                "endCol": 320,
+                "endOffset": 319
+              },
+              "content": {
+                "startLine": 1,
+                "startCol": 321,
+                "startOffset": 320,
+                "endLine": 1,
+                "endCol": 407,
+                "endOffset": 406
+              }
+            }
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/index.html",
+        "sha256": "a7f55dae9e76072ebe96487b6476bab83763245b2fc72d9ea6a6d5f234f60024"
+      },
+      "baselineValue": "Each localized chapter adds one tested idea to the same Rust implementation.",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            0,
+            2
+          ],
+          "tag": "meta",
+          "attributes": {
+            "name": "description",
+            "content": "Each localized chapter adds one tested idea to the same Rust implementation."
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.056",
+      "documentId": "built.index",
+      "kind": "actual-aria-label",
+      "value": "Home",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/index.html",
+          "bytes": 84774,
+          "sha256": "942d14a3faee510893cf328cb800dabafa0663195bdd8f6dcdcf1fd2da103bdf"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          1
+        ],
+        "tag": "a",
+        "attributes": {
+          "class": "wordmark",
+          "href": "/en/",
+          "aria-label": "Home",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 48,
+          "startCol": 279,
+          "startOffset": 53758,
+          "endLine": 48,
+          "endCol": 495,
+          "endOffset": 53974,
+          "attrs": {
+            "class": {
+              "startLine": 48,
+              "startCol": 282,
+              "startOffset": 53761,
+              "endLine": 48,
+              "endCol": 298,
+              "endOffset": 53777
+            },
+            "href": {
+              "startLine": 48,
+              "startCol": 299,
+              "startOffset": 53778,
+              "endLine": 48,
+              "endCol": 310,
+              "endOffset": 53789
+            },
+            "aria-label": {
+              "startLine": 48,
+              "startCol": 311,
+              "startOffset": 53790,
+              "endLine": 48,
+              "endCol": 328,
+              "endOffset": 53807
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 48,
+              "startCol": 329,
+              "startOffset": 53808,
+              "endLine": 48,
+              "endCol": 352,
+              "endOffset": 53831
+            }
+          },
+          "startTag": {
+            "startLine": 48,
+            "startCol": 279,
+            "startOffset": 53758,
+            "endLine": 48,
+            "endCol": 353,
+            "endOffset": 53832,
+            "attrs": {
+              "class": {
+                "startLine": 48,
+                "startCol": 282,
+                "startOffset": 53761,
+                "endLine": 48,
+                "endCol": 298,
+                "endOffset": 53777
+              },
+              "href": {
+                "startLine": 48,
+                "startCol": 299,
+                "startOffset": 53778,
+                "endLine": 48,
+                "endCol": 310,
+                "endOffset": 53789
+              },
+              "aria-label": {
+                "startLine": 48,
+                "startCol": 311,
+                "startOffset": 53790,
+                "endLine": 48,
+                "endCol": 328,
+                "endOffset": 53807
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 48,
+                "startCol": 329,
+                "startOffset": 53808,
+                "endLine": 48,
+                "endCol": 352,
+                "endOffset": 53831
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 48,
+            "startCol": 491,
+            "startOffset": 53970,
+            "endLine": 48,
+            "endCol": 495,
+            "endOffset": 53974
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/index.html",
+        "sha256": "a7f55dae9e76072ebe96487b6476bab83763245b2fc72d9ea6a6d5f234f60024"
+      },
+      "baselineValue": "Home",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            1
+          ],
+          "tag": "a",
+          "attributes": {
+            "class": "wordmark",
+            "href": "/en/",
+            "aria-label": "Home",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "/en/",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.057",
+      "documentId": "built.index",
+      "kind": "actual-aria-label",
+      "value": "Language",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/index.html",
+          "bytes": 84774,
+          "sha256": "942d14a3faee510893cf328cb800dabafa0663195bdd8f6dcdcf1fd2da103bdf"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          1
+        ],
+        "tag": "nav",
+        "attributes": {
+          "class": "locale-switch",
+          "aria-label": "Language",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 48,
+          "startCol": 556,
+          "startOffset": 54035,
+          "endLine": 48,
+          "endCol": 831,
+          "endOffset": 54310,
+          "attrs": {
+            "class": {
+              "startLine": 48,
+              "startCol": 561,
+              "startOffset": 54040,
+              "endLine": 48,
+              "endCol": 582,
+              "endOffset": 54061
+            },
+            "aria-label": {
+              "startLine": 48,
+              "startCol": 583,
+              "startOffset": 54062,
+              "endLine": 48,
+              "endCol": 604,
+              "endOffset": 54083
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 48,
+              "startCol": 605,
+              "startOffset": 54084,
+              "endLine": 48,
+              "endCol": 628,
+              "endOffset": 54107
+            }
+          },
+          "startTag": {
+            "startLine": 48,
+            "startCol": 556,
+            "startOffset": 54035,
+            "endLine": 48,
+            "endCol": 629,
+            "endOffset": 54108,
+            "attrs": {
+              "class": {
+                "startLine": 48,
+                "startCol": 561,
+                "startOffset": 54040,
+                "endLine": 48,
+                "endCol": 582,
+                "endOffset": 54061
+              },
+              "aria-label": {
+                "startLine": 48,
+                "startCol": 583,
+                "startOffset": 54062,
+                "endLine": 48,
+                "endCol": 604,
+                "endOffset": 54083
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 48,
+                "startCol": 605,
+                "startOffset": 54084,
+                "endLine": 48,
+                "endCol": 628,
+                "endOffset": 54107
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 48,
+            "startCol": 825,
+            "startOffset": 54304,
+            "endLine": 48,
+            "endCol": 831,
+            "endOffset": 54310
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/index.html",
+        "sha256": "a7f55dae9e76072ebe96487b6476bab83763245b2fc72d9ea6a6d5f234f60024"
+      },
+      "baselineValue": "Language",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            1
+          ],
+          "tag": "nav",
+          "attributes": {
+            "class": "locale-switch",
+            "aria-label": "Language",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.058",
+      "documentId": "built.index",
+      "kind": "actual-title",
+      "value": "Dark theme",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/index.html",
+          "bytes": 84774,
+          "sha256": "942d14a3faee510893cf328cb800dabafa0663195bdd8f6dcdcf1fd2da103bdf"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          3
+        ],
+        "tag": "button",
+        "attributes": {
+          "class": "theme-toggle",
+          "type": "button",
+          "aria-pressed": "false",
+          "title": "Dark theme",
+          "data-theme-toggle": "",
+          "hidden": "",
+          "data-astro-cid-l6lhmie6": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 48,
+          "startCol": 832,
+          "startOffset": 54311,
+          "endLine": 48,
+          "endCol": 1221,
+          "endOffset": 54700,
+          "attrs": {
+            "class": {
+              "startLine": 48,
+              "startCol": 840,
+              "startOffset": 54319,
+              "endLine": 48,
+              "endCol": 860,
+              "endOffset": 54339
+            },
+            "type": {
+              "startLine": 48,
+              "startCol": 861,
+              "startOffset": 54340,
+              "endLine": 48,
+              "endCol": 874,
+              "endOffset": 54353
+            },
+            "aria-pressed": {
+              "startLine": 48,
+              "startCol": 875,
+              "startOffset": 54354,
+              "endLine": 48,
+              "endCol": 895,
+              "endOffset": 54374
+            },
+            "title": {
+              "startLine": 48,
+              "startCol": 896,
+              "startOffset": 54375,
+              "endLine": 48,
+              "endCol": 914,
+              "endOffset": 54393
+            },
+            "data-theme-toggle": {
+              "startLine": 48,
+              "startCol": 915,
+              "startOffset": 54394,
+              "endLine": 48,
+              "endCol": 932,
+              "endOffset": 54411
+            },
+            "hidden": {
+              "startLine": 48,
+              "startCol": 933,
+              "startOffset": 54412,
+              "endLine": 48,
+              "endCol": 939,
+              "endOffset": 54418
+            },
+            "data-astro-cid-l6lhmie6": {
+              "startLine": 48,
+              "startCol": 940,
+              "startOffset": 54419,
+              "endLine": 48,
+              "endCol": 963,
+              "endOffset": 54442
+            }
+          },
+          "startTag": {
+            "startLine": 48,
+            "startCol": 832,
+            "startOffset": 54311,
+            "endLine": 48,
+            "endCol": 964,
+            "endOffset": 54443,
+            "attrs": {
+              "class": {
+                "startLine": 48,
+                "startCol": 840,
+                "startOffset": 54319,
+                "endLine": 48,
+                "endCol": 860,
+                "endOffset": 54339
+              },
+              "type": {
+                "startLine": 48,
+                "startCol": 861,
+                "startOffset": 54340,
+                "endLine": 48,
+                "endCol": 874,
+                "endOffset": 54353
+              },
+              "aria-pressed": {
+                "startLine": 48,
+                "startCol": 875,
+                "startOffset": 54354,
+                "endLine": 48,
+                "endCol": 895,
+                "endOffset": 54374
+              },
+              "title": {
+                "startLine": 48,
+                "startCol": 896,
+                "startOffset": 54375,
+                "endLine": 48,
+                "endCol": 914,
+                "endOffset": 54393
+              },
+              "data-theme-toggle": {
+                "startLine": 48,
+                "startCol": 915,
+                "startOffset": 54394,
+                "endLine": 48,
+                "endCol": 932,
+                "endOffset": 54411
+              },
+              "hidden": {
+                "startLine": 48,
+                "startCol": 933,
+                "startOffset": 54412,
+                "endLine": 48,
+                "endCol": 939,
+                "endOffset": 54418
+              },
+              "data-astro-cid-l6lhmie6": {
+                "startLine": 48,
+                "startCol": 940,
+                "startOffset": 54419,
+                "endLine": 48,
+                "endCol": 963,
+                "endOffset": 54442
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 48,
+            "startCol": 1212,
+            "startOffset": 54691,
+            "endLine": 48,
+            "endCol": 1221,
+            "endOffset": 54700
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/index.html",
+        "sha256": "a7f55dae9e76072ebe96487b6476bab83763245b2fc72d9ea6a6d5f234f60024"
+      },
+      "baselineValue": "Dark theme",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            3
+          ],
+          "tag": "button",
+          "attributes": {
+            "class": "theme-toggle",
+            "type": "button",
+            "aria-pressed": "false",
+            "title": "Dark theme",
+            "data-theme-toggle": "",
+            "hidden": "",
+            "data-astro-cid-l6lhmie6": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.060",
+      "documentId": "built.neighbor",
+      "kind": "metadata-description",
+      "value": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          0,
+          2
+        ],
+        "tag": "meta",
+        "attributes": {
+          "name": "description",
+          "content": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability."
+        },
+        "sourceCodeLocation": {
+          "startLine": 1,
+          "startCol": 296,
+          "startOffset": 295,
+          "endLine": 1,
+          "endCol": 516,
+          "endOffset": 515,
+          "attrs": {
+            "name": {
+              "startLine": 1,
+              "startCol": 302,
+              "startOffset": 301,
+              "endLine": 1,
+              "endCol": 320,
+              "endOffset": 319
+            },
+            "content": {
+              "startLine": 1,
+              "startCol": 321,
+              "startOffset": 320,
+              "endLine": 1,
+              "endCol": 515,
+              "endOffset": 514
+            }
+          },
+          "startTag": {
+            "startLine": 1,
+            "startCol": 296,
+            "startOffset": 295,
+            "endLine": 1,
+            "endCol": 516,
+            "endOffset": 515,
+            "attrs": {
+              "name": {
+                "startLine": 1,
+                "startCol": 302,
+                "startOffset": 301,
+                "endLine": 1,
+                "endCol": 320,
+                "endOffset": 319
+              },
+              "content": {
+                "startLine": 1,
+                "startCol": 321,
+                "startOffset": 320,
+                "endLine": 1,
+                "endCol": 515,
+                "endOffset": 514
+              }
+            }
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability.",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            0,
+            2
+          ],
+          "tag": "meta",
+          "attributes": {
+            "name": "description",
+            "content": "Identify the tiny scalar decoder's fixed inputs and interpret its replay, window-slot scores, checkpoint reload and generated tokens without mistaking them for laptop-scale capability."
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.061",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Home",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          1
+        ],
+        "tag": "a",
+        "attributes": {
+          "class": "wordmark",
+          "href": "/en/",
+          "aria-label": "Home",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 279,
+          "startOffset": 53388,
+          "endLine": 47,
+          "endCol": 495,
+          "endOffset": 53604,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 282,
+              "startOffset": 53391,
+              "endLine": 47,
+              "endCol": 298,
+              "endOffset": 53407
+            },
+            "href": {
+              "startLine": 47,
+              "startCol": 299,
+              "startOffset": 53408,
+              "endLine": 47,
+              "endCol": 310,
+              "endOffset": 53419
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 311,
+              "startOffset": 53420,
+              "endLine": 47,
+              "endCol": 328,
+              "endOffset": 53437
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 329,
+              "startOffset": 53438,
+              "endLine": 47,
+              "endCol": 352,
+              "endOffset": 53461
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 279,
+            "startOffset": 53388,
+            "endLine": 47,
+            "endCol": 353,
+            "endOffset": 53462,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 282,
+                "startOffset": 53391,
+                "endLine": 47,
+                "endCol": 298,
+                "endOffset": 53407
+              },
+              "href": {
+                "startLine": 47,
+                "startCol": 299,
+                "startOffset": 53408,
+                "endLine": 47,
+                "endCol": 310,
+                "endOffset": 53419
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 311,
+                "startOffset": 53420,
+                "endLine": 47,
+                "endCol": 328,
+                "endOffset": 53437
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 329,
+                "startOffset": 53438,
+                "endLine": 47,
+                "endCol": 352,
+                "endOffset": 53461
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 491,
+            "startOffset": 53600,
+            "endLine": 47,
+            "endCol": 495,
+            "endOffset": 53604
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Home",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            1
+          ],
+          "tag": "a",
+          "attributes": {
+            "class": "wordmark",
+            "href": "/en/",
+            "aria-label": "Home",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "destination": "/en/",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.062",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Language",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          1
+        ],
+        "tag": "nav",
+        "attributes": {
+          "class": "locale-switch",
+          "aria-label": "Language",
+          "data-astro-cid-z4jru4n3": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 556,
+          "startOffset": 53665,
+          "endLine": 47,
+          "endCol": 857,
+          "endOffset": 53966,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 561,
+              "startOffset": 53670,
+              "endLine": 47,
+              "endCol": 582,
+              "endOffset": 53691
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 583,
+              "startOffset": 53692,
+              "endLine": 47,
+              "endCol": 604,
+              "endOffset": 53713
+            },
+            "data-astro-cid-z4jru4n3": {
+              "startLine": 47,
+              "startCol": 605,
+              "startOffset": 53714,
+              "endLine": 47,
+              "endCol": 628,
+              "endOffset": 53737
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 556,
+            "startOffset": 53665,
+            "endLine": 47,
+            "endCol": 629,
+            "endOffset": 53738,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 561,
+                "startOffset": 53670,
+                "endLine": 47,
+                "endCol": 582,
+                "endOffset": 53691
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 583,
+                "startOffset": 53692,
+                "endLine": 47,
+                "endCol": 604,
+                "endOffset": 53713
+              },
+              "data-astro-cid-z4jru4n3": {
+                "startLine": 47,
+                "startCol": 605,
+                "startOffset": 53714,
+                "endLine": 47,
+                "endCol": 628,
+                "endOffset": 53737
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 851,
+            "startOffset": 53960,
+            "endLine": 47,
+            "endCol": 857,
+            "endOffset": 53966
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Language",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            1
+          ],
+          "tag": "nav",
+          "attributes": {
+            "class": "locale-switch",
+            "aria-label": "Language",
+            "data-astro-cid-z4jru4n3": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.063",
+      "documentId": "built.neighbor",
+      "kind": "actual-title",
+      "value": "Dark theme",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          3,
+          3,
+          3
+        ],
+        "tag": "button",
+        "attributes": {
+          "class": "theme-toggle",
+          "type": "button",
+          "aria-pressed": "false",
+          "title": "Dark theme",
+          "data-theme-toggle": "",
+          "hidden": "",
+          "data-astro-cid-l6lhmie6": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 858,
+          "startOffset": 53967,
+          "endLine": 47,
+          "endCol": 1247,
+          "endOffset": 54356,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 866,
+              "startOffset": 53975,
+              "endLine": 47,
+              "endCol": 886,
+              "endOffset": 53995
+            },
+            "type": {
+              "startLine": 47,
+              "startCol": 887,
+              "startOffset": 53996,
+              "endLine": 47,
+              "endCol": 900,
+              "endOffset": 54009
+            },
+            "aria-pressed": {
+              "startLine": 47,
+              "startCol": 901,
+              "startOffset": 54010,
+              "endLine": 47,
+              "endCol": 921,
+              "endOffset": 54030
+            },
+            "title": {
+              "startLine": 47,
+              "startCol": 922,
+              "startOffset": 54031,
+              "endLine": 47,
+              "endCol": 940,
+              "endOffset": 54049
+            },
+            "data-theme-toggle": {
+              "startLine": 47,
+              "startCol": 941,
+              "startOffset": 54050,
+              "endLine": 47,
+              "endCol": 958,
+              "endOffset": 54067
+            },
+            "hidden": {
+              "startLine": 47,
+              "startCol": 959,
+              "startOffset": 54068,
+              "endLine": 47,
+              "endCol": 965,
+              "endOffset": 54074
+            },
+            "data-astro-cid-l6lhmie6": {
+              "startLine": 47,
+              "startCol": 966,
+              "startOffset": 54075,
+              "endLine": 47,
+              "endCol": 989,
+              "endOffset": 54098
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 858,
+            "startOffset": 53967,
+            "endLine": 47,
+            "endCol": 990,
+            "endOffset": 54099,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 866,
+                "startOffset": 53975,
+                "endLine": 47,
+                "endCol": 886,
+                "endOffset": 53995
+              },
+              "type": {
+                "startLine": 47,
+                "startCol": 887,
+                "startOffset": 53996,
+                "endLine": 47,
+                "endCol": 900,
+                "endOffset": 54009
+              },
+              "aria-pressed": {
+                "startLine": 47,
+                "startCol": 901,
+                "startOffset": 54010,
+                "endLine": 47,
+                "endCol": 921,
+                "endOffset": 54030
+              },
+              "title": {
+                "startLine": 47,
+                "startCol": 922,
+                "startOffset": 54031,
+                "endLine": 47,
+                "endCol": 940,
+                "endOffset": 54049
+              },
+              "data-theme-toggle": {
+                "startLine": 47,
+                "startCol": 941,
+                "startOffset": 54050,
+                "endLine": 47,
+                "endCol": 958,
+                "endOffset": 54067
+              },
+              "hidden": {
+                "startLine": 47,
+                "startCol": 959,
+                "startOffset": 54068,
+                "endLine": 47,
+                "endCol": 965,
+                "endOffset": 54074
+              },
+              "data-astro-cid-l6lhmie6": {
+                "startLine": 47,
+                "startCol": 966,
+                "startOffset": 54075,
+                "endLine": 47,
+                "endCol": 989,
+                "endOffset": 54098
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 1238,
+            "startOffset": 54347,
+            "endLine": 47,
+            "endCol": 1247,
+            "endOffset": 54356
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Dark theme",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            3,
+            3,
+            3
+          ],
+          "tag": "button",
+          "attributes": {
+            "class": "theme-toggle",
+            "type": "button",
+            "aria-pressed": "false",
+            "title": "Dark theme",
+            "data-theme-toggle": "",
+            "hidden": "",
+            "data-astro-cid-l6lhmie6": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.064",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Close cheat sheet",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          1,
+          3
+        ],
+        "tag": "button",
+        "attributes": {
+          "class": "cheat-sheet-close",
+          "type": "button",
+          "aria-label": "Close cheat sheet",
+          "title": "Close cheat sheet",
+          "data-cheat-sheet-close": "",
+          "autofocus": "",
+          "data-astro-cid-ws375rge": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 4548,
+          "startOffset": 57657,
+          "endLine": 47,
+          "endCol": 4784,
+          "endOffset": 57893,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 4556,
+              "startOffset": 57665,
+              "endLine": 47,
+              "endCol": 4581,
+              "endOffset": 57690
+            },
+            "type": {
+              "startLine": 47,
+              "startCol": 4582,
+              "startOffset": 57691,
+              "endLine": 47,
+              "endCol": 4595,
+              "endOffset": 57704
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 4596,
+              "startOffset": 57705,
+              "endLine": 47,
+              "endCol": 4626,
+              "endOffset": 57735
+            },
+            "title": {
+              "startLine": 47,
+              "startCol": 4627,
+              "startOffset": 57736,
+              "endLine": 47,
+              "endCol": 4652,
+              "endOffset": 57761
+            },
+            "data-cheat-sheet-close": {
+              "startLine": 47,
+              "startCol": 4653,
+              "startOffset": 57762,
+              "endLine": 47,
+              "endCol": 4675,
+              "endOffset": 57784
+            },
+            "autofocus": {
+              "startLine": 47,
+              "startCol": 4676,
+              "startOffset": 57785,
+              "endLine": 47,
+              "endCol": 4685,
+              "endOffset": 57794
+            },
+            "data-astro-cid-ws375rge": {
+              "startLine": 47,
+              "startCol": 4686,
+              "startOffset": 57795,
+              "endLine": 47,
+              "endCol": 4709,
+              "endOffset": 57818
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 4548,
+            "startOffset": 57657,
+            "endLine": 47,
+            "endCol": 4710,
+            "endOffset": 57819,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 4556,
+                "startOffset": 57665,
+                "endLine": 47,
+                "endCol": 4581,
+                "endOffset": 57690
+              },
+              "type": {
+                "startLine": 47,
+                "startCol": 4582,
+                "startOffset": 57691,
+                "endLine": 47,
+                "endCol": 4595,
+                "endOffset": 57704
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 4596,
+                "startOffset": 57705,
+                "endLine": 47,
+                "endCol": 4626,
+                "endOffset": 57735
+              },
+              "title": {
+                "startLine": 47,
+                "startCol": 4627,
+                "startOffset": 57736,
+                "endLine": 47,
+                "endCol": 4652,
+                "endOffset": 57761
+              },
+              "data-cheat-sheet-close": {
+                "startLine": 47,
+                "startCol": 4653,
+                "startOffset": 57762,
+                "endLine": 47,
+                "endCol": 4675,
+                "endOffset": 57784
+              },
+              "autofocus": {
+                "startLine": 47,
+                "startCol": 4676,
+                "startOffset": 57785,
+                "endLine": 47,
+                "endCol": 4685,
+                "endOffset": 57794
+              },
+              "data-astro-cid-ws375rge": {
+                "startLine": 47,
+                "startCol": 4686,
+                "startOffset": 57795,
+                "endLine": 47,
+                "endCol": 4709,
+                "endOffset": 57818
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 4775,
+            "startOffset": 57884,
+            "endLine": 47,
+            "endCol": 4784,
+            "endOffset": 57893
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Close cheat sheet",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            1,
+            11,
+            3,
+            1,
+            1,
+            1,
+            3
+          ],
+          "tag": "button",
+          "attributes": {
+            "class": "cheat-sheet-close",
+            "type": "button",
+            "aria-label": "Close cheat sheet",
+            "title": "Close cheat sheet",
+            "data-cheat-sheet-close": "",
+            "autofocus": "",
+            "data-astro-cid-ws375rge": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.065",
+      "documentId": "built.neighbor",
+      "kind": "actual-title",
+      "value": "Close cheat sheet",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          1,
+          3
+        ],
+        "tag": "button",
+        "attributes": {
+          "class": "cheat-sheet-close",
+          "type": "button",
+          "aria-label": "Close cheat sheet",
+          "title": "Close cheat sheet",
+          "data-cheat-sheet-close": "",
+          "autofocus": "",
+          "data-astro-cid-ws375rge": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 4548,
+          "startOffset": 57657,
+          "endLine": 47,
+          "endCol": 4784,
+          "endOffset": 57893,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 4556,
+              "startOffset": 57665,
+              "endLine": 47,
+              "endCol": 4581,
+              "endOffset": 57690
+            },
+            "type": {
+              "startLine": 47,
+              "startCol": 4582,
+              "startOffset": 57691,
+              "endLine": 47,
+              "endCol": 4595,
+              "endOffset": 57704
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 4596,
+              "startOffset": 57705,
+              "endLine": 47,
+              "endCol": 4626,
+              "endOffset": 57735
+            },
+            "title": {
+              "startLine": 47,
+              "startCol": 4627,
+              "startOffset": 57736,
+              "endLine": 47,
+              "endCol": 4652,
+              "endOffset": 57761
+            },
+            "data-cheat-sheet-close": {
+              "startLine": 47,
+              "startCol": 4653,
+              "startOffset": 57762,
+              "endLine": 47,
+              "endCol": 4675,
+              "endOffset": 57784
+            },
+            "autofocus": {
+              "startLine": 47,
+              "startCol": 4676,
+              "startOffset": 57785,
+              "endLine": 47,
+              "endCol": 4685,
+              "endOffset": 57794
+            },
+            "data-astro-cid-ws375rge": {
+              "startLine": 47,
+              "startCol": 4686,
+              "startOffset": 57795,
+              "endLine": 47,
+              "endCol": 4709,
+              "endOffset": 57818
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 4548,
+            "startOffset": 57657,
+            "endLine": 47,
+            "endCol": 4710,
+            "endOffset": 57819,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 4556,
+                "startOffset": 57665,
+                "endLine": 47,
+                "endCol": 4581,
+                "endOffset": 57690
+              },
+              "type": {
+                "startLine": 47,
+                "startCol": 4582,
+                "startOffset": 57691,
+                "endLine": 47,
+                "endCol": 4595,
+                "endOffset": 57704
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 4596,
+                "startOffset": 57705,
+                "endLine": 47,
+                "endCol": 4626,
+                "endOffset": 57735
+              },
+              "title": {
+                "startLine": 47,
+                "startCol": 4627,
+                "startOffset": 57736,
+                "endLine": 47,
+                "endCol": 4652,
+                "endOffset": 57761
+              },
+              "data-cheat-sheet-close": {
+                "startLine": 47,
+                "startCol": 4653,
+                "startOffset": 57762,
+                "endLine": 47,
+                "endCol": 4675,
+                "endOffset": 57784
+              },
+              "autofocus": {
+                "startLine": 47,
+                "startCol": 4676,
+                "startOffset": 57785,
+                "endLine": 47,
+                "endCol": 4685,
+                "endOffset": 57794
+              },
+              "data-astro-cid-ws375rge": {
+                "startLine": 47,
+                "startCol": 4686,
+                "startOffset": 57795,
+                "endLine": 47,
+                "endCol": 4709,
+                "endOffset": 57818
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 4775,
+            "startOffset": 57884,
+            "endLine": 47,
+            "endCol": 4784,
+            "endOffset": 57893
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Close cheat sheet",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            1,
+            11,
+            3,
+            1,
+            1,
+            1,
+            3
+          ],
+          "tag": "button",
+          "attributes": {
+            "class": "cheat-sheet-close",
+            "type": "button",
+            "aria-label": "Close cheat sheet",
+            "title": "Close cheat sheet",
+            "data-cheat-sheet-close": "",
+            "autofocus": "",
+            "data-astro-cid-ws375rge": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.066",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Terms 1–7 of 7; page 1 of 1",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          1,
+          11,
+          3,
+          1,
+          1,
+          5
+        ],
+        "tag": "div",
+        "attributes": {
+          "class": "cheat-sheet-page",
+          "data-cheat-sheet-page": "1",
+          "role": "group",
+          "aria-label": "Terms 1–7 of 7; page 1 of 1",
+          "data-astro-cid-ws375rge": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 47,
+          "startCol": 5028,
+          "startOffset": 58137,
+          "endLine": 47,
+          "endCol": 7503,
+          "endOffset": 60612,
+          "attrs": {
+            "class": {
+              "startLine": 47,
+              "startCol": 5033,
+              "startOffset": 58142,
+              "endLine": 47,
+              "endCol": 5057,
+              "endOffset": 58166
+            },
+            "data-cheat-sheet-page": {
+              "startLine": 47,
+              "startCol": 5058,
+              "startOffset": 58167,
+              "endLine": 47,
+              "endCol": 5083,
+              "endOffset": 58192
+            },
+            "role": {
+              "startLine": 47,
+              "startCol": 5084,
+              "startOffset": 58193,
+              "endLine": 47,
+              "endCol": 5096,
+              "endOffset": 58205
+            },
+            "aria-label": {
+              "startLine": 47,
+              "startCol": 5097,
+              "startOffset": 58206,
+              "endLine": 47,
+              "endCol": 5137,
+              "endOffset": 58246
+            },
+            "data-astro-cid-ws375rge": {
+              "startLine": 47,
+              "startCol": 5138,
+              "startOffset": 58247,
+              "endLine": 47,
+              "endCol": 5161,
+              "endOffset": 58270
+            }
+          },
+          "startTag": {
+            "startLine": 47,
+            "startCol": 5028,
+            "startOffset": 58137,
+            "endLine": 47,
+            "endCol": 5162,
+            "endOffset": 58271,
+            "attrs": {
+              "class": {
+                "startLine": 47,
+                "startCol": 5033,
+                "startOffset": 58142,
+                "endLine": 47,
+                "endCol": 5057,
+                "endOffset": 58166
+              },
+              "data-cheat-sheet-page": {
+                "startLine": 47,
+                "startCol": 5058,
+                "startOffset": 58167,
+                "endLine": 47,
+                "endCol": 5083,
+                "endOffset": 58192
+              },
+              "role": {
+                "startLine": 47,
+                "startCol": 5084,
+                "startOffset": 58193,
+                "endLine": 47,
+                "endCol": 5096,
+                "endOffset": 58205
+              },
+              "aria-label": {
+                "startLine": 47,
+                "startCol": 5097,
+                "startOffset": 58206,
+                "endLine": 47,
+                "endCol": 5137,
+                "endOffset": 58246
+              },
+              "data-astro-cid-ws375rge": {
+                "startLine": 47,
+                "startCol": 5138,
+                "startOffset": 58247,
+                "endLine": 47,
+                "endCol": 5161,
+                "endOffset": 58270
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 47,
+            "startCol": 7497,
+            "startOffset": 60606,
+            "endLine": 47,
+            "endCol": 7503,
+            "endOffset": 60612
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Terms 1–7 of 7; page 1 of 1",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            1,
+            11,
+            3,
+            1,
+            1,
+            5
+          ],
+          "tag": "div",
+          "attributes": {
+            "class": "cheat-sheet-page",
+            "data-cheat-sheet-page": "1",
+            "role": "group",
+            "aria-label": "Terms 1–7 of 7; page 1 of 1",
+            "data-astro-cid-ws375rge": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.067",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Rust source: canonical scalar-reference input identity",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          37,
+          3
+        ],
+        "tag": "pre",
+        "attributes": {
+          "class": "astro-code github-dark-high-contrast rust-source-code",
+          "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+          "tabindex": "0",
+          "aria-label": "Rust source: canonical scalar-reference input identity",
+          "dir": "ltr",
+          "data-astro-cid-i3uagjh5": "",
+          "data-language": "rust"
+        },
+        "sourceCodeLocation": {
+          "startLine": 118,
+          "startCol": 479,
+          "startOffset": 85956,
+          "endLine": 195,
+          "endCol": 76,
+          "endOffset": 104053,
+          "attrs": {
+            "class": {
+              "startLine": 118,
+              "startCol": 484,
+              "startOffset": 85961,
+              "endLine": 118,
+              "endCol": 545,
+              "endOffset": 86022
+            },
+            "style": {
+              "startLine": 118,
+              "startCol": 546,
+              "startOffset": 86023,
+              "endLine": 118,
+              "endCol": 611,
+              "endOffset": 86088
+            },
+            "tabindex": {
+              "startLine": 118,
+              "startCol": 612,
+              "startOffset": 86089,
+              "endLine": 118,
+              "endCol": 624,
+              "endOffset": 86101
+            },
+            "aria-label": {
+              "startLine": 118,
+              "startCol": 625,
+              "startOffset": 86102,
+              "endLine": 118,
+              "endCol": 692,
+              "endOffset": 86169
+            },
+            "dir": {
+              "startLine": 118,
+              "startCol": 693,
+              "startOffset": 86170,
+              "endLine": 118,
+              "endCol": 702,
+              "endOffset": 86179
+            },
+            "data-astro-cid-i3uagjh5": {
+              "startLine": 118,
+              "startCol": 703,
+              "startOffset": 86180,
+              "endLine": 118,
+              "endCol": 726,
+              "endOffset": 86203
+            },
+            "data-language": {
+              "startLine": 118,
+              "startCol": 727,
+              "startOffset": 86204,
+              "endLine": 118,
+              "endCol": 747,
+              "endOffset": 86224
+            }
+          },
+          "startTag": {
+            "startLine": 118,
+            "startCol": 479,
+            "startOffset": 85956,
+            "endLine": 118,
+            "endCol": 748,
+            "endOffset": 86225,
+            "attrs": {
+              "class": {
+                "startLine": 118,
+                "startCol": 484,
+                "startOffset": 85961,
+                "endLine": 118,
+                "endCol": 545,
+                "endOffset": 86022
+              },
+              "style": {
+                "startLine": 118,
+                "startCol": 546,
+                "startOffset": 86023,
+                "endLine": 118,
+                "endCol": 611,
+                "endOffset": 86088
+              },
+              "tabindex": {
+                "startLine": 118,
+                "startCol": 612,
+                "startOffset": 86089,
+                "endLine": 118,
+                "endCol": 624,
+                "endOffset": 86101
+              },
+              "aria-label": {
+                "startLine": 118,
+                "startCol": 625,
+                "startOffset": 86102,
+                "endLine": 118,
+                "endCol": 692,
+                "endOffset": 86169
+              },
+              "dir": {
+                "startLine": 118,
+                "startCol": 693,
+                "startOffset": 86170,
+                "endLine": 118,
+                "endCol": 702,
+                "endOffset": 86179
+              },
+              "data-astro-cid-i3uagjh5": {
+                "startLine": 118,
+                "startCol": 703,
+                "startOffset": 86180,
+                "endLine": 118,
+                "endCol": 726,
+                "endOffset": 86203
+              },
+              "data-language": {
+                "startLine": 118,
+                "startCol": 727,
+                "startOffset": 86204,
+                "endLine": 118,
+                "endCol": 747,
+                "endOffset": 86224
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 195,
+            "startCol": 70,
+            "startOffset": 104047,
+            "endLine": 195,
+            "endCol": 76,
+            "endOffset": 104053
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Rust source: canonical scalar-reference input identity",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            3,
+            37,
+            3
+          ],
+          "tag": "pre",
+          "attributes": {
+            "class": "astro-code github-dark-high-contrast rust-source-code",
+            "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+            "tabindex": "0",
+            "aria-label": "Rust source: canonical scalar-reference input identity",
+            "dir": "ltr",
+            "data-astro-cid-i3uagjh5": "",
+            "data-language": "rust"
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.068",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Rust source: fixed-fixture admission and scalar-reference execution",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          41,
+          3
+        ],
+        "tag": "pre",
+        "attributes": {
+          "class": "astro-code github-dark-high-contrast rust-source-code",
+          "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+          "tabindex": "0",
+          "aria-label": "Rust source: fixed-fixture admission and scalar-reference execution",
+          "dir": "ltr",
+          "data-astro-cid-i3uagjh5": "",
+          "data-language": "rust"
+        },
+        "sourceCodeLocation": {
+          "startLine": 200,
+          "startCol": 465,
+          "startOffset": 104836,
+          "endLine": 258,
+          "endCol": 76,
+          "endOffset": 119813,
+          "attrs": {
+            "class": {
+              "startLine": 200,
+              "startCol": 470,
+              "startOffset": 104841,
+              "endLine": 200,
+              "endCol": 531,
+              "endOffset": 104902
+            },
+            "style": {
+              "startLine": 200,
+              "startCol": 532,
+              "startOffset": 104903,
+              "endLine": 200,
+              "endCol": 597,
+              "endOffset": 104968
+            },
+            "tabindex": {
+              "startLine": 200,
+              "startCol": 598,
+              "startOffset": 104969,
+              "endLine": 200,
+              "endCol": 610,
+              "endOffset": 104981
+            },
+            "aria-label": {
+              "startLine": 200,
+              "startCol": 611,
+              "startOffset": 104982,
+              "endLine": 200,
+              "endCol": 691,
+              "endOffset": 105062
+            },
+            "dir": {
+              "startLine": 200,
+              "startCol": 692,
+              "startOffset": 105063,
+              "endLine": 200,
+              "endCol": 701,
+              "endOffset": 105072
+            },
+            "data-astro-cid-i3uagjh5": {
+              "startLine": 200,
+              "startCol": 702,
+              "startOffset": 105073,
+              "endLine": 200,
+              "endCol": 725,
+              "endOffset": 105096
+            },
+            "data-language": {
+              "startLine": 200,
+              "startCol": 726,
+              "startOffset": 105097,
+              "endLine": 200,
+              "endCol": 746,
+              "endOffset": 105117
+            }
+          },
+          "startTag": {
+            "startLine": 200,
+            "startCol": 465,
+            "startOffset": 104836,
+            "endLine": 200,
+            "endCol": 747,
+            "endOffset": 105118,
+            "attrs": {
+              "class": {
+                "startLine": 200,
+                "startCol": 470,
+                "startOffset": 104841,
+                "endLine": 200,
+                "endCol": 531,
+                "endOffset": 104902
+              },
+              "style": {
+                "startLine": 200,
+                "startCol": 532,
+                "startOffset": 104903,
+                "endLine": 200,
+                "endCol": 597,
+                "endOffset": 104968
+              },
+              "tabindex": {
+                "startLine": 200,
+                "startCol": 598,
+                "startOffset": 104969,
+                "endLine": 200,
+                "endCol": 610,
+                "endOffset": 104981
+              },
+              "aria-label": {
+                "startLine": 200,
+                "startCol": 611,
+                "startOffset": 104982,
+                "endLine": 200,
+                "endCol": 691,
+                "endOffset": 105062
+              },
+              "dir": {
+                "startLine": 200,
+                "startCol": 692,
+                "startOffset": 105063,
+                "endLine": 200,
+                "endCol": 701,
+                "endOffset": 105072
+              },
+              "data-astro-cid-i3uagjh5": {
+                "startLine": 200,
+                "startCol": 702,
+                "startOffset": 105073,
+                "endLine": 200,
+                "endCol": 725,
+                "endOffset": 105096
+              },
+              "data-language": {
+                "startLine": 200,
+                "startCol": 726,
+                "startOffset": 105097,
+                "endLine": 200,
+                "endCol": 746,
+                "endOffset": 105117
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 258,
+            "startCol": 70,
+            "startOffset": 119807,
+            "endLine": 258,
+            "endCol": 76,
+            "endOffset": 119813
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Rust source: fixed-fixture admission and scalar-reference execution",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            3,
+            41,
+            3
+          ],
+          "tag": "pre",
+          "attributes": {
+            "class": "astro-code github-dark-high-contrast rust-source-code",
+            "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+            "tabindex": "0",
+            "aria-label": "Rust source: fixed-fixture admission and scalar-reference execution",
+            "dir": "ltr",
+            "data-astro-cid-i3uagjh5": "",
+            "data-language": "rust"
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.069",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Rust source: scope-bearing scalar-reference report",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          69,
+          3
+        ],
+        "tag": "pre",
+        "attributes": {
+          "class": "astro-code github-dark-high-contrast rust-source-code",
+          "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+          "tabindex": "0",
+          "aria-label": "Rust source: scope-bearing scalar-reference report",
+          "dir": "ltr",
+          "data-astro-cid-i3uagjh5": "",
+          "data-language": "rust"
+        },
+        "sourceCodeLocation": {
+          "startLine": 299,
+          "startCol": 475,
+          "startOffset": 123726,
+          "endLine": 367,
+          "endCol": 80,
+          "endOffset": 143386,
+          "attrs": {
+            "class": {
+              "startLine": 299,
+              "startCol": 480,
+              "startOffset": 123731,
+              "endLine": 299,
+              "endCol": 541,
+              "endOffset": 123792
+            },
+            "style": {
+              "startLine": 299,
+              "startCol": 542,
+              "startOffset": 123793,
+              "endLine": 299,
+              "endCol": 607,
+              "endOffset": 123858
+            },
+            "tabindex": {
+              "startLine": 299,
+              "startCol": 608,
+              "startOffset": 123859,
+              "endLine": 299,
+              "endCol": 620,
+              "endOffset": 123871
+            },
+            "aria-label": {
+              "startLine": 299,
+              "startCol": 621,
+              "startOffset": 123872,
+              "endLine": 299,
+              "endCol": 684,
+              "endOffset": 123935
+            },
+            "dir": {
+              "startLine": 299,
+              "startCol": 685,
+              "startOffset": 123936,
+              "endLine": 299,
+              "endCol": 694,
+              "endOffset": 123945
+            },
+            "data-astro-cid-i3uagjh5": {
+              "startLine": 299,
+              "startCol": 695,
+              "startOffset": 123946,
+              "endLine": 299,
+              "endCol": 718,
+              "endOffset": 123969
+            },
+            "data-language": {
+              "startLine": 299,
+              "startCol": 719,
+              "startOffset": 123970,
+              "endLine": 299,
+              "endCol": 739,
+              "endOffset": 123990
+            }
+          },
+          "startTag": {
+            "startLine": 299,
+            "startCol": 475,
+            "startOffset": 123726,
+            "endLine": 299,
+            "endCol": 740,
+            "endOffset": 123991,
+            "attrs": {
+              "class": {
+                "startLine": 299,
+                "startCol": 480,
+                "startOffset": 123731,
+                "endLine": 299,
+                "endCol": 541,
+                "endOffset": 123792
+              },
+              "style": {
+                "startLine": 299,
+                "startCol": 542,
+                "startOffset": 123793,
+                "endLine": 299,
+                "endCol": 607,
+                "endOffset": 123858
+              },
+              "tabindex": {
+                "startLine": 299,
+                "startCol": 608,
+                "startOffset": 123859,
+                "endLine": 299,
+                "endCol": 620,
+                "endOffset": 123871
+              },
+              "aria-label": {
+                "startLine": 299,
+                "startCol": 621,
+                "startOffset": 123872,
+                "endLine": 299,
+                "endCol": 684,
+                "endOffset": 123935
+              },
+              "dir": {
+                "startLine": 299,
+                "startCol": 685,
+                "startOffset": 123936,
+                "endLine": 299,
+                "endCol": 694,
+                "endOffset": 123945
+              },
+              "data-astro-cid-i3uagjh5": {
+                "startLine": 299,
+                "startCol": 695,
+                "startOffset": 123946,
+                "endLine": 299,
+                "endCol": 718,
+                "endOffset": 123969
+              },
+              "data-language": {
+                "startLine": 299,
+                "startCol": 719,
+                "startOffset": 123970,
+                "endLine": 299,
+                "endCol": 739,
+                "endOffset": 123990
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 367,
+            "startCol": 74,
+            "startOffset": 143380,
+            "endLine": 367,
+            "endCol": 80,
+            "endOffset": 143386
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Rust source: scope-bearing scalar-reference report",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            3,
+            69,
+            3
+          ],
+          "tag": "pre",
+          "attributes": {
+            "class": "astro-code github-dark-high-contrast rust-source-code",
+            "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+            "tabindex": "0",
+            "aria-label": "Rust source: scope-bearing scalar-reference report",
+            "dir": "ltr",
+            "data-astro-cid-i3uagjh5": "",
+            "data-language": "rust"
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.070",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Rust source: executable fixed scalar-reference example",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          3,
+          77,
+          3
+        ],
+        "tag": "pre",
+        "attributes": {
+          "class": "astro-code github-dark-high-contrast rust-source-code",
+          "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+          "tabindex": "0",
+          "aria-label": "Rust source: executable fixed scalar-reference example",
+          "dir": "ltr",
+          "data-astro-cid-i3uagjh5": "",
+          "data-language": "rust"
+        },
+        "sourceCodeLocation": {
+          "startLine": 376,
+          "startCol": 466,
+          "startOffset": 144732,
+          "endLine": 382,
+          "endCol": 76,
+          "endOffset": 147454,
+          "attrs": {
+            "class": {
+              "startLine": 376,
+              "startCol": 471,
+              "startOffset": 144737,
+              "endLine": 376,
+              "endCol": 532,
+              "endOffset": 144798
+            },
+            "style": {
+              "startLine": 376,
+              "startCol": 533,
+              "startOffset": 144799,
+              "endLine": 376,
+              "endCol": 598,
+              "endOffset": 144864
+            },
+            "tabindex": {
+              "startLine": 376,
+              "startCol": 599,
+              "startOffset": 144865,
+              "endLine": 376,
+              "endCol": 611,
+              "endOffset": 144877
+            },
+            "aria-label": {
+              "startLine": 376,
+              "startCol": 612,
+              "startOffset": 144878,
+              "endLine": 376,
+              "endCol": 679,
+              "endOffset": 144945
+            },
+            "dir": {
+              "startLine": 376,
+              "startCol": 680,
+              "startOffset": 144946,
+              "endLine": 376,
+              "endCol": 689,
+              "endOffset": 144955
+            },
+            "data-astro-cid-i3uagjh5": {
+              "startLine": 376,
+              "startCol": 690,
+              "startOffset": 144956,
+              "endLine": 376,
+              "endCol": 713,
+              "endOffset": 144979
+            },
+            "data-language": {
+              "startLine": 376,
+              "startCol": 714,
+              "startOffset": 144980,
+              "endLine": 376,
+              "endCol": 734,
+              "endOffset": 145000
+            }
+          },
+          "startTag": {
+            "startLine": 376,
+            "startCol": 466,
+            "startOffset": 144732,
+            "endLine": 376,
+            "endCol": 735,
+            "endOffset": 145001,
+            "attrs": {
+              "class": {
+                "startLine": 376,
+                "startCol": 471,
+                "startOffset": 144737,
+                "endLine": 376,
+                "endCol": 532,
+                "endOffset": 144798
+              },
+              "style": {
+                "startLine": 376,
+                "startCol": 533,
+                "startOffset": 144799,
+                "endLine": 376,
+                "endCol": 598,
+                "endOffset": 144864
+              },
+              "tabindex": {
+                "startLine": 376,
+                "startCol": 599,
+                "startOffset": 144865,
+                "endLine": 376,
+                "endCol": 611,
+                "endOffset": 144877
+              },
+              "aria-label": {
+                "startLine": 376,
+                "startCol": 612,
+                "startOffset": 144878,
+                "endLine": 376,
+                "endCol": 679,
+                "endOffset": 144945
+              },
+              "dir": {
+                "startLine": 376,
+                "startCol": 680,
+                "startOffset": 144946,
+                "endLine": 376,
+                "endCol": 689,
+                "endOffset": 144955
+              },
+              "data-astro-cid-i3uagjh5": {
+                "startLine": 376,
+                "startCol": 690,
+                "startOffset": 144956,
+                "endLine": 376,
+                "endCol": 713,
+                "endOffset": 144979
+              },
+              "data-language": {
+                "startLine": 376,
+                "startCol": 714,
+                "startOffset": 144980,
+                "endLine": 376,
+                "endCol": 734,
+                "endOffset": 145000
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 382,
+            "startCol": 70,
+            "startOffset": 147448,
+            "endLine": 382,
+            "endCol": 76,
+            "endOffset": 147454
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Rust source: executable fixed scalar-reference example",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            3,
+            77,
+            3
+          ],
+          "tag": "pre",
+          "attributes": {
+            "class": "astro-code github-dark-high-contrast rust-source-code",
+            "style": "background-color:#0a0c10;color:#f0f3f6; overflow-x: auto;",
+            "tabindex": "0",
+            "aria-label": "Rust source: executable fixed scalar-reference example",
+            "dir": "ltr",
+            "data-astro-cid-i3uagjh5": "",
+            "data-language": "rust"
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    },
+    {
+      "id": "unit.071",
+      "documentId": "built.neighbor",
+      "kind": "actual-aria-label",
+      "value": "Chapter navigation",
+      "currentOrigin": {
+        "document": {
+          "path": ".build/runs/20261006T081633Z-refactor-ch41-content-only-boundary-01/validation/site-export-04/dist/en/course/40-reference-core-handoff/index.html",
+          "bytes": 158644,
+          "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+        },
+        "nodePath": [
+          1,
+          2,
+          5,
+          1,
+          5
+        ],
+        "tag": "nav",
+        "attributes": {
+          "class": "chapter-navigation",
+          "aria-label": "Chapter navigation",
+          "data-chapter-navigation": "",
+          "data-astro-cid-44eis63d": ""
+        },
+        "sourceCodeLocation": {
+          "startLine": 423,
+          "startCol": 26,
+          "startOffset": 154181,
+          "endLine": 423,
+          "endCol": 1029,
+          "endOffset": 155184,
+          "attrs": {
+            "class": {
+              "startLine": 423,
+              "startCol": 31,
+              "startOffset": 154186,
+              "endLine": 423,
+              "endCol": 57,
+              "endOffset": 154212
+            },
+            "aria-label": {
+              "startLine": 423,
+              "startCol": 58,
+              "startOffset": 154213,
+              "endLine": 423,
+              "endCol": 89,
+              "endOffset": 154244
+            },
+            "data-chapter-navigation": {
+              "startLine": 423,
+              "startCol": 90,
+              "startOffset": 154245,
+              "endLine": 423,
+              "endCol": 113,
+              "endOffset": 154268
+            },
+            "data-astro-cid-44eis63d": {
+              "startLine": 423,
+              "startCol": 114,
+              "startOffset": 154269,
+              "endLine": 423,
+              "endCol": 137,
+              "endOffset": 154292
+            }
+          },
+          "startTag": {
+            "startLine": 423,
+            "startCol": 26,
+            "startOffset": 154181,
+            "endLine": 423,
+            "endCol": 138,
+            "endOffset": 154293,
+            "attrs": {
+              "class": {
+                "startLine": 423,
+                "startCol": 31,
+                "startOffset": 154186,
+                "endLine": 423,
+                "endCol": 57,
+                "endOffset": 154212
+              },
+              "aria-label": {
+                "startLine": 423,
+                "startCol": 58,
+                "startOffset": 154213,
+                "endLine": 423,
+                "endCol": 89,
+                "endOffset": 154244
+              },
+              "data-chapter-navigation": {
+                "startLine": 423,
+                "startCol": 90,
+                "startOffset": 154245,
+                "endLine": 423,
+                "endCol": 113,
+                "endOffset": 154268
+              },
+              "data-astro-cid-44eis63d": {
+                "startLine": 423,
+                "startCol": 114,
+                "startOffset": 154269,
+                "endLine": 423,
+                "endCol": 137,
+                "endOffset": 154292
+              }
+            }
+          },
+          "endTag": {
+            "startLine": 423,
+            "startCol": 1023,
+            "startOffset": 155178,
+            "endLine": 423,
+            "endCol": 1029,
+            "endOffset": 155184
+          }
+        }
+      },
+      "baselineDocument": {
+        "path": "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-candidate-02/built/en/course/40-reference-core-handoff/index.html",
+        "sha256": "f1c3e89091d97ebdcdb5cb6996d7fa65d489c6895fa678fc3b46411745c7f16f"
+      },
+      "baselineValue": "Chapter navigation",
+      "baselineMatches": [
+        {
+          "nodePath": [
+            1,
+            2,
+            5,
+            1,
+            5
+          ],
+          "tag": "nav",
+          "attributes": {
+            "class": "chapter-navigation",
+            "aria-label": "Chapter navigation",
+            "data-chapter-navigation": "",
+            "data-astro-cid-44eis63d": ""
+          }
+        }
+      ],
+      "exactValueUnchanged": true,
+      "classificationRequestedByAuthor": "unchanged-shared-invariant-not-new-English-judgment",
+      "scopeNote": "Unchanged shared chrome or Chapter40 surface; no historical verdict presented as current Chapter41 approval."
+    }
+  ],
+  "limitations": "Exact historical text/hash comparison only, not carried-forward review verdict. Whole prior document bytes are not asserted identical."
+}

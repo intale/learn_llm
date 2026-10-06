@@ -1,0 +1,3 @@
+e4fa9978b8d1a2f35a160e72cee6836409c67bed5f9f5428ac5db8264cbe638e  course
+5f433985dd91ed56b0a6b4f84f3e737966ff8c34b65fd8b423296e80df5cee1a  Dockerfile
+4e4e0ca32c5e8edd7b067dc0bca6e542bb37f4ba181a890c9a1eea680ff6280b  scripts/tests/course-network-isolation.test.mjs
