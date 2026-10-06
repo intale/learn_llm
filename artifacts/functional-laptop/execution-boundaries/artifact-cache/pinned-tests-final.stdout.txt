@@ -1,0 +1,130 @@
+TAP version 13
+# Subtest: complete synthetic evidence is structurally valid
+ok 1 - complete synthetic evidence is structurally valid
+  ---
+  duration_ms: 0.467042
+  ...
+# Subtest: missing false or additional checks refuse
+ok 2 - missing false or additional checks refuse
+  ---
+  duration_ms: 0.264679
+  ...
+# Subtest: network identity and policy substitutions refuse
+ok 3 - network identity and policy substitutions refuse
+  ---
+  duration_ms: 0.560338
+  ...
+# Subtest: selected bundle mismatch refuses
+ok 4 - selected bundle mismatch refuses
+  ---
+  duration_ms: 0.107794
+  ...
+# Subtest: public command shapes refuse ignored options and arbitrary source overrides
+ok 5 - public command shapes refuse ignored options and arbitrary source overrides
+  ---
+  duration_ms: 0.715962
+  ...
+# Subtest: new fixed-workflow image binds per build without historical image pin
+ok 6 - new fixed-workflow image binds per build without historical image pin
+  ---
+  duration_ms: 0.088807
+  ...
+# Subtest: stale image receipt and online build-tool evidence refuse
+ok 7 - stale image receipt and online build-tool evidence refuse
+  ---
+  duration_ms: 0.118704
+  ...
+# Subtest: acquisition has no cache mount
+ok 8 - acquisition has no cache mount
+  ---
+  duration_ms: 0.383544
+  ...
+# Subtest: publication is network none with exact input RO and cache RW
+ok 9 - publication is network none with exact input RO and cache RW
+  ---
+  duration_ms: 0.090611
+  ...
+# Subtest: replay mounts only selected digest read only
+ok 10 - replay mounts only selected digest read only
+  ---
+  duration_ms: 0.097293
+  ...
+# Subtest: production cannot downgrade to fixture policy
+ok 11 - production cannot downgrade to fixture policy
+  ---
+  duration_ms: 0.11107
+  ...
+# Subtest: unadmitted filtered or model target refuses
+ok 12 - unadmitted filtered or model target refuses
+  ---
+  duration_ms: 0.146707
+  ...
+# Subtest: self-test generated handoff cannot acquire network input
+ok 13 - self-test generated handoff cannot acquire network input
+  ---
+  duration_ms: 0.631663
+  ...
+# Subtest: bridge aliases and operation are closed
+ok 14 - bridge aliases and operation are closed
+  ---
+  duration_ms: 0.30704
+  ...
+# Subtest: final manifest request has exactly two private endpoint strings and no write aliases
+ok 15 - final manifest request has exactly two private endpoint strings and no write aliases
+  ---
+  duration_ms: 0.154241
+  ...
+# Subtest: unknown binding field refuses
+ok 16 - unknown binding field refuses
+  ---
+  duration_ms: 0.092304
+  ...
+# Subtest: accepted external provenance binding compares exactly
+ok 17 - accepted external provenance binding compares exactly
+  ---
+  duration_ms: 0.085331
+  ...
+# Subtest: caller manifest cannot authorize changed license attribution or producer
+ok 18 - caller manifest cannot authorize changed license attribution or producer
+  ---
+  duration_ms: 0.177585
+  ...
+# Subtest: fixed offline cached-image overlay preserves argv and scopes every mount
+ok 19 - fixed offline cached-image overlay preserves argv and scopes every mount
+  ---
+  duration_ms: 24.295206
+  ...
+# Subtest: Docker/Cargo failure is returned and recorded without replacing evidence
+ok 20 - Docker/Cargo failure is returned and recorded without replacing evidence
+  ---
+  duration_ms: 24.298612
+  ...
+# Subtest: locked offline build preserves the same bounded execution boundary
+ok 21 - locked offline build preserves the same bounded execution boundary
+  ---
+  duration_ms: 19.443665
+  ...
+# Subtest: unsafe identities and non-Cargo/provisioning commands refuse before Docker
+ok 22 - unsafe identities and non-Cargo/provisioning commands refuse before Docker
+  ---
+  duration_ms: 10.180143
+  ...
+# Subtest: symlink stage or cache cannot escape run ownership
+ok 23 - symlink stage or cache cannot escape run ownership
+  ---
+  duration_ms: 6.076113
+  ...
+# Subtest: symlink evidence/target and a missing repository-root invocation refuse
+ok 24 - symlink evidence/target and a missing repository-root invocation refuse
+  ---
+  duration_ms: 7.450629
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 126.275873

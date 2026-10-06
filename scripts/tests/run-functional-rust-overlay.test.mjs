@@ -55,6 +55,15 @@ test('Docker/Cargo failure is returned and recorded without replacing evidence',
     assert.deepEqual(readFileSync(f.log),log);assert.equal(readFileSync(receipt,'utf8'),'7\n');
   }finally{f.close();}
 });
+test('locked offline build preserves the same bounded execution boundary',()=>{
+  const f=fixture();try{
+    const result=f.call([runId,'build-01',image,'--','cargo','build','--locked','--offline']);
+    assert.equal(result.status,0,result.stderr);
+    const args=JSON.parse(readFileSync(f.log,'utf8'));
+    assert.deepEqual(args.slice(-5),['sh','cargo','build','--locked','--offline']);
+    assert.deepEqual(args.slice(0,6),['run','--rm','--pull','never','--network','none']);
+  }finally{f.close();}
+});
 test('unsafe identities and non-Cargo/provisioning commands refuse before Docker',()=>{
   const f=fixture();try{
     for(const args of [

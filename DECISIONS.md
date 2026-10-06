@@ -28890,3 +28890,111 @@ agreement and applicable change notices; no MIT/Apache relicense is approved.
 The metadata step publishes 14 verified files (189,663 bytes), inventory SHA256
 1e5c11b46760cd9066c4ab56f4cb04af13b36f8aae6dfc59bd230c4b98c84463.
 The pending cache boundary now explicitly depends on this completed evidence.
+
+### 2026-10-06 — Current-toolchain cache-boundary claim
+
+Claim the cache boundary only after metadata evidence completion and dedicated
+commit7a657c4. Runtime uses the verified existing toolchain image
+sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5,
+not the invalidated offline-workspace receipt or missing obsolete wrapper.
+Replace that live validation selector with exact current pinned network-none
+test execution; frozen historical plan and run artifacts remain unchanged.
+The root will inspect supporting CLI ownership before any taught-Rust change.
+This N0 boundary has no corpus-download authority. Preserve all current
+Chapter41 teaching, model/adapter/raw redistribution not-approved dispositions,
+repairs hold and English-first delivery. The later acquisition remains its own
+step and must complete before Chapter42 can be claimed.
+
+Root assigns cache CLI plumbing to a dedicated unpublished
+rust/tools/functional-artifact-cache package, not the reviewed Chapter41 demo.
+It reuses llm-from-scratch, serde and serde_json with no new external graph.
+The request dispatch invokes existing course-owned manifest, policy and
+inventory APIs and accepts only fixed wrapper-controlled container aliases.
+Production provenance still requires closed target/metadata/producer hash
+binding in the wrapper; a caller-provided manifest is not approval.
+
+Offline lock regeneration initially advanced two versions available in the
+existing cache. Preserve that candidate and its compile as diagnostic, not
+accepted dependency evidence. Restore exact current syn3.0.3 and unicode-ident
+1.0.24 checksums; only the new local tool package remains in staged lock diff.
+The corrected locked compile passes with all63 existing registry packages.
+
+### 2026-10-06 — Simple Docker network boundary
+
+The user specifies that every Docker container execution runs with network
+disabled; Docker image construction may use network-enabled official repository
+provisioning. Apply --network none to every container invocation, including
+acquisition policy workers and validation. Separately authorized fixed-source
+HTTPS transport runs ordinary host machinery; no networked transport container,
+Docker socket exposure, broker service or new networking architecture is needed.
+Record host Node23.7 execution separately from pinned Node22 validation.
+The completed metadata run's earlier actual network-bridge transport remains
+immutable history; do not relabel or repeat it. Existing image is reused now.
+
+### 2026-10-06 — Fixed corpus payload during Docker image construction
+
+The user replaces the host corpus transfer execution with exact checksum-bound
+corpus download during Docker IMAGE BUILD. Every container RUN remains offline.
+Preserve Chapter41's taught HTTP protocol and old run evidence as history; do
+not claim build-mediated transfer exercised the resumable worker protocol.
+Source revision, sizes, digests, license/provenance and no-public-redistribution
+checks remain unchanged. No host corpus downloader, networked container, broker
+or Docker socket architecture is needed. No corpus download occurs until the
+separate acquisition step is claimed.
+
+Stop cache run01 as interrupted under materially changed execution inputs and
+preserve its exact staged helpers and validation. Run02 reuses verified bridge
+source and admitted graph. Propose one named acquisition target in the existing
+Dockerfile based on the already-ready local image, not another Dockerfile or
+repeat dependency provisioning. Root reviews the concrete target before edits.
+
+### 2026-10-06 — Maintained cache boundary and reusable recovery
+
+Complete only the N0 cache boundary, using the existing course-owned Chapter41
+manifest/policy/inventory/publication APIs through a dedicated machinery CLI.
+No Chapter41 teaching/demo/library bytes change. Source transfer is a separate
+acquisition image build, with every container invocation offline. The same
+Dockerfile's independent source target is approved for the next step; its placement
+must preserve the default final deployment target and avoid implicit corpus pulls.
+
+Runtime resolves the one public workspace tag and freezes its actual image ID
+per tool build after required Rust/Node checks. Do not pin students permanently
+to an old development image ID or require private ledger edits. Exact current
+source-tree, lock and binary identities prevent stale tool reuse. Source replay
+uses immutable accepted acquisition producer bindings rather than unrelated later
+Dockerfile/global-registry changes. A current verifier rebuild never changes
+the verified source artifact's provenance or licenses.
+
+The existing historical image lacks newly admitted rustix in its embedded Cargo
+cache. Preserve the failed clean-cache recovery log; do not claim that image
+contained the complete graph or rebuild the environment speculatively. Present
+execution reuses the previously checksum-verified63-package cache. Fresh student
+recovery explicitly uses the current existing Dockerfile workspace build and
+its cargo fetch --locked, then maintained offline tool compilation. That fresh
+image-build scenario was documented, not executed by this N0 step.
+
+Six focused Rust CLI tests,24 actual pinned Node22 cases and actual offline
+synthetic verify/publication/read-only replay/generated-fixture handoff passed.
+The consumer write failed EROFS; unsafe path/mode/UID, unapproved endpoint and
+production-to-fixture downgrade tests refuse. Earlier wrapper-mode/stdin and
+temporary-fixture storage diagnostics are preserved, not labeled passes.
+The final receipt proves synthetic boundary mechanics only, not acquired corpus,
+filtering, device execution, legal suitability or language-review judgments.
+Future filtered/model validators remain unavailable until their owners register
+exact validators; they cannot be admitted by the raw-pair validator.
+
+Root explicitly reconciles the cache step's live audit-host selector to scoped
+owned-output/inventory/no-new-host-cache evidence. Actual audit-host still fails
+for the pre-existing target directory; preserve that cache and original failure.
+No cache deletion, repeated IDE-blob audit or claim that audit-host passed is made.
+Repairs and Russian41+ remain held; Chapter42 remains unclaimed until acquisition.
+
+Operational storage accounting before completion observes776981230bytes in the
+preserved interrupted attempt and1771603551bytes in the successor, totaling
+2548584781bytes. The original2GB development-staging estimate was exceeded by
+immutable duplicated incremental targets, not source downloads or runtime payloads.
+Record this actual variance; do not report the historical peak below2GB or erase
+failed evidence. Development diagnostic storage is tracked separately from all
+unchanged course workload/acquisition/profile caps. Agent-owned accounting may
+retain these useful diagnostics under a3GB development-only allowance; no corpus
+or future product budget is enlarged by this operational decision.

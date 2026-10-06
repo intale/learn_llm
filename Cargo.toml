@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["rust/crates/*", "rust/demos/*"]
+members = ["rust/crates/*", "rust/demos/*", "rust/tools/functional-artifact-cache"]
 
 [workspace.package]
 edition = "2024"

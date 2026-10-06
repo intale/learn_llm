@@ -13,7 +13,7 @@ image=$3
 [[ $4 == -- && $5 == cargo ]] || fail 'only a Cargo argv vector is accepted'
 shift 4
 case $2 in
-  check|clippy|test|run|tree) [[ " $* " == *' --locked '* ]] || fail 'locked Cargo inputs required' ;;
+  build|check|clippy|test|run|tree) [[ " $* " == *' --locked '* ]] || fail 'locked Cargo inputs required' ;;
   fmt) ;;
   *) fail 'unsupported Cargo subcommand; provisioning and arbitrary executables are excluded' ;;
 esac

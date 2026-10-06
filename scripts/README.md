@@ -349,3 +349,71 @@ must be byte-identical, not rewritten semantic records. The original relative
 candidate paths remain available under the durable owned audit root; actual
 verifier `--root` can be the publication repository after staging cleanup.
 Chapter40 and Chapter42+ conventions remain unchanged.
+
+### Maintained artifact-cache boundary
+
+`scripts/run-functional-artifact-cache.sh` owns closed Docker mount/target
+orchestration. Its dedicated Rust plumbing package,
+`rust/tools/functional-artifact-cache`, calls the existing Chapter41 manifest,
+source-policy, inventory, atomic-publication and replay APIs. It implements no
+new course algorithm. Production records cannot select synthetic fixture policy;
+external target/metadata/producer hashes bind provenance before Rust admission.
+Replay uses the accepted immutable acquisition `production-binding.json`, not
+current unrelated Dockerfile or global-registry hashes. A new acquisition binds
+its actual producer bytes; changing a verifier does not silently change source
+provenance or require downloading an unchanged valid artifact again.
+Future filtered/model validators are unavailable until their owning chapter
+registers them. A raw-pair validator never admits a filtered bundle.
+
+All container invocations are offline. Source transfer belongs to an explicitly
+selected network-enabled Docker image build; publication, verification and
+consumption then run with `--network none`. The cache is ignored, local and
+content-addressed under `.build/artifact-cache/functional-v1/sha256/<digest>`.
+Consumers receive only that selected digest directory read-only. No generic
+URL, policy, image, arbitrary executable or broad cache-mount override is offered.
+
+From the repository root, with Docker available, the tiny synthetic fixture can
+be reproduced independently of the 2GB corpus:
+
+```sh
+docker build --target workspace -t learn-llm-workspace:local .
+mkdir -p .build/runs/20261006T000000Z-cache-example-01
+chmod 700 .build/runs/20261006T000000Z-cache-example-01
+bash scripts/run-functional-artifact-cache.sh build-tools --run-id 20261006T000000Z-cache-example-01
+bash scripts/run-functional-artifact-cache.sh self-test --run-id 20261006T000000Z-cache-example-01 --step establish-functional-artifact-cache-execution-boundary --target artifact-cache-v1
+node scripts/check-functional-artifact-cache-receipt.mjs --step establish-functional-artifact-cache-execution-boundary --receipt .build/runs/20261006T000000Z-cache-example-01/artifact-cache-receipt.json
+```
+
+After image cleanup, rebuild the same existing Dockerfile workspace target using
+the command above. The runner resolves the one fixed public workspace tag,
+checks Rust1.93.1/Node22.12.0, and freezes the actual resulting image ID in the
+tool-build receipt. Subsequent operations refuse a changed tag/receipt binding;
+no private registry edit or permanent old image ID is required. `build-tools`
+seeds the private run cache from that image's Cargo registry, then compiles the
+maintained package offline with the tracked lockfile. No hidden old-run binary,
+archive or source adapter is required. Reuse an existing verified tool receipt
+when inputs match; otherwise use a fresh private run ID rather than repeating the
+literal example ID. Operation evidence is
+write-once and a failed fixture directory is not overwritten.
+
+Expected fixture result: one 46-byte synthetic four-file bundle is verified,
+atomically published, replayed from an exact read-only digest mount and handed
+through a generated-fixture producer receipt. An attempted consumer write fails
+with EROFS. Symlink, unsafe-mode, wrong-UID and unapproved-endpoint cases refuse.
+This evidence proves boundary mechanics, not acquired corpus, filtering, model
+quality or language-review correctness. The checker validates structure and
+declared checks only; Rust and actual container receipts supply execution evidence.
+
+Full-data setup is owned by `acquire-functional-tinystories-raw-pair`, using the
+same Dockerfile's explicitly selected `functional-tinystories-corpus` target.
+Its two fixed source identities, raw checksums, complete license text and credits
+must survive offline verification before production cache publication. It does
+not run or claim Chapter41's online resumable protocol. Never push that local
+image or commit raw payloads. Deleting `.build` requires rebuilding maintained
+tools and reacquiring the exact source pair, not recovering old opaque adapters.
+
+Focused development checks:
+
+```sh
+node --test scripts/tests/run-functional-artifact-cache.test.mjs scripts/tests/check-functional-artifact-cache-receipt.test.mjs scripts/tests/run-functional-rust-overlay.test.mjs
+```

@@ -456,6 +456,13 @@ alone; the repository state is authoritative.
 
 ## Orchestration principles
 
+Every Docker container invocation must disable networking with `--network none`.
+Docker image construction may use network-enabled official provisioning. The
+approved checksum-bound corpus is acquired during its explicitly selected image
+build target, not during ordinary container execution. Keep the default site and
+fixture targets independent of corpus acquisition; no local corpus image is
+pushed or redistributed. Preserve historical network evidence as history.
+
 Agent development has no elapsed-time limit or automatic time-budget stop. The
 user will interrupt when needed. Record elapsed time as evidence, not a reason
 to abandon or block otherwise authorized work. This does not remove time limits
