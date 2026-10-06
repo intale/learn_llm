@@ -63,14 +63,23 @@ describe('Chapter41 exact content-only corpus evidence', () => {
   it('matches current English contract/catalog and preserves deferred Russian', () => {
     const catalog = JSON.parse(read(`site/src/i18n/functional-catalogs/en/${id}.json`));
     for (const key of ['title', 'description', 'objective']) expect(catalog[key]).toBe(parsed.data[key]);
-    expect(catalog.contentRevision).toBe(4);
-    expect(parsed.data.content_revision).toBe(4);
-    expect(contract.content_revision).toBe(4);
+    expect(catalog.contentRevision).toBe(5);
+    expect(parsed.data.content_revision).toBe(5);
+    expect(contract.content_revision).toBe(5);
     for (const key of ['objective', 'worked_inputs', 'decoder_connection']) expect(parsed.data[key]).toBe(contract[key].en);
     expect(parsed.data.formula.latex).toBe(contract.formula.latex);
     expect(parsed.data.formula.symbols).toEqual(contract.formula.symbols.map((s: { symbol: string; en: string }) => ({ symbol: s.symbol, meaning: s.en })));
     expect(existsSync(resolve(process.cwd(), `src/content/chapters/ru/${id}.mdx`))).toBe(false);
     expect(existsSync(resolve(process.cwd(), `src/content/cheat-sheets/ru/${id}.json`))).toBe(false);
+  });
+  it('renders the four existing history commitments in visible lesson prose', () => {
+    const history = parsed.data.history.llm_evolution;
+    const visibleBody = parsed.body.replace(/\s+/g, ' ').trim();
+    for (const statement of [
+      history.later_advance,
+      history.modern_llm_role,
+      ...history.sources.map((source: { claim: string }) => source.claim),
+    ]) expect(visibleBody).toContain(statement.replace(/\s+/g, ' ').trim());
   });
   it('binds six actual Rust regions in five implementation files', () => {
     expect(parsed.data.rust_sources).toHaveLength(6);

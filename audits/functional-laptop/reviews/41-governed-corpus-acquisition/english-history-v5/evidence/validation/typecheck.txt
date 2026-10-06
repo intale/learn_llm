@@ -1,0 +1,16 @@
+
+> learn-llm-site@0.1.0 check
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro check
+
+16:01:37 [vite] Re-optimizing dependencies because vite config has changed
+16:01:38 [content] Syncing content
+16:01:38 [content] Content config changed
+16:01:38 [content] Clearing content store
+16:01:38 [content] Synced content
+16:01:38 [types] Generated 569ms
+16:01:38 [check] Getting diagnostics for Astro files in /work/site...
+Result (235 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+

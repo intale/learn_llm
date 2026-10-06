@@ -1,0 +1,60 @@
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 20 tests
+test empty_content_is_distinct_from_missing_content ... ok
+test excess_byte_is_observed_but_not_written ... ok
+test duplicate_unknown_and_unsorted_fields_are_refused ... ok
+test inconsistent_metadata_and_checked_total_overflow_refuse ... ok
+test canonical_manifest_has_exact_bytes_and_no_legacy_decoder ... ok
+test reader_and_flush_errors_are_not_successful_eof ... ok
+test size_digest_truncation_and_overrun_are_separate_failures ... ok
+test standard_read_supports_small_chunks_interruptions_and_trait_objects ... ok
+test missing_extra_duplicate_inventory_refuses_before_open_or_stage ... ok
+test unrepresentable_eof_probe_is_refused_before_read ... ok
+test opaque_content_ids_are_not_paths_and_are_case_sensitive ... ok
+test replay_refuses_wrong_identity_and_noncanonical_record_before_payloads ... ok
+test manifest_and_selection_inputs_are_bounded ... ok
+test provenance_changes_identity_without_changing_raw_digests ... ok
+test selected_policy_is_independent_of_candidate_metadata ... ok
+test source_and_payload_counts_are_selected_not_hardcoded ... ok
+test in_memory_destination_publishes_once_and_replay_checks_current_bytes ... ok
+test fixture_verifies_complete_content_not_real_corpus_approval ... ok
+test failure_preserves_prior_bundle_without_publishing_partial_candidate ... ok
+test caller_constructed_manifest_serialization_is_bounded_too ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+
+running 3 tests
+test filesystem::tests::layout_alias_traversal_case_collision_and_metadata_collision_refuse ... ok
+test filesystem::tests::undeclared_or_linked_physical_files_refuse_and_failed_stage_is_not_published ... ok
+test filesystem::tests::opaque_ids_and_custom_metadata_map_to_independent_physical_paths ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+
+running 2 tests
+test tests::closed_operation_shapes_refuse_before_io ... ok
+test tests::unknown_transport_and_policy_override_fields_refuse ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

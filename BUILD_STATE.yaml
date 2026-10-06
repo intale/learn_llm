@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-06T12:00:33Z"
+updated_at: "2026-10-06T16:44:41Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47556,11 +47556,102 @@ builds:
               - "Full scoped YAML/JSON/inventory/stagebyte/onlysixpaths/holds/append-onlydecisions validation0; git diff --check0. No claimed measurement of unavailable BuildKit/host/diskpeaks or wire/redirectbody counts."
             notes: "Completed05offline continuation, no rebuild/redownload/compile/registrycopy/repeatedgates. 845.826sspentsourcebuild remainscharged; actualsourceimage57/cacheartifact7bc3b051. Sampled allocated .05storage3921911808 and .04storage35426304bytes, sourceimage logicaldelta1950819871 versuspreexistingbase; not physical lifetimepeak proof. Canonicalcache allocated1943773184bytes; rawbytes ignored and no imagepush/redistribution approval. All old runs/sourcebuildartifacts/heldrepairs/Russian41+/Chapter42 unchanged. Dedicatedsixpathcommit required before furtherclaim."
 
+      - id: repair-ch41-visible-history-parity
+        objective: "Render Chapter41's four existing history commitments locally and refresh only its current English publication chain; preserve topic, formula, Rust and corpus scope."
+        depends_on: ["refactor-ch41-content-only-boundary", "acquire-functional-tinystories-raw-pair"]
+        status: completed
+        inputs:
+          - "User approved only Chapter41's four visible history-parity corrections; repairs6/8-10 stay held and Russian41+ stays deferred."
+          - "Root-read approved12930Bpreflight97ee0f1e; HEAD11545a9; current canonical revision4 contract/MDX/catalog/sheet and actual current artifact sources, unchanged six demo/fixture/test/golden inputs."
+          - "Accepted two-source bounded author-observation history record; actual current artifact-validation receipt/provenance, not obsolete v4c Rust source copies."
+          - "Current English authoring skill/protocol, exact canonical prompts/four-artifact judgment boundary and actual inherited current user-selected model/effort observations."
+          - "Existing immutable590b0c2f cached network-none private-review runtime; maintained v4c-style export/Firefox and exact current generic publication verification, no new dependencies or corpus acquisition."
+        outputs:
+          - "curriculum/chapters/41-governed-corpus-acquisition.md"
+          - "site/src/content/chapters/en/41-governed-corpus-acquisition.mdx"
+          - "site/src/i18n/functional-catalogs/en/41-governed-corpus-acquisition.json"
+          - "site/tests/41-governed-corpus-acquisition.test.ts"
+          - "scripts/check-functional-step-receipt.mjs"
+          - "scripts/tests/check-functional-step-receipt.test.mjs"
+          - "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-history-v5/"
+          - "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/history-repair-v5/"
+          - "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/history-source-evidence-receipt.json"
+          - "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/publication-receipt.json"
+          - "artifacts/functional-laptop/step-output-inventories/repair-ch41-visible-history-parity.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Exactly four existing history commitments become locally visible; revision4-to5 metadata parity and narrow prose diff preserve topic/formula/Rust/fixture/output/commands/glossary/locales and all non-history prose."
+          - "Only Chapter41's maintained archive selector changes to new immutable english-history-v5 with existing nested routes and focused tests; old archives/stale Englishspec/Chapter40/later routing stay unchanged."
+          - "Fresh source/HTML/evidence/neutral requirements and actual author-context binding pass two fresh English reviews and two fresh same-role adjudications under exact canonical prompts and untouched raw-response receipts."
+          - "Owned contract/content/static/type/Vitest/link and affected sole-Firefox gates pass; no routine images, repeated unchanged Rust algorithm suite, network/source/image acquisition or Russian authoring."
+          - "Current publication bytes/inventory/YAML/held-step checks pass, coherent publication checkpoint and dedicated repair commit precede Chapter42 continuation; run01 remains interrupted and staged."
+        validate:
+          - "Pinned network-none node --test scripts/tests/check-functional-step-receipt.test.mjs"
+          - "Pinned network-none node scripts/check-functional-chapter-contract.mjs curriculum/chapters/41-governed-corpus-acquisition.md"
+          - "Pinned network-none node scripts/check-site-content.mjs chapter --locale en --chapter 41-governed-corpus-acquisition"
+          - "Pinned network-none node scripts/check-site-content.mjs parity --chapter 41-governed-corpus-acquisition"
+          - "Pinned network-none node scripts/check-functional-rust-ownership.mjs --all"
+          - "Pinned network-none npm --prefix site run test -- --run tests/41-governed-corpus-acquisition.test.ts; npm --prefix site run check; npm --prefix site run build; npm --prefix site run test:links"
+          - "Pinned network-none cd site && ./node_modules/.bin/playwright test tests/e2e/ch41-governed-corpus-acquisition.spec.ts --project=firefox --workers=1"
+          - "Pinned network-none node scripts/check-functional-step-receipt.mjs 41-governed-corpus-acquisition only after fresh four-chain/receipt exist"
+          - "git diff --check for authoredsources/ledger; wholecachedrawcheck recordedfailure onlyexacthash-bound generatedHTML/rawstdout/unchangedsheetcopy warnings, command-local exactimmutablefile exclusions mustpass without Gitconfig/attrs/bytechanges; exact13owned outputs/YAML/JSON/hash/holds and verified dedicatedcommit"
+        cost:
+          class: medium
+          notes: "Content-only narrow repair; cached C2/G0/N0 machinery and four fresh independent English judgment contexts; no paid service/new dependency/corpus acquisition/training/routine images; no agent elapsed-time stop."
+        runs:
+          - run_id: "20261006T154430Z-repair-ch41-visible-history-parity-01"
+            started_at: "2026-10-06T15:53:04Z"
+            finished_at: "2026-10-06T16:44:41Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "11545a9d9cc8fa3b8bcac7d2b99dc91aef458c5d"
+              material_record: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/input-fingerprint.json"
+              material_record_sha256: "b7ed8db50ebb78ce046fd34343f9f4cb6eb8d74bb8a3120550dde049305af998"
+              runtime_image_id: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              routing: "Inherit current user-selected model/effort, no overrides; actual fresh model/settings observations belong to frozen author/review evidence."
+            staging_dir: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/"
+            commands:
+              - "Read-only recovery confirms raw cache paths/types/sizes and accepted metadata/input hashes without a2GBscan/download/imagebuild. Root approves exact13outputs/preflight97ee0f1e."
+              - "Run-coupled fingerprint/stage adapter captures30material files and copies only six unchanged owned files into private publish; initial missing reference filename refuses before writes, corrected exact review-protocol path succeeds."
+              - "node .build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/run-selector-tests.mjs: actual immutable590network-noneNode22,4selected/4pass, no image/dependency build. Initial sandbox imageinspect refuses before execution; approved escalation succeeds with unchanged controls."
+              - "Packaging site-validation02 actualcontract/content/parity/ownership0; Vitest8selected7pass1fail on source-linebreak comparison. Preserve failure; worker changes onlynewtest whitespace comparison, stagedtestSHAe9a637d0; packaging owns affected retry/remaininggates."
+              - "Packaging site-validation03 actualVitest8/8, type235files0diagnostics, productionbuild/links and soleFirefox41workers1=7/7pass. Exactcurrent4core/sixdemoinputs reuse verified; no Rustsuite repeated."
+              - "Maintained english-review prepare/routing/seal-reviews/prepare-adjudication/routing/seal-adjudications/verify: fourfreshcontexts root.judge_6a2c9_t/i and root.judge_b8174_t/i, allpass with actual inheritedgpt-6.1-sol/xhigh observations; exactrawbytes untouched, isolatedadvisory preservedandsupported."
+              - "Run-owned finalreceipt/inventory preparation: initialimportpath/EACCESrefusals beforewrites preserved; exactstageddirectories ownershipfixed,103productfiles/13outputs, refreshedhistorybinding and closed9inputpublicationreceipt."
+              - "bash .build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/run-final-publication-verification.sh prepublication: immutable590network-none exactbyte/currentfourchain/durability/YAML0,1.461s; no source/test/build/Firefoxrerun."
+              - "node .build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/publish-final.mjs:13changedfiles/90alreadyexactarchivefiles, recoverableoldbytes, per-fileatomicrename and publicationreceiptlast; no42product."
+              - "bash .build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/run-final-publication-verification.sh postpublication: exactcanonical103files/currentpublicationfourchain/durability/YAML0,1.453s; finaldiffcheck0."
+              - "node .build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/audit-final-git-scope.mjs: rawcachedcheck2 preserved; exact10immutablefiles100warnings hash/provenancechecked; strictauthoredsource/ledger0 and narrowlyexcludedcachedcheck0,105exactownedstagedpaths. No frozenbyte normalization or Gitconfig/attrschange."
+            artifacts:
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/preflight.md", bytes: 12930, sha256: "97ee0f1e878d728712f5e067b93572affa46dc383a01979acc1df7d3a70f561a", purpose: "Root-read approved exact narrow41 scope, outputs/acceptance/gates/cost and archive preservation."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/input-fingerprint.json", bytes: 6531, sha256: "b7ed8db50ebb78ce046fd34343f9f4cb6eb8d74bb8a3120550dde049305af998", purpose: "Actual preclaim30file fingerprints/current artifact sources and unchanged demo inputs; no self-reference placeholders."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/validation/receipt-selector-tests-01/operation.json", bytes: 832, sha256: "a88e07167f2bf63f60fef2f5ac2a448abfbab946bc9198d47af9fbb92e2e2e0f", purpose: "Actual4selected/4pass strict selector/default/nested/closed-inventory/refusal checks with exact current input/output hashes and networknone."}
+              - {path: "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/artifact-core-validation-receipt.json", bytes: 4479, sha256: "c3192bd578ef5575d54ec8cc4ce5d71cc8e0607483324bc0543f22e58af7b6fd", purpose: "Accepted actual current4core-source hashes and core32/demo/adapter/clippy/golden evidence from dedicated783affcommit; not a new Rust suite."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/author-commitments-and-role-requirements.md", bytes: 17189, sha256: "f5cd934c170023d201a49703c1f61f0ecb65c80e6fadf223d27abb2e1b15bb66", purpose: "Root-authored current source/evidence commitments and neutral roles for new revision5; not stale semantic fields copied from earlier candidate."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/machinery-stage-checkpoint.md", bytes: 3475, sha256: "9116d653ad5cb4fa2d1613585d4ac90a901c84f7b09f2be9b56d60b8ad444acf", purpose: "Actual selector4passes, narrow stage diffs/current-core reuse binding and exact remaining serial owners; no site/review/publication claim."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/site-regression-correction-checkpoint.md", bytes: 1022, sha256: "b597ee95011499e2a65a016d546522fa2ef37754b279cb4c419a940a27f01b6e", purpose: "Preserved actual7/8Vitest failure and narrow test-only whitespace correction; affectedretry still owned by packaging, no changed teaching bytes."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/review-packaging/review-archive-ready.json", bytes: 14251, sha256: "775a00da4e8aea7b29740af1464fb358d15f986e150728e584d29411ee2bd063", purpose: "Closed90file canonical/staged immutablearchive equality and finalbinding; earlier preparation snapshots remain historical."}
+              - {path: "audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-history-v5/verification/report.json", sha256: "64622e3c5351e0c475224636a44ecba19dc9c8d6d0832e3886284f3c2f7b8e77", purpose: "Exactmaintained fourfreshrole chain passes; isolatedadvisory remains supported/advisory, not rewritten or downgraded."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/publication-plan-final.json", bytes: 54130, sha256: "db6fcd145233c19bb9f5912785a94177cdcc77cd33ce6ffbbe339f1d2e0f05f1", purpose: "Exact103productfile closure inside13declaredoutputs; ledgercontrols separate, no42product or oldarchivemutation."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/publication-promotion.json", bytes: 13479, sha256: "05f62e26562940f00905a4f4822a1002694bf6bf06491cc462b16af7b619280a", purpose: "13changedfiles/90preservedarchivefiles, actualreceipt-lastpromotion with recoverableoldbytes."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/validation/prepublication-final-01/publication-proof.json", bytes: 1175, sha256: "7dad6dc4686a4ae0f7b7e1dddb6b8f4e893eba3a95fb1387ab95af77d39d88fa", purpose: "Passingstrict intendedpublication103file/fourchain/durability evidence, no lesson/test/render regeneration."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/validation/postpublication-final-01/publication-proof.json", bytes: 1176, sha256: "a1797d0d618f32af3ed31cc7167eb239c8f3b13029be412d19ecccbd3f2835b3", purpose: "Passing actualcanonicalrevision5/103files/currentfourchain/48boundfiles+8publicationdocuments; no freshRust/site/browser claim."}
+              - {path: ".build/runs/20261006T154430Z-repair-ch41-visible-history-parity-01/staged-standard-diff-check.json", bytes: 42165, sha256: "1eccb90805e0f5d7d2b3b6d836b70d72e45e29b32ab36550cb006262184c0ccc", purpose: "Rawcachedcheck2/100warnings in10exactimmutablefiles, each frozen/raw provenancehash; strictauthored and boundedexclusion0, no semanticbyte or Gitconfig change."}
+            validation:
+              - "PASSactual4selectorNode tests and narrow helper2line diff; site3revision assertions/fourvisiblefield regression staged for packaging's focusedsite run, not yet called passing."
+              - "PASSfullYAML13outputs/onlyselectedclaim/diffcheck; Chapter42blocked/run01interrupted, canonical product and oldarchives untouched."
+              - "PARTIALpackaging02 contract/content/parity/ownership0, FAILVitestnewregression7/8passes; exactmultiline-source correction staged, not yet declared passing. No content drift or duplicate successfulgate rerun."
+              - "PASSfinal correctedsite03Vitest8/type235/build/links/soleFirefox7; currenttechnical111assessments/no findings andisolated90assessments/oneadvisory pass, bothfreshsame-roleadjudicationspassandsupportallassessments/findings. Nativeauthor/review/adjudicatorcontexts pairwisedistinct/currentconfigurednamesobserved, not permanentpins."
+              - "PASSpre/postpublication exact103productbytes/closed9receiptinputs/currentmaintainedEnglishchain/48boundfiles8publicationdocs/YAML/13outputs/holds/diffcheck; unchangedRust/sheet/sourceinputprovenancefits, no redundantgates or corpusrescan."
+              - "RAWcacheddiffcheck fails onlyretainedgenerated/rawevidence whitespace; exactwarningprovenance and hashes preserved underacceptedv4c handling. Strictauthoredsource/ledgerdiffcheck0 and command-local10exactimmutableexclusions0; no authoredfileexcluded."
+            notes: "Completed only narrow41visible-historyrepair, canonicalEnglishrevision5 and newimmutablev5archive; oldarchives retained. Existing byte-unit advisory remains nonblocking/supported. Fourclaims nowlocallyvisible, alltopic/formula/Rust/fixture/output/commands/sheet andnonhistoryprose unchanged; Russian41+/repairs6/8-10held. No sourceimage/dependencybuild/download/2GBscan/realfiltering/42product. Dedicatedrepaircommit required before new42run02preflight; prior42run01 staysinterrupted/blocked/staged."
+
       - id: implement-ch42-deterministic-corpus-filtering
         objective: "Apply deterministic quality, language, privacy and refusal filtering with exact reject reasons and preserved provenance."
         depends_on:
           - "acquire-functional-tinystories-raw-pair"
-        status: "pending"
+        status: "blocked"
         inputs:
           - "curriculum/functional-laptop-llm-extension-plan.md"
           - "audits/2026-08-10-functional-llm-capability/coverage.md"
@@ -47572,25 +47663,22 @@ builds:
           - "capabilities=CAP-DTH-DATA-02,CAP-DTH-DATA-03"
           - "exact predecessor checkpoint=acquire-functional-tinystories-raw-pair"
           - "exact TinyStories raw-pair cache receipt mounted read-only"
-          - "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
+          - "Exact SRC-DTH-DATA-02/SRC-DTH-DATA-06 official-page author observations with bibliographic/claim/limit locators under the accepted current Chapter41 method; absent historical extractor/toolchain runner is not a live prerequisite or an executed claim."
         outputs:
           - "curriculum/chapters/42-deterministic-corpus-filtering.md"
           - "rust/crates/llm-from-scratch/module-registry/functional-v1/ch42-deterministic-corpus-filtering.module"
-          - "rust/crates/llm-from-scratch/tests/ch42_deterministic_corpus_filtering.rs"
-          - "rust/crates/llm-from-scratch/examples/ch42_deterministic_corpus_filtering.rs"
-          - "rust/crates/llm-from-scratch/examples/expected/ch42_deterministic_corpus_filtering.txt"
           - "rust/crates/llm-from-scratch/src/data/stream.rs"
           - "rust/crates/llm-from-scratch/src/data/filter.rs"
           - "rust/crates/llm-from-scratch/src/data/privacy.rs"
           - "rust/crates/llm-from-scratch/src/data/deletion.rs"
           - "rust/crates/llm-from-scratch/src/data/governance.rs"
+          - "rust/demos/ch42-deterministic-corpus-filtering/"
+          - "Cargo.lock"
           - "site/src/content/chapters/en/42-deterministic-corpus-filtering.mdx"
-          - "site/src/content/chapters/ru/42-deterministic-corpus-filtering.mdx"
           - "site/src/i18n/functional-catalogs/en/42-deterministic-corpus-filtering.json"
-          - "site/src/i18n/functional-catalogs/ru/42-deterministic-corpus-filtering.json"
           - "site/src/content/cheat-sheets/en/42-deterministic-corpus-filtering.json"
-          - "site/src/content/cheat-sheets/ru/42-deterministic-corpus-filtering.json"
           - "site/src/components/chapters/DeterministicCorpusFilteringDiagram.astro"
+          - "site/src/lib/deterministic-corpus-filtering-diagram.ts"
           - "site/tests/42-deterministic-corpus-filtering-diagram.test.ts"
           - "site/tests/42-deterministic-corpus-filtering.test.ts"
           - "site/tests/e2e/ch42-deterministic-corpus-filtering.spec.ts"
@@ -47598,28 +47686,96 @@ builds:
           - "artifacts/functional-laptop/chapters/42-deterministic-corpus-filtering/"
           - "artifacts/functional-laptop/chapters/42-deterministic-corpus-filtering/history-source-evidence-receipt.json"
           - "artifacts/functional-laptop/step-output-inventories/implement-ch42-deterministic-corpus-filtering.json"
+          - "scripts/check-functional-rust-examples.mjs"
+          - "scripts/check-functional-chapter-contract.mjs"
+          - "scripts/tests/check-functional-rust-examples.test.mjs"
+          - "scripts/tests/check-functional-chapter-contract.test.mjs"
+          - "scripts/README.md"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
           - "Apply deterministic quality, language, privacy and refusal filtering with exact reject reasons and preserved provenance."
           - "The exact chapter boundary owns CAP-DTH-DATA-02, CAP-DTH-DATA-03 and proves its executable gates without transferring fixture, laptop, or production claims beyond measured evidence."
-          - "Course-owned cumulative Rust, historical contrast, notation-only formula, predict-first worked example and practice, misconception, integration evidence, and a useful shared-contract figure or reviewed concrete not-useful rationale agree."
+          - "Reusable algorithms remain course-owned functional::data modules with direct inline tests; chapter-only fixtures/report/tests belong to rust/demos/ch42-deterministic-corpus-filtering. Legacy reference Rust and exact ownedSources/registry grammar remain unchanged; no new supporting dependency or hardcoded source/retrieval/destination is introduced."
+          - "English teaches problem definition, solution/formulas, history, useful shared-contract diagram and optional runnable practice without an opening prediction. Actual bounded Rust stdout/trace, exact counts and stated privacy/deletion limits agree; no real corpus filtering or trained-model privacy probe is performed here."
+          - "Explicit end-of-input-delimited-v2 covers exact whole-line markers and nonempty EOF payload, no phantom terminal record, preserved empty frames and complete half-open spans. Complete reread count/SHA must match the independently selected nonforgeable source proof before any successful receipt/publication."
+          - "Seven unique ordered rules and separate fixture64/4/1 versus production65536/16/8 policies are frozen before outcomes. ASCII coverage counts Unicode scalar values excluding exactly ASCII space/HT/LF/VT/FF/CR; CRLF normalization trims edges only of space/HT/CR/LF, with named units/bounds."
+          - "Coarse eligibility is retained1 versus ineligible7=rejected6+manual1; the three terminal statuses sum8 and manual remains separate, never consumable or released through release-v1. Body-free first32 samples and shared findings/receipt budget strictly below100MiB preserve provenance without privacy or non-memorization certification."
+          - "All exact frozen Chapters40–85 use chapter-specific demos. Callers check exact plan/config membership before Rust-source access or Cargo; unknown slugs and cumulative-example fallback refuse. Known absent future demos are skipped only by --all; actual shared source registry ownership and legacy0–39 behavior stay strict."
           - "Canonical English evidence, commitment map, complete-document and reading-order inventory, isolated-role requirements, exact source and built bytes are frozen; one distinct author, two fresh role reviewers and two further fresh same-role adjudicators use five pairwise-distinct contexts using the user-selected model, canonical prompts, untouched raw responses and deterministic receipts; both reviews and both adjudications pass."
-          - "Russian is translated directly from that exact independently reviewed English revision and passes a fresh bilingual semantic/terminology/accessibility review plus a distinct source-blind Russian-only naturalness/anti-calque/accessibility review."
-          - "The staged EN/RU pair, contract, Rust evidence, static crawler HTML and sole Firefox project pass desktop, narrow, full-view when useful, forced-colors and applicable direction/containment gates before one atomic publication."
+          - "Russian41+ authoring/review/publication is deferred under the user override; no Russian stubs are created and absent deferred surfaces do not block coherent English delivery."
+          - "The staged English chapter, contract, actual Rust evidence, static crawler HTML and sole Firefox project pass desktop, narrow, full-view, forced-colors and applicable direction/containment assertions before coherent publication; no routine screenshot or image review is performed."
           - "No supporting dependency performs a taught operation; no out-of-scope model family, non-text prepared-input producer, second encoder/decoder, public modality abstraction, hard-coded scale ceiling, hidden backend fallback, fixture-only generalization claim, unbounded resource use, or mutable artifact identity is introduced."
-          - "Resolve exactly the chapter's frozen earlier/later accepted source IDs through the closed N1 evidence runner; bind revision/final URL/response and extraction hashes, claim locator and review receipts without search, crawl, third source or fallback citation."
-          - "The canonical history receipt embeds the complete bounded transport and extraction subrecord for each exact historical source, binds artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json, and remains auditable on a fresh clone without any .build cache body."
+          - "For exactly SRC-DTH-DATA-02/SRC-DTH-DATA-06, bind bounded author-recorded observations of the two frozen official publication pages, bibliographic identities, claim/limit locators and independent review commitments using the current accepted Chapter41 method. No raw HTTP response/download/extractor/toolchain receipt or absent historical runner execution is claimed; no third source or fallback."
+          - "The canonical history receipt binds the exact contract and durable bounded author observations by SHA256; immutable frozen plans preserve prior closed-runner requirements as history. Live wrapper/toolchain absence is reconciled explicitly, never fabricated or called executed."
         validate:
-          - "scripts/run-functional-history-source-evidence.sh --step implement-ch42-deterministic-corpus-filtering --chapter 42-deterministic-corpus-filtering --runtime-receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
-          - "scripts/run-functional-offline.sh --step implement-ch42-deterministic-corpus-filtering --target implement-ch42-deterministic-corpus-filtering-v1"
-          - "scripts/run-functional-firefox.sh test --step implement-ch42-deterministic-corpus-filtering --target chapter-42-deterministic-corpus-filtering-v1"
+          - "Pinned network-none Node22: node --test scripts/tests/check-functional-rust-examples.test.mjs scripts/tests/check-functional-chapter-contract.test.mjs; node scripts/check-functional-rust-examples.mjs --all"
+          - "scripts/run-functional-rust-overlay.sh 20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01 ch42-unit-data sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --offline --locked -p llm-from-scratch functional::data::"
+          - "scripts/run-functional-rust-overlay.sh 20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01 ch42-demo-tests sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --offline --locked -p ch42-deterministic-corpus-filtering"
+          - "scripts/run-functional-rust-overlay.sh 20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01 ch42-demo-stdout sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo run --offline --locked -p ch42-deterministic-corpus-filtering"
+          - "scripts/run-functional-rust-overlay.sh 20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01 ch42-clippy sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo clippy --offline --locked -p llm-from-scratch -p ch42-deterministic-corpus-filtering --all-targets -- -D warnings"
+          - "scripts/run-functional-rust-overlay.sh 20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01 ch42-format sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo fmt --all -- --check"
+          - "./course review 20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01 --check"
+          - "Pinned network-none node scripts/check-functional-step-receipt.mjs 42-deterministic-corpus-filtering after exact English four-chain receipts and publication inventory exist"
+          - "COURSE_CORPUS=false ./course run cargo run --offline --locked -p ch42-deterministic-corpus-filtering"
+          - "Verify exact SRC-DTH-DATA-02/SRC-DTH-DATA-06 author-observation receipt/contract/source-record hashes and locators; no transport capture or absent historical wrapper invocation"
           - "git diff --check"
-          - "./course audit-host"
+          - "Full YAML/owned-output/inventory and unchanged held-step checks; preserve known historical audit-host failures without claiming a fresh pass"
         cost:
           class: "large"
           notes: "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
-        runs: []
+        runs:
+          - run_id: "20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01"
+            started_at: "2026-10-06T13:48:59Z"
+            finished_at: "2026-10-06T14:59:02Z"
+            status: interrupted
+            input_fingerprint:
+              commit: "11545a9d9cc8fa3b8bcac7d2b99dc91aef458c5d"
+              material_record: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/input-fingerprint.json"
+              material_record_sha256: "1586f6906c32238cd14d6ab1426302f1602494cd17b78dff2db7cfaa46bd5466"
+              source_tree_sha256: "3b3379b6cfedcc71f2de8a38038a2fe830223258e23d2e16ff3ca466cdc32302"
+              runtime_image_id: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              routing: "Inherit current user-selected model/effort in separate machinery thread and fresh judgment contexts; no overrides; configured names are not exposed to orchestrator."
+            staging_dir: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/"
+            commands:
+              - "node .build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/run-dispatch-check.mjs tests node-dispatch-tests-02 (actual13tests pass; prior01 masked css-tree failure preserved)"
+              - "node .build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/run-dispatch-check.mjs old-contracts old-contract-integration-01; old-contract-baseline old-contract-baseline-01 (both fail with byte-identical unchanged Chapter41 parity messages; no repair)"
+              - "cp -a --reflink=auto verified120903run cargo-cache/rust-target into fresh42run; group access only fresh copied directories; no old evidence mutation/install"
+              - "node .build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/run-dispatch-check.mjs old-examples old-demo-stdout-03 (actual --all2 demos,10.952s, exact stdout; prior launch-only01/02 failures preserved)"
+              - "Full YAML/onlyselectedstep/materialhash/append-onlydecision checks; git diff --check"
+              - "Pinned network-none Rustfmt edition2024 on exactly8staged Rust files; full offline Cargo metadata resolution with accepted cache; TOML graph equality except one local42package; generated staged Cargo.lockSHA880f06e4"
+              - "scripts/run-functional-rust-overlay.sh 20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01 ch42-unit-data sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --offline --locked -p llm-from-scratch functional::data:: (compile101,0tests; root owns doc/include and SourceReport caller corrections)"
+              - "Maintained offline overlay fresh ch42-format-02 wholeworkspace fmt0 and ch42-unit-data-02 core33/33tests,6.13scompile; ch42-demo-tests compile101 before tests on serde_json json! expression at demo src/lib.rs114; root owns correction"
+              - "Maintained offline overlay ch42-demo-tests-02 after root json! syntax correction: compile1.06s;10integration tests selected,2pass/8SourceMismatchfail; no golden/clippy; root owns semantic cause"
+              - "After root source-artifact/provenance correction and added manual-proof test: fresh rustfmt/wholefmt03 pass, core03=33pass and demo03=11pass; clippy alltargets101 on test128 DoubleEndedIterator.last; no golden yet"
+              - "After root test-only next_back correction: maintained offline ch42-format-04 wholefmt0; ch42-clippy-02 alltargets warnings-denied0; ch42-demo-tests-04 actual11pass; ch42-demo-stdout actualexecution0; exact10044B stdout bound via apply_patch to staged expected.txt and only contract rust.expected_output"
+              - "After root strengthens exact raw-artifact/complete source-set joins: maintained offline fresh format05/core04actual33/demo05actual12/clippy03warnings-denied/stdout02 all0; actual10044B SHA879152d5 rebound to golden/only contract expected string; history receipt binds actual approved two-source author observations, no transport capture"
+            artifacts:
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/preflight.md", bytes: 16732, sha256: "649155b6c10df415ee536382a338776eef9a914942e106aa50ea997b9ce7d5ed", purpose: "Complete root-read approved scope and serial content/machinery ownership; exact28 live outputs."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/input-fingerprint.json", bytes: 12818, sha256: "1586f6906c32238cd14d6ab1426302f1602494cd17b78dff2db7cfaa46bd5466", purpose: "Material preclaim inputs, original live pending step, source-tree identity and actual inherited-routing/non-exposure facts; no prospective self-hash placeholders."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/dispatch-phase-evidence.md", bytes: 4828, sha256: "bf7bf3412c65589189c60f33f950e0ce26e42cab12a5d3bb9226b57550b58544", purpose: "Serial five-staged-file identities; actual13Node/2demo passes; identical preexisting Chapter41 failure comparison; failed harness/cache/resource provenance and content-phase handoff, not chapter completion."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/rust-first-compile-checkpoint.md", bytes: 1829, sha256: "9f464ee1b18c454b6b22490f4aa3ba340f6d5fc762a9883e57cc8cd2b25963ac", purpose: "Actual mechanical format/local-only lock proof and failed first compile with exact input/error hashes; no tests or golden falsely claimed; root owns semantic corrections."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/core-tests-checkpoint.md", bytes: 1017, sha256: "503853ee229bbeedb6d791e3dabc4c430f450b1ec65a13b96c880c2315b821e4", purpose: "Corrected wholeformat0 and33coretests pass with exact input/output hashes; subsequent demo compile failure remains failed/0tests; root semantic ownership and narrow proof reuse."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/validation/ch42-demo-tests-02/stdout.txt", sha256: "89a6a7a3748fadf9c90eeebbe9b30ac93934e1e6116a685e36f314b6aba9b751", purpose: "Untouched actual10-test run,2pass/8SourceMismatchfail; inputmanifestSHA0a8a285e and stderrSHA9d65a9e1; no test outcome rewritten as pass."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/validation/ch42-unit-data-03/stdout.txt", sha256: "cc0013949499f824fc87d4b4d9dbfa3f68b2835d1a0668833a32811713f45d39", purpose: "Actual33coretests pass after selected policy canonical-manifest proof correction, current input/argv retained by maintained overlay."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/validation/ch42-demo-tests-03/stdout.txt", sha256: "077143475760dae0ced739dd2edc2d03e4efab54add2409832fc5ddc3725b070", purpose: "Actual11demo tests pass, including proof cannot override manual-review eligibility; not privacy certification or chapter approval."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/validation/ch42-clippy/stderr.txt", sha256: "b08e2aeba7780b1d7af1bb8f33d690df35a84f0d8567ad58a1f0d4eade1f729c", purpose: "Failed alltargets warnings-as-errors on last() for double-ended test iterator; root owns correction; no semantic worker fix or golden."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/rust-golden-checkpoint.md", bytes: 2071, sha256: "ef712072007e229caaaa25cff3494500daf4f92f2839f0d2a4f967b0a64f59e2", purpose: "Actual fresh format/clippy/demo11/stdout passes, exact golden/contract string binding and unchanged other contract bytes; preserved prior failures, no publication approval."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/validation/ch42-demo-stdout/stdout.txt", bytes: 10044, sha256: "4cb0b42bda59aad546250b9866cd84b799d939df65e9bc9f905ec77891e50f0e", purpose: "Untouched actual synthetic demo JSON; byte-identical staged expected.txt and contract rust.expected_output; source/argv/image evidence retained by maintained overlay."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/rust-source-join-checkpoint.md", bytes: 1590, sha256: "8c401365ccac05fa631f4b858441ab9bc1cd4be9c540e543da5c02f9815c6887", purpose: "Fresh actual current source-join format/core33/demo12/clippy/stdout passes and new exact golden binding; earlier stdout remains historical."}
+              - {path: ".build/runs/20261006T133853Z-implement-ch42-deterministic-corpus-filtering-01/validation/ch42-demo-stdout-02/stdout.txt", bytes: 10044, sha256: "879152d5a26477be7b69a1f2c7b4f6bac753795043bff6ccc5bdaee532f64fda", purpose: "Current untouched synthetic report after stronger selected raw-artifact/source-ID set join; exact staged golden and contract string."}
+            validation:
+              - "PASS13actual pinnedNode dispatcher tests; actual offline --all executes2 existing demos with exact golden bytes/protected-source registry checks; only exact frozen IDs authorize execution."
+              - "OBSERVED unchanged canonical and staged contract checks fail identically on4Chapter41 history-prose parity fields; stderrSHA417308ec. No generic/global pass claimed, no Chapter41 change; new42 scoped gate remains strict."
+              - "PASSfullYAML/exact28outputs/onlyselectedstepchange/append-onlydecisions/materialhashes/noothercanonicaledits/diffcheck. Scripts remain staged until coherent full chapter publication."
+              - "PASSmechanical8fileformat/local42-onlylockgraph; FAILinitialactualcorecompile101,E0753/E0277/E0282,0tests. Preserved initial harness/no-lock-update evidence; no demo/clippy/golden yet."
+              - "PASScorrectedwholeformat and33actualcoretests; FAILdemo compilation101,json! expression syntax,0demo tests. No clippy/golden/content approval claimed; failed compile evidence preserved."
+              - "FAILnextdemo10integrationtests2pass/8SourceMismatch failures after actual compile1.06s. Root owns correction; no further clippy/stdout/golden or site/review work started."
+              - "PASSfreshwholefmt03/core33/demo11 after root canonical-manifest source-proof correction; FAILclippy101 test-only DoubleEndedIterator.last at test128. Previous failures preserved; root owns correction before actual golden generation."
+              - "PASSfreshwholefmt04/clippy02warnings-denied/demo04actual11/actualstdout10044B; exactstdout=golden=contractstringSHA4cb0b42b with only expected_output field changed. Core33 current proof retained; no real filtering/site/review/publication claim."
+              - "PASSfreshwholefmt05/core04actual33/demo05actual12/clippy03warnings-denied/currentactualstdout02SHA879152d5; exact golden/contract binding. Honest history receipt722B SHA3b409188 binds only author observations/contract and frozen DATA02/06; no absent toolchain/wrapper or rawresponse claim."
+              - "STOPbefore new static/type/Vitest/link/Firefox/image/review/literalwrapper operation. Four literal learnercommands never launched/selected0: normal Docker workspace globalcontentgate includes known unchanged41 history fields later_advance/modern_llm_role/sources[0].claim/sources[1].claim (canonicalbaseline stderrSHA417308ec); current41MDX=HEADSHA107e145e. No equivalentCargo result relabeled as wrapper execution."
+            notes: "Interrupted incomplete on root ask-and-stop instruction: explicit user direction needed for out-of-scope Chapter41 visible-history correction that blocks normal documented learner commands. Preserve full staged42/source33/demo12/fmt/clippy/stdout02/historyreceipt and every earlier proof/failure; STOP-HANDOFF.md records exact loci/gates. No canonical promotion or completed-step commit, no held6/8-10 repair/Russian41+/realfiltering/sourcefetch/imagebuild. Static/Firefox/Englishfourchain/literalcommands/publication remain pending."
 
       - id: execute-functional-corpus-filtering
         objective: "Execute the admitted full deterministic filtering and privacy transform and publish its immutable corpus bundle."

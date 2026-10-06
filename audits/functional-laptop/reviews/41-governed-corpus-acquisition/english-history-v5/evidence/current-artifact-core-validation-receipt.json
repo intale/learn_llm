@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "stepId": "test-artifact-core-and-name-validation-limits",
+  "runId": "20261006T111320Z-test-artifact-core-and-name-validation-limits-01",
+  "baselineCommit": "8a16c56f3770e4db4ea030f582e5d45dc4edeb61",
+  "runtimeImage": "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758",
+  "network": "none",
+  "scope": "Rust-only named-limit/private-phase refactor and inline unit tests; no learner-facing source or displayed excerpt changes.",
+  "apiChange": "Existing function, trait and type signatures preserved; new public named constants expose the existing schema, kind, digest width and metadata policy values.",
+  "coreSources": {
+    "rust/crates/llm-from-scratch/src/artifact/canonical_manifest.rs": {"sha256": "f077cc787dddc39fbf065b039d02d9c64e419747459dc2804bcbb1a9415e2318", "unitTests": 13, "testModuleLine": 512},
+    "rust/crates/llm-from-scratch/src/artifact/lineage.rs": {"sha256": "555031b074f338d93b005de1132c394873b4d54617cac6b5ba71077db09f52f3", "unitTests": 5, "testModuleLine": 118},
+    "rust/crates/llm-from-scratch/src/artifact/inventory.rs": {"sha256": "bd8147390947990aec04767c4ac42d1d81c7904f571cff7110f8642122eb13d3", "unitTests": 8, "testModuleLine": 203},
+    "rust/crates/llm-from-scratch/src/artifact/acquisition.rs": {"sha256": "4ae146a393e0043c8d1c4243239d7cac3efe495e6dbb163544ff8bf518a4c24d", "unitTests": 6, "testModuleLine": 84}
+  },
+  "checks": {
+    "ownedFormatting": {"status": "passed", "selection": "cargo fmt -p llm-from-scratch -- --check plus four explicit /work/rust/crates/llm-from-scratch/src/artifact/ paths", "operation": "artifact-format-check-03"},
+    "coreTests": {"status": "passed", "command": "cargo test --locked --offline -p llm-from-scratch functional::artifact::", "selected": 32, "passed": 32, "failed": 0, "operation": "core-tests-03", "stdoutSha256": "4ead3f6edb85c7ed04c71747f93030abdf1b8464652c961c279df2c26ee3b045"},
+    "demoAndAdapters": {"status": "passed", "command": "cargo test --locked --offline -p ch41-governed-corpus-acquisition -p functional-artifact-cache", "demoIntegrationPassed": 20, "filesystemPassed": 3, "cliPassed": 2, "operation": "demo-and-adapter-tests-01", "stdoutSha256": "a3c44bfcbf8780a6348944112d875178119ae35f84039cfd85b1d3fd06726151", "reuseProofSha256": "17c50c2c61add5e1bc21ce5d4908ef7c140f93c3bbf25f313f7da3b06830c509", "reuseScope": "Final amendment is in cfg(test) only; exact executed full-source hashes and unchanged production prefixes verified."},
+    "clippy": {"status": "passed", "command": "cargo clippy --locked --offline -p llm-from-scratch -p ch41-governed-corpus-acquisition -p functional-artifact-cache --all-targets -- -D warnings", "operation": "clippy-01"},
+    "golden": {"status": "passed", "command": "cargo run --quiet --locked --offline -p ch41-governed-corpus-acquisition", "comparison": "cmp stdout.txt rust/demos/ch41-governed-corpus-acquisition/expected.txt", "stdoutSha256": "d7146214e75234eb0fb555190201c445505f8467f480d56cef383311b00a5177", "operation": "golden-01"},
+    "unchangedSurfaces": {"status": "passed", "englishFiles": 4, "displayedRustRegions": 6, "proofSha256": "f7a14b53c37004951a4675b23d3426747f06a84a9c6d0686cb665e8723f65bc8"},
+    "existingPublication": {"status": "passed", "command": "node scripts/check-functional-step-receipt.mjs 41-governed-corpus-acquisition", "stdoutSha256": "8f54f2d3be8c4257e5163acb79875269421eadb447ad0723b550a57113d13a2e", "scope": "Unchanged English candidate and exact archived review chain only, not a new review of this implementation."}
+  },
+  "currentInputManifestSha256": "9dfb78611182a9d80d49b7224b113d5ea95dc8599d952e69e162fc4642ca804d",
+  "wholeWorkspaceFormatting": {"status": "failed-pre-existing-out-of-scope", "path": "rust/tools/functional-artifact-cache/src/filesystem.rs", "line": 447, "reason": "Existing extra blank line; left untouched. Cargo fmt does not discover generated artifact registry modules without explicit source paths. No broad formatting pass claimed."},
+  "evidenceStorage": "Verbose execution logs and failed harness attempts remain only in the named .build run. This concise receipt contains no source, HTML or log copies.",
+  "limitations": "Passing tests and byte checks are bounded executable evidence. The test-only memory store demonstrates transaction visibility, not filesystem crash durability. No corpus acquisition, dependency installation, image/site build, localization, repair or Chapter42 execution occurred."
+}

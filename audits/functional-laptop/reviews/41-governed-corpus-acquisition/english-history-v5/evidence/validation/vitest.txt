@@ -1,0 +1,14 @@
+
+> learn-llm-site@0.1.0 test
+> vitest --run tests/41-governed-corpus-acquisition.test.ts
+
+
+ RUN  v3.2.7 /work/site
+
+ ✓ tests/41-governed-corpus-acquisition.test.ts (8 tests) 5ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  16:01:36
+   Duration  363ms (transform 103ms, setup 0ms, collect 186ms, tests 5ms, environment 0ms, prepare 49ms)
+

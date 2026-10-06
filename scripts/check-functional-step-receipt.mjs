@@ -47,7 +47,7 @@ export function publicationInputPaths(chapterId, activeLocales) {
       JSON.stringify(activeLocales) !== JSON.stringify(chapterId.startsWith('40-') ? ['en','ru'] : ['en']))
     throw new Error('unknown chapter or inactive-locale inventory');
   const base = 'audits/functional-laptop/reviews/' + chapterId;
-  const english = base + (chapterId==='41-governed-corpus-acquisition'?'/english-canonical-v4c':'/english');
+  const english = base + (chapterId==='41-governed-corpus-acquisition'?'/english-history-v5':'/english');
   return [
     'curriculum/chapters/' + chapterId + '.md',
     ...activeLocales.flatMap(locale => [
@@ -74,7 +74,7 @@ export function languageVerifierInvocations(chapterId, activeLocales, root) {
   // not replacement routing identities. Other chapter conventions are intact.
   const isChapter40 = chapterId === '40-reference-core-handoff';
   const isChapter41 = chapterId === '41-governed-corpus-acquisition';
-  const english = base + (isChapter40 ? '/english-candidate-03' : isChapter41 ? '/english-canonical-v4c' : '/english');
+  const english = base + (isChapter40 ? '/english-candidate-03' : isChapter41 ? '/english-history-v5' : '/english');
   const reviewRouting = english + (isChapter40 || isChapter41 ? '/review-routing/review-routing.json' : '/review-routing.json');
   const adjudicationRouting = english + (isChapter40 || isChapter41 ? '/adjudication-routing/adjudication-routing.json' : '/adjudication-routing.json');
   const commands = [{executable: process.execPath, args: [

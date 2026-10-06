@@ -29732,3 +29732,204 @@ Only acquisition changes relative to the dedicated prerequisite commit; ledger
 syntax, inventory/bytes, stable inputs, canonical equality and diff checks pass.
 Held repairs, Russian41+ deferral and pending Chapter42 remain unchanged. Commit
 only the six declared paths before any further claim.
+
+### 2026-10-06 — Claim Chapter42 with explicit EOF and English-demo reconciliation
+
+Root read and approved the complete16732byte preflight649155b6 at baseline11545a9;
+claim only implement-ch42-deterministic-corpus-filtering after the dedicated raw
+acquisition commit. Reconcile its live28outputs with chapter-specific rust/demos
+ownership, English-only41+ policy and current maintained validation. Keep frozen
+plan/packet, old runs, legacy source, held repairs and the separate real filtering
+execution pending. The optional site parser may only validate Rust trace schema,
+units and conservation; it cannot implement filtering. No new dependencies.
+
+The completed packet explicitly requires a new versioned framing policy if
+actual-source observation disagrees with its proposed tail rule. Accepted raw
+sources have a nonempty nonseparator EOF payload. Select end-of-input-delimited-v2:
+an exact whole physical-line marker closes a frame with LF/CRLF or at EOF; EOF
+closes remaining nonempty payload; EOF just after a separator emits no phantom;
+empty frames between separators remain records; embedded markers remain text.
+Half-open payload/separator spans cover all bytes exactly once. This is explicit
+selected semantics, never runtime fallback or autodetection. Preserve old packet.
+
+SourceBinding joins independently selected DatasetPolicy and nonforgeable
+VerifiedBundle proof. The actual filtering reread must match its complete raw
+byte count and SHA at EOF. All output remains provisional until EOF proof and
+final accounting succeed; changed bytes or I/O failure cannot publish a receipt.
+Production65536byte/16scalar/ASCII8 and fixture64byte/4scalar/ASCII1 policies are
+separate and frozen before outcomes. ASCII-coverage denominator counts Unicode
+scalar values excluding exactly ASCII space, HT, LF, VT, FF and CR. Normalization
+replaces CRLF with LF then trims edge space, HT, CR and LF only. Scalars are not
+bytes or tokens; named limits state their units rather than anonymous numbers.
+
+CAP-DTH-DATA-03's coarse retained/rejected grouping remains transparent: fixture
+eligible=retained1, ineligible7=rejected6+manual1, three terminal statuses sum8.
+Manual remains separate, never consumable, tested-negative or released through
+release-v1. Body-free samples/explicit known-lineage descendants are bounded
+evidence, not trained-model memorization/privacy certification or physical erasure.
+Reusable five functional::data modules receive direct inline tests; demo-specific
+fixtures/report remain outside the shared library. Core IO is logical/source-
+destination agnostic and standard serde/sha2/IO plumbing is reused.
+
+Machinery first stages/tests five maintained dispatcher/test/doc files, then root
+authors taught Rust/English; later machinery executes and packages the frozen
+candidate. One bounded future-demo policy uses actual frozen40–85 IDs without a
+duplicated manual registry: each caller checks exact loaded plan/config membership
+before source access/Cargo, with no cumulative fallback. Actual shared module
+ownedSources/fragment validation remains strict and legacy0–39 unchanged. English
+opening is problem-first with no prediction; Russian held, no routine images.
+Fresh author/review/adjudication contexts inherit current user selection; names
+not exposed are recorded as unavailable, never guessed or permanently pinned.
+
+LargeC3/G0/N1/nopaid; no model/corpus acquisition, real filtering or image rebuild.
+Reuse exact unchanged prerequisite evidence/cache with provenance. Source capture
+is limited to the two frozen primary URLs and134217728bytes; declare exact current
+argv before execution, not absent historical wrappers. Full publication still
+requires actual Rust/static/sole-Firefox and independent English four-chain gates;
+partial shared integration is not a completed-step commit.
+
+### 2026-10-06 — Chapter42 dispatcher phase passes; unchanged Chapter41 parity stays visible
+
+Five maintained shared scripts/tests/docs are staged only. Actual offlineNode13
+tests cover the46exact planned IDs and refusal boundaries; actual --all executes
+the two existing40/41demos in10.952s with exact golden stdout and protected-source/
+registry checks. Fresh copied accepted cache/target avoids graph installation;
+Cargo invalidates changed paths normally. Initial mount/permission harness failures
+remain failed evidence, not acceptance. No container network/capability control
+is loosened, dependency installed or source image rebuilt.
+
+The focused current40/41contract integration exposes four existing41history-prose
+parity failures. A single unchanged canonical-script comparison reproduces the
+identical stderrSHA417308ec2ce0f27cd4ef631814e1072ec1f1dc3af9cc7dfcd573ef325462e837.
+Record them as an unchanged baseline finding; do not edit Chapter41 or claim a
+global pass. Root keeps Chapter42's locally visible required fields and scoped
+contract/static/language gates strict. This baseline is not reason to repeat
+unrelated suites or block disjoint42content authoring. Shared integration phase
+now hands off to root; full chapter is still running, unpublished and uncommitted.
+
+### 2026-10-06 — Chapter42 honest history and current-source validation selectors
+
+Read-only inspection confirms the current accepted Chapter41 history receipt
+binds bounded author-recorded official primary-source observations and explicitly
+claims no retained HTTP response, download receipt or historical runtime-wrapper
+execution. No maintained history capture/extractor runner exists; the historical
+offline-workspace extractor-toolchain receipt is absent. Preserve those frozen
+plan/packet requirements as history rather than fabricate execution or recreate
+purged infrastructure.
+
+The live Chapter42 boundary follows that accepted method for exactly
+SRC-DTH-DATA-02 and SRC-DTH-DATA-06. The content author reopened only the two
+frozen official publication pages, recorded their bibliographic identities,
+abstract locators, short excerpts, supported commitments and explicit limits in
+the staged author observations. A deterministic receipt binds that exact record
+and the chapter contract by SHA256. Hashes prove local byte identity, not live
+website snapshots or truth. Independent technical review still judges historical
+support. No third source, fallback, paper/corpus/model download or unexecuted
+transport/extractor assertion is introduced.
+
+The unchanged Chapter41 visible-history parity failure remains recorded, not
+repaired or called passing. Global CLI validation and the normal Docker workspace
+target include that failure; owned Chapter42 checks use maintained per-contract
+and per-document exports plus the accepted network-none private candidate overlay
+for static/type/Vitest/link and sole-Firefox assertions. No image interpretation
+or Russian41+ work is added. Literal learner wrapper commands require actual
+execution through `./course run`; equivalent Cargo overlay evidence alone does
+not validate that wrapper. Inspect normal build-cache fit and record an actual
+blocking baseline before claiming any literal learner-command result.
+
+The content owner additionally strengthened selected retained-source joins to
+the independently selected raw artifact and complete unique source-ID set, and
+added the twelfth demo regression. Fresh formatting, all33core tests, all12demo
+tests, warnings-denied clippy and actual stdout pass. Rebind only actual stdout
+to the staged golden and contract expected string; earlier golden/test checkpoints
+remain historical, not relabeled as evidence for changed sources. No real corpus
+filtering or partial canonical chapter promotion occurs.
+
+### 2026-10-06 — Stop incomplete Chapter42 at the documented-command boundary
+
+The normal `COURSE_CORPUS=false ./course run ...` path always builds the workspace
+target, whose global content gate includes the four unchanged Chapter41 visible-
+history parity failures already reproduced by one canonical-baseline comparison.
+The exact fields are later_advance, modern_llm_role and both source claims; their
+metadata is at English MDX lines33,34,41,48 and visible history starts at316.
+The Chapter41 file remains byte-identical to HEAD (SHA107e145e20030f8c0834a98660abd4d4728c47457df927e3f7aff2043f2dd1e1).
+Do not weaken global gates, disguise equivalent Cargo execution as literal wrapper
+validation or silently change Chapter41 prose outside this step's ownership.
+
+On the content owner's ask-and-stop instruction, Chapter42 is blocked pending
+explicit user direction for that distinct Chapter41 history correction. Its run
+is interrupted, not succeeded, and the complete candidate remains private/staged.
+Current33core/12demo/format/clippy and exact stdout879152d5 evidence is preserved;
+the fully written two-source observation receipt is locally verified only.
+No literal learner command was launched or selected a test; no new site/build/
+Firefox/review/publication operation or completed-step commit followed the stop.
+Held repairs6/8–10, Russian41+ and actual corpus filtering remain unchanged.
+
+### 2026-10-06 — Narrow Chapter41 visible-history correction precedes Chapter42
+
+The user explicitly approved only the four Chapter41 visible-history parity
+corrections that block the documented Docker workspace path. Claim the separate
+repair-ch41-visible-history-parity step with13declared outputs and root-read
+preflight97ee0f1e. The author renders the existing later_advance, modern_llm_role
+and two source claims locally; revision4 becomes5 without changing the topic,
+formula, Rust, fixtures, stdout, run commands, glossary or non-history prose.
+This meaning/presentation edit requires a fresh independent English two-review/
+two-adjudication chain. The command-only exception does not apply.
+
+Create the new immutable english-history-v5 archive and change only Chapter41's
+existing maintained archive selector and focused assertions. Keep its nested
+canonical routing manifests and preserve stale english/spec, canonical-v4c and
+all other historical archives unchanged. Bind the actual current shared artifact
+sources and accepted current validation evidence, not archived earlier sources.
+The six demo/fixture/test/golden inputs remain unchanged; no repeated whole-Rust
+pass is asserted. Reuse the cached network-none private-review runtime and
+bounded accepted export/sole-Firefox machinery; no routine images or new corpus
+acquisition are introduced.
+
+The accepted raw TinyStories pair remains ignored in its content-addressed
+.build/artifact-cache/functional-v2/sha256/7bc3b051... cache: train1924281556bytes
+and validation19447282bytes. Fresh path/type/size and metadata/input agreement
+are recovery evidence, not a fresh2GBhash scan. The eight-record Chapter42 fixture
+does not replace those files; actual full filtering remains separately pending.
+Complete and commit this repair before creating a new Chapter42 continuation.
+Its prior run01 stays interrupted and staged; repairs6/8–10 and Russian41+ stay
+held. The repair commit may preserve prior agent-owned interruption bookkeeping,
+but must not include or complete any Chapter42 product output.
+
+### 2026-10-06 — Publish independently reviewed Chapter41 history revision5
+
+The separate repair-ch41-visible-history-parity step completes only the four
+existing visible history commitments and revision4-to5 metadata. Its immutable
+english-history-v5 archive preserves complete current sources/HTML and the fresh
+technical and isolated reviews plus both same-role adjudications. All four
+verdicts pass. The isolated review's nonblocking byte-unit wording advisory is
+preserved and supported at its original severity, not edited into a pass.
+Actual pairwise-distinct contexts inherit the current user-selected model/effort;
+observed gpt-6.1-sol/xhigh values are evidence for this freeze, not repository pins.
+
+The existing local-source contract/content/parity/ownership gates pass; corrected
+site tests8/8, typecheck235files/zero diagnostics, static build/links and sole
+Firefox7/7 pass. Preserve the original7/8 source-linebreak test failure and change
+only its comparison whitespace handling. Current four artifact-core source hashes
+and six demo inputs fit accepted receiptc3192bd5/commit783aff; no repeated Rust
+algorithm suite or fresh whole-Rust claim was needed for this prose-only change.
+
+Strict cached network-none prepublication and canonical verification bind all103
+product files within13declared outputs, including90new immutable review files,
+the refreshed author-observation history receipt and closed9input revision5
+publication receipt. Promote changed files by rename with the receipt last and
+retain recoverable old bytes in the current run. All old archives remain unchanged.
+No raw HTTP/extractor proof, corpus acquisition/rescan, source-image rebuild,
+real filtering, Russian, held repairs6/8–10 or Chapter42 product was included.
+Persist this completed repair in its dedicated commit before a new Chapter42
+continuation preflight; its prior run01 remains interrupted and its staged
+Rust/lesson evidence is not relabeled or mutated.
+
+The whole staged Git whitespace check reports retained Astro HTML, untouched
+validation stdout and the byte-identical archived existing cheat sheet. Reuse
+the accepted v4c immutable-evidence handling: preserve the raw failing check and
+every warning's exact generated/raw source hash, require strict authored-source/
+ledger checking and a command-local check excluding only the ten identified
+immutable evidence files. Do not claim the whole raw check passed, normalize
+reviewed bytes, exclude authored files or modify Git configuration/attributes.
+This is live validation reconciliation, not an English or review-record edit.

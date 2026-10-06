@@ -23,9 +23,9 @@ test('Chapter40 routes actual maintained English and Russian verifiers',()=>{
   assert.ok(commands[1].args.includes('audits/functional-laptop/reviews/40-reference-core-handoff/ru/target-only.raw.json'));
   const future=languageVerifierInvocations('41-governed-corpus-acquisition',['en'],'/fixture');
   assert.equal(future.length,1);
-  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/spec.json'));
-  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/review-routing/review-routing.json'));
-  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-canonical-v4c/adjudication-routing/adjudication-routing.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-history-v5/spec.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-history-v5/review-routing/review-routing.json'));
+  assert.ok(future[0].args.includes('audits/functional-laptop/reviews/41-governed-corpus-acquisition/english-history-v5/adjudication-routing/adjudication-routing.json'));
   const later=languageVerifierInvocations('42-deterministic-corpus-filtering',['en'],'/fixture');
   assert.ok(later[0].args.includes('audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/spec.json'));
   assert.throws(()=>languageVerifierInvocations('41-governed-corpus-acquisition',['en','ru'],'/fixture'));
@@ -35,6 +35,11 @@ test('closed activation inventory contains exact real locale input paths',()=>{
   assert.ok(paths.includes('site/src/i18n/functional-catalogs/ru/40-reference-core-handoff.json'));
   assert.ok(paths.includes('audits/functional-laptop/reviews/40-reference-core-handoff/english/adjudication-seals/technical-pedagogical/receipt.json'));
   assert.ok(!publicationInputPaths('41-governed-corpus-acquisition',['en']).some(p=>p.includes('/ru/')));
+  const repaired=publicationInputPaths('41-governed-corpus-acquisition',['en']);
+  assert.equal(repaired.length,9);
+  assert.equal(repaired.filter(p=>p.includes('/english-history-v5/')).length,5);
+  assert.ok(!repaired.some(p=>p.includes('/english-canonical-v4c/')||p.includes('/english/spec.json')));
+  assert.ok(publicationInputPaths('42-deterministic-corpus-filtering',['en']).includes('audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/spec.json'));
 });
 test('missing receipt and unsafe paths refuse before any verifier',()=>{
   const root=mkdtempSync(join(tmpdir(),'functional-receipt-'));

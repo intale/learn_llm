@@ -1,0 +1,24 @@
+{
+  "evidence_kind": "synthetic-offline-fixture",
+  "manifest": {
+    "dataset_scope": {
+      "domain": "synthetic-policy-fixture",
+      "language": "fixture",
+      "selected_source": "course-authored-byte-fixture"
+    },
+    "kind": "dataset",
+    "payload": [
+      {"bytes": 24, "id": "attribution", "media_type": "text/plain", "role": "attribution", "sha256": "0d00779105653df98f180d5d8b910ea061782492fcb25e1d955e70453c3456f5"},
+      {"bytes": 13, "id": "license", "media_type": "text/plain", "role": "license", "sha256": "db64e55296d3cb3c38619dae7b7cce54bb74a83956423be38443258ebb0724da"},
+      {"bytes": 3, "id": "train", "media_type": "text/plain", "role": "raw-train", "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"},
+      {"bytes": 6, "id": "validation", "media_type": "text/plain", "role": "raw-validation", "sha256": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03"}
+    ],
+    "producer": {"config_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "script_sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    "redistribution": {"adapter": "not-approved", "derived_model": "not-approved", "raw_input": "not-approved"},
+    "schema_version": 2,
+    "sources": [
+      {"attribution": {"content_id": "attribution", "references": ["course-authored fixture; not a real-corpus rights declaration"]}, "content_id": "train", "license": {"content_id": "license", "identifier": "LicenseRef-Course-Test-Only"}, "reference": "course-authored train fixture", "source_id": "fixture-train", "upstream_revision": "fixture-revision-1"},
+      {"attribution": {"content_id": "attribution", "references": ["course-authored fixture; not a real-corpus rights declaration"]}, "content_id": "validation", "license": {"content_id": "license", "identifier": "LicenseRef-Course-Test-Only"}, "reference": "course-authored held-out fixture", "source_id": "fixture-validation", "upstream_revision": "fixture-revision-1"}
+    ]
+  }
+}

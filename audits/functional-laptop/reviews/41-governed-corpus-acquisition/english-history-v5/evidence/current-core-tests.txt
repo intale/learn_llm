@@ -1,0 +1,47 @@
+
+running 32 tests
+test functional::artifact::acquisition::tests::rejected_policy_or_inventory_has_no_payload_or_destination_effects ... ok
+test functional::artifact::canonical_manifest::tests::attribution_reference_count_is_nonempty_and_bounded_per_source ... ok
+test functional::artifact::canonical_manifest::tests::header_requires_the_named_schema_and_dataset_kind ... ok
+test functional::artifact::acquisition::tests::complete_verified_content_is_published_once_through_the_supplied_store ... ok
+test functional::artifact::canonical_manifest::tests::payload_total_accepts_u64_maximum_but_refuses_overflow ... ok
+test functional::artifact::canonical_manifest::tests::payload_and_source_ids_must_be_strictly_byte_ordered_and_unique ... ok
+test functional::artifact::acquisition::tests::replay_rejects_the_wrong_identity_or_noncanonical_manifest_before_opening_payloads ... ok
+test functional::artifact::acquisition::tests::late_source_failures_do_not_publish_the_verified_prefix ... ok
+test functional::artifact::canonical_manifest::tests::validation_phase_error_precedence_is_preserved ... ok
+test functional::artifact::canonical_manifest::tests::canonical_roundtrip_rejects_reformatting_and_preserves_input ... ok
+test functional::artifact::canonical_manifest::tests::every_source_content_reference_must_name_an_inventory_entry ... ok
+test functional::artifact::canonical_manifest::tests::payload_ids_use_the_same_byte_limit_without_becoming_paths ... ok
+test functional::artifact::inventory::tests::bundle_total_uses_checked_integer_arithmetic ... ok
+test functional::artifact::canonical_manifest::tests::every_digest_field_requires_full_lowercase_sha256_hex ... ok
+test functional::artifact::inventory::tests::reader_writer_and_flush_failures_remain_io_errors_and_never_return_a_proof ... ok
+test functional::artifact::acquisition::tests::replay_rechecks_all_current_payloads_without_republishing ... ok
+test functional::artifact::inventory::tests::short_oversize_and_same_length_corruption_have_distinct_failures ... ok
+test functional::artifact::inventory::tests::bundle_proof_covers_content_license_and_attribution_not_only_content ... ok
+test functional::artifact::inventory::tests::size_overflow_is_rejected_before_touching_either_io_endpoint ... ok
+test functional::artifact::inventory::tests::verified_payload_binds_exact_bytes_length_and_logical_id_including_empty_content ... ok
+test functional::artifact::inventory::tests::policy_and_exact_inventory_are_checked_before_any_payload_is_opened ... ok
+test functional::artifact::canonical_manifest::tests::both_reference_fields_enforce_the_named_utf8_byte_limit ... ok
+test functional::artifact::lineage::tests::malformed_unknown_and_duplicate_config_fields_are_rejected ... ok
+test functional::artifact::lineage::tests::config_size_and_selected_structure_are_checked_before_admission ... ok
+test functional::artifact::lineage::tests::selection_is_independent_and_provenance_changes_require_a_new_policy ... ok
+test functional::artifact::lineage::tests::evidence_kind_is_bounded_in_utf8_bytes_and_cannot_contain_controls ... ok
+test functional::artifact::lineage::tests::config_roundtrip_and_digest_bind_both_selection_and_evidence_kind ... ok
+test functional::artifact::inventory::tests::manifest_reader_accepts_standard_io_and_never_reads_beyond_its_bound ... ok
+test functional::artifact::acquisition::tests::every_store_failure_preserves_the_previously_published_bundle ... ok
+test functional::artifact::canonical_manifest::tests::every_short_metadata_field_enforces_utf8_byte_and_control_boundaries ... ok
+test functional::artifact::canonical_manifest::tests::each_inventory_array_has_its_own_nonempty_entry_ceiling ... ok
+test functional::artifact::canonical_manifest::tests::input_and_output_caps_include_the_final_newline ... ok
+
+test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 459 filtered out; finished in 0.07s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+

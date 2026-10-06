@@ -1,0 +1,42 @@
+{
+  "artifact_id": "c6a8351f4c3236687f7dbad72b333d01364416b2e0f8f74f88221cab4a6da2df",
+  "artifact_manifest_bytes": 1756,
+  "attribution_variant_artifact_id": "a11d314b5c084d51cf145a194963e73547fc82123a08a2f2422a28e1da5d30cb",
+  "checks": {
+    "attribution_change_changes_bundle_identity": true,
+    "attribution_change_preserves_raw_digests": true,
+    "complete_bundle_replay_identity": true,
+    "failure_preserves_prior_bundle": true,
+    "same_size_wrong_bytes_refusal": "Hash",
+    "size_only_contrast_accepts_abd": true
+  },
+  "inventoried_payloads": 4,
+  "logical_sources": 2,
+  "payloads": [
+    {
+      "bytes": 24,
+      "id": "attribution",
+      "sha256": "0d00779105653df98f180d5d8b910ea061782492fcb25e1d955e70453c3456f5"
+    },
+    {
+      "bytes": 13,
+      "id": "license",
+      "sha256": "db64e55296d3cb3c38619dae7b7cce54bb74a83956423be38443258ebb0724da"
+    },
+    {
+      "bytes": 3,
+      "id": "train",
+      "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    },
+    {
+      "bytes": 6,
+      "id": "validation",
+      "sha256": "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03"
+    }
+  ],
+  "privacy_quality_or_redistribution_approval": false,
+  "raw_bytes": 9,
+  "schema_version": 2,
+  "scope": "synthetic-offline-fixture",
+  "total_payload_bytes": 46
+}
