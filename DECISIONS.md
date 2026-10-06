@@ -28848,3 +28848,45 @@ receipt. All three exact tests, wrapper3, source6 and Firefox6 pass; no image
 interpretation, environment rebuild, full Rust replay, acquisition or repairs.
 
 **Affected step:** `correct-ch41-executable-practice-commands`.
+
+### 2026-10-06 — Bounded TinyStories source-metadata prerequisite
+
+The user approves retention of exactly the pinned TinyStories README at revision
+f54c09fd23315a6f9c86f9dc80f725de7d8f9c64 and the official CDLA-Sharing-1.0 page.
+Claim a separate source-evidence step before the pending cache boundary and raw
+pair acquisition. Bound each body to 1 MiB and retain observable response headers,
+status, requested/final URL, bytes and hashes. No corpus, weights, crawl, search,
+alternate metadata or dataset substitution is authorized by this step.
+
+Root assesses the source claims and authors attribution; machinery captures
+bytes and validates identity only. Do not infer permission, privacy, quality or
+derived-weight licensing from a successful fetch. Use the accepted existing
+Docker toolchain image, not invalidated historical offline-workspace selectors;
+no environment reconstruction or elapsed agent-development deadline is needed.
+Protocol request timeouts remain operational behavior, not development stops.
+
+**Affected steps:** `capture-functional-tinystories-source-metadata`,
+`establish-functional-artifact-cache-execution-boundary`,
+`acquire-functional-tinystories-raw-pair`, `implement-ch42-deterministic-corpus-filtering`.
+
+Root read both complete sources and accepted the exact namespace-attributed
+English synthetic-story source boundary. Preserve the full unchanged card and
+official license HTML, observable Fetch headers, each redirect body, and exact
+hashes. The license page's website footer is retained as website evidence, not
+a replacement dataset license. No author identity, privacy assurance, derived
+weight permission or unrestricted filtered-data license is inferred.
+
+For the later four-payload Chapter41 schema, root selects the existing complete
+page UTF-8 text extraction as the text/plain license payload. Its 12,273 bytes
+and SHA256 2e8dc5697c0ff6fb8a399f2fb781c058d40313adf4f3d7779a395ed6fb0c8360
+are distinct from the fetched HTML's 155,753 bytes and SHA256
+95a3d93bdfa19363f7bf4c67bf2159e296946896df2195e1090bebb0f7ba8192.
+No agreement section is edited. Raw HTML and extraction provenance remain
+durable; card evidence is separate from the bundle's four payload files.
+Internal attribution retains source credits, fixed pair identities and both
+license identities. Future publication of raw/modified data requires the same
+agreement and applicable change notices; no MIT/Apache relicense is approved.
+
+The metadata step publishes 14 verified files (189,663 bytes), inventory SHA256
+1e5c11b46760cd9066c4ab56f4cb04af13b36f8aae6dfc59bd230c4b98c84463.
+The pending cache boundary now explicitly depends on this completed evidence.

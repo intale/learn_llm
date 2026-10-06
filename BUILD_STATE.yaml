@@ -46660,10 +46660,64 @@ builds:
               - "Final regressions15/15 (eleven negative variants); skill quick_validate passed; entire private/production export byte-identical; canonical42chapter/83locale content,88HTML/3040links/88SEO+sitemap+analytics/172artifacts passed; diff-check passed."
             notes: "User explicitly waived fresh wording review for command-only insertion; reserved fresh contexts never activated and no records/charges claimed. Old candidate02 and original completed run stay immutable baseline evidence, not revision2 judgments. Cache copy omitted three unreadable generated incremental locks; fresh focused Cargo recompilation passed, so no complete-cache byte-identity claim. Initial private receipt mismatch, initial canonical legacy-dispatch failure and obsolete dispatcher-test assertion are retained with two superseded inventories; no failed attempt presented as passing. External generated498270065B hosttarget caused audit failure, then one recoverable move preceded root no-further-move instruction; no further cleanup/IDE changes and hostaudit not a correction gate. Root authors teaching/rule bytes; machinery validates exact amendment only."
 
+      - id: capture-functional-tinystories-source-metadata
+        objective: "Retain exact bounded official TinyStories card and CDLA-Sharing-1.0 source bytes before raw acquisition."
+        depends_on: ["correct-ch41-executable-practice-commands"]
+        status: completed
+        inputs:
+          - "User approval of exactly the pinned TinyStories README and official CDLA-Sharing-1.0 page."
+          - "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/f54c09fd23315a6f9c86f9dc80f725de7d8f9c64/README.md"
+          - "https://cdla.dev/sharing-1-0/"
+          - "Current accepted pinned Docker image sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5; no reprovisioning."
+        outputs:
+          - "artifacts/functional-laptop/acquisition/tinystories/source-metadata/"
+          - "artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Exact two endpoints only; retain body, headers, status, final URL, response sizes and hashes; no crawl, search, corpus or weights."
+          - "Root content owner assesses retained source claims and authors attribution; machinery makes no legal or course-content judgment."
+          - "Recorded operational evidence is byte-verifiable; no license hash or provenance claim is fabricated."
+        validate:
+          - "Recorded bounded metadata-fetch command in pinned Docker image; exact body/header receipt verification."
+          - "git diff --check"
+          - "Read-only complete YAML parse and source-output inventory validation."
+        cost:
+          class: small
+          notes: "network=N1; exact2officialpages; max1048576bytes/body; max2097152aggregatebody; host268435456; disk8388608; paid=none; no agent elapsed-time stop; request timeout60seconds is transport behavior."
+        runs:
+          - run_id: "20261006T055332Z-capture-functional-tinystories-source-metadata-01"
+            started_at: "2026-10-06T05:53:32Z"
+            finished_at: "2026-10-06T05:57:57Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "f2d02cb1fb4609ee460e2672a55cad5e6fff7713"
+              cached_image: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"
+            staging_dir: ".build/runs/20261006T055332Z-capture-functional-tinystories-source-metadata-01/"
+            commands:
+              - "docker run --rm --pull=never --network bridge --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --user 1000:1000 --mount type=bind,source=/home/int/rust/learn_llm,target=/repo,readonly --mount type=bind,source=/home/int/rust/learn_llm/.build/runs/20261006T055332Z-capture-functional-tinystories-source-metadata-01,target=/output --entrypoint node sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5 /output/capture-metadata-01.mjs"
+              - "Same cached image, network none, run-only output mount: node /output/extract-cdla-01.mjs using existing parse5."
+            artifacts:
+              - path: "artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json"
+                sha256: "1e5c11b46760cd9066c4ab56f4cb04af13b36f8aae6dfc59bd230c4b98c84463"
+              - path: ".build/runs/20261006T055332Z-capture-functional-tinystories-source-metadata-01/responses/tinystories-card-1.body"
+                bytes: 1061
+                sha256: "f67b71c3ffe761795b9428222444bfc1ec447d45cb13b00821b7e6c1ceecf7c5"
+              - path: ".build/runs/20261006T055332Z-capture-functional-tinystories-source-metadata-01/responses/cdla-sharing-1-0-0.body"
+                bytes: 155753
+                sha256: "95a3d93bdfa19363f7bf4c67bf2159e296946896df2195e1090bebb0f7ba8192"
+              - path: ".build/runs/20261006T055332Z-capture-functional-tinystories-source-metadata-01/cdla-page-text.txt"
+                bytes: 12273
+                sha256: "2e8dc5697c0ff6fb8a399f2fb781c058d40313adf4f3d7779a395ed6fb0c8360"
+            validation:
+              - "Both closed endpoints returned HTTP200; all observed response bodies below1MiB; one same-host pinned-card redirect recorded; no corpus request."
+              - "Complete YAML parse and git diff --check pass."
+            notes: "Root read complete card and license text and supplied internal attribution/permission commitments.14 declared metadata files189663B passed exact staging/canonical inventory verification; no corpus acquired. Full unchanged HTML/card/observable transport receipts retained; complete-page text extraction is ancillary, not fetched raw identity. Existing pinned image reused, no provision or wording review required for internal evidence."
       - id: establish-functional-artifact-cache-execution-boundary
         objective: "Establish one closed content-addressed acquisition, transform, publication and replay boundary for corpus, model and generated artifacts after the acquisition protocol is taught."
         depends_on:
           - "implement-ch41-governed-corpus-acquisition"
+          - "capture-functional-tinystories-source-metadata"
         status: "pending"
         inputs:
           - "implement-ch41-governed-corpus-acquisition protocol and manifest schema"
