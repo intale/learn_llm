@@ -65,3 +65,14 @@ test('./course run forwards the exact single-test Chapter41 Cargo argv after set
     assert.deepEqual(calls[1], ['run', '--rm', '--network', 'none', 'learn-llm-workspace:local', ...argv]);
   }
 });
+
+test('./course propagates default true or explicit fixture-only false before offline run',()=>{
+ for(const mode of [undefined,'false','true','FALSE']){
+  const temp=mkdtempSync(path.join(tmpdir(),'course-corpus-mode-')),environment=path.join(temp,'mock.sh'),trace=path.join(temp,'trace');
+  writeFileSync(environment,'docker() { printf \'%s\\n\' "$*" >> "$DOCKER_TRACE"; }\n');
+  const env={...process.env,BASH_ENV:environment,DOCKER_TRACE:trace};delete env.COURSE_CORPUS;if(mode!==undefined)env.COURSE_CORPUS=mode;
+  const result=spawnSync('bash',['course','run','printf','fixture'],{cwd:repositoryRoot,encoding:'utf8',env});
+  if(mode==='FALSE'){assert.equal(result.status,2);assert.match(result.stderr,/true or false/);continue;}
+  assert.equal(result.status,0,result.stderr);const calls=readFileSync(trace,'utf8').trim().split('\n');assert.ok(calls[0].includes('--build-arg COURSE_CORPUS='+(mode??'true')));assert.ok(calls[1].includes('--network none'));
+ }
+});

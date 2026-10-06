@@ -376,7 +376,7 @@ From the repository root, with Docker available, the tiny synthetic fixture can
 be reproduced independently of the 2GB corpus:
 
 ```sh
-docker build --target workspace -t learn-llm-workspace:local .
+docker build --build-arg COURSE_CORPUS=false --target workspace -t learn-llm-workspace:local .
 mkdir -p .build/runs/20261006T000000Z-cache-example-01
 chmod 700 .build/runs/20261006T000000Z-cache-example-01
 bash scripts/run-functional-artifact-cache.sh build-tools --run-id 20261006T000000Z-cache-example-01
@@ -405,7 +405,7 @@ quality or language-review correctness. The checker validates structure and
 declared checks only; Rust and actual container receipts supply execution evidence.
 
 Full-data setup is owned by `acquire-functional-tinystories-raw-pair`, using the
-same Dockerfile's explicitly selected `functional-tinystories-corpus` target.
+same Dockerfile's explicitly selected `course-corpus` target.
 Its two fixed source identities, raw checksums, complete license text and credits
 must survive offline verification before production cache publication. It does
 not run or claim Chapter41's online resumable protocol. Never push that local
@@ -417,3 +417,61 @@ Focused development checks:
 ```sh
 node --test scripts/tests/run-functional-artifact-cache.test.mjs scripts/tests/check-functional-artifact-cache-receipt.test.mjs scripts/tests/run-functional-rust-overlay.test.mjs
 ```
+
+### Corpus build condition
+
+The existing shared Dockerfile enables the fixed TinyStories pair by default:
+`COURSE_CORPUS=true`. This is an image-build operation, not a runtime network
+request. The independent `course-corpus` stage uses only the fixed downloader,
+accepted source metadata and supporting transport helper before unrelated course
+copies. Corpus data therefore stays cached when chapter content changes.
+Only `true` and `false` are accepted; `FALSE`, `0` and other spellings refuse.
+The default final deployment stage is unchanged. The cloud workflow explicitly
+passes `COURSE_CORPUS=false`, and never requests or exports corpus payloads.
+
+From the repository root, opt out for fixture-only commands:
+
+```sh
+COURSE_CORPUS=false ./course run cargo test --offline --locked -p functional-artifact-cache
+COURSE_CORPUS=false ./course check
+docker build --build-arg COURSE_CORPUS=false --target workspace -t learn-llm-workspace:local .
+COURSE_CORPUS=false docker compose build workspace
+```
+
+The first command selects the six machinery CLI tests and runs its application
+container with networking disabled. The course wrapper forwards the flag to
+workspace, site and review builds; Compose forwards it to both build targets.
+Leaving the flag unset retains the requested default-on behavior. Full-data
+setup from a fresh checkout remains the existing workspace build:
+
+```sh
+docker build --target workspace -t learn-llm-workspace:local .
+```
+
+That default build is intended to download the exact checksum-bound pair during
+image construction and expose it under `/opt/course-corpus/raw/`, alongside
+`/opt/course-corpus/provenance/LICENSE.txt` and `ATTRIBUTION.txt`. All later
+containers must use `--network none`. Do not push a corpus-containing local image
+or commit raw payloads. The dataset's CDLA agreement/credits are distinct from
+the code's licenses; raw/modified-data redistribution remains not approved.
+
+Maintained acquisition tooling can build only the small source target against
+an existing workspace image, without reprovisioning or whole-course checks:
+
+```sh
+mkdir -p .build/runs/20261006T000000Z-source-example-01
+chmod 700 .build/runs/20261006T000000Z-source-example-01
+node scripts/build-functional-tinystories-image.mjs --run-id 20261006T000000Z-source-example-01
+```
+
+Use a fresh run ID on repetition. Fixed inputs and actual image IDs are recorded
+in private write-once build receipts; no arbitrary URL/base-image override is
+provided. Tiny producer-input snapshots are retained after the download layer,
+so unrelated Dockerfile edits do not invalidate its corpus download cache.
+Deleting `.build` does not remove the maintained downloader; deleting images
+requires the explicit existing workspace/source build path again.
+
+This condition checkpoint actually verified only the disabled image branch,
+empty offline export, injected transport/default-flag tests and cloud/wrapper
+guards. The real default download and raw artifact admission remain the separate
+pending acquisition step; no corpus acquisition is claimed here.

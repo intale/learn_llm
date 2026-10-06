@@ -14,6 +14,12 @@ fail() {
   exit 2
 }
 
+course_corpus_mode=${COURSE_CORPUS:-true}
+case $course_corpus_mode in
+  true|false) ;;
+  *) fail 'COURSE_CORPUS must be true or false' ;;
+esac
+
 usage() {
   cat <<'EOF'
 Usage: ./course COMMAND [ARGUMENTS]
@@ -40,11 +46,11 @@ EOF
 }
 
 build_workspace_image() {
-  docker build --target workspace -t "$workspace_image" "$repository_root"
+  docker build --target workspace -t "$workspace_image" --build-arg "COURSE_CORPUS=$course_corpus_mode" "$repository_root"
 }
 
 build_site_image() {
-  docker build --target site -t "$site_image" "$repository_root"
+  docker build --target site -t "$site_image" --build-arg "COURSE_CORPUS=$course_corpus_mode" "$repository_root"
 }
 
 tools_source_hash() {
@@ -489,6 +495,7 @@ review_run() {
 
   docker build \
     --build-context "staged=$publish_directory" \
+    --build-arg "COURSE_CORPUS=$course_corpus_mode" \
     --target review-site \
     -t "$review_image" \
     "$repository_root"

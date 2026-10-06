@@ -1,0 +1,95 @@
+TAP version 13
+# Subtest: course Rust tests run in a BuildKit network-isolated layer after locked fetch
+ok 1 - course Rust tests run in a BuildKit network-isolated layer after locked fetch
+  ---
+  duration_ms: 0.614771
+  ...
+# Subtest: ./course run passes the no-network policy to its Docker runtime container
+ok 2 - ./course run passes the no-network policy to its Docker runtime container
+  ---
+  duration_ms: 4.68152
+  ...
+# Subtest: ./course run forwards the exact single-test Chapter41 Cargo argv after setup
+ok 3 - ./course run forwards the exact single-test Chapter41 Cargo argv after setup
+  ---
+  duration_ms: 11.003387
+  ...
+# Subtest: ./course propagates default true or explicit fixture-only false before offline run
+ok 4 - ./course propagates default true or explicit fixture-only false before offline run
+  ---
+  duration_ms: 12.074711
+  ...
+# Subtest: fixed exact pair matches admitted source revision/count/hash
+ok 5 - fixed exact pair matches admitted source revision/count/hash
+  ---
+  duration_ms: 0.594262
+  ...
+# Subtest: default true and closed false flag; misspellings refuse
+ok 6 - default true and closed false flag; misspellings refuse
+  ---
+  duration_ms: 0.171634
+  ...
+# Subtest: closed official HTTPS hosts refuse credentials ports and substitutes
+ok 7 - closed official HTTPS hosts refuse credentials ports and substitutes
+  ---
+  duration_ms: 0.129725
+  ...
+# Subtest: stream exact bytes and digest before publication
+ok 8 - stream exact bytes and digest before publication
+  ---
+  duration_ms: 14.17126
+  ...
+# Subtest: checksum or short body refuses without successful output
+ok 9 - checksum or short body refuses without successful output
+  ---
+  duration_ms: 1.182312
+  ...
+# Subtest: oversize counts observed bytes and refuses, never zero accounting
+ok 10 - oversize counts observed bytes and refuses, never zero accounting
+  ---
+  duration_ms: 0.901863
+  ...
+# Subtest: aggregate body budget includes redirect body
+ok 11 - aggregate body budget includes redirect body
+  ---
+  duration_ms: 0.894218
+  ...
+# Subtest: five redirects permitted, sixth refuses before seventh request
+ok 12 - five redirects permitted, sixth refuses before seventh request
+  ---
+  duration_ms: 2.1285
+  ...
+# Subtest: unapproved redirect refuses before destination request
+ok 13 - unapproved redirect refuses before destination request
+  ---
+  duration_ms: 0.358046
+  ...
+# Subtest: expired enclosing deadline sends no request
+ok 14 - expired enclosing deadline sends no request
+  ---
+  duration_ms: 0.306348
+  ...
+# Subtest: false image branch exports empty directory and never fetches/copies corpus
+ok 15 - false image branch exports empty directory and never fetches/copies corpus
+  ---
+  duration_ms: 1.744885
+  ...
+# Subtest: default enabled branch invokes both injected synthetic transfers, not real corpus
+ok 16 - default enabled branch invokes both injected synthetic transfers, not real corpus
+  ---
+  duration_ms: 2.014744
+  ...
+# Subtest: shared Dockerfile default/cloud false/cache isolation wiring
+ok 17 - shared Dockerfile default/cloud false/cache isolation wiring
+  ---
+  duration_ms: 0.167075
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 60.952545

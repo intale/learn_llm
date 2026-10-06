@@ -1,0 +1,49 @@
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.64kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/learn-llm-workspace:local
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 205.54kB done
+#4 DONE 0.1s
+
+#5 [course-corpus 1/9] FROM docker.io/library/learn-llm-workspace:local
+#5 DONE 0.2s
+
+#6 [course-corpus 2/9] COPY scripts/download-fixed-tinystories-image.mjs /source-build/download.mjs
+#6 DONE 0.1s
+
+#7 [course-corpus 3/9] COPY scripts/lib/bounded-response.mjs /source-build/lib/bounded-response.mjs
+#7 DONE 0.1s
+
+#8 [course-corpus 4/9] COPY artifacts/functional-laptop/acquisition/tinystories/source-metadata/ /source-build/metadata/
+#8 DONE 0.1s
+
+#9 [course-corpus 5/9] RUN node /source-build/download.mjs
+#9 0.089 {"schema_version":1,"enabled":false,"bytes_received":0}
+#9 DONE 0.1s
+
+#10 [course-corpus 6/9] COPY Dockerfile /source-private/producer-inputs/Dockerfile
+#10 DONE 0.1s
+
+#11 [course-corpus 7/9] COPY scripts/download-fixed-tinystories-image.mjs /source-private/producer-inputs/download-fixed-tinystories-image.mjs
+#11 DONE 0.1s
+
+#12 [course-corpus 8/9] COPY scripts/lib/bounded-response.mjs /source-private/producer-inputs/bounded-response.mjs
+#12 DONE 0.1s
+
+#13 [course-corpus 9/9] COPY artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json /source-private/producer-inputs/source-metadata-inventory.json
+#13 DONE 0.1s
+
+#14 exporting to image
+#14 exporting layers
+#14 exporting layers 0.2s done
+#14 writing image sha256:b99472e334a636fbb73683053aa9c4d04ad1538c8796cb664f82d817d99fbb36 done
+#14 naming to docker.io/library/learn-llm-tinystories-disabled:local 0.0s done
+#14 DONE 0.3s

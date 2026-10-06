@@ -37,6 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           docker build \
+            --build-arg COURSE_CORPUS=false \
             --build-arg "SITE_BASE=${SITE_BASE}" \
             --build-arg "SITE_URL=${SITE_URL}" \
             --target site \
@@ -47,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir pages-artifact
-          container_id="$(docker create learn-llm-site:pages)"
+          container_id="$(docker create --network none learn-llm-site:pages)"
           trap 'docker rm -f "$container_id" >/dev/null 2>&1 || true' EXIT
           docker cp "${container_id}:/usr/share/nginx/html/." pages-artifact/
           docker rm "$container_id" >/dev/null

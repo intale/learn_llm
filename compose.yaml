@@ -3,12 +3,15 @@ services:
     build:
       context: .
       target: workspace
+      args:
+        COURSE_CORPUS: ${COURSE_CORPUS:-true}
     image: learn-llm-workspace:local
   site:
     build:
       context: .
       target: site
+      args:
+        COURSE_CORPUS: ${COURSE_CORPUS:-true}
     image: learn-llm-site:local
     ports:
       - "4321:80"
-

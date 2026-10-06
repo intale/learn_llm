@@ -1,3 +1,17 @@
+ARG COURSE_CORPUS=true
+ARG COURSE_CORPUS_BASE=node:22.12.0-bookworm
+FROM ${COURSE_CORPUS_BASE} AS course-corpus
+ARG COURSE_CORPUS
+ENV COURSE_CORPUS=${COURSE_CORPUS}
+COPY scripts/download-fixed-tinystories-image.mjs /source-build/download.mjs
+COPY scripts/lib/bounded-response.mjs /source-build/lib/bounded-response.mjs
+COPY artifacts/functional-laptop/acquisition/tinystories/source-metadata/ /source-build/metadata/
+RUN node /source-build/download.mjs
+COPY Dockerfile /source-private/producer-inputs/Dockerfile
+COPY scripts/download-fixed-tinystories-image.mjs /source-private/producer-inputs/download-fixed-tinystories-image.mjs
+COPY scripts/lib/bounded-response.mjs /source-private/producer-inputs/bounded-response.mjs
+COPY artifacts/functional-laptop/step-output-inventories/capture-functional-tinystories-source-metadata.json /source-private/producer-inputs/source-metadata-inventory.json
+
 FROM node:22.12.0-bookworm AS source
 WORKDIR /workspace
 RUN apt-get update \
@@ -15,6 +29,7 @@ ARG SITE_BASE=/
 ARG SITE_URL=https://intale.github.io/learn_llm/
 ENV SITE_BASE=${SITE_BASE}
 ENV SITE_URL=${SITE_URL}
+COPY --from=course-corpus /source-payload/ /opt/course-corpus/
 COPY . .
 RUN cargo fetch --locked
 

@@ -146,6 +146,7 @@ export function validateDeploymentWorkflow(source) {
           issues.push('Docker build SITE_URL must come from configure-pages base_url');
         }
         for (const required of [
+          '--build-arg COURSE_CORPUS=false',
           '--build-arg "SITE_BASE=${SITE_BASE}"',
           '--build-arg "SITE_URL=${SITE_URL}"',
           '--target site',

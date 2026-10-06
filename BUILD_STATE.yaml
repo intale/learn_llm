@@ -46823,17 +46823,80 @@ builds:
               - "21owned inventory files149299B passed exact canonical byte verification; complete YAML parse and git diff --check pass. No course/Chapter41 teaching bytes changed; all Cargo outputs confined to run-specific mounted targets, no new host target created."
             notes: "Successor N0; actual receipt is synthetic only. Runtime binds fixed public workspace tag to actual per-build image, not permanent image pin; replay source provenance comes from immutable accepted acquisition binding. Future filtered/model validators refuse until owners register them. Historical failures and run01 preserved; repairs held,41+English-first, Chapter42 unclaimed."
 
+      - id: setup-conditional-course-corpus-image-build
+        objective: "Add and verify the user-selected default-on corpus build condition, explicit cloud/fixture disable, without acquiring the real pair."
+        depends_on: ["establish-functional-artifact-cache-execution-boundary"]
+        status: completed
+        inputs:
+          - "Latest user instruction: one shared Dockerfile, condition only; COURSE_CORPUS=true default, explicit false in .github; no separate Dockerfile/refactor."
+          - "Accepted exact TinyStories source/license metadata and fixed pair checksums for future enabled transfer."
+          - "Current existing workspace tag/image; all actual container executions network none."
+        outputs:
+          - "Dockerfile"
+          - "course"
+          - "compose.yaml"
+          - ".github/workflows/deploy-pages.yml"
+          - "scripts/download-fixed-tinystories-image.mjs"
+          - "scripts/build-functional-tinystories-image.mjs"
+          - "scripts/tests/download-fixed-tinystories-image.test.mjs"
+          - "scripts/tests/course-network-isolation.test.mjs"
+          - "scripts/check-deployment-workflow.mjs"
+          - "site/tests/deployment.test.ts"
+          - "scripts/README.md"
+          - "artifacts/functional-laptop/execution-boundaries/conditional-corpus-build/"
+          - "artifacts/functional-laptop/step-output-inventories/setup-conditional-course-corpus-image-build.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Default true/closed false reach fixed downloader; bad spellings refuse before request; false actual image build exports no corpus and invokes no source transport."
+          - "All cloud builds explicitly disable corpus; course and compose propagate user flag; corpus cache inputs precede unrelated source copies. Shared final deployment targets and existing course content remain unchanged."
+          - "Tests and receipts distinguish injected true branch from not-yet-executed real default download; source bytes remain unacquired and Chapter42 pending."
+        validate:
+          - "Pinned offline fixed-transport/flag/course wrapper tests; focused deployment workflow validator tests."
+          - "Actual course-corpus false image build from existing tag with base ID inspected before/after; offline empty export assertion."
+          - "Complete YAML parse, owned-output inventory and git diff --check."
+        cost: "medium; N0 source transport; existing image reused; bounded injected tests and disabled-image build only; no provisioning, corpus download, GPU, paid service or elapsed development stop."
+        runs:
+          - run_id: "20261006T065920Z-setup-conditional-course-corpus-image-build-01"
+            started_at: "2026-10-06T06:59:20Z"
+            finished_at: "2026-10-06T07:05:10Z"
+            status: succeeded
+            input_fingerprint:
+              commit: "a0efa079c413531f9e537e475f376eeef56125bb"
+              existing_image: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"
+              prior_stage: "20261006T064613Z-acquire-functional-tinystories-raw-pair-01; copy exact already-tested candidate and retain diagnostics."
+            staging_dir: ".build/runs/20261006T065920Z-setup-conditional-course-corpus-image-build-01/"
+            commands:
+              - "Maintained source builder false: fixed local workspace tag and inspected ID; Docker build --network none --target course-corpus; exact build log/receipt retained."
+              - "Existing pinned Node22 network-none container:17 selected injected/flag/transport/course-wrapper tests all pass."
+              - "Actual disabled image offline/read-only node assertion:COURSE_CORPUS=false, empty source-payload, zero source body bytes."
+              - "Existing pinned offline image:3 focused deployment validator cases pass (false allowed, true/omitted refuse)."
+            artifacts:
+              - path: "artifacts/functional-laptop/execution-boundaries/conditional-corpus-build/build-receipt.json"
+                sha256: "82041ccfa9d261e9af8630a0477e9fdc25043a993ba93a1a6a4d439d4db84d06"
+              - path: "artifacts/functional-laptop/execution-boundaries/conditional-corpus-build/validation.json"
+                sha256: "51061c37d43a5f2a720519361d08fba884ed6f0925ed6819f62571bd7f08166a"
+              - path: "artifacts/functional-laptop/step-output-inventories/setup-conditional-course-corpus-image-build.json"
+                sha256: "05d94dee6110c35849cd6225d0e7cfc8169a4fb1c364e95dea6a6a956203b0db"
+            validation:
+              - "17 pinned Node cases and actual disabled build/export pass;3 focused deployment guard cases pass."
+              - "15owned output files101473B passed canonical inventory verification; complete YAML and git diff --check pass. No curriculum/learner-facing source/Rust teaching changed."
+            notes: "Condition only completed; actual real default download unexecuted and acquisition/Chapter42 pending. Previous scope/BuildKit diagnostic preserved without falsely relabeling it; no active process interrupted. No new Dockerfile or broad rebuild."
       - id: acquire-functional-tinystories-raw-pair
-        objective: "Acquire only the frozen TinyStories train/validation pair through the governed Chapter 41 protocol and make it reproducible offline."
+        objective: "Acquire only the frozen TinyStories pair during the user-selected conditional Docker image build; admit and reproduce it with existing Chapter41 offline artifact APIs."
         depends_on:
-          - "establish-functional-artifact-cache-execution-boundary"
+          - "setup-conditional-course-corpus-image-build"
         status: "pending"
         inputs:
           - "Chapter 41 manifest and protocol"
           - "exact frozen URLs, revisions, sizes and SHA-256 values"
           - "CDLA-Sharing-1.0 text and attribution"
-          - "scripts/retry-transient-network.sh"
+          - "Latest user override: existing Dockerfile conditional source build enabled by default; cloud builds explicitly disabled; all containers offline. No HTTP-resume execution claim."
+          - "Accepted existing workspace image/tag; exact2fixed endpoints and allowed official redirect hosts, maximum5 redirects, cumulative2GB and14400s. No automatic network retries."
         outputs:
+          - "artifacts/functional-laptop/acquisition/tinystories/production-binding.json"
+          - "artifacts/functional-laptop/acquisition/tinystories/producer-config.json"
+          - "artifacts/functional-laptop/acquisition/tinystories/producer-snapshots/"
           - "artifacts/functional-laptop/acquisition/tinystories/manifest.json"
           - "artifacts/functional-laptop/acquisition/tinystories/receipt.json"
           - "artifacts/functional-laptop/step-output-inventories/acquire-functional-tinystories-raw-pair.json"
@@ -46841,19 +46904,33 @@ builds:
           - "DECISIONS.md"
         acceptance:
           - "Only the frozen 1,924,281,556-byte train and 19,447,282-byte validation files are eligible."
-          - "Resumable staging verifies redirect, range, media, exact byte count, SHA-256, license and attribution before atomic content-addressed promotion."
+          - "Build-mediated bounded source transfer preserves exact requested/redirect/final identities and actual cumulative accounting. Offline Rust validates canonical manifest, count, hashes, license and attribution before atomic content-addressed promotion. Do not claim HTTP range/resume execution."
+          - "Default=true conditional course-corpus stage is cached independently of unrelated course content; closed false branch sends no corpus request/exports no corpus payload. All cloud Docker builds explicitly disable it; no separate Dockerfile."
           - "Raw corpus bytes remain gitignored; offline replay uses only the receipt-bound cache; no substitute or archive expansion is accepted."
         validate:
-          - "scripts/run-functional-artifact-cache.sh acquire --step acquire-functional-tinystories-raw-pair --target acquire-functional-tinystories-raw-pair-v1"
-          - "scripts/run-functional-artifact-cache.sh publish --step acquire-functional-tinystories-raw-pair --target acquire-functional-tinystories-raw-pair-v1"
-          - "scripts/run-functional-artifact-cache.sh verify --step acquire-functional-tinystories-raw-pair --target acquire-functional-tinystories-raw-pair-v1"
-          - "scripts/run-functional-offline.sh --step acquire-functional-tinystories-raw-pair --target acquire-functional-tinystories-raw-pair-v1"
+          - "Focused fixed-build transport/flag/cloud wiring tests in current pinned offline image; actual disabled source build exports no corpus."
+          - "Build only course-corpus with existing workspace base; exact predefined pair and actual byte/deadline receipt."
+          - "Existing cache tool: offline finalize/verify/publish/replay with exact private run inputs and immutable producer binding."
           - "git diff --check"
-          - "./course audit-host"
+          - "Scoped owned-output/inventory/no-new-host-cache verification; pre-existing target and known audit-host failure preserved."
         cost:
           class: "large"
           notes: "cpu=C2;gpu=G0;network=N3;paid=none;download_bytes_exact=1943728838;download_bytes_max=2000000000;host_bytes_max=4294967296;disk_bytes_max=8000000000;wall_seconds_max=14400"
-        runs: []
+        runs:
+          - run_id: "20261006T064613Z-acquire-functional-tinystories-raw-pair-01"
+            started_at: "2026-10-06T06:46:13Z"
+            finished_at: "2026-10-06T06:59:20Z"
+            status: interrupted
+            input_fingerprint:
+              commit: "a0efa079c413531f9e537e475f376eeef56125bb"
+              image_id: "sha256:fc6a74e246e7c6959d56df2488beee12f922d15bcf571212e47e4f3936cf97b5"
+              metadata_inventory_sha256: "1e5c11b46760cd9066c4ab56f4cb04af13b36f8aae6dfc59bd230c4b98c84463"
+              source_policy: "exact pinned train/valid pair; default conditional image build, cloud false, container network none"
+            staging_dir: ".build/runs/20261006T064613Z-acquire-functional-tinystories-raw-pair-01/"
+            commands: []
+            artifacts: []
+            validation: []
+            notes: "Latest user narrows turn to condition setup; move that work to preceding separate step and preserve this pre-transfer run.16 offline injected/flag/wrapper tests passed; initial disabled build failed before downloader because BuildKit interpreted raw image ID as registry name, exact log/receipt preserved. No corpus transfer or active process. Future acquisition is pending after condition commit; no Chapter42 claim."
 
       - id: implement-ch42-deterministic-corpus-filtering
         objective: "Apply deterministic quality, language, privacy and refusal filtering with exact reject reasons and preserved provenance."

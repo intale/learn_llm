@@ -28998,3 +28998,44 @@ failed evidence. Development diagnostic storage is tracked separately from all
 unchanged course workload/acquisition/profile caps. Agent-owned accounting may
 retain these useful diagnostics under a3GB development-only allowance; no corpus
 or future product budget is enlarged by this operational decision.
+
+### 2026-10-06 — Conditional shared source build acquisition claim
+
+After cache commit a0efa079c413531f9e537e475f376eeef56125bb, claim only the
+exact TinyStories acquisition prerequisite. Latest user instruction supersedes
+both earlier target-only and separate-file drafts: keep one existing Dockerfile,
+default COURSE_CORPUS=true, closed false branch for cloud. The sole cloud Docker
+build in deploy-pages.yml explicitly disables it. An independent metadata/helper-
+only course-corpus stage precedes unrelated source copies; no chapter content
+edit requires redownloading the fixed pair. All containers run/create offline.
+Actual acquisition builds only that target from the already-ready workspace
+base; no environment rebuild, online course Rust, HTTP-resume claim or image push.
+Five redirects maximum, exact source checksums,2GB cumulative body and14400s
+remain product bounds. Failed received bytes are retained as actual accounting.
+Only exact four admitted payload files enter the raw bundle; private final URLs,
+card/HTML/transport evidence remain separately bound. Frozen acquisition producer
+snapshots/binding support later reuse without current-global-config drift.
+Repairs held, Russian41+deferred and Chapter42 unclaimed until receipt completion.
+
+### 2026-10-06 — Condition-only checkpoint before real acquisition
+
+The user's latest scope is the same-Dockerfile condition only. Insert the narrow
+setup-conditional-course-corpus-image-build step before raw acquisition; no real
+source transfer has begun and no active process is stopped. Preserve the earlier
+pre-transfer acquisition attempt as interrupted scope handoff and its failed
+BuildKit raw-image-ID diagnostic. Fixed local workspace tag plus inspected actual
+base ID succeeds; no separate Dockerfile, provisioning or whole-course rebuild.
+
+The shared course-corpus stage defaults true, rejects nonboolean spellings and
+has a false branch that performs no corpus request or payload export. Cloud Pages
+explicitly passes false; course and Compose forward COURSE_CORPUS, including
+COURSE_CORPUS=false fixture-only runs. Preserve the existing final deployment
+stage. Small producer snapshots follow the download layer; unrelated source and
+Dockerfile changes do not force a repeated corpus download. All actual container
+executions remain network-none. The actual disabled image exports zero entries.
+
+Seventeen selected pinned Node cases and three focused deployment validator
+cases pass. Default-enabled evidence is injected/synthetic only, not a physical
+1.94GB transfer. Real default download, raw admission/publication/replay and
+Chapter42 implementation remain pending. Durable receipts state that limit;
+do not continue acquisition in this condition-only turn.

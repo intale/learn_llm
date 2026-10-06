@@ -22,6 +22,10 @@ function replaceOnce(source: string, search: string, replacement: string): strin
 }
 
 describe('GitHub Pages deployment workflow', () => {
+  it('rejects enabling or omitting corpus acquisition in the cloud build',()=>{
+    expect(()=>validateDeploymentWorkflow(workflowSource.replace('--build-arg COURSE_CORPUS=false','--build-arg COURSE_CORPUS=true'))).toThrow(/COURSE_CORPUS=false/);
+    expect(()=>validateDeploymentWorkflow(workflowSource.replace('--build-arg COURSE_CORPUS=false',''))).toThrow(/COURSE_CORPUS=false/);
+  });
   it('validates the canonical main-branch artifact deployment', () => {
     expect(validateDeploymentWorkflow(workflowSource)).toEqual(
       expect.objectContaining({
