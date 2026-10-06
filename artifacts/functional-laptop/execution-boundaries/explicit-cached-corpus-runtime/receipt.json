@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "step_id": "prepare-explicit-cached-corpus-runtime",
+  "run_id": "20261006T120903Z-prepare-explicit-cached-corpus-runtime-01",
+  "baseline_commit": "a81ec3949eefc295fd7063bf79b6f1d8a65dc2df",
+  "routing": {
+    "model_and_effort": "inherited current user selection; no spawn override",
+    "configured_names_exposed_to_orchestrator": false
+  },
+  "scope": "machinery-only; strict local runtime selectors and one external formatter blank-line cleanup",
+  "runtime_image": "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758",
+  "selector": {
+    "flags": [
+      "--runtime-image",
+      "--expected-image-id"
+    ],
+    "pair_required": true,
+    "default_reference": "learn-llm-workspace:local",
+    "explicit_reference": "learn-llm-ch41-http-deps-locked:local",
+    "frozen_image_id": "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758",
+    "post_operation_image_id": "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758",
+    "identity_evidence": "before-and-after snapshots, not continuous tag monitoring",
+    "ordinary_containers": "immutable ID, network none",
+    "source_image_build": "existing target/network policy retained; no source build executed here"
+  },
+  "inputs": {
+    "fingerprint": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/input-fingerprint.json",
+      "bytes": 11324,
+      "sha256": "331f09da9f2f99ddb7c8bd3de89259440d7b30e8273c5900258d51b445a7874e"
+    },
+    "preflight": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/preflight.md",
+      "bytes": 7589,
+      "sha256": "c8b8b1ef626668da39a7c95083ccc238a22c8dd2ad2b12df20a3ef174bb86944"
+    },
+    "baseline_file_count": 68
+  },
+  "outputs": [
+    {
+      "path": "scripts/build-functional-tinystories-image.mjs",
+      "bytes": 6829,
+      "sha256": "45fcde74aed1600d1cb1f1cd1fe6e966a9fc36d7ade3c62baec743bd6fa23b83"
+    },
+    {
+      "path": "scripts/lib/run-functional-artifact-cache.mjs",
+      "bytes": 16055,
+      "sha256": "cd937f7399bf472f305de59ccfb3151d1cf836516109f8e9ceb292f9ed4a52ed"
+    },
+    {
+      "path": "scripts/lib/functional-artifact-cache-boundary.mjs",
+      "bytes": 4677,
+      "sha256": "d66f86a09a4a7ddebe577666619bfafe18e519e673da5ce76dbd5a2a62c28324"
+    },
+    {
+      "path": "scripts/tests/build-functional-corpus-image.test.mjs",
+      "bytes": 7556,
+      "sha256": "521345a096934eaca27f7f084ae3efcd01b174fe83d6427df6e84344ad7ee192"
+    },
+    {
+      "path": "scripts/tests/run-functional-artifact-cache.test.mjs",
+      "bytes": 11084,
+      "sha256": "dc3b50adad0ef2b05e39de80d5f26e6f9d53d440c05b8493ceebc567ed266634"
+    },
+    {
+      "path": "scripts/README.md",
+      "bytes": 32594,
+      "sha256": "b03a0cd4389c2767c9fbd258dbc48eb68919cdb45c6d27f89210fec03e561e98"
+    },
+    {
+      "path": "rust/tools/functional-artifact-cache/src/filesystem.rs",
+      "bytes": 27754,
+      "sha256": "73e9507e98aa07ef6ee9c6b114e4f72ad838e2a115750f894894336171d4c1ea"
+    }
+  ],
+  "validation": {
+    "node_cases": 27,
+    "node_stdout": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/node-selector-08/stdout.txt",
+      "bytes": 5879,
+      "sha256": "1ea7794e412be3107e45534ac9693cd5e1be399bbbf3e786025b78a12b261f1b"
+    },
+    "node_input_hashes": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/node-selector-08/input-hashes.txt",
+      "bytes": 45545,
+      "sha256": "a15799d6f308e50ce867afb9f2665202542688251b23ca23397520bec88196b1"
+    },
+    "filesystem_cases": 3,
+    "filesystem_stdout": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/filesystem-tests-01/stdout.txt",
+      "bytes": 416,
+      "sha256": "0356466a36c3e7fbc6e4ea6189daef603c99e0fde209207b5e39c00225fc1431"
+    },
+    "filesystem_input_hashes": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/filesystem-tests-01/input-hashes.txt",
+      "bytes": 38883,
+      "sha256": "3fc7897e47bef314e43996dcb2364228b29515fec81d73f91feb04606cb1b1a0"
+    },
+    "whole_format_exit": 0,
+    "whole_format_input_hashes": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/whole-format-01/input-hashes.txt",
+      "bytes": 38883,
+      "sha256": "3fc7897e47bef314e43996dcb2364228b29515fec81d73f91feb04606cb1b1a0"
+    },
+    "scoped_format": "actual edition2024 passes; initial erroneous2021 invocation retained",
+    "tool_build_receipt": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/tool-build-receipt-v2-1.json",
+      "bytes": 771,
+      "sha256": "a83ea9861276d8577c4f3a26ba0f66b6e83d5734510e5554ba755eac6cb1a9bb"
+    },
+    "tool_binary": {
+      "path": ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/tool-binary-v2-1",
+      "bytes": 21782576,
+      "sha256": "9660d65aebedce10ad8e8d6e70597a2c914d2d7095218a22b6605ff3f4d0fade"
+    },
+    "tool_source_tree_sha256": "3b3379b6cfedcc71f2de8a38038a2fe830223258e23d2e16ff3ca466cdc32302",
+    "tool_compile_seconds": 0.88,
+    "fs_compile_seconds": 5.14,
+    "byte_preservation": "all unowned inputs/history/held repairs/Russian41+ unchanged; FS differs only by one blank line"
+  },
+  "cache_reuse": {
+    "from_run": "20261006T114908Z-setup-library-owned-corpus-transport-01",
+    "method": "cp -a --reflink=auto independent registry and populated target; no old binary claimed current evidence",
+    "logical_bytes_observed": 1166626609,
+    "allocated_bytes_observed": 1203433472,
+    "observation_scope": "after validation, before small final records; not peak/shared-block measurement",
+    "estimated_logical_limit_bytes": 1342177280
+  },
+  "failed_evidence": [
+    "node launch1 absent bind parent; no container/test",
+    "node launch2/3 tar attempted tmpfs-root metadata; no Node tests",
+    "node4 read-only /tmp fixture failures",
+    "node5/6 executable stubs refused by test tmpfs noexec",
+    "initial scoped formatter used wrong2021 edition",
+    "Docker image tags formatter join rejected interface type; subsequent JSON inspection valid"
+  ],
+  "negative_authority": {
+    "corpus_acquired": false,
+    "new_image_built": false,
+    "public_tag_repointed": false,
+    "new_dependency_or_client": false,
+    "course_content_changed": false,
+    "semantic_review_claimed": false,
+    "production_execution_controls_weakened": false
+  },
+  "next_gate": "dedicated commit before distinct acquisition preflight; acquisition remains unclaimed"
+}

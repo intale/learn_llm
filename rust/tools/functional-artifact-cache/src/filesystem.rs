@@ -447,7 +447,6 @@ impl AssetStore for FileStore {
     }
 }
 
-
 impl StagedAssets for FileStage {
     type Writer = File;
     fn create_payload(

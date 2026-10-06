@@ -29568,3 +29568,55 @@ historical run, held repair, Russian41+, acquisition or Chapter42 change. Preser
 verbose logs only in the new ignored run. Complete/commit this3-output setup
 checkpoint before the root-authorized distinct acquisition preflight; nothing
 here admits raw content or independently approves learner-facing language.
+
+### 2026-10-06 — Explicit cached runtime without public-tag migration
+
+Root approves the ten-output preflight for
+`prepare-explicit-cached-corpus-runtime`, inserted after completed transport setup
+and before raw acquisition. Both maintained wrappers gain optional paired
+`--runtime-image`/`--expected-image-id` flags, using Node's built-in argument
+parser and their existing shared boundary. No flags preserves the public
+workspace default. Local image inspection freezes the ID before execution;
+ordinary containers use that immutable ID with networking disabled. A second
+inspection refuses persistent tag drift. Before/after snapshots do not claim
+continuous monitoring or rule out transient tag edits during Docker BUILD.
+
+Later acquisition may explicitly select the already-admitted
+`learn-llm-ch41-http-deps-locked:local` image590b0c2f; do not retag the public
+workspace, rebuild an environment or duplicate manual orchestration. The
+existing source target retains image-BUILD networking and its selected base
+reference; this prerequisite runs no source image build or transfer. No URL,
+six-host/five-redirect policy, dependency, client, format or authority expansion.
+
+The external filesystem adapter has exactly one extra blank line that blocks
+the documented workspace formatter gate; remove only that mechanical defect.
+Reuse the completed setup's verified registry and populated Cargo target by an
+independent copy/reflink; Cargo handles current input invalidation. Estimate
+medium C2/G0/N0 and<=1.25GiB logical private staging, with actual allocation
+reported separately. Inherited model/effort names are not exposed and are not
+fabricated. Preserve all completed evidence, acquisition failures and held
+repairs/Russian41+. Chapter42 demo dispatch remains a later separate integration.
+
+### 2026-10-06 — Cached runtime selectors proven and published
+
+The final27 exact public-CLI/default/explicit/pair/refusal/network tests pass in
+the admitted offline image. Synthetic Docker stubs use only test-owned executable
+tmpfs; no production noexec or capability control was weakened. Keep earlier
+failed absent-mount, tar-root-metadata, read-only-temp and nonexecutable-stub
+harness evidence as failures. Actual filesystem3 tests pass, whole-workspace
+format passes, and scoped format passes under the actual2024 edition; an initial
+erroneous2021 invocation did not authorize extra source changes.
+
+The explicit-runtime current verifier build completes in0.88s using the copied
+populated Cargo target; current binary9660d65a and whole-source3b3379b6 are bound
+by its new receipt. The earlier filesystem compile took5.14s. Existing public
+fc6a74e2, disabled685c10ed and admitted590b0c2f images/tags remain unchanged.
+Observed private logical1166626609/allocated1203433472bytes before small final
+records fit the1.25GiB estimate; these are not peaks or proof of shared blocks.
+
+Publish the exact seven staged machinery files and one6680byte concise receipt,
+not duplicate source/log/archives or old-run artifacts. Canonical bytes equal
+the accepted stage; full YAML88builds/503steps changes only the inserted step and
+acquisition's added dependency. Historical runs, teaching inputs, source policy,
+lock graph and held repairs/Russian41+ remain unchanged. Complete and commit
+this ten-output prerequisite before the distinct current-V2 acquisition run.

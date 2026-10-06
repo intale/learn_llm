@@ -4,7 +4,8 @@ import {resolve,join,dirname} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
-import {ownedPath,bridgeRequest,selectedPolicy,runtimeMountPlan} from './functional-artifact-cache-boundary.mjs';
+import {parseArgs} from 'node:util';
+import {ownedPath,bridgeRequest,selectedPolicy,runtimeMountPlan,runtimeSelection,freezeRuntime,checkRuntimeUnchanged} from './functional-artifact-cache-boundary.mjs';
 import {createCacheFixture} from '../tests/fixtures/artifact-cache-fixture.mjs';
 const SHA=/^[0-9a-f]{64}$/;
 const sha=b=>createHash('sha256').update(b).digest('hex');
@@ -20,18 +21,22 @@ function sourceHash(root,run){
  return sha(JSON.stringify([...files].sort(([a],[b])=>Buffer.compare(Buffer.from(a),Buffer.from(b)))));
 }
 export function validateRuntimeBinding(receipt,image){if(receipt?.image_id!==image||receipt.network!=='none'||receipt.cargo_locked!==true)fail();return true;}
-function image(config){
- if(config.runtime_tag!=='learn-llm-workspace:local')fail();const inspect=spawnSync('docker',['image','inspect','--format','{{.Id}}',config.runtime_tag],{encoding:'utf8',maxBuffer:65536});const id=inspect.stdout?.trim();if(inspect.status!==0||!/^sha256:[0-9a-f]{64}$/.test(id))fail();
- const check=spawnSync('docker',['run','--rm','--pull=never','--network','none','--read-only','--entrypoint','sh',id,'-c','rustc --version; node --version'],{encoding:'utf8',maxBuffer:65536});if(check.status!==0||!check.stdout.startsWith('rustc 1.93.1 ')||!check.stdout.trim().endsWith('v22.12.0'))fail();return id;
+function imageId(reference){const inspect=spawnSync('docker',['image','inspect','--format','{{.Id}}',reference],{encoding:'utf8',maxBuffer:65536});const id=inspect.stdout?.trim();if(inspect.status!==0||!/^sha256:[0-9a-f]{64}$/.test(id))fail();return id;}
+function image(config,opts){
+ if(config.runtime_tag!=='learn-llm-workspace:local')fail();const runtime=freezeRuntime(runtimeSelection(config.runtime_tag,{runtimeImage:opts['runtime-image'],expectedImageId:opts['expected-image-id']}),imageId),id=runtime.image_id;
+ const check=spawnSync('docker',['run','--rm','--pull=never','--network','none','--read-only','--entrypoint','sh',id,'-c','rustc --version; node --version'],{encoding:'utf8',maxBuffer:65536});if(check.status!==0||!check.stdout.startsWith('rustc 1.93.1 ')||!check.stdout.trim().endsWith('v22.12.0'))fail();return runtime;
 }
 export function parseCacheArguments(args){
  const [mode,...rest]=args,p={mode};if(mode==='--help'){if(args.length!==1)fail();return p;}
- for(let i=0;i<rest.length;i+=2){if(!['--run-id','--step','--target','--input','--receipt'].includes(rest[i])||!rest[i+1]||Object.hasOwn(p,rest[i].slice(2)))fail();p[rest[i].slice(2)]=rest[i+1];}
+ const {values,tokens}=parseArgs({args:rest,options:Object.fromEntries(['run-id','step','target','input','receipt','runtime-image','expected-image-id'].map(name=>[name,{type:'string'}])),strict:true,allowPositionals:false,tokens:true});
+ if(new Set(tokens.map(token=>token.name)).size!==tokens.length||Object.values(values).some(value=>!value))fail();Object.assign(p,values);
+ const selection=runtimeSelection('learn-llm-workspace:local',{runtimeImage:p['runtime-image'],expectedImageId:p['expected-image-id']});
  if(!/^[0-9]{8}T[0-9]{6}Z-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p['run-id']??''))fail();
  const keys=mode==='build-tools'?['mode','run-id']:mode==='self-test'?['mode','run-id','step','target']:['publish','verify'].includes(mode)?['mode','run-id','step','target','input']:mode==='replay'?['mode','run-id','step','target','receipt']:[];
+ if(selection.selection==='explicit')keys.push('runtime-image','expected-image-id');
  if(Object.keys(p).sort().join()!==keys.sort().join())fail();return p;
 }
-export function buildTools(root,run,id){
+export function buildTools(root,run,id,{runtime}={}){
  if(!existsSync(join(run,'publish')))mkdirSync(join(run,'publish'),{mode:0o700});
  if(!existsSync(join(run,'cargo-cache'))){
   const cache=join(run,'cargo-cache');mkdirSync(cache,{mode:0o700});
@@ -42,7 +47,8 @@ export function buildTools(root,run,id){
  const args=[run.split('/').at(-1),`cache-tools-v2-${attempt}`,id,'--','cargo','build','--locked','--offline','-p','functional-artifact-cache','--bin','functional-artifact-cache'];
  const result=spawnSync(join(root,'scripts/run-functional-rust-overlay.sh'),args,{encoding:'utf8',maxBuffer:2097152});if(result.error||result.status!==0)fail();
  const binary=join(run,'rust-target/debug/functional-artifact-cache');
- const receipt={schema_version:2,image_id:id,source_tree_sha256:sourceHash(root,run),binary:{path:`tool-binary-v2-${attempt}`,sha256:sha(readFileSync(binary))},network:'none',cargo_locked:true};copyFileSync(binary,join(run,receipt.binary.path));save(join(run,`tool-build-receipt-v2-${attempt}.json`),receipt);return receipt;
+ const runtimeIdentity=runtime?checkRuntimeUnchanged(runtime,imageId):null;
+ const receipt={schema_version:2,image_id:id,source_tree_sha256:sourceHash(root,run),binary:{path:`tool-binary-v2-${attempt}`,sha256:sha(readFileSync(binary))},network:'none',cargo_locked:true,...(runtimeIdentity?{runtime_identity:runtimeIdentity}:{})};copyFileSync(binary,join(run,receipt.binary.path));save(join(run,`tool-build-receipt-v2-${attempt}.json`),receipt);return receipt;
 }
 function tool(root,run,id){const names=readdirSync(run).filter(name=>/^tool-build-receipt-v2-[0-9]+\.json$/.test(name)).sort((a,b)=>Number(a.match(/([0-9]+)\.json$/)[1])-Number(b.match(/([0-9]+)\.json$/)[1]));if(!names.length)fail();const receipt=parse(join(run,names.at(-1)));validateRuntimeBinding(receipt,id);if(receipt.schema_version!==2||receipt.source_tree_sha256!==sourceHash(root,run)||!/^tool-binary-v2-[0-9]+$/.test(receipt.binary.path))fail();const binary=ownedPath(join(run,receipt.binary.path),{root:run,directory:false});if(sha(readFileSync(binary))!==receipt.binary.sha256)fail();return {receipt,binary,receiptPath:join(run,names.at(-1))};}
 function bridge(root,run,id,request,mounts,policyPath,layoutPath,{expectSuccess=true}={}){
@@ -51,7 +57,7 @@ function bridge(root,run,id,request,mounts,policyPath,layoutPath,{expectSuccess=
  const result=spawnSync('docker',[...argv,'--entrypoint','/tool',id],{input:JSON.stringify(request)+'\n',encoding:'utf8',maxBuffer:2097152});if(result.error||result.signal||(expectSuccess&&result.status!==0))fail();let output;try{output=JSON.parse(result.stdout);}catch{fail();}return {status:result.status,output,argv,tool_binary_sha256:receipt.binary.sha256};
 }
 function metadata(root,config){const inventory=parse(join(root,config.metadata_inventory));if(inventory.step_id!=='capture-functional-tinystories-source-metadata')fail();for(const f of inventory.files){const b=readFileSync(join(root,f.path));if(b.length!==f.bytes||sha(b)!==f.sha256)fail();}}
-function selfTest(root,run,config,opts,id){
+function selfTest(root,run,config,opts,id,runtime){
  const attempt=readdirSync(run).filter(name=>/^cache-self-test-v2-[0-9]+$/.test(name)).length+1;
  const directory=join(run,`cache-self-test-v2-${attempt}`);if(existsSync(directory))fail();mkdirSync(directory,{mode:0o700});
  const policyPath=input(root,run,config.fixture_policy_config),layoutPath=input(root,run,config.fixture_layout),layout=parse(layoutPath),source=join(directory,'source');mkdirSync(source,{mode:0o700});createCacheFixture(source,{policyPath,layoutPath});
@@ -63,12 +69,13 @@ function selfTest(root,run,config,opts,id){
  const generated=join(directory,'generated');cpSync(source,generated,{recursive:true});const producer={schema_version:2,kind:'synthetic-generated-fixture',producer_run:run.split('/').at(-1),source_manifest_sha256:sha(readFileSync(join(source,layout.files.manifest_path))),generated_manifest_sha256:sha(readFileSync(join(generated,layout.files.manifest_path))),operation:'exact-fixture-copy-no-course-transform',network:'none'};save(join(directory,'producer-receipt.json'),producer);if(call('publish',generated,[{source:cache,target:'/cache',readOnly:false}]).output.artifact_id!==digest)fail();
  const corrupt=join(directory,'corrupt');cpSync(source,corrupt,{recursive:true});writeFileSync(join(corrupt,layout.files.payload_paths.train),'abd');const refused=bridge(root,run,id,bridgeRequest('publish',{policyKind}),[{source:corrupt,target:'/input',readOnly:true},{source:cache,target:'/cache',readOnly:false}],policyPath,layoutPath,{expectSuccess:false});if(refused.status===0||refused.output.error!=='Hash')fail();
  const escaped=join(directory,'escaped');symlinkSync(source,escaped);let rejected=false;try{ownedPath(escaped,{root:directory});}catch{rejected=true;}if(!rejected)fail();chmodSync(generated,0o777);rejected=false;try{ownedPath(generated,{root:directory});}catch{rejected=true;}finally{chmodSync(generated,0o700);}if(!rejected)fail();rejected=false;try{ownedPath(source,{root:directory,uid:99999});}catch{rejected=true;}if(!rejected)fail();
- const receipt={schema_version:2,step_id:opts.step,target_id:opts.target,evidence_kind:policyKind,image_id:id,tool_build_receipt_sha256:sha(readFileSync(tool(root,run,id).receiptPath)),artifact_id:digest,verified_bundle:replay.output,producer_receipt_sha256:sha(readFileSync(join(directory,'producer-receipt.json'))),checks:{actual_publication:true,actual_readonly_replay:true,consumer_write_refused:true,generated_fixture_handoff:true,corrupt_payload_refused:true,symlink_refused:true,wrong_mode_refused:true,wrong_uid_refused:true},network:'none'};save(join(run,`artifact-cache-receipt-v2-${attempt}.json`),receipt);return receipt;
+ const runtimeIdentity=checkRuntimeUnchanged(runtime,imageId);
+ const receipt={schema_version:2,step_id:opts.step,target_id:opts.target,evidence_kind:policyKind,image_id:id,runtime_identity:runtimeIdentity,tool_build_receipt_sha256:sha(readFileSync(tool(root,run,id).receiptPath)),artifact_id:digest,verified_bundle:replay.output,producer_receipt_sha256:sha(readFileSync(join(directory,'producer-receipt.json'))),checks:{actual_publication:true,actual_readonly_replay:true,consumer_write_refused:true,generated_fixture_handoff:true,corrupt_payload_refused:true,symlink_refused:true,wrong_mode_refused:true,wrong_uid_refused:true},network:'none'};save(join(run,`artifact-cache-receipt-v2-${attempt}.json`),receipt);return receipt;
 }
 export function runCacheCommand(args,{root=process.cwd()}={}){
- const opts=parseCacheArguments(args);if(opts.mode==='--help'){console.log('Offline v2 cache: build-tools --run-id RUN; self-test --run-id RUN --step STEP --target TARGET; publish/verify add --input; replay adds --receipt. Independently selected policy and explicit physical layout.');return 0;}
- const run=resolve(root,'.build/runs',opts['run-id']);ownedPath(run,{root:resolve(root,'.build/runs')});const config=parse(input(root,run,'configs/functional-artifact-cache-targets.json'));if(config.schema_version!==2)fail();const id=image(config);if(opts.mode==='build-tools'){buildTools(root,run,id);return 0;}
- const target=config.targets[opts.target];if(!target||target.step_id!==opts.step||!target.modes.includes(opts.mode)||target.validator!=='rust-dataset-v2')fail();metadata(root,config);if(opts.mode==='self-test'){selfTest(root,run,config,opts,id);return 0;}
+ const opts=parseCacheArguments(args);if(opts.mode==='--help'){console.log('Offline v2 cache: build-tools --run-id RUN; self-test --run-id RUN --step STEP --target TARGET; publish/verify add --input; replay adds --receipt. Optional paired --runtime-image REF --expected-image-id sha256:ID selects an existing local image; otherwise the public workspace default remains. Independently selected policy and explicit physical layout.');return 0;}
+ const run=resolve(root,'.build/runs',opts['run-id']);ownedPath(run,{root:resolve(root,'.build/runs')});const config=parse(input(root,run,'configs/functional-artifact-cache-targets.json'));if(config.schema_version!==2)fail();const runtime=image(config,opts),id=runtime.image_id;if(opts.mode==='build-tools'){buildTools(root,run,id,{runtime});return 0;}
+ const target=config.targets[opts.target];if(!target||target.step_id!==opts.step||!target.modes.includes(opts.mode)||target.validator!=='rust-dataset-v2')fail();metadata(root,config);if(opts.mode==='self-test'){selfTest(root,run,config,opts,id,runtime);return 0;}
  if(target.policy_kind!=='production-source-policy')fail();const envelope=parse(input(root,run,target.asset_config)),asset=envelope.assets?.[target.asset_id];if(envelope.schema_version!==2||envelope.default_asset!==target.asset_id||!asset)fail();
  // Only the closed registry selects an accepted frozen acquisition binding.
  // No caller-supplied binding path or untrusted manifest value is authoritative.
@@ -79,6 +86,6 @@ export function runCacheCommand(args,{root=process.cwd()}={}){
  const cache=resolve(root,config.cache_parent);mkdirSync(cache,{recursive:true,mode:0o700});ownedPath(cache,{root:resolve(root,'.build/artifact-cache/functional-v2')});let selected,digest;
  if(opts.mode==='replay'){const receipt=parse(ownedPath(resolve(opts.receipt),{root:run,directory:false,privateMode:true}));if(receipt.step_id!==opts.step||receipt.target_id!==opts.target||!SHA.test(receipt.artifact_id))fail();digest=receipt.artifact_id;selected=ownedPath(join(cache,asset.storage.cache.entry_prefix+digest),{root:cache});}else selected=ownedPath(resolve(opts.input),{root:run,privateMode:true});
  const plan=runtimeMountPlan(opts.mode,{runRoot:run,inputRoot:selected,cacheRoot:cache,digest,policyKind:target.policy_kind,targetKind:'raw-pair'});if(opts.mode==='replay')plan.mounts[0].source=selected;
- const result=bridge(root,run,id,bridgeRequest(opts.mode,{digest,policyKind:target.policy_kind}),plan.mounts,policyPath,layoutPath);save(join(run,`artifact-cache-${opts.mode}-receipt-v2.json`),{schema_version:2,step_id:opts.step,target_id:opts.target,evidence_kind:target.policy_kind,image_id:id,operation:opts.mode,artifact_id:result.output.artifact_id,verified_bundle:result.output,binding:accepted.binding,network:'none'});return 0;
+ const result=bridge(root,run,id,bridgeRequest(opts.mode,{digest,policyKind:target.policy_kind}),plan.mounts,policyPath,layoutPath),runtimeIdentity=checkRuntimeUnchanged(runtime,imageId);save(join(run,`artifact-cache-${opts.mode}-receipt-v2.json`),{schema_version:2,step_id:opts.step,target_id:opts.target,evidence_kind:target.policy_kind,image_id:id,runtime_identity:runtimeIdentity,operation:opts.mode,artifact_id:result.output.artifact_id,verified_bundle:result.output,binding:accepted.binding,network:'none'});return 0;
 }
 if(import.meta.url===pathToFileURL(resolve(process.argv[1]??'')).href){try{process.exitCode=runCacheCommand(process.argv.slice(2));}catch{console.error('Artifact cache boundary refused; private evidence retained.');process.exitCode=2;}}

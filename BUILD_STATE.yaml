@@ -47354,11 +47354,62 @@ builds:
               - "PASS current2clienttests, all-targets clippy -Dwarnings,18maintainedNodecases and actual Bash locked/allowlisted/dependencydenylist gate in network-none ready image."
               - "PASS64 exactinputs, fullYAML/JSONsyntax/onlysetupchanged/allholds, append-onlydecisions, strictdiffcheck, canonicalreceipt cmp/hash. No content/site/image/semanticreview or corpus acceptance claim."
             notes: "Completed queued prerequisite reconciliation; client implementation already delivered by refactor and not rebuilt/reinstalled. Registry copied from admitted immutable image; current compile6.06s then reused populatedtarget for3.80sclippy. No old compiledtarget reported reused. Observed private staging logical829801584/allocated864788480bytes before small finalrecords, within<=1GBestimate. Initial seed DAC failure preserved;0source requests, oldfailedtransfers and oldemptygraphlog unchanged. Dedicated3pathcommit required before acquisition; acquisition/Chapter42 remain unclaimed, repairs/Russian41+held."
+      - id: prepare-explicit-cached-corpus-runtime
+        objective: "Permit an explicit already-admitted cached runtime in maintained source/cache wrappers without changing public defaults, rebuilding the environment or acquiring data."
+        depends_on: ["setup-library-owned-corpus-transport"]
+        status: completed
+        inputs:
+          - "Cleana81ec3949eefc295fd7063bf79b6f1d8a65dc2df; approved preflightc8b8b1ef626668da39a7c95083ccc238a22c8dd2ad2b12df20a3ef174bb86944; inherited current model/effort, no overrides."
+          - "Existing build/cache wrappers and shared boundary, accepted cached image590b0c2f, completed setup registry/target and exact provenance."
+          - "Only one external filesystem.rs blank-line formatter cleanup; teaching/source/config/lock/policy remain unchanged."
+        outputs: ["scripts/build-functional-tinystories-image.mjs", "scripts/lib/run-functional-artifact-cache.mjs", "scripts/lib/functional-artifact-cache-boundary.mjs", "scripts/tests/build-functional-corpus-image.test.mjs", "scripts/tests/run-functional-artifact-cache.test.mjs", "scripts/README.md", "rust/tools/functional-artifact-cache/src/filesystem.rs", "artifacts/functional-laptop/execution-boundaries/explicit-cached-corpus-runtime/receipt.json", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Strict paired optional runtime-image/expected-image-id selectors; existing public defaults unchanged; local inspection mismatch refuses before execution and persistent post-operation tag drift refuses acceptance."
+          - "Ordinary containers use frozen immutable IDs/network-none; source image BUILD retains explicit selected-target networking and selected COURSE_CORPUS_BASE. No public retag/pull/fallback/environment build."
+          - "Existing18 plus concrete selector/caller/refusal/network cases pass; current filesystem3 tests and scoped/whole format pass, current source-bound build-tools compiles offline using verified registry/target cache."
+          - "Exact10outputs and concise receipt only; no corpus/client/dependency/content/Russian41+/held repair/source image build or completed-history mutation."
+        validate:
+          - "scripts/run-functional-rust-overlay.sh 20261006T120903Z-prepare-explicit-cached-corpus-runtime-01 filesystem-tests-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --locked --offline -p functional-artifact-cache --lib"
+          - "scripts/run-functional-rust-overlay.sh 20261006T120903Z-prepare-explicit-cached-corpus-runtime-01 whole-format-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo fmt --all -- --check"
+          - "Pinned590/network-none current stage: node --test scripts/tests/build-functional-corpus-image.test.mjs scripts/tests/run-functional-artifact-cache.test.mjs scripts/tests/course-network-isolation.test.mjs"
+          - "Maintained cache build-tools --run-id 20261006T120903Z-prepare-explicit-cached-corpus-runtime-01 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+          - "Scoped FS format, full YAML/receipt syntax/ownership/input preservation, git diff --check"
+        cost: "medium C2/G0/N0; estimated<=1.25GiB copied/reflink private registry/target/evidence; no paid service, provisioning, corpus or agent elapsed-time stop."
+        runs:
+          - run_id: "20261006T120903Z-prepare-explicit-cached-corpus-runtime-01"
+            started_at: "2026-10-06T12:09:03Z"
+            finished_at: "2026-10-06T12:29:38Z"
+            status: succeeded
+            input_fingerprint: {commit: "a81ec3949eefc295fd7063bf79b6f1d8a65dc2df", runtime_image: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758", fingerprint_file: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/input-fingerprint.json", fingerprint_sha256: "331f09da9f2f99ddb7c8bd3de89259440d7b30e8273c5900258d51b445a7874e"}
+            staging_dir: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/"
+            commands:
+              - "Read approved10outputpreflight; verify completed setup fingerprints; claim sole new prerequisite. Independently cp-a-reflink-auto141MBregistry+populatedtarget in6s; completedrun untouched."
+              - "Implement strict paired built-in parseArgs selectors/shared local identity snapshots in existing wrappers; preserve public defaults and all production network/capability controls. Remove exactly one externalFSblank line."
+              - "Actual maintained network-none filesystem3tests pass,5.14s currentcompile; wholecargoformat passes. Scopedformat first wrong2021edition refused, actualworkspace2024 passes without source broadening."
+              - "Failed Node harness1missing bind parent;2/3tar rootmetadata;4readonlytmp;5/6teststubnoexec preserved. FinalactualCLI27/27node-selector-08 passes with test-only exec/tmpdir, all fake Docker argv/refusal evidence. No production control change."
+              - "Current maintained cache build-tools with explicit admitted590selector: actualnetwork-none version/build containers,0.88sverifier compile frompopulatedtarget, exactcurrent source/binary and postidentityreceipt. No acquisition/image build."
+              - "Read-only Docker JSON inspection confirms publicfc6a/disabled685c/admitted590tags unchanged; earlier join formatter failure preserved. Full YAML88builds/503steps onlynewprerequisite+acqdependency, append-only decisions and baseline input preservation."
+              - "Publish7validatedfiles+6680byte concise receipt by same-directory temp rename; canonicalcmp exact. Strictdiffcheck/exact10ownedpaths; checkpoint succeeded before dedicatedcommit."
+            artifacts:
+              - {path: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/preflight.md", sha256: "c8b8b1ef626668da39a7c95083ccc238a22c8dd2ad2b12df20a3ef174bb86944"}
+              - {path: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/input-fingerprint.json", sha256: "331f09da9f2f99ddb7c8bd3de89259440d7b30e8273c5900258d51b445a7874e"}
+              - {path: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/node-selector-08/stdout.txt", sha256: "1ea7794e412be3107e45534ac9693cd5e1be399bbbf3e786025b78a12b261f1b"}
+              - {path: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/node-selector-08/input-hashes.txt", sha256: "a15799d6f308e50ce867afb9f2665202542688251b23ca23397520bec88196b1"}
+              - {path: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/filesystem-tests-01/stdout.txt", sha256: "0356466a36c3e7fbc6e4ea6189daef603c99e0fde209207b5e39c00225fc1431"}
+              - {path: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/validation/filesystem-tests-01/input-hashes.txt", sha256: "3fc7897e47bef314e43996dcb2364228b29515fec81d73f91feb04606cb1b1a0"}
+              - {path: ".build/runs/20261006T120903Z-prepare-explicit-cached-corpus-runtime-01/tool-build-receipt-v2-1.json", sha256: "a83ea9861276d8577c4f3a26ba0f66b6e83d5734510e5554ba755eac6cb1a9bb"}
+              - {path: "artifacts/functional-laptop/execution-boundaries/explicit-cached-corpus-runtime/receipt.json", sha256: "87db852f018bb18e048a99dd158f0f95431e7234b4c25cb4d7d83043f0925a6e"}
+            validation:
+              - "PASS27actualCLI/default/selector/pair/mismatch/missing/postdrift/network cases, actualFS3tests, wholeformat and actualedition2024scopedformat. Initial harness failures are not acceptance."
+              - "PASSactual currentverifier build-tools0.88s, immutable590network-none and before/after local identity; currentbinary9660d65a/source3b3379b6 binding. Publictags unchanged."
+              - "PASScanonical8files equal validatedstage; fullYAML/JSONsyntax/onlydeclaredchanges/append-onlydecisions/heldstates and strictdiffcheck; no new content or semantic verdict."
+            notes: "Completed explicit cachedruntime prerequisite; only10declared paths. Observed private staging logical1166626609/allocated1203433472bytes before smallfinalrecords, within<=1.25GiBestimate; no sharedblock/peakclaim. Copied oldregistry/target reused, current tests/tool receipt newly validated. No environment/sourceimage/client/dependency/corpus/English/Russian/repair work; acquisition remains blocked/unclaimed. Dedicatedcommit before next distinct acquisition preflight."
       - id: acquire-functional-tinystories-raw-pair
         objective: "Acquire only the frozen TinyStories pair during the user-selected conditional Docker image build; admit and reproduce it with existing Chapter41 offline artifact APIs."
         depends_on:
           - "configure-functional-corpus-assets"
           - "setup-library-owned-corpus-transport"
+          - "prepare-explicit-cached-corpus-runtime"
         status: "blocked"
         inputs:
           - "Chapter 41 manifest and protocol"

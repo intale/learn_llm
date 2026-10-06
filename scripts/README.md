@@ -317,7 +317,9 @@ selected network-enabled Docker image build; publication, verification and
 consumption then run with `--network none`. The cache is ignored, local and
 content-addressed under `.build/artifact-cache/functional-v2/sha256/<digest>`.
 Consumers receive only that selected digest directory read-only. No generic
-URL, policy, image, arbitrary executable or broad cache-mount override is offered.
+URL, policy, arbitrary executable or broad cache-mount override is offered. The
+optional runtime selector below admits only an already-existing locally inspected
+image with a caller-supplied expected immutable ID; it is not pull/build authority.
 Each self-test attempt has its own directory and `artifact-cache-receipt-v2-N.json`;
 receipts are write-once, including when prior attempts failed. Select the actual
 successful attempt's receipt rather than replacing earlier evidence.
@@ -335,7 +337,7 @@ node scripts/check-functional-artifact-cache-receipt.mjs --step refactor-ch41-co
 ```
 
 After image cleanup, rebuild the same existing Dockerfile workspace target using
-the command above. The runner resolves the one fixed public workspace tag,
+the command above. By default the runner resolves the public workspace tag,
 checks Rust1.93.1/Node22.12.0, and freezes the actual resulting image ID in the
 tool-build receipt. Subsequent operations refuse a changed tag/receipt binding;
 no private registry edit or permanent old image ID is required. `build-tools`
@@ -345,6 +347,23 @@ archive or source adapter is required. Reuse an existing verified tool receipt
 when inputs match; otherwise use a fresh private run ID rather than repeating the
 literal example ID. Operation evidence is
 write-once and a failed fixture directory is not overwritten.
+
+To reuse an already-admitted different local runtime without retagging the public
+workspace or rebuilding the environment, supply both flags on each cache command:
+
+```sh
+bash scripts/run-functional-artifact-cache.sh build-tools --run-id 20261006T000000Z-cache-example-01 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758
+```
+
+The example ID is one observed local admitted image, not a required future global
+pin. Supply the expected ID from the actual admitted runtime receipt. The flags
+must occur together exactly once; partial, duplicate, unknown or malformed
+options refuse. Missing images and expected-ID mismatches refuse before any
+container or compilation. Ordinary containers use the frozen immutable ID with
+`--network none`. A post-operation local inspection refuses persistent tag drift
+before a successful operation receipt is emitted. These are before/after snapshots,
+not continuous monitoring or proof against transient concurrent tag edits.
+No option pulls an image, changes a public tag or expands source/network authority.
 
 Expected fixture result: one 46-byte synthetic four-file bundle is verified,
 atomically published, replayed from an exact read-only digest mount and handed
@@ -419,11 +438,19 @@ an existing workspace image, without reprovisioning or whole-course checks:
 mkdir -p .build/runs/20261006T000000Z-source-example-01
 chmod 700 .build/runs/20261006T000000Z-source-example-01
 node scripts/build-functional-tinystories-image.mjs --run-id 20261006T000000Z-source-example-01
+# Optional paired selector reuses an already-admitted local runtime:
+node scripts/build-functional-tinystories-image.mjs --run-id 20261006T000000Z-source-example-02 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758
 ```
 
 Use a fresh run ID on repetition. Fixed inputs and actual image IDs are recorded
-in private write-once build receipts; no arbitrary URL/base-image override is
-provided. Tiny producer-input snapshots are retained after the download layer,
+in private write-once build receipts. The same strict paired existing-runtime
+selector above is supported; create each example run directory with mode700
+first. No arbitrary URL, uninspected base, pull or public-tag override is provided.
+The selected reference is passed to `COURSE_CORPUS_BASE`, and the receipt binds
+the expected/frozen ID and post-build inspection. A persistent tag change refuses
+acceptance while retaining the private build evidence; Docker BUILD still uses
+the existing selected `course-corpus` target with explicitly enabled networking.
+Tiny producer-input snapshots are retained after the download layer,
 so unrelated Dockerfile edits do not invalidate its corpus download cache.
 Deleting `.build` does not remove the maintained downloader; deleting images
 requires the explicit existing workspace/source build path again.

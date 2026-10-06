@@ -3,6 +3,21 @@ import {lstatSync,realpathSync} from 'node:fs';
 import {resolve,sep} from 'node:path';
 const SHA=/^[0-9a-f]{64}$/;
 const refused=()=>new Error('artifact cache boundary refused');
+export function runtimeSelection(defaultReference,{runtimeImage,expectedImageId}={}){
+ const explicit=runtimeImage!==undefined||expectedImageId!==undefined;
+ if(explicit&&(typeof runtimeImage!=='string'||runtimeImage.length===0||runtimeImage.startsWith('-')||typeof expectedImageId!=='string'||!/^sha256:[a-f0-9]{64}$/.test(expectedImageId)))throw refused();
+ if(typeof defaultReference!=='string'||!defaultReference)throw refused();
+ return {selection:explicit?'explicit':'default',image_reference:explicit?runtimeImage:defaultReference,expected_image_id:explicit?expectedImageId:null};
+}
+export function freezeRuntime(selection,inspect){
+ const id=inspect(selection.image_reference);
+ if(!/^sha256:[a-f0-9]{64}$/.test(id)||(selection.expected_image_id!==null&&id!==selection.expected_image_id))throw refused();
+ return {...selection,image_id:id};
+}
+export function checkRuntimeUnchanged(runtime,inspect){
+ const after=inspect(runtime.image_reference);if(after!==runtime.image_id)throw refused();
+ return {...runtime,post_operation_image_id:after,identity_check:'before-and-after-snapshots'};
+}
 export function exactKeys(value,keys){if(!value||Array.isArray(value)||typeof value!=='object'||Object.keys(value).sort().join('\0')!==[...keys].sort().join('\0'))throw refused();}
 export function ownedPath(path,{root,uid=1000,directory=true,privateMode=false}){
  const absolute=resolve(path),allowed=resolve(root);if(absolute!==path||(!absolute.startsWith(allowed+sep)&&absolute!==allowed)||realpathSync(absolute)!==absolute)throw refused();
