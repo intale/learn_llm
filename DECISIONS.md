@@ -29509,3 +29509,62 @@ maintained publication verifier pass again without changing historical evidence.
 No redundant Rust replay occurs for identical promoted bytes. Complete this
 narrow step/run and persist its seven declared paths in one dedicated commit;
 all verbose/failed harness evidence remains only in the named private run.
+
+### 2026-10-06 — Reconcile the already-delivered library-owned client prerequisite
+
+Chapter42 continuation first reconciles the pending
+`setup-library-owned-corpus-transport` checkpoint with the completed content-only
+V2 refactor. That refactor already admitted reqwest0.13.5 with only blocking and
+native-tls-no-alpn, MIME plumbing, full locked/allowlisted graph and the current
+external client/config/Docker/cache integration. Do not implement or install it
+again, recreate purged protocol scripts, rebuild the environment or acquire raw
+data in this setup. All historical run evidence remains unchanged.
+
+Root approves exactly a concise reconciliation receipt and ledger/decision
+outputs, with current focused client tests/clippy and maintained build/network/
+cache tests in admitted ready image590b0c2f. Prior exact evidence may be reused
+only when complete relevant inputs/provenance fit. The old node-gates02 direct
+dependency invocation has empty stdout and a permission failure, so that tranche
+is not reused as a passed graph gate; execute the maintained checker through
+Bash once offline. No broad history repair or new semantic verdict is implied.
+
+All runtime Docker invocations remain network-none. Final verified content is
+bounded by the selected expected_payload_ceiling_bytes; unobservable wire and
+redirect-body counts remain unavailable, never zero. The selected six-host
+config already includes the formerly refused official redirect domain. Neither
+that historical refusal nor the old HTTP-grant/resume accounting describes the
+new client's execution. No transfer occurs until a separate acquisition run.
+
+Routing inherits the current user-selected model/effort without spawn overrides;
+configured names are not exposed to root, and no current native observation is
+invented. Estimate medium C2/G0/N0 and<=1GB new private staging, no elapsed-time
+stop or paid service. Repairs and Russian41+ remain held, Chapter42 unclaimed.
+Upcoming acquisition uses the existing canonical-shaped private validation-root
+pattern and admitted ready base, without a new overlay helper or silent public
+tag repoint. Freeze that distinct run only after this prerequisite is committed.
+
+### 2026-10-06 — Current client setup proof completed without repeat implementation
+
+Current2/2 client tests, all-targets clippy with warnings denied,18/18 maintained
+build/network/cache cases and the actual locked offline Bash dependency-policy
+gate pass in admitted image590b0c2f. The first cap-dropALL cache seed lacked DAC
+override for the private mount and ran no test; preserve that failure, then use
+the established standard root-copy pattern in a read-only/network-none container.
+No privileged mode, dependency provisioning, client edit or corpus request occurs.
+
+An already-running fresh current test compile finished in6.06s before root's
+compiled-target reuse reminder; it was not stopped/restarted. Clippy reuses its
+populated target and finishes in3.80s. Do not report an old compiled-target copy
+that did not happen. Private staging before small final records observes
+829801584logical/864788480allocated bytes, within the initial1GB estimate.
+These are observations, not a historical peak claim. The old workspace public
+tag remains unchanged; existing disabled-build evidence retains only its exact
+old false-branch scope.
+
+The5633byte reconciliation receipt is the sole promoted artifact; canonical
+bytes match validated stage exactly.64 input files match their preflight hashes;
+the full88-build/502-step comparison changes only this setup step, with no
+historical run, held repair, Russian41+, acquisition or Chapter42 change. Preserve
+verbose logs only in the new ignored run. Complete/commit this3-output setup
+checkpoint before the root-authorized distinct acquisition preflight; nothing
+here admits raw content or independently approves learner-facing language.

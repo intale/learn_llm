@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-06T11:39:05Z"
+updated_at: "2026-10-06T12:00:33Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -47305,21 +47305,55 @@ builds:
               - "PASScanonical5productfiles cmp/hashes equal validated stage; canonical6regions/4English and unchanged existingreview/publication verifier; wholeYAML/JSONsyntax/scope/diff checks."
             notes: "Completed narrow Rust correction after root source/receipt approval and exact canonical checks.32localcoretests+20existingdemo+5adaptertests pass; new named public constants expose unchanged values and private phases preserve original conditions/order. Prior completed reviews certify only their unchanged archived candidate; new implementation evidence is this concise receipt. Existing externalFS workspace-fmt blankline remains out-of-scope, owned4fileformat passes. No .build/duplicateHTML/source/log artifacts, corpus/RU/repair/Chapter42 work."
       - id: setup-library-owned-corpus-transport
-        objective: "Replace incidental asset HTTP transport with an existing client that owns response parsing, redirect following and HTTP/IO errors; keep retrieval outside the Chapter41 content library."
+        objective: "Reconcile the queued client prerequisite with completed content-only V2 transport and current offline evidence, without implementing it twice or acquiring corpus data."
         depends_on: ["refactor-ch41-content-only-boundary"]
-        status: pending
+        status: completed
         inputs:
-          - "User content-only source/sink and existing-library instructions; root-selected reqwest blocking preflight, not yet dependency admission."
-          - "Selected asset config and independently bound producer; exact hosts, sources and product caps remain."
-          - "Before execution freeze minimal client version/features/full graph. Latest user content/retrieval separation counts verified final payload streams under2GB, not unobservable per-hop/wire bytes; historical HTTP-grant evidence remains unchanged. No manual parsing or redirect loop."
-        outputs: ["Maintained separate machinery client and focused tests, paths to be frozen in preflight", "Necessary locked dependency allowlist and Docker integration, scoped before execution", "BUILD_STATE.yaml", "DECISIONS.md"]
+          - "Clean783affca4bfebbd9c4efd12e08a44feec5ba91b5; completed refactor already delivered course-asset-fetch reqwest0.13.5 blocking/native-tls-no-alpn, mature MIME, locked allowlisted graph, V2 adapters/config and Docker build integration."
+          - "Current configs/functional-corpus-assets.json schema2/six hosts and frozen pair; expected_payload_ceiling_bytes=2000000000 bounds final content, wire/redirect bodies unavailable."
+          - "Maintained offline overlay and exact ready image590b0c2f; current inherited user-selected model/effort without overrides, configured names not exposed to root."
+          - "Immutable prior client/graph/cache/flag evidence reused only when full relevant input/provenance hashes fit; focused current checks for drift. No acquisition."
+        outputs: ["artifacts/functional-laptop/execution-boundaries/library-owned-corpus-transport/reconciliation-receipt.json", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
-          - "Existing mature client owns HTTP parsing, redirects and errors; policy callback delegates after existing endpoint admission. No client or retrieval demonstration in llm-from-scratch."
-          - "Standard content Read/Write/store boundary unchanged; body/time/redirect and metadata compatibility explicitly reconciled, never claim hidden client bytes as zero."
-          - "Default corpus build flag/cloud false and all runtime containers offline remain; no real corpus download in this setup step."
-        validate: ["Focused offline client/config/refusal tests and dependency checks, exact commands frozen before execution", "git diff --check"]
-        cost: "medium; official dependency provisioning only during permitted image build after exact graph/resource preflight; no corpus acquisition or paid service."
-        runs: []
+          - "Existing mature client owns parsing/following/errors; exact destination checks delegate to library five-hop policy outside course content. No client or content changes."
+          - "Read/Write/store and final-content/unavailable-wire distinctions preserved; defaulttrue/closedfalse/cloudfalse/runtime-network-none remain."
+          - "Current maintained client/config/cache/flag and exact locked graph gates pass; only concise receipt/ledger/decision outputs, no duplicated source/HTML/log artifacts."
+          - "No dependency install/environment rebuild, corpus/Russian41+/held repair, site/browser/image check or Chapter42 implementation. Historical runs/verdicts stay unchanged."
+        validate:
+          - "scripts/run-functional-rust-overlay.sh 20261006T114908Z-setup-library-owned-corpus-transport-01 client-tests-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --locked --offline -p course-asset-fetch --lib"
+          - "scripts/run-functional-rust-overlay.sh 20261006T114908Z-setup-library-owned-corpus-transport-01 client-clippy-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo clippy --locked --offline -p course-asset-fetch --all-targets -- -D warnings"
+          - "Pinned590b0c2f/network-none: node --test scripts/tests/build-functional-corpus-image.test.mjs scripts/tests/course-network-isolation.test.mjs scripts/tests/run-functional-artifact-cache.test.mjs; bash scripts/check-rust-dependencies.sh"
+          - "Full YAML/receipt JSON syntax, exact owned-output/input preservation, git diff --check"
+        cost: "medium C2/G0/N0; cached focused compilation/checks, estimated<=1GB private staging, no paid service/provisioning/acquisition or agent elapsed-time stop."
+        runs:
+          - run_id: "20261006T114908Z-setup-library-owned-corpus-transport-01"
+            started_at: "2026-10-06T11:49:08Z"
+            finished_at: "2026-10-06T12:00:33Z"
+            elapsed_seconds: 685
+            status: succeeded
+            input_fingerprint: {commit: "783affca4bfebbd9c4efd12e08a44feec5ba91b5", runtime_image: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758", fingerprint_file: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/input-fingerprint.json", fingerprint_sha256: "b9a0ba1f3b28598bf48977c3b03a51c2d208ed7e3c9e703566e032e533175b4b"}
+            staging_dir: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/"
+            commands:
+              - "Read-only startup/full ledger parse88builds/502steps/no-running, current decisions/clients/adapters, exact recorded artifacts and14metadata inventory hashes, existing image inspection/version diagnostics."
+              - "Initial cache seed with cap-dropALL refused private mount traversal; no test ran. Standard read-only/network-none root copy from admitted image succeeded; failure retained, no provisioning."
+              - "Maintained current-source overlay client-tests-01: cargo test --locked --offline -p course-asset-fetch --lib;2/2pass,6.06s compile. client-clippy-01: same populated target, all-targets -Dwarnings passes,3.80s check."
+              - "Actual pinned network-none node-and-graph-01:18/18 maintained build/network/cache tests pass; bash scripts/check-rust-dependencies.sh passes current locked offline allowlist/denylist. No source fetch."
+              - "Full YAML88builds/502steps and64 exact fingerprint inputs; only setup step changed, all other builds/steps/holds and historical runs unchanged; DECISIONS append-only; strict git diff --check."
+              - "Publish only5633byte concise receipt by same-directory temporary-file rename; canonical cmp/hash exactly matches stage. Three declared paths only, no .build/source/HTML/log copies."
+            artifacts:
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/preflight.md", sha256: "4f8a57d12db625ba45387b91ab7e697e25830f2bb989aad244edef7fbefd0bbb"}
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/input-fingerprint.json", sha256: "b9a0ba1f3b28598bf48977c3b03a51c2d208ed7e3c9e703566e032e533175b4b"}
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/validation/client-tests-01/stdout.txt", sha256: "8579a4a891e1a21df97fa4939f0269aba397010ef28da906d1dd1d866e7a4ce6"}
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/validation/client-tests-01/input-hashes.txt", sha256: "9dfb78611182a9d80d49b7224b113d5ea95dc8599d952e69e162fc4642ca804d"}
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/validation/client-clippy-01/stderr.txt", sha256: "e660679d84fe6f7c6ac2bc0c8cb823f7e7f4931c572cbbba9e48b3533a9a32ea"}
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/validation/node-and-graph-01/node.stdout.txt", sha256: "a69fafd7aae651649d26d356c2d2228836b44d32fbe21517b59c89a184429e54"}
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/validation/node-and-graph-01/dependencies.stdout.txt", sha256: "82d3e8c9ab9fa7ca7201a0f0efd7c53d54da8f1b935cdfd7ba0b5ee452dacf03"}
+              - {path: ".build/runs/20261006T114908Z-setup-library-owned-corpus-transport-01/validation/node-and-graph-01/input-hashes.txt", sha256: "49760ec0c866631c6336d6e9ae9fbd2edc43ffb6b9d794f94f31d0c4720dc8fd"}
+              - {path: "artifacts/functional-laptop/execution-boundaries/library-owned-corpus-transport/reconciliation-receipt.json", sha256: "1e28304ca6bd8ee5b19e5230f59cb4b8136f4b730671af52de925184146a5b2c"}
+            validation:
+              - "PASS current2clienttests, all-targets clippy -Dwarnings,18maintainedNodecases and actual Bash locked/allowlisted/dependencydenylist gate in network-none ready image."
+              - "PASS64 exactinputs, fullYAML/JSONsyntax/onlysetupchanged/allholds, append-onlydecisions, strictdiffcheck, canonicalreceipt cmp/hash. No content/site/image/semanticreview or corpus acceptance claim."
+            notes: "Completed queued prerequisite reconciliation; client implementation already delivered by refactor and not rebuilt/reinstalled. Registry copied from admitted immutable image; current compile6.06s then reused populatedtarget for3.80sclippy. No old compiledtarget reported reused. Observed private staging logical829801584/allocated864788480bytes before small finalrecords, within<=1GBestimate. Initial seed DAC failure preserved;0source requests, oldfailedtransfers and oldemptygraphlog unchanged. Dedicated3pathcommit required before acquisition; acquisition/Chapter42 remain unclaimed, repairs/Russian41+held."
       - id: acquire-functional-tinystories-raw-pair
         objective: "Acquire only the frozen TinyStories pair during the user-selected conditional Docker image build; admit and reproduce it with existing Chapter41 offline artifact APIs."
         depends_on:

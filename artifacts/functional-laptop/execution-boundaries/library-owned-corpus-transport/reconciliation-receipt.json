@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "stepId": "setup-library-owned-corpus-transport",
+  "runId": "20261006T114908Z-setup-library-owned-corpus-transport-01",
+  "baselineCommit": "783affca4bfebbd9c4efd12e08a44feec5ba91b5",
+  "scope": "Reconcile previously delivered content-only V2 supporting client with the queued setup checkpoint; no code or corpus acquisition.",
+  "runtimeImage": "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758",
+  "network": "none",
+  "routing": {
+    "selection": "Inherited current user-selected model and effort with no spawn overrides",
+    "configuredNamesExposedToRoot": false
+  },
+  "inputs": {
+    "assetConfig": {
+      "path": "configs/functional-corpus-assets.json",
+      "sha256": "5d21797249134bc6cc2b4e71b49394a642550d60201b572a93889800c867e4a7",
+      "schemaVersion": 2,
+      "allowedHosts": 6
+    },
+    "cargoLock": {
+      "path": "Cargo.lock",
+      "sha256": "76d1b786f8464a2de3b7543d9ba33bef0318716a91a15d62aef121754cf91ae4"
+    },
+    "clientLibrary": {
+      "path": "rust/tools/course-asset-fetch/src/lib.rs",
+      "sha256": "186ffdc5592e7b0801ad4581c942fe3a2c953a8327786fb91c03b1ee13f46a17"
+    },
+    "clientExecutableSource": {
+      "path": "rust/tools/course-asset-fetch/src/main.rs",
+      "sha256": "a49c188eeff36629964d167311e548748a4f115afd7d2e29b925c2f2fc9c3755"
+    },
+    "preflightSha256": "4f8a57d12db625ba45387b91ab7e697e25830f2bb989aad244edef7fbefd0bbb",
+    "inputFingerprintSha256": "b9a0ba1f3b28598bf48977c3b03a51c2d208ed7e3c9e703566e032e533175b4b"
+  },
+  "supportingClient": {
+    "package": "reqwest",
+    "version": "0.13.5",
+    "defaultFeatures": false,
+    "features": [
+      "blocking",
+      "native-tls-no-alpn"
+    ],
+    "mimeVersion": "0.3.17",
+    "ownership": "External machinery client owns standard URL/HTTP/TLS parsing, redirect following, status and IO errors. Course content remains Read/Write/AssetSource/AssetStore based."
+  },
+  "accounting": {
+    "expectedPayloadCeilingBytes": 2000000000,
+    "wireBytes": "unavailable",
+    "redirectBodyBytes": "unavailable",
+    "realCorpusRequestsInThisRun": 0,
+    "limitations": "The ceiling bounds declared and observed final content, not hidden ingress, client buffering or per-hop bytes. No current source acquisition, transport success, raw-pair admission or HTTP-resume capability is claimed."
+  },
+  "checks": {
+    "currentClientTests": {
+      "status": "passed",
+      "command": "cargo test --locked --offline -p course-asset-fetch --lib",
+      "selected": 2,
+      "passed": 2,
+      "failed": 0,
+      "compileSeconds": 6.06,
+      "stdoutSha256": "8579a4a891e1a21df97fa4939f0269aba397010ef28da906d1dd1d866e7a4ce6",
+      "inputHashesSha256": "9dfb78611182a9d80d49b7224b113d5ea95dc8599d952e69e162fc4642ca804d"
+    },
+    "currentClientClippy": {
+      "status": "passed",
+      "command": "cargo clippy --locked --offline -p course-asset-fetch --all-targets -- -D warnings",
+      "checkSeconds": 3.8,
+      "stderrSha256": "e660679d84fe6f7c6ac2bc0c8cb823f7e7f4931c572cbbba9e48b3533a9a32ea"
+    },
+    "maintainedBuildNetworkCacheTests": {
+      "status": "passed",
+      "command": "node --test scripts/tests/build-functional-corpus-image.test.mjs scripts/tests/course-network-isolation.test.mjs scripts/tests/run-functional-artifact-cache.test.mjs",
+      "selected": 18,
+      "passed": 18,
+      "failed": 0,
+      "stdoutSha256": "a69fafd7aae651649d26d356c2d2228836b44d32fbe21517b59c89a184429e54",
+      "limitations": "Host/Docker forwarding is stubbed; wiring/refusal tests do not execute a real source transfer."
+    },
+    "lockedDependencyPolicy": {
+      "status": "passed",
+      "command": "bash scripts/check-rust-dependencies.sh",
+      "stdoutSha256": "82d3e8c9ab9fa7ca7201a0f0efd7c53d54da8f1b935cdfd7ba0b5ee452dacf03",
+      "scope": "Current locked offline workspace graph is fully allowlisted and concept denylist clear, not a software security or license adjudication."
+    },
+    "toolingInputHashesSha256": "49760ec0c866631c6336d6e9ae9fbd2edc43ffb6b9d794f94f31d0c4720dc8fd"
+  },
+  "cacheReuse": {
+    "registry": "Copied from the existing immutable admitted image; no dependency provisioning.",
+    "compiledTarget": "The already-running current test compile completed; subsequent clippy reused that populated target. No old compiled target was copied or reported as reused.",
+    "runLogicalBytesObserved": 829801584,
+    "runAllocatedBytesObserved": 864788480,
+    "units": "Bytes observed before writing this small receipt/final checkpoint, not a historical peak claim."
+  },
+  "priorEvidence": {
+    "disabledBuildReceiptSha256": "1ae32ab8423fdafb46fda78279209cc7a0db3a2db92ef151e8956206f223ee8d",
+    "scope": "Unchanged old disabled image branch only; not the current full client fingerprint or actual acquisition. Prior failed transfer receipts remain historical and unchanged.",
+    "dependencyReuse": "The old empty/direct-permission-failed graph log was not relabeled as a pass; this receipt binds one actual current successful Bash gate."
+  },
+  "holds": {
+    "existingChapterRepairs": "pending until explicit user instruction",
+    "russian41AndHigher": "deferred",
+    "chapter42Implementation": "not started",
+    "rawAcquisition": "separate subsequent step"
+  },
+  "storage": "Only this concise receipt is promoted. Full logs, input inventories and failed harness diagnostics remain in the named ignored run; no source/HTML/log copies added.",
+  "limitations": "Deterministic checks establish command outcomes, byte bindings and wiring. They do not certify pedagogy, English, privacy/legal suitability or acquired corpus contents."
+}
