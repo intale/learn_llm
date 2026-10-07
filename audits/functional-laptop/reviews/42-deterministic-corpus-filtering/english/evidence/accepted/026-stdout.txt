@@ -1,0 +1,32 @@
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 12 tests
+test lineage_refuses_unknown_roots_dangling_edges_and_cycles ... ok
+test withdrawal_reaches_known_descendants_once ... ok
+test an_output_cap_fails_before_publishing_a_truncated_report ... ok
+test raw_proof_joins_exact_selected_source_and_payload ... ok
+test fixture_counts_and_byte_conservation ... ok
+test findings_have_no_secret_body_and_manual_is_not_consumable ... ok
+test policy_drift_and_role_relabeling_do_not_authorize_consumption ... ok
+test selected_retained_rows_are_checked_again_and_callbacks_remain_provisional ... ok
+test matching_proofs_do_not_override_manual_review_eligibility ... ok
+test retained_selection_joins_the_selected_raw_artifact_and_complete_source_set ... ok
+test swapping_secret_and_review_changes_first_terminal ... ok
+test repeated_attempts_produce_exact_bytes_not_just_matching_counts ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

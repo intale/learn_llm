@@ -1,0 +1,36 @@
+{
+  "chapter_id": "42-deterministic-corpus-filtering",
+  "locale": "en",
+  "title": "Ordered corpus filtering",
+  "description": "Terms for record boundaries, first-terminal decisions, stage populations and source lineage in corpus filtering.",
+  "terms": [
+    {
+      "term": "Record frame",
+      "definition": "One raw payload delimited by the selected separator or final end-of-input boundary. Its byte span excludes the separator and includes its own line endings."
+    },
+    {
+      "term": "First-terminal decision",
+      "definition": "The first rule that rejects a record or holds it for manual review. Evaluation stops there; later rules have no result for that record."
+    },
+    {
+      "term": "Stage population",
+      "definition": "The records that actually reach one rule after surviving every earlier rule. This count is that rule's rate denominator, not necessarily the whole input count."
+    },
+    {
+      "term": "Manual review",
+      "definition": "A withheld disposition distinct from rejection and retention. This example supplies no approval override, so pending-review text cannot continue as training input."
+    },
+    {
+      "term": "Normalization",
+      "definition": "Here, replace CRLF pairs with LF and trim only space, tab, CR and LF at the edges. Case, internal spaces and other Unicode characters remain unchanged."
+    },
+    {
+      "term": "Occurrence identity",
+      "definition": "A digest binding a selected raw source to one half-open payload byte span. Equal text at different positions has different identities; changing filter policy does not change the raw occurrence."
+    },
+    {
+      "term": "Known-source withdrawal",
+      "definition": "List a source's recorded descendants once in a supplied lineage graph. This calculation does not erase data, find unknown copies or unlearn a trained model."
+    }
+  ]
+}

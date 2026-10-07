@@ -2,19 +2,36 @@
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {readdirSync} from 'node:fs';
-import {runChapterContractCheck,validateChapterContractText,validateContractLesson,validateExpectedOutput,validateChapterContractIntegration} from './check-chapter-contract.mjs';
+import {runChapterContractCheck,validateChapterContractText,validateChapterContractIntegration} from './check-chapter-contract.mjs';
 import {readLocaleConfiguration} from './locale-config.mjs';
-import {parseJsonFrontmatter,validateChapterDocument} from './check-site-content.mjs';
+import {parseJsonFrontmatter} from './check-site-content.mjs';
 import {readRegularFile} from './check-functional-step-receipt.mjs';
 import {readFunctionalChapterLocaleConfiguration} from './functional-chapter-locale-config.mjs';
-import {examplePaths,demoPaths} from './check-functional-rust-examples.mjs';
+import {demoPaths} from './check-functional-rust-examples.mjs';
 import {parseRegistryFragment,readFunctionalPlan,ownedSources} from './check-functional-rust-ownership.mjs';
 import {readPrivateBuildScope} from './check-functional-site-content.mjs';
 
 export function contractDispatch(chapterId) {
   if (!/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(chapterId))throw new Error('invalid chapter ID');
-  if(['40-reference-core-handoff','41-governed-corpus-acquisition'].includes(chapterId))return 'successor-demo';
-  return Number(chapterId.slice(0,2))<=39?'legacy-demo':'functional-example';
+  const order=Number(chapterId.slice(0,2));
+  if(order>85)throw new Error('chapter ID outside course range');
+  return order<=39?'legacy-demo':'successor-demo';
+}
+export function validateDemoContractBinding(data,plan) {
+  if(plan.chapters.filter(c=>c.chapter_id===data.chapter_id&&c.order===data.order).length!==1)
+    throw new Error('contract chapter/order absent from exact functional plan');
+  const demo=demoPaths(data.chapter_id),prefix='rust/demos/'+demo.package+'/';
+  if(data.rust.package!==demo.package ||
+      !data.rust.sources.includes(demo.source) || !data.rust.sources.includes(demo.library) ||
+      data.rust.sources.some(p=>p.startsWith('rust/demos/')&&!p.startsWith(prefix)))
+    throw new Error('Successor contract must bind its exact approved demo package/source');
+  const owners=ownedSources(plan),filename='ch'+data.chapter_id+'.module';
+  const expected=owners.filter(o=>o.fragment===filename).map(o=>o.source).sort();
+  if(expected.length&&data.rust.sources.some(p=>p.startsWith('rust/crates/llm-from-scratch/src/')&&
+      !expected.includes(p.slice('rust/crates/llm-from-scratch/'.length))))
+    throw new Error('contract shared Rust source belongs to another chapter owner');
+  return {demo,owners,expected,fragment:expected.length
+    ? 'rust/crates/llm-from-scratch/module-registry/functional-v1/'+filename:null};
 }
 export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
   const source=readRegularFile(root,path).toString();
@@ -28,38 +45,18 @@ export function checkFunctionalContract(root,path,{structureOnly=false}={}) {
   const requiredLocales=privateScope?.chapterId===data.chapter_id
     ? Object.keys(privateScope.sourceHashes):chapter.activeLocales;
   const parsed=validateChapterContractText(source,{sourceName:path,supportedLocales:requiredLocales});
-  if(contractDispatch(data.chapter_id)==='successor-demo') {
-    const demo=demoPaths(data.chapter_id), prefix='rust/demos/'+demo.package+'/';
-    if(data.rust.package!==demo.package ||
-        !data.rust.sources.includes(prefix+'src/main.rs') ||
-        !data.rust.sources.includes(prefix+'src/lib.rs') ||
-        data.rust.sources.some(p=>p.startsWith('rust/demos/')&&!p.startsWith(prefix)))
-      throw new Error('Successor contract must bind its exact approved demo package/source');
-    if(structureOnly)return parsed;
-    if(data.chapter_id==='41-governed-corpus-acquisition') {
-      const fragment='rust/crates/llm-from-scratch/module-registry/functional-v1/ch41-governed-corpus-acquisition.module';
-      parseRegistryFragment(fragment.split('/').at(-1),readRegularFile(root,fragment,65536),ownedSources(readFunctionalPlan(root)));
-    }
-    validateChapterContractIntegration(parsed,{repositoryRoot:root,sourceName:path,
-      localeConfiguration:{...readLocaleConfiguration(root),locales:requiredLocales},
-      chapterLocaleConfiguration:{...config,byChapter:{...config.byChapter,
-        [data.chapter_id]:{...chapter,activeLocales:requiredLocales}}}});
-    return parsed;
-  }
-  const p=examplePaths(data.chapter_id);
-  if(data.rust.package!=='llm-from-scratch' ||
-      !data.rust.sources.some(path=>path.startsWith('rust/crates/llm-from-scratch/src/')))
-    throw new Error('functional contract must bind cumulative crate and actual owned source');
+  const binding=validateDemoContractBinding(data,readFunctionalPlan(root));
   if(structureOnly)return parsed;
-  readRegularFile(root,p.source);
-  validateExpectedOutput(data,readRegularFile(root,p.expected).toString(),path);
-  parseRegistryFragment(p.fragment.split('/').at(-1),readRegularFile(root,p.fragment),ownedSources(readFunctionalPlan(root)));
-  for(const locale of requiredLocales) {
-    const lessonPath='site/src/content/chapters/'+locale+'/'+data.chapter_id+'.mdx';
-    const lesson=validateChapterDocument(readRegularFile(root,lessonPath).toString(),{
-      sourceName:lessonPath,repositoryRoot:root,checkSourceFiles:true,supportedLocales:requiredLocales});
-    validateContractLesson(parsed.data,lesson,locale,lessonPath);
+  if(binding.fragment) {
+    const records=parseRegistryFragment(binding.fragment.split('/').at(-1),
+      readRegularFile(root,binding.fragment,65536),binding.owners);
+    if(JSON.stringify(records.map(r=>r.source).sort())!==JSON.stringify(binding.expected))
+      throw new Error('fragment missing owned source');
   }
+  validateChapterContractIntegration(parsed,{repositoryRoot:root,sourceName:path,
+    localeConfiguration:{...readLocaleConfiguration(root),locales:requiredLocales},
+    chapterLocaleConfiguration:{...config,byChapter:{...config.byChapter,
+      [data.chapter_id]:{...chapter,activeLocales:requiredLocales}}}});
   return parsed;
 }
 export function runFunctionalContractCheck(args,cwd) {

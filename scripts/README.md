@@ -47,17 +47,23 @@ The English-only40 candidate keeps declared final bilingual language links; only
 its exact absent Russian equivalent is tolerated by private link audit. Production
 checks every link. This rendering mechanism grants no author/review approval.
 
-Contract checking dispatches0..39 through the unchanged demo checker. Exact
-Chapters40/41 use their `rust/demos/ch<chapter-id>/` package main/lib sources and
-`expected.txt`, retaining shared private/production locale/publication gates.
-Chapter40 has no cumulative module fragment. Chapter41 separately registers its
-four reusable artifact modules through the unchanged cumulative registry grammar.
-Chapters42+ retain the cumulative crate's exact example/golden/registry paths.
-`check-functional-rust-examples.mjs --all|--chapter <id>` runs the bounded
-demo or in-package example and compares exact stdout. `check-functional-rust-ownership.mjs`
-enforces the accepted ownership-map-v1 grammar and registered source coverage.
-Only exact approved Chapters40/41 use the demo exception; no other chapter ID
-selects it. Chapter41's standard URL/header/filesystem supporting dependencies
+Contract checking dispatches0..39 through the unchanged demo checker. Every exact
+frozen Chapter40–85 uses its `rust/demos/ch<chapter-id>/` package main/lib sources
+and `expected.txt`, retaining shared private/production locale/publication gates.
+Callers require exact membership in the loaded plan/configuration before opening
+Rust sources or executing Cargo. `demoPaths(id)` checks only path syntax/range;
+it is not execution authority. Unknown slugs refuse and no cumulative-example
+fallback exists. Chapter40 has no cumulative module fragment; later chapters
+with shared library sources require their exact ownedSources/registry fragment,
+complete source coverage and unchanged ownership-map-v1 grammar.
+`check-functional-rust-examples.mjs --all|--chapter <id>` executes the selected
+chapter demo and compares byte-identical stdout. `--all` skips known future demos
+whose main source is absent; an explicitly selected missing demo fails rather
+than claiming execution. Regressions enumerate all46 actual plan IDs and check
+unknown selections, package/source drift, shared-source ownership and exact bytes:
+`node --test scripts/tests/check-functional-rust-examples.test.mjs scripts/tests/check-functional-chapter-contract.test.mjs`.
+`check-functional-rust-ownership.mjs` still validates protected reference hashes
+and registered source coverage. Chapter41's standard URL/header/filesystem supporting dependencies
 are separately pinned, fully allowlisted and cached; they never perform course
 manifest/policy/identity/budget/restart decisions. No registry serialization change.
 

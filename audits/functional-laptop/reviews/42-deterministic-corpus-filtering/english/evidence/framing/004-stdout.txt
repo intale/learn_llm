@@ -1,0 +1,13 @@
+bytes=1924281556
+sha256_before=c5cf5e22ff13614e830afbe61a99fbcbe8bcb7dd72252b989fa1117a368d401f
+lf_count=14815489
+awk_records=14815490
+empty_lf_records=1195149
+crlf_records=0
+exact_whole_line_separators=2119718
+crlf_whole_line_separators=0
+max_record_bytes_excluding_lf=4928
+final_record_kind=other
+marker_occurrences_anywhere=2119718
+final_byte_decimal= 100
+sha256_after=c5cf5e22ff13614e830afbe61a99fbcbe8bcb7dd72252b989fa1117a368d401f

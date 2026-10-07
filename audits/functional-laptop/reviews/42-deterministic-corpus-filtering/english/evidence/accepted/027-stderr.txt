@@ -1,0 +1,7 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+   Compiling ch42-deterministic-corpus-filtering v0.1.0 (/work/rust/demos/ch42-deterministic-corpus-filtering)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.88s
+     Running unittests src/lib.rs (/target/debug/deps/ch42_deterministic_corpus_filtering-1f6c1ddc463754c0)
+     Running unittests src/main.rs (/target/debug/deps/ch42_deterministic_corpus_filtering-345ce4929525183e)
+     Running tests/corpus_filtering.rs (/target/debug/deps/corpus_filtering-1b44dabe9df04bab)
+   Doc-tests ch42_deterministic_corpus_filtering

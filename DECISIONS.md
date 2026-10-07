@@ -29933,3 +29933,392 @@ ledger checking and a command-local check excluding only the ten identified
 immutable evidence files. Do not claim the whole raw check passed, normalize
 reviewed bytes, exclude authored files or modify Git configuration/attributes.
 This is live validation reconciliation, not an English or review-record edit.
+
+### 2026-10-06 — Resume Chapter42 after dedicated Chapter41 history repair
+
+Chapter41 repair4e45c53d completed and committed its reviewed English-v5 candidate
+before fresh Chapter42 run20261006T165044Z...02. Add that completed repair as an
+explicit live prerequisite while preserving Chapter42 run01 interrupted and all
+its artifacts unchanged. Reuse the existing28owned stage files byte-identically;
+plan/packet/EOF policy/English-only authority and all substantive acceptance stay
+fixed. Repairs6/8–10, Russian41+ and real corpus filtering remain separately held.
+
+The actual old clippy input manifest has350entries, not the earlier259summary.
+349current inputs match; the sole generated expected.txt transitioned from the
+previous golden to final actual stdout879152d5 after the passing operation. No
+demo source/main/test includes or reads expected.txt. Record the ordered transition
+and exact10044B stdout/golden/contract equality instead of claiming a source hash
+match. Reuse actual format05/core33/demo12/clippy03/stdout02 and dispatcher proofs;
+do not repeat code, dependency, runtime or acquisition validation absent drift.
+The two preparation assertion refusals made no writes or tests and remain failure
+evidence, not failed algorithms or an excuse to reconstruct valid prior work.
+
+Remaining gates are four literal documented COURSE_CORPUS=false ./course run
+commands, followed by scoped current42 static/type/Vitest/build/links and sole
+Firefox assertions, then a new unchanged-candidate English2+2 chain. Use the
+unchanged normal wrapper/cache path; ordinary containers stay network-none,
+official image construction retains existing authority and no corpus is acquired.
+Private42 site activation uses the accepted explicit descriptor in disposable
+workspace only, not a fabricated public receipt. Preserve current41v5 full HTML;
+the review projection permits only one new42next-anchor and otherwise requires
+byte identity with its immutable baseline. No old41review/receipt is overwritten.
+
+Root owns any content/algorithm/role requirement decision; this machinery thread
+owns command execution/ledger and the distinct packaging thread owns extraction/
+native review provenance. Current model/effort is inherited without overrides;
+actual configured values are evidence per freeze, not a permanent model pin.
+No repeat2GBscan/download, new graph or environment rebuild is justified merely
+by this continuation. Publish/complete/commit only after the remaining gates pass.
+
+### 2026-10-06 — Order Chapter42 private review before production-command gate
+
+Preserve three genuine literal-wrapper build refusals with zero learner dispatch:
+missing concept-specific figure class, current42symbol/practice section shape,
+then the expected public42lesson versus43implemented-contract count. Root fixed
+only the author-owned figure class and lesson structure, with focused ownedtest
+assertions; cheap cached42contract/content/parity/ownership now pass. Topic,
+formula, Rust, fixture, source URLs and four literal commands remain unchanged.
+The normal Dockerfile may naturally rerun its cached source test layer after a
+site edit; no manually repeated scopedRustsuite or corpus acquisition occurred.
+
+The last refusal is dependency ordering, not permission to fake42publication.
+Root approves private42static/Vitest/type/build/links/soleFirefox followed by the
+fresh English2+2 chain. Only after actual judgments pass, prepare a genuinely
+receipt-bound canonical-shaped private productioncandidate and run all4literal
+normalwrapper commands before canonical promotion. Receipt binds eligibility
+and exact bytes, not step completion; literal execution proof stays pending until
+it actually executes. Do not weaken the count gate, invent a verdict, add a new
+CLI or put a private descriptor into the literal production workflow. If a schema
+requires unruncommand proof circularly, report it rather than fabricate evidence.
+
+### 2026-10-06 — Chapter42 concept geometry preserves shared full-view contract
+
+Private site01 passed16site/type/static/links and6of7Firefox checks but its
+stacked two-card figure scrolled the shared full-view toggle outside the viewport.
+Preserve that actual failure. Root reorganized only concept geometry into one
+sharedgrid: one track at narrow widths and two-to-one tracks at sharedcontainer
+width64rem, retaining DOM reading order, existing cards/table scroller and all
+text/trace. Component CSS owns only columns/alignment; no sharedUI/chrome,
+typography/palette, font shrink, clipping or screenshot was introduced.
+Root also explicitly names manual-marker-before-secret-marker versus secret-first
+in practice and its checked explanation; no formula/Rust/command fact changes.
+
+Actual affected private02 gates pass current sourcecontract/content/parity,
+16site tests/type240zero diagnostics/staticbuild/links and all7soleFirefox
+checks, including same-tree fullscreen/last-card/toggle/containment. Freeze that
+actual current source/HTML only after neutral inventory approval and fresh4role
+English judgments. No oldfailedcandidate evidence is relabeled or reused as
+freshapproval. Literalproduction commands and canonical publication remain held
+behind the real eligiblechain/candidate, not a missingcontent or source gate.
+
+### 2026-10-06 — Bound the Chapter41 navigation and inert Chapter42 style delta
+
+The strict one-anchor-only predecessor comparator failed because Astro inserted
+an additional251byte compiled Chapter42 grid rule into Chapter41's head. Root
+authorizes only the exact414byte forward anchor plus exact251byte style insertion,
+with zero actual selector matches on Chapter41 and every other original byte
+preserved. This is not a generalized style ignore or an old41review approval for
+new HTML. Packager retains the strict original failure and binds both exact
+insertions; unchanged41source/history/Englishv5archive remain untouched.
+
+The owned42browser file adds one scoped new41forward-link test at1280 and320,
+covering exactEnglishlabel/href, painted ink/own-box/navigation containment,
+no overflow, complete parsed41bodybaseline afteronlyanchor removal, zero grid
+matches and actual English42click destination. Saved actualHTML is reused;
+focusedTypeScript0 and actualselected1browserpass supplement the unchanged
+seven previously passed case bodies. Preserve initial compilerflag/zero-selection
+CLI failures and never call zero tests pass. No newsitebuild, screenshot,
+sharedUI/prose/figure/Rust/rawcorpus change or eight-suite rerun was required.
+
+### 2026-10-06 — Explicit user stop preserves unfinished Chapter42 candidate
+
+At the user's checkpoint-and-stop request, interrupt Chapter42 run02 at
+17:52:50Z and return its step to pending, not blocked or completed. Preserve
+the completed Chapter41 repair4e45c53d, all previous runs and failures, current
+private publish stage, verified Rust reuse, passing private site/Firefox proofs
+and the one additional selected navigation case. No Chapter42 content is promoted
+or committed; no new development, extraction, review, build or download occurs.
+
+Hash-bind the author and packager stop handoffs. The author audit, concrete role
+requirements/associations and queued unapplied normalization-caption finding
+remain unfinished; mechanical proposals are not a frozen English candidate.
+Fresh two-review/two-adjudication judgments, authentic eligibility evidence,
+all four literal learner commands and coherent publication/commit remain ahead.
+The three previous literal attempts dispatched zero learner work. Machinery and
+packaging have stopped with no active subprocess. Russian41+, held repairs and
+real-corpus filtering remain unchanged. Resume only when the user instructs it.
+
+### 2026-10-07 — Continue Chapter42 from verified stop without reconstructing accepted work
+
+The user requested Chapter42 completion. Claim fresh run03 after root-approved
+recovery: all19 recorded artifact hashes/byte counts, all18 canonical material
+inputs, the28file saved stage, current41v5 baseline and cached runtime fit.
+The350entry Rust input record still has349 exact matches plus the known generated
+golden transition; actual10044B stdout equals golden/contract SHA879152d5.
+Reuse actual33core/12demo/fmt/clippy and dispatcher proofs, not a fresh test claim.
+Run02 remains interrupted with its stop handoffs and every failure unchanged.
+Preserve its owned dirty ledger/decision updates; no incomplete product commit.
+
+Root owns four narrow caption clarifications and the matching source-purpose
+field, then actual per-surface neutral requirements. No Rust/formula/commands,
+topic, dependency, acquisition or corpus execution change is authorized here.
+The machinery worker owns changed-input operational gates and ledger; the
+separate packaging worker owns only run03/review-packaging. All inherit the
+user-selected model/effort; native current machinery turn independently records
+gpt-6.1-sol/xhigh, not a copied old setting or permanent model pin. Current
+AGENTS overrides stale Luna wording in SKILLS. Full ledger syntax/tree traversal
+is operational evidence, not a claimed semantic rereview of all historical prose.
+
+After affected source/static/soleFirefox gates, freeze real unchanged English
+source/HTML/roles and obtain fresh two-review/two-adjudication judgments. Only
+then prepare genuine eligibility-bound private production bytes and execute all
+four unchanged literal learner commands before coherent canonical publication,
+completion and a dedicated42commit. Saved private HTML precedes caption changes;
+three old literal refusals selectedzero and remain failed evidence. No fake
+receipt, weaker activation gate, routine image check, raw2GBrescan/download,
+Russian41+ work, held6/8–10 repair or real-corpus transform is introduced.
+
+### 2026-10-07 — Freeze preparation uses freshly validated explicit Chapter42 captions
+
+Root changed four Rust captions and the normalization-purpose field to state
+the concrete record/text/source operation locally. Topic, formula, Rust,
+commands, contract, figure and tests remain unchanged. The cached network-none
+private runner passes scoped contract/content/parity, all16 owned tests,
+240-file typecheck with zero diagnostics, staticbuild/links and the actual
+current eight-case soleFirefox file in6.7s. This is a fresh8pass, not the old
+seven-plus-one claim. No manual Rust rerun, image build, screenshot, dependency
+acquisition or raw payload operation occurred.
+
+CurrentMDXa0641640 and actual195489B42HTML6012cb14 are hash-bound by the
+run03 site handoff/inputmanifest0cd6f438. Preceding41HTML4b797d12 and English
+index70717254 remain byte-identical to the previous private build. Preserve
+the exact anchor/inert251byte-style exception; no old41review is extended to
+new HTML. The packager receives this real current built tree before final
+extraction. Preliminary13association observations from oldrun02 are explicitly
+not final candidate approval; root owns actual neutral requirements and grouping.
+Fresh independent English2+2, genuineeligibility, four literalcommands and
+coherent publication/completion/commit remain separate unmet gates.
+
+### 2026-10-07 — Preserve the complete failed Chapter42 English candidate and stage a bounded revision
+
+A genuinely independent fork-none final author adopted actual source/HTML,
+C1–C10, 12 reading units, 98 English isolated units, 150 source classifications
+and two separately preserved inherited Russian shared invariants. Four fresh
+pairwise-distinct judgment contexts inherited the actual user selection,
+gpt-6.1-sol/xhigh for this freeze, not a repository preset. Their exact native
+response bytes passed maintained byte/schema/order checks and were sealed
+unchanged. Both reviews failed; both same-role adjudications passed and supported
+the findings at their original severities. That approves the reviews' soundness,
+not the candidate. Final maintained verification correctly refuses
+`unresolved-blocker`; no passing publication report or eligible receipt exists.
+
+Preserve frozen `publish/` and complete `review-workspace-02/`, raw responses,
+receipts, native observations and failed machinery attempts. Do not repair a
+semantic record, reduce a supported severity or copy the prior findings/verdicts
+into the replacement review contexts. An opaque complete byte manifest records
+the failed workspace at its original private canonical-shaped root.
+
+Root authorized a separately owned `publish-candidate-02/` with an initial exact
+30-file copy, a prospective `site-validation-02/` and `review-workspace-03/`,
+and new candidate `ch42.en.20261007.r03.02`. The same actually independent author
+owns its evidence-backed content/requirement revision and new source freeze;
+retain original native identity/start and record the actual resumed turn without
+inventing renewed creation or author publication certification. Every replacement
+reviewer/adjudicator will be entirely fresh. Existing unchanged Rust proofs are
+reusable; only affected source/static/owned Firefox gates require new evidence.
+
+The packager has temporary sole ledger ownership; the restored operational
+worker has disjoint `final-operations/` preparation ownership. No literal-wrapper
+work, eligibility creation, canonical publication, completion or commit occurs
+before the genuine successor English chain passes. Russian41+, existing-chapter
+repairs and real-corpus filtering remain held, with no new download, raw scan,
+training, dependency install, image build or routine visual review.
+
+### 2026-10-07 — Chapter42 successor affected evidence and exact author handoff
+
+The continuing independent author revised only the opening/objective,
+manual-marker-rule population explanation and trailing fixture LF answer in
+three staged learner-source files. Machinery changed the matching answer-presence
+test literal only and rebound the staged history receipt's contract digest;
+actual historical observations, source IDs and claims remain unchanged.
+
+The new affected contract/content/parity,16Vitest,type240,static build/links and
+soleFirefox8 gates pass in site-validation-02. This evidence does not approve
+English or the still-pending four literal learner commands. Prior Rust evidence
+is reused after a350-input check preserving its recorded golden transition;
+no raw corpus, code, fixture, formula or generated stdout was changed or rerun.
+
+New actual source/HTML extraction and closed author-selected requirements are
+supplied for author adoption before freeze. Actual old/current raw node/member/
+ARIA relationships, reading order,150 source classifications and the two
+non-English shared invariants are preserved. The old compact inventory's omitted
+attributes are not mistaken for a new grouping or language change. Preserve
+failed operational adapter attempts; machine packaging does not write or replace
+semantic judgments. The successor still needs entirely fresh two-review/two-
+adjudication evidence, genuine eligibility, literal commands and publication.
+
+### 2026-10-07 — Preserve the second Chapter42 chain and stage its disjoint successor
+
+The second frozen candidate's technical reviewer passed, its isolated reviewer
+reported one blocking answer condition, and both fresh same-role adjudicators
+passed in support of their reviews. The four exact native response byte streams
+passed maintained structural checks and were sealed unchanged. Final maintained
+verification actually refuses `unresolved-blocker`; this is failed-candidate
+evidence, not publication approval or a reason to narrow the frozen requirement.
+
+Root authorized a disjoint `publish-candidate-03/`, initially an exact34-file
+copy of frozen .02, candidate `ch42.en.20261007.r03.03`, reserved
+`site-validation-03/` and `review-workspace-04/`. The mechanical copy could run
+while the old independent adjudications remained pending because it changes none
+of their frozen four-artifact inputs. Its checkpoint truthfully records that
+historical pending state; the subsequently completed second chain is separately
+bound by exact raw/seal/receipt/native descriptors and the actual verifier refusal.
+
+The same genuinely independent author resumes to correct the actual answer and
+inspect coherence; its original native identity/start remain unchanged and its
+actual resumed turn is observed separately. Machinery does not alter learner
+meaning, role requirements or supported severities. Every .03 reviewer and
+adjudicator will be an entirely new context after new source/build/extraction
+adoption and author freeze. Prior failed findings and verdicts stay out of those
+new role bundles. Unchanged Rust evidence remains reusable; no raw corpus scan,
+routine image review, download, training or canonical publication is authorized.
+
+The packager retains temporary sole ledger ownership. Operational preparation
+is independently owned under `final-operations-v03/`, preserving earlier
+preparations. Genuine four-pass verification, eligible receipt, the four literal
+learner commands, coherent publication and dedicated completion commit remain
+pending. Russian41+, existing-chapter repairs and real-corpus filtering stay held.
+
+The .03 author correction changes one answer only, explicitly retaining both
+ordered-policy early-stop conditions. The actual affected eight site gates pass,
+including all16 owned tests,240-file type check,89-page static export/links and
+soleFirefox8 in6.0s. Fresh extraction changes only reading009/unit099 values and
+complete lesson source/built descriptors; unchanged roles, grouping, order and
+150 source classifications are not narrowed. All33 other initial staged files,
+350 Rust inputs/known golden transition, complete history receipt, predecessor
+HTML and shared-invariant sources match. A literal-count adapter guard failure
+before outputs remains preserved; the closed count-only successor passes.
+The110 exact audit-projection values/IDs/order are verified mechanically, not
+language approved. Author adoption/freeze and four new judgments still precede
+any eligible receipt, command proof or publication.
+
+The author adopted the exact .03 source/build/role inventory at05:26:29Z.
+Maintained genuine preparation and external routing bind its real author-context
+manifest, not an invented context ID/hash. Both entirely fresh .03 reviewers now
+report pass with empty findings; their untouched native final response bytes
+pass structural checks and are sealed exactly. Their two further fresh same-role
+adjudications still gate final verification and publication. No author
+finalization, previous finding/verdict or sibling private evidence is supplied
+to those judgments. No eligible receipt or literal-command pass is inferred
+from the two reviews alone.
+
+### 2026-10-07 — Chapter42 current four-pass chain and staged-only operational handoff
+
+Both further fresh .03 same-role adjudicators report pass, support every119/98
+assessment at its exact echoed severity and have no review-defect findings.
+Their untouched native final bytes pass maintained structural validation and
+are sealed byte-identically with upstream receipts. The actual whole-chain
+verifier exits0 and produces `adjudication-verified` report2117B SHAeefad0b9.
+The author and four judgment contexts have pairwise-distinct actual native
+identities; original author creation and actual resumption remain separate.
+This combines real reported judgments and verifies provenance/bytes, not a
+new machinery opinion about teaching or language.
+
+Authorized staged-only mature copy/hash work preserves153 exact current archive
+files, three reviewed production HTML paths and the audit projection in
+`publish-candidate-03/`. Actual native observations and opaque custom-call
+metadata are archived as external operating evidence without changing any
+model-role input. The192-product manifest deliberately excludes still-future
+publication receipt and step-output inventory. Ready manifest66080B SHA
+35d1a02affb68be23d7eaa71b72d8c4ea8da57e0c0946b1510eddc3633d3302e
+uses the agreed genuine-only interface; both literal-command and canonical-
+publication flags remain false. No completion or commit is claimed.
+
+The packager returns sole ledger ownership to the operational worker after
+current YAML/artifact checks. Under root's separate phase authority, ops may
+create the genuine nine-input eligibility receipt/owned product inventory,
+execute all four actual learner wrapper commands, perform recoverable receipt-
+last promotion, verify canonical bytes and write the completion checkpoint/
+dedicated step commit. Reuse validated unchanged Rust, fixture, golden and site
+evidence. Do not repeat image assembly, source acquisition, raw-corpus scanning,
+training or routine image review. Russian41+, existing repairs and real-corpus
+filtering remain held.
+
+### 2026-10-07 — Complete Chapter42 English delivery with actual learner commands and canonical proof
+
+Under the explicit final handoff, the operational worker reverified the genuine
+current .03 English chain and both routing durability checks before generating
+the exact nine-input publication receipt. Its closed plan contains194 products:
+the192 staged products plus that real receipt and the owned step-output inventory.
+The separately bound figure remains part of the English chain, not a fabricated
+tenth receipt input. Failed .01/.02 candidates, untouched raw judgments and
+previous completed-run artifacts remain immutable.
+
+All four documented `COURSE_CORPUS=false ./course` commands actually exit0.
+The demo stdout exactly matches the10,044-byte accepted golden; each named test
+selects and passes exactly one test. The normal wrapper's necessary cached-image
+refresh is not another independent environment assembly. All three resulting
+production HTML documents are byte-identical to the independently reviewed
+English candidate. No private selector, fake eligibility record, zero-test
+override, corpus acquisition or full-corpus scan is used.
+
+Prepublication verification passes, bounded recoverable per-file fsync/rename
+promotion publishes the genuine receipt last, and postpublication verifies all
+194 canonical products, exact inventory/history bindings and the same complete
+English chain/durability. Prior-byte backups remain in the run; no unrelated
+output is promoted. This is not a claim of a filesystem-wide atomic transaction.
+The step/run completion checkpoint follows those real gates and precedes its
+dedicated stable-step commit. Reused unchanged Rust evidence and current scoped
+site/sole-Firefox evidence retain their actual provenance; no redundant manual
+suite, routine image review, training or new source download is introduced.
+
+Russian41+, existing-chapter repairs and the distinct full-corpus filtering step
+remain pending and held. Chapter42 completion teaches and validates bounded
+deterministic filtering, accounting/privacy checks and known-descendant withdrawal;
+it does not claim that the1.9GB corpus was processed or that a trained model's
+privacy/non-memorization was measured.
+
+### 2026-10-07 — Preserve eleven immutable Chapter42 evidence files during the commit check
+
+After successful canonical/learner/English gates and completion checkpoint,
+commit attempt01's raw `git diff --cached --check` actually exits2 with102
+warnings across11 immutable files. Its57693-byte output, SHA-256
+`bb633be5028ec1514c9bd34486227d05da377953136dca010993a76f20258793`,
+is preserved unchanged. The whole raw check is not claimed as passing.
+
+Root explicitly approves the established command-only exception for these exact
+paths, never a directory-wide exclusion:
+
+```text
+artifacts/functional-laptop/chapters/42-deterministic-corpus-filtering/english-html/en/course/41-governed-corpus-acquisition/index.html
+artifacts/functional-laptop/chapters/42-deterministic-corpus-filtering/english-html/en/course/42-deterministic-corpus-filtering/index.html
+artifacts/functional-laptop/chapters/42-deterministic-corpus-filtering/provenance/authoring/history-sources.md
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/built/en/course/41-governed-corpus-acquisition/index.html
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/built/en/course/42-deterministic-corpus-filtering/index.html
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/evidence/accepted/011-history-sources.md
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/evidence/accepted/021-stdout.txt
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/evidence/accepted/026-stdout.txt
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/evidence/accepted/042-vitest.stdout.txt
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/evidence/accepted/043-typecheck.stdout.txt
+audits/functional-laptop/reviews/42-deterministic-corpus-filtering/english/evidence/accepted/044-build.stdout.txt
+```
+
+The four reviewed/generated HTML copies, two byte-identical bounded history
+copies and five untouched accepted stdout artifacts retain their frozen bytes.
+Every exact path's byte count/SHA-256/source provenance and warning count is
+recorded in run03 `final-operations-v03/immutable-whitespace-exception-01.json`
+(7007 bytes, SHA-256
+`42c46e4798b701d2b4728bc70e227e5f2f6f5f74e69fc0fea2928d3103e0a67f`),
+bound to approved product plan`ba05809d`. The new command-only commit adapter
+checks that exact manifest and preserved raw failure, validates every product
+identity, and applies strict cached whitespace checking to every remaining
+exact owned source/control path. No evidence/response bytes, English meaning,
+Git configuration or attributes are changed; no product or learner gate is
+rerun. This is operational evidence bookkeeping, not a new publication verdict.
+
+Actual command-only preflight passes strict cached whitespace checking on all185
+remaining explicit owned paths, including both ledgers. The196-path allowed
+set has no unrelated indexed changes, and exactly11 frozen identities are the
+only exclusions. Raw attempt01 remains failed evidence. Restage the final owned
+ledger bookkeeping, validate current YAML and exact staged scope, then persist
+the dedicated completed-step commit; no product/review gate is repeated.

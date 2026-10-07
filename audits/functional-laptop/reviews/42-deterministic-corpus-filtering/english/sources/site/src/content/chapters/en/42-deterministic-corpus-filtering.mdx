@@ -1,0 +1,500 @@
+---
+{
+  "chapter_id": "42-deterministic-corpus-filtering",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 42,
+  "concept_id": "deterministic-corpus-filtering",
+  "title": "Filter records without losing their accounting",
+  "description": "Apply ordered Rust filters to eight synthetic records, distinguish rejection from pending review, and account for each rule's actual input population.",
+  "objective": "Give every framed record one disposition under the ordered filtering policy, preserve eligible text and source references, and explain each rule's rate using the records that reached that rule.",
+  "worked_inputs": "Use eight course-authored records in two synthetic source streams. With fixture thresholds of 64 raw bytes, four normalized bytes and one ASCII letter, retain one record, reject six and hold one for manual review. Compare rule-order changes, exact byte accounting and a separate fictional withdrawal graph.",
+  "formula": {
+    "latex": "r_k=\\frac{n_{\\mathrm{disposition},k}}{n_{\\mathrm{seen},k}}",
+    "symbols": [
+      {
+        "symbol": "k",
+        "meaning": "the index of one named filter rule in the configured evaluation order"
+      },
+      {
+        "symbol": "n_{\\mathrm{seen},k}",
+        "meaning": "the number of records reaching rule k after surviving every earlier rule"
+      },
+      {
+        "symbol": "n_{\\mathrm{disposition},k}",
+        "meaning": "the number of those reached records whose first terminal decision occurs at rule k, either rejection or a hold for manual review"
+      },
+      {
+        "symbol": "r_k",
+        "meaning": "the dimensionless fraction of rule k's reached records receiving its terminal decision; unavailable when no record reaches the rule"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "model-building-practice",
+      "limitation": "A binary keep/drop report hides the reason for exclusion and the population that each later rule actually inspected.",
+      "later_advance": "The C4 study examines text removed by filters; RefinedWeb later combines filtering and deduplication in a web-scale corpus.",
+      "modern_llm_role": "Record explicit exclusions and stage populations before deduplication and training; a passed heuristic is not a quality, privacy or memorization guarantee.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2021,
+          "name": "Documenting Large Webtext Corpora: A Case Study on the Colossal Clean Crawled Corpus",
+          "source_url": "https://aclanthology.org/2021.emnlp-main.98/",
+          "claim": "Dodge and colleagues inspect C4 exclusions and find disproportionate removal of content concerning minority groups by its word blocklist."
+        },
+        {
+          "role": "later",
+          "year": 2023,
+          "name": "The RefinedWeb Dataset for Falcon LLM: Outperforming Curated Corpora with Web Data Only",
+          "source_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/fa3ed726cc5073b9c31e3e49a807789c-Abstract-Datasets_and_Benchmarks.html",
+          "claim": "Penedo and colleagues describe a large web corpus built with filtering and deduplication, and evaluate language models trained on its data."
+        }
+      ]
+    },
+    "approach": "Compare one binary exclusion bit with the ordered rule trace on the same eight course-authored records.",
+    "summary": "Inspect both removals and survivors. Report what each rule saw, and keep claims bounded to the evidence.",
+    "rust_source": "rust/demos/ch42-deterministic-corpus-filtering/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/data/stream.rs",
+      "region": "source-bound-framing",
+      "purpose": "Bind complete bounded record framing to an independently selected raw source's length and digest."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data/filter.rs",
+      "region": "ordered-record-filter",
+      "purpose": "Stop at the first rejecting or manual-review rule and preserve which later rules were not evaluated."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data/filter.rs",
+      "region": "narrow-normalization",
+      "purpose": "Replace CRLF pairs with LF, then trim only space, tab, CR and LF from both text edges without changing case or internal text."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data/privacy.rs",
+      "region": "literal-marker-decisions",
+      "purpose": "Apply explicitly bounded literal matching rather than claiming general detection of secrets or personal data."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data/governance.rs",
+      "region": "stage-accounting",
+      "purpose": "Count the actual population and first-terminal decisions at each reached rule."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data/deletion.rs",
+      "region": "known-descendant-withdrawal",
+      "purpose": "Visit each recorded descendant of a withdrawn source once in a validated fictional lineage graph."
+    },
+    {
+      "path": "rust/demos/ch42-deterministic-corpus-filtering/src/lib.rs",
+      "region": "binary-filter-contrast",
+      "purpose": "Show what a course-local binary exclusion summary loses compared with the three dispositions and rule trace."
+    },
+    {
+      "path": "rust/demos/ch42-deterministic-corpus-filtering/src/main.rs",
+      "region": "offline-filtering-example",
+      "purpose": "Run the course-authored synthetic fixture without acquiring or filtering a real corpus."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "deterministic-corpus-filtering",
+    "rationale": "The shrinking stage population and record r7's early stop make clear why a rule's denominator is not the original input count and why later rules have no result for that record."
+  },
+  "decoder_connection": "Only retained candidates continue to deduplication, final split construction and tokenization. The synthetic result does not establish corpus quality, privacy, unrestricted use or trained-model competence; the scalar decoder reference remains unchanged."
+}
+---
+import RustSource from "../../../components/RustSource.astro";
+import DeterministicCorpusFilteringDiagram from "../../../components/chapters/DeterministicCorpusFilteringDiagram.astro";
+
+{/* chapter-section:worked-example */}
+
+## The problem: verified text is not yet training input
+
+A matching checksum tells us which text we have, not whether every record should
+enter a training corpus. A record may be malformed, too large for the processing
+budget, or contain a literal marker that our chosen policy excludes. Some records
+need review rather than an automatic yes or no.
+
+Deleting every excluded record without keeping its reason loses useful evidence.
+Reporting only the final retained count also hides which records each rule
+actually examined. If an early rule stops a record, later rules cannot truthfully
+report that the record passed or failed them.
+
+The solution here is an ordered filter with three dispositions:
+
+- **Retained:** a candidate for the next data-processing stage, not a guarantee
+  of quality, privacy or permission.
+- **Rejected:** excluded by an automatic rule.
+- **Manual review:** withheld from downstream training input. This example has
+  no approval override.
+
+The first rule in the configured order that rejects a record or holds it for
+manual review supplies that record's first terminal decision. Evaluation stops
+there; later rules are not evaluated for that record. If a record survives every
+rule, it is retained with no first terminal rule. The report preserves each
+record's disposition, the rules actually evaluated, any first terminal rule and
+the record's reference to its raw source. It does not copy excluded text into
+public findings.
+
+## Eight records, with explicit boundaries
+
+Everything in the worked example is course-authored synthetic data. It is not a
+filtering result for TinyStories. The two source names `fixture-train` and
+`fixture-validation` preserve their raw-source provenance; they do not create
+the final training, validation or test split.
+
+The selected framing policy, `end-of-input-delimited-v2`, recognizes the ASCII
+marker `<|endoftext|>` only when it occupies an entire physical line. A marker
+line may end with LF, CRLF or end of input. Its bytes are a delimiter, not payload
+text. The same marker inside an ordinary text line is not a delimiter.
+
+End of input also closes a remaining nonempty payload, even without a final
+newline. End of input immediately after a separator creates no extra record.
+Consecutive separators create an empty payload that the filter can reject.
+A failed read is an error, not an end-of-input boundary. These rules are selected
+explicitly; the reader does not guess another format after a failure.
+
+For this fixture, append `b"<|endoftext|>\n"` after every record below, in table
+order within each source. Every separator therefore contributes $14$ bytes.
+In Rust literals, `\n` denotes one LF byte and `\xff` one byte that is invalid
+as standalone UTF-8.
+
+| Label | Source | Complete raw payload construction | Payload bytes | First terminal decision |
+| --- | --- | --- | --- | --- |
+| `r0` | `fixture-train` | `b"cat sat.\n"` | $9$ | None; retained |
+| `r1` | `fixture-train` | `b"\xff\n"` | $2$ | Strict UTF-8; rejected |
+| `r2` | `fixture-train` | $65$ copies of `b'x'`, then `b"\n"` | $66$ | Raw size; rejected |
+| `r3` | `fixture-train` | `b"hi\n"` | $3$ | Minimum normalized length; rejected |
+| `r4` | `fixture-validation` | `b"....\n"` | $5$ | Minimum ASCII letters; rejected |
+| `r5` | `fixture-validation` | `b"demo-key=CANARY\n"` | $16$ | Secret marker; rejected |
+| `r6` | `fixture-validation` | `b"contact=alex@example.invalid\n"` | $29$ | Manual marker; held |
+| `r7` | `fixture-validation` | `b"demo-key=CANARY contact=alex@example.invalid\n"` | $45$ | Secret marker; rejected |
+
+The marker text and address are fictional inputs. Their presence in this table
+explains the lesson; it is not permission to include captured secrets or personal
+data in a real findings report.
+
+{/* chapter-section:formula */}
+
+## The solution: stop once, count at every reached rule
+
+The fixture deliberately uses small thresholds so each failure is visible:
+
+1. Reject a raw payload above $64$ bytes before decoding it.
+2. Reject invalid UTF-8.
+3. Normalize the decoded text and reject fewer than $4$ normalized UTF-8 bytes.
+4. Reject fewer than $1$ ASCII letter.
+5. Reject the literal `demo-key=CANARY`, matched without ASCII case distinctions.
+6. Hold the literal `contact=`, matched case-sensitively.
+7. Hold text below the configured ASCII-letter share.
+
+Normalization replaces CRLF pairs with LF, then trims only space, tab, CR and LF
+at the two edges. It preserves case, internal spaces and other Unicode
+characters. Length after normalization is measured in UTF-8 **bytes**, not
+characters or tokens.
+
+For the last rule, count Unicode scalar values other than the six ASCII
+whitespace characters: space, tab, LF, vertical tab, form feed and CR. The
+numerator counts ASCII letters among those values. Compare a configured
+fraction using checked integer cross-products, rather than rounding a
+floating-point ratio. A zero denominator is unavailable and sends a reached
+record to review; it is not an observed share of zero. The fixture's threshold
+is $0/1$, so its last survivor passes this rule.
+
+These thresholds are not the full-corpus policy. The planned corpus policy uses
+a $65{,}536$-byte raw limit, at least $16$ normalized bytes, at least $8$ ASCII
+letters and an ASCII-letter share of at least $1/2$, with its own selected marker
+lists. For example, the fixture's short secret record would reach a different
+first terminal rule under a stricter length threshold. None of the fixture's
+rates are measurements of a real corpus.
+
+For a named rule $k$, report its terminal fraction using the population that
+actually reached it:
+
+$$
+r_k=\frac{n_{\mathrm{disposition},k}}{n_{\mathrm{seen},k}}
+$$
+
+{/* chapter-section:symbol-glossary */}
+
+## Symbols in the filtering fraction
+
+- $k$ identifies a rule in the configured order.
+- $n_{\mathrm{seen},k}$ counts records surviving every earlier rule and reaching
+  rule $k$.
+- $n_{\mathrm{disposition},k}$ counts reached records whose first terminal
+  decision is rejection or a hold for review at rule $k$.
+- $r_k$ is dimensionless. When $n_{\mathrm{seen},k}=0$, the report stores
+  unavailable, not zero.
+
+Four records reach the secret-marker rule, and it rejects two. Its terminal
+fraction is $2/4=1/2$. Dividing by the original eight records gives $2/8=1/4$,
+a different quantity: that rule's terminal decisions as a fraction of all input
+records. Do not label the second quantity as the reached-population rate.
+
+The reached populations are $8,7,6,5,4,2,1$, leaving one retained record.
+The final dispositions must conserve the input count:
+
+$$
+8=1_{\mathrm{retained}}+6_{\mathrm{rejected}}+1_{\mathrm{manual\ review}}
+$$
+
+A binary exclusion summary gives $7$ ineligible records, but those are
+$6$ rejections plus $1$ pending review. Calling all seven “rejected” discards
+the distinction needed to explain their outcomes.
+
+{/* chapter-section:rust-implementation */}
+
+## Rust owns the framing and decisions
+
+The framer accepts an ordinary `Read` source. The output interface separates
+retained rows from body-free exclusion findings, without requiring a directory,
+filename, HTTP source or storage backend. Supporting libraries provide JSON
+encoding and SHA-256; the course code owns boundaries, rule order, terminal
+decisions and accounting.
+
+A bounded buffer retains only payloads within the selected size limit. An
+oversized record is drained to its boundary and counted without retaining its
+whole body. Read-buffer boundaries do not split records or invalidate a Unicode
+character: UTF-8 decoding happens on the complete bounded payload.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data/stream.rs"
+  region="source-bound-framing"
+  caption="Read the selected raw source completely and check its byte count and digest after framing."
+  label="Rust source-bound record framing"
+/>
+
+The raw source was selected independently before this read. A report succeeds
+only after the complete source's observed length and digest agree with that
+selection. Rows emitted before that final check are provisional. A changed byte,
+truncated read or I/O error prevents publication of the completed result; a
+prefix must not become training input.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data/filter.rs"
+  region="narrow-normalization"
+  caption="Replace each CRLF pair with LF, then trim only space, tab, CR and LF from both text edges; preserve the remaining text."
+  label="Rust narrow text normalization"
+/>
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data/filter.rs"
+  region="ordered-record-filter"
+  caption="For one record, evaluate the configured rules in order and stop at its first rejection or manual-review decision."
+  label="Rust first-terminal filtering"
+/>
+
+Record `r7` contains both markers. With the secret rule first, it is rejected
+there; the manual-marker rule is **not evaluated** for that record. Swap those
+two rules and `r7` is held for review instead. The new totals are one retained,
+five rejected and two pending review. The same raw bytes therefore produce
+different reasons and dispositions under different policies.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data/privacy.rs"
+  region="literal-marker-decisions"
+  caption="Match secret-marker literals without ASCII case distinctions and manual-review literals case-sensitively; neither rule detects all sensitive text."
+  label="Rust literal marker matching"
+/>
+
+A quoted marker can cause a false positive. Sensitive text without a configured
+literal can pass. Likewise, few ASCII letters do not prove that a record is bad
+or that it is not English, and many ASCII letters do not establish language or
+quality. These heuristics need corpus-specific inspection, including inspection
+of excluded text under appropriate access controls.
+
+## Preserve counts without exposing excluded bodies
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data/governance.rs"
+  region="stage-accounting"
+  caption="Increment a rule's seen count only when the record reaches it, then count survival or its first terminal decision."
+  label="Rust reached-population accounting"
+/>
+
+A finding contains a source reference, half-open raw byte span, occurrence ID,
+evaluated rule IDs and the terminal decision. It contains no excluded body,
+snippet or matched capture. The occurrence ID binds the selected raw artifact,
+source and payload IDs, raw file digest and span. Equal text at different spans
+has different occurrence IDs. A changed filter policy does not change those raw
+occurrence IDs, but does change the derived artifact's policy identity.
+
+Per source and terminal reason, the report includes the first $32$ occurrence
+IDs in input order as samples. The full finding stream and counters remain
+complete: the sample bound is not permission to stop counting. Findings and
+the receipt share a strict metadata budget below $100$ MiB. Exceeding that
+budget fails the attempt; it does not silently truncate evidence.
+
+Byte accounting uses separate bases. Separator bytes are outside raw payload
+spans. Payloads rejected before decoding still contribute to the raw total.
+Normalized byte totals include only records actually decoded and normalized.
+A complete run reads $287$ physical bytes: $175$ payload bytes and $112$
+delimiter bytes. Of the payload bytes, $68$ belong to records rejected before
+decoding and $107$ are decoded. Normalization leaves $101$ bytes across decoded
+records: $8$ retained, $65$ rejected and $28$ pending review. These are byte
+counts, not token counts; excluded text still contributes to its applicable
+accounting totals.
+
+A retained row is checked again against the selected filtered artifact, policy,
+source references, span and text digest before consumption. Relabeling a
+manual-review payload or selecting an untrusted candidate's own manifest does
+not make it eligible.
+
+<RustSource
+  path="rust/demos/ch42-deterministic-corpus-filtering/src/main.rs"
+  region="offline-filtering-example"
+  caption="Run the offline synthetic fixture and print the report derived from the Rust decisions."
+  label="Rust filtering example entry point"
+/>
+
+To reproduce the example, start at the repository root with Docker installed
+and the course development image available. This command uses only synthetic
+bytes, so the corpus download is disabled:
+
+```sh
+COURSE_CORPUS=false ./course run cargo run --offline --locked -p ch42-deterministic-corpus-filtering
+```
+
+The JSON report records eight inputs, one retained record, six rejected records
+and one pending-review record, plus each rule's reached count and terminal
+fraction. Its changed-order comparison records one retained, five rejected
+and two pending review. Artifact digests identify the actual policy and source
+bytes; do not replace them with illustrative hashes.
+
+{/* chapter-section:history */}
+
+## History: inspect what filtering removes
+
+A binary keep/drop report hides the reason for exclusion and the population that
+each later rule actually inspected.
+
+The C4 study examines text removed by filters; RefinedWeb later combines
+filtering and deduplication in a web-scale corpus.
+
+Dodge and colleagues inspect C4 exclusions and find disproportionate removal of
+content concerning minority groups by its word blocklist. Their 2021
+[Documenting Large Webtext Corpora: A Case Study on the Colossal Clean Crawled Corpus](https://aclanthology.org/2021.emnlp-main.98/)
+motivates examining removals rather than assuming that a filter is neutral.
+
+Penedo and colleagues describe a large web corpus built with filtering and
+deduplication, and evaluate language models trained on its data. Their 2023
+[RefinedWeb paper](https://proceedings.neurips.cc/paper_files/paper/2023/hash/fa3ed726cc5073b9c31e3e49a807789c-Abstract-Datasets_and_Benchmarks.html)
+concerns a much broader pipeline than this eight-record fixture. Its model
+results do not certify our heuristics or isolate a benefit from one rule.
+
+The Rust contrast below is course-local: it reduces our existing decisions to
+one exclusion bit. It is not an implementation reproduced from either paper.
+It counts seven excluded records but loses their rejection-versus-review
+distinction and cannot say which later rule saw each one.
+
+<RustSource
+  path="rust/demos/ch42-deterministic-corpus-filtering/src/lib.rs"
+  region="binary-filter-contrast"
+  caption="Reduce the fixture's three dispositions to one exclusion bit and expose the information that summary omits."
+  label="Rust binary exclusion contrast"
+/>
+
+Record explicit exclusions and stage populations before deduplication and
+training; a passed heuristic is not a quality, privacy or memorization guarantee.
+
+{/* chapter-section:visualization */}
+
+## See the shrinking population
+
+<DeterministicCorpusFilteringDiagram />
+
+The secret-marker rule's denominator is its four reached records, not all eight
+inputs. After its two terminal decisions, only two records reach the
+manual-marker rule. One of those two is held for manual review; the other
+survives the rule.
+The diagram leaves `r7`'s later manual-marker result absent rather than inventing
+a pass or fail for an operation that never occurred.
+
+{/* chapter-section:exercises */}
+
+## Optional practice: inspect the recorded evidence
+
+### Source withdrawal is a known-lineage calculation
+
+Filtering also preserves source lineage so a later withdrawal can identify
+recorded downstream artifacts. The separate fictional graph uses `r0` as a
+**raw-source node alias**, not as the worked table's record label or an actual
+occurrence digest. Its descendants are `a0`, `f0`, `s0`, `tok0` and `w0`.
+Two paths reach `w0`; the result lists it once. The unrelated branch `f9`
+belongs to a different source and is not in this withdrawal's descendant set.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data/deletion.rs"
+  region="known-descendant-withdrawal"
+  caption="Validate the supplied lineage graph, then list each known descendant of the selected raw source once; this does not erase stored data."
+  label="Rust known-lineage withdrawal"
+/>
+
+Run these commands from the repository root with Docker installed and running.
+Each selects exactly one test; expect one passing test, not zero selected tests.
+
+1. Reproduce the fixture's byte accounting. Inspect the assertions linking
+   payload, delimiter, decoded and normalized byte totals.
+
+   ```sh
+   COURSE_CORPUS=false ./course run cargo test --offline --locked -p ch42-deterministic-corpus-filtering --test corpus_filtering fixture_counts_and_byte_conservation -- --exact
+   ```
+
+2. Reproduce the comparison that places the manual-marker rule before the
+   secret-marker rule. Inspect the first terminal decision for `r7` and the
+   identities compared by the test.
+
+   ```sh
+   COURSE_CORPUS=false ./course run cargo test --offline --locked -p ch42-deterministic-corpus-filtering --test corpus_filtering swapping_secret_and_review_changes_first_terminal -- --exact
+   ```
+
+3. Reproduce the known-lineage withdrawal. Inspect the assertions checking the
+   sorted, duplicate-free descendant set.
+
+   ```sh
+   COURSE_CORPUS=false ./course run cargo test --offline --locked -p ch42-deterministic-corpus-filtering --test corpus_filtering withdrawal_reaches_known_descendants_once -- --exact
+   ```
+
+<details>
+<summary>Checked explanations for the three reproduction tasks</summary>
+
+1. The trailing LF byte in each decoded fixture payload remains part of the raw
+   payload and physical source byte counts, but normalization trims it from the
+   end of the decoded text. Internal LF characters remain unchanged. Trimming
+   the trailing LF changes the normalized byte count, not the number of bytes
+   read from the raw source.
+
+2. With the secret-marker rule first, `r7` is rejected and never reaches the
+   manual-marker rule. With the manual-marker rule first, `r7` is held for review
+   and never reaches the secret-marker rule.
+   The raw source and occurrence identities do not change. The derived policy
+   and artifact identities change because the ordered filtering policy is
+   different.
+
+3. The descendant set contains `a0`, `f0`, `s0`, `tok0` and `w0`, with `w0`
+   listed once despite its two incoming paths; it excludes the unrelated `f9`.
+   This calculation neither deletes stored bytes nor unlearns a trained model.
+   It cannot discover unrecorded copies. The graph's checkpoint-like node is
+   fictional; this example has not trained a model.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## What continues toward the decoder
+
+Only retained candidates continue to deduplication, final split construction and
+tokenization. The candidate set is kept in deterministic source and span order.
+Pending-review text cannot join it through a relabeled role or an incomplete
+output.
+
+A complete receipt preserves the selected policy, source references and counts.
+That makes the filtering decision reproducible, not universally correct. The
+scalar decoder remains unchanged, and this small example establishes neither
+real-corpus retention rates nor trained-model quality, privacy or memorization
+safety.

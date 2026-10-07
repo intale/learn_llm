@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "status": "only-exact-next-anchor-and-specific-inert-grid-style-differ",
+  "baseline": {
+    "path": "artifacts/functional-laptop/chapters/41-governed-corpus-acquisition/history-repair-v5/english-html/en/course/41-governed-corpus-acquisition/index.html",
+    "bytes": 145976,
+    "sha256": "17e5e18475b668ed87c34ad19edea4f539819fa2b7e98762410f6e321812e987"
+  },
+  "actual": {
+    "path": ".build/runs/20261007T035300Z-implement-ch42-deterministic-corpus-filtering-03/validation/site-validation-03/dist/en/course/41-governed-corpus-acquisition/index.html",
+    "bytes": 146641,
+    "sha256": "4b797d12f6802762e9d34ae0e869b9ec0067e136039076de353ad221ba52a97e"
+  },
+  "removedAnchor": {
+    "value": "Next chapter → Filter records without losing their accounting",
+    "literal": "<a class=\"chapter-navigation__chapter chapter-navigation__chapter--next\" href=\"/en/course/42-deterministic-corpus-filtering/\" rel=\"next\" data-chapter-direction=\"next\" data-chapter-id=\"42-deterministic-corpus-filtering\" data-chapter-order=\"42\" data-astro-cid-44eis63d> <span data-astro-cid-44eis63d>Next chapter →</span> <strong data-astro-cid-44eis63d>Filter records without losing their accounting</strong> </a>",
+    "literalBytes": 414,
+    "origin": {
+      "document": {
+        "path": ".build/runs/20261007T035300Z-implement-ch42-deterministic-corpus-filtering-03/validation/site-validation-03/dist/en/course/41-governed-corpus-acquisition/index.html",
+        "bytes": 146641,
+        "sha256": "4b797d12f6802762e9d34ae0e869b9ec0067e136039076de353ad221ba52a97e"
+      },
+      "nodePath": [
+        1,
+        2,
+        5,
+        1,
+        5,
+        5
+      ],
+      "tag": "a",
+      "attributes": {
+        "class": "chapter-navigation__chapter chapter-navigation__chapter--next",
+        "href": "/en/course/42-deterministic-corpus-filtering/",
+        "rel": "next",
+        "data-chapter-direction": "next",
+        "data-chapter-id": "42-deterministic-corpus-filtering",
+        "data-chapter-order": "42",
+        "data-astro-cid-44eis63d": ""
+      },
+      "sourceCodeLocation": {
+        "startLine": 435,
+        "startCol": 685,
+        "startOffset": 142768,
+        "endLine": 435,
+        "endCol": 1097,
+        "endOffset": 143180,
+        "attrs": {
+          "class": {
+            "startLine": 435,
+            "startCol": 688,
+            "startOffset": 142771,
+            "endLine": 435,
+            "endCol": 757,
+            "endOffset": 142840
+          },
+          "href": {
+            "startLine": 435,
+            "startCol": 758,
+            "startOffset": 142841,
+            "endLine": 435,
+            "endCol": 810,
+            "endOffset": 142893
+          },
+          "rel": {
+            "startLine": 435,
+            "startCol": 811,
+            "startOffset": 142894,
+            "endLine": 435,
+            "endCol": 821,
+            "endOffset": 142904
+          },
+          "data-chapter-direction": {
+            "startLine": 435,
+            "startCol": 822,
+            "startOffset": 142905,
+            "endLine": 435,
+            "endCol": 851,
+            "endOffset": 142934
+          },
+          "data-chapter-id": {
+            "startLine": 435,
+            "startCol": 852,
+            "startOffset": 142935,
+            "endLine": 435,
+            "endCol": 903,
+            "endOffset": 142986
+          },
+          "data-chapter-order": {
+            "startLine": 435,
+            "startCol": 904,
+            "startOffset": 142987,
+            "endLine": 435,
+            "endCol": 927,
+            "endOffset": 143010
+          },
+          "data-astro-cid-44eis63d": {
+            "startLine": 435,
+            "startCol": 928,
+            "startOffset": 143011,
+            "endLine": 435,
+            "endCol": 951,
+            "endOffset": 143034
+          }
+        },
+        "startTag": {
+          "startLine": 435,
+          "startCol": 685,
+          "startOffset": 142768,
+          "endLine": 435,
+          "endCol": 952,
+          "endOffset": 143035,
+          "attrs": {
+            "class": {
+              "startLine": 435,
+              "startCol": 688,
+              "startOffset": 142771,
+              "endLine": 435,
+              "endCol": 757,
+              "endOffset": 142840
+            },
+            "href": {
+              "startLine": 435,
+              "startCol": 758,
+              "startOffset": 142841,
+              "endLine": 435,
+              "endCol": 810,
+              "endOffset": 142893
+            },
+            "rel": {
+              "startLine": 435,
+              "startCol": 811,
+              "startOffset": 142894,
+              "endLine": 435,
+              "endCol": 821,
+              "endOffset": 142904
+            },
+            "data-chapter-direction": {
+              "startLine": 435,
+              "startCol": 822,
+              "startOffset": 142905,
+              "endLine": 435,
+              "endCol": 851,
+              "endOffset": 142934
+            },
+            "data-chapter-id": {
+              "startLine": 435,
+              "startCol": 852,
+              "startOffset": 142935,
+              "endLine": 435,
+              "endCol": 903,
+              "endOffset": 142986
+            },
+            "data-chapter-order": {
+              "startLine": 435,
+              "startCol": 904,
+              "startOffset": 142987,
+              "endLine": 435,
+              "endCol": 927,
+              "endOffset": 143010
+            },
+            "data-astro-cid-44eis63d": {
+              "startLine": 435,
+              "startCol": 928,
+              "startOffset": 143011,
+              "endLine": 435,
+              "endCol": 951,
+              "endOffset": 143034
+            }
+          }
+        },
+        "endTag": {
+          "startLine": 435,
+          "startCol": 1093,
+          "startOffset": 143176,
+          "endLine": 435,
+          "endCol": 1097,
+          "endOffset": 143180
+        }
+      }
+    },
+    "utf8ByteRange": [
+      142847,
+      143261
+    ]
+  },
+  "compiledStyle": {
+    "literal": "<style>.filtering-evidence-grid[data-astro-cid-fwoe2uoe]{grid-template-columns:minmax(0,1fr);align-items:start}@container (width>=64rem){.filtering-evidence-grid[data-astro-cid-fwoe2uoe]{grid-template-columns:minmax(0,2fr) minmax(16rem,1fr)}}\n</style>",
+    "bytes": 251,
+    "sha256": "fefb195373919f6ef349bae39a96ec71c97eefd955f69fa586734c170135f5d1",
+    "origin": {
+      "document": {
+        "path": ".build/runs/20261007T035300Z-implement-ch42-deterministic-corpus-filtering-03/validation/site-validation-03/dist/en/course/41-governed-corpus-acquisition/index.html",
+        "bytes": 146641,
+        "sha256": "4b797d12f6802762e9d34ae0e869b9ec0067e136039076de353ad221ba52a97e"
+      },
+      "nodePath": [
+        1,
+        0,
+        49
+      ],
+      "tag": "style",
+      "attributes": {},
+      "sourceCodeLocation": {
+        "startLine": 47,
+        "startCol": 79,
+        "startOffset": 53071,
+        "endLine": 48,
+        "endCol": 9,
+        "endOffset": 53322,
+        "startTag": {
+          "startLine": 47,
+          "startCol": 79,
+          "startOffset": 53071,
+          "endLine": 47,
+          "endCol": 86,
+          "endOffset": 53078
+        },
+        "endTag": {
+          "startLine": 48,
+          "startCol": 1,
+          "startOffset": 53314,
+          "endLine": 48,
+          "endCol": 9,
+          "endOffset": 53322
+        }
+      }
+    },
+    "sourceFigure": {
+      "path": ".build/runs/20261007T035300Z-implement-ch42-deterministic-corpus-filtering-03/publish-candidate-03/site/src/components/chapters/DeterministicCorpusFilteringDiagram.astro",
+      "bytes": 4177,
+      "sha256": "33abb3ea4740c5f1a227e122e6b00f3d5d03001524eb74dbe89149bb5f2bb861"
+    },
+    "sourceCssValidation": {
+      "conceptRootCount": 1,
+      "styleCount": 1
+    },
+    "selectors": [
+      ".filtering-evidence-grid[data-astro-cid-fwoe2uoe]",
+      ".filtering-evidence-grid[data-astro-cid-fwoe2uoe]"
+    ],
+    "matchingPredecessorNodeCount": 0,
+    "sourceDeclarations": [
+      {
+        "property": "grid-template-columns",
+        "value": "minmax(0,1fr)",
+        "important": false
+      },
+      {
+        "property": "align-items",
+        "value": "start",
+        "important": false
+      },
+      {
+        "property": "grid-template-columns",
+        "value": "minmax(0,2fr) minmax(16rem,1fr)",
+        "important": false
+      }
+    ],
+    "compiledDeclarations": [
+      {
+        "property": "grid-template-columns",
+        "value": "minmax(0,1fr)",
+        "important": false
+      },
+      {
+        "property": "align-items",
+        "value": "start",
+        "important": false
+      },
+      {
+        "property": "grid-template-columns",
+        "value": "minmax(0,2fr) minmax(16rem,1fr)",
+        "important": false
+      }
+    ],
+    "sourceContainers": [
+      "(min-width:64rem)"
+    ],
+    "compiledContainers": [
+      "(width>=64rem)"
+    ]
+  },
+  "remainingBytes": 145976,
+  "remainingSha256": "17e5e18475b668ed87c34ad19edea4f539819fa2b7e98762410f6e321812e987",
+  "exactBaselineMatch": true,
+  "limitation": "Only the exact new English next anchor and hash-fixed source-derived geometry style with zero Chapter41 DOM matches are excepted. Every other raw byte must equal Chapter41 v5. Prior judgments do not approve this changed full HTML; the new anchor is in the fresh Chapter42 scope."
+}

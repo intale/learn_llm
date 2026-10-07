@@ -1,0 +1,113 @@
+
+> learn-llm-site@0.1.0 build
+> cross-env ASTRO_TELEMETRY_DISABLED=1 astro build
+
+05:22:01 [content] Syncing content
+05:22:01 [content] Synced content
+05:22:01 [types] Generated 442ms
+05:22:01 [build] output: "static"
+05:22:01 [build] mode: "static"
+05:22:01 [build] directory: /work/site/dist/
+05:22:01 [build] Collecting build info...
+05:22:01 [build] ✓ Completed in 451ms.
+05:22:01 [build] Building static entrypoints...
+05:22:09 [vite] ✓ built in 7.19s
+05:22:09 [vite] ✓ built in 11ms
+05:22:09 [build] Rearranging server assets...
+
+ generating static routes 
+05:22:09   ├─ /sitemap.xml (+790ms) 
+05:22:10   ├─ /en/course/index.html (+788ms) 
+05:22:11   ├─ /ru/course/index.html (+790ms) 
+05:22:12   ├─ /en/course/00-llm-parts/index.html (+783ms) 
+05:22:13   ├─ /ru/course/00-llm-parts/index.html (+776ms) 
+05:22:13   ├─ /en/course/01-text-units/index.html (+24ms) 
+05:22:13   ├─ /ru/course/01-text-units/index.html (+15ms) 
+05:22:13   ├─ /en/course/02-corpus-partitions/index.html (+34ms) 
+05:22:13   ├─ /ru/course/02-corpus-partitions/index.html (+22ms) 
+05:22:13   ├─ /en/course/03-learn-bpe-merges/index.html (+20ms) 
+05:22:14   ├─ /ru/course/03-learn-bpe-merges/index.html (+21ms) 
+05:22:14   ├─ /en/course/04-apply-bpe-tokenizer/index.html (+25ms) 
+05:22:14   ├─ /ru/course/04-apply-bpe-tokenizer/index.html (+25ms) 
+05:22:14   ├─ /en/course/05-autoregressive-examples/index.html (+30ms) 
+05:22:14   ├─ /ru/course/05-autoregressive-examples/index.html (+27ms) 
+05:22:14   ├─ /en/course/06-bigram-baseline/index.html (+27ms) 
+05:22:14   ├─ /ru/course/06-bigram-baseline/index.html (+26ms) 
+05:22:14   ├─ /en/course/07-language-model-metrics/index.html (+29ms) 
+05:22:14   ├─ /ru/course/07-language-model-metrics/index.html (+30ms) 
+05:22:14   ├─ /en/course/08-tensor-storage/index.html (+24ms) 
+05:22:14   ├─ /ru/course/08-tensor-storage/index.html (+22ms) 
+05:22:14   ├─ /en/course/09-tensor-views/index.html (+28ms) 
+05:22:14   ├─ /ru/course/09-tensor-views/index.html (+27ms) 
+05:22:14   ├─ /en/course/10-broadcasting-reductions/index.html (+27ms) 
+05:22:14   ├─ /ru/course/10-broadcasting-reductions/index.html (+69ms) 
+05:22:14   ├─ /en/course/11-matrix-multiplication/index.html (+31ms) 
+05:22:14   ├─ /ru/course/11-matrix-multiplication/index.html (+29ms) 
+05:22:14   ├─ /en/course/12-stable-softmax/index.html (+44ms) 
+05:22:14   ├─ /ru/course/12-stable-softmax/index.html (+39ms) 
+05:22:14   ├─ /en/course/13-gradient-checking/index.html (+66ms) 
+05:22:14   ├─ /ru/course/13-gradient-checking/index.html (+59ms) 
+05:22:14   ├─ /en/course/14-scalar-autodiff/index.html (+36ms) 
+05:22:14   ├─ /ru/course/14-scalar-autodiff/index.html (+31ms) 
+05:22:14   ├─ /en/course/15-tensor-autodiff-core/index.html (+78ms) 
+05:22:14   ├─ /ru/course/15-tensor-autodiff-core/index.html (+72ms) 
+05:22:14   ├─ /en/course/16-model-autodiff-ops/index.html (+53ms) 
+05:22:14   ├─ /ru/course/16-model-autodiff-ops/index.html (+55ms) 
+05:22:15   ├─ /en/course/17-parameter-initialization/index.html (+36ms) 
+05:22:15   ├─ /ru/course/17-parameter-initialization/index.html (+32ms) 
+05:22:15   ├─ /en/course/18-token-embeddings/index.html (+38ms) 
+05:22:15   ├─ /ru/course/18-token-embeddings/index.html (+34ms) 
+05:22:15   ├─ /en/course/19-linear-layers/index.html (+42ms) 
+05:22:15   ├─ /ru/course/19-linear-layers/index.html (+38ms) 
+05:22:15   ├─ /en/course/20-swiglu-feed-forward/index.html (+53ms) 
+05:22:15   ├─ /ru/course/20-swiglu-feed-forward/index.html (+55ms) 
+05:22:15   ├─ /en/course/21-mini-batches/index.html (+54ms) 
+05:22:15   ├─ /ru/course/21-mini-batches/index.html (+50ms) 
+05:22:15   ├─ /en/course/22-adamw/index.html (+88ms) 
+05:22:15   ├─ /ru/course/22-adamw/index.html (+85ms) 
+05:22:15   ├─ /en/course/23-neural-ngram/index.html (+44ms) 
+05:22:15   ├─ /ru/course/23-neural-ngram/index.html (+42ms) 
+05:22:15   ├─ /en/course/24-residual-connections/index.html (+34ms) 
+05:22:15   ├─ /ru/course/24-residual-connections/index.html (+30ms) 
+05:22:15   ├─ /en/course/25-rmsnorm/index.html (+32ms) 
+05:22:15   ├─ /ru/course/25-rmsnorm/index.html (+33ms) 
+05:22:15   ├─ /en/course/26-qkv-projections/index.html (+41ms) 
+05:22:15   ├─ /ru/course/26-qkv-projections/index.html (+62ms) 
+05:22:15   ├─ /en/course/27-self-attention/index.html (+53ms) 
+05:22:16   ├─ /ru/course/27-self-attention/index.html (+45ms) 
+05:22:16   ├─ /en/course/28-causal-masking/index.html (+35ms) 
+05:22:16   ├─ /ru/course/28-causal-masking/index.html (+33ms) 
+05:22:16   ├─ /en/course/29-rope/index.html (+41ms) 
+05:22:16   ├─ /ru/course/29-rope/index.html (+38ms) 
+05:22:16   ├─ /en/course/30-multi-head-attention/index.html (+87ms) 
+05:22:16   ├─ /ru/course/30-multi-head-attention/index.html (+84ms) 
+05:22:16   ├─ /en/course/31-decoder-block/index.html (+46ms) 
+05:22:16   ├─ /ru/course/31-decoder-block/index.html (+45ms) 
+05:22:16   ├─ /en/course/32-decoder-model/index.html (+69ms) 
+05:22:16   ├─ /ru/course/32-decoder-model/index.html (+77ms) 
+05:22:16   ├─ /en/course/33-training-selection/index.html (+67ms) 
+05:22:16   ├─ /ru/course/33-training-selection/index.html (+66ms) 
+05:22:16   ├─ /en/course/34-final-evaluation/index.html (+42ms) 
+05:22:16   ├─ /ru/course/34-final-evaluation/index.html (+39ms) 
+05:22:16   ├─ /en/course/35-checkpoints/index.html (+45ms) 
+05:22:16   ├─ /ru/course/35-checkpoints/index.html (+50ms) 
+05:22:16   ├─ /en/course/36-temperature-top-k/index.html (+66ms) 
+05:22:17   ├─ /ru/course/36-temperature-top-k/index.html (+62ms) 
+05:22:17   ├─ /en/course/37-incremental-attention/index.html (+68ms) 
+05:22:17   ├─ /ru/course/37-incremental-attention/index.html (+67ms) 
+05:22:17   ├─ /en/course/38-cached-generation/index.html (+91ms) 
+05:22:17   ├─ /ru/course/38-cached-generation/index.html (+89ms) 
+05:22:17   ├─ /en/course/39-end-to-end-llm/index.html (+32ms) 
+05:22:17   ├─ /ru/course/39-end-to-end-llm/index.html (+29ms) 
+05:22:17   ├─ /en/course/40-reference-core-handoff/index.html (+16ms) 
+05:22:17   ├─ /ru/course/40-reference-core-handoff/index.html (+19ms) 
+05:22:17   ├─ /en/course/41-governed-corpus-acquisition/index.html (+13ms) 
+05:22:17   ├─ /en/course/42-deterministic-corpus-filtering/index.html (+20ms) 
+05:22:17   ├─ /en/index.html (+1ms) 
+05:22:17   ├─ /ru/index.html (+1ms) 
+05:22:17   ├─ /index.html (+1ms) 
+05:22:17 ✓ Completed in 8.40s.
+
+05:22:17 [build] ✓ Completed in 15.68s.
+05:22:17 [build] 89 page(s) built in 16.13s
+05:22:17 [build] Complete!

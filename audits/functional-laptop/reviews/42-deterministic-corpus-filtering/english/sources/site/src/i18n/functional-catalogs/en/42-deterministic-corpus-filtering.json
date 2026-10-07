@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "chapterId": "42-deterministic-corpus-filtering",
+  "locale": "en",
+  "contentRevision": 1,
+  "title": "Filter records without losing their accounting",
+  "description": "Apply ordered Rust filters to eight synthetic records, distinguish rejection from pending review, and account for each rule's actual input population.",
+  "objective": "Give every framed record one disposition under the ordered filtering policy, preserve eligible text and source references, and explain each rule's rate using the records that reached that rule."
+}

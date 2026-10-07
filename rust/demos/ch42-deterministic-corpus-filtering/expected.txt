@@ -1,0 +1,385 @@
+{
+  "byte_accounting": {
+    "decoded_raw": "107",
+    "normalized": "101",
+    "normalized_manual": "28",
+    "normalized_rejected": "65",
+    "normalized_retained": "8",
+    "undecoded_raw": "68"
+  },
+  "chapter": "42-deterministic-corpus-filtering",
+  "count_kind": "utf8-byte-base-v1",
+  "dispositions": {
+    "eligible": "1",
+    "ineligible": "7",
+    "manual_review": "1",
+    "rejected": "6",
+    "retained": "1"
+  },
+  "filtered_artifact_id": "f77fe5828bf0ac735b59a81613a5070eac4ec6676b4131f99f55b89de2575cf1",
+  "findings_body_free": true,
+  "input": {
+    "delimiter_bytes": "112",
+    "payload_bytes": "175",
+    "physical_bytes": "287",
+    "records": "8"
+  },
+  "model_trained": false,
+  "policy_sha256": "d7c63f7f00b9d4138425105a2cd8e79f72a7e25e261aa290302ecd45bd125db8",
+  "privacy_certified": false,
+  "r7": {
+    "first_terminal_rule": "secret-marker",
+    "manual_rule_evaluated": false,
+    "occurrence_id": "54625ef58a8829c7372bd36080fb11a2060f91734c449ef9cdc0ec240107de02"
+  },
+  "real_corpus_filtered": false,
+  "retained_rows_read": "1",
+  "retained_text": [
+    "cat sat."
+  ],
+  "scope": "synthetic-first-terminal-fixture",
+  "source_artifact_id": "4cd27280ab65b349c02243798044f89b554807bcdb9a424213ebd86d5dde3b17",
+  "sources": [
+    {
+      "decoded_raw_bytes": "12",
+      "manual_review": "0",
+      "normalized_bytes": "10",
+      "normalized_manual_bytes": "0",
+      "normalized_rejected_bytes": "2",
+      "normalized_retained_bytes": "8",
+      "policy_sha256": "d7c63f7f00b9d4138425105a2cd8e79f72a7e25e261aa290302ecd45bd125db8",
+      "rejected": "3",
+      "retained": "1",
+      "samples": [
+        {
+          "disposition": "retained",
+          "first_terminal_rule": null,
+          "record_ids": [
+            "e9b163b337772b91c71bf72cddb6286576eb9e31b6bae04d1ef827f4c5156e4e"
+          ]
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "raw-size",
+          "record_ids": [
+            "75c7aabe434090d7e55d7cf6ff11fc8ab633ebf477eb0bc57b103c156e8ae83e"
+          ]
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "utf8",
+          "record_ids": [
+            "3ff683844994245ab6f7d39c1e1a5d0eacc171701959f422e5e5bac2488127de"
+          ]
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "min-length",
+          "record_ids": [
+            "bde44b17442109925ea9f3ced82b874fa7d42981670681c37ff3e51e13a37a00"
+          ]
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "ascii-letters",
+          "record_ids": []
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "secret-marker",
+          "record_ids": []
+        },
+        {
+          "disposition": "manual-review",
+          "first_terminal_rule": "manual-marker",
+          "record_ids": []
+        },
+        {
+          "disposition": "manual-review",
+          "first_terminal_rule": "ascii-share-review",
+          "record_ids": []
+        }
+      ],
+      "scan": {
+        "delimiter_bytes": "56",
+        "payload_bytes": "80",
+        "records": "4",
+        "source_bytes": "136"
+      },
+      "source": {
+        "artifact_id": "4cd27280ab65b349c02243798044f89b554807bcdb9a424213ebd86d5dde3b17",
+        "bytes": "136",
+        "declared_language": "en",
+        "evidence_kind": "synthetic-offline-fixture",
+        "file_sha256": "d975b74bb7474cde85b0150536da28b402e9c1afdcfef742e623483ba77cf51c",
+        "payload_id": "train",
+        "source_id": "fixture-train"
+      },
+      "stages": [
+        {
+          "rule": "raw-size",
+          "seen": "4",
+          "survived": "3",
+          "terminal": "1"
+        },
+        {
+          "rule": "utf8",
+          "seen": "3",
+          "survived": "2",
+          "terminal": "1"
+        },
+        {
+          "rule": "min-length",
+          "seen": "2",
+          "survived": "1",
+          "terminal": "1"
+        },
+        {
+          "rule": "ascii-letters",
+          "seen": "1",
+          "survived": "1",
+          "terminal": "0"
+        },
+        {
+          "rule": "secret-marker",
+          "seen": "1",
+          "survived": "1",
+          "terminal": "0"
+        },
+        {
+          "rule": "manual-marker",
+          "seen": "1",
+          "survived": "1",
+          "terminal": "0"
+        },
+        {
+          "rule": "ascii-share-review",
+          "seen": "1",
+          "survived": "1",
+          "terminal": "0"
+        }
+      ],
+      "undecoded_raw_bytes": "68"
+    },
+    {
+      "decoded_raw_bytes": "95",
+      "manual_review": "1",
+      "normalized_bytes": "91",
+      "normalized_manual_bytes": "28",
+      "normalized_rejected_bytes": "63",
+      "normalized_retained_bytes": "0",
+      "policy_sha256": "d7c63f7f00b9d4138425105a2cd8e79f72a7e25e261aa290302ecd45bd125db8",
+      "rejected": "3",
+      "retained": "0",
+      "samples": [
+        {
+          "disposition": "retained",
+          "first_terminal_rule": null,
+          "record_ids": []
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "raw-size",
+          "record_ids": []
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "utf8",
+          "record_ids": []
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "min-length",
+          "record_ids": []
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "ascii-letters",
+          "record_ids": [
+            "d3b501030f58d72ceaf218754e2aaac46285e69c28f9e45f15108596c690afc7"
+          ]
+        },
+        {
+          "disposition": "rejected",
+          "first_terminal_rule": "secret-marker",
+          "record_ids": [
+            "af68a6b1d1261e2f35ebf68fb530c6dcf355117b1b498606d45a152086016669",
+            "54625ef58a8829c7372bd36080fb11a2060f91734c449ef9cdc0ec240107de02"
+          ]
+        },
+        {
+          "disposition": "manual-review",
+          "first_terminal_rule": "manual-marker",
+          "record_ids": [
+            "27d7ebeb8abb131375b24bb30bdbc7634255a86481b59143089550cefc7be3aa"
+          ]
+        },
+        {
+          "disposition": "manual-review",
+          "first_terminal_rule": "ascii-share-review",
+          "record_ids": []
+        }
+      ],
+      "scan": {
+        "delimiter_bytes": "56",
+        "payload_bytes": "95",
+        "records": "4",
+        "source_bytes": "151"
+      },
+      "source": {
+        "artifact_id": "4cd27280ab65b349c02243798044f89b554807bcdb9a424213ebd86d5dde3b17",
+        "bytes": "151",
+        "declared_language": "en",
+        "evidence_kind": "synthetic-offline-fixture",
+        "file_sha256": "32f094fd17375c4440756e7a4bbc2bcffd96875a07524a23088cc627757f249a",
+        "payload_id": "validation",
+        "source_id": "fixture-validation"
+      },
+      "stages": [
+        {
+          "rule": "raw-size",
+          "seen": "4",
+          "survived": "4",
+          "terminal": "0"
+        },
+        {
+          "rule": "utf8",
+          "seen": "4",
+          "survived": "4",
+          "terminal": "0"
+        },
+        {
+          "rule": "min-length",
+          "seen": "4",
+          "survived": "4",
+          "terminal": "0"
+        },
+        {
+          "rule": "ascii-letters",
+          "seen": "4",
+          "survived": "3",
+          "terminal": "1"
+        },
+        {
+          "rule": "secret-marker",
+          "seen": "3",
+          "survived": "1",
+          "terminal": "2"
+        },
+        {
+          "rule": "manual-marker",
+          "seen": "1",
+          "survived": "0",
+          "terminal": "1"
+        },
+        {
+          "rule": "ascii-share-review",
+          "seen": "0",
+          "survived": "0",
+          "terminal": "0"
+        }
+      ],
+      "undecoded_raw_bytes": "0"
+    }
+  ],
+  "stages": [
+    {
+      "rate": {
+        "denominator": "8",
+        "numerator": "1"
+      },
+      "rule": "raw-size",
+      "seen": "8",
+      "survived": "7",
+      "terminal": "1",
+      "terminal_disposition": "rejected"
+    },
+    {
+      "rate": {
+        "denominator": "7",
+        "numerator": "1"
+      },
+      "rule": "utf8",
+      "seen": "7",
+      "survived": "6",
+      "terminal": "1",
+      "terminal_disposition": "rejected"
+    },
+    {
+      "rate": {
+        "denominator": "6",
+        "numerator": "1"
+      },
+      "rule": "min-length",
+      "seen": "6",
+      "survived": "5",
+      "terminal": "1",
+      "terminal_disposition": "rejected"
+    },
+    {
+      "rate": {
+        "denominator": "5",
+        "numerator": "1"
+      },
+      "rule": "ascii-letters",
+      "seen": "5",
+      "survived": "4",
+      "terminal": "1",
+      "terminal_disposition": "rejected"
+    },
+    {
+      "rate": {
+        "denominator": "4",
+        "numerator": "2"
+      },
+      "rule": "secret-marker",
+      "seen": "4",
+      "survived": "2",
+      "terminal": "2",
+      "terminal_disposition": "rejected"
+    },
+    {
+      "rate": {
+        "denominator": "2",
+        "numerator": "1"
+      },
+      "rule": "manual-marker",
+      "seen": "2",
+      "survived": "1",
+      "terminal": "1",
+      "terminal_disposition": "manual-review"
+    },
+    {
+      "rate": {
+        "denominator": "1",
+        "numerator": "0"
+      },
+      "rule": "ascii-share-review",
+      "seen": "1",
+      "survived": "1",
+      "terminal": "0",
+      "terminal_disposition": "manual-review"
+    }
+  ],
+  "swapped_order": {
+    "filtered_artifact_id": "744935aafba3c65318e255b028c1b98c273654d490a59a7566dfb88b7923b712",
+    "manual_review": "2",
+    "policy_sha256": "684bc07809a8fcffc83340bf5b04e42170e86f83d5f3d453a828858c3d50124f",
+    "rejected": "5",
+    "retained": "1",
+    "source_artifact_unchanged": true
+  },
+  "withdrawal": {
+    "artifacts": [
+      "a0",
+      "f0",
+      "s0",
+      "tok0",
+      "w0"
+    ],
+    "sources": [
+      "r0"
+    ]
+  },
+  "withdrawal_scope": "fictional-known-graph-no-physical-deletion"
+}

@@ -1,0 +1,12 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:19:1 › Chapter42 static Rust evidence, mathematics and English-only navigation
+[2/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:63:1 › Chapter41 forward link to Chapter42 is contained and preserves its baseline body
+[3/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:119:3 › Chapter42 complete nearest-box and formula-ink containment 1280
+[4/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:119:3 › Chapter42 complete nearest-box and formula-ink containment 390
+[5/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:165:1 › Chapter42 keyboard full view reuses one readable evidence tree
+[6/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:186:1 › Chapter42 forced colors and RTL retain complete evidence and containment
+[7/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:199:3 › Chapter42 seven-term glossary keyboard and contained scrolling 1280
+[8/8] [firefox] › tests/e2e/ch42-deterministic-corpus-filtering.spec.ts:199:3 › Chapter42 seven-term glossary keyboard and contained scrolling 390
+  8 passed (6.0s)

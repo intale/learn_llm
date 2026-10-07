@@ -1,0 +1,48 @@
+
+running 33 tests
+test functional::data::deletion::tests::shared_descendant_is_sorted_and_withdrawn_once ... ok
+test functional::data::deletion::tests::duplicate_nodes_edges_non_source_roots_and_budget_refuse ... ok
+test functional::data::deletion::tests::unconnected_source_and_empty_selection_are_preserved ... ok
+test functional::data::deletion::tests::unknown_root_dangling_edge_and_cycle_refuse ... ok
+test functional::data::filter::tests::normalization_preserves_case_internal_spaces_and_unicode ... ok
+test functional::data::filter::tests::exact_scalar_coverage_is_not_a_language_classifier ... ok
+test functional::data::filter::tests::each_terminal_rule_excludes_later_rules ... ok
+test functional::data::filter::tests::changing_order_changes_the_hash_and_first_terminal_only_when_reached ... ok
+test functional::data::filter::tests::production_risk_markers_reach_the_marker_rules ... ok
+test functional::data::filter::tests::stage_set_thresholds_and_checked_ratio_refuse_invalid_policies ... ok
+test functional::data::filter::tests::threshold_change_changes_identity_even_with_the_same_retained_text ... ok
+test functional::data::governance::tests::a_complete_empty_source_has_zero_counts_and_no_defined_rates ... ok
+test functional::data::governance::tests::metadata_receipt_and_findings_share_one_strict_budget ... ok
+test functional::data::governance::tests::stage_denominator_is_seen_and_empty_is_unavailable ... ok
+test functional::data::governance::tests::checked_counters_refuse_overflow_and_inconsistent_stage_reports ... ok
+test functional::data::privacy::tests::empty_duplicate_nonascii_and_overlong_markers_refuse ... ok
+test functional::data::privacy::tests::manual_marker_is_case_sensitive_and_has_false_positives_and_negatives ... ok
+test functional::data::governance::tests::input_failure_and_changed_reread_are_not_completed_reports ... ok
+test functional::data::privacy::tests::secret_marker_is_ascii_case_insensitive_not_a_general_detector ... ok
+test functional::data::privacy::tests::finding_schema_cannot_accept_a_snippet ... ok
+test functional::data::governance::tests::duplicate_text_at_distinct_spans_has_distinct_occurrence_ids ... ok
+test functional::data::governance::tests::output_failure_leaves_no_success_report_and_keeps_the_charge ... ok
+test functional::data::governance::tests::combining_a_report_under_another_threshold_policy_refuses ... ok
+test functional::data::stream::tests::decimal_count_roundtrip_preserves_more_than_js_safe_integer ... ok
+test functional::data::stream::tests::delimiter_and_memory_bounds_are_named_and_checked ... ok
+test functional::data::governance::tests::changing_policy_does_not_change_a_raw_occurrence_id ... ok
+test functional::data::stream::tests::eof_is_an_explicit_final_boundary_without_phantom ... ok
+test functional::data::stream::tests::marker_is_whole_line_with_lf_crlf_or_exact_eof ... ok
+test functional::data::stream::tests::read_failure_never_returns_a_success_summary_or_body ... ok
+test functional::data::stream::tests::source_mutation_truncation_and_extension_cannot_finish ... ok
+test functional::data::stream::tests::oversized_frames_drain_to_a_known_boundary ... ok
+test functional::data::stream::tests::every_chunk_width_preserves_unicode_and_offsets ... ok
+test functional::data::governance::tests::first_32_samples_do_not_truncate_complete_counts_or_outputs ... ok
+
+test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 491 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+

@@ -1,0 +1,495 @@
+---
+import {
+  CHEAT_SHEET_PAGE_SIZE,
+  getCheatSheetCopy,
+  paginateCheatSheetTerms,
+  sortCheatSheetTerms,
+  type CheatSheetData,
+} from '../lib/cheat-sheets';
+
+interface Props {
+  sheet: CheatSheetData;
+}
+
+const { sheet } = Astro.props;
+const copy = getCheatSheetCopy(sheet.locale);
+if (!copy) {
+  throw new Error(`Missing cheat-sheet interface copy for ${sheet.locale}.`);
+}
+const dialogId = `cheat-sheet-${sheet.chapter_id}`;
+const titleId = `${dialogId}-title`;
+const descriptionId = `${dialogId}-description`;
+const pagesId = `${dialogId}-pages`;
+const pageStatusId = `${dialogId}-page-status`;
+const sortedTerms = sortCheatSheetTerms(sheet.terms, sheet.locale);
+const termPages = paginateCheatSheetTerms(sortedTerms);
+const isPaginated = termPages.length > 1;
+const pageStatuses = termPages.map((page, pageIndex) =>
+  copy.pageStatus({
+    currentPage: pageIndex + 1,
+    endTerm: pageIndex * CHEAT_SHEET_PAGE_SIZE + page.length,
+    pageCount: termPages.length,
+    startTerm: pageIndex * CHEAT_SHEET_PAGE_SIZE + 1,
+    totalTerms: sortedTerms.length,
+  }),
+);
+---
+
+<aside
+  class="cheat-sheet"
+  data-cheat-sheet
+  data-cheat-sheet-chapter={sheet.chapter_id}
+  data-cheat-sheet-page-count={termPages.length}
+  data-cheat-sheet-page-statuses={JSON.stringify(pageStatuses)}
+>
+  <button
+    class="cheat-sheet-trigger"
+    type="button"
+    aria-controls={dialogId}
+    aria-haspopup="dialog"
+    data-cheat-sheet-open
+    hidden
+  >
+    {copy.openLabel}
+  </button>
+
+  <dialog
+    id={dialogId}
+    class:list={[
+      'cheat-sheet-dialog',
+      { 'cheat-sheet-dialog-paginated': isPaginated },
+    ]}
+    aria-labelledby={titleId}
+    aria-describedby={descriptionId}
+    data-cheat-sheet-dialog
+  >
+    <div class="cheat-sheet-panel">
+      <div
+        id={pagesId}
+        class="cheat-sheet-pages"
+        role={isPaginated ? 'region' : undefined}
+        aria-labelledby={isPaginated ? titleId : undefined}
+        aria-describedby={isPaginated ? pageStatusId : undefined}
+        tabindex={isPaginated ? '0' : undefined}
+        data-cheat-sheet-pages
+      >
+        <header class="cheat-sheet-header">
+          <div>
+            <p class="cheat-sheet-eyebrow">{copy.eyebrow}</p>
+            <h2 id={titleId}>{sheet.title}</h2>
+          </div>
+          <button
+            class="cheat-sheet-close"
+            type="button"
+            aria-label={copy.closeLabel}
+            title={copy.closeLabel}
+            data-cheat-sheet-close
+            autofocus
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </header>
+        <p id={descriptionId} class="cheat-sheet-description">
+          {sheet.description}
+        </p>
+        {
+          termPages.map((page, pageIndex) => (
+            <div
+              class="cheat-sheet-page"
+              data-cheat-sheet-page={pageIndex + 1}
+              role="group"
+              aria-label={pageStatuses[pageIndex]}
+              hidden={pageIndex !== 0}
+            >
+              <dl class="cheat-sheet-terms">
+                {page.map(({ term, definition }) => (
+                  <div class="cheat-sheet-term">
+                    <dt>{term}</dt>
+                    <dd>{definition}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))
+        }
+      </div>
+      {
+        termPages.length > 1 && (
+          <nav
+            class="cheat-sheet-pagination"
+            aria-label={copy.paginationLabel}
+            data-cheat-sheet-pagination
+          >
+            <p
+              id={pageStatusId}
+              class="cheat-sheet-page-status"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              data-cheat-sheet-page-status
+            >
+              {pageStatuses[0]}
+            </p>
+            <button
+              class="cheat-sheet-page-button cheat-sheet-previous"
+              type="button"
+              aria-controls={pagesId}
+              data-cheat-sheet-previous
+              disabled
+            >
+              {copy.previousLabel}
+            </button>
+            <button
+              class="cheat-sheet-page-button cheat-sheet-next"
+              type="button"
+              aria-controls={pagesId}
+              data-cheat-sheet-next
+            >
+              {copy.nextLabel}
+            </button>
+          </nav>
+        )
+      }
+    </div>
+  </dialog>
+
+</aside>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-cheat-sheet]').forEach((root) => {
+    if (root.dataset.cheatSheetEnhanced === 'true') return;
+
+    const trigger = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-open]');
+    const dialog = root.querySelector<HTMLDialogElement>('[data-cheat-sheet-dialog]');
+    const close = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-close]');
+    const pageViewport = root.querySelector<HTMLElement>('[data-cheat-sheet-pages]');
+    const pages = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-cheat-sheet-page]'),
+    );
+    const pageCount = Number.parseInt(root.dataset.cheatSheetPageCount ?? '', 10);
+    const pagination = root.querySelector<HTMLElement>('[data-cheat-sheet-pagination]');
+    const previous = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-previous]');
+    const next = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-next]');
+    const pageStatus = root.querySelector<HTMLElement>('[data-cheat-sheet-page-status]');
+    if (
+      !trigger ||
+      !dialog ||
+      !close ||
+      !pageViewport ||
+      typeof dialog.showModal !== 'function'
+    ) {
+      return;
+    }
+
+    let pageStatuses: unknown;
+    try {
+      pageStatuses = JSON.parse(root.dataset.cheatSheetPageStatuses ?? '');
+    } catch {
+      return;
+    }
+    if (
+      !Number.isInteger(pageCount) ||
+      pageCount < 1 ||
+      pages.length !== pageCount ||
+      !Array.isArray(pageStatuses) ||
+      pageStatuses.length !== pageCount ||
+      pageStatuses.some((status) => typeof status !== 'string')
+    ) {
+      return;
+    }
+
+    const isPaginated = pageCount > 1;
+    if (
+      isPaginated &&
+      (!pagination || !previous || !next || !pageStatus)
+    ) {
+      return;
+    }
+
+    let currentPage = 1;
+    const showPage = (
+      requestedPage: number,
+      position: 'dialog-start' | 'page-start',
+    ) => {
+      currentPage = Math.min(pageCount, Math.max(1, requestedPage));
+      pages.forEach((page, pageIndex) => {
+        page.hidden = pageIndex !== currentPage - 1;
+      });
+      root.dataset.cheatSheetCurrentPage = String(currentPage);
+      if (previous && next && pageStatus) {
+        previous.disabled = currentPage === 1;
+        next.disabled = currentPage === pageCount;
+        pageStatus.textContent = pageStatuses[currentPage - 1] as string;
+      }
+      if (position === 'dialog-start') {
+        pageViewport.scrollTop = 0;
+      } else {
+        const activePage = pages[currentPage - 1];
+        if (!activePage) return;
+        const viewportTop = pageViewport.getBoundingClientRect().top;
+        const activePageTop = activePage.getBoundingClientRect().top;
+        pageViewport.scrollTop += activePageTop - viewportTop;
+      }
+      if (dialog.open) dialog.scrollTop = 0;
+    };
+
+    showPage(1, 'dialog-start');
+    root.dataset.cheatSheetEnhanced = 'true';
+    trigger.hidden = false;
+    let opener: HTMLElement | null = null;
+
+    trigger.addEventListener('click', () => {
+      opener = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : trigger;
+      dialog.showModal();
+      showPage(1, 'dialog-start');
+    });
+
+    previous?.addEventListener('click', () => {
+      showPage(currentPage - 1, 'page-start');
+      if (currentPage === 1) next?.focus({ preventScroll: true });
+    });
+    next?.addEventListener('click', () => {
+      showPage(currentPage + 1, 'page-start');
+      if (currentPage === pageCount) previous?.focus({ preventScroll: true });
+    });
+    close.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      opener?.focus();
+      opener = null;
+    });
+  });
+</script>
+
+<style>
+  .cheat-sheet {
+    margin-top: 1.25rem;
+  }
+
+  .cheat-sheet-trigger,
+  .cheat-sheet-close,
+  .cheat-sheet-page-button {
+    border: 1px solid var(--accent-fill);
+    background: var(--accent-fill);
+    color: var(--on-accent);
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .cheat-sheet-trigger {
+    min-block-size: 2.75rem;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+  }
+
+  .cheat-sheet-trigger:hover,
+  .cheat-sheet-close:hover,
+  .cheat-sheet-page-button:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .cheat-sheet-trigger:focus-visible,
+  .cheat-sheet-close:focus-visible,
+  .cheat-sheet-page-button:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.2rem;
+  }
+
+  .cheat-sheet-dialog {
+    box-sizing: border-box;
+    inline-size: min(42rem, calc(100vw - 2rem));
+    max-block-size: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 0;
+    overflow-x: visible;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+    scrollbar-gutter: stable;
+  }
+
+  .cheat-sheet-dialog-paginated {
+    block-size: calc(100dvh - 2rem);
+    scrollbar-gutter: auto;
+  }
+
+  .cheat-sheet-dialog::backdrop {
+    background: var(--dialog-backdrop);
+  }
+
+  .cheat-sheet-panel {
+    box-sizing: border-box;
+    min-inline-size: 0;
+    padding: clamp(1.1rem, 4vw, 2rem);
+  }
+
+  .cheat-sheet-dialog-paginated .cheat-sheet-panel {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  .cheat-sheet-dialog-paginated .cheat-sheet-pages {
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .cheat-sheet-pages:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.2rem;
+  }
+
+  .cheat-sheet-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .cheat-sheet-header > div {
+    min-inline-size: 0;
+  }
+
+  .cheat-sheet-header h2 {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.7rem, 5vw, 2.35rem);
+    font-weight: 500;
+    line-height: 1.12;
+  }
+
+  .cheat-sheet-eyebrow {
+    margin: 0 0 0.35rem;
+    color: var(--accent-ink);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .cheat-sheet-close {
+    display: grid;
+    flex: 0 0 auto;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    place-items: center;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .cheat-sheet-description {
+    margin: 1rem 0 0;
+    color: var(--muted);
+  }
+
+  .cheat-sheet-terms {
+    margin: 1.5rem 0 0;
+  }
+
+  .cheat-sheet-pagination {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    min-inline-size: 0;
+    margin-top: 1rem;
+  }
+
+  .cheat-sheet-page-status {
+    grid-column: 1 / -1;
+    min-inline-size: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .cheat-sheet-page-button {
+    min-block-size: 2.75rem;
+    min-inline-size: 0;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.7rem;
+    overflow-wrap: anywhere;
+  }
+
+  .cheat-sheet-page-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .cheat-sheet-term {
+    display: grid;
+    grid-template-columns: minmax(8rem, 0.7fr) minmax(0, 1.3fr);
+    gap: 0.5rem 1rem;
+    padding-block: 0.9rem;
+    border-block-start: 1px solid var(--line);
+  }
+
+  .cheat-sheet-term:last-child {
+    border-block-end: 1px solid var(--line);
+  }
+
+  .cheat-sheet-term dt {
+    font-weight: 800;
+  }
+
+  .cheat-sheet-term dd {
+    min-inline-size: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+  }
+
+  @media (max-width: 34rem) {
+    .cheat-sheet-dialog {
+      inline-size: calc(100vw - 1rem);
+      max-block-size: calc(100dvh - 1rem);
+      border-radius: 0.9rem;
+    }
+
+    .cheat-sheet-dialog-paginated {
+      block-size: calc(100dvh - 1rem);
+    }
+
+    .cheat-sheet-term {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .cheat-sheet-trigger,
+    .cheat-sheet-close,
+    .cheat-sheet-page-button,
+    .cheat-sheet-dialog,
+    .cheat-sheet-term {
+      border-color: CanvasText;
+    }
+
+    .cheat-sheet-trigger,
+    .cheat-sheet-close,
+    .cheat-sheet-page-button {
+      background: ButtonFace;
+      color: ButtonText;
+    }
+
+    .cheat-sheet-dialog::backdrop {
+      background: Canvas;
+      opacity: 0.75;
+    }
+  }
+</style>

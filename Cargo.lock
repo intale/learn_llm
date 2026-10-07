@@ -349,6 +349,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch42-deterministic-corpus-filtering"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+ "serde_json",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

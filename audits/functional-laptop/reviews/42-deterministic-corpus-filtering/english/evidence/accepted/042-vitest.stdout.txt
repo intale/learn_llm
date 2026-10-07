@@ -1,0 +1,15 @@
+
+> learn-llm-site@0.1.0 test
+> vitest --run tests/42-deterministic-corpus-filtering.test.ts tests/42-deterministic-corpus-filtering-diagram.test.ts
+
+
+ RUN  v3.2.7 /work/site
+
+ ✓ tests/42-deterministic-corpus-filtering.test.ts (6 tests) 6ms
+ ✓ tests/42-deterministic-corpus-filtering-diagram.test.ts (10 tests) 15ms
+
+ Test Files  2 passed (2)
+      Tests  16 passed (16)
+   Start at  05:21:48
+   Duration  389ms (transform 130ms, setup 0ms, collect 396ms, tests 20ms, environment 0ms, prepare 104ms)
+

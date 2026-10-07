@@ -1,0 +1,5 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.60s
+     Running unittests src/lib.rs (/target/debug/deps/llm_from_scratch-2af6754da5c4c84d)
+     Running tests/artifact_identity.rs (/target/debug/deps/artifact_identity-bac10b60351cb03b)
+     Running tests/reference_source_identity.rs (/target/debug/deps/reference_source_identity-55967b1e483814cf)

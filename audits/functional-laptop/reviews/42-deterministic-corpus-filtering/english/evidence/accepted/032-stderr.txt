@@ -1,0 +1,3 @@
+   Compiling llm-from-scratch v0.1.0 (/work/rust/crates/llm-from-scratch)
+    Checking ch42-deterministic-corpus-filtering v0.1.0 (/work/rust/demos/ch42-deterministic-corpus-filtering)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.43s

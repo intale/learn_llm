@@ -1,0 +1,88 @@
+---
+import traceSource from '../../../../rust/demos/ch42-deterministic-corpus-filtering/expected.txt?raw';
+import { parseFilteringTrace } from '../../lib/deterministic-corpus-filtering-diagram';
+import InlineMath from '../InlineMath.astro';
+
+const trace = parseFilteringTrace(traceSource);
+const ruleNames: Record<string, string> = {
+  'raw-size': 'Raw payload limit',
+  utf8: 'Strict UTF-8',
+  'min-length': 'Normalized byte minimum',
+  'ascii-letters': 'ASCII letter minimum',
+  'secret-marker': 'Secret marker',
+  'manual-marker': 'Manual-review marker',
+  'ascii-share-review': 'ASCII-share review',
+};
+const outcomeNames: Record<string, string> = {
+  rejected: 'Reject',
+  'manual-review': 'Hold for manual review',
+};
+---
+<figure class="course-diagram deterministic-corpus-filtering-diagram" data-diagram-style="course-v1"
+  data-visualization-id="deterministic-corpus-filtering" tabindex="0"
+  aria-labelledby="filtering-figure-title" aria-describedby="filtering-figure-description">
+  <figcaption class="course-diagram__caption">
+    <h3 id="filtering-figure-title">First-terminal filtering of eight synthetic records</h3>
+    <p id="filtering-figure-description" class="course-diagram__description">
+      Each rule sees only survivors of earlier rules. The secret-marker rule rejects
+      two of its four inputs; record <code>r7</code> stops there, so the later
+      manual-marker rule is not evaluated for that record.
+    </p>
+  </figcaption>
+  <div class="course-diagram__grid filtering-evidence-grid">
+  <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+    <h4>Reached populations in the synthetic fixture</h4>
+    <div class="course-diagram__scroll" data-diagram-scroll role="region" tabindex="0"
+      aria-label="Reached records and first-terminal outcomes by filter rule">
+      <table class="course-diagram__table" data-diagram-table>
+        <thead><tr>
+          <th scope="col">Rule</th>
+          <th scope="col">Seen records</th>
+          <th scope="col">Terminal records</th>
+          <th scope="col">Surviving records</th>
+          <th scope="col">Terminal fraction of seen</th>
+          <th scope="col">Terminal outcome</th>
+        </tr></thead>
+        <tbody>{trace.stages.map(stage => <tr data-rule={stage.rule}
+          data-seen={stage.seen} data-terminal={stage.terminal} data-survived={stage.survived}>
+          <th scope="row">{ruleNames[stage.rule]}</th>
+          <td class="course-diagram__technical"><code>{stage.seen}</code></td>
+          <td class="course-diagram__technical"><code>{stage.terminal}</code></td>
+          <td class="course-diagram__technical"><code>{stage.survived}</code></td>
+          <td>{stage.rate
+            ? <InlineMath latex={'\\frac{' + stage.rate.numerator + '}{' + stage.rate.denominator + '}'} />
+            : 'Unavailable: no reached records'}</td>
+          <td>{outcomeNames[stage.terminal_disposition]}</td>
+        </tr>)}</tbody>
+      </table>
+    </div>
+  </section>
+  <section class="course-diagram__card-stack" data-diagram-card data-diagram-box>
+    <h4>Final dispositions in the synthetic fixture</h4>
+    <dl>
+      <dt>Retained records</dt><dd class="course-diagram__technical"><code>{trace.dispositions.retained}</code></dd>
+      <dt>Rejected records</dt><dd class="course-diagram__technical"><code>{trace.dispositions.rejected}</code></dd>
+      <dt>Pending-review records</dt><dd class="course-diagram__technical"><code>{trace.dispositions.manual_review}</code></dd>
+    </dl>
+    <h4>Record <code>r7</code> stops at its first terminal rule</h4>
+    <dl>
+      <dt>First terminal rule for <code>r7</code></dt><dd>Secret marker</dd>
+      <dt>Later manual-marker evaluation for <code>r7</code></dt><dd>Not evaluated</dd>
+    </dl>
+    <p class="course-diagram__description">Pending-review text stays withheld; the fixture provides no release override.</p>
+  </section>
+  </div>
+</figure>
+
+<style>
+  .filtering-evidence-grid {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  @container (min-width: 64rem) {
+    .filtering-evidence-grid {
+      grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+    }
+  }
+</style>
