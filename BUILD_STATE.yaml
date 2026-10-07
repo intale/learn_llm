@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-07T05:58:05Z"
+updated_at: "2026-10-07T07:50:18Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -41861,7 +41861,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 4
+      spent: 5
       notes: "High-priority curriculum expansion queued after the retained content-audit and Chapter 2 terminology work. Limited network access to official papers/specifications and license/model-card metadata is declared only by the audit and resource-contract steps. Dataset, model-weight, crate/CUDA, and other large-artifact downloads plus substantial CPU/GPU work are forbidden until the resource contract is accepted and an exact design-created implementation step declares them."
     completion_criteria:
       - "The existing 40-chapter tiny model is presented consistently as the exact scalar reference core and integration proof, never as a useful general-purpose or production-ready model."
@@ -47917,36 +47917,224 @@ builds:
         objective: "Execute the admitted full deterministic filtering and privacy transform and publish its immutable corpus bundle."
         depends_on:
           - "implement-ch42-deterministic-corpus-filtering"
-        status: "pending"
+        status: "completed"
         inputs:
           - "exact TinyStories raw-pair cache receipt"
           - "artifact-cache-v1 boundary receipt"
           - "exact chapter algorithm and manifest contract"
           - "frozen restart/failure policy and resource ceiling"
+          - "Current user Chapter43 request includes its required real filtering predecessor; root approved N0 preparation only, full transform awaits explicit root next-phase release."
+          - "Accepted current Chapter42 combined-retained representation and exact root-frozen production policy; input-fingerprint/preflight in run20261007T062829Z. No new asset/dependency acquisition."
+          - "Root released the exact full-phase next_command after verifying preparation-handoff SHA4ca23768 and all frozen source/spec/21-output/12Rust+26Node/release/resource gates. Execute once with overlay2/current590image, no new downloads or transform rerun."
+          - "After successful02generation/failed inherited-getrusage guard, root freezes RAM gate as configured/accounted workload+256MiB-controller envelope, bounded128MiB Node/small inputs, measured original cgroup and fresh VmHWM continuation; original controller peak unavailable, never retrospective total. No re-filter/corpuscopy/build; original phase-start/time/CPU charges retained."
         outputs:
           - "artifacts/functional-laptop/data/filtered-corpus-v1/manifest.json"
           - "artifacts/functional-laptop/data/filtered-corpus-v1/receipt.json"
           - "audits/functional-laptop/data/filtered-corpus-v1.json"
-          - "rust/crates/llm-from-scratch/src/bin/llm-functional-corpus-filter.rs"
-          - "rust/crates/llm-from-scratch/tests/functional_corpus_filter_runner.rs"
+          - "rust/tools/functional-artifact-cache/src/bin/llm-functional-corpus-filter.rs"
+          - "rust/tools/functional-artifact-cache/tests/functional_corpus_filter_runner.rs"
           - "configs/functional-data-pipeline/corpus-filter-v1.json"
           - "artifacts/functional-laptop/step-output-inventories/execute-functional-corpus-filtering.json"
+          - "rust/tools/functional-artifact-cache/src/corpus_filter.rs"
+          - "rust/tools/functional-artifact-cache/Cargo.toml"
+          - "Cargo.lock"
+          - "rust/tools/functional-artifact-cache/src/lib.rs"
+          - "rust/tools/functional-artifact-cache/src/filesystem.rs"
+          - "scripts/run-functional-corpus-filtering.sh"
+          - "scripts/lib/run-functional-corpus-filtering.mjs"
+          - "scripts/tests/run-functional-corpus-filtering.test.mjs"
+          - "configs/functional-artifact-cache-targets.json"
+          - "scripts/lib/run-functional-artifact-cache.mjs"
+          - "scripts/tests/run-functional-artifact-cache.test.mjs"
+          - "scripts/README.md"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
         acceptance:
           - "Consume only the exact receipt-selected predecessor bundle read-only, execute the full admitted deterministic transform rather than fixtures, and write only run staging."
           - "Validate counts, privacy/provenance, ordering, hashes, restart behavior and the predeclared CPU/RAM/disk/wall envelope before network-none publish-generated atomically promotes a new content-addressed bundle."
           - "Track only the bounded manifest, receipt and audit; raw or generated corpus/tokenizer/token arrays remain ignored cache bytes. A failed transform cannot publish an identity."
+          - "Reuse course-owned Chapter42 policy/algorithms without teaching edits. One accepted combined retained payload preserves raw occurrence identity; five-role generatedmanifest preserves source references and rights."
+          - "Operational tool-crate runner uses serde-decoded bounded closed stdin, existing anchored adapters and zero new external packages; direct sha2 reuses the admitted locked graph. Focused fixture/identity/provenance/cap/IO/restart tests and staged fmt/clippy pass before root authorizes the one full transform."
+          - "All payload copies/raw input/metadata/reserve remain inside the frozen 12GB disk envelope; 4.75GB generatedpayload ceiling and strict combined<100MiB redactedmetadata are enforced, never truncated."
         validate:
-          - "scripts/run-functional-offline.sh --step execute-functional-corpus-filtering --target execute-functional-corpus-filtering-v1"
-          - "scripts/run-functional-artifact-cache.sh publish-generated --step execute-functional-corpus-filtering --target corpus-filtering-v1"
-          - "scripts/run-functional-artifact-cache.sh verify --step execute-functional-corpus-filtering --target corpus-filtering-v1"
+          - "Pinned network-none staged cargo test --offline --locked -p functional-artifact-cache --test functional_corpus_filter_runner; staged fmt/clippy and maintained filtered-runner/cache Node tests. Exact run-specific argv/evidence checkpointed before execution."
+          - "Original successful generator02 is reused with exact stdout/invocation/completion/manifest/payload hashes; no run-mode re-filter in continuation."
+          - "bash scripts/run-functional-artifact-cache.sh publish-generated --run-id 20261007T073020Z-execute-functional-corpus-filtering-03 --step execute-functional-corpus-filtering --target corpus-filtering-v1"
+          - "scripts/run-functional-corpus-filtering.sh verify --run-id 20261007T073020Z-execute-functional-corpus-filtering-03 --step execute-functional-corpus-filtering --target execute-functional-corpus-filtering-v1"
           - "git diff --check"
-          - "./course audit-host"
+          - "Scoped full YAML/output/hash/held-step/inventory checks; preserve prior audit-host target/cache failure as historical, no fresh whole-host pass claimed."
         cost:
           class: "large"
           notes: "cpu=C3;gpu=G0;network=N0;paid=none;execution=full-cache-backed-data-transform;wall_seconds_max=7200;host_bytes_max=8589934592;disk_bytes_max=12000000000;new_download_authority_bytes=0"
-        runs: []
+        runs:
+          - run_id: "20261007T062829Z-execute-functional-corpus-filtering-01"
+            started_at: "2026-10-07T06:28:29Z"
+            finished_at: "2026-10-07T07:12:44Z"
+            status: "failed"
+            input_fingerprint:
+              commit: "df9900134b51528b973e5c5528c6b6c9346b2ee2"
+              material_record: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/input-fingerprint.json"
+              material_record_sha256: "16e60c18fa4daa87943dea9b723d8309b5ef4cda81d98207a22169f7bc02a034"
+              runtime_image_id: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              routing: "Inherited user selection without overrides; current worker configured names unavailable in read-only metadata, not copied from prior observations."
+            staging_dir: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/"
+            commands:
+              - "Read-only complete YAML parse/traversal88builds504steps/no running; HEAD42dedicated196paths/clean,37run artifacts+193canonical inventory members match. Existing runtime590b0c2f and publicworkspacecdd11f inspected only; no container/image/raw body operation."
+              - "Root accepted current42demo generatedmanifest representation, closed serde stdin/toolcrate ownership and exact productionpolicy before claim; held repairs/RU/latersteps unchanged."
+              - "Preparation staged existing adapter extension, accepted-API composition, closed stdin binary and seven focused fixture/failure cases. Source SHA binds manifest script identity; binary SHA remains separate. All bytes provisional."
+              - "Copy previously verified cached registry only into current run cargo-cache; no package/image provisioning. Then scripts/run-functional-rust-overlay.sh 20261007T062829Z-execute-functional-corpus-filtering-01 filter-fixture-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --offline --locked -p functional-artifact-cache --test functional_corpus_filter_runner"
+              - "Focused fixture01 compile macro typo and fixture02 delimiter-construction failure preserved; fixture03 passes7/7 without algorithm edits. Final filter-tool-tests-01 passes12actualtests (3adapter+2request+7filter), late IO fails on second filter source with retained prefix/fresh retry."
+              - "filter-fmt-01 cargo fmt -p functional-artifact-cache -- --check PASS; filter-clippy-02 cargo clippy --offline --locked -p functional-artifact-cache --all-targets -- -D warnings PASS; same network-none590runtime/maintained overlay."
+              - "Run-coupled complete scripts/configs copy+staged overrides, exact source inventory and explicit actual-root launcher reuse prior acquisition pattern. filter-node-1/2 UID/noexec test-harness failures preserved; same immutable overlay filter-node-3 passes26/26 in pinned Node22.12.0 network-none, UID1000 and ephemeral executable test-stub tmpfs."
+              - "Next preparation-only commands: node prepare-script-overlay.mjs2; node run-focused-node-gates.mjs2 4; node prepare-release-tools.mjs2. Release compilation via existing locked/offline buildTools --release --bins; no corpus phase or image/package provisioning. Actual args/receipt hashes recorded next."
+              - "PASS final filter-node-4: exact script-overlay-2,26/26 pinned offline tests. PASS cache-tools-v2-1: cargo build --locked --offline -p functional-artifact-cache --release --bins, existing590runtime; binary paths/buildargv/release/source-tree bound by tool-build-receipt-v2-1.json. No full phase started."
+              - "PASS external Cargo.lock graph comparison:125registry workspace package nodes/versions/checksums/dependencyedges identical; only local functional-artifact-cache->existing sha2 edge added. git diff --check PASS."
+              - "PASS node package-preparation.mjs: bounded21declaredoutput checkpoint (15stagedproductfiles,4awaitingfullphase,2activeledgers),12Rusttests+26Nodetests/fmt/clippy/release and exact nextargv/source/spec/tool evidence. Root release still required before actual2GB phase."
+              - "Root phase release APPROVED against preparation-handoff exact6722B/SHA4ca237689d87a4f2a5e955f0d3592b4e592c5203089911afa8cf8c9115866061. Execute once: node --max-old-space-size=128 .build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/run-filter-phase.mjs 2 run --run-id 20261007T062829Z-execute-functional-corpus-filtering-01 --step execute-functional-corpus-filtering --target execute-functional-corpus-filtering-v1 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              - "FAIL exact full argv before Docker/raw operation: generated name retains uppercase UTC T/Z but lowercase-only name regexp refuses. Only phase-start/empty private output/call1 exist; no CID/producer/output bytes. Read-only docker ps exact run label returns no container. Preserve phase-failure.json and all01evidence; narrow correction requires fresh run, no transform repetition."
+            artifacts:
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/input-fingerprint.json"
+                bytes: 3061
+                sha256: "16e60c18fa4daa87943dea9b723d8309b5ef4cda81d98207a22169f7bc02a034"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/preflight.md"
+                bytes: 6181
+                sha256: "9047aff0f5965e826d05d184de064fbeeb0358a18b05b7f99d3c1e7a0e7ebbca"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/publish/configs/functional-data-pipeline/corpus-filter-v1.json"
+                bytes: 1913
+                sha256: "03d51d5f017b0d56bb956c9bdd71860913e78cacdf13bf751d526e3a660e5583"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/publish/rust/tools/functional-artifact-cache/src/corpus_filter.rs"
+                bytes: 18881
+                sha256: "61576f3c2e7679963b5340afc25440d0ae48b2681924380f696c657d9bcbd58e"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/publish/rust/tools/functional-artifact-cache/src/bin/llm-functional-corpus-filter.rs"
+                bytes: 4198
+                sha256: "13917268fb7b9f4100e2ac0827884f55ff373e5a11fc57b74db22f3ef0a95760"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/publish/rust/tools/functional-artifact-cache/tests/functional_corpus_filter_runner.rs"
+                bytes: 13573
+                sha256: "6b316db7465c7bca699e0bf0c3f419bc51c33989ce00308a0ec35178c7a64d2c"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/publish/scripts/lib/run-functional-corpus-filtering.mjs"
+                bytes: 20883
+                sha256: "ceef2b1abafd98a7ef4f3b2ffe6a9d69f1e208a8cdf90e4e0489c58a85a41202"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/preparation-handoff.json"
+                bytes: 6722
+                sha256: "4ca237689d87a4f2a5e955f0d3592b4e592c5203089911afa8cf8c9115866061"
+              - path: ".build/runs/20261007T062829Z-execute-functional-corpus-filtering-01/tool-build-receipt-v2-1.json"
+                bytes: 1188
+                sha256: "867affa9d008156277ae035201802e1b84224a8a5890ec5d120f229eb49fcc1d"
+            validation:
+              - "Startup metadata/artifact/commit/environment checks pass. Preparation claimed only; no fixture/real-transform/publication result inferred."
+              - "Focused tool12tests, fmt and clippy pass. Controller/cache26tests pass; simulation verifies timeout/cancellation exact-owned-container cleanup, wrong labels/daemon errors cannot become false absence. Full real transform remains pending phase release."
+              - "Final exact script overlay26/26 and release-tools build pass; preparation-handoff binds all owned output statuses and tool/source/spec/command evidence. No corpus work or generated-cache publication yet."
+              - "Full invocation failed before workload launch because owned name regexp rejected uppercase UTC T/Z. No filtering/cache publication executed; exact run label has no Docker container. Preserve all01artifacts as failed naming evidence."
+            notes: "Stopped failed before Docker/raw work. Preserve01immutable evidence and create fresh run only after narrow name correction/root release. Step pending at that failure checkpoint;43pending; held repairs/Russian/acquisition unchanged."
+          - run_id: "20261007T071334Z-execute-functional-corpus-filtering-02"
+            started_at: "2026-10-07T07:13:34Z"
+            finished_at: "2026-10-07T07:20:17Z"
+            status: "failed"
+            input_fingerprint:
+              commit: "df9900134b51528b973e5c5528c6b6c9346b2ee2"
+              material_record: ".build/runs/20261007T071334Z-execute-functional-corpus-filtering-02/input-fingerprint.json"
+              material_record_sha256: "5b4d4cd2570fa7b60c66f764928064982a4ec2a18defaba2b8cb2c3f5b4e7dd2"
+              runtime_image_id: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              reuse_origin_run: "20261007T062829Z-execute-functional-corpus-filtering-01"
+              routing: "Inherited user selection without overrides; current worker names not inferred from history."
+            staging_dir: ".build/runs/20261007T071334Z-execute-functional-corpus-filtering-02/"
+            commands:
+              - "Root approved narrow owned-name fix/freshrun and same single full-phase release after affected gates; original T/Z labels/evidence unchanged. Actual production name builder tested, not duplicated derivation. No full workload ran01."
+              - "Verify01preparation SHA4ca23768/all staged/artifact proofs, byte-identical source/spec/release bins/build receipt; only controller and its test differ. Retain original build argv and old gate provenance; no Rust rebuild/review."
+              - "Before phase: node prepare-script-overlay.mjs1; node run-focused-node-gates.mjs1; node package-preparation.mjs. New overlay/gate evidence, no images/dependencies/raw work."
+              - "PASS fresh filter-node-1 27/27 (actual production UTC-name builder added). PASS exact21-output preparation checkpoint6776B/SHA23d77a39; Rust/spec/release/gates byte-identical verified reuse, no rebuild."
+              - "Root recovery release now eligible after affected gate. Execute once: node --max-old-space-size=128 .build/runs/20261007T071334Z-execute-functional-corpus-filtering-02/run-filter-phase.mjs 1 run --run-id 20261007T071334Z-execute-functional-corpus-filtering-02 --step execute-functional-corpus-filtering --target execute-functional-corpus-filtering-v1 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              - "GENERATION SUCCESS: exact producer stdout3173B/SHAce2f0bac preserved;2141709records=2141477retained+230rejected+2manual, retained3184789750B/totalpayload3184935257B/bodyfree metadata130971B. Actual Docker0, memorypeak5229404160B, CPU77557357us, exactCID removed/absence. generation-checkpoint.json recorded immediately."
+              - "Controller post-generation RSS-reserve gate FAIL at line116 before closure/resource-check/cache publication. Actual host maxRSS not saved by that gate, unavailable not zero; no full acceptance. Preserve verified output/stdout, diagnose only observation/plumbing, never re-filter."
+              - "Read-only same-launch diagnostic: getrusage maxRSS2339752KiB inherited pre-exec versus current-exec kernel VmHWM44832KiB/RSS45412352B. Rust tree4.2MiB/no>8MiBfiles; no accidental raw JS buffers. Fresh diagnostic is not an old peak. Root approves VmHWM current-exec method/save-before-refusal; total8GiB and original phase elapsed remain, acceptance interpretation pending."
+            artifacts:
+              - path: ".build/runs/20261007T071334Z-execute-functional-corpus-filtering-02/preflight.md"
+                bytes: 2554
+                sha256: "39d3503d8fd6de86ed243de2220b72c03737af711c36a05923f000eab3448daa"
+              - path: ".build/runs/20261007T071334Z-execute-functional-corpus-filtering-02/input-fingerprint.json"
+                bytes: 1804
+                sha256: "5b4d4cd2570fa7b60c66f764928064982a4ec2a18defaba2b8cb2c3f5b4e7dd2"
+              - path: ".build/runs/20261007T071334Z-execute-functional-corpus-filtering-02/preparation-handoff.json"
+                bytes: 6776
+                sha256: "23d77a394ddc616a644ef9ebaa293d97ac200b9515a8b95f709ebe7bbadf1d3d"
+            validation:
+              - "Narrow source/spec/binary/previous-gate reuse verification completed before fresh claim; affected Node gate is next, full phase unstarted."
+              - "Affected Node27tests pass; all unchanged Rust/fmt/clippy/release proof reused with exact original provenance; root-authorized fresh full phase eligible."
+              - "Actual full generation exit0/complete output preserved, but controller post-generation RSS reserve refused; final resource/cache acceptance pending and no whole-phase success receipt."
+            notes: "Generation succeeded and immutable full output/producer bytes are reusable; whole run failed only controller reserve postcheck, no cache publication. Preserve all02evidence, unavailable original host peak and phase elapsed charges. Continue only through fresh read-only eligibility/publication after root's RAM-envelope interpretation; never re-filter. Step pending,43pending/held scope unchanged."
+          - run_id: "20261007T073020Z-execute-functional-corpus-filtering-03"
+            started_at: "2026-10-07T07:30:20Z"
+            finished_at: "2026-10-07T07:50:18Z"
+            status: "succeeded"
+            input_fingerprint:
+              commit: "df9900134b51528b973e5c5528c6b6c9346b2ee2"
+              material_record: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/input-fingerprint.json"
+              material_record_sha256: "3d5816ff4ddb2b49b4764eee85aa20b64365f58beb5ddb427323300379a0b2cb"
+              origin_generation_run: "20261007T071334Z-execute-functional-corpus-filtering-02"
+              runtime_image_id: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              routing: "Inherited user selection without overrides; unavailable native names not inferred from history."
+            staging_dir: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/"
+            commands:
+              - "Verify02preparation+all15staged sources; only controller/test/operationaldocs change. Byte-identical source/spec/releasebins/build and prior12Rust/fmt/clippy proof reused; root-frozen closed continuation selection binds actual generator stdout/invocation/completion/manifest/cgroup/CPU/start. No corpuscopy/refilter/rebuild."
+              - "Completed: node prepare-script-overlay.mjs1; node run-focused-node-gates.mjs1; node package-preparation.mjs. Offline focused controller/cache tests30/30 PASS; original12Rust/fmt/clippy/release proofs byte-identically reused."
+              - "Authorized continuation command: node --max-old-space-size=128 .build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/run-filter-phase.mjs 1 publish-generated --run-id 20261007T073020Z-execute-functional-corpus-filtering-03 --step execute-functional-corpus-filtering --target corpus-filtering-v1 --runtime-image learn-llm-ch41-http-deps-locked:local --expected-image-id sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              - "Canonical scripts/run-functional-corpus-filtering.sh verify with the exact03run/step/target/currentimage selectors PASS; read-only calls5–7/completion2 preserved. No transform/copy/rebuild."
+              - "Canonical cache dispatch attempt1 exit126 because existing shell wrapper mode664; attempt2 invoked Bash and exited1/ERR_MODULE_NOT_FOUND because it selected lone publish-tree filter module. Both failed before corpus/container work. Root approved complete-sibling newURL dispatch plus bounded128MiB childheap, actual regression and explicit Bash invocation, preserving all prior evidence."
+              - "Affected offline Node/controller/cache gate2 PASS31/31; republish only dispatcher/test/README Bash context and refreshed inventory. Old publication candidate/inventory and all corpus/Rust/source/spec/binary/continuation evidence preserved. Canonical idempotent Bash dispatch retry in progress."
+              - "Canonical idempotent bash scripts/run-functional-artifact-cache.sh publish-generated with exact03run/step/target/currentimage PASS; only read-only calls8–10/completion3, no repeated publication/corpus copy. Final canonical verification108artifact checkpoint saved, actual phase1924212ms<7200s retains original clock; disk8316201422bytes<12GB."
+              - "Scoped full YAML/output/hash/held-step/dependency checks and git diff --check PASS after publication; completion checkpoint precedes dedicated execute-functional-corpus-filtering commit. No Chapter43claim, held repair/Russian or learner-facing change."
+            artifacts:
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/input-fingerprint.json"
+                bytes: 1652
+                sha256: "3d5816ff4ddb2b49b4764eee85aa20b64365f58beb5ddb427323300379a0b2cb"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/preflight.md"
+                bytes: 2655
+                sha256: "a356db1477923393ae5efd8764e676c34f99d2ac59623410c62a9f8ad1ff51a0"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/preparation-handoff.json"
+                bytes: 7000
+                sha256: "549d4b7b8eb89f70ef0eec1e87b2efa5a7bbce44ac7502673a7f58e631565798"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/validation/filter-node-1/stdout.txt"
+                bytes: 6682
+                sha256: "c0d96705be116dfb8e7d22adc71ee643aa2ca5e92bbe062df80c5773d135be82"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/cache-publication-checkpoint.json"
+                bytes: 6287
+                sha256: "4c4d93ead907bc2ac4dd310ba7319f9e1c04798e3c5f72b05fc638b2378b3571"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/completed-continuation-checkpoint.json"
+                bytes: 6287
+                sha256: "c43f3702708bb26168f1151ac4e490ffbcc7db446c59ac4d63b6b638bfc0f0de"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/publication-candidate.json"
+                bytes: 3148
+                sha256: "5dea981b284e88c0eb921be1a5ba5b22fcc1511e210f69b65d0c83607550c395"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/publication-candidate-02.json"
+                bytes: 3598
+                sha256: "fcc8ab0c1161fdd9b00f2055057873f859d88284b76a4b5a164a49d2b9db8f03"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/validation/filter-node-2/stdout.txt"
+                bytes: 6938
+                sha256: "30f8766a99a2756be3958f8fa7372d7989c182cb9b06e5aa47e7c5afd86a126a"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/canonical-verification-checkpoint.json"
+                bytes: 15183
+                sha256: "69c13128d301232c53f09d17cfceaeb54e3d32425f8f3e8eb1460b56995e5f86"
+              - path: ".build/runs/20261007T073020Z-execute-functional-corpus-filtering-03/validation/final-2/1-stdout.txt"
+                bytes: 235
+                sha256: "69281597616bb28d11c632ce81c0c65c24b7d5708842fb52a9e8f6dc79a7cf2c"
+              - path: "artifacts/functional-laptop/data/filtered-corpus-v1/receipt.json"
+                bytes: 5312
+                sha256: "ab2d710a407b8504c753b8b1e210f43a531ed47303a6e1c99ac8f41ac7daaa83"
+              - path: "artifacts/functional-laptop/data/filtered-corpus-v1/manifest.json"
+                bytes: 2404
+                sha256: "a0ac5861b28d638e3d7b9c159b1129b63e6fae703584664156f5967b6953995d"
+              - path: "audits/functional-laptop/data/filtered-corpus-v1.json"
+                bytes: 3682
+                sha256: "b225939640a4342904773255d17c5a477449f6b674e3fd8254c1da6009d6f3fb"
+            validation:
+              - "Exact original generator selection/release/source/spec proof verified; no historical host peak reconstructed. Fresh affected Node/controller/cache tests30/30 PASS, including current-exec VmHWM units/save-before-limit and completed-generator selection bindings."
+              - "Preparation checkpoint binds21ownedoutputs, complete76file script overlay, original phase clock and null old controller peak, exact reused release artifacts and closed next_command; read-only continuation publication released by root."
+              - "Continuation completed independent full-output eligible replay, atomic generated-cache publication and immutable cache replay: all exit0/networknone/ownedcontainers absent. Peaks respectively5402624/3281805312/6184960bytes; current-exec controller VmHWM67047424bytes below256MiB reservation. Exact44artifact milestone checkpoint saved immediately; final eligible-cache replay in progress. Original generator/controller evidence unchanged."
+              - "Final eligible-cache replay exit0/ownedcontainer absent; complete four-stage continuation succeeded. Artifact a0ac5861b28d638e3d7b9c159b1129b63e6fae703584664156f5967b6953995d; counts2141709=2141477+230+2, redactedmetadata130971bytes, phase elapsed1417641ms retains original clock, actual counted disk8316166237bytes<12GB. Receipt records original workload5229404160bytes and original controller peak null/unavailable, never a retrospective measured host total."
+              - "Publication candidate binds19product paths plus two ledgers=21ownedoutputs; inventory3104bytes/SHA98e2317d981e26a4b551867474efc8c51c0d44e2ce323de7fa0aaeffb792a38c. Promote per-file atomically, then canonical read-only CLI and full ledger/held-step/output checks. No course build or English review needed for plumbing-only changes."
+              - "Canonical filtering read-only verify PASS. Scoped full YAML/held-step/output/hash/dependency checks PASS:88builds,503untouchedsteps,21outputs,18inventorymembers,125unchangedregistry packages. New actual sibling-dispatch test and all31focused Node tests PASS; current inventory3104bytes/SHA69ce3da66f06b39e14b4d40580d776c45652eacaa29c4f07aae03732dc28f8d1 replaces only current product metadata, prior candidate and inventory remain immutable run evidence."
+              - "Both canonical filtering verify and cache publish-generated selectors PASS; existing cache/receipt unchanged through idempotent replay. Final counts/provenance/full eligibility/resource/hash/cleanup evidence retained. Configured/accounted RAM envelope plus measured original workload and fresh continuation only, not a retrospective whole-host peak. Completion/succeeded checkpoint after acceptance; dedicated commit next."
+            notes: "Completed21ownedpaths: real filtered-corpus identity/receipt/audit, operational tools/config/tests/docs and two ledgers. Original01/02failed evidence preserved, no re-filter/corpuscopy/rebuild. Original generator controller peak remains unavailable and original elapsed/CPU charges retained. Rust12/fmt/clippy source-identical proof reused; affected31Node and canonical read-only/full ledger gates pass. Chapter43pending; held repairs and Russian untouched."
 
       - id: implement-ch43-deduplication-decontamination
         objective: "Deduplicate and decontaminate train/evaluation data with exact identity, threshold, split and leakage receipts."

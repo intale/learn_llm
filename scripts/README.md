@@ -1,5 +1,84 @@
 # Maintained development-script helpers
 
+## Full offline corpus filtering and generated-cache admission
+
+`scripts/run-functional-corpus-filtering.sh` composes the accepted Chapter42 Rust
+filter with the existing operational `functional-artifact-cache` tool. It does
+not define new filtering rules or grant acquisition authority. Invoke from the
+repository root after the ledger's exact filtering step is claimed and its
+root-owned full-transform phase is released:
+
+```bash
+scripts/run-functional-corpus-filtering.sh run \
+  --run-id <claimed-run-id> --step execute-functional-corpus-filtering \
+  --target execute-functional-corpus-filtering-v1 \
+  --runtime-image <existing-local-reference> --expected-image-id sha256:<exact-id>
+```
+
+The paired runtime flags select an already cached image; omitting both retains
+the public workspace default. The closed registry selects the raw receipt,
+accepted production binding, explicit source layout and frozen phase spec.
+`run` builds the two already-admitted operational binaries in release mode,
+then performs generation, complete eligible-output verification, atomic cache
+publication and immutable/eligible replay under one7200-second workload envelope.
+Compilation/preparation is separate from that taught workload envelope; no image
+assembly, dependency installation or raw acquisition occurs. Every container
+uses `--network none` and checksum-selected read-only raw inputs.
+
+Generation stdout is the untouched canonical Rust producer record. Its selected
+source SHA (`corpus_filter.rs`) is distinct from the executed binary SHA;
+entrypoint, full source tree, image and tool-build hashes remain independently
+bound. Generated policy is selected from that actual hash-bound producer record,
+never from a candidate's self-declared metadata. The combined retained payload
+preserves each original source/payload/hash/span occurrence and does not select
+train/evaluation splits. Original attribution/license/rights are preserved.
+
+`bash scripts/run-functional-artifact-cache.sh publish-generated --run-id RUN --step
+execute-functional-corpus-filtering --target corpus-filtering-v1` and the filter
+wrapper's `verify --run-id RUN --step execute-functional-corpus-filtering --target
+execute-functional-corpus-filtering-v1` reuse this same producer closure and
+deadline, perform read-only revalidation, and never repeat filtering. Pair the
+same explicit runtime flags when the original run used a non-default image.
+
+Outputs and evidence remain in the claimed run. Only bounded manifest/receipt/
+audit are promoted; raw/generated corpus bytes stay in ignored artifact cache.
+Failures retain private partial bytes, do not emit a successful phase receipt,
+and never append to a prior output. Use a fresh run/private destination after
+failure. A CID file and exact run label bind cancellation cleanup; a forced stop
+removes only that owned container and verifies absence. An in-container standard
+`timeout` also bounds an orphaned workload after host disconnection.
+
+The controller reserves256MiB of the8GiB host ceiling for itself, applies the
+remaining cap to each nonconcurrent container, and records cgroup `memory.peak`,
+`cpu.stat`, current-exec Linux `/proc/self/status` `VmHWM` (KiB converted to
+bytes), and exact workload exits. Save observations before enforcing limits.
+`getrusage` maximum is diagnostic only because it can include pre-exec launcher
+history. Required observations
+missing means refusal, not zero. Counted disk is selected raw + private generated
+output + pending/published cache copy + binaries/controls/evidence, with a
+predeclared upper bound inside12GB. Cargo caches and compilation targets are
+development preparation, not corpus workload artifacts. Limits are never reset
+between generation/publication/replay. Findings+semantic receipt remain strictly
+below100MiB, fail rather than truncate, and assert no comprehensive privacy,
+benchmark, quality or model-redistribution clearance.
+
+Focused plumbing tests: `node --test scripts/tests/run-functional-corpus-filtering.test.mjs
+scripts/tests/run-functional-artifact-cache.test.mjs`; operational integration:
+`cargo test --offline --locked -p functional-artifact-cache --test
+functional_corpus_filter_runner` in the selected pinned offline overlay. These
+checks do not re-review English or run the full corpus.
+
+If a generator completed but a later orchestration check failed, a fresh claimed
+run may select its immutable producer stdout/invocation/completion/manifest and
+resource evidence through a closed root-frozen `filter-continuation.json`.
+`publish-generated` independently verifies every payload and eligible occurrence,
+then uses the same atomic cache publication/replay. It never repeats filtering
+or copies corpus bodies, and retains the original phase-start/time/CPU charges.
+The original run stays failed. An unavailable old controller peak remains
+unavailable, not zero or a later-process estimate. Validation is the configured/
+accounted workload-plus-controller envelope, measured original cgroup workload,
+and measured current continuation—not a retrospective measured whole-host total.
+
 These small modules support deterministic repository tooling; they do not
 implement learner-facing LLM algorithms or grant callers additional authority.
 Run their focused tests with the pinned development Node environment declared by

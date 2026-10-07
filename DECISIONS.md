@@ -30322,3 +30322,148 @@ set has no unrelated indexed changes, and exactly11 frozen identities are the
 only exclusions. Raw attempt01 remains failed evidence. Restage the final owned
 ledger bookkeeping, validate current YAML and exact staged scope, then persist
 the dedicated completed-step commit; no product/review gate is repeated.
+
+### 2026-10-07 — Chapter43 request claims its real filtering prerequisite first
+
+The user requests Chapter43 implementation after dedicated Chapter42 commit
+df990013. Existing queue authority permits required predecessor work; claim
+only execute-functional-corpus-filtering, not Chapter43 yet. Earlier real-filter
+deferrals were Chapter42 scope, not a new permission gate. Held6/8–10 repairs,
+Russian41+, deduplication/tokenizer/model execution and new acquisition remain
+excluded. Root authorizes preparation/cheap fixtures now; one full transform
+waits for root's explicit next-phase release after actual spec/runner/gate review.
+
+Large C3/G0/N0/no-paid uses existing cached runtime/Cargo graph, no image assembly
+or dependency installation. Frozen workload caps stay7200s/8589934592host/
+12000000000disk bytes, without an agent elapsed-time stop. Proposed narrower
+generatedpayload ceiling4750000000 counts every output, including metadata:
+selectedraw1943743374 + two coexisting generatedcopies9500000000 =11443743374,
+leaving556256626bytes for bounded controls/reserve. Cache pending-to-entry rename
+adds no thirdcopy. Redacted findings+semanticreceipt remain strictly<100MiB;
+dense output refuses rather than truncates. Actual measurement remains future.
+
+Root freezes current42policy: end-of-input-delimited-v2/nonemptyEOF/65536bytes;
+CRLFthenASCIIedgetrim; seven first-terminal rules; minnormalized16UTF8bytes,
+ASCIIletters8, ASCIIcoverage1/2; sorted secrets private-key/api_key/demo-key/
+password literals and manual @/contact= literals. Process both complete selected
+sources in canonicalsourceIDorder; no subset or finalsplit from filenames.
+Existing accepted demo src/lib.rs240–256 resolves generatedrepresentation:
+five payloads attribution/findings/license/receipt/retained, both sourcecontentIDs
+retained, rawartifact as selected_source; preserve sourceIDs/references/revision/
+license/attribution/rights and originalraw occurrence fields in each retainedrow.
+Producerconfig binds FilterPolicy digest; wholephase/binary/source bindings stay
+separate external evidence. No privacy/quality/legal/model-rights clearance claim.
+
+Frozen corebinary path would cycle through the already core-dependent filesystem
+adapter. Reconcile live operationalbinary/tests into rust/tools/functional-artifact-cache;
+standard serde owns bounded closed stdin requests, existing anchoredDirectory/
+FileSource/FileStore mappings own IO. A minimal tested provisional run-output
+extension reuses that adapter, not another filesystem implementation. Declare
+exact shared runner/cache-registration/tests/docs outputs before edits. Missing
+historical wrappers/unsupportedpublish selectors remain history; recorded actual
+maintained offline commands replace them. No existing taughtRust/English bytes
+change, so this operational prerequisite does not invoke language publication
+review. Preserve all old runs. Complete/checkpoint/commit this prerequisite before
+claiming43; fullgeneratedcache validation/replay must not rerun filtering.
+
+Root clarifies that zero new dependency means no graph/package/version
+acquisition. Reuse already admitted sha2=0.10.9 directly in the operational
+tool crate for streaming file identity, with the same minimal features as core;
+declare its Cargo.toml before editing. No handwritten SHA, external hash round
+trip, new graph or lockfile version change is warranted. Existing serializers,
+filesystem adapters and known Cargo cache remain the other plumbing owners.
+The lockfile records the additional local tool-to-existing-sha2 dependency edge;
+all registry package nodes, versions, checksums and their dependency edges remain
+identical. Claim the necessary Cargo.lock edge update and distinguish it from a
+byte-identical whole lockfile, rather than misreporting the dependency admission.
+
+The operational manifest script identity is the exact published
+rust/tools/functional-artifact-cache/src/corpus_filter.rs SHA-256, independently
+mounted as /producer/source.rs. The entrypoint and full source tree are bound
+separately by the external execution receipt; the executed binary SHA is a
+distinct ProducedCorpus field, never substituted for script_sha256. Replay
+checks the selected source SHA and actual descriptor bytes as well as complete
+payload/retained eligibility. The same claimed prerequisite owns controller work
+serially; no concurrent worker is introduced within its shared step. A whole-phase
+7200-second controller deadline includes generation, verification, cache publish
+and replay rather than resetting the budget for each subprocess.
+
+The root content owner verified preparation-handoff.json6722B/SHA4ca23768,
+frozen policy/source/spec, all21 owned output statuses,12 scoped Rust and26
+controller/cache tests, fmt/clippy, release binaries and cleanup/resource plan,
+then released its exact next_command once. Run the full admitted two-source
+transform with complete script overlay2 and explicit actual repo root, preserving
+failed focused evidence; no download/image rebuild/rule tuning/transform repeat.
+Cache publication and eligible replay remain inside the same7200-second phase.
+On success promote bounded records/tooling only, verify canonical CLI read-only,
+checkpoint and dedicate a prerequisite commit before claiming Chapter43.
+
+The released01invocation failed before any container/raw work because the owned
+name regexp rejected uppercase UTC T/Z. Empty private output/phase-start and
+the exact failure remain preserved; label inspection confirmed no container.
+Root approved a narrow production-name builder correction (lowercase name only,
+exact original labels/evidence), an actual-builder test and freshrun02. Verify
+and reuse exact unchanged source/spec/release binaries/build receipt and12Rust/
+fmt/clippy gates; original build argv remains01provenance, not a claimed rebuild.
+Only controller/test bytes change, so rerun affected Node gates and retain all
+old evidence. The same single full-phase release applies to02after its checkpoint,
+without extra approval, changed policy/caps or any repeated transform.
+
+Run02Rust generation succeeded with2141709records=2141477retained+230rejected+
+2manual, complete eligible verification and exit0; stdout3173B/SHAce2f0bac,
+manifestSHAa0ac5861 and all payload identities remain immutable. The following
+host guard used getrusage maxRSS, which the same-launch diagnostic showed includes
+pre-exec launcher history (2339752KiB versus current-exec kernelVmHWM44832KiB).
+It refused before closure/cache publication; retain02failed and its unavailable
+original controller peak. Do not infer a later-process peak for that old run.
+
+Root freezes the unchanged RAM-envelope gate as configured/accounted hard
+workload cap8321499136 + predeclared268435456controller reservation =8589934592,
+bounded128MiB Node heap/closed small inputs, valid observed original cgroup peak
+5229404160 and fresh current-exec VmHWM evidence for the revalidated continuation.
+This is not a retrospective measured whole-host total. Linux/proc VmHWM uses
+KiB→bytes; save observations before limits and keep getrusage diagnostic only.
+The original phase-start1791357473751ms,7200s deadline and CPU charges survive.
+
+Fresh03 selects exact original successful generator stdout/invocation/completion/
+manifest/memory/CPU/start through a closed root-frozen run control, mounts all
+old generated bodies read-only, independently verifies complete bytes/eligible
+rows/counts/provenance, then uses existing cache publish/replay. No corpus copy,
+filter repeat, Rust/image/package rebuild or language review occurs. Only narrow
+observation/recovery controller/tests/docs change. After affected gates/checkpoint,
+root already authorizes publication; unchanged21outputs then canonical read-only
+CLI verification, completion/dedicated prerequisite commit precede Chapter43.
+
+Continuation03 completed full eligible-output replay, existing atomic cache
+publication, immutable-cache replay and eligible-cache replay, all network-none
+with exact owned containers absent. The accepted generated identity is
+a0ac5861b28d638e3d7b9c159b1129b63e6fae703584664156f5967b6953995d;
+2141709 records conserve2141477 retained+230 rejected+2 manual. Strict body-free
+metadata is130971bytes; payload3184935257bytes; actual counted disk8316166237bytes
+within12GB. Receipt elapsed1417641ms includes original generation and intervening
+recovery, not a refunded clock. Original workload peak5229404160bytes and unknown
+original controller peak remain separate from fresh current-exec observations.
+
+Canonical filtering verification passed. Canonical cache wrapper exposed two
+pure integration faults before any new workload: its retained mode664 needs an
+explicit Bash invocation; dispatch chose a lone publish-tree module whose sibling
+imports were missing. Root approved the minimal correction: resolve the filter
+module relative to the executing complete cache module via newURL/import.meta.url
+and retain the128MiB childheap. This works identically for complete maintained
+script overlays and canonical scripts; do not import an incomplete publish tree.
+The actual dispatched-path regression and all31focused Node tests pass. Refresh
+only dispatcher/test/Bash command context and current publication inventory;
+preserve old candidates, failed attempts and all accepted corpus/Rust/source/spec/
+binary/image evidence. No repeated filtering, rebuild or English review follows.
+
+Both canonical filtering verify and Bash cache publish-generated selectors now
+pass against the same unchanged immutable cache identity and accepted receipt.
+The idempotent cache call performs only eligible-output/cache replay, not another
+transform or publication copy. Completion3 retains original phase start, elapsed
+1924212ms<7200s and counted disk8316201422bytes<12GB; original admitted receipt
+remains byte-identical5312B/SHAab2d710a407b8504c753b8b1e210f43a531ed47303a6e1c99ac8f41ac7daaa83.
+Scoped checks parse all88builds, prove503other steps unchanged, exact21ownedpaths,
+18product inventory members and unchanged125registry packages. Checkpoint03
+succeeded/prerequisite completed and commit only its21paths; no Chapter43 claim
+until that dedicated prerequisite commit is verified. English/Russian content,
+held repairs and downstream experiment/dedup gates remain unchanged.

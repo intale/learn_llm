@@ -284,6 +284,71 @@ pub struct FileSource {
     layout: FileLayout,
 }
 
+/// Run-owned provisional output, never a published cache entry. This reuses the
+/// existing anchored adapter and explicit ID mapping while hashes are unknown.
+/// Only the normal verified FileStore publication can later admit these bytes.
+pub struct ProvisionalOutput {
+    directory: Directory,
+    layout: FileLayout,
+    created: BTreeSet<String>,
+}
+
+impl ProvisionalOutput {
+    pub fn new(root: &Path, layout: FileLayout) -> Result<Self, AcquisitionError> {
+        layout.validate()?;
+        let directory = Directory::open(root)?;
+        directory.inventory(&BTreeSet::new(), None)?;
+        Ok(Self {
+            directory,
+            layout,
+            created: BTreeSet::new(),
+        })
+    }
+
+    pub fn create_payload(&mut self, id: &str) -> Result<File, AcquisitionError> {
+        let path = self
+            .layout
+            .payload_paths
+            .get(id)
+            .ok_or(AcquisitionError::Inventory)?;
+        if !self.created.insert(id.into()) {
+            return Err(AcquisitionError::Inventory);
+        }
+        self.directory.mapped_file(path, true)
+    }
+
+    pub fn finish_manifest(
+        &self,
+        manifest: &DatasetArtifactManifestV2,
+    ) -> Result<(), AcquisitionError> {
+        let ids: BTreeSet<_> = manifest.payload.iter().map(|p| p.id.clone()).collect();
+        if ids != self.created || ids != self.layout.payload_paths.keys().cloned().collect() {
+            return Err(AcquisitionError::Incomplete);
+        }
+        self.directory
+            .inventory(&self.layout.payload_paths.values().cloned().collect(), None)?;
+        for expected in &manifest.payload {
+            let path = self
+                .layout
+                .payload_paths
+                .get(&expected.id)
+                .ok_or(AcquisitionError::Inventory)?;
+            verify_payload(
+                expected,
+                &mut StableFileReader::new(self.directory.mapped_file(path, false)?)?,
+            )?;
+        }
+        let mut metadata = self
+            .directory
+            .mapped_file(&self.layout.manifest_path, true)?;
+        metadata
+            .write_all(&canonical_manifest_bytes(manifest)?)
+            .map_err(|_| AcquisitionError::Io)?;
+        metadata.sync_all().map_err(|_| AcquisitionError::Io)?;
+        self.directory.sync_tree()
+    }
+}
+
 /// Single-call Read delegation plus before/after file-identity checks; no retry
 /// loop or transport logic. IO failures use the standard reader error boundary.
 pub struct StableFileReader {

@@ -8,6 +8,7 @@
   "targets": {
     "artifact-cache-v2": {"step_id":"refactor-ch41-content-only-boundary","modes":["self-test"],"validator":"rust-dataset-v2","policy_kind":"synthetic-offline-fixture"},
     "acquire-functional-tinystories-raw-pair-v2": {"step_id":"acquire-functional-tinystories-raw-pair","modes":["publish","verify","replay"],"validator":"rust-dataset-v2","policy_kind":"production-source-policy","asset_config":"configs/functional-corpus-assets.json","asset_id":"tinystories-raw-pair","production_binding":"artifacts/functional-laptop/acquisition/tinystories/content-v2-production-binding.json"},
-    "execute-functional-corpus-filtering-v1": {"step_id":"execute-functional-corpus-filtering","modes":[],"validator":"unavailable-until-ch42-publication","policy_kind":"unadmitted"}
+    "execute-functional-corpus-filtering-v1": {"step_id":"execute-functional-corpus-filtering","modes":["run","verify"],"validator":"rust-filter-generated-v1","policy_kind":"production-source-policy","phase_spec":"configs/functional-data-pipeline/corpus-filter-v1.json","input_receipt":"artifacts/functional-laptop/acquisition/tinystories/receipt.json","raw_target":"acquire-functional-tinystories-raw-pair-v2"},
+    "corpus-filtering-v1": {"step_id":"execute-functional-corpus-filtering","modes":["publish-generated"],"validator":"rust-filter-generated-v1","policy_kind":"production-source-policy","phase_spec":"configs/functional-data-pipeline/corpus-filter-v1.json","input_receipt":"artifacts/functional-laptop/acquisition/tinystories/receipt.json","raw_target":"acquire-functional-tinystories-raw-pair-v2"}
   }
 }

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "step_id": "execute-functional-corpus-filtering",
+  "target_id": "execute-functional-corpus-filtering-v1",
+  "input_artifact_id": "7bc3b05101f0427e52c596e34c28f13f60f64bb0b114509d1df27038f570e940",
+  "input_receipt_sha256": "354187f4087ab683302cb20316d3c70a23ddcb1dc875a26df408773eff6f020b",
+  "evidence_kind": "production-source-policy",
+  "filter_policy": {
+    "ascii_letter_minimum": "8",
+    "ascii_share_denominator": "2",
+    "ascii_share_numerator": "1",
+    "framing": {
+      "delimiter": "<|endoftext|>",
+      "eof": "close-nonempty-final-payload",
+      "max_payload_bytes": "65536",
+      "version": "end-of-input-delimited-v2"
+    },
+    "manual_markers": ["@", "contact="],
+    "minimum_normalized_bytes": "16",
+    "normalization": "crlf-then-ascii-edge-trim-v1",
+    "secret_markers": ["-----BEGIN PRIVATE KEY-----", "api_key=", "demo-key=CANARY", "password="],
+    "stages": ["raw-size", "utf8", "min-length", "ascii-letters", "secret-marker", "manual-marker", "ascii-share-review"],
+    "version": "ordered-first-terminal-v1"
+  },
+  "output_layout": {
+    "manifest_path": "metadata/descriptor.json",
+    "payload_paths": {
+      "attribution": "provenance/ATTRIBUTION.txt",
+      "findings": "data/findings.jsonl",
+      "license": "provenance/LICENSE.txt",
+      "receipt": "metadata/filter-receipt.json",
+      "retained": "data/retained.jsonl"
+    }
+  },
+  "resources": {
+    "wall_seconds_max": 7200,
+    "host_bytes_max": 8589934592,
+    "disk_bytes_max": 12000000000,
+    "generated_payload_bytes_max": 4750000000,
+    "retained_bytes_max": 4645127864,
+    "metadata_bytes_exclusive": 104857600,
+    "new_download_authority_bytes": 0
+  },
+  "restart_policy": "fresh-private-output-no-resumable-append-v1",
+  "retention_policy": "retained-only-manual-review-is-ineligible-v1",
+  "count_kind": "utf8-byte-base-v1",
+  "sample_references_per_source_reason": 32
+}

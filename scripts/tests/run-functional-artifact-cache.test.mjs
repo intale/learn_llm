@@ -18,6 +18,13 @@ test('closed public command refuses arbitrary source and ignored option',()=>{
  for(const args of [['build-tools','--run-id','20261006T000000Z-example-01','--input','/ignored'],['acquire','--run-id','20261006T000000Z-example-01','--url','https://example.invalid'],['--help','--input','/ignored']])assert.throws(()=>parseCacheArguments(args));
  assert.equal(parseCacheArguments(['build-tools','--run-id','20261006T000000Z-example-01']).mode,'build-tools');
 });
+test('generated publication has a closed producer-bound command rather than arbitrary candidate input',()=>{
+ const base=['publish-generated','--run-id','20261007T000000Z-filter-01','--step','execute-functional-corpus-filtering','--target','corpus-filtering-v1'];
+ assert.equal(parseCacheArguments(base).mode,'publish-generated');
+ for(const extra of [['--input','/candidate'],['--receipt','/self-declared'],['--url','https://example.invalid']])assert.throws(()=>parseCacheArguments([...base,...extra]));
+ const code=readFileSync(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url),'utf8');
+ assert.ok(code.includes("filtering?['--release','--bins']"));assert.ok(code.includes("cargo_profile:profile,build_argv:args"));
+});
 test('runtime evidence binds actual workflow image and offline boundary',()=>{const image='sha256:'+'f'.repeat(64);assert.equal(validateRuntimeBinding({image_id:image,network:'none',cargo_locked:true},image),true);for(const record of [{image_id:'sha256:'+'a'.repeat(64),network:'none',cargo_locked:true},{image_id:image,network:'bridge',cargo_locked:true}])assert.throws(()=>validateRuntimeBinding(record,image));});
 const roots={runRoot:'/run-owned',inputRoot:'/candidate',cacheRoot:'/cache-owned',digest,policyKind:'production-source-policy',targetKind:'raw-pair'};
 test('acquisition build authority has no runtime network or cache mount',()=>{const p=runtimeMountPlan('acquire',roots);assert.equal(p.network,'none');assert.equal(p.buildNetworkEnabled,true);assert.equal(p.cacheMounted,false);});
@@ -65,4 +72,10 @@ test('actual cache caller refuses missing or mismatched runtime before any conta
 });
 test('actual cache caller refuses persistent post-compilation tag drift without an accepted tool receipt',()=>{
  const fixture=cacheFixture({drift:true}),result=invokeCache(fixture,['--runtime-image',reference,'--expected-image-id',image]);assert.equal(result.status,2);assert.ok(existsSync(join(fixture.run,'rust-target/debug/functional-artifact-cache')));assert.equal(existsSync(join(fixture.run,'tool-build-receipt-v2-1.json')),false);
+});
+test('actual generated-cache dispatch uses its complete sibling module, not an incomplete staged module',()=>{
+ const fixture=cacheFixture(),staged=join(fixture.run,'publish/scripts/lib');mkdirSync(staged,{recursive:true});writeFileSync(join(staged,'run-functional-corpus-filtering.mjs'),"throw Error('INCOMPLETE_STAGE_SELECTED');\n");
+ const result=spawnSync(process.execPath,[fileURLToPath(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url)),'publish-generated','--run-id',runId,'--step','execute-functional-corpus-filtering','--target','corpus-filtering-v1'],{cwd:fixture.root,env:fixture.env,encoding:'utf8'});
+ assert.equal(result.status,2);assert.match(result.stderr,/Functional corpus filtering refused/);assert.doesNotMatch(result.stderr,/INCOMPLETE_STAGE_SELECTED|ERR_MODULE_NOT_FOUND/);assert.equal(existsSync(fixture.trace),false);
+ const source=readFileSync(new URL('../lib/run-functional-artifact-cache.mjs',import.meta.url),'utf8');assert.ok(source.includes("['--max-old-space-size=128',fileURLToPath(new URL('./run-functional-corpus-filtering.mjs',import.meta.url))"));
 });

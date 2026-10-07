@@ -3,7 +3,7 @@ import {readFileSync,writeFileSync,mkdirSync,existsSync,copyFileSync,cpSync,read
 import {resolve,join,dirname} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {pathToFileURL} from 'node:url';
+import {pathToFileURL,fileURLToPath} from 'node:url';
 import {parseArgs} from 'node:util';
 import {ownedPath,bridgeRequest,selectedPolicy,runtimeMountPlan,runtimeSelection,freezeRuntime,checkRuntimeUnchanged} from './functional-artifact-cache-boundary.mjs';
 import {createCacheFixture} from '../tests/fixtures/artifact-cache-fixture.mjs';
@@ -12,8 +12,8 @@ const sha=b=>createHash('sha256').update(b).digest('hex');
 const fail=()=>{throw Error('artifact cache boundary refused');};
 const parse=p=>JSON.parse(readFileSync(p,'utf8'));
 const save=(p,v)=>writeFileSync(p,JSON.stringify(v)+'\n',{flag:'wx',mode:0o600});
-function input(root,run,path){const staged=join(run,'publish',path);return existsSync(staged)?staged:join(root,path);}
-function sourceHash(root,run){
+export function input(root,run,path){const staged=join(run,'publish',path);return existsSync(staged)?staged:join(root,path);}
+export function sourceHash(root,run){
  const files=new Map();const visit=(base,path)=>{for(const f of readdirSync(join(base,path),{withFileTypes:true})){const p=join(path,f.name);if(f.isSymbolicLink())fail();if(f.isDirectory())visit(base,p);else if(f.isFile())files.set(p,sha(readFileSync(join(base,p))));else fail();}};
  for(const p of ['Cargo.toml','Cargo.lock'])files.set(p,sha(readFileSync(input(root,run,p))));
  visit(root,'rust');visit(root,'configs');for(const p of ['rust','configs'])if(existsSync(join(run,'publish',p)))visit(join(run,'publish'),p);
@@ -21,8 +21,8 @@ function sourceHash(root,run){
  return sha(JSON.stringify([...files].sort(([a],[b])=>Buffer.compare(Buffer.from(a),Buffer.from(b)))));
 }
 export function validateRuntimeBinding(receipt,image){if(receipt?.image_id!==image||receipt.network!=='none'||receipt.cargo_locked!==true)fail();return true;}
-function imageId(reference){const inspect=spawnSync('docker',['image','inspect','--format','{{.Id}}',reference],{encoding:'utf8',maxBuffer:65536});const id=inspect.stdout?.trim();if(inspect.status!==0||!/^sha256:[0-9a-f]{64}$/.test(id))fail();return id;}
-function image(config,opts){
+export function imageId(reference){const inspect=spawnSync('docker',['image','inspect','--format','{{.Id}}',reference],{encoding:'utf8',maxBuffer:65536});const id=inspect.stdout?.trim();if(inspect.status!==0||!/^sha256:[0-9a-f]{64}$/.test(id))fail();return id;}
+export function image(config,opts){
  if(config.runtime_tag!=='learn-llm-workspace:local')fail();const runtime=freezeRuntime(runtimeSelection(config.runtime_tag,{runtimeImage:opts['runtime-image'],expectedImageId:opts['expected-image-id']}),imageId),id=runtime.image_id;
  const check=spawnSync('docker',['run','--rm','--pull=never','--network','none','--read-only','--entrypoint','sh',id,'-c','rustc --version; node --version'],{encoding:'utf8',maxBuffer:65536});if(check.status!==0||!check.stdout.startsWith('rustc 1.93.1 ')||!check.stdout.trim().endsWith('v22.12.0'))fail();return runtime;
 }
@@ -32,11 +32,11 @@ export function parseCacheArguments(args){
  if(new Set(tokens.map(token=>token.name)).size!==tokens.length||Object.values(values).some(value=>!value))fail();Object.assign(p,values);
  const selection=runtimeSelection('learn-llm-workspace:local',{runtimeImage:p['runtime-image'],expectedImageId:p['expected-image-id']});
  if(!/^[0-9]{8}T[0-9]{6}Z-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p['run-id']??''))fail();
- const keys=mode==='build-tools'?['mode','run-id']:mode==='self-test'?['mode','run-id','step','target']:['publish','verify'].includes(mode)?['mode','run-id','step','target','input']:mode==='replay'?['mode','run-id','step','target','receipt']:[];
+ const keys=mode==='build-tools'?['mode','run-id']:['self-test','publish-generated'].includes(mode)?['mode','run-id','step','target']:['publish','verify'].includes(mode)?['mode','run-id','step','target','input']:mode==='replay'?['mode','run-id','step','target','receipt']:[];
  if(selection.selection==='explicit')keys.push('runtime-image','expected-image-id');
  if(Object.keys(p).sort().join()!==keys.sort().join())fail();return p;
 }
-export function buildTools(root,run,id,{runtime}={}){
+export function buildTools(root,run,id,{runtime,filtering=false}={}){
  if(!existsSync(join(run,'publish')))mkdirSync(join(run,'publish'),{mode:0o700});
  if(!existsSync(join(run,'cargo-cache'))){
   const cache=join(run,'cargo-cache');mkdirSync(cache,{mode:0o700});
@@ -44,19 +44,21 @@ export function buildTools(root,run,id,{runtime}={}){
  }
  if(!existsSync(join(run,'validation')))mkdirSync(join(run,'validation'),{mode:0o700});
  const attempt=readdirSync(join(run,'validation')).filter(name=>/^cache-tools-v2-[0-9]+$/.test(name)).length+1;
- const args=[run.split('/').at(-1),`cache-tools-v2-${attempt}`,id,'--','cargo','build','--locked','--offline','-p','functional-artifact-cache','--bin','functional-artifact-cache'];
+ const args=[run.split('/').at(-1),`cache-tools-v2-${attempt}`,id,'--','cargo','build','--locked','--offline','-p','functional-artifact-cache',...(filtering?['--release','--bins']:['--bin','functional-artifact-cache'])];
  const result=spawnSync(join(root,'scripts/run-functional-rust-overlay.sh'),args,{encoding:'utf8',maxBuffer:2097152});if(result.error||result.status!==0)fail();
- const binary=join(run,'rust-target/debug/functional-artifact-cache');
+ const profile=filtering?'release':'debug',binary=join(run,`rust-target/${profile}/functional-artifact-cache`);
  const runtimeIdentity=runtime?checkRuntimeUnchanged(runtime,imageId):null;
- const receipt={schema_version:2,image_id:id,source_tree_sha256:sourceHash(root,run),binary:{path:`tool-binary-v2-${attempt}`,sha256:sha(readFileSync(binary))},network:'none',cargo_locked:true,...(runtimeIdentity?{runtime_identity:runtimeIdentity}:{})};copyFileSync(binary,join(run,receipt.binary.path));save(join(run,`tool-build-receipt-v2-${attempt}.json`),receipt);return receipt;
+ const receipt={schema_version:2,image_id:id,source_tree_sha256:sourceHash(root,run),binary:{path:`tool-binary-v2-${attempt}`,sha256:sha(readFileSync(binary))},cargo_profile:profile,build_argv:args,network:'none',cargo_locked:true,...(runtimeIdentity?{runtime_identity:runtimeIdentity}:{})};copyFileSync(binary,join(run,receipt.binary.path));
+ if(filtering){const path=`filter-tool-binary-v1-${attempt}`,bytes=readFileSync(join(run,`rust-target/${profile}/llm-functional-corpus-filter`));writeFileSync(join(run,path),bytes,{flag:'wx',mode:0o755});receipt.filter_binary={path,sha256:sha(bytes)};}
+ save(join(run,`tool-build-receipt-v2-${attempt}.json`),receipt);return receipt;
 }
-function tool(root,run,id){const names=readdirSync(run).filter(name=>/^tool-build-receipt-v2-[0-9]+\.json$/.test(name)).sort((a,b)=>Number(a.match(/([0-9]+)\.json$/)[1])-Number(b.match(/([0-9]+)\.json$/)[1]));if(!names.length)fail();const receipt=parse(join(run,names.at(-1)));validateRuntimeBinding(receipt,id);if(receipt.schema_version!==2||receipt.source_tree_sha256!==sourceHash(root,run)||!/^tool-binary-v2-[0-9]+$/.test(receipt.binary.path))fail();const binary=ownedPath(join(run,receipt.binary.path),{root:run,directory:false});if(sha(readFileSync(binary))!==receipt.binary.sha256)fail();return {receipt,binary,receiptPath:join(run,names.at(-1))};}
+export function tool(root,run,id){const names=readdirSync(run).filter(name=>/^tool-build-receipt-v2-[0-9]+\.json$/.test(name)).sort((a,b)=>Number(a.match(/([0-9]+)\.json$/)[1])-Number(b.match(/([0-9]+)\.json$/)[1]));if(!names.length)fail();const receipt=parse(join(run,names.at(-1)));validateRuntimeBinding(receipt,id);if(receipt.schema_version!==2||receipt.source_tree_sha256!==sourceHash(root,run)||!/^tool-binary-v2-[0-9]+$/.test(receipt.binary.path))fail();const binary=ownedPath(join(run,receipt.binary.path),{root:run,directory:false});if(sha(readFileSync(binary))!==receipt.binary.sha256)fail();return {receipt,binary,receiptPath:join(run,names.at(-1))};}
 function bridge(root,run,id,request,mounts,policyPath,layoutPath,{expectSuccess=true}={}){
  const {receipt,binary}=tool(root,run,id),argv=['run','--rm','-i','--pull=never','--network','none','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--user','1000:1000','--memory','256m'];
  for(const mount of [{source:binary,target:'/tool',readOnly:true},{source:policyPath,target:'/policy/content-policy.json',readOnly:true},{source:layoutPath,target:'/layout/storage-layout.json',readOnly:true},...mounts]){if(mount.source.includes(',')||mount.target.includes(','))fail();argv.push('--mount',`type=bind,source=${mount.source},target=${mount.target}${mount.readOnly?',readonly':''}`);}
  const result=spawnSync('docker',[...argv,'--entrypoint','/tool',id],{input:JSON.stringify(request)+'\n',encoding:'utf8',maxBuffer:2097152});if(result.error||result.signal||(expectSuccess&&result.status!==0))fail();let output;try{output=JSON.parse(result.stdout);}catch{fail();}return {status:result.status,output,argv,tool_binary_sha256:receipt.binary.sha256};
 }
-function metadata(root,config){const inventory=parse(join(root,config.metadata_inventory));if(inventory.step_id!=='capture-functional-tinystories-source-metadata')fail();for(const f of inventory.files){const b=readFileSync(join(root,f.path));if(b.length!==f.bytes||sha(b)!==f.sha256)fail();}}
+export function metadata(root,config){const inventory=parse(join(root,config.metadata_inventory));if(inventory.step_id!=='capture-functional-tinystories-source-metadata')fail();for(const f of inventory.files){const b=readFileSync(join(root,f.path));if(b.length!==f.bytes||sha(b)!==f.sha256)fail();}}
 function selfTest(root,run,config,opts,id,runtime){
  const attempt=readdirSync(run).filter(name=>/^cache-self-test-v2-[0-9]+$/.test(name)).length+1;
  const directory=join(run,`cache-self-test-v2-${attempt}`);if(existsSync(directory))fail();mkdirSync(directory,{mode:0o700});
@@ -74,6 +76,7 @@ function selfTest(root,run,config,opts,id,runtime){
 }
 export function runCacheCommand(args,{root=process.cwd()}={}){
  const opts=parseCacheArguments(args);if(opts.mode==='--help'){console.log('Offline v2 cache: build-tools --run-id RUN; self-test --run-id RUN --step STEP --target TARGET; publish/verify add --input; replay adds --receipt. Optional paired --runtime-image REF --expected-image-id sha256:ID selects an existing local image; otherwise the public workspace default remains. Independently selected policy and explicit physical layout.');return 0;}
+ if(opts.mode==='publish-generated'){const result=spawnSync(process.execPath,['--max-old-space-size=128',fileURLToPath(new URL('./run-functional-corpus-filtering.mjs',import.meta.url)),...args],{cwd:root,stdio:'inherit'});return result.status??2;}
  const run=resolve(root,'.build/runs',opts['run-id']);ownedPath(run,{root:resolve(root,'.build/runs')});const config=parse(input(root,run,'configs/functional-artifact-cache-targets.json'));if(config.schema_version!==2)fail();const runtime=image(config,opts),id=runtime.image_id;if(opts.mode==='build-tools'){buildTools(root,run,id,{runtime});return 0;}
  const target=config.targets[opts.target];if(!target||target.step_id!==opts.step||!target.modes.includes(opts.mode)||target.validator!=='rust-dataset-v2')fail();metadata(root,config);if(opts.mode==='self-test'){selfTest(root,run,config,opts,id,runtime);return 0;}
  if(target.policy_kind!=='production-source-policy')fail();const envelope=parse(input(root,run,target.asset_config)),asset=envelope.assets?.[target.asset_id];if(envelope.schema_version!==2||envelope.default_asset!==target.asset_id||!asset)fail();
