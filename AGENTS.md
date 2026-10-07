@@ -21,6 +21,32 @@ Build a learning tool that teaches how the parts of modern large language models
    LLM in Rust.
 8. The tool should support localization. For now, it should support only Russian and English
 
+### NVIDIA prerequisite and external corpus preparation
+
+Completing the course's GPU-backed practical path requires a compatible NVIDIA
+GPU. CPU reference chapters and Rust loading of a prepared corpus remain usable
+on CPU. NeMo preparation requires a device and driver compatible with its pinned
+CUDA/RAPIDS stack. This requirement does not add CUDA to the course-owned Rust
+LLM backend or replace the existing exact laptop-profile acceptance conditions.
+
+NVIDIA NeMo Curator is a replaceable external corpus-preparation tool, not part
+of the LLM implementation students build. For the merged Chapter 41, Python and
+shell recipes may invoke its preparation pipeline, including tool-provided
+filtering and deduplication; the chapter's Rust code only loads the prepared
+corpus. Keep the prepared-corpus interchange tool-agnostic so another preparation
+tool can supply it later.
+
+This scoped exception supersedes the Rust-only examples and concept-implementing
+library restrictions for external corpus preparation only. It does not permit
+dependencies to implement taught tokenizer, tensor, autodiff, decoder, training
+or inference algorithms. All unrelated learning objectives and review gates
+remain in force.
+
+The prerequisite policy alone authorizes no GPU/cloud purchase, remote execution,
+downloads, installs or preparation run. Record unavailable GPU execution honestly;
+do not substitute an unrun workflow for measured evidence. Held repairs,
+Russian authoring for Chapters 41+, and routine screenshots remain excluded.
+
 ### Supported browser environment
 
 Interactive course UI is supported and browser-tested only in Firefox with

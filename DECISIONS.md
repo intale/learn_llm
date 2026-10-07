@@ -30467,3 +30467,127 @@ Scoped checks parse all88builds, prove503other steps unchanged, exact21ownedpath
 succeeded/prerequisite completed and commit only its21paths; no Chapter43 claim
 until that dedicated prerequisite commit is verified. English/Russian content,
 held repairs and downstream experiment/dedup gates remain unchanged.
+
+### 2026-10-07 — Chapter43 English/demo claim and unchanged production boundary
+
+After verified prerequisite commit3355f9d89a7156b5fac0637222748f2d12e7298c,
+claim only implement-ch43-deduplication-decontamination under the actual active
+build. Root approves22liveoutput boundaries/11inputs: English-only, chapter demo
+instead of cumulative examples/tests, four reusable owned core modules/fragment,
+necessary Cargo.lock and diagram trace TS. Preserve frozen plans and all prior
+runs. Repairs6/8–10, Russian41+, later real dedup/split and tokenizer remain held.
+No giant corpus rehash, download, image/package rebuild or full real dedup job.
+
+Live teaching is problem-first without prediction prompts. Freeze the current
+packet's matching view: lowercase ASCII letters, exactly whitespace0x09..0x0d
+and0x20, one-space token joins, no Unicode case folding or NFC/NFKC. Supersede the
+September15 Unicode-casefold planning wording explicitly; preserve it as history.
+Original retained text, raw source/span/occurrence identity, restrictions and
+complete excluded/alias lineage remain immutable. Root—not machinery—owns all
+shingle encoding/order/frequency/prefix/threshold/component/union/split meaning.
+
+The same accepted Chapters41–42 author-observation source method replaces absent
+historical source/offline/Firefox wrappers and extractor receipt in this live
+claim only. Root observed exact SRC-DTH-EVAL-04 NeurIPS2020 page/linked arXivv4
+section4/appendixC and SRC-DTH-DATA-03 ACL2022 page/linked paper on October7. Bind
+bounded observations/locators and limits; no raw HTTP/extractor execution or
+third-reference/corpus/model acquisition is claimed. Independent English roles
+must judge technical claims and local surface commitments, not host byte checks.
+
+Large C3/G0/N1 work has no agent-development elapsed stop or finite remaining
+budget. Inherit current selected model/effort without permanent pins; unavailable
+native names are not inferred. Existing image590b0c2f has GNU coreutils sort9.1,
+mktemp and timeout, Rust1.93.1/Node22.12.0. Mature sort supplies only opaque byte-
+key row ordering under LC_ALL=C. Reuse admitted serde/serde_json/sha2 plumbing,
+locked graph/features and existing validation/review/site adapters; no new
+framework or dependency admission. Product workload limits remain separate.
+
+Root owns staged core/demo and English teaching bytes. Machinery owns ledgers,
+inventory/validation and only demo src/scratch.rs incidental sort adapter after
+root's exact API. Gates follow frozen inputs serially, no overlapping writes.
+LinuxScratch uses five closed private tables, bounded TAB+compactJSON+LF rows,
+supplied cumulative row/disk/sorter limits, mature mktemp/sort and exact-owned
+cleanup. The course owns the bounded sorted-row parser and semantic decisions.
+Current512MiB /work supports tiny fixture scratch only; later real executor
+declares its own disk-backed scratch/envelope, not an implicit full-job permit.
+
+Root's later preflight specification keeps Corpus::read(RetainedInput...) on the
+existing RetainedSelection EOF/hash path; synthetic construction is explicitly
+non-production. Teaching IDs a/a-copy are not receipt IDs. Baseline nonempty
+synthetic protected inventory q-safe='w x y z' and separate contamination q='b c
+d e' are frozen: m2,t1/2 matches representatives a,b,c (b exact,a/c near,a-copy
+represented by alias), not only b. Production policy m5,t4/5/split seed
+course-split-v1 remains a future phase contract. No actual protected benchmark
+inventory or real-corpus contamination clearance is promised by this chapter.
+
+Root finalized the incidental scratch boundary before interruption: use existing
+DataError and five ScratchTable variants, begin/push/sorted trait. GNU sort is
+key-only byte lexical LC_ALL=C/stable/TAB field1, equal full course keys have no
+adapter semantic tie choice. Reserve FOUR times cumulative serialized writes
+before each push; default8MiB physical reservation permits2MiB logical rows.
+This is a conservative reservation, not a measured physical/RSS guarantee;
+sorter_buffer_bytes is a separate RAM hint and full jobs need enclosing caps.
+Core owns the bounded canonical sorted-row parser and all semantic decisions.
+
+The user then interrupted Chapter43 implementation to ask an informational
+question about ready-to-use corpus preparation libraries. No adoption, package
+install or scope change is authorized. No operation was active. Save six partial
+staged files (exact/near/decontamination modules, fragment, demoCargo, scratch.rs)
+with exact hashes in run01/interruption-checkpoint.json, set run interrupted and
+step pending, and stop. Grouped split/demo lib/main/tests/English surfaces and
+all compile/site/review/publication gates remain undone. No canonical teaching
+bytes or completed-step commit are published; only two agent ledgers are dirty.
+
+### 2026-10-07 — NVIDIA course prerequisite and scoped external preparation
+
+User authority: the merged Chapter41 replaces old Chapters41/42/43 with a problem
+explanation and practical NVIDIA NeMo Curator Python/shell corpus pipeline;
+its Rust code only loads prepared data. The user explicitly accepts a compatible
+NVIDIA GPU as a requirement for the course's GPU-backed practical path, notes
+that NeMo is replaceable external preparation tooling, and retains later GPU
+course work. Record only this policy now; chapter replacement and old44+ minus-two
+renumbering require their separately frozen migration step.
+
+Completing the GPU-backed path requires compatible NVIDIA hardware. CPU reference
+chapters and prepared-corpus Rust loading remain CPU-usable. NeMo's selected,
+pinned CUDA/RAPIDS stack constrains its device/driver; this does not add CUDA to
+the course-owned Rust LLM backend or supersede exact laptop-profile acceptance.
+Prepared-corpus interchange stays tool-agnostic. The external-preparation-only
+exception permits Python/shell and tool-provided filtering/deduplication in
+merged Chapter41, superseding Rust-only/concept-library requirements only there.
+It never transfers taught tokenizer/tensor/autodiff/decoder/training/inference
+algorithms to supporting libraries or weakens their review/evidence gates.
+
+Current-session read-only availability: nvidia-smi exists but could not communicate
+with the NVIDIA driver; /dev/nvidiactl, /dev/nvidia0 and /dev/dri/renderD128 are
+absent. Docker advertises an nvidia runtime, which is not working-passthrough
+proof. No NeMo workload or GPU computation was run. Host Python3.13.1 has no
+NeMo/cuDF/dask-cuDF/CuPy/Torch installed; container NeMo availability is not
+established. Preserve unavailable evidence rather than inventing acceptance.
+
+This small policy step owns exactly AGENTS.md, SKILLS.md, BUILD_STATE.yaml and
+DECISIONS.md. It authorizes no GPU/cloud purchase, remote execution, download,
+install, preparation job, screenshot, Russian41+ work or held repair. Preserve
+all earlier runs/reviews/cache bodies and the interrupted Chapter43 staging.
+Temporarily select the sole policy build, leave the idle extension pending without
+changing its steps/runs, and restore its prior active state after policy completion.
+The preserved pre-existing Chapter43 interruption ledger/decision edits remain
+history in the two owned ledgers, never a completed Chapter43 implementation.
+Root semantic inspection precedes bounded validation/completion and a dedicated
+record-nvidia-course-prerequisite-20261007 commit. No Rust, chapter, plan,
+renumbering, model/effort override, dependency or image change occurs here.
+
+Root inspected and approved the exact policy diff before completion. Bounded
+alias/duplicate-key-strict YAML and four-path scope checks passed; all88 original
+build projections (temporarily excluding the idle active selector),504 existing
+steps, frozen plan/compatibility bytes and six interrupted staging hashes were
+preserved. Restore the prior extension selector/status in the completion
+checkpoint, validate the restored state and commit only the four policy/ledger
+paths. No full product suite or learner-language review is required for this
+internal policy-only change; no migration step is selected before its scope freezes.
+
+Current execution handoff: the user's merged corpus-preparation task supersedes
+old Chapter43 implementation. Its preserved pending step/interrupted run are
+history, not permission to resume that obsolete scope. Require a new separately
+frozen migration claim before any chapter replacement or renumbering. This policy
+step changes none of the old Chapter43 step/run fields or staged teaching bytes.

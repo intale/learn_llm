@@ -51,6 +51,27 @@ cannot fit one agent context. Record the split in `curriculum/course-plan.md`,
 `BUILD_STATE.yaml`, and `DECISIONS.md` before work begins. Keep core and
 publication steps consecutive and never expose a partial chapter route.
 
+## Course hardware and external corpus preparation
+
+The GPU-backed practical path requires a compatible NVIDIA GPU; CPU reference
+chapters and Rust prepared-corpus loading remain CPU-usable. NeMo's pinned
+CUDA/RAPIDS stack determines its device/driver compatibility, not a new CUDA
+backend for the course-owned Rust LLM or a replacement for exact laptop-profile
+acceptance.
+
+For merged Chapter 41, NeMo Curator is a replaceable external preparation tool.
+Its Python/shell workflow may supply filtering and deduplication; Rust only loads
+the resulting corpus through a tool-agnostic prepared-corpus interchange. This
+external-preparation-only exception overrides the ordinary Rust-only examples,
+course-owned preparation algorithms and concept-library restrictions below. It
+does not extend to taught tokenizer, tensor, autodiff, decoder, training or
+inference algorithms, or weaken their evidence and review gates.
+
+This policy is not execution or provisioning authority: no GPU/cloud purchase,
+remote execution, download, install or preparation run is implied. Report actual
+GPU availability without claiming unrun practical results. Repairs remain held,
+Chapters 41+ remain English-first, and no routine screenshot gate is added.
+
 ## Sources of truth and ownership
 
 Read these before changing chapter files:

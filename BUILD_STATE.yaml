@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-10-07T07:50:18Z"
+updated_at: "2026-10-07T08:48:55Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -48152,24 +48152,21 @@ builds:
           - "capabilities=CAP-DTH-DATA-04"
           - "exact predecessor checkpoint=execute-functional-corpus-filtering"
           - "filtered-corpus-v1 cache receipt mounted read-only"
-          - "artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
+          - "Exact SRC-DTH-EVAL-04/SRC-DTH-DATA-03 official-page/paper author observations with bibliographic/claim/limit locators under the accepted Chapters41–42 method; absent historical extractor/toolchain runner is not a live prerequisite or an executed claim."
         outputs:
           - "curriculum/chapters/43-deduplication-decontamination.md"
           - "rust/crates/llm-from-scratch/module-registry/functional-v1/ch43-deduplication-decontamination.module"
-          - "rust/crates/llm-from-scratch/tests/ch43_deduplication_decontamination.rs"
-          - "rust/crates/llm-from-scratch/examples/ch43_deduplication_decontamination.rs"
-          - "rust/crates/llm-from-scratch/examples/expected/ch43_deduplication_decontamination.txt"
           - "rust/crates/llm-from-scratch/src/data/exact_dedup.rs"
           - "rust/crates/llm-from-scratch/src/data/near_dedup.rs"
           - "rust/crates/llm-from-scratch/src/data/decontamination.rs"
           - "rust/crates/llm-from-scratch/src/data/grouped_split.rs"
+          - "rust/demos/ch43-deduplication-decontamination/"
+          - "Cargo.lock"
           - "site/src/content/chapters/en/43-deduplication-decontamination.mdx"
-          - "site/src/content/chapters/ru/43-deduplication-decontamination.mdx"
           - "site/src/i18n/functional-catalogs/en/43-deduplication-decontamination.json"
-          - "site/src/i18n/functional-catalogs/ru/43-deduplication-decontamination.json"
           - "site/src/content/cheat-sheets/en/43-deduplication-decontamination.json"
-          - "site/src/content/cheat-sheets/ru/43-deduplication-decontamination.json"
           - "site/src/components/chapters/DeduplicationDecontaminationDiagram.astro"
+          - "site/src/lib/deduplication-decontamination-diagram.ts"
           - "site/tests/43-deduplication-decontamination-diagram.test.ts"
           - "site/tests/43-deduplication-decontamination.test.ts"
           - "site/tests/e2e/ch43-deduplication-decontamination.spec.ts"
@@ -48182,23 +48179,54 @@ builds:
         acceptance:
           - "Deduplicate and decontaminate train/evaluation data with exact identity, threshold, split and leakage receipts."
           - "The exact chapter boundary owns CAP-DTH-DATA-04 and proves its executable gates without transferring fixture, laptop, or production claims beyond measured evidence."
-          - "Course-owned cumulative Rust, historical contrast, notation-only formula, predict-first worked example and practice, misconception, integration evidence, and a useful shared-contract figure or reviewed concrete not-useful rationale agree."
+          - "Reusable algorithms remain course-owned functional::data modules with direct tests; chapter fixtures/report/practice/tests belong to rust/demos/ch43-deduplication-decontamination. Legacy reference Rust and exact registry ownership remain unchanged."
+          - "English teaches problem definition, solution/formulas, history, useful shared-contract diagram and optional runnable practice without prediction prompts. Actual bounded Rust stdout/trace, complete components/alias lineage, exact threshold and protected-refusal evidence agree; no full real dedup/split or trained-model quality/contamination clearance is claimed."
+          - "Matching view freezes lowercase ASCII letters and exactly whitespace0x09..0x0d/0x20 with one-space token joins; no Unicode case folding/NFC/NFKC or changed retained text. Exact hash aliases require byte confirmation; root course Rust owns shingle encoding/order/frequency/prefix/threshold/union/component/protected/split decisions. GNU sort handles opaque bounded transport only."
           - "Canonical English evidence, commitment map, complete-document and reading-order inventory, isolated-role requirements, exact source and built bytes are frozen; one distinct author, two fresh role reviewers and two further fresh same-role adjudicators use five pairwise-distinct contexts using the user-selected model, canonical prompts, untouched raw responses and deterministic receipts; both reviews and both adjudications pass."
-          - "Russian is translated directly from that exact independently reviewed English revision and passes a fresh bilingual semantic/terminology/accessibility review plus a distinct source-blind Russian-only naturalness/anti-calque/accessibility review."
-          - "The staged EN/RU pair, contract, Rust evidence, static crawler HTML and sole Firefox project pass desktop, narrow, full-view when useful, forced-colors and applicable direction/containment gates before one atomic publication."
+          - "Russian41+ authoring/review/publication is deferred under the user override; no Russian stubs or translation approval pause."
+          - "The staged English chapter, contract, actual Rust evidence, static crawler HTML and sole Firefox project pass desktop, narrow, full-view, forced-colors and applicable direction/containment assertions before coherent publication; no routine screenshots or image review."
           - "No supporting dependency performs a taught operation; no out-of-scope model family, non-text prepared-input producer, second encoder/decoder, public modality abstraction, hard-coded scale ceiling, hidden backend fallback, fixture-only generalization claim, unbounded resource use, or mutable artifact identity is introduced."
-          - "Resolve exactly the chapter's frozen earlier/later accepted source IDs through the closed N1 evidence runner; bind revision/final URL/response and extraction hashes, claim locator and review receipts without search, crawl, third source or fallback citation."
-          - "The canonical history receipt embeds the complete bounded transport and extraction subrecord for each exact historical source, binds artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json, and remains auditable on a fresh clone without any .build cache body."
+          - "For exactly SRC-DTH-EVAL-04/SRC-DTH-DATA-03, bind bounded author-recorded observations of the two frozen official publication pages and linked paper revisions, claim/limit locators and independent review commitments using the accepted Chapters41–42 method. No raw HTTP/download/extractor receipt or absent historical wrapper execution is claimed; no third source or fallback."
+          - "Canonical history receipt binds exact contract and durable bounded author observations by SHA256, auditable without .build. Frozen plans retain absent closed-runner requirements as history, explicitly reconciled only in the live step."
         validate:
-          - "scripts/run-functional-history-source-evidence.sh --step implement-ch43-deduplication-decontamination --chapter 43-deduplication-decontamination --runtime-receipt artifacts/functional-laptop/execution-boundaries/offline-workspace/history-source-extractor-toolchain-receipt.json"
-          - "scripts/run-functional-offline.sh --step implement-ch43-deduplication-decontamination --target implement-ch43-deduplication-decontamination-v1"
-          - "scripts/run-functional-firefox.sh test --step implement-ch43-deduplication-decontamination --target chapter-43-deduplication-decontamination-v1"
+          - "bash scripts/run-functional-rust-overlay.sh 20261007T075904Z-implement-ch43-deduplication-decontamination-01 ch43-shared-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --offline --locked -p llm-from-scratch functional::data::"
+          - "bash scripts/run-functional-rust-overlay.sh 20261007T075904Z-implement-ch43-deduplication-decontamination-01 ch43-demo-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo test --offline --locked -p ch43-deduplication-decontamination"
+          - "bash scripts/run-functional-rust-overlay.sh 20261007T075904Z-implement-ch43-deduplication-decontamination-01 ch43-stdout-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo run --offline --locked -p ch43-deduplication-decontamination"
+          - "bash scripts/run-functional-rust-overlay.sh 20261007T075904Z-implement-ch43-deduplication-decontamination-01 ch43-clippy-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo clippy --offline --locked -p llm-from-scratch -p ch43-deduplication-decontamination --all-targets -- -D warnings"
+          - "bash scripts/run-functional-rust-overlay.sh 20261007T075904Z-implement-ch43-deduplication-decontamination-01 ch43-format-01 sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758 -- cargo fmt --all -- --check"
+          - "Reuse verified existing site/private-build pattern under a fresh run-owned adapter: scoped43 contract/content/parity/ownership/Vitest/type/staticbuild/links and sole Firefox43project/workers1; exact commands/inputs frozen before execution."
+          - "Current maintained exact-byte English prepare/routing/review/adjudication/seal/verify plus final publication inventory/receipt checks; five pairwise-distinct inherited contexts, no self-certification."
+          - "Verify exactly SRC-DTH-EVAL-04/SRC-DTH-DATA-03 author-observation/contract/source-record hashes and locators, no transport or absent historical runner invocation"
           - "git diff --check"
-          - "./course audit-host"
+          - "Full YAML/owned-output/inventory/held-step checks; preserve known historical audit-host failure, do not claim a fresh whole-host pass"
         cost:
           class: "large"
-          notes: "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=8;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;learner_content_wall_seconds_aggregate_max=28800;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144;visual_diagnostics_wall_seconds_max=900"
-        runs: []
+          notes: "cpu=C3;gpu=G0;network=N1;paid=none;source_evidence_download_bytes_max=134217728;new_artifact_download_authority_bytes=0;learner_content_contexts_successful_exact=5;learner_content_context_attempts_max=16;learner_content_model_policy=user-selected-model;learner_content_input_bytes_per_context_max=2097152;learner_content_input_tokens_per_context_max=200000;learner_content_output_bytes_per_context_max=1048576;learner_content_output_tokens_per_context_max=40000;learner_content_input_bytes_aggregate_max=33554432;learner_content_output_bytes_aggregate_max=16777216;agent_development_elapsed_limit=none;routine_image_review=excluded;visual_diagnostics_trigger=human-report;visual_diagnostics_contexts_max=1;visual_diagnostics_model_policy=user-selected-model;visual_diagnostics_input_bytes_max=16777216;visual_diagnostics_output_bytes_max=262144"
+        runs:
+          - run_id: "20261007T075904Z-implement-ch43-deduplication-decontamination-01"
+            started_at: "2026-10-07T07:59:04Z"
+            finished_at: "2026-10-07T08:13:28Z"
+            status: "interrupted"
+            input_fingerprint:
+              commit: "3355f9d89a7156b5fac0637222748f2d12e7298c"
+              material_record: ".build/runs/20261007T075904Z-implement-ch43-deduplication-decontamination-01/input-fingerprint.json"
+              material_record_sha256: "8a1e3e4bbfc79636c87543963fd4b1c2c4edd039bab12b2c168db22989f2fdd7"
+              runtime_image_id: "sha256:590b0c2f3286e171a7a245a10bf196b78804203ee2296edb46fea64e57224758"
+              routing: "Inherited selected model/effort without overrides; native configured names unavailable here, not inferred or permanently pinned."
+            staging_dir: ".build/runs/20261007T075904Z-implement-ch43-deduplication-decontamination-01/"
+            commands:
+              - "Read-only git status/completeYAML/42material hashes/exact committed filtered receipt+cache manifest; no giant body rehash, no whole workspace reconstruction. GNU sort9.1/mktemp/timeout and Rust1.93.1/Node22.12 confirmed in existing network-none image."
+              - "Root staged three owned core modules, fragment and demoCargo; machinery staged only scratch.rs with root-approved API/fourfold disk reservation/key-only mature sort. No compilation/lock generation/cache provisioning/site/review/publication gate started."
+              - "User interrupted for informational corpus-library question; no active operation, capture six exact staged files in interruption-checkpoint.json, set run interrupted/step pending and stop. No library adoption/install/scope change."
+            artifacts:
+              - {path: ".build/runs/20261007T075904Z-implement-ch43-deduplication-decontamination-01/preflight.md", bytes: 6512, sha256: "2af0f3ab25aa72b55e9d4e31e2535cba415649bc661491ecc3dce6b6475a7be8"}
+              - {path: ".build/runs/20261007T075904Z-implement-ch43-deduplication-decontamination-01/input-fingerprint.json", bytes: 33187, sha256: "8a1e3e4bbfc79636c87543963fd4b1c2c4edd039bab12b2c168db22989f2fdd7"}
+              - {path: ".build/runs/20261007T075904Z-implement-ch43-deduplication-decontamination-01/root-primary-source-observations.json", bytes: 1573, sha256: "0d2d3b84a825056a045e0d036599813af00901f3b5c8fcc90f3161ccf10219df"}
+              - {path: ".build/runs/20261007T075904Z-implement-ch43-deduplication-decontamination-01/interruption-checkpoint.json", bytes: 1520, sha256: "17d0a0ef5e282ccb159028b9eee90c4e8219ff9645abad1f8e890891fb1a3cec"}
+            validation:
+              - "Preclaim complete YAML selected actual implementation record/prerequisite;42bounded current material fingerprints, real filtered receipt/cache-manifest identity verified, sort availability confirmed. No content/runtime/review acceptance claimed."
+              - "Interruption checksum captures six partial staged files. No Rust/site/review gate ran; grouped_split, demo lib/main/tests and English content are not yet written. No canonical teaching publication or completed-step commit."
+            notes: "User-interrupted informational detour, not an implementation/resource failure. Preserve exact six staged sources and preflight/source observations; no operation active. Step pending/run interrupted; next implementation needs explicit continuation/recovery with verified provenance, no library adoption inferred. Held repairs/Russian/later full dedup untouched, canonical tree dirty only two agent ledgers."
 
       - id: execute-functional-corpus-dedup-split
         objective: "Execute full deduplication, decontamination and frozen train/validation/test splitting over the filtered corpus and publish its immutable bundle."
@@ -59210,3 +59238,85 @@ builds:
               - command: "git diff --check; alias-free PyYAML parse; targeted duplicate-key check for promotion/policy run records"
                 status: passed
             notes: "Corrective run binds exact repository commit 35fe996f482028c252aa3edd719650b6acd5e8bb and current policy/helper documentation. The earlier failed run's incorrect claim is preserved; duplicate empty artifacts placeholder was removed while all populated artifact records were retained. Original run04 helper/tests remain unchanged."
+
+  - build_id: record-nvidia-course-prerequisite-20261007
+    objective: "Record the compatible NVIDIA GPU prerequisite and the scoped external corpus-preparation exception without implementing or renumbering chapters."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "Small internal policy maintenance; no development elapsed-time stop, network, dependency provisioning, product execution, purchase or paid service."
+    completion_criteria:
+      - "AGENTS.md and SKILLS.md state the root-frozen user-authorized NVIDIA/course-preparation commitments with compatible scope."
+      - "Exactly four canonical policy/ledger paths change; all existing step/run records, held repairs, chapters, Rust, plans, reviews and corpus bodies remain unchanged."
+      - "The policy step passes bounded validation, receives root semantic inspection, is checkpointed and committed independently before migration."
+    steps:
+      - id: record-nvidia-course-prerequisite-20261007
+        objective: "Persist the NVIDIA practical-path prerequisite, replaceable NeMo tool role and narrowly scoped external-preparation exception."
+        depends_on: ["execute-functional-corpus-filtering"]
+        status: completed
+        inputs:
+          - "User explicitly approves a compatible NVIDIA GPU as a course requirement; CPU reference chapters and prepared-corpus Rust loading remain CPU-usable."
+          - "Root-frozen policy: external NeMo Python/shell preparation may provide filtering/deduplication; tool-agnostic prepared corpus; Rust only loads it; no exception for tokenizer/tensor/autodiff/decoder/training/inference."
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml and DECISIONS.md, including the preserved interrupted Chapter43 checkpoint"
+          - "Current-session read-only NVIDIA availability observation; no working GPU passthrough established"
+        outputs: ["AGENTS.md", "SKILLS.md", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "Compatible NVIDIA GPU is required for the GPU-backed practical course path, not every CPU chapter or prepared-corpus loader. NeMo device/driver must support its pinned CUDA/RAPIDS stack."
+          - "NeMo remains a replaceable external preparation tool with a scoped Python/shell and concept-library exception for merged Chapter41 corpus preparation only; prepared-corpus interchange remains tool-agnostic."
+          - "The policy neither adds CUDA to course Rust nor alters exact laptop-profile acceptance; course-owned tokenizer/tensor/autodiff/decoder/training/inference requirements remain."
+          - "No GPU/cloud purchase, remote execution, downloads, installs, preparation run, screenshots, Russian41+ work or held repair is authorized or performed by this step."
+          - "Existing historical records and interrupted staging remain unchanged; complete YAML, exact scope/hash/held-step checks and diff check pass before the dedicated commit."
+        validate:
+          - "python3 .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/validate-policy.py --phase running"
+          - "python3 .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/validate-policy.py --phase completed"
+          - "git diff --check"
+          - "git show --format= --name-only HEAD; git status --short"
+        cost: "small; local internal policy/ledger edits and read-only validation only; no network, paid service, install, image build or product workload"
+        runs:
+          - run_id: 20261007T084243Z-record-nvidia-course-prerequisite-01
+            started_at: "2026-10-07T08:42:43Z"
+            finished_at: "2026-10-07T08:48:55Z"
+            status: succeeded
+            input_fingerprint:
+              commit: 3355f9d89a7156b5fac0637222748f2d12e7298c
+              record: .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/input-fingerprint.json
+              record_sha256: e541abc98a44317a072a1b95e0ef8152976e8f100a80a985a4f3c52d14c10b44
+              routing: "Separate machinery context inheriting user-selected model and effort; native configured names unavailable, not inferred."
+            staging_dir: .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/
+            commands:
+              - "Read-only startup: git status; complete YAML parse/traversal of88builds/504steps; unchanged AGENTS/SKILLS hashes; latest decisions and interrupted staging. No running step."
+              - "Preserve current dirty ledgers and all original build projections; select the sole policy build temporarily, return the idle extension to active after policy completion."
+              - "Add only scoped NVIDIA/external-preparation sections and durable decision; root semantic inspection explicitly approved before completion/commit."
+              - "python3 .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/validate-policy.py --phase running; git diff --check"
+              - "python3 .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/validate-policy.py --phase completed; verify every recorded artifact SHA/size; exact Git staged-scope checks"
+            artifacts:
+              - path: .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/input-fingerprint.json
+                bytes: 19559
+                sha256: e541abc98a44317a072a1b95e0ef8152976e8f100a80a985a4f3c52d14c10b44
+              - path: .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/preflight.md
+                bytes: 2197
+                sha256: 5efd66d1190b5f8a484ff3dfac5e1c0290d062731917d01ed5342ae22f8fbf9c
+              - path: .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/validate-policy.py
+                bytes: 5238
+                sha256: e7152d105b01064e21b95c0eabd712f5e552ee3ca91bc30712f0534960241a6b
+              - path: .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/running-validation.json
+                bytes: 341
+                sha256: 4c549f9b85d6d0c1e45fb1d13c1ac4334a3b961f2f47f9cbcb8386d61862a230
+              - path: .build/runs/20261007T084243Z-record-nvidia-course-prerequisite-01/completed-validation.json
+                bytes: 343
+                sha256: 618c1e3ad6125d32934f614f23d457bae18d0f2cce807e0d6df34144676c2f4f
+              - path: AGENTS.md
+                bytes: 44063
+                sha256: 922c7ea9e43bba90c089bd3694aa0869f4723f9360a2934cfba7df5c729fe430
+              - path: SKILLS.md
+                bytes: 47938
+                sha256: 7bf9bf0cfcc3c21fbaa5414454a4fcd3a4a32fb725f0b4fc9663a8b8f6f1396f
+            validation:
+              - "Root semantic inspection approved the exact policy diff: NVIDIA scoped to GPU-backed path, CPU usable, Rust backend unchanged, NeMo replaceable/external-only and no invented execution authority/evidence. This is internal policy inspection, not learner English publication review."
+              - "Running bounded validator and git diff --check PASS: duplicate-key/alias-strict full YAML, exact four canonical paths, all88existingbuilds/504steps preserved except temporary active selector, unchanged plan/compatibility and six interruption-stage hashes."
+              - "Completed/restored-state validator PASS: all88originalbuilds/504steps now byte-projection-identical to preclaim, sole active extension restored, zero running steps, exact four paths, unchanged plan/compatibility and all six interrupted staging files. Original Chapter43 pending scope is explicitly superseded, not resumed."
+            notes: "Policy accepted and checkpointed only after root inspection and bounded gates. Original extension active selector/status restored; every original step/run unchanged. Old pending Chapter43 scope is superseded by the merged corpus task and must not resume; require a new frozen migration claim. Restored-state validation passed; dedicated four-path commit follows. No content/plan/Rust migration, provisioning, GPU/NeMo run, Russian or repair work."
